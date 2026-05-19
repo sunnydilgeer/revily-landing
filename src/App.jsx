@@ -868,10 +868,21 @@ function Pricing({ display, mono }) {
                 </div>
                 <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
                 <button
-                  onClick={() => {
-                    track(plan.ctaEvent, { plan: plan.name, price: plan.price });
-                    document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
-                  }}
+                 onClick={() => {
+                  track(plan.ctaEvent, { plan: plan.name, price: plan.price });
+                
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("plan", plan.name);
+                  params.set("price", plan.price);
+                
+                  window.history.replaceState(
+                    {},
+                    "",
+                    `${window.location.pathname}?${params.toString()}`
+                  );
+                
+                  document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
+                }}
                   className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black"
                 >
                   {plan.cta}
@@ -919,10 +930,42 @@ function SignupForm({ display }) {
 
   const handleChange = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    track("signup_submit", form);
-    setSubmitted(true);
+  
+    const params = new URLSearchParams(window.location.search);
+    const selectedPlan = params.get("plan") || "";
+    const selectedPrice = params.get("price") || "";
+  
+    const payload = {
+      ...form,
+      selectedPlan,
+      selectedPrice,
+      submittedAt: new Date().toISOString(),
+      page: window.location.href,
+    };
+  
+    track("signup_submit", payload);
+  
+    try {
+      const response = await fetch("https://formspree.io/f/xojbjvaj", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Form submission failed");
+      }
+  
+      setSubmitted(true);
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
