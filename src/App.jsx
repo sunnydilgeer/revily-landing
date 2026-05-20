@@ -22,8 +22,7 @@ import {
 // Category: GCSE Maths Revision | Paid tier: Revision Sprint (£19 interest test)
 // Single-file React + Tailwind component. No backend required.
 // All CTAs log to console via track(). All pricing buttons are interest
-// signals — they DO NOT initiate payment. Copy and confirmation flows are
-// written to be transparent about prototype status.
+// signals — they DO NOT initiate payment.
 // ---------------------------------------------------------------------------
 
 const track = (event, payload = {}) => {
@@ -53,6 +52,10 @@ const LEGAL_CONTENT = {
         body: "We use this information to manage the early-access waitlist, understand what parents and students actually want, decide what to build first, and contact you about Revily when the product develops.",
       },
       {
+        heading: "Legal basis",
+        body: "We process early-access signup information because you have asked to join the waitlist and because we have a legitimate interest in understanding demand for Revily and improving the product. Where we send marketing emails, we will follow applicable UK electronic marketing rules.",
+      },
+      {
         heading: "How we store it",
         body: "Form submissions are processed and stored through Formspree. We do not operate our own database at this stage.",
       },
@@ -66,11 +69,11 @@ const LEGAL_CONTENT = {
       },
       {
         heading: "Analytics and advertising",
-        body: "We may use analytics and advertising tools — such as Meta Pixel — in future to understand how people find and use this page. We will update this notice before doing so.",
+        body: "We do not currently use Meta Pixel or advertising cookies on this page. We may add analytics or advertising tools in future to understand visits, measure early-access signups, and improve advertising. If we use cookies or similar technologies where consent is required, we will ask for consent before they are used and update this notice.",
       },
       {
         heading: "Under-16s",
-        body: "If a student under 16 is signing up, they should have a parent or guardian's permission before submitting their details.",
+        body: "If you are under 16, please ask a parent or guardian before submitting your details.",
       },
       {
         heading: "Your rights",
@@ -104,7 +107,7 @@ const LEGAL_CONTENT = {
       },
       {
         heading: "No exam-board affiliation",
-        body: "Revily is independent and not affiliated with, endorsed by, or approved by any exam board, including AQA, Edexcel, OCR, or Pearson. Content is mapped to GCSE Maths Foundation skills but has no official status.",
+        body: "Revily is independent and is not affiliated with, endorsed by, or approved by any exam board or awarding organisation, including AQA, Edexcel, OCR, Pearson, or Cambridge University Press & Assessment. Content is intended to be mapped to GCSE Maths Foundation skills but has no official status.",
       },
       {
         heading: "Educational guidance",
@@ -142,16 +145,14 @@ const LEGAL_CONTENT = {
 };
 
 // ---------------------------------------------------------------------------
-// LegalModal component
+// LegalModal
 // ---------------------------------------------------------------------------
 function LegalModal({ modalKey, onClose }) {
   const content = LEGAL_CONTENT[modalKey];
 
-  // Close on Escape key
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
-    // Prevent body scroll while modal is open
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handler);
@@ -165,14 +166,12 @@ function LegalModal({ modalKey, onClose }) {
   const mono = { fontFamily: "'JetBrains Mono', ui-monospace, monospace" };
 
   return (
-    // Overlay
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
       style={{ backgroundColor: "rgba(11, 16, 21, 0.65)", backdropFilter: "blur(4px)" }}
       onClick={onClose}
       aria-label="Close modal"
     >
-      {/* Dialog panel — stops click propagation so clicking inside doesn't close */}
       <div
         role="dialog"
         aria-modal="true"
@@ -198,6 +197,7 @@ function LegalModal({ modalKey, onClose }) {
             )}
           </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close"
             className="flex-shrink-0 w-8 h-8 rounded-full bg-black/[0.06] hover:bg-black/[0.12] flex items-center justify-center transition-colors mt-0.5"
@@ -234,6 +234,7 @@ function LegalModal({ modalKey, onClose }) {
         {/* Footer */}
         <div className="flex-shrink-0 px-7 py-5 border-t border-black/[0.07]">
           <button
+            type="button"
             onClick={onClose}
             className="w-full bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold py-3 rounded-full text-sm transition-colors"
           >
@@ -251,6 +252,22 @@ function LegalModal({ modalKey, onClose }) {
 export default function RevilyLanding() {
   const [legalModal, setLegalModal] = useState(null); // null | "privacy" | "terms" | "contact"
   const closeLegal = useCallback(() => setLegalModal(null), []);
+
+  // Pricing intent — lifted to root so SignupForm and Pricing share state
+  // { plan: string, price: string, event: string } | null
+  const [pricingIntent, setPricingIntent] = useState(null);
+
+  // Hydrate pricing intent from URL params on first load.
+  // This means the confirmation box survives a page refresh after a pricing click.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get("plan");
+    const price = params.get("price");
+    const event = params.get("pricingEvent");
+    if (plan && price) {
+      setPricingIntent({ plan, price, event: event || "" });
+    }
+  }, []);
 
   useEffect(() => {
     const id = "revily-fonts";
@@ -280,12 +297,11 @@ export default function RevilyLanding() {
       <HowItWorks display={display} />
       <Differentiation display={display} />
       <ParentPain display={display} />
-      <Pricing display={display} mono={mono} />
-      <SignupForm display={display} />
+      <Pricing display={display} mono={mono} setPricingIntent={setPricingIntent} pricingIntent={pricingIntent} />
+      <SignupForm display={display} pricingIntent={pricingIntent} />
       <FAQ display={display} />
       <Footer display={display} mono={mono} onOpenModal={setLegalModal} />
 
-      {/* Legal modals — rendered at root level so they overlay everything */}
       {legalModal && <LegalModal modalKey={legalModal} onClose={closeLegal} />}
     </div>
   );
@@ -298,19 +314,13 @@ function Nav({ display, mono }) {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-[#FAF7F2]/80 border-b border-black/[0.06]">
       <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-        <a href="#top" className="flex items-center gap-2.5 group" aria-label="Revily home">
+        <a href="#top" className="flex items-center gap-2.5" aria-label="Revily home">
           <div className="w-8 h-8 rounded-lg bg-[#0B1015] flex items-center justify-center">
-            <span className="text-[#C2F751] font-bold text-sm leading-none" style={display}>
-              R
-            </span>
+            <span className="text-[#C2F751] font-bold text-sm leading-none" style={display}>R</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-semibold tracking-tight text-[15px]" style={display}>
-              Revily
-            </span>
-            <span className="hidden sm:inline text-[12px] text-black/45 font-medium">
-              GCSE Maths Revision
-            </span>
+            <span className="font-semibold tracking-tight text-[15px]" style={display}>Revily</span>
+            <span className="hidden sm:inline text-[12px] text-black/45 font-medium">GCSE Maths Revision</span>
           </div>
           <span
             className="ml-2 text-[10px] font-bold tracking-wider text-black/55 bg-black/[0.06] px-2 py-0.5 rounded"
@@ -325,6 +335,7 @@ function Nav({ display, mono }) {
           <a href="#faq" className="hover:text-black transition-colors">FAQs</a>
         </nav>
         <button
+          type="button"
           onClick={() => {
             track("nav_cta_click", { cta: "early_access" });
             document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
@@ -390,6 +401,7 @@ function Hero({ display, mono }) {
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <button
+                type="button"
                 onClick={() => {
                   track("hero_cta_click", { cta: "early_access" });
                   document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
@@ -399,13 +411,12 @@ function Hero({ display, mono }) {
                 Join early access
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </button>
-              
             </div>
 
             <div className="mt-8 flex items-start gap-3 text-sm text-black/60 max-w-[520px]">
               <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
               <p>
-                Built with world class GCSE Maths teachers. {" "}
+                Being developed with GCSE Maths teaching expertise.{" "}
                 <span className="text-black/80 font-medium">No random AI answers. No irrelevant curriculum. No false confidence.</span>
               </p>
             </div>
@@ -541,7 +552,7 @@ function TrustStrip() {
   const items = [
     "Foundation-tier focused",
     "Mapped to GCSE Maths skills",
-    "Teacher review planned",
+    "Teacher review planned before launch",
     "Reliable marking logic",
     "Parent progress updates",
   ];
@@ -740,7 +751,7 @@ function HowItWorks({ display }) {
     <section id="how" className="py-20 sm:py-28 bg-[#0B1015] text-white">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         <div className="max-w-2xl">
-          <div className="text-[11px] font-bold text-[#C2F751] tracking-wider uppercase mb-3 font-mono">
+          <div className="text-[11px] font-bold text-[#C2F751] tracking-wider uppercase mb-3" style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}>
             How it'll work
           </div>
           <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">
@@ -792,8 +803,8 @@ function Differentiation({ display }) {
     },
     {
       icon: GraduationCap,
-      title: "No hallucinated Maths curriculum",
-      copy: "Exercises are tailored to the national GCSE Maths curriculum, not whatever the AI thinks.",
+      title: "Mapped to GCSE Maths skills",
+      copy: "Exercises are intended to be mapped to GCSE Maths Foundation skills and exam-board specifications, not whatever the AI thinks.",
     },
     {
       icon: BarChart3,
@@ -876,13 +887,14 @@ function ParentPain({ display }) {
                 GCSE Maths can feel overwhelming when your child doesn't know what to practise next. Revision lists run three pages long, and it's not obvious which topics will actually move their grade.
               </p>
               <p>
-                We're building Revily to cut that guesswork. The plan: a short diagnostic picks the highest-impact weak topics, and a daily 10-minute GCSE Maths Revision mission is built around them — so the time put in is the time that counts.
+                Revily is an early-access GCSE Maths revision tool for Foundation students predicted around Grade 3 and aiming for a 4 or 5. Join the waitlist and help shape the first version.
               </p>
               <p className="text-[#0B1015] font-semibold">
                 Early-access parents will help shape what the weekly progress updates look like, and what they actually need to see.
               </p>
             </div>
             <button
+              type="button"
               onClick={() => {
                 track("parent_pain_cta_click", { cta: "early_access" });
                 document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
@@ -900,9 +912,9 @@ function ParentPain({ display }) {
 }
 
 // ---------------------------------------------------------------------------
-// Pricing
+// Pricing — receives setPricingIntent and pricingIntent from root
 // ---------------------------------------------------------------------------
-function Pricing({ display, mono }) {
+function Pricing({ display, mono, setPricingIntent, pricingIntent }) {
   const plans = [
     {
       name: "Free beta",
@@ -946,6 +958,21 @@ function Pricing({ display, mono }) {
     },
   ];
 
+  const handlePricingClick = (plan) => {
+    // Store in root state
+    setPricingIntent({ plan: plan.name, price: plan.price, event: plan.ctaEvent });
+
+    // Also write to URL params as a backup (all three fields so fallback is complete)
+    const params = new URLSearchParams(window.location.search);
+    params.set("plan", plan.name);
+    params.set("price", plan.price);
+    params.set("pricingEvent", plan.ctaEvent);
+    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+
+    track(plan.ctaEvent, { plan: plan.name, price: plan.price });
+    document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <section id="pricing" className="py-20 sm:py-28">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
@@ -963,39 +990,47 @@ function Pricing({ display, mono }) {
         </div>
 
         <div className="mt-12 grid md:grid-cols-3 gap-5">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className="relative rounded-3xl p-7 border bg-white text-[#0B1015] border-black/[0.07] hover:shadow-[0_16px_50px_-20px_rgba(0,0,0,0.18)] transition-shadow"
-            >
-              <div className="text-sm font-semibold opacity-70 mb-2">{plan.name}</div>
-              <div className="flex items-baseline gap-1.5 mb-1">
-                <span className="text-5xl font-bold tracking-tight" style={display}>{plan.price}</span>
-              </div>
-              <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
-              <button
-                onClick={() => {
-                  track(plan.ctaEvent, { plan: plan.name, price: plan.price });
-                  const params = new URLSearchParams(window.location.search);
-                  params.set("plan", plan.name);
-                  params.set("price", plan.price);
-                  window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-                  document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black"
+          {plans.map((plan) => {
+            const isSelected = pricingIntent?.plan === plan.name;
+            return (
+              <div
+                key={plan.name}
+                className={`relative rounded-3xl p-7 border bg-white text-[#0B1015] transition-shadow ${
+                  isSelected
+                    ? "border-[#0B1015] shadow-[0_16px_50px_-20px_rgba(0,0,0,0.22)]"
+                    : "border-black/[0.07] hover:shadow-[0_16px_50px_-20px_rgba(0,0,0,0.18)]"
+                }`}
               >
-                {plan.cta}
-              </button>
-              <div className="mt-6 pt-6 border-t border-black/[0.07] space-y-2.5">
-                {plan.features.map((f) => (
-                  <div key={f} className="flex items-start gap-2.5 text-[14px]">
-                    <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#0B1015]" strokeWidth={3} />
-                    <span className="text-black/75">{f}</span>
+                {isSelected && (
+                  <div className="absolute -top-3 left-7">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2.5 py-1 rounded-full">
+                      <Check className="w-2.5 h-2.5" strokeWidth={3} /> Selected
+                    </span>
                   </div>
-                ))}
+                )}
+                <div className="text-sm font-semibold opacity-70 mb-2">{plan.name}</div>
+                <div className="flex items-baseline gap-1.5 mb-1">
+                  <span className="text-5xl font-bold tracking-tight" style={display}>{plan.price}</span>
+                </div>
+                <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
+                <button
+                  type="button"
+                  onClick={() => handlePricingClick(plan)}
+                  className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black"
+                >
+                  {plan.cta}
+                </button>
+                <div className="mt-6 pt-6 border-t border-black/[0.07] space-y-2.5">
+                  {plan.features.map((f) => (
+                    <div key={f} className="flex items-start gap-2.5 text-[14px]">
+                      <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#0B1015]" strokeWidth={3} />
+                      <span className="text-black/75">{f}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-8 flex items-start gap-3 max-w-2xl mx-auto bg-[#0B1015]/[0.04] border border-[#0B1015]/10 rounded-2xl p-4">
@@ -1011,9 +1046,9 @@ function Pricing({ display, mono }) {
 }
 
 // ---------------------------------------------------------------------------
-// Signup form
+// Signup form — receives pricingIntent from root
 // ---------------------------------------------------------------------------
-function SignupForm({ display }) {
+function SignupForm({ display, pricingIntent }) {
   const [form, setForm] = useState({
     email: "",
     role: "Parent",
@@ -1027,15 +1062,35 @@ function SignupForm({ display }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Resolve pricing intent: state first, URL params as fallback
     const params = new URLSearchParams(window.location.search);
+    const statePlan = pricingIntent?.plan || "";
+    const statePrice = pricingIntent?.price || "";
+    const stateEvent = pricingIntent?.event || "";
+    const urlPlan = params.get("plan") || "";
+    const urlPrice = params.get("price") || "";
+    const urlEvent = params.get("pricingEvent") || "";
+
+    const selectedPlan = statePlan || urlPlan;
+    const selectedPrice = statePrice || urlPrice;
+    const selectedPricingEvent = stateEvent || urlEvent;
+    const pricingIntentSelected = Boolean(selectedPlan);
+    const pricingIntentSource = statePlan ? "state" : urlPlan ? "url" : "";
+
     const payload = {
       ...form,
-      selectedPlan: params.get("plan") || "",
-      selectedPrice: params.get("price") || "",
+      selectedPlan,
+      selectedPrice,
+      selectedPricingEvent,
+      pricingIntentSelected,
+      pricingIntentSource,
       submittedAt: new Date().toISOString(),
       page: window.location.href,
     };
+
     track("signup_submit", payload);
+
     try {
       const response = await fetch("https://formspree.io/f/xojbjvaj", {
         method: "POST",
@@ -1049,6 +1104,10 @@ function SignupForm({ display }) {
       alert("Something went wrong. Please try again.");
     }
   };
+
+  // Resolved intent for confirmation display (state takes priority)
+  const resolvedPlan = pricingIntent?.plan || "";
+  const resolvedPrice = pricingIntent?.price || "";
 
   return (
     <section id="signup" className="py-20 sm:py-28 bg-white border-y border-black/[0.06]">
@@ -1069,10 +1128,25 @@ function SignupForm({ display }) {
           </p>
         </div>
 
+        {/* Pricing intent confirmation box — only shown if a pricing button was clicked */}
+        {resolvedPlan && !submitted && (
+          <div className="mt-8 flex items-start gap-3 bg-[#0B1015] text-white rounded-2xl px-5 py-4">
+            <Check className="w-5 h-5 text-[#C2F751] flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+            <div>
+              <p className="text-sm font-semibold text-white">
+                Selected interest: {resolvedPlan} — {resolvedPrice}
+              </p>
+              <p className="text-xs text-white/60 mt-0.5">
+                You will not be charged today. This only helps us understand demand.
+              </p>
+            </div>
+          </div>
+        )}
+
         {!submitted ? (
           <form
             onSubmit={handleSubmit}
-            className="mt-10 bg-[#FAF7F2] border border-black/[0.07] rounded-3xl p-6 sm:p-8 space-y-5"
+            className="mt-6 bg-[#FAF7F2] border border-black/[0.07] rounded-3xl p-6 sm:p-8 space-y-5"
           >
             <Field label="Email">
               <input
@@ -1129,16 +1203,30 @@ function SignupForm({ display }) {
             <p className="text-xs text-black/50 text-center">
               We'll only email you about Revily. Unsubscribe any time. You will not be charged today.
             </p>
+
+            {/* Developer/testing note — subtle, no raw JSON */}
+            <p className="text-[11px] text-black/30 text-center pt-1">
+              Testing note: pricing intent will be sent with your signup if you clicked a pricing option first.
+            </p>
           </form>
         ) : (
-          <div className="mt-10 bg-[#0B1015] text-white rounded-3xl p-8 sm:p-10 text-center">
+          <div className="mt-6 bg-[#0B1015] text-white rounded-3xl p-8 sm:p-10 text-center">
             <div className="w-14 h-14 rounded-full bg-[#C2F751] mx-auto flex items-center justify-center mb-5">
               <Check className="w-7 h-7 text-[#0B1015]" strokeWidth={3} />
             </div>
             <h3 style={display} className="text-3xl font-bold tracking-tight">You're on the list.</h3>
-            <p className="mt-3 text-white/70 max-w-md mx-auto leading-relaxed">
-              We'll email <span className="text-[#C2F751]">{form.email}</span> when the first diagnostic beta opens. If enough parents want the £19 Revision Sprint, we'll prioritise that version first.
-            </p>
+            {resolvedPlan ? (
+              <p className="mt-3 text-white/70 max-w-md mx-auto leading-relaxed">
+                Thanks — you're on the list. We've also recorded your interest in{" "}
+                <span className="text-[#C2F751] font-medium">{resolvedPlan}</span> at{" "}
+                <span className="text-[#C2F751] font-medium">{resolvedPrice}</span>.{" "}
+                You will not be charged today.
+              </p>
+            ) : (
+              <p className="mt-3 text-white/70 max-w-md mx-auto leading-relaxed">
+                Thanks — you're on the list. We'll email you when the first diagnostic beta opens.
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -1223,7 +1311,7 @@ function FAQ({ display }) {
     },
     {
       q: "Is it exam-board specific?",
-      a: "Content is mapped to GCSE Maths skills used across Edexcel, AQA, and OCR Foundation specs. We don't claim official endorsement from any exam board. At signup you can flag your board so we can prioritise familiar question styles.",
+      a: "Content is intended to be mapped to GCSE Maths skills used across Edexcel, AQA, and OCR Foundation specs. We don't claim official endorsement from any exam board. At signup you can flag your board so we can prioritise familiar question styles.",
     },
     {
       q: "Is this for Foundation or Higher tier?",
@@ -1257,6 +1345,7 @@ function FAQ({ display }) {
                 className={`rounded-2xl border transition-all ${open ? "border-[#0B1015] bg-white" : "border-black/[0.08] bg-white/60"}`}
               >
                 <button
+                  type="button"
                   onClick={() => setOpenIndex(open ? -1 : i)}
                   className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
                   aria-expanded={open}
@@ -1283,6 +1372,7 @@ function FAQ({ display }) {
             Join the early-access list. We'll email you when the first diagnostic beta opens — and ask for your feedback as we build.
           </p>
           <button
+            type="button"
             onClick={() => {
               track("faq_bottom_cta_click", { cta: "early_access" });
               document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
@@ -1300,7 +1390,7 @@ function FAQ({ display }) {
 }
 
 // ---------------------------------------------------------------------------
-// Footer — links now open modals via onOpenModal prop
+// Footer
 // ---------------------------------------------------------------------------
 function Footer({ display, mono, onOpenModal }) {
   return (
@@ -1323,18 +1413,21 @@ function Footer({ display, mono, onOpenModal }) {
 
         <div className="flex items-center gap-6 text-sm text-black/55">
           <button
+            type="button"
             onClick={() => onOpenModal("privacy")}
             className="hover:text-black transition-colors underline-offset-2 hover:underline"
           >
             Privacy
           </button>
           <button
+            type="button"
             onClick={() => onOpenModal("terms")}
             className="hover:text-black transition-colors underline-offset-2 hover:underline"
           >
             Terms
           </button>
           <button
+            type="button"
             onClick={() => onOpenModal("contact")}
             className="hover:text-black transition-colors underline-offset-2 hover:underline"
           >
