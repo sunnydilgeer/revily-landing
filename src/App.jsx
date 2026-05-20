@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ArrowRight,
   Sparkles,
@@ -14,6 +14,7 @@ import {
   Calculator,
   AlertCircle,
   GraduationCap,
+  X,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -27,13 +28,230 @@ import {
 
 const track = (event, payload = {}) => {
   // Replace with real analytics call (e.g. plausible(event, { props: payload }))
-  // For now: console output makes intent testing trivial.
   // eslint-disable-next-line no-console
   console.log("[track]", event, payload);
 };
 
+// ---------------------------------------------------------------------------
+// Legal modal content
+// ---------------------------------------------------------------------------
+const LEGAL_CONTENT = {
+  privacy: {
+    title: "Privacy Notice",
+    updated: "19 May 2026",
+    sections: [
+      {
+        heading: "What Revily is",
+        body: "Revily is an early-access GCSE Maths Revision prototype. We are not a fully launched product.",
+      },
+      {
+        heading: "What we collect",
+        body: "When you submit the early-access form, we collect: your email address; whether you are a parent, student, or tutor; your exam board; tier; target grade; any pricing-interest option you selected; the page URL; and the time of submission.",
+      },
+      {
+        heading: "Why we collect it",
+        body: "We use this information to manage the early-access waitlist, understand what parents and students actually want, decide what to build first, and contact you about Revily when the product develops.",
+      },
+      {
+        heading: "How we store it",
+        body: "Form submissions are processed and stored through Formspree. We do not operate our own database at this stage.",
+      },
+      {
+        heading: "Payments",
+        body: "We do not take payments on this page. Pricing buttons are interest signals only — clicking them does not start a payment or subscription.",
+      },
+      {
+        heading: "Sharing",
+        body: "We do not sell your personal information. We do not share it with third parties except as needed to operate the service (e.g. Formspree for form processing).",
+      },
+      {
+        heading: "Analytics and advertising",
+        body: "We may use analytics and advertising tools — such as Meta Pixel — in future to understand how people find and use this page. We will update this notice before doing so.",
+      },
+      {
+        heading: "Under-16s",
+        body: "If a student under 16 is signing up, they should have a parent or guardian's permission before submitting their details.",
+      },
+      {
+        heading: "Your rights",
+        body: "You can ask us to delete your data at any time by emailing hello@revily.co.uk. We will action deletion requests promptly.",
+      },
+      {
+        heading: "Contact",
+        body: "hello@revily.co.uk",
+      },
+    ],
+  },
+  terms: {
+    title: "Terms of Use",
+    updated: "19 May 2026",
+    sections: [
+      {
+        heading: "Early-access prototype",
+        body: "Revily is currently an early-access prototype. It is not a fully launched product. The landing page exists for waitlist signup and pricing-interest testing only.",
+      },
+      {
+        heading: "No payments",
+        body: "Pricing buttons on this page do not start a payment or subscription. They are interest signals only, used to understand which offer parents and students would find most useful.",
+      },
+      {
+        heading: "No grade guarantees",
+        body: "Revily does not guarantee any GCSE grade or exam outcome. No revision product can do this. The goal is to help students practise the right topics more consistently.",
+      },
+      {
+        heading: "Mock-ups and planned features",
+        body: "Content shown on the page — including app screens, progress views, and feature descriptions — includes mock-ups and planned features. The final product may differ based on what we learn from early-access testing.",
+      },
+      {
+        heading: "No exam-board affiliation",
+        body: "Revily is independent and not affiliated with, endorsed by, or approved by any exam board, including AQA, Edexcel, OCR, or Pearson. Content is mapped to GCSE Maths Foundation skills but has no official status.",
+      },
+      {
+        heading: "Educational guidance",
+        body: "This site is for product validation and general educational interest only at this stage. Students should continue to use official school, teacher, and exam-board guidance for exam preparation.",
+      },
+      {
+        heading: "Changes",
+        body: "We may update these terms as the product develops. Continued use of the site after changes are posted means you accept the updated terms.",
+      },
+      {
+        heading: "Contact",
+        body: "hello@revily.co.uk",
+      },
+    ],
+  },
+  contact: {
+    title: "Contact",
+    updated: null,
+    sections: [
+      {
+        heading: null,
+        body: "For questions, feedback, or data deletion requests, get in touch at:",
+      },
+      {
+        heading: null,
+        body: "hello@revily.co.uk",
+        highlight: true,
+      },
+      {
+        heading: null,
+        body: "Revily is currently an early-access prototype, so response times may vary. We'll always reply.",
+      },
+    ],
+  },
+};
+
+// ---------------------------------------------------------------------------
+// LegalModal component
+// ---------------------------------------------------------------------------
+function LegalModal({ modalKey, onClose }) {
+  const content = LEGAL_CONTENT[modalKey];
+
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    // Prevent body scroll while modal is open
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  if (!content) return null;
+
+  const display = { fontFamily: "'Bricolage Grotesque', system-ui, sans-serif" };
+  const mono = { fontFamily: "'JetBrains Mono', ui-monospace, monospace" };
+
+  return (
+    // Overlay
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+      style={{ backgroundColor: "rgba(11, 16, 21, 0.65)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+      aria-label="Close modal"
+    >
+      {/* Dialog panel — stops click propagation so clicking inside doesn't close */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="legal-modal-title"
+        className="relative w-full max-w-lg bg-[#FAF7F2] rounded-3xl shadow-[0_32px_80px_-16px_rgba(0,0,0,0.35)] flex flex-col"
+        style={{ maxHeight: "85vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 px-7 pt-7 pb-5 border-b border-black/[0.07] flex-shrink-0">
+          <div>
+            <h2
+              id="legal-modal-title"
+              style={display}
+              className="text-2xl font-bold tracking-tight text-[#0B1015]"
+            >
+              {content.title}
+            </h2>
+            {content.updated && (
+              <p className="text-[11px] text-black/45 mt-1" style={mono}>
+                LAST UPDATED: {content.updated.toUpperCase()}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-black/[0.06] hover:bg-black/[0.12] flex items-center justify-center transition-colors mt-0.5"
+          >
+            <X className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto px-7 py-6 space-y-5 flex-1">
+          {content.sections.map((section, i) => (
+            <div key={i}>
+              {section.heading && (
+                <h3
+                  className="text-[13px] font-bold text-[#0B1015] uppercase tracking-wider mb-1.5"
+                  style={mono}
+                >
+                  {section.heading}
+                </h3>
+              )}
+              <p
+                className={`leading-relaxed ${
+                  section.highlight
+                    ? "text-[17px] font-semibold text-[#0B1015]"
+                    : "text-[15px] text-black/70"
+                }`}
+              >
+                {section.body}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="flex-shrink-0 px-7 py-5 border-t border-black/[0.07]">
+          <button
+            onClick={onClose}
+            className="w-full bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold py-3 rounded-full text-sm transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Root component
+// ---------------------------------------------------------------------------
 export default function RevilyLanding() {
-  // Inject Google Fonts once.
+  const [legalModal, setLegalModal] = useState(null); // null | "privacy" | "terms" | "contact"
+  const closeLegal = useCallback(() => setLegalModal(null), []);
+
   useEffect(() => {
     const id = "revily-fonts";
     if (document.getElementById(id)) return;
@@ -65,7 +283,10 @@ export default function RevilyLanding() {
       <Pricing display={display} mono={mono} />
       <SignupForm display={display} />
       <FAQ display={display} />
-      <Footer display={display} mono={mono} />
+      <Footer display={display} mono={mono} onOpenModal={setLegalModal} />
+
+      {/* Legal modals — rendered at root level so they overlay everything */}
+      {legalModal && <LegalModal modalKey={legalModal} onClose={closeLegal} />}
     </div>
   );
 }
@@ -124,7 +345,6 @@ function Nav({ display, mono }) {
 function Hero({ display, mono }) {
   return (
     <section id="top" className="relative overflow-hidden">
-      {/* Decorative grid background */}
       <div
         aria-hidden
         className="absolute inset-0 opacity-[0.04] pointer-events-none"
@@ -134,19 +354,14 @@ function Hero({ display, mono }) {
           backgroundSize: "32px 32px",
         }}
       />
-      {/* Lime glow */}
       <div
         aria-hidden
         className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, #C2F751 0%, transparent 65%)",
-          opacity: 0.35,
-        }}
+        style={{ background: "radial-gradient(circle, #C2F751 0%, transparent 65%)", opacity: 0.35 }}
       />
 
       <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-16 sm:pb-20">
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
-          {/* Copy column */}
           <div>
             <div className="inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] px-3 py-1.5 rounded-full text-xs font-semibold mb-6">
               <GraduationCap className="w-3.5 h-3.5" strokeWidth={2.5} />
@@ -184,28 +399,18 @@ function Hero({ display, mono }) {
                 Join early access
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </button>
-              <button
-                onClick={() => {
-                  track("hero_cta_click", { cta: "pricing_interest_19" });
-                  document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#0B1015]/[0.04] border border-black/10 text-[#0B1015] font-semibold px-6 py-4 rounded-full text-base transition-colors"
-              >
-                I'd pay £19 for the Sprint
-              </button>
+              
             </div>
 
-            {/* Above-the-fold parent trust signal */}
             <div className="mt-8 flex items-start gap-3 text-sm text-black/60 max-w-[520px]">
               <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
               <p>
-                Being shaped with GCSE Maths teacher input — teacher review planned before beta access opens.{" "}
-                <span className="text-black/80 font-medium">No random AI answers. No off-spec bloat. No false confidence.</span>
+                Built with world class GCSE Maths teachers. {" "}
+                <span className="text-black/80 font-medium">No random AI answers. No irrelevant curriculum. No false confidence.</span>
               </p>
             </div>
           </div>
 
-          {/* Mockup column */}
           <HeroMockup display={display} mono={mono} />
         </div>
       </div>
@@ -216,66 +421,49 @@ function Hero({ display, mono }) {
 function HeroMockup({ display, mono }) {
   return (
     <div className="relative mx-auto w-full max-w-[380px]">
-      {/* Floating sticker — preview */}
       <div className="absolute -top-4 -left-4 sm:-left-8 z-20 rotate-[-6deg]">
         <div className="bg-[#C2F751] rounded-2xl px-3 py-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.2)] flex items-center gap-1.5">
           <Sparkles className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
-          <span className="font-bold text-sm text-[#0B1015]" style={display}>
-            Product preview
-          </span>
+          <span className="font-bold text-sm text-[#0B1015]" style={display}>Product preview</span>
         </div>
       </div>
 
-      {/* Floating sticker — in development */}
       <div className="absolute -bottom-4 -right-2 sm:-right-6 z-20 rotate-[5deg]">
         <div className="bg-white border border-black/10 rounded-2xl px-3 py-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.2)] flex items-center gap-1.5">
           <Target className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
-          <span className="font-bold text-sm text-[#0B1015]" style={display}>
-            In development
-          </span>
+          <span className="font-bold text-sm text-[#0B1015]" style={display}>In development</span>
         </div>
       </div>
 
-      {/* Phone frame */}
       <div className="relative bg-[#0B1015] rounded-[44px] p-3 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]">
         <div className="bg-[#FAF7F2] rounded-[32px] overflow-hidden">
-          {/* Status bar */}
           <div className="flex items-center justify-between px-6 pt-4 pb-2 text-xs text-black/60" style={mono}>
             <span>9:41</span>
             <span>•••</span>
           </div>
 
-          {/* App header */}
           <div className="px-5 pt-2 pb-4 flex items-center justify-between">
             <div>
               <div className="text-[11px] text-black/50 uppercase tracking-wider font-semibold" style={mono}>
                 Mock-up · Foundation tier
               </div>
-              <h3 className="text-xl font-bold mt-0.5" style={display}>
-                Today's mission
-              </h3>
+              <h3 className="text-xl font-bold mt-0.5" style={display}>Today's mission</h3>
             </div>
             <div className="w-9 h-9 rounded-full bg-[#0B1015] flex items-center justify-center text-[#C2F751] text-xs font-bold">
               S
             </div>
           </div>
 
-          {/* Topic chip */}
           <div className="px-5">
             <div className="inline-flex items-center gap-1.5 bg-[#0B1015] text-[#C2F751] px-2.5 py-1 rounded-full text-[11px] font-semibold">
               <Target className="w-3 h-3" strokeWidth={2.5} />
-              <span style={mono}>WEAK TOPIC · LINEAR EQUATIONS</span>
+              <span style={mono}>HARD · LINEAR EQUATIONS</span>
             </div>
           </div>
 
-          {/* Question card */}
           <div className="mx-5 mt-3 bg-white border border-black/[0.07] rounded-2xl p-4 shadow-sm">
-            <div className="text-[11px] text-black/50 font-semibold mb-2" style={mono}>
-              Q3 OF 5
-            </div>
-            <p className="text-[15px] text-[#0B1015] leading-snug font-medium mb-3">
-              Solve for x:
-            </p>
+            <div className="text-[11px] text-black/50 font-semibold mb-2" style={mono}>Q3 OF 5</div>
+            <p className="text-[15px] text-[#0B1015] leading-snug font-medium mb-3">Solve for x:</p>
             <div className="bg-[#FAF7F2] rounded-lg px-3 py-2 text-lg font-semibold text-[#0B1015]" style={mono}>
               3x + 7 = 22
             </div>
@@ -295,7 +483,6 @@ function HeroMockup({ display, mono }) {
             </div>
           </div>
 
-          {/* Progress */}
           <div className="px-5 mt-4 mb-5">
             <div className="flex items-center justify-between text-[11px] text-black/60 mb-1.5" style={mono}>
               <span>MISSION PROGRESS</span>
@@ -316,7 +503,7 @@ function HeroMockup({ display, mono }) {
 }
 
 // ---------------------------------------------------------------------------
-// Status box — sits directly under the hero
+// Status box
 // ---------------------------------------------------------------------------
 function StatusBox({ display, mono }) {
   return (
@@ -330,12 +517,7 @@ function StatusBox({ display, mono }) {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span
-                className="text-[10px] font-bold text-[#0B1015] tracking-wider"
-                style={mono}
-              >
-                STATUS
-              </span>
+              <span className="text-[10px] font-bold text-[#0B1015] tracking-wider" style={mono}>STATUS</span>
               <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0B1015] animate-pulse" />
                 Early-access prototype
@@ -380,7 +562,7 @@ function TrustStrip() {
 }
 
 // ---------------------------------------------------------------------------
-// Product preview — framed as "being designed around"
+// Product preview
 // ---------------------------------------------------------------------------
 function ProductPreview({ display, mono }) {
   return (
@@ -399,21 +581,12 @@ function ProductPreview({ display, mono }) {
         </div>
 
         <div className="mt-12 grid md:grid-cols-2 gap-5">
-          <PreviewCard
-            badge="TODAY"
-            title="Today's mission"
+          <PreviewCard badge="TODAY" title="Today's mission" accent display={display} mono={mono}
             description="The first version is being designed around focused daily missions — around 10 minutes, hand-picked from each student's weak topics."
-            accent
-            display={display}
-            mono={mono}
           >
             <div className="bg-[#0B1015] rounded-2xl p-5 text-white">
-              <div className="text-[11px] text-[#C2F751] font-semibold mb-2" style={mono}>
-                MISSION · PREVIEW
-              </div>
-              <div className="font-semibold text-lg mb-4" style={display}>
-                Linear equations · 5 questions
-              </div>
+              <div className="text-[11px] text-[#C2F751] font-semibold mb-2" style={mono}>MISSION · PREVIEW</div>
+              <div className="font-semibold text-lg mb-4" style={display}>Linear equations · 5 questions</div>
               <div className="space-y-2">
                 {[
                   { q: "Solve 3x + 7 = 22", done: true },
@@ -423,11 +596,7 @@ function ProductPreview({ display, mono }) {
                   { q: "Form & solve from word problem", done: false },
                 ].map((row, i) => (
                   <div key={i} className="flex items-center gap-2.5 text-sm">
-                    <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                        row.done ? "bg-[#C2F751] border-[#C2F751]" : "border-white/30"
-                      }`}
-                    >
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${row.done ? "bg-[#C2F751] border-[#C2F751]" : "border-white/30"}`}>
                       {row.done && <Check className="w-2.5 h-2.5 text-[#0B1015]" strokeWidth={3} />}
                     </div>
                     <span className={row.done ? "text-white/50 line-through" : "text-white"}>{row.q}</span>
@@ -437,12 +606,8 @@ function ProductPreview({ display, mono }) {
             </div>
           </PreviewCard>
 
-          <PreviewCard
-            badge="DIAGNOSTIC"
-            title="Weak topics, surfaced"
+          <PreviewCard badge="DIAGNOSTIC" title="Weak topics, surfaced" display={display} mono={mono}
             description="The planned diagnostic will surface the topics most likely to cost marks, so the mission engine can target those first."
-            display={display}
-            mono={mono}
           >
             <div className="space-y-3">
               {[
@@ -457,25 +622,17 @@ function ProductPreview({ display, mono }) {
                     <span className="font-semibold text-[#0B1015]">{row.topic}</span>
                     <div className="flex items-center gap-2">
                       {row.tag === "Priority" && (
-                        <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-1.5 py-0.5 rounded" style={mono}>
-                          PRIORITY
-                        </span>
+                        <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-1.5 py-0.5 rounded" style={mono}>PRIORITY</span>
                       )}
                       {row.tag === "Strong" && (
-                        <span className="text-[10px] font-bold text-black/60 bg-black/[0.06] px-1.5 py-0.5 rounded" style={mono}>
-                          STRONG
-                        </span>
+                        <span className="text-[10px] font-bold text-black/60 bg-black/[0.06] px-1.5 py-0.5 rounded" style={mono}>STRONG</span>
                       )}
-                      <span className="text-xs text-black/50 tabular-nums" style={mono}>
-                        {row.level}%
-                      </span>
+                      <span className="text-xs text-black/50 tabular-nums" style={mono}>{row.level}%</span>
                     </div>
                   </div>
                   <div className="h-2 bg-black/[0.06] rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${
-                        row.level < 50 ? "bg-[#FF8B6B]" : row.level < 75 ? "bg-[#0B1015]" : "bg-[#C2F751]"
-                      }`}
+                      className={`h-full rounded-full ${row.level < 50 ? "bg-[#FF8B6B]" : row.level < 75 ? "bg-[#0B1015]" : "bg-[#C2F751]"}`}
                       style={{ width: `${row.level}%` }}
                     />
                   </div>
@@ -484,30 +641,20 @@ function ProductPreview({ display, mono }) {
             </div>
           </PreviewCard>
 
-          <PreviewCard
-            badge="FEEDBACK"
-            title="Reliable marking, with the working shown"
+          <PreviewCard badge="FEEDBACK" title="Reliable marking, with the working shown" display={display} mono={mono}
             description="The plan: no random AI guesses. Every answer marked against reliable logic, with the working shown so students learn the method — not just the answer."
-            display={display}
-            mono={mono}
           >
             <div className="space-y-3">
               <div className="bg-[#FAF7F2] rounded-xl p-4 border border-black/[0.07]">
-                <div className="text-xs text-black/55 mb-2 font-semibold" style={mono}>
-                  YOUR ANSWER
-                </div>
-                <div className="text-lg font-semibold text-[#0B1015]" style={mono}>
-                  x = 5
-                </div>
+                <div className="text-xs text-black/55 mb-2 font-semibold" style={mono}>YOUR ANSWER</div>
+                <div className="text-lg font-semibold text-[#0B1015]" style={mono}>x = 5</div>
               </div>
               <div className="bg-[#C2F751] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded-full bg-[#0B1015] flex items-center justify-center">
                     <Check className="w-3 h-3 text-[#C2F751]" strokeWidth={3} />
                   </div>
-                  <div className="text-xs font-bold text-[#0B1015]" style={mono}>
-                    CORRECT
-                  </div>
+                  <div className="text-xs font-bold text-[#0B1015]" style={mono}>CORRECT</div>
                 </div>
                 <p className="text-sm text-[#0B1015] leading-snug font-medium">
                   Subtract 7 from both sides → <span style={mono}>3x = 15</span>. Divide by 3 → <span style={mono}>x = 5</span>.
@@ -516,19 +663,13 @@ function ProductPreview({ display, mono }) {
             </div>
           </PreviewCard>
 
-          <PreviewCard
-            badge="PROGRESS"
-            title="Progress, visible to parents"
+          <PreviewCard badge="PROGRESS" title="Progress, visible to parents" display={display} mono={mono}
             description="A planned readiness view that shows what's being practised and where progress is happening — with optional weekly summaries for parents."
-            display={display}
-            mono={mono}
           >
             <div className="bg-[#0B1015] rounded-2xl p-5 text-white">
               <div className="flex items-end gap-4 mb-5">
                 <div>
-                  <div className="text-[11px] text-white/60 font-semibold mb-1" style={mono}>
-                    READINESS (PREVIEW)
-                  </div>
+                  <div className="text-[11px] text-white/60 font-semibold mb-1" style={mono}>READINESS (PREVIEW)</div>
                   <div className="text-5xl font-bold tabular-nums" style={display}>
                     62<span className="text-2xl text-white/50">%</span>
                   </div>
@@ -538,18 +679,13 @@ function ProductPreview({ display, mono }) {
                   Trending up
                 </div>
               </div>
-              <div className="text-[11px] text-white/60 font-semibold mb-2" style={mono}>
-                EXAMPLE TREND
-              </div>
+              <div className="text-[11px] text-white/60 font-semibold mb-2" style={mono}>EXAMPLE TREND</div>
               <div className="flex items-end gap-1 h-16">
                 {[35, 38, 42, 41, 45, 48, 47, 50, 53, 55, 54, 58, 60, 62].map((v, i) => (
                   <div
                     key={i}
                     className="flex-1 rounded-sm"
-                    style={{
-                      height: `${v}%`,
-                      backgroundColor: i === 13 ? "#C2F751" : "rgba(255,255,255,0.25)",
-                    }}
+                    style={{ height: `${v}%`, backgroundColor: i === 13 ? "#C2F751" : "rgba(255,255,255,0.25)" }}
                   />
                 ))}
               </div>
@@ -567,22 +703,11 @@ function ProductPreview({ display, mono }) {
 
 function PreviewCard({ badge, title, description, children, display, mono, accent }) {
   return (
-    <div
-      className={`rounded-3xl p-6 sm:p-7 border ${
-        accent ? "bg-[#FAF7F2] border-black/[0.08]" : "bg-white border-black/[0.07]"
-      } hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.12)] transition-shadow`}
-    >
+    <div className={`rounded-3xl p-6 sm:p-7 border ${accent ? "bg-[#FAF7F2] border-black/[0.08]" : "bg-white border-black/[0.07]"} hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.12)] transition-shadow`}>
       <div className="flex items-center gap-2 mb-3">
-        <span
-          className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded"
-          style={mono}
-        >
-          {badge}
-        </span>
+        <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded" style={mono}>{badge}</span>
       </div>
-      <h3 className="text-2xl font-bold tracking-[-0.01em]" style={display}>
-        {title}
-      </h3>
+      <h3 className="text-2xl font-bold tracking-[-0.01em]" style={display}>{title}</h3>
       <p className="mt-2 text-[15px] text-black/65 leading-relaxed mb-5">{description}</p>
       <div>{children}</div>
     </div>
@@ -590,7 +715,7 @@ function PreviewCard({ badge, title, description, children, display, mono, accen
 }
 
 // ---------------------------------------------------------------------------
-// How it works — described as the planned shape, not a working product
+// How it works
 // ---------------------------------------------------------------------------
 function HowItWorks({ display }) {
   const steps = [
@@ -630,10 +755,7 @@ function HowItWorks({ display }) {
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
-              <div
-                key={i}
-                className="relative rounded-3xl bg-white/[0.04] border border-white/10 p-7 hover:bg-white/[0.06] transition-colors"
-              >
+              <div key={i} className="relative rounded-3xl bg-white/[0.04] border border-white/10 p-7 hover:bg-white/[0.06] transition-colors">
                 <div className="absolute top-7 right-7 text-7xl font-bold text-white/[0.06] tabular-nums leading-none" style={display}>
                   {i + 1}
                 </div>
@@ -641,9 +763,7 @@ function HowItWorks({ display }) {
                   <div className="w-11 h-11 rounded-xl bg-[#C2F751] flex items-center justify-center mb-5">
                     <Icon className="w-5 h-5 text-[#0B1015]" strokeWidth={2.25} />
                   </div>
-                  <h3 className="text-xl font-bold mb-2" style={display}>
-                    {step.title}
-                  </h3>
+                  <h3 className="text-xl font-bold mb-2" style={display}>{step.title}</h3>
                   <p className="text-[15px] text-white/70 leading-relaxed">{step.copy}</p>
                 </div>
               </div>
@@ -662,8 +782,8 @@ function Differentiation({ display }) {
   const points = [
     {
       icon: ShieldCheck,
-      title: "Reliable marking first",
-      copy: "Answer logic and worked methods before AI explanations. AI can help explain mistakes, but it should not be the source of truth for marking.",
+      title: "Reliable marking",
+      copy: "Based on well-known GCSE marking principles, not AI slop.",
     },
     {
       icon: Target,
@@ -672,8 +792,8 @@ function Differentiation({ display }) {
     },
     {
       icon: GraduationCap,
-      title: "No off-spec bloat",
-      copy: "We'd rather cover fewer GCSE Maths Foundation topics properly than pretend to cover everything badly.",
+      title: "No hallucinated Maths curriculum",
+      copy: "Exercises are tailored to the national GCSE Maths curriculum, not whatever the AI thinks.",
     },
     {
       icon: BarChart3,
@@ -698,17 +818,12 @@ function Differentiation({ display }) {
           {points.map((p, i) => {
             const Icon = p.icon;
             return (
-              <div
-                key={i}
-                className="rounded-3xl bg-white border border-black/[0.07] p-7 flex gap-5 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.1)] transition-shadow"
-              >
+              <div key={i} className="rounded-3xl bg-white border border-black/[0.07] p-7 flex gap-5 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.1)] transition-shadow">
                 <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#0B1015] flex items-center justify-center">
                   <Icon className="w-5 h-5 text-[#C2F751]" strokeWidth={2.25} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold tracking-tight mb-1.5" style={display}>
-                    {p.title}
-                  </h3>
+                  <h3 className="text-lg font-bold tracking-tight mb-1.5" style={display}>{p.title}</h3>
                   <p className="text-[15px] text-black/65 leading-relaxed">{p.copy}</p>
                 </div>
               </div>
@@ -716,7 +831,6 @@ function Differentiation({ display }) {
           })}
         </div>
 
-        {/* Honest early-access strip */}
         <div className="mt-6 flex items-center gap-3 bg-[#0B1015]/[0.04] border border-[#0B1015]/10 rounded-2xl px-5 py-4">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded-full flex-shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#0B1015] animate-pulse" />
@@ -733,7 +847,7 @@ function Differentiation({ display }) {
 }
 
 // ---------------------------------------------------------------------------
-// Parent pain — softened urgency, still direct
+// Parent pain
 // ---------------------------------------------------------------------------
 function ParentPain({ display }) {
   return (
@@ -743,22 +857,17 @@ function ParentPain({ display }) {
           className="relative rounded-[36px] overflow-hidden p-8 sm:p-14 lg:p-20"
           style={{ backgroundColor: "#FFEFE8" }}
         >
-          {/* Decorative coral blob */}
           <div
             aria-hidden
             className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full"
             style={{ background: "radial-gradient(circle, #FF8B6B 0%, transparent 65%)", opacity: 0.45 }}
           />
-
           <div className="relative max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold text-[#0B1015] mb-6">
               <AlertCircle className="w-3.5 h-3.5" strokeWidth={2.5} />
               For parents
             </div>
-            <h2
-              style={display}
-              className="text-3xl sm:text-4xl lg:text-[52px] font-bold tracking-[-0.02em] leading-[1.05]"
-            >
+            <h2 style={display} className="text-3xl sm:text-4xl lg:text-[52px] font-bold tracking-[-0.02em] leading-[1.05]">
               Your child may be revising —{" "}
               <span className="italic">but are they revising the right things?</span>
             </h2>
@@ -791,7 +900,7 @@ function ParentPain({ display }) {
 }
 
 // ---------------------------------------------------------------------------
-// Pricing — "Early pricing test", no checkout, no "Most Popular"
+// Pricing
 // ---------------------------------------------------------------------------
 function Pricing({ display, mono }) {
   const plans = [
@@ -854,53 +963,39 @@ function Pricing({ display, mono }) {
         </div>
 
         <div className="mt-12 grid md:grid-cols-3 gap-5">
-          {plans.map((plan) => {
-            return (
-              <div
-                key={plan.name}
-                className="relative rounded-3xl p-7 border bg-white text-[#0B1015] border-black/[0.07] hover:shadow-[0_16px_50px_-20px_rgba(0,0,0,0.18)] transition-shadow"
-              >
-                <div className="text-sm font-semibold opacity-70 mb-2">{plan.name}</div>
-                <div className="flex items-baseline gap-1.5 mb-1">
-                  <span className="text-5xl font-bold tracking-tight" style={display}>
-                    {plan.price}
-                  </span>
-                </div>
-                <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
-                <button
-                 onClick={() => {
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              className="relative rounded-3xl p-7 border bg-white text-[#0B1015] border-black/[0.07] hover:shadow-[0_16px_50px_-20px_rgba(0,0,0,0.18)] transition-shadow"
+            >
+              <div className="text-sm font-semibold opacity-70 mb-2">{plan.name}</div>
+              <div className="flex items-baseline gap-1.5 mb-1">
+                <span className="text-5xl font-bold tracking-tight" style={display}>{plan.price}</span>
+              </div>
+              <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
+              <button
+                onClick={() => {
                   track(plan.ctaEvent, { plan: plan.name, price: plan.price });
-                
                   const params = new URLSearchParams(window.location.search);
                   params.set("plan", plan.name);
                   params.set("price", plan.price);
-                
-                  window.history.replaceState(
-                    {},
-                    "",
-                    `${window.location.pathname}?${params.toString()}`
-                  );
-                
+                  window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
                   document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
                 }}
-                  className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black"
-                >
-                  {plan.cta}
-                </button>
-                <div className="mt-6 pt-6 border-t border-black/[0.07] space-y-2.5">
-                  {plan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5 text-[14px]">
-                      <Check
-                        className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#0B1015]"
-                        strokeWidth={3}
-                      />
-                      <span className="text-black/75">{f}</span>
-                    </div>
-                  ))}
-                </div>
+                className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black"
+              >
+                {plan.cta}
+              </button>
+              <div className="mt-6 pt-6 border-t border-black/[0.07] space-y-2.5">
+                {plan.features.map((f) => (
+                  <div key={f} className="flex items-start gap-2.5 text-[14px]">
+                    <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#0B1015]" strokeWidth={3} />
+                    <span className="text-black/75">{f}</span>
+                  </div>
+                ))}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         <div className="mt-8 flex items-start gap-3 max-w-2xl mx-auto bg-[#0B1015]/[0.04] border border-[#0B1015]/10 rounded-2xl p-4">
@@ -932,35 +1027,22 @@ function SignupForm({ display }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     const params = new URLSearchParams(window.location.search);
-    const selectedPlan = params.get("plan") || "";
-    const selectedPrice = params.get("price") || "";
-  
     const payload = {
       ...form,
-      selectedPlan,
-      selectedPrice,
+      selectedPlan: params.get("plan") || "",
+      selectedPrice: params.get("price") || "",
       submittedAt: new Date().toISOString(),
       page: window.location.href,
     };
-  
     track("signup_submit", payload);
-  
     try {
       const response = await fetch("https://formspree.io/f/xojbjvaj", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),
       });
-  
-      if (!response.ok) {
-        throw new Error("Form submission failed");
-      }
-  
+      if (!response.ok) throw new Error("Form submission failed");
       setSubmitted(true);
     } catch (error) {
       console.error(error);
@@ -1053,9 +1135,7 @@ function SignupForm({ display }) {
             <div className="w-14 h-14 rounded-full bg-[#C2F751] mx-auto flex items-center justify-center mb-5">
               <Check className="w-7 h-7 text-[#0B1015]" strokeWidth={3} />
             </div>
-            <h3 style={display} className="text-3xl font-bold tracking-tight">
-              You're on the list.
-            </h3>
+            <h3 style={display} className="text-3xl font-bold tracking-tight">You're on the list.</h3>
             <p className="mt-3 text-white/70 max-w-md mx-auto leading-relaxed">
               We'll email <span className="text-[#C2F751]">{form.email}</span> when the first diagnostic beta opens. If enough parents want the £19 Revision Sprint, we'll prioritise that version first.
             </p>
@@ -1108,21 +1188,16 @@ function Select({ value, onChange, options }) {
         className="w-full appearance-none bg-white border border-black/10 rounded-xl px-4 py-3 pr-10 text-[15px] focus:outline-none focus:border-[#0B1015] focus:ring-2 focus:ring-[#C2F751]/40 transition-shadow"
       >
         {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
+          <option key={o} value={o}>{o}</option>
         ))}
       </select>
-      <ChevronDown
-        className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black/40"
-        strokeWidth={2.5}
-      />
+      <ChevronDown className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black/40" strokeWidth={2.5} />
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// FAQ — transparent answers about prototype status, payment, grades
+// FAQ
 // ---------------------------------------------------------------------------
 function FAQ({ display }) {
   const items = [
@@ -1179,29 +1254,21 @@ function FAQ({ display }) {
             return (
               <div
                 key={i}
-                className={`rounded-2xl border transition-all ${
-                  open ? "border-[#0B1015] bg-white" : "border-black/[0.08] bg-white/60"
-                }`}
+                className={`rounded-2xl border transition-all ${open ? "border-[#0B1015] bg-white" : "border-black/[0.08] bg-white/60"}`}
               >
                 <button
                   onClick={() => setOpenIndex(open ? -1 : i)}
                   className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
                   aria-expanded={open}
                 >
-                  <span className="font-semibold text-[16px] sm:text-lg tracking-tight" style={display}>
-                    {item.q}
-                  </span>
+                  <span className="font-semibold text-[16px] sm:text-lg tracking-tight" style={display}>{item.q}</span>
                   <ChevronDown
-                    className={`w-5 h-5 flex-shrink-0 text-[#0B1015] transition-transform ${
-                      open ? "rotate-180" : ""
-                    }`}
+                    className={`w-5 h-5 flex-shrink-0 text-[#0B1015] transition-transform ${open ? "rotate-180" : ""}`}
                     strokeWidth={2.25}
                   />
                 </button>
                 {open && (
-                  <div className="px-6 pb-5 -mt-1 text-[15px] text-black/70 leading-relaxed">
-                    {item.a}
-                  </div>
+                  <div className="px-6 pb-5 -mt-1 text-[15px] text-black/70 leading-relaxed">{item.a}</div>
                 )}
               </div>
             );
@@ -1233,23 +1300,19 @@ function FAQ({ display }) {
 }
 
 // ---------------------------------------------------------------------------
-// Footer
+// Footer — links now open modals via onOpenModal prop
 // ---------------------------------------------------------------------------
-function Footer({ display, mono }) {
+function Footer({ display, mono, onOpenModal }) {
   return (
     <footer className="border-t border-black/[0.06] py-12">
       <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-lg bg-[#0B1015] flex items-center justify-center flex-shrink-0">
-            <span className="text-[#C2F751] font-bold text-base leading-none" style={display}>
-              R
-            </span>
+            <span className="text-[#C2F751] font-bold text-base leading-none" style={display}>R</span>
           </div>
           <div>
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="font-semibold tracking-tight text-[15px]" style={display}>
-                Revily
-              </span>
+              <span className="font-semibold tracking-tight text-[15px]" style={display}>Revily</span>
               <span className="text-[13px] text-black/55 italic">Know what to revise next.</span>
             </div>
             <div className="text-[12px] text-black/45 mt-1" style={mono}>
@@ -1257,10 +1320,26 @@ function Footer({ display, mono }) {
             </div>
           </div>
         </div>
+
         <div className="flex items-center gap-6 text-sm text-black/55">
-          <a href="#" className="hover:text-black transition-colors">Privacy</a>
-          <a href="#" className="hover:text-black transition-colors">Terms</a>
-          <a href="#" className="hover:text-black transition-colors">Contact</a>
+          <button
+            onClick={() => onOpenModal("privacy")}
+            className="hover:text-black transition-colors underline-offset-2 hover:underline"
+          >
+            Privacy
+          </button>
+          <button
+            onClick={() => onOpenModal("terms")}
+            className="hover:text-black transition-colors underline-offset-2 hover:underline"
+          >
+            Terms
+          </button>
+          <button
+            onClick={() => onOpenModal("contact")}
+            className="hover:text-black transition-colors underline-offset-2 hover:underline"
+          >
+            Contact
+          </button>
         </div>
       </div>
     </footer>
