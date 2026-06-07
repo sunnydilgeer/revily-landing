@@ -97,7 +97,7 @@ export function AppHeader() {
         <button
           onClick={() => router.push("/")}
           className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opacity hover:opacity-80"
-          style={{ fontFamily: "'Syne', sans-serif" }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           Revily
         </button>
@@ -122,7 +122,7 @@ export function AppHeader() {
                 backgroundColor: "#1a1d27",
                 border: "1.5px solid #f9c74f70",
                 color: "#f9c74f",
-                fontFamily: "'Syne', sans-serif",
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               <span>🗺</span> Map
@@ -171,7 +171,7 @@ export function AppHeader() {
             onClick={handleSignOut}
             title="Sign out"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f9c74f] text-xs font-bold text-[#0f1117] transition-opacity hover:opacity-80"
-            style={{ fontFamily: "'Syne', sans-serif" }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             {initials || "?"}
           </button>

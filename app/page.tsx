@@ -102,7 +102,7 @@ function SkillCardComponent({
         <div className="flex-1 min-w-0">
           <div
             className="mb-1 text-base font-bold leading-tight text-[#f1f0ee] truncate"
-            style={{ fontFamily: "'Syne', sans-serif" }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             {skill.name}
           </div>
@@ -132,7 +132,7 @@ function SkillCardComponent({
         onClick={() => onStart(skill.id)}
         className="w-full rounded-full py-2.5 text-sm font-bold transition-all duration-150"
         style={{
-          fontFamily: "'Syne', sans-serif",
+          fontFamily: "'Bricolage Grotesque', sans-serif",
           backgroundColor: started ? "transparent" : "#f9c74f",
           color: started ? "#f9c74f" : "#0f1117",
           border: started ? "2px solid #f9c74f40" : "2px solid transparent",
@@ -264,7 +264,7 @@ export default function HomePage() {
           </div>
           <h1
             className="mb-6 text-3xl font-extrabold text-[#f1f0ee]"
-            style={{ fontFamily: "'Syne', sans-serif" }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Welcome back, {firstName} 👋
           </h1>
@@ -277,7 +277,7 @@ export default function HomePage() {
               <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Level</div>
               <div
                 className="text-2xl font-extrabold text-[#f9c74f]"
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {level}
               </div>
@@ -289,7 +289,7 @@ export default function HomePage() {
               <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Total XP</div>
               <div
                 className="text-2xl font-extrabold text-[#f9c74f]"
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {profile.xp}
               </div>
@@ -307,7 +307,7 @@ export default function HomePage() {
               <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Streak</div>
               <div
                 className="text-2xl font-extrabold text-[#f1f0ee]"
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 🔥 {profile.streak}
               </div>
@@ -321,7 +321,7 @@ export default function HomePage() {
               <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Accuracy</div>
               <div
                 className="text-2xl font-extrabold text-[#f1f0ee]"
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {totalAnswered > 0
                   ? `${Math.round((totalCorrect / totalAnswered) * 100)}%`
@@ -346,7 +346,7 @@ export default function HomePage() {
           <div className="mb-4 flex items-center justify-between">
             <h2
               className="text-lg font-extrabold text-[#f1f0ee]"
-              style={{ fontFamily: "'Syne', sans-serif" }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Your Skills
             </h2>

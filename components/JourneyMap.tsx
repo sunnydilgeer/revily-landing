@@ -145,7 +145,7 @@ function Checkpoint({
             className="text-sm font-semibold leading-tight"
             style={{
               color: isLocked ? "#3a3f58" : isComplete ? colour : "#f1f0ee",
-              fontFamily: "'Syne', sans-serif",
+              fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
           >
             {skill.name}
@@ -331,7 +331,7 @@ export function JourneyMap({
             <div>
               <div
                 className="text-lg font-extrabold text-[#f1f0ee]"
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 GCSE Foundation Journey
               </div>
@@ -397,7 +397,7 @@ export function JourneyMap({
                           style={{
                             backgroundColor: `${group.colour}15`,
                             color: group.colour,
-                            fontFamily: "'Syne', sans-serif",
+                            fontFamily: "'Bricolage Grotesque', sans-serif",
                             border: `1px solid ${group.colour}30`,
                           }}
                         >
@@ -406,7 +406,7 @@ export function JourneyMap({
                         <div className="text-left">
                           <div
                             className="text-sm font-bold text-[#f1f0ee]"
-                            style={{ fontFamily: "'Syne', sans-serif" }}
+                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                           >
                             {group.name}
                           </div>

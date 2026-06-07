@@ -102,7 +102,7 @@ function OptionButton({ label, text, state, onClick, disabled }: {
   return (
     <button className={`${base} ${styles[state]}`} onClick={onClick} disabled={disabled}>
       <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold ${letterStyles[state]}`}
-        style={{ fontFamily: "'Syne', sans-serif" }}>
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
         {label}
       </div>
       <span className="flex-1">{text}</span>
@@ -133,7 +133,7 @@ function QuestionCard({ q, index, total, onAnswer, result }: {
         Question {index + 1} of {total}
       </div>
       <div className="mb-7 text-xl leading-snug text-[#f1f0ee]"
-        style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700 }}>
         {q.question}
       </div>
       <div className="flex flex-col gap-3">
@@ -145,7 +145,7 @@ function QuestionCard({ q, index, total, onAnswer, result }: {
       {answered && (
         <div className="mt-5 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
           <div className={`mb-1.5 text-xs font-bold uppercase tracking-wider ${result === q.correct ? "text-[#4ade80]" : "text-[#f87171]"}`}
-            style={{ fontFamily: "'Syne', sans-serif" }}>
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             {result === q.correct ? "✓ Correct!" : "✗ Not quite"}
           </div>
           <div className="text-sm leading-relaxed text-[#8a8fa8]">{q.worked}</div>
@@ -168,7 +168,7 @@ function ScoreScreen({ results, xpEarned, onHome }: {
     <div className="text-center">
       <div className="mb-2 text-5xl">{emoji}</div>
       <div className="text-5xl font-extrabold text-[#f9c74f]"
-        style={{ fontFamily: "'Syne', sans-serif" }}>
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
         {correct}/{total}
       </div>
       <div className="mb-4 mt-1 text-sm text-[#8a8fa8]">{msg} · {pct}% correct</div>
@@ -191,7 +191,7 @@ function ScoreScreen({ results, xpEarned, onHome }: {
       </div>
       <button onClick={onHome}
         className="w-full rounded-full bg-[#f9c74f] py-3 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
-        style={{ fontFamily: "'Syne', sans-serif" }}>
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
         Back to Home
       </button>
     </div>
@@ -346,7 +346,7 @@ export default function Practice() {
               <div className="mt-6 flex justify-end">
                 <button onClick={handleNext}
                   className="rounded-full bg-[#f9c74f] px-7 py-2.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
-                  style={{ fontFamily: "'Syne', sans-serif" }}>
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   {index === questions.length - 1 ? "See Results" : "Next Question"} →
                 </button>
               </div>
