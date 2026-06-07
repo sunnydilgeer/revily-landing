@@ -113,7 +113,7 @@ export default function AuthPage() {
         <div className="mb-8 text-center">
           <div
             className="mb-1 text-3xl font-extrabold tracking-tight text-[#f9c74f]"
-            style={{ fontFamily: "'Syne', sans-serif" }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Revily
           </div>
@@ -139,7 +139,7 @@ export default function AuthPage() {
                     ? "bg-[#f9c74f] text-[#0f1117]"
                     : "text-[#555a73] hover:text-[#8a8fa8]"
                 }`}
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {m === "signin" ? "Sign in" : "Sign up"}
               </button>
@@ -218,7 +218,7 @@ export default function AuthPage() {
               onClick={handleEmailAuth}
               disabled={isLoading || !email || password.length < 6}
               className="w-full rounded-full bg-[#f9c74f] py-3 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90 disabled:opacity-40"
-              style={{ fontFamily: "'Syne', sans-serif" }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {buttonLabel}
             </button>
