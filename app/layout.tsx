@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AppHeader } from "@/components/AppHeader";
 
 export const metadata: Metadata = {
-  title: "Revily — GCSE Maths Revision",
-  description:
-    "A 10-minute-a-day GCSE Maths revision tool for Foundation students working toward Grade 4/5.",
+  title: "Revily",
+  description: "Level up your maths",
 };
 
 export default function RootLayout({
@@ -16,17 +16,16 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body className="bg-[#0f1117] antialiased">
+        <AppHeader />
+        {children}
+      </body>
     </html>
   );
 }
