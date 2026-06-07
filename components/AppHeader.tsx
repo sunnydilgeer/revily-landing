@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { JourneyMap } from "@/components/JourneyMap";
 
 type Profile = {
   xp: number;
@@ -15,6 +16,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [mapOpen, setMapOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [initials, setInitials] = useState<string>("");
   const [mounted, setMounted] = useState(false);
@@ -84,6 +86,7 @@ export function AppHeader() {
   }
 
   return (
+    <>
     <header
       className="sticky top-0 z-50 w-full border-b border-[#2e3248] bg-[#0f1117]/90 backdrop-blur-md"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
@@ -101,6 +104,37 @@ export function AppHeader() {
 
         {/* Stats + avatar */}
         <div className="flex items-center gap-2">
+
+          {/* Map button */}
+          <div className="relative hidden sm:block">
+            {/* Pulsing ring */}
+            <span className="absolute inset-0 rounded-full animate-ping"
+              style={{ backgroundColor: "#f9c74f18", animationDuration: "1.8s" }} />
+            <span className="absolute inset-[-3px] rounded-full"
+              style={{
+                border: "1.5px solid #f9c74f50",
+                animation: "mapRingPulse 1.8s ease-out infinite",
+              }} />
+            <button
+              onClick={() => setMapOpen(true)}
+              className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 hover:scale-105"
+              style={{
+                backgroundColor: "#1a1d27",
+                border: "1.5px solid #f9c74f70",
+                color: "#f9c74f",
+                fontFamily: "'Syne', sans-serif",
+              }}
+            >
+              <span>🗺</span> Map
+            </button>
+            <style>{`
+              @keyframes mapRingPulse {
+                0%   { transform: scale(1);    opacity: 0.6; }
+                70%  { transform: scale(1.35); opacity: 0;   }
+                100% { transform: scale(1.35); opacity: 0;   }
+              }
+            `}</style>
+          </div>
 
           {/* XP */}
           <div className="flex items-center gap-1.5 rounded-full border border-[#2e3248] bg-[#1a1d27] px-3 py-1.5">
@@ -145,5 +179,7 @@ export function AppHeader() {
         </div>
       </div>
     </header>
+    <JourneyMap open={mapOpen} onClose={() => setMapOpen(false)} />
+    </>
   );
 }

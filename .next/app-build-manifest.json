@@ -11,16 +11,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/auth/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/page.js"
-    ],
-    "/auth/callback/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/callback/page.js"
-    ],
     "/practice/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

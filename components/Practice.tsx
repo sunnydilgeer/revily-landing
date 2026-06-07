@@ -96,13 +96,21 @@ function OptionButton({ label, text, state, onClick, disabled }: {
     highlight: "bg-[#4ade80] text-[#0d1f15]",
     dimmed:    "bg-[#2e3248] text-[#555a73]",
   };
+  const keyHints: Record<string, string> = { A: "1", B: "2", C: "3", D: "4" };
+  const hint = keyHints[label];
+
   return (
     <button className={`${base} ${styles[state]}`} onClick={onClick} disabled={disabled}>
       <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold ${letterStyles[state]}`}
         style={{ fontFamily: "'Syne', sans-serif" }}>
         {label}
       </div>
-      <span>{text}</span>
+      <span className="flex-1">{text}</span>
+      {state === "idle" && hint && (
+        <span className="ml-auto rounded-md border border-[#3a3f58] bg-[#2e3248] px-1.5 py-0.5 text-[10px] font-mono text-[#555a73]">
+          {hint}
+        </span>
+      )}
     </button>
   );
 }
@@ -261,6 +269,30 @@ export default function Practice() {
   }
 
   function handleHome() { router.push("/"); }
+
+  // ── Keyboard shortcuts ─────────────────────────────────────────────────
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Don't fire if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      const keyMap: Record<string, string> = {
+        a: "A", b: "B", c: "C", d: "D",
+        "1": "A", "2": "B", "3": "C", "4": "D",
+      };
+      const mapped = keyMap[e.key.toLowerCase()];
+      if (mapped && !currentResult && q) {
+        handleAnswer(mapped);
+        return;
+      }
+      if ((e.key === "Enter" || e.key === " ") && currentResult) {
+        e.preventDefault();
+        handleNext();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentResult, q, handleAnswer]);
 
   if (loading) return (
     <div className="flex min-h-screen items-center justify-center bg-[#0f1117]">
