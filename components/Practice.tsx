@@ -256,10 +256,10 @@ export default function Practice() {
     if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
     logAttempt(q.id, key, isCorrect, userId);
     if (isCorrect && userId) {
-      const [newXP, newStreak] = await Promise.all([awardXP(userId), updateStreak(userId)]);
-      // Suppress unused vars — AppHeader re-fetches on its own
-      void newXP; void newStreak;
+      await Promise.all([awardXP(userId), updateStreak(userId)]);
       setXpEarned((prev) => prev + 10);
+      // Tell the header to re-fetch immediately
+      window.dispatchEvent(new Event("revily:xp-updated"));
     }
   }, [q, userId]);
 

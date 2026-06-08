@@ -887,9 +887,6 @@
   .bg-\[\#0f1117\] {
     background-color: #0f1117;
   }
-  .bg-\[\#0f1117\]\/90 {
-    background-color: color-mix(in oklab, #0f1117 90%, transparent);
-  }
   .bg-\[\#1a1d27\] {
     background-color: #1a1d27;
   }
@@ -1649,13 +1646,6 @@
       }
     }
   }
-  .hover\:text-\[\#f9c74f\] {
-    &:hover {
-      @media (hover: hover) {
-        color: #f9c74f;
-      }
-    }
-  }
   .hover\:text-black {
     &:hover {
       @media (hover: hover) {
@@ -1758,11 +1748,6 @@
   .sm\:-mt-8 {
     @media (width >= 40rem) {
       margin-top: calc(var(--spacing) * -8);
-    }
-  }
-  .sm\:block {
-    @media (width >= 40rem) {
-      display: block;
     }
   }
   .sm\:flex {
