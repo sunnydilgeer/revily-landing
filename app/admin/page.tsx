@@ -716,8 +716,10 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
 
 // ── Main ───────────────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const [authed, setAuthed] = useState(false);
-  const [pw, setPw] = useState("");
+    const [authed, setAuthed] = useState(() => {
+        if (typeof window === "undefined") return false;
+        return sessionStorage.getItem("revily_admin") === "1";
+      });  const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [tab, setTab] = useState<Tab>("skills");
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -731,6 +733,7 @@ export default function AdminPage() {
 
   function handleLogin() {
     if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem("revily_admin", "1");
       setAuthed(true);
       setPwError(false);
     } else {
@@ -794,7 +797,8 @@ export default function AdminPage() {
             </div>
             <div className="text-xs text-[#555a73]">Content management</div>
           </div>
-          <button onClick={() => setAuthed(false)}
+          <button onClick={() => { sessionStorage.removeItem("revily_admin"); setAuthed(false); }}
+
             className="text-xs text-[#555a73] hover:text-[#f1f0ee] transition-colors">
             Sign out
           </button>
