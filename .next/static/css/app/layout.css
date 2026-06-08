@@ -1551,6 +1551,10 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
+  .duration-300 {
+    --tw-duration: 300ms;
+    transition-duration: 300ms;
+  }
   .duration-500 {
     --tw-duration: 500ms;
     transition-duration: 500ms;
@@ -1594,6 +1598,14 @@
   .placeholder\:text-\[\#555a73\] {
     &::placeholder {
       color: #555a73;
+    }
+  }
+  .hover\:translate-x-0\.5 {
+    &:hover {
+      @media (hover: hover) {
+        --tw-translate-x: calc(var(--spacing) * 0.5);
+        translate: var(--tw-translate-x) var(--tw-translate-y);
+      }
     }
   }
   .hover\:scale-105 {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import MathText from "@/components/MathText";
@@ -89,15 +89,65 @@ async function updateStreak(userId: string): Promise<number> {
   return newStreak;
 }
 
+// ── XP Float ──────────────────────────────────────────────────────────────
+// Inject keyframes once into the document head
+const XP_STYLE_ID = "revily-xp-float-style";
+function ensureXPStyle() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(XP_STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = XP_STYLE_ID;
+  style.textContent = `
+    @keyframes revilyXPFloat {
+      0%   { opacity: 0; transform: translateY(0)   scale(0.8); }
+      20%  { opacity: 1; transform: translateY(-6px) scale(1.2); }
+      60%  { opacity: 1; transform: translateY(-22px) scale(1); }
+      100% { opacity: 0; transform: translateY(-40px) scale(0.9); }
+    }
+    .revily-xp-float {
+      position: fixed;
+      pointer-events: none;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #f9c74f;
+      white-space: nowrap;
+      z-index: 9999;
+      animation: revilyXPFloat 1.1s ease-out forwards;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function fireXPFloat() {
+  ensureXPStyle();
+  // Find the XP badge in the header via data attribute
+  const badge = document.querySelector<HTMLElement>("[data-revily-xp-badge]");
+  const el = document.createElement("div");
+  el.className = "revily-xp-float";
+  el.textContent = "+10 XP";
+  if (badge) {
+    const rect = badge.getBoundingClientRect();
+    el.style.left = rect.left + rect.width / 2 + "px";
+    el.style.top  = rect.top + "px";
+  } else {
+    // Fallback: top-right corner
+    el.style.right = "1.5rem";
+    el.style.top   = "3.5rem";
+  }
+  document.body.appendChild(el);
+  el.addEventListener("animationend", () => el.remove());
+}
+
 // ── OptionButton ───────────────────────────────────────────────────────────
 type OptionState = "idle" | "correct" | "wrong" | "highlight" | "dimmed";
 
 function OptionButton({ label, text, state, onClick, disabled }: {
   label: string; text: string; state: OptionState; onClick: () => void; disabled: boolean;
 }) {
-  const base = "flex items-center gap-3 w-full rounded-xl border-2 px-4 py-3.5 text-left transition-all duration-150 text-sm";
+  const base = "flex items-center gap-3 w-full rounded-xl border-2 px-4 py-4 text-left transition-all duration-150";
   const styles: Record<OptionState, string> = {
-    idle:      "border-[#2e3248] bg-[#22263a] text-[#f1f0ee] hover:border-[#f9c74f] cursor-pointer",
+    idle:      "border-[#2e3248] bg-[#22263a] text-[#f1f0ee] hover:border-[#f9c74f] hover:translate-x-0.5 cursor-pointer",
     correct:   "border-[#4ade80] bg-[#0d1f15] text-[#f1f0ee] cursor-default",
     wrong:     "border-[#f87171] bg-[#1e0f0f] text-[#f1f0ee] cursor-default",
     highlight: "border-[#4ade80] bg-[#0d1f15] text-[#f1f0ee] cursor-default",
@@ -116,12 +166,15 @@ function OptionButton({ label, text, state, onClick, disabled }: {
   return (
     <button className={`${base} ${styles[state]}`} onClick={onClick} disabled={disabled}>
       <div
-        className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold ${letterStyles[state]}`}
+        className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold ${letterStyles[state]}`}
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
         {label}
       </div>
-      <span className="flex-1"><MathText text={text} /></span>
+      {/* ↑ font-size bump: was text-sm on span, now text-lg font-bold */}
+      <span className="flex-1 text-lg font-bold leading-snug" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <MathText text={text} />
+      </span>
       {state === "idle" && hint && (
         <span className="ml-auto rounded-md border border-[#3a3f58] bg-[#2e3248] px-1.5 py-0.5 text-[10px] font-mono text-[#555a73]">
           {hint}
@@ -134,26 +187,16 @@ function OptionButton({ label, text, state, onClick, disabled }: {
 // ── HintButton ─────────────────────────────────────────────────────────────
 function HintButton({ hints, answered }: { hints: Hint[]; answered: boolean }) {
   const [revealed, setRevealed] = useState(0);
-
-  // Reset when question changes
   useEffect(() => { setRevealed(0); }, [hints]);
-
   if (!hints.length || answered) return null;
-
   return (
     <div className="flex flex-col items-end gap-2">
-      {/* Revealed hints */}
       {hints.slice(0, revealed).map((h, i) => (
-        <div
-          key={i}
-          className="w-full rounded-xl border border-[#f9c74f33] bg-[#f9c74f0d] px-4 py-3 text-sm text-[#f9c74f]"
-        >
+        <div key={i} className="w-full rounded-xl border border-[#f9c74f33] bg-[#f9c74f0d] px-4 py-3 text-sm text-[#f9c74f]">
           <span className="mr-2 font-bold">💡</span>
           <MathText text={h.hint_text} />
         </div>
       ))}
-
-      {/* Show hint button — advances through hints */}
       {revealed < hints.length && (
         <button
           onClick={() => setRevealed((r) => r + 1)}
@@ -172,13 +215,8 @@ function WorkedExampleButton({ workedSolution, answered }: {
   answered: boolean;
 }) {
   const [revealed, setRevealed] = useState(false);
-
-  // Reset when question changes
   useEffect(() => { setRevealed(false); }, [workedSolution]);
-
-  // Hide once answered — the post-answer panel takes over
   if (answered || !workedSolution) return null;
-
   return (
     <div className="flex flex-col items-end gap-2">
       {revealed && (
@@ -222,6 +260,35 @@ function MisconceptionPanel({ misconception }: { misconception: Misconception | 
   );
 }
 
+// ── ProgressDots ───────────────────────────────────────────────────────────
+function ProgressDots({ results, total, currentIndex }: {
+  results: Result[];
+  total: number;
+  currentIndex: number;
+}) {
+  return (
+    <div className="flex gap-1.5 items-center">
+      {Array.from({ length: total }).map((_, i) => {
+        const result = results[i];
+        const isCurrent = i === currentIndex && !result;
+        let bg = "bg-[#22263a]"; // future
+        if (result?.correct) bg = "bg-[#4ade80]";
+        else if (result && !result.correct) bg = "bg-[#f87171]";
+        else if (isCurrent) bg = "bg-[#f9c74f]";
+        return (
+          <div
+            key={i}
+            className={`h-2 flex-1 rounded-full transition-all duration-300 ${bg}`}
+            style={{
+              transform: isCurrent ? "scaleY(1.4)" : "scaleY(1)",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 // ── QuestionCard ───────────────────────────────────────────────────────────
 function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions }: {
   q: UIQuestion;
@@ -241,12 +308,9 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
     return "dimmed";
   }
 
-  // Find misconception for the picked wrong answer
   const activeMisconception = answered && result !== q.correct
     ? misconceptions.find(
-        (m) =>
-          m.question_id === q.id &&
-          m.wrong_option?.toUpperCase() === result?.toUpperCase()
+        (m) => m.question_id === q.id && m.wrong_option?.toUpperCase() === result?.toUpperCase()
       ) ?? null
     : null;
 
@@ -259,24 +323,21 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
         </div>
       </div>
 
-      {/* Question text */}
+      {/* Question text — bumped from text-xl to text-2xl */}
       <div
-        className="mb-5 text-xl leading-snug text-[#f1f0ee]"
+        className="mb-5 text-2xl leading-snug text-[#f1f0ee]"
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700 }}
       >
         <MathText text={q.question} />
       </div>
 
-      {/* Lifelines row — hint + worked example, stacked, right-aligned */}
+      {/* Lifelines */}
       <div className="mb-4 flex flex-col gap-2">
         <HintButton
           hints={hints.filter((h) => h.question_id === q.id).sort((a, b) => a.order_index - b.order_index)}
           answered={answered}
         />
-        <WorkedExampleButton
-          workedSolution={q.worked}
-          answered={answered}
-        />
+        <WorkedExampleButton workedSolution={q.worked} answered={answered} />
       </div>
 
       {/* Options */}
@@ -296,10 +357,7 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
       {/* Post-answer feedback */}
       {answered && (
         <>
-          {/* Misconception panel — only when wrong answer has a mapped misconception */}
           <MisconceptionPanel misconception={activeMisconception} />
-
-          {/* Worked solution */}
           <div className="mt-3 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
             <div
               className={`mb-1.5 text-xs font-bold uppercase tracking-wider ${result === q.correct ? "text-[#4ade80]" : "text-[#f87171]"}`}
@@ -342,6 +400,18 @@ function ScoreScreen({ results, xpEarned, onHome }: {
           ⚡ +{xpEarned} XP earned this session
         </div>
       )}
+
+      {/* Colour-coded dot summary on score screen */}
+      <div className="mb-6 flex gap-1.5">
+        {results.map((r, i) => (
+          <div
+            key={i}
+            title={`Q${i + 1}: ${r.correct ? "correct" : "wrong"}`}
+            className={`h-2.5 flex-1 rounded-full ${r.correct ? "bg-[#4ade80]" : "bg-[#f87171]"}`}
+          />
+        ))}
+      </div>
+
       <div className="mb-8 flex flex-col gap-2 text-left">
         {results.map((r, i) => (
           <div key={i} className="flex items-center gap-3 rounded-xl bg-[#22263a] px-4 py-3 text-sm">
@@ -377,7 +447,6 @@ export default function Practice() {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Hints + misconceptions indexed by question id
   const [hints, setHints] = useState<Hint[]>([]);
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
 
@@ -394,12 +463,10 @@ export default function Practice() {
       setUserId(session?.user?.id ?? null);
 
       if (skillId) {
-        const { data: skill } = await supabase
-          .from("skills").select("name").eq("id", skillId).single();
+        const { data: skill } = await supabase.from("skills").select("name").eq("id", skillId).single();
         if (skill) setSkillName(skill.name);
       }
 
-      // Fetch questions
       let query = supabase.from("questions").select("*").order("id");
       if (skillId) query = query.eq("skill_id", skillId);
       const { data: qData, error: qErr } = await query;
@@ -413,18 +480,10 @@ export default function Practice() {
       const uiQuestions = (qData as Question[]).map(toUIQuestion);
       setQuestions(uiQuestions);
 
-      // Fetch hints and misconceptions for these question ids
       const qIds = qData.map((q: Question) => q.id);
-
       const [{ data: hData }, { data: mData }] = await Promise.all([
-        supabase
-          .from("hints")
-          .select("question_id, hint_text, order_index")
-          .in("question_id", qIds),
-        supabase
-          .from("misconceptions")
-          .select("question_id, wrong_option, title, description")
-          .in("question_id", qIds),
+        supabase.from("hints").select("question_id, hint_text, order_index").in("question_id", qIds),
+        supabase.from("misconceptions").select("question_id, wrong_option, title, description").in("question_id", qIds),
       ]);
 
       setHints((hData as Hint[]) ?? []);
@@ -435,9 +494,6 @@ export default function Practice() {
   }, [skillId]);
 
   const q = questions[index];
-  const filledProgress = !questions.length ? 0
-    : done ? 100
-    : ((index + (currentResult ? 1 : 0)) / questions.length) * 100;
 
   const handleAnswer = useCallback(async (key: string) => {
     const isCorrect = key === q.correct;
@@ -448,6 +504,8 @@ export default function Practice() {
     if (isCorrect && userId) {
       await Promise.all([awardXP(userId), updateStreak(userId)]);
       setXpEarned((prev) => prev + 10);
+      // Fire the floating +10 XP animation
+      fireXPFloat();
       window.dispatchEvent(new Event("revily:xp-updated"));
     }
   }, [q, userId]);
@@ -459,7 +517,6 @@ export default function Practice() {
 
   function handleHome() { router.push("/home"); }
 
-  // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -517,11 +574,12 @@ export default function Practice() {
           </button>
         </div>
 
-        {/* Progress bar */}
-        <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-[#22263a]">
-          <div
-            className="h-full rounded-full bg-[#f9c74f] transition-all duration-500"
-            style={{ width: `${filledProgress}%` }}
+        {/* Colour-coded progress dots — replaces plain fill bar */}
+        <div className="mb-6">
+          <ProgressDots
+            results={results}
+            total={questions.length}
+            currentIndex={index}
           />
         </div>
 
