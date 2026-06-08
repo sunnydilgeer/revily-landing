@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import MathText from "@/components/MathText";
@@ -55,7 +55,10 @@ function toUIQuestion(q: Question): UIQuestion {
 function getSessionId(): string {
   if (typeof window === "undefined") return "";
   let id = localStorage.getItem("revily_session_id");
-  if (!id) { id = crypto.randomUUID(); localStorage.setItem("revily_session_id", id); }
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("revily_session_id", id);
+  }
   return id;
 }
 
@@ -89,54 +92,68 @@ async function updateStreak(userId: string): Promise<number> {
   return newStreak;
 }
 
-// ── XP Float ──────────────────────────────────────────────────────────────
-// Inject keyframes once into the document head
-const XP_STYLE_ID = "revily-xp-float-style";
-function ensureXPStyle() {
+// ── Enhanced Global Audio/Animation Styles ──────────────────────────────────
+const ADVANCED_STYLE_ID = "revily-advanced-mobile-styles";
+function ensureAdvancedStyles() {
   if (typeof document === "undefined") return;
-  if (document.getElementById(XP_STYLE_ID)) return;
+  if (document.getElementById(ADVANCED_STYLE_ID)) return;
   const style = document.createElement("style");
-  style.id = XP_STYLE_ID;
+  style.id = ADVANCED_STYLE_ID;
   style.textContent = `
     @keyframes revilyXPFloat {
-      0%   { opacity: 0; transform: translateY(0)   scale(0.8); }
-      20%  { opacity: 1; transform: translateY(-6px) scale(1.2); }
-      60%  { opacity: 1; transform: translateY(-22px) scale(1); }
-      100% { opacity: 0; transform: translateY(-40px) scale(0.9); }
+      0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+      20%  { opacity: 1; transform: translateY(-8px) scale(1.2); }
+      60%  { opacity: 1; transform: translateY(-28px) scale(1); }
+      100% { opacity: 0; transform: translateY(-48px) scale(0.9); }
     }
     .revily-xp-float {
       position: fixed;
       pointer-events: none;
       font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
       color: #f9c74f;
       white-space: nowrap;
       z-index: 9999;
-      animation: revilyXPFloat 1.1s ease-out forwards;
+      animation: revilyXPFloat 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+    @keyframes subtlePop {
+      0% { transform: scale(0.98); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    .animate-pop { animation: subtlePop 0.25s ease-out; }
   `;
   document.head.appendChild(style);
 }
 
 function fireXPFloat() {
-  ensureXPStyle();
-  // Find the XP badge in the header via data attribute
+  ensureAdvancedStyles();
   const badge = document.querySelector<HTMLElement>("[data-revily-xp-badge]");
   const el = document.createElement("div");
   el.className = "revily-xp-float";
-  el.textContent = "+10 XP";
+  el.textContent = "⚡ +10 XP";
   if (badge) {
     const rect = badge.getBoundingClientRect();
     el.style.left = rect.left + rect.width / 2 + "px";
-    el.style.top  = rect.top + "px";
+    el.style.top = rect.top + "px";
   } else {
-    // Fallback: top-right corner
     el.style.right = "1.5rem";
-    el.style.top   = "3.5rem";
+    el.style.top = "3.5rem";
   }
   document.body.appendChild(el);
   el.addEventListener("animationend", () => el.remove());
+}
+
+// ── Trigger Native Vibration for Haptic Feedback ───────────────────────────
+function triggerHaptic(type: "correct" | "error") {
+  if (typeof navigator !== "undefined" && navigator.vibrate) {
+    if (type === "correct") {
+      navigator.vibrate(40); // One quick crisp tap
+    } else {
+      navigator.vibrate([60, 50, 60]); // Double rejection tap
+    }
+  }
 }
 
 // ── OptionButton ───────────────────────────────────────────────────────────
@@ -145,13 +162,13 @@ type OptionState = "idle" | "correct" | "wrong" | "highlight" | "dimmed";
 function OptionButton({ label, text, state, onClick, disabled }: {
   label: string; text: string; state: OptionState; onClick: () => void; disabled: boolean;
 }) {
-  const base = "flex items-center gap-3 w-full rounded-xl border-2 px-4 py-4 text-left transition-all duration-150";
+  const base = "flex items-center gap-4 w-full rounded-2xl border-2 px-5 py-4 text-left transition-all duration-150 active:scale-[0.99] select-none min-h-[64px]";
   const styles: Record<OptionState, string> = {
-    idle:      "border-[#2e3248] bg-[#22263a] text-[#f1f0ee] hover:border-[#f9c74f] hover:translate-x-0.5 cursor-pointer",
+    idle:      "border-[#2e3248] bg-[#22263a] text-[#f1f0ee] hover:border-[#f9c74f] cursor-pointer",
     correct:   "border-[#4ade80] bg-[#0d1f15] text-[#f1f0ee] cursor-default",
     wrong:     "border-[#f87171] bg-[#1e0f0f] text-[#f1f0ee] cursor-default",
     highlight: "border-[#4ade80] bg-[#0d1f15] text-[#f1f0ee] cursor-default",
-    dimmed:    "border-[#2e3248] bg-[#22263a] text-[#555a73] cursor-default opacity-50",
+    dimmed:    "border-[#2e3248] bg-[#22263a] text-[#555a73] cursor-default opacity-40",
   };
   const letterStyles: Record<OptionState, string> = {
     idle:      "bg-[#2e3248] text-[#f1f0ee]",
@@ -160,26 +177,19 @@ function OptionButton({ label, text, state, onClick, disabled }: {
     highlight: "bg-[#4ade80] text-[#0d1f15]",
     dimmed:    "bg-[#2e3248] text-[#555a73]",
   };
-  const keyHints: Record<string, string> = { A: "1", B: "2", C: "3", D: "4" };
-  const hint = keyHints[label];
 
   return (
     <button className={`${base} ${styles[state]}`} onClick={onClick} disabled={disabled}>
       <div
-        className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold ${letterStyles[state]}`}
+        className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-base font-black ${letterStyles[state]}`}
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
         {label}
       </div>
-      {/* ↑ font-size bump: was text-sm on span, now text-lg font-bold */}
-      <span className="flex-1 text-lg font-bold leading-snug" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+      {/* Bumped font size and improved spacing for readable math rendering */}
+      <span className="flex-1 text-xl font-bold leading-snug text-[#f1f0ee]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
         <MathText text={text} />
       </span>
-      {state === "idle" && hint && (
-        <span className="ml-auto rounded-md border border-[#3a3f58] bg-[#2e3248] px-1.5 py-0.5 text-[10px] font-mono text-[#555a73]">
-          {hint}
-        </span>
-      )}
     </button>
   );
 }
@@ -190,9 +200,9 @@ function HintButton({ hints, answered }: { hints: Hint[]; answered: boolean }) {
   useEffect(() => { setRevealed(0); }, [hints]);
   if (!hints.length || answered) return null;
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-stretch gap-2 w-full transition-all duration-300">
       {hints.slice(0, revealed).map((h, i) => (
-        <div key={i} className="w-full rounded-xl border border-[#f9c74f33] bg-[#f9c74f0d] px-4 py-3 text-sm text-[#f9c74f]">
+        <div key={i} className="w-full rounded-2xl border border-[#f9c74f33] bg-[#f9c74f0d] px-4 py-3.5 text-base text-[#f9c74f] animate-pop">
           <span className="mr-2 font-bold">💡</span>
           <MathText text={h.hint_text} />
         </div>
@@ -200,9 +210,10 @@ function HintButton({ hints, answered }: { hints: Hint[]; answered: boolean }) {
       {revealed < hints.length && (
         <button
           onClick={() => setRevealed((r) => r + 1)}
-          className="flex items-center gap-1.5 rounded-full border border-[#f9c74f44] bg-transparent px-3 py-1.5 text-xs text-[#f9c74f] transition-opacity hover:opacity-80"
+          className="self-start flex items-center gap-1.5 rounded-full border-2 border-[#f9c74f33] bg-[#1a1d27] px-4 py-2 text-sm font-bold text-[#f9c74f] transition-opacity active:scale-95"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
-          💡 {revealed === 0 ? "Show hint" : "Another hint"}
+          💡 {revealed === 0 ? "Get a Hint" : "Next Hint"}
         </button>
       )}
     </div>
@@ -210,17 +221,14 @@ function HintButton({ hints, answered }: { hints: Hint[]; answered: boolean }) {
 }
 
 // ── WorkedExampleButton ────────────────────────────────────────────────────
-function WorkedExampleButton({ workedSolution, answered }: {
-  workedSolution: string;
-  answered: boolean;
-}) {
+function WorkedExampleButton({ workedSolution, answered }: { workedSolution: string; answered: boolean }) {
   const [revealed, setRevealed] = useState(false);
   useEffect(() => { setRevealed(false); }, [workedSolution]);
   if (answered || !workedSolution) return null;
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-stretch gap-2 w-full transition-all duration-300">
       {revealed && (
-        <div className="w-full rounded-xl border border-[#818cf833] bg-[#818cf80d] px-4 py-3 text-sm text-[#a5b4fc]">
+        <div className="w-full rounded-2xl border border-[#818cf833] bg-[#818cf80d] px-4 py-3.5 text-base text-[#a5b4fc] animate-pop">
           <div
             className="mb-2 text-xs font-bold uppercase tracking-wider text-[#818cf8]"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
@@ -233,9 +241,10 @@ function WorkedExampleButton({ workedSolution, answered }: {
       {!revealed && (
         <button
           onClick={() => setRevealed(true)}
-          className="flex items-center gap-1.5 rounded-full border border-[#818cf844] bg-transparent px-3 py-1.5 text-xs text-[#818cf8] transition-opacity hover:opacity-80"
+          className="self-start flex items-center gap-1.5 rounded-full border-2 border-[#818cf833] bg-[#1a1d27] px-4 py-2 text-sm font-bold text-[#818cf8] transition-opacity active:scale-95"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
-          📖 Show example
+          📖 See Dynamic Example
         </button>
       )}
     </div>
@@ -246,14 +255,14 @@ function WorkedExampleButton({ workedSolution, answered }: {
 function MisconceptionPanel({ misconception }: { misconception: Misconception | null }) {
   if (!misconception) return null;
   return (
-    <div className="mt-3 rounded-xl border border-[#f8717133] bg-[#f871710d] px-4 py-3">
+    <div className="mt-3 rounded-2xl border border-[#f8717144] bg-[#f871710f] p-4 animate-pop">
       <div
-        className="mb-1 text-xs font-bold uppercase tracking-wider text-[#f87171]"
+        className="mb-1 text-sm font-black uppercase tracking-wide text-[#f87171] flex items-center gap-1.5"
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
-        ⚠ Common mistake: {misconception.title}
+        <span>⚠️</span> Common Trap: {misconception.title}
       </div>
-      <div className="text-sm leading-relaxed text-[#c88]">
+      <div className="text-base leading-relaxed text-[#e2b3b3]">
         {misconception.description}
       </div>
     </div>
@@ -261,26 +270,22 @@ function MisconceptionPanel({ misconception }: { misconception: Misconception | 
 }
 
 // ── ProgressDots ───────────────────────────────────────────────────────────
-function ProgressDots({ results, total, currentIndex }: {
-  results: Result[];
-  total: number;
-  currentIndex: number;
-}) {
+function ProgressDots({ results, total, currentIndex }: { results: Result[]; total: number; currentIndex: number }) {
   return (
-    <div className="flex gap-1.5 items-center">
+    <div className="flex gap-2 items-center w-full py-1">
       {Array.from({ length: total }).map((_, i) => {
         const result = results[i];
         const isCurrent = i === currentIndex && !result;
-        let bg = "bg-[#22263a]"; // future
+        let bg = "bg-[#22263a]"; 
         if (result?.correct) bg = "bg-[#4ade80]";
         else if (result && !result.correct) bg = "bg-[#f87171]";
         else if (isCurrent) bg = "bg-[#f9c74f]";
         return (
           <div
             key={i}
-            className={`h-2 flex-1 rounded-full transition-all duration-300 ${bg}`}
+            className={`h-2.5 flex-1 rounded-full transition-all duration-300 ${bg}`}
             style={{
-              transform: isCurrent ? "scaleY(1.4)" : "scaleY(1)",
+              transform: isCurrent ? "scaleY(1.3)" : "scaleY(1)",
             }}
           />
         );
@@ -316,23 +321,22 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
 
   return (
     <div>
-      {/* Question counter */}
-      <div className="mb-1 flex items-center justify-between">
-        <div className="text-xs uppercase tracking-widest text-[#8a8fa8]">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-xs font-bold uppercase tracking-widest text-[#8a8fa8]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Question {index + 1} of {total}
         </div>
       </div>
 
-      {/* Question text — bumped from text-xl to text-2xl */}
+      {/* Enlarged math display to reduce working memory strain */}
       <div
-        className="mb-5 text-2xl leading-snug text-[#f1f0ee]"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700 }}
+        className="mb-6 text-3xl leading-snug text-[#f1f0ee] tracking-tight"
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800 }}
       >
         <MathText text={q.question} />
       </div>
 
-      {/* Lifelines */}
-      <div className="mb-4 flex flex-col gap-2">
+      {/* Lifelines Accordion Area */}
+      <div className="mb-6 flex flex-col gap-3">
         <HintButton
           hints={hints.filter((h) => h.question_id === q.id).sort((a, b) => a.order_index - b.order_index)}
           answered={answered}
@@ -340,8 +344,8 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
         <WorkedExampleButton workedSolution={q.worked} answered={answered} />
       </div>
 
-      {/* Options */}
-      <div className="flex flex-col gap-3">
+      {/* Action Options */}
+      <div className="flex flex-col gap-3.5">
         {Object.entries(q.options).map(([k, v]) => (
           <OptionButton
             key={k}
@@ -354,88 +358,84 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
         ))}
       </div>
 
-      {/* Post-answer feedback */}
+      {/* Feedback Card */}
       {answered && (
-        <>
+        <div className="space-y-3">
           <MisconceptionPanel misconception={activeMisconception} />
-          <div className="mt-3 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
+          <div className="mt-4 rounded-2xl border border-[#2e3248] bg-[#22263a] p-5 animate-pop">
             <div
-              className={`mb-1.5 text-xs font-bold uppercase tracking-wider ${result === q.correct ? "text-[#4ade80]" : "text-[#f87171]"}`}
+              className={`mb-2 text-sm font-black uppercase tracking-wider ${result === q.correct ? "text-[#4ade80]" : "text-[#f87171]"}`}
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
-              {result === q.correct ? "✓ Correct!" : "✗ Not quite"}
+              {result === q.correct ? "🎉 Brilliantly Done!" : "🧠 Amazing Attempt! Let's Learn:"}
             </div>
-            <div className="text-sm leading-relaxed text-[#8a8fa8]">
+            <div className="text-base leading-relaxed text-[#aeb3d0]">
               <MathText text={q.worked} />
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
 }
 
 // ── ScoreScreen ────────────────────────────────────────────────────────────
-function ScoreScreen({ results, xpEarned, onHome }: {
-  results: Result[]; xpEarned: number; onHome: () => void;
-}) {
+function ScoreScreen({ results, xpEarned, onHome }: { results: Result[]; xpEarned: number; onHome: () => void }) {
   const correct = results.filter((r) => r.correct).length;
   const total = results.length;
   const pct = Math.round((correct / total) * 100);
   const emoji = pct >= 80 ? "🏆" : pct >= 60 ? "⭐" : "💪";
-  const msg = pct >= 80 ? "Smashing it!" : pct >= 60 ? "Solid effort!" : "Keep practising!";
+  const msg = pct >= 80 ? "Unstoppable Form!" : pct >= 60 ? "Fantastic Progress!" : "Epic Effort! Try Again!";
 
   return (
-    <div className="text-center">
-      <div className="mb-2 text-5xl">{emoji}</div>
+    <div className="text-center animate-pop">
+      <div className="mb-2 text-6xl drop-shadow-md">{emoji}</div>
       <div
-        className="text-5xl font-extrabold text-[#f9c74f]"
+        className="text-6xl font-black text-[#f9c74f]"
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
         {correct}/{total}
       </div>
-      <div className="mb-4 mt-1 text-sm text-[#8a8fa8]">{msg} · {pct}% correct</div>
+      <div className="mb-5 mt-1 text-base font-bold text-[#8a8fa8]">{msg} · {pct}% Score</div>
+      
       {xpEarned > 0 && (
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#f9c74f33] bg-[#f9c74f15] px-4 py-1.5 text-sm font-bold text-[#f9c74f]">
-          ⚡ +{xpEarned} XP earned this session
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#f9c74f44] bg-[#f9c74f1a] px-5 py-2 text-base font-black text-[#f9c74f] animate-bounce">
+          ⚡ +{xpEarned} TOTAL XP EARNED
         </div>
       )}
 
-      {/* Colour-coded dot summary on score screen */}
-      <div className="mb-6 flex gap-1.5">
+      <div className="mb-6 flex gap-2">
         {results.map((r, i) => (
           <div
             key={i}
-            title={`Q${i + 1}: ${r.correct ? "correct" : "wrong"}`}
-            className={`h-2.5 flex-1 rounded-full ${r.correct ? "bg-[#4ade80]" : "bg-[#f87171]"}`}
+            className={`h-3 flex-1 rounded-full ${r.correct ? "bg-[#4ade80]" : "bg-[#f87171]"}`}
           />
         ))}
       </div>
 
-      <div className="mb-8 flex flex-col gap-2 text-left">
+      <div className="mb-8 flex flex-col gap-2 text-left max-h-[220px] overflow-y-auto pr-1">
         {results.map((r, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-xl bg-[#22263a] px-4 py-3 text-sm">
-            <div className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${r.correct ? "bg-[#4ade80]" : "bg-[#f87171]"}`} />
-            <span className="text-[#8a8fa8]">
+          <div key={i} className="flex items-center gap-3 rounded-2xl bg-[#22263a] px-4 py-3.5 text-sm">
+            <div className={`h-3 w-3 flex-shrink-0 rounded-full ${r.correct ? "bg-[#4ade80]" : "bg-[#f87171]"}`} />
+            <span className="text-[#8a8fa8] truncate">
               <strong className="text-[#f1f0ee]">Q{i + 1}:</strong>{" "}
-              {r.q.question.replace(/\$+[^$]*\$+/g, "…").split(":")[0]} — you picked {r.picked}
-              {!r.correct && `, answer was ${r.q.correct}`}
+              {r.q.question.replace(/\$+[^$]*\$+/g, "…").split(":")[0]}
             </span>
           </div>
         ))}
       </div>
       <button
         onClick={onHome}
-        className="w-full rounded-full bg-[#f9c74f] py-3 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
+        className="w-full rounded-2xl bg-[#f9c74f] py-4 text-base font-black text-[#0f1117] transition-all active:scale-[0.98]"
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
-        Back to Home
+        Return to Dashboard
       </button>
     </div>
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────
+// ── Main Responsive/Mobile-First component ─────────────────────────────────
 export default function Practice() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -446,6 +446,7 @@ export default function Practice() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [streak, setStreak] = useState<number>(0);
 
   const [hints, setHints] = useState<Hint[]>([]);
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
@@ -459,8 +460,14 @@ export default function Practice() {
 
   useEffect(() => {
     async function init() {
+      ensureAdvancedStyles();
       const { data: { session } } = await supabase.auth.getSession();
       setUserId(session?.user?.id ?? null);
+
+      if (session?.user?.id) {
+        const { data: profile } = await supabase.from("profiles").select("streak").eq("user_id", session.user.id).single();
+        if (profile) setStreak(profile.streak ?? 0);
+      }
 
       if (skillId) {
         const { data: skill } = await supabase.from("skills").select("name").eq("id", skillId).single();
@@ -499,20 +506,36 @@ export default function Practice() {
     const isCorrect = key === q.correct;
     setCurrentResult(key);
     setResults((prev) => [...prev, { q, picked: key, correct: isCorrect }]);
-    if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
+    
+    // Tactile Feedback & Alerts
+    if (!isCorrect) {
+      triggerHaptic("error");
+      setShake(true);
+      setTimeout(() => setShake(false), 400);
+    } else {
+      triggerHaptic("correct");
+    }
+
     logAttempt(q.id, key, isCorrect, userId);
+
     if (isCorrect && userId) {
-      await Promise.all([awardXP(userId), updateStreak(userId)]);
+      const [_, newStreak] = await Promise.all([awardXP(userId), updateStreak(userId)]);
+      setStreak(newStreak);
       setXpEarned((prev) => prev + 10);
-      // Fire the floating +10 XP animation
       fireXPFloat();
       window.dispatchEvent(new Event("revily:xp-updated"));
     }
   }, [q, userId]);
 
   function handleNext() {
-    if (index + 1 >= questions.length) { setDone(true); }
-    else { setIndex((i) => i + 1); setCurrentResult(null); }
+    if (index + 1 >= questions.length) {
+      setDone(true);
+    } else {
+      setIndex((i) => i + 1);
+      setCurrentResult(null);
+    }
+    // Scroll mobile screen context back smoothly to the top for the new card
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleHome() { router.push("/home"); }
@@ -537,44 +560,57 @@ export default function Practice() {
 
   if (loading) return (
     <div className="flex min-h-screen items-center justify-center bg-[#0f1117]">
-      <div className="text-sm text-[#8a8fa8]">Loading questions…</div>
+      <div className="text-base font-bold text-[#8a8fa8]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        Loading bite-sized modules…
+      </div>
     </div>
   );
 
   if (error || !questions.length) return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0f1117]">
+    <div className="flex min-h-screen items-center justify-center bg-[#0f1117] px-4">
       <div className="text-center">
-        <div className="mb-3 text-sm text-[#f87171]">{error ?? "No questions found for this skill."}</div>
+        <div className="mb-4 text-base text-[#f87171] font-bold">{error ?? "No tasks found here yet!"}</div>
         <button onClick={handleHome}
-          className="rounded-full border border-[#2e3248] px-4 py-2 text-xs text-[#8a8fa8] hover:text-[#f1f0ee] transition-colors">
-          ← Back to home
+          className="rounded-full border-2 border-[#2e3248] px-5 py-2 text-sm text-[#8a8fa8] font-bold hover:text-[#f1f0ee] transition-colors">
+          ← Return Home
         </button>
       </div>
     </div>
   );
 
   return (
+    /* The padding-bottom pb-32 accounts for the bottom sticky action sheet on mobile viewports */
     <div
-      className={`flex min-h-screen items-center justify-center bg-[#0f1117] px-4 py-10 ${shake ? "shake" : ""}`}
+      className={`flex min-h-screen items-start justify-center bg-[#0f1117] px-4 pt-6 pb-32 ${shake ? "shake" : ""}`}
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      <div className="w-full max-w-lg rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-8">
+      <div className="w-full max-w-md bg-[#0f1117]">
 
-        {/* Skill label + back */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 rounded-full border border-[#2e3248] bg-[#22263a] px-4 py-1.5 text-xs uppercase tracking-widest text-[#8a8fa8]">
+        {/* Gamified Header Tracker */}
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2 rounded-full border-2 border-[#2e3248] bg-[#1a1d27] px-4 py-1.5 text-xs uppercase font-black tracking-wider text-[#8a8fa8]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             <span className="h-2 w-2 rounded-full bg-[#f9c74f]" />
             {skillName || "Practice"}
           </div>
-          <button
-            onClick={handleHome}
-            className="rounded-full border border-[#2e3248] bg-[#22263a] px-3 py-1.5 text-xs text-[#8a8fa8] hover:text-[#f1f0ee] transition-colors"
-          >
-            ← Home
-          </button>
+          
+          <div className="flex items-center gap-3">
+            {/* Direct streak burning value display */}
+            {streak > 0 && (
+              <div className="flex items-center gap-1 text-sm font-black text-[#f9c74f]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                🔥 {streak}
+              </div>
+            )}
+            <button
+              onClick={handleHome}
+              className="rounded-full border-2 border-[#2e3248] bg-[#1a1d27] px-4 py-1.5 text-xs font-bold text-[#8a8fa8] hover:text-[#f1f0ee] transition-colors"
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            >
+              ← Leave
+            </button>
+          </div>
         </div>
 
-        {/* Colour-coded progress dots — replaces plain fill bar */}
+        {/* Dynamic Tactile Progress Metric */}
         <div className="mb-6">
           <ProgressDots
             results={results}
@@ -583,11 +619,13 @@ export default function Practice() {
           />
         </div>
 
-        {/* Content */}
+        {/* Render Card Container */}
         {done ? (
-          <ScoreScreen results={results} xpEarned={xpEarned} onHome={handleHome} />
+          <div className="rounded-3xl border border-[#2e3248] bg-[#1a1d27] p-6 shadow-xl">
+            <ScoreScreen results={results} xpEarned={xpEarned} onHome={handleHome} />
+          </div>
         ) : (
-          <div key={index} className="pop">
+          <div key={index} className="animate-pop">
             <QuestionCard
               q={q}
               index={index}
@@ -597,20 +635,25 @@ export default function Practice() {
               hints={hints}
               misconceptions={misconceptions}
             />
-            {currentResult && (
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={handleNext}
-                  className="rounded-full bg-[#f9c74f] px-7 py-2.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                >
-                  {index === questions.length - 1 ? "See Results" : "Next Question"} →
-                </button>
-              </div>
-            )}
           </div>
         )}
       </div>
+
+      {/* FIXED MOBILE THUMB ZONE FOOTER BAR */}
+      {!done && currentResult && (
+        <div className="fixed bottom-0 left-0 right-0 border-t border-[#2e3248] bg-[#1a1d27]/95 backdrop-blur-md px-4 py-4 z-50 flex items-center justify-center animate-pop">
+          <div className="w-full max-w-md">
+            <button
+              onClick={handleNext}
+              className="w-full rounded-2xl bg-[#f9c74f] py-4 text-base font-black text-[#0f1117] shadow-lg shadow-[#f9c74f]/10 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            >
+              <span>{index === questions.length - 1 ? "See Final Results" : "Continue"}</span>
+              <span className="text-lg">→</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
