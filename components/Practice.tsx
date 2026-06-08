@@ -166,6 +166,44 @@ function HintButton({ hints, answered }: { hints: Hint[]; answered: boolean }) {
   );
 }
 
+// ── WorkedExampleButton ────────────────────────────────────────────────────
+function WorkedExampleButton({ workedSolution, answered }: {
+  workedSolution: string;
+  answered: boolean;
+}) {
+  const [revealed, setRevealed] = useState(false);
+
+  // Reset when question changes
+  useEffect(() => { setRevealed(false); }, [workedSolution]);
+
+  // Hide once answered — the post-answer panel takes over
+  if (answered || !workedSolution) return null;
+
+  return (
+    <div className="flex flex-col items-end gap-2">
+      {revealed && (
+        <div className="w-full rounded-xl border border-[#818cf833] bg-[#818cf80d] px-4 py-3 text-sm text-[#a5b4fc]">
+          <div
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-[#818cf8]"
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          >
+            📖 Worked example
+          </div>
+          <MathText text={workedSolution} />
+        </div>
+      )}
+      {!revealed && (
+        <button
+          onClick={() => setRevealed(true)}
+          className="flex items-center gap-1.5 rounded-full border border-[#818cf844] bg-transparent px-3 py-1.5 text-xs text-[#818cf8] transition-opacity hover:opacity-80"
+        >
+          📖 Show example
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── MisconceptionPanel ─────────────────────────────────────────────────────
 function MisconceptionPanel({ misconception }: { misconception: Misconception | null }) {
   if (!misconception) return null;
@@ -208,12 +246,13 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
     ? misconceptions.find(
         (m) =>
           m.question_id === q.id &&
-        m.wrong_option?.toUpperCase() === result?.toUpperCase()      ) ?? null
+          m.wrong_option?.toUpperCase() === result?.toUpperCase()
+      ) ?? null
     : null;
 
   return (
     <div>
-      {/* Question counter + hint button row */}
+      {/* Question counter */}
       <div className="mb-1 flex items-center justify-between">
         <div className="text-xs uppercase tracking-widest text-[#8a8fa8]">
           Question {index + 1} of {total}
@@ -228,10 +267,14 @@ function QuestionCard({ q, index, total, onAnswer, result, hints, misconceptions
         <MathText text={q.question} />
       </div>
 
-      {/* Hint button — above options so it's easy to find */}
-      <div className="mb-4">
+      {/* Lifelines row — hint + worked example, stacked, right-aligned */}
+      <div className="mb-4 flex flex-col gap-2">
         <HintButton
           hints={hints.filter((h) => h.question_id === q.id).sort((a, b) => a.order_index - b.order_index)}
+          answered={answered}
+        />
+        <WorkedExampleButton
+          workedSolution={q.worked}
           answered={answered}
         />
       </div>

@@ -848,6 +848,12 @@
   .border-\[\#8a8fa840\] {
     border-color: #8a8fa840;
   }
+  .border-\[\#818cf833\] {
+    border-color: #818cf833;
+  }
+  .border-\[\#818cf844\] {
+    border-color: #818cf844;
+  }
   .border-\[\#C2F751\] {
     border-color: #C2F751;
   }
@@ -943,6 +949,9 @@
   }
   .bg-\[\#8a8fa820\] {
     background-color: #8a8fa820;
+  }
+  .bg-\[\#818cf80d\] {
+    background-color: #818cf80d;
   }
   .bg-\[\#22263a\] {
     background-color: #22263a;
@@ -1315,8 +1324,14 @@
   .text-\[\#555a73\] {
     color: #555a73;
   }
+  .text-\[\#818cf8\] {
+    color: #818cf8;
+  }
   .text-\[\#C2F751\] {
     color: #C2F751;
+  }
+  .text-\[\#a5b4fc\] {
+    color: #a5b4fc;
   }
   .text-\[\#c88\] {
     color: #c88;
