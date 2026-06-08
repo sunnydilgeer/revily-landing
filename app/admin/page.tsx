@@ -13,6 +13,7 @@ type Skill = {
   slug: string;
   order_index: number;
   topic_area: string;
+  prerequisites: number[];
 };
 
 type Question = {
@@ -144,6 +145,64 @@ function SectionHeader({ title, onAdd }: { title: string; onAdd: () => void }) {
   );
 }
 
+// ── Prerequisites multi-select ─────────────────────────────────────────────
+function PrerequisitesPicker({
+  allSkills,
+  currentSkillId,
+  selected,
+  onChange,
+}: {
+  allSkills: Skill[];
+  currentSkillId?: number;
+  selected: number[];
+  onChange: (ids: number[]) => void;
+}) {
+  // Exclude the skill being edited from its own prerequisites
+  const options = allSkills.filter(s => s.id !== currentSkillId);
+
+  function toggle(id: number) {
+    onChange(
+      selected.includes(id)
+        ? selected.filter(x => x !== id)
+        : [...selected, id]
+    );
+  }
+
+  return (
+    <div>
+      <Label>Prerequisites (must complete before this unlocks)</Label>
+      {options.length === 0 ? (
+        <div className="text-xs text-[#555a73]">No other skills yet.</div>
+      ) : (
+        <div className="flex flex-wrap gap-2 mt-1">
+          {options.map(s => {
+            const active = selected.includes(s.id);
+            return (
+              <button
+                key={s.id}
+                onClick={() => toggle(s.id)}
+                className="rounded-full border px-3 py-1 text-xs font-semibold transition-all"
+                style={{
+                  borderColor: active ? "#f9c74f" : "#2e3248",
+                  backgroundColor: active ? "#f9c74f15" : "#0f1117",
+                  color: active ? "#f9c74f" : "#8a8fa8",
+                }}
+              >
+                {active ? "✓ " : ""}{s.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+      {selected.length > 0 && (
+        <div className="mt-2 text-xs text-[#555a73]">
+          Requires: {selected.map(id => allSkills.find(s => s.id === id)?.name).filter(Boolean).join(", ")}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Skills tab ─────────────────────────────────────────────────────────────
 function SkillsTab() {
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -152,28 +211,29 @@ function SkillsTab() {
 
   async function load() {
     const { data } = await supabase.from("skills").select("*").order("order_index");
-    if (data) setSkills(data);
+    if (data) setSkills(data.map(s => ({ ...s, prerequisites: s.prerequisites ?? [] })));
   }
 
   useEffect(() => { load(); }, []);
 
   function blank(): Partial<Skill> {
-    return { name: "", slug: "", order_index: 0, topic_area: "" };
+    return { name: "", slug: "", order_index: 0, topic_area: "", prerequisites: [] };
   }
 
   async function save() {
     if (!editing) return;
     setSaving(true);
+    const payload = {
+      name: editing.name,
+      slug: editing.slug,
+      order_index: editing.order_index,
+      topic_area: editing.topic_area,
+      prerequisites: editing.prerequisites ?? [],
+    };
     if (editing.id) {
-      await supabase.from("skills").update({
-        name: editing.name, slug: editing.slug,
-        order_index: editing.order_index, topic_area: editing.topic_area,
-      }).eq("id", editing.id);
+      await supabase.from("skills").update(payload).eq("id", editing.id);
     } else {
-      await supabase.from("skills").insert({
-        name: editing.name, slug: editing.slug,
-        order_index: editing.order_index, topic_area: editing.topic_area,
-      });
+      await supabase.from("skills").insert(payload);
     }
     setSaving(false);
     setEditing(null);
@@ -210,6 +270,17 @@ function SkillsTab() {
               <Input type="number" value={editing.order_index ?? 0} onChange={v => setEditing(e => ({ ...e, order_index: parseInt(v) }))} />
             </div>
           </div>
+
+          {/* Prerequisites picker — full width below the grid */}
+          <div className="mt-3">
+            <PrerequisitesPicker
+              allSkills={skills}
+              currentSkillId={editing.id}
+              selected={editing.prerequisites ?? []}
+              onChange={ids => setEditing(e => ({ ...e, prerequisites: ids }))}
+            />
+          </div>
+
           <div className="mt-4 flex gap-2">
             <Btn onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Btn>
             <Btn onClick={() => setEditing(null)} variant="ghost">Cancel</Btn>
@@ -227,6 +298,15 @@ function SkillsTab() {
                 <div className="mt-0.5 text-xs text-[#555a73]">
                   {s.topic_area} · order {s.order_index} · <span className="font-mono">{s.slug}</span>
                 </div>
+                {s.prerequisites.length > 0 && (
+                  <div className="mt-1 text-xs text-[#555a73]">
+                    Requires:{" "}
+                    {s.prerequisites
+                      .map(id => skills.find(sk => sk.id === id)?.name)
+                      .filter(Boolean)
+                      .join(", ")}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2 flex-shrink-0">
                 <Btn onClick={() => setEditing(s)} variant="ghost">Edit</Btn>
@@ -716,10 +796,11 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
 
 // ── Main ───────────────────────────────────────────────────────────────────
 export default function AdminPage() {
-    const [authed, setAuthed] = useState(() => {
-        if (typeof window === "undefined") return false;
-        return sessionStorage.getItem("revily_admin") === "1";
-      });  const [pw, setPw] = useState("");
+  const [authed, setAuthed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("revily_admin") === "1";
+  });
+  const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [tab, setTab] = useState<Tab>("skills");
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -727,7 +808,9 @@ export default function AdminPage() {
   useEffect(() => {
     if (authed) {
       supabase.from("skills").select("*").order("order_index")
-        .then(({ data }) => { if (data) setSkills(data); });
+        .then(({ data }) => {
+          if (data) setSkills(data.map(s => ({ ...s, prerequisites: s.prerequisites ?? [] })));
+        });
     }
   }, [authed]);
 
@@ -797,8 +880,8 @@ export default function AdminPage() {
             </div>
             <div className="text-xs text-[#555a73]">Content management</div>
           </div>
-          <button onClick={() => { sessionStorage.removeItem("revily_admin"); setAuthed(false); }}
-
+          <button
+            onClick={() => { sessionStorage.removeItem("revily_admin"); setAuthed(false); }}
             className="text-xs text-[#555a73] hover:text-[#f1f0ee] transition-colors">
             Sign out
           </button>

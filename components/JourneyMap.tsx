@@ -10,6 +10,7 @@ type Skill = {
   name: string;
   topic_area: string;
   order_index: number;
+  prerequisites: number[];
 };
 
 type SkillWithProgress = Skill & {
@@ -35,13 +36,43 @@ const TOPIC_CONFIG: Record<string, { colour: string; glowColour: string; icon: s
   Statistics: { colour: "#60a5fa", glowColour: "#60a5fa40", icon: "≈" },
 };
 
-function getStatus(skill: SkillWithProgress, allSkills: SkillWithProgress[]): SkillWithProgress["status"] {
-  if (skill.correct >= Math.max(1, skill.total * 0.8)) return "complete";
-  if (skill.answered > 0) return "started";
-  // Available if it's the first skill or the previous skill has been started
-  const prev = allSkills.find(s => s.order_index === skill.order_index - 1);
-  if (!prev || prev.answered > 0 || prev.status === "complete") return "available";
-  return "locked";
+// ── Dependency-aware status resolver ──────────────────────────────────────
+// Must be called after progress is computed so we can check completion.
+// Iterates in order_index order so upstream statuses are resolved first.
+function resolveStatuses(skills: SkillWithProgress[]): SkillWithProgress[] {
+  // Work on a map so we can look up resolved status by id
+  const byId = new Map<number, SkillWithProgress>();
+  for (const s of skills) byId.set(s.id, s);
+
+  // Sort by order_index so prerequisites are resolved before dependents
+  const sorted = [...skills].sort((a, b) => a.order_index - b.order_index);
+
+  const resolved = new Map<number, SkillWithProgress["status"]>();
+
+  for (const skill of sorted) {
+    // Already complete (≥80% correct, at least 1 question attempted)
+    if (skill.total > 0 && skill.correct >= Math.ceil(skill.total * 0.8)) {
+      resolved.set(skill.id, "complete");
+      continue;
+    }
+    // In progress
+    if (skill.answered > 0) {
+      resolved.set(skill.id, "started");
+      continue;
+    }
+    // Check prerequisites
+    const prereqs = skill.prerequisites ?? [];
+    if (prereqs.length === 0) {
+      // No prerequisites — always available
+      resolved.set(skill.id, "available");
+      continue;
+    }
+    // All prerequisites must be complete
+    const allMet = prereqs.every(pid => resolved.get(pid) === "complete");
+    resolved.set(skill.id, allMet ? "available" : "locked");
+  }
+
+  return sorted.map(skill => ({ ...skill, status: resolved.get(skill.id) ?? "locked" }));
 }
 
 // ── Checkpoint dot ─────────────────────────────────────────────────────────
@@ -51,30 +82,33 @@ function Checkpoint({
   glowColour,
   index,
   onStart,
-  isCurrentTopic,
+  allSkills,
 }: {
   skill: SkillWithProgress;
   colour: string;
   glowColour: string;
   index: number;
   onStart: (id: number) => void;
-  isCurrentTopic: boolean;
+  allSkills: SkillWithProgress[];
 }) {
-  const isComplete = skill.status === "complete";
-  const isStarted  = skill.status === "started";
-  const isLocked   = skill.status === "locked";
+  const isComplete  = skill.status === "complete";
+  const isStarted   = skill.status === "started";
+  const isLocked    = skill.status === "locked";
   const isAvailable = skill.status === "available";
-
   const pct = skill.total > 0 ? Math.round((skill.correct / skill.total) * 100) : 0;
 
+  // Build a human-readable prerequisite hint for locked skills
+  const lockedHint = isLocked && skill.prerequisites.length > 0
+    ? skill.prerequisites
+        .map(pid => allSkills.find(s => s.id === pid)?.name)
+        .filter(Boolean)
+        .join(", ")
+    : null;
+
   return (
-    <div
-      className="group flex items-center gap-4"
-      style={{ animationDelay: `${index * 60}ms` }}
-    >
-      {/* Connector line + dot column */}
+    <div className="group flex items-center gap-4" style={{ animationDelay: `${index * 60}ms` }}>
+      {/* Dot */}
       <div className="relative flex flex-col items-center" style={{ width: 40 }}>
-        {/* Dot */}
         <button
           onClick={() => !isLocked && onStart(skill.id)}
           disabled={isLocked}
@@ -82,18 +116,8 @@ function Checkpoint({
           style={{
             width: isAvailable || isStarted ? 36 : 28,
             height: isAvailable || isStarted ? 36 : 28,
-            backgroundColor: isLocked
-              ? "#1a1d27"
-              : isComplete
-              ? colour
-              : isStarted
-              ? "#1a1d27"
-              : "#1a1d27",
-            border: isLocked
-              ? "2px solid #2e3248"
-              : isComplete
-              ? `2px solid ${colour}`
-              : `2px solid ${colour}`,
+            backgroundColor: isComplete ? colour : "#1a1d27",
+            border: isLocked ? "2px solid #2e3248" : `2px solid ${colour}`,
             boxShadow: !isLocked ? `0 0 12px ${glowColour}` : "none",
             cursor: isLocked ? "default" : "pointer",
           }}
@@ -118,17 +142,13 @@ function Checkpoint({
         </button>
       </div>
 
-      {/* Label */}
+      {/* Label card */}
       <button
         onClick={() => !isLocked && onStart(skill.id)}
         disabled={isLocked}
         className="flex flex-1 items-center justify-between rounded-xl border px-4 py-3 text-left transition-all duration-200"
         style={{
-          borderColor: isLocked
-            ? "#1e2130"
-            : isComplete || isStarted || isAvailable
-            ? `${colour}30`
-            : "#2e3248",
+          borderColor: isLocked ? "#1e2130" : `${colour}30`,
           backgroundColor: isLocked
             ? "#13151f"
             : isComplete
@@ -140,7 +160,7 @@ function Checkpoint({
           opacity: isLocked ? 0.45 : 1,
         }}
       >
-        <div>
+        <div className="min-w-0 flex-1">
           <div
             className="text-sm font-semibold leading-tight"
             style={{
@@ -150,9 +170,20 @@ function Checkpoint({
           >
             {skill.name}
           </div>
+
+          {/* Sublabel */}
+          {isLocked && lockedHint && (
+            <div className="mt-0.5 text-xs text-[#3a3f58]">
+              Requires: {lockedHint}
+            </div>
+          )}
           {!isLocked && skill.total > 0 && (
-            <div className="mt-0.5 text-xs" style={{ color: isLocked ? "#2e3248" : "#555a73" }}>
-              {isComplete ? `${pct}% — complete` : isStarted ? `${skill.correct}/${skill.total} correct` : `${skill.total} questions`}
+            <div className="mt-0.5 text-xs text-[#555a73]">
+              {isComplete
+                ? `${pct}% — complete`
+                : isStarted
+                ? `${skill.correct}/${skill.total} correct`
+                : `${skill.total} questions`}
             </div>
           )}
           {!isLocked && skill.total === 0 && (
@@ -170,7 +201,6 @@ function Checkpoint({
           </div>
         )}
 
-        {/* Arrow for available */}
         {(isAvailable || isStarted) && (
           <span className="ml-3 flex-shrink-0 text-xs" style={{ color: colour }}>→</span>
         )}
@@ -180,15 +210,10 @@ function Checkpoint({
 }
 
 // ── Main JourneyMap component ──────────────────────────────────────────────
-export function JourneyMap({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function JourneyMap({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
   const [groups, setGroups] = useState<TopicGroup[]>([]);
+  const [allSkills, setAllSkills] = useState<SkillWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set(["Number"]));
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -199,21 +224,18 @@ export function JourneyMap({
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
 
-      // Fetch all skills ordered
       const { data: skillsData } = await supabase
         .from("skills")
-        .select("id, name, topic_area, order_index")
+        .select("id, name, topic_area, order_index, prerequisites")
         .order("order_index");
 
       if (!skillsData?.length) { setLoading(false); return; }
 
-      // Question counts per skill
       const { data: qCounts } = await supabase
         .from("questions")
         .select("skill_id")
         .in("skill_id", skillsData.map(s => s.id));
 
-      // Attempts for this user
       let attemptData: any[] = [];
       if (session?.user?.id) {
         const { data } = await supabase
@@ -223,8 +245,8 @@ export function JourneyMap({
         attemptData = data ?? [];
       }
 
-      // Build skills with progress
-      const skillsWithProgress: SkillWithProgress[] = skillsData.map(skill => {
+      // Build progress
+      const withProgress: SkillWithProgress[] = skillsData.map(skill => {
         const total = qCounts?.filter(q => q.skill_id === skill.id).length ?? 0;
         const myAttempts = attemptData.filter((a: any) => a.questions?.skill_id === skill.id);
         const seenIds = new Set<number>();
@@ -236,31 +258,34 @@ export function JourneyMap({
             if (a.is_correct) correct++;
           }
         }
-        return { ...skill, total, answered, correct, status: "available" as const };
+        return {
+          ...skill,
+          prerequisites: skill.prerequisites ?? [],
+          total, answered, correct,
+          status: "available" as const,
+        };
       });
 
-      // Assign statuses in order
-      const withStatus = skillsWithProgress.map((skill, _, arr) => ({
-        ...skill,
-        status: getStatus(skill, arr),
-      }));
+      // Resolve statuses using dependency graph
+      const resolved = resolveStatuses(withProgress);
+      setAllSkills(resolved);
 
-      // Auto-expand the topic containing the first non-complete skill
-      const firstActive = withStatus.find(s => s.status === "available" || s.status === "started");
-      if (firstActive) {
-        setExpandedTopics(new Set([firstActive.topic_area]));
-      }
+      // Auto-expand topic containing first active skill
+      const firstActive = resolved.find(s => s.status === "available" || s.status === "started");
+      if (firstActive) setExpandedTopics(new Set([firstActive.topic_area]));
 
       // Group by topic
       const topicOrder = ["Number", "Algebra", "Geometry", "Statistics"];
-      const grouped: TopicGroup[] = topicOrder.map(topic => {
-        const cfg = TOPIC_CONFIG[topic] ?? { colour: "#8a8fa8", glowColour: "#8a8fa840", icon: "○" };
-        return {
-          name: topic,
-          ...cfg,
-          skills: withStatus.filter(s => s.topic_area === topic),
-        };
-      }).filter(g => g.skills.length > 0);
+      const grouped: TopicGroup[] = topicOrder
+        .map(topic => {
+          const cfg = TOPIC_CONFIG[topic] ?? { colour: "#8a8fa8", glowColour: "#8a8fa840", icon: "○" };
+          return {
+            name: topic,
+            ...cfg,
+            skills: resolved.filter(s => s.topic_area === topic),
+          };
+        })
+        .filter(g => g.skills.length > 0);
 
       setGroups(grouped);
       setLoading(false);
@@ -268,17 +293,15 @@ export function JourneyMap({
     load();
   }, [open]);
 
-  // Close on overlay click
-  function handleOverlayClick(e: React.MouseEvent) {
-    if (e.target === overlayRef.current) onClose();
-  }
-
-  // Close on Escape
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
     if (open) window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  function handleOverlayClick(e: React.MouseEvent) {
+    if (e.target === overlayRef.current) onClose();
+  }
 
   function toggleTopic(topic: string) {
     setExpandedTopics(prev => {
@@ -302,7 +325,6 @@ export function JourneyMap({
       className="fixed inset-0 z-50 flex justify-end"
       style={{ backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
     >
-      {/* Panel */}
       <div
         className="relative flex h-full w-full max-w-md flex-col overflow-hidden"
         style={{
@@ -320,9 +342,7 @@ export function JourneyMap({
             from { transform: translateY(8px); opacity: 0; }
             to   { transform: translateY(0);   opacity: 1; }
           }
-          .checkpoint-row {
-            animation: fadeUp 0.3s ease-out both;
-          }
+          .checkpoint-row { animation: fadeUp 0.3s ease-out both; }
         `}</style>
 
         {/* Header */}
@@ -347,7 +367,7 @@ export function JourneyMap({
             </button>
           </div>
 
-          {/* Overall progress bar */}
+          {/* Overall progress */}
           {!loading && groups.length > 0 && (() => {
             const all = groups.flatMap(g => g.skills);
             const done = all.filter(s => s.status === "complete").length;
@@ -377,7 +397,7 @@ export function JourneyMap({
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {groups.map((group) => {
+              {groups.map(group => {
                 const isExpanded = expandedTopics.has(group.name);
                 const doneCount = group.skills.filter(s => s.status === "complete").length;
                 const hasActive = group.skills.some(s => s.status === "started" || s.status === "available");
@@ -391,7 +411,6 @@ export function JourneyMap({
                       style={{ backgroundColor: "#13151f" }}
                     >
                       <div className="flex items-center gap-3">
-                        {/* Icon */}
                         <div
                           className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
                           style={{
@@ -419,7 +438,6 @@ export function JourneyMap({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {/* Mini topic progress */}
                         <div className="h-1 w-12 overflow-hidden rounded-full bg-[#2e3248]">
                           <div
                             className="h-full rounded-full transition-all duration-500"
@@ -431,7 +449,10 @@ export function JourneyMap({
                         </div>
                         <span
                           className="text-xs text-[#555a73] transition-transform duration-200"
-                          style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block" }}
+                          style={{
+                            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                            display: "inline-block",
+                          }}
                         >
                           ▾
                         </span>
@@ -441,7 +462,6 @@ export function JourneyMap({
                     {/* Skills list */}
                     {isExpanded && (
                       <div className="flex flex-col gap-2 px-4 pb-4 pt-3" style={{ backgroundColor: "#0f1117" }}>
-                        {/* Vertical connector line behind checkpoints */}
                         <div className="relative">
                           <div
                             className="absolute left-[19px] top-4 bottom-4 w-px"
@@ -449,14 +469,18 @@ export function JourneyMap({
                           />
                           <div className="flex flex-col gap-2.5">
                             {group.skills.map((skill, i) => (
-                              <div key={skill.id} className="checkpoint-row" style={{ animationDelay: `${i * 50}ms` }}>
+                              <div
+                                key={skill.id}
+                                className="checkpoint-row"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                              >
                                 <Checkpoint
                                   skill={skill}
                                   colour={group.colour}
                                   glowColour={group.glowColour}
                                   index={i}
                                   onStart={handleStart}
-                                  isCurrentTopic={hasActive}
+                                  allSkills={allSkills}
                                 />
                               </div>
                             ))}
