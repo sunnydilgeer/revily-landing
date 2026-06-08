@@ -69,9 +69,10 @@ export function AppHeader() {
       window.removeEventListener("revily:xp-updated", loadProfile);
     };
   }, []);
+  console.log("AppHeader debug:", { mounted, pathname, profile });
 
-  if (!mounted || HIDDEN_ON.some((p) => pathname?.startsWith(p))) return null;
-  if (!profile) return null;
+  if (!mounted || pathname === "/" || HIDDEN_ON.some((p) => pathname?.startsWith(p))) return null;
+  if (!profile) return <div className="h-14" />;
 
   const level = Math.floor(profile.xp / 100) + 1;
   const xpIntoLevel = profile.xp % 100;
@@ -97,8 +98,8 @@ export function AppHeader() {
 
           {/* Logo */}
           <button
-            onClick={() => router.push("/")}
-            className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opacity hover:opacity-80"
+onClick={() => router.push("/home")}
+className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opacity hover:opacity-80"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Revily

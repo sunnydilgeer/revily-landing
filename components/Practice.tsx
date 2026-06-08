@@ -268,7 +268,7 @@ export default function Practice() {
     else { setIndex((i) => i + 1); setCurrentResult(null); }
   }
 
-  function handleHome() { router.push("/"); }
+  function handleHome() { router.push("/home"); }
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────
   useEffect(() => {

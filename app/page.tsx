@@ -1,389 +1,873 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useState, useCallback, useEffect } from "react";
+import {
+  ArrowRight,
+  Sparkles,
+  Target,
+  Clock,
+  TrendingUp,
+  CheckCircle2,
+  Zap,
+  BarChart3,
+  ShieldCheck,
+  ChevronDown,
+  Check,
+  Calculator,
+  AlertCircle,
+  GraduationCap,
+  X,
+} from "lucide-react";
 
-// ── Types ──────────────────────────────────────────────────────────────────
-type Profile = {
-  xp: number;
-  streak: number;
+const track = (event: string, payload: Record<string, unknown> = {}) => {
+  console.log("[track]", event, payload);
 };
 
-type Skill = {
-  id: number;
-  name: string;
-  difficulty: string;
+const LEGAL_CONTENT = {
+  privacy: {
+    title: "Privacy Notice",
+    updated: "19 May 2026",
+    sections: [
+      { heading: "What Revily is", body: "Revily is an early-access GCSE Maths Revision prototype. We are not a fully launched product." },
+      { heading: "What we collect", body: "When you submit the early-access form, we collect: your email address; whether you are a parent, student, or tutor; your exam board; tier; target grade; any pricing-interest option you selected; the page URL; and the time of submission." },
+      { heading: "Why we collect it", body: "We use this information to manage the early-access waitlist, understand what parents and students actually want, decide what to build first, and contact you about Revily when the product develops." },
+      { heading: "Legal basis", body: "We process early-access signup information because you have asked to join the waitlist and because we have a legitimate interest in understanding demand for Revily and improving the product. Where we send marketing emails, we will follow applicable UK electronic marketing rules." },
+      { heading: "How we store it", body: "Form submissions are processed and stored through Formspree. We do not operate our own database at this stage." },
+      { heading: "Payments", body: "We do not take payments on this page. Pricing buttons are interest signals only — clicking them does not start a payment or subscription." },
+      { heading: "Sharing", body: "We do not sell your personal information. We do not share it with third parties except as needed to operate the service (e.g. Formspree for form processing)." },
+      { heading: "Analytics and advertising", body: "We do not currently use Meta Pixel or advertising cookies on this page. We may add analytics or advertising tools in future. If we use cookies or similar technologies where consent is required, we will ask for consent before they are used and update this notice." },
+      { heading: "Under-16s", body: "If you are under 16, please ask a parent or guardian before submitting your details." },
+      { heading: "Your rights", body: "You can ask us to delete your data at any time by emailing hello@revily.co.uk. We will action deletion requests promptly." },
+      { heading: "Contact", body: "hello@revily.co.uk" },
+    ],
+  },
+  terms: {
+    title: "Terms of Use",
+    updated: "19 May 2026",
+    sections: [
+      { heading: "Early-access prototype", body: "Revily is currently an early-access prototype. It is not a fully launched product." },
+      { heading: "No payments", body: "Pricing buttons on this page do not start a payment or subscription. They are interest signals only." },
+      { heading: "No grade guarantees", body: "Revily does not guarantee any GCSE grade or exam outcome." },
+      { heading: "Mock-ups and planned features", body: "Content shown on the page includes mock-ups and planned features. The final product may differ." },
+      { heading: "No exam-board affiliation", body: "Revily is independent and is not affiliated with, endorsed by, or approved by any exam board." },
+      { heading: "Educational guidance", body: "This site is for product validation and general educational interest only at this stage." },
+      { heading: "Changes", body: "We may update these terms as the product develops." },
+      { heading: "Contact", body: "hello@revily.co.uk" },
+    ],
+  },
+  contact: {
+    title: "Contact",
+    updated: null,
+    sections: [
+      { heading: null, body: "For questions, feedback, or data deletion requests, get in touch at:", highlight: false },
+      { heading: null, body: "hello@revily.co.uk", highlight: true },
+      { heading: null, body: "Revily is currently an early-access prototype, so response times may vary. We'll always reply.", highlight: false },
+    ],
+  },
 };
 
-type SkillProgress = {
-  total: number;
-  answered: number;
-  correct: number;
-};
+type ModalKey = "privacy" | "terms" | "contact";
 
-type SkillCard = Skill & SkillProgress;
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-function getLevel(xp: number) {
-  return Math.floor(xp / 100) + 1;
+interface PricingIntent {
+  plan: string;
+  price: string;
+  event: string;
 }
 
-function getXPIntoLevel(xp: number) {
-  return xp % 100;
-}
-
-function getLevelLabel(xp: number) {
-  const level = getLevel(xp);
-  if (level <= 2) return "Newcomer";
-  if (level <= 5) return "Apprentice";
-  if (level <= 10) return "Solver";
-  if (level <= 20) return "Expert";
-  return "Master";
-}
-
-function getDifficultyColour(difficulty: string) {
-  switch (difficulty?.toLowerCase()) {
-    case "foundation": return { bg: "bg-[#4ade8020]", text: "text-[#4ade80]", border: "border-[#4ade8040]" };
-    case "crossover":  return { bg: "bg-[#f9c74f20]", text: "text-[#f9c74f]", border: "border-[#f9c74f40]" };
-    case "higher":     return { bg: "bg-[#f8717120]", text: "text-[#f87171]", border: "border-[#f8717140]" };
-    default:           return { bg: "bg-[#8a8fa820]", text: "text-[#8a8fa8]", border: "border-[#8a8fa840]" };
-  }
-}
-
-function getStreakMessage(streak: number) {
-  if (streak === 0) return "Start your streak today!";
-  if (streak === 1) return "Day 1 — keep it going tomorrow!";
-  if (streak < 7)  return `🔥 ${streak} day streak — you're building momentum!`;
-  if (streak < 30) return `🔥 ${streak} days — seriously impressive!`;
-  return `🔥 ${streak} days — you're unstoppable!`;
-}
-
-// ── Progress ring ──────────────────────────────────────────────────────────
-function ProgressRing({ pct, colour }: { pct: number; colour: string }) {
-  const r = 18;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (pct / 100) * circ;
-  return (
-    <svg width="44" height="44" className="flex-shrink-0 -rotate-90">
-      <circle cx="22" cy="22" r={r} fill="none" stroke="#2e3248" strokeWidth="3" />
-      <circle
-        cx="22" cy="22" r={r} fill="none"
-        stroke={colour} strokeWidth="3"
-        strokeDasharray={circ}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        style={{ transition: "stroke-dashoffset 0.6s ease" }}
-      />
-    </svg>
-  );
-}
-
-// ── Skill card ─────────────────────────────────────────────────────────────
-function SkillCardComponent({
-  skill,
-  onStart,
-}: {
-  skill: SkillCard;
-  onStart: (id: number) => void;
-}) {
-  const pct = skill.total > 0 ? Math.round((skill.correct / skill.total) * 100) : 0;
-  const started = skill.answered > 0;
-  const diff = getDifficultyColour(skill.difficulty);
-  const ringColour = skill.difficulty === "foundation"
-    ? "#4ade80" : skill.difficulty === "higher"
-    ? "#f87171" : "#f9c74f";
-
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-5 transition-all duration-200 hover:border-[#f9c74f40] hover:bg-[#1e2130]">
-
-      {/* Top row */}
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div
-            className="mb-1 text-base font-bold leading-tight text-[#f1f0ee] truncate"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          >
-            {skill.name}
-          </div>
-          <div className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${diff.bg} ${diff.text} ${diff.border}`}>
-            {skill.difficulty
-              ? skill.difficulty.charAt(0).toUpperCase() + skill.difficulty.slice(1)
-              : "General"}
-          </div>
-        </div>
-        <ProgressRing pct={pct} colour={ringColour} />
-      </div>
-
-      {/* Progress bar */}
-      <div className="mb-1 flex items-center justify-between text-xs text-[#555a73]">
-        <span>{skill.correct} correct</span>
-        <span>{skill.total} questions</span>
-      </div>
-      <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-[#22263a]">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: ringColour }}
-        />
-      </div>
-
-      {/* CTA */}
-      <button
-        onClick={() => onStart(skill.id)}
-        className="w-full rounded-full py-2.5 text-sm font-bold transition-all duration-150"
-        style={{
-          fontFamily: "'Bricolage Grotesque', sans-serif",
-          backgroundColor: started ? "transparent" : "#f9c74f",
-          color: started ? "#f9c74f" : "#0f1117",
-          border: started ? "2px solid #f9c74f40" : "2px solid transparent",
-        }}
-      >
-        {started ? "Continue →" : "Start →"}
-      </button>
-    </div>
-  );
-}
-
-// ── Main page ──────────────────────────────────────────────────────────────
-export default function HomePage() {
-  const router = useRouter();
-
-  const [profile, setProfile] = useState<Profile>({ xp: 0, streak: 0 });
-  const [firstName, setFirstName] = useState("there");
-  const [skills, setSkills] = useState<SkillCard[]>([]);
-  const [loading, setLoading] = useState(true);
+function LegalModal({ modalKey, onClose }: { modalKey: ModalKey; onClose: () => void }) {
+  const content = LEGAL_CONTENT[modalKey];
 
   useEffect(() => {
-    async function load() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
 
-      if (!session?.user) {
-        router.push("/auth");
-        return;
-      }
+  if (!content) return null;
 
-      // First name
-      const fullName = session.user.user_metadata?.full_name || "";
-      setFirstName(fullName.split(" ")[0] || "there");
-
-      // Profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("xp, streak")
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (profileData) setProfile(profileData);
-
-      // Skills
-      const { data: skillsData } = await supabase
-        .from("skills")
-        .select("id, name, difficulty")
-        .order("id");
-
-      if (!skillsData?.length) {
-        setLoading(false);
-        return;
-      }
-
-      // Question counts per skill
-      const { data: qCounts } = await supabase
-        .from("questions")
-        .select("skill_id")
-        .in("skill_id", skillsData.map((s) => s.id));
-
-      // Attempts per skill for this user
-      const { data: attemptData } = await supabase
-        .from("attempts")
-        .select("question_id, is_correct, questions(skill_id)")
-        .eq("user_id", session.user.id);
-
-      // Build skill cards
-      const cards: SkillCard[] = skillsData.map((skill) => {
-        const total = qCounts?.filter((q) => q.skill_id === skill.id).length ?? 0;
-
-        const myAttempts = (attemptData ?? []).filter(
-          (a: any) => a.questions?.skill_id === skill.id
-        );
-        // Dedupe by question_id — only count each question once (best attempt)
-        const seenIds = new Set<number>();
-        let answered = 0;
-        let correct = 0;
-        for (const a of myAttempts) {
-          if (!seenIds.has(a.question_id)) {
-            seenIds.add(a.question_id);
-            answered++;
-            if (a.is_correct) correct++;
-          }
-        }
-
-        return { ...skill, total, answered, correct };
-      });
-
-      setSkills(cards);
-      setLoading(false);
-    }
-
-    load();
-  }, [router]);
-
-  function handleStart(skillId: number) {
-    router.push(`/practice?skill=${skillId}`);
-  }
-
-  const level = getLevel(profile.xp);
-  const xpIntoLevel = getXPIntoLevel(profile.xp);
-  const levelLabel = getLevelLabel(profile.xp);
-  const totalAnswered = skills.reduce((acc, s) => acc + s.answered, 0);
-  const totalCorrect = skills.reduce((acc, s) => acc + s.correct, 0);
+  const display = { fontFamily: "'Bricolage Grotesque', system-ui, sans-serif" };
+  const mono = { fontFamily: "'JetBrains Mono', ui-monospace, monospace" };
 
   return (
     <div
-      className="min-h-screen bg-[#0f1117] px-4 pb-16 pt-8"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+      style={{ backgroundColor: "rgba(11, 16, 21, 0.65)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
     >
-      {/* Glow */}
       <div
-        className="pointer-events-none fixed inset-0 opacity-20"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 40% at 50% -10%, #f9c74f30 0%, transparent 60%)",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-4xl">
-
-        {/* ── Hero ── */}
-        <div className="mb-10">
-          <div className="mb-1 text-sm font-medium text-[#555a73]">
-            {new Date().toLocaleDateString("en-GB", {
-              weekday: "long", day: "numeric", month: "long",
-            })}
-          </div>
-          <h1
-            className="mb-6 text-3xl font-extrabold text-[#f1f0ee]"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          >
-            Welcome back, {firstName} 👋
-          </h1>
-
-          {/* Stats row */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-            {/* Level */}
-            <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-4">
-              <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Level</div>
-              <div
-                className="text-2xl font-extrabold text-[#f9c74f]"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                {level}
-              </div>
-              <div className="mt-0.5 text-xs text-[#8a8fa8]">{levelLabel}</div>
-            </div>
-
-            {/* XP */}
-            <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-4">
-              <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Total XP</div>
-              <div
-                className="text-2xl font-extrabold text-[#f9c74f]"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                {profile.xp}
-              </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#2e3248]">
-                <div
-                  className="h-full rounded-full bg-[#f9c74f] transition-all duration-500"
-                  style={{ width: `${xpIntoLevel}%` }}
-                />
-              </div>
-              <div className="mt-1 text-xs text-[#555a73]">{xpIntoLevel}/100 to Lv.{level + 1}</div>
-            </div>
-
-            {/* Streak */}
-            <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-4">
-              <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Streak</div>
-              <div
-                className="text-2xl font-extrabold text-[#f1f0ee]"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                🔥 {profile.streak}
-              </div>
-              <div className="mt-0.5 text-xs text-[#8a8fa8]">
-                {profile.streak === 1 ? "day" : "days"}
-              </div>
-            </div>
-
-            {/* Accuracy */}
-            <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-4">
-              <div className="mb-1 text-xs uppercase tracking-widest text-[#555a73]">Accuracy</div>
-              <div
-                className="text-2xl font-extrabold text-[#f1f0ee]"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                {totalAnswered > 0
-                  ? `${Math.round((totalCorrect / totalAnswered) * 100)}%`
-                  : "—"}
-              </div>
-              <div className="mt-0.5 text-xs text-[#8a8fa8]">
-                {totalAnswered} answered
-              </div>
-            </div>
-          </div>
-
-          {/* Streak message */}
-          {profile.streak > 0 && (
-            <div className="mt-3 rounded-xl border border-[#f9c74f20] bg-[#f9c74f08] px-4 py-2.5 text-sm text-[#f9c74f]">
-              {getStreakMessage(profile.streak)}
-            </div>
-          )}
-        </div>
-
-        {/* ── Skill map ── */}
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h2
-              className="text-lg font-extrabold text-[#f1f0ee]"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            >
-              Your Skills
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="legal-modal-title"
+        className="relative w-full max-w-lg bg-[#FAF7F2] rounded-3xl shadow-[0_32px_80px_-16px_rgba(0,0,0,0.35)] flex flex-col"
+        style={{ maxHeight: "85vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 px-7 pt-7 pb-5 border-b border-black/[0.07] flex-shrink-0">
+          <div>
+            <h2 id="legal-modal-title" style={display} className="text-2xl font-bold tracking-tight text-[#0B1015]">
+              {content.title}
             </h2>
-            <div className="text-xs text-[#555a73]">
-              {skills.filter((s) => s.answered > 0).length} of {skills.length} started
-            </div>
+            {content.updated && (
+              <p className="text-[11px] text-black/45 mt-1" style={mono}>
+                LAST UPDATED: {content.updated.toUpperCase()}
+              </p>
+            )}
           </div>
-
-          {loading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-48 animate-pulse rounded-2xl border border-[#2e3248] bg-[#1a1d27]"
-                />
-              ))}
+          <button type="button" onClick={onClose} aria-label="Close"
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-black/[0.06] hover:bg-black/[0.12] flex items-center justify-center transition-colors mt-0.5">
+            <X className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
+          </button>
+        </div>
+        <div className="overflow-y-auto px-7 py-6 space-y-5 flex-1">
+          {content.sections.map((section, i) => (
+            <div key={i}>
+              {section.heading && (
+                <h3 className="text-[13px] font-bold text-[#0B1015] uppercase tracking-wider mb-1.5" style={mono}>
+                  {section.heading}
+                </h3>
+              )}
+              <p className={`leading-relaxed ${section.highlight ? "text-[17px] font-semibold text-[#0B1015]" : "text-[15px] text-black/70"}`}>
+                {section.body}
+              </p>
             </div>
-          ) : skills.length === 0 ? (
-            <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] px-6 py-12 text-center">
-              <div className="mb-2 text-3xl">📚</div>
-              <div className="text-sm text-[#8a8fa8]">
-                No skills yet — ask your teacher to add some content.
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {skills.map((skill) => (
-                <SkillCardComponent
-                  key={skill.id}
-                  skill={skill}
-                  onStart={handleStart}
-                />
-              ))}
-            </div>
-          )}
+          ))}
+        </div>
+        <div className="flex-shrink-0 px-7 py-5 border-t border-black/[0.07]">
+          <button type="button" onClick={onClose}
+            className="w-full bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold py-3 rounded-full text-sm transition-colors">
+            Close
+          </button>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RevilyLanding() {
+  const [legalModal, setLegalModal] = useState<ModalKey | null>(null);
+  const closeLegal = useCallback(() => setLegalModal(null), []);
+  const [pricingIntent, setPricingIntent] = useState<PricingIntent | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get("plan");
+    const price = params.get("price");
+    const event = params.get("pricingEvent");
+    if (plan && price) setPricingIntent({ plan, price, event: event || "" });
+  }, []);
+
+  const display = { fontFamily: "'Bricolage Grotesque', system-ui, sans-serif" };
+  const body = { fontFamily: "'Manrope', system-ui, sans-serif" };
+  const mono = { fontFamily: "'JetBrains Mono', ui-monospace, monospace" };
+
+  return (
+    <div style={{ ...body, backgroundColor: "#FAF7F2", color: "#0B1015" }}
+      className="min-h-screen w-full antialiased selection:bg-[#C2F751] selection:text-[#0B1015]">
+      <Nav display={display} mono={mono} />
+      <Hero display={display} mono={mono} />
+      <StatusBox display={display} mono={mono} />
+      <TrustStrip />
+      <ProductPreview display={display} mono={mono} />
+      <HowItWorks display={display} mono={mono} />
+      <Differentiation display={display} />
+      <ParentPain display={display} />
+      <Pricing display={display} mono={mono} setPricingIntent={setPricingIntent} pricingIntent={pricingIntent} />
+      <SignupForm display={display} pricingIntent={pricingIntent} />
+      <FAQ display={display} />
+      <Footer display={display} mono={mono} onOpenModal={setLegalModal} />
+      {legalModal && <LegalModal modalKey={legalModal} onClose={closeLegal} />}
+    </div>
+  );
+}
+
+function Nav({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  return (
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-[#FAF7F2]/80 border-b border-black/[0.06]">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+        <a href="#top" className="flex items-center gap-2.5" aria-label="Revily home">
+          <div className="w-8 h-8 rounded-lg bg-[#0B1015] flex items-center justify-center">
+            <span className="text-[#C2F751] font-bold text-sm leading-none" style={display}>R</span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-semibold tracking-tight text-[15px]" style={display}>Revily</span>
+            <span className="hidden sm:inline text-[12px] text-black/45 font-medium">GCSE Maths Revision</span>
+          </div>
+          <span className="ml-2 text-[10px] font-bold tracking-wider text-black/55 bg-black/[0.06] px-2 py-0.5 rounded" style={mono}>
+            EARLY ACCESS
+          </span>
+        </a>
+        <nav className="hidden md:flex items-center gap-7 text-sm text-black/70">
+          <a href="#how" className="hover:text-black transition-colors">How it works</a>
+          <a href="#pricing" className="hover:text-black transition-colors">Early pricing</a>
+          <a href="#faq" className="hover:text-black transition-colors">FAQs</a>
+        </nav>
+        <button type="button"
+          onClick={() => { track("nav_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
+          className="inline-flex items-center gap-1.5 bg-[#0B1015] hover:bg-[#1F2A0F] text-[#C2F751] text-sm font-semibold px-4 py-2 rounded-full transition-colors">
+          Join early access
+          <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function Hero({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  return (
+    <section id="top" className="relative overflow-hidden">
+      <div aria-hidden className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{ backgroundImage: "linear-gradient(#0B1015 1px, transparent 1px), linear-gradient(90deg, #0B1015 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+      <div aria-hidden className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, #C2F751 0%, transparent 65%)", opacity: 0.35 }} />
+      <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-16 sm:pb-20">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] px-3 py-1.5 rounded-full text-xs font-semibold mb-6">
+              <GraduationCap className="w-3.5 h-3.5" strokeWidth={2.5} />
+              <span style={mono}>EARLY ACCESS · GCSE MATHS FOUNDATION</span>
+            </div>
+            <h1 style={display} className="text-[44px] leading-[1.02] sm:text-[60px] sm:leading-[1] lg:text-[72px] lg:leading-[0.98] font-bold tracking-[-0.03em]">
+              GCSE Maths revision shouldn&apos;t feel like{" "}
+              <span className="relative inline-block">
+                <span className="relative z-10">guesswork</span>
+                <span aria-hidden className="absolute left-0 right-0 bottom-1 sm:bottom-2 h-[14px] sm:h-[20px] -z-0 bg-[#C2F751] rounded-sm" />
+              </span>.
+            </h1>
+            <p className="mt-6 text-lg sm:text-xl text-black/70 max-w-[580px] leading-relaxed">
+              We&apos;re building Revily, a 10-minute-a-day GCSE Maths revision tool for Foundation students working toward a Grade 4/5.{" "}
+              <span className="text-black/85 font-medium">Join early access and help shape the first version.</span>
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <button type="button"
+                onClick={() => { track("hero_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
+                className="group inline-flex items-center justify-center gap-2 bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold px-6 py-4 rounded-full text-base transition-all hover:scale-[1.02]">
+                Join early access
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </button>
+            </div>
+            <div className="mt-8 flex items-start gap-3 text-sm text-black/60 max-w-[520px]">
+              <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
+              <p>Being developed with GCSE Maths teaching expertise.{" "}
+                <span className="text-black/80 font-medium">No random AI answers. No irrelevant curriculum. No false confidence.</span>
+              </p>
+            </div>
+          </div>
+          <HeroMockup display={display} mono={mono} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HeroMockup({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  return (
+    <div className="relative mx-auto w-full max-w-[380px]">
+      <div className="absolute -top-4 -left-4 sm:-left-8 z-20 rotate-[-6deg]">
+        <div className="bg-[#C2F751] rounded-2xl px-3 py-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.2)] flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
+          <span className="font-bold text-sm text-[#0B1015]" style={display}>Product preview</span>
+        </div>
+      </div>
+      <div className="absolute -bottom-4 -right-2 sm:-right-6 z-20 rotate-[5deg]">
+        <div className="bg-white border border-black/10 rounded-2xl px-3 py-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.2)] flex items-center gap-1.5">
+          <Target className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
+          <span className="font-bold text-sm text-[#0B1015]" style={display}>In development</span>
+        </div>
+      </div>
+      <div className="relative bg-[#0B1015] rounded-[44px] p-3 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]">
+        <div className="bg-[#FAF7F2] rounded-[32px] overflow-hidden">
+          <div className="flex items-center justify-between px-6 pt-4 pb-2 text-xs text-black/60" style={mono}>
+            <span>9:41</span><span>•••</span>
+          </div>
+          <div className="px-5 pt-2 pb-4 flex items-center justify-between">
+            <div>
+              <div className="text-[11px] text-black/50 uppercase tracking-wider font-semibold" style={mono}>Mock-up · Foundation tier</div>
+              <h3 className="text-xl font-bold mt-0.5" style={display}>Today&apos;s mission</h3>
+            </div>
+            <div className="w-9 h-9 rounded-full bg-[#0B1015] flex items-center justify-center text-[#C2F751] text-xs font-bold">S</div>
+          </div>
+          <div className="px-5">
+            <div className="inline-flex items-center gap-1.5 bg-[#0B1015] text-[#C2F751] px-2.5 py-1 rounded-full text-[11px] font-semibold">
+              <Target className="w-3 h-3" strokeWidth={2.5} />
+              <span style={mono}>HARD · LINEAR EQUATIONS</span>
+            </div>
+          </div>
+          <div className="mx-5 mt-3 bg-white border border-black/[0.07] rounded-2xl p-4 shadow-sm">
+            <div className="text-[11px] text-black/50 font-semibold mb-2" style={mono}>Q3 OF 5</div>
+            <p className="text-[15px] text-[#0B1015] leading-snug font-medium mb-3">Solve for x:</p>
+            <div className="bg-[#FAF7F2] rounded-lg px-3 py-2 text-lg font-semibold text-[#0B1015]" style={mono}>3x + 7 = 22</div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {["x = 5", "x = 7", "x = 15", "x = 3"].map((opt, i) => (
+                <div key={opt} className={`px-3 py-2 rounded-lg text-sm font-semibold border ${i === 0 ? "bg-[#C2F751] border-[#0B1015] text-[#0B1015]" : "bg-white border-black/10 text-black/70"}`}>
+                  {opt}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="px-5 mt-4 mb-5">
+            <div className="flex items-center justify-between text-[11px] text-black/60 mb-1.5" style={mono}>
+              <span>MISSION PROGRESS</span><span>3 / 5</span>
+            </div>
+            <div className="h-1.5 bg-black/[0.08] rounded-full overflow-hidden">
+              <div className="h-full bg-[#0B1015] w-3/5 rounded-full" />
+            </div>
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-black/60">
+              <Clock className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>~10 minutes per mission (planned)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatusBox({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  return (
+    <section className="pb-6 sm:pb-10 -mt-4 sm:-mt-8">
+      <div className="max-w-5xl mx-auto px-5 sm:px-8">
+        <div className="relative rounded-2xl border border-[#0B1015]/15 bg-white p-5 sm:p-6 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.08)] flex gap-4 sm:gap-5">
+          <div className="flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#0B1015] flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-[#C2F751]" strokeWidth={2.25} />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="text-[10px] font-bold text-[#0B1015] tracking-wider" style={mono}>STATUS</span>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0B1015] animate-pulse" />
+                Early-access prototype
+              </span>
+            </div>
+            <p className="text-[15px] text-black/75 leading-relaxed">
+              Revily is not fully launched yet.{" "}
+              <span className="text-[#0B1015] font-semibold">You will not be charged today.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustStrip() {
+  const items = ["Foundation-tier focused", "Mapped to GCSE Maths skills", "Teacher review planned before launch", "Reliable marking logic", "Parent progress updates"];
+  return (
+    <section className="border-y border-black/[0.06] bg-white/40">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-5">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          {items.map((item) => (
+            <div key={item} className="flex items-center gap-2 text-sm text-black/65">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1015]" strokeWidth={2.25} />
+              <span className="font-medium">{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProductPreview({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  return (
+    <section className="py-20 sm:py-28">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <div className="max-w-2xl">
+          <div className="text-[11px] font-bold text-black/50 tracking-wider uppercase mb-3" style={mono}>What we&apos;re building</div>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">GCSE Maths revision without the guesswork.</h2>
+          <p className="mt-4 text-lg text-black/65 max-w-xl">These are the four things Revily&apos;s GCSE Maths Revision is being designed around.</p>
+        </div>
+        <div className="mt-12 grid md:grid-cols-2 gap-5">
+          <PreviewCard badge="TODAY" title="Today's mission" accent display={display} mono={mono}
+            description="The first version is being designed around focused daily missions — around 10 minutes, hand-picked from each student's weak topics.">
+            <div className="bg-[#0B1015] rounded-2xl p-5 text-white">
+              <div className="text-[11px] text-[#C2F751] font-semibold mb-2" style={mono}>MISSION · PREVIEW</div>
+              <div className="font-semibold text-lg mb-4" style={display}>Linear equations · 5 questions</div>
+              <div className="space-y-2">
+                {[{ q: "Solve 3x + 7 = 22", done: true }, { q: "Solve 5x − 4 = 21", done: true }, { q: "Solve 2(x + 3) = 14", done: true }, { q: "Solve x/4 + 1 = 6", done: false }, { q: "Form & solve from word problem", done: false }].map((row, i) => (
+                  <div key={i} className="flex items-center gap-2.5 text-sm">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${row.done ? "bg-[#C2F751] border-[#C2F751]" : "border-white/30"}`}>
+                      {row.done && <Check className="w-2.5 h-2.5 text-[#0B1015]" strokeWidth={3} />}
+                    </div>
+                    <span className={row.done ? "text-white/50 line-through" : "text-white"}>{row.q}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </PreviewCard>
+
+          <PreviewCard badge="DIAGNOSTIC" title="Weak topics, surfaced" display={display} mono={mono}
+            description="The planned diagnostic will surface the topics most likely to cost marks, so the mission engine can target those first.">
+            <div className="space-y-3">
+              {[{ topic: "Fractions & percentages", level: 32, tag: "Priority" }, { topic: "Ratio", level: 41, tag: "Priority" }, { topic: "Linear equations", level: 48, tag: "Priority" }, { topic: "Area & volume", level: 62, tag: null }, { topic: "Averages", level: 78, tag: "Strong" }].map((row) => (
+                <div key={row.topic}>
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="font-semibold text-[#0B1015]">{row.topic}</span>
+                    <div className="flex items-center gap-2">
+                      {row.tag === "Priority" && <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-1.5 py-0.5 rounded" style={mono}>PRIORITY</span>}
+                      {row.tag === "Strong" && <span className="text-[10px] font-bold text-black/60 bg-black/[0.06] px-1.5 py-0.5 rounded" style={mono}>STRONG</span>}
+                      <span className="text-xs text-black/50 tabular-nums" style={mono}>{row.level}%</span>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-black/[0.06] rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full ${row.level < 50 ? "bg-[#FF8B6B]" : row.level < 75 ? "bg-[#0B1015]" : "bg-[#C2F751]"}`} style={{ width: `${row.level}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </PreviewCard>
+
+          <PreviewCard badge="FEEDBACK" title="Reliable marking, with the working shown" display={display} mono={mono}
+            description="Every answer marked against reliable logic, with the working shown so students learn the method — not just the answer.">
+            <div className="space-y-3">
+              <div className="bg-[#FAF7F2] rounded-xl p-4 border border-black/[0.07]">
+                <div className="text-xs text-black/55 mb-2 font-semibold" style={mono}>YOUR ANSWER</div>
+                <div className="text-lg font-semibold text-[#0B1015]" style={mono}>x = 5</div>
+              </div>
+              <div className="bg-[#C2F751] rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 rounded-full bg-[#0B1015] flex items-center justify-center">
+                    <Check className="w-3 h-3 text-[#C2F751]" strokeWidth={3} />
+                  </div>
+                  <div className="text-xs font-bold text-[#0B1015]" style={mono}>CORRECT</div>
+                </div>
+                <p className="text-sm text-[#0B1015] leading-snug font-medium">
+                  Subtract 7 from both sides → <span style={mono}>3x = 15</span>. Divide by 3 → <span style={mono}>x = 5</span>.
+                </p>
+              </div>
+            </div>
+          </PreviewCard>
+
+          <PreviewCard badge="PROGRESS" title="Progress, visible to parents" display={display} mono={mono}
+            description="A planned readiness view that shows what's being practised and where progress is happening.">
+            <div className="bg-[#0B1015] rounded-2xl p-5 text-white">
+              <div className="flex items-end gap-4 mb-5">
+                <div>
+                  <div className="text-[11px] text-white/60 font-semibold mb-1" style={mono}>READINESS (PREVIEW)</div>
+                  <div className="text-5xl font-bold tabular-nums" style={display}>62<span className="text-2xl text-white/50">%</span></div>
+                </div>
+                <div className="flex items-center gap-1 text-[#C2F751] text-sm font-semibold pb-2">
+                  <TrendingUp className="w-4 h-4" strokeWidth={2.5} />Trending up
+                </div>
+              </div>
+              <div className="text-[11px] text-white/60 font-semibold mb-2" style={mono}>EXAMPLE TREND</div>
+              <div className="flex items-end gap-1 h-16">
+                {[35, 38, 42, 41, 45, 48, 47, 50, 53, 55, 54, 58, 60, 62].map((v, i) => (
+                  <div key={i} className="flex-1 rounded-sm" style={{ height: `${v}%`, backgroundColor: i === 13 ? "#C2F751" : "rgba(255,255,255,0.25)" }} />
+                ))}
+              </div>
+            </div>
+          </PreviewCard>
+        </div>
+        <p className="mt-8 text-sm text-black/50 text-center max-w-2xl mx-auto">Screens shown are product mock-ups. The shipping version may differ.</p>
+      </div>
+    </section>
+  );
+}
+
+function PreviewCard({ badge, title, description, children, display, mono, accent }: {
+  badge: string; title: string; description: string; children: React.ReactNode;
+  display: React.CSSProperties; mono: React.CSSProperties; accent?: boolean;
+}) {
+  return (
+    <div className={`rounded-3xl p-6 sm:p-7 border ${accent ? "bg-[#FAF7F2] border-black/[0.08]" : "bg-white border-black/[0.07]"} hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.12)] transition-shadow`}>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded" style={mono}>{badge}</span>
+      </div>
+      <h3 className="text-2xl font-bold tracking-[-0.01em]" style={display}>{title}</h3>
+      <p className="mt-2 text-[15px] text-black/65 leading-relaxed mb-5">{description}</p>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function HowItWorks({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  const steps = [
+    { icon: Calculator, title: "Start with a short diagnostic", copy: "Planned: a ~5-minute diagnostic to find the topics that'll cost the most marks if they aren't fixed." },
+    { icon: Target, title: "Get a 10-minute daily mission", copy: "Planned: each day, a focused mission targeting weak topics — sized for an evening break, not a study marathon." },
+    { icon: BarChart3, title: "Practise, get feedback, track progress", copy: "Planned: reliable instant marking with the working shown, a readiness view that climbs as gaps close, and an optional parent summary." },
+  ];
+  return (
+    <section id="how" className="py-20 sm:py-28 bg-[#0B1015] text-white">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <div className="max-w-2xl">
+          <div className="text-[11px] font-bold text-[#C2F751] tracking-wider uppercase mb-3" style={mono}>How it&apos;ll work</div>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Three steps. No revision overwhelm.</h2>
+          <p className="mt-4 text-white/60 max-w-xl">This is the shape we&apos;re building toward. Early-access members will help us pressure-test each step before it ships.</p>
+        </div>
+        <div className="mt-14 grid md:grid-cols-3 gap-5 md:gap-4">
+          {steps.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <div key={i} className="relative rounded-3xl bg-white/[0.04] border border-white/10 p-7 hover:bg-white/[0.06] transition-colors">
+                <div className="absolute top-7 right-7 text-7xl font-bold text-white/[0.06] tabular-nums leading-none" style={display}>{i + 1}</div>
+                <div className="relative">
+                  <div className="w-11 h-11 rounded-xl bg-[#C2F751] flex items-center justify-center mb-5">
+                    <Icon className="w-5 h-5 text-[#0B1015]" strokeWidth={2.25} />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2" style={display}>{step.title}</h3>
+                  <p className="text-[15px] text-white/70 leading-relaxed">{step.copy}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Differentiation({ display }: { display: React.CSSProperties }) {
+  const points = [
+    { icon: ShieldCheck, title: "Reliable marking", copy: "Based on well-known GCSE marking principles, not AI slop." },
+    { icon: Target, title: "Foundation-first focus", copy: "The first beta is focused on the Grade 3 → 4/5 path, not every tier and every subject at once." },
+    { icon: GraduationCap, title: "Mapped to GCSE Maths skills", copy: "Exercises are intended to be mapped to GCSE Maths Foundation skills and exam-board specifications." },
+    { icon: BarChart3, title: "Parent visibility planned", copy: "Progress updates are planned so parents can see whether revision is actually happening." },
+  ];
+  return (
+    <section className="py-20 sm:py-28">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <div className="max-w-2xl">
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Why this isn&apos;t another revision app.</h2>
+          <p className="mt-4 text-lg text-black/65 max-w-xl">Mapped to GCSE Maths Foundation skills. Built around the topics most likely to move a Grade 3 toward a 4 or 5.</p>
+        </div>
+        <div className="mt-12 grid sm:grid-cols-2 gap-4">
+          {points.map((p, i) => {
+            const Icon = p.icon;
+            return (
+              <div key={i} className="rounded-3xl bg-white border border-black/[0.07] p-7 flex gap-5 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.1)] transition-shadow">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#0B1015] flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-[#C2F751]" strokeWidth={2.25} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold tracking-tight mb-1.5" style={display}>{p.title}</h3>
+                  <p className="text-[15px] text-black/65 leading-relaxed">{p.copy}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ParentPain({ display }: { display: React.CSSProperties }) {
+  return (
+    <section className="py-20 sm:py-28">
+      <div className="max-w-5xl mx-auto px-5 sm:px-8">
+        <div className="relative rounded-[36px] overflow-hidden p-8 sm:p-14 lg:p-20" style={{ backgroundColor: "#FFEFE8" }}>
+          <div aria-hidden className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full"
+            style={{ background: "radial-gradient(circle, #FF8B6B 0%, transparent 65%)", opacity: 0.45 }} />
+          <div className="relative max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold text-[#0B1015] mb-6">
+              <AlertCircle className="w-3.5 h-3.5" strokeWidth={2.5} />For parents
+            </div>
+            <h2 style={display} className="text-3xl sm:text-4xl lg:text-[52px] font-bold tracking-[-0.02em] leading-[1.05]">
+              Your child may be revising —{" "}<span className="italic">but are they revising the right things?</span>
+            </h2>
+            <div className="mt-6 space-y-4 text-[17px] text-[#0B1015]/75 leading-relaxed">
+              <p>GCSE Maths can feel overwhelming when your child doesn&apos;t know what to practise next.</p>
+              <p>Revily is an early-access GCSE Maths revision tool for Foundation students predicted around Grade 3 and aiming for a 4 or 5.</p>
+              <p className="text-[#0B1015] font-semibold">Early-access parents will help shape what the weekly progress updates look like.</p>
+            </div>
+            <button type="button"
+              onClick={() => { track("parent_pain_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
+              className="mt-8 inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] font-semibold px-6 py-4 rounded-full hover:bg-black transition-colors">
+              Join early access<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Pricing({ display, mono, setPricingIntent, pricingIntent }: {
+  display: React.CSSProperties; mono: React.CSSProperties;
+  setPricingIntent: (intent: PricingIntent) => void; pricingIntent: PricingIntent | null;
+}) {
+  const plans = [
+    { name: "Free beta", price: "£0", sub: "If you want to try it for free when it opens", cta: "I'd join the free beta", ctaEvent: "pricing_interest_free", features: ["Planned: daily 10-minute missions", "Planned: diagnostic & weak topics", "Foundation-tier content", "Limited beta spaces"] },
+    { name: "Revision Sprint", price: "£19", sub: "Hypothetical one-off price for the full version", cta: "I'd pay £19 one-off", ctaEvent: "pricing_interest_19", features: ["Everything in the free beta", "Full question bank (planned)", "Daily mission engine (planned)", "Reliable marking & worked solutions", "Readiness view & history (planned)"] },
+    { name: "Parent Pack", price: "£29", sub: "Hypothetical price — Sprint plus weekly parent updates", cta: "I'd pay £29 with updates", ctaEvent: "pricing_interest_29", features: ["Everything in Revision Sprint", "Weekly progress email to parents", "Topic-by-topic improvement view", "Priority early-access support"] },
+  ];
+
+  const handlePricingClick = (plan: typeof plans[0]) => {
+    setPricingIntent({ plan: plan.name, price: plan.price, event: plan.ctaEvent });
+    const params = new URLSearchParams(window.location.search);
+    params.set("plan", plan.name);
+    params.set("price", plan.price);
+    params.set("pricingEvent", plan.ctaEvent);
+    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+    track(plan.ctaEvent, { plan: plan.name, price: plan.price });
+    document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <section id="pricing" className="py-20 sm:py-28">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <div className="max-w-2xl">
+          <div className="text-[11px] font-bold text-black/50 tracking-wider uppercase mb-3" style={mono}>Early pricing test</div>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Help us land the right price.</h2>
+          <p className="mt-4 text-lg text-black/65 max-w-xl">
+            We&apos;re testing which offer parents actually want.{" "}
+            <span className="text-[#0B1015] font-semibold">You will not be charged today.</span>
+          </p>
+        </div>
+        <div className="mt-12 grid md:grid-cols-3 gap-5">
+          {plans.map((plan) => {
+            const isSelected = pricingIntent?.plan === plan.name;
+            return (
+              <div key={plan.name} className={`relative rounded-3xl p-7 border bg-white text-[#0B1015] transition-shadow ${isSelected ? "border-[#0B1015] shadow-[0_16px_50px_-20px_rgba(0,0,0,0.22)]" : "border-black/[0.07] hover:shadow-[0_16px_50px_-20px_rgba(0,0,0,0.18)]"}`}>
+                {isSelected && (
+                  <div className="absolute -top-3 left-7">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2.5 py-1 rounded-full">
+                      <Check className="w-2.5 h-2.5" strokeWidth={3} /> Selected
+                    </span>
+                  </div>
+                )}
+                <div className="text-sm font-semibold opacity-70 mb-2">{plan.name}</div>
+                <div className="flex items-baseline gap-1.5 mb-1">
+                  <span className="text-5xl font-bold tracking-tight" style={display}>{plan.price}</span>
+                </div>
+                <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
+                <button type="button" onClick={() => handlePricingClick(plan)}
+                  className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black">
+                  {plan.cta}
+                </button>
+                <div className="mt-6 pt-6 border-t border-black/[0.07] space-y-2.5">
+                  {plan.features.map((f) => (
+                    <div key={f} className="flex items-start gap-2.5 text-[14px]">
+                      <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#0B1015]" strokeWidth={3} />
+                      <span className="text-black/75">{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-8 flex items-start gap-3 max-w-2xl mx-auto bg-[#0B1015]/[0.04] border border-[#0B1015]/10 rounded-2xl p-4">
+          <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
+          <p className="text-sm text-black/70 leading-relaxed">
+            These buttons help us understand demand.{" "}
+            <span className="text-[#0B1015] font-semibold">They do not start a payment or subscription.</span>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SignupForm({ display, pricingIntent }: { display: React.CSSProperties; pricingIntent: PricingIntent | null }) {
+  const [form, setForm] = useState({ email: "", role: "Parent", board: "Not sure", tier: "Not sure", target: "Get a 4" });
+  const [submitted, setSubmitted] = useState(false);
+  const handleChange = (key: string) => (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams(window.location.search);
+    const selectedPlan = pricingIntent?.plan || params.get("plan") || "";
+    const selectedPrice = pricingIntent?.price || params.get("price") || "";
+    const selectedPricingEvent = pricingIntent?.event || params.get("pricingEvent") || "";
+    const payload = { ...form, selectedPlan, selectedPrice, selectedPricingEvent, pricingIntentSelected: Boolean(selectedPlan), submittedAt: new Date().toISOString(), page: window.location.href };
+    track("signup_submit", payload);
+    try {
+      const response = await fetch("https://formspree.io/f/xojbjvaj", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("Form submission failed");
+      setSubmitted(true);
+    } catch {
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+  const resolvedPlan = pricingIntent?.plan || "";
+  const resolvedPrice = pricingIntent?.price || "";
+
+  return (
+    <section id="signup" className="py-20 sm:py-28 bg-white border-y border-black/[0.06]">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8">
+        <div className="text-center max-w-xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] px-3 py-1.5 rounded-full text-xs font-semibold mb-5">
+            <Zap className="w-3.5 h-3.5" strokeWidth={2.5} />Early access · GCSE Maths Foundation
+          </div>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Join the early access list.</h2>
+          <p className="mt-4 text-lg text-black/65">Tell us a bit about your child&apos;s GCSE Maths. We&apos;ll email you when the first diagnostic beta opens.</p>
+        </div>
+
+        {resolvedPlan && !submitted && (
+          <div className="mt-8 flex items-start gap-3 bg-[#0B1015] text-white rounded-2xl px-5 py-4">
+            <Check className="w-5 h-5 text-[#C2F751] flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+            <div>
+              <p className="text-sm font-semibold text-white">Selected interest: {resolvedPlan} — {resolvedPrice}</p>
+              <p className="text-xs text-white/60 mt-0.5">You will not be charged today.</p>
+            </div>
+          </div>
+        )}
+
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="mt-6 bg-[#FAF7F2] border border-black/[0.07] rounded-3xl p-6 sm:p-8 space-y-5">
+            <label className="block">
+              <span className="text-[13px] font-semibold text-black/70 mb-2 block">Email</span>
+              <input type="email" required value={form.email} onChange={handleChange("email")} placeholder="you@example.co.uk"
+                className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 text-[15px] focus:outline-none focus:border-[#0B1015] focus:ring-2 focus:ring-[#C2F751]/40 transition-shadow" />
+            </label>
+            <label className="block">
+              <span className="text-[13px] font-semibold text-black/70 mb-2 block">I am a</span>
+              <div className="flex flex-wrap gap-2">
+                {["Parent", "Student", "Tutor"].map((opt) => (
+                  <button key={opt} type="button" onClick={() => setForm((f) => ({ ...f, role: opt }))}
+                    className={`px-4 py-2.5 rounded-full text-sm font-semibold border transition-colors ${form.role === opt ? "bg-[#0B1015] border-[#0B1015] text-[#C2F751]" : "bg-white border-black/10 text-black/70 hover:border-black/30"}`}>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </label>
+            <div className="grid sm:grid-cols-2 gap-5">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-black/70 mb-2 block">Exam board</span>
+                <div className="relative">
+                  <select value={form.board} onChange={handleChange("board")}
+                    className="w-full appearance-none bg-white border border-black/10 rounded-xl px-4 py-3 pr-10 text-[15px] focus:outline-none focus:border-[#0B1015] focus:ring-2 focus:ring-[#C2F751]/40">
+                    {["Edexcel", "AQA", "OCR", "Not sure"].map((o) => <option key={o}>{o}</option>)}
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black/40" strokeWidth={2.5} />
+                </div>
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-semibold text-black/70 mb-2 block">Tier</span>
+                <div className="flex flex-wrap gap-2">
+                  {["Foundation", "Higher", "Not sure"].map((opt) => (
+                    <button key={opt} type="button" onClick={() => setForm((f) => ({ ...f, tier: opt }))}
+                      className={`px-4 py-2.5 rounded-full text-sm font-semibold border transition-colors ${form.tier === opt ? "bg-[#0B1015] border-[#0B1015] text-[#C2F751]" : "bg-white border-black/10 text-black/70 hover:border-black/30"}`}>
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </label>
+            </div>
+            <label className="block">
+              <span className="text-[13px] font-semibold text-black/70 mb-2 block">Target</span>
+              <div className="flex flex-wrap gap-2">
+                {["Get a 4", "Get a 5", "Improve as much as possible"].map((opt) => (
+                  <button key={opt} type="button" onClick={() => setForm((f) => ({ ...f, target: opt }))}
+                    className={`px-4 py-2.5 rounded-full text-sm font-semibold border transition-colors ${form.target === opt ? "bg-[#0B1015] border-[#0B1015] text-[#C2F751]" : "bg-white border-black/10 text-black/70 hover:border-black/30"}`}>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </label>
+            <button type="submit"
+              className="w-full bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold px-6 py-4 rounded-full text-base inline-flex items-center justify-center gap-2 transition-colors">
+              Join the early access list<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+            <p className="text-xs text-black/50 text-center">We&apos;ll only email you about Revily. Unsubscribe any time. You will not be charged today.</p>
+          </form>
+        ) : (
+          <div className="mt-6 bg-[#0B1015] text-white rounded-3xl p-8 sm:p-10 text-center">
+            <div className="w-14 h-14 rounded-full bg-[#C2F751] mx-auto flex items-center justify-center mb-5">
+              <Check className="w-7 h-7 text-[#0B1015]" strokeWidth={3} />
+            </div>
+            <h3 style={display} className="text-3xl font-bold tracking-tight">You&apos;re on the list.</h3>
+            {resolvedPlan ? (
+              <p className="mt-3 text-white/70 max-w-md mx-auto leading-relaxed">
+                Thanks — you&apos;re on the list. We&apos;ve recorded your interest in{" "}
+                <span className="text-[#C2F751] font-medium">{resolvedPlan}</span> at{" "}
+                <span className="text-[#C2F751] font-medium">{resolvedPrice}</span>. You will not be charged today.
+              </p>
+            ) : (
+              <p className="mt-3 text-white/70 max-w-md mx-auto">Thanks — we&apos;ll email you when the first beta opens.</p>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function FAQ({ display }: { display: React.CSSProperties }) {
+  const items = [
+    { q: "Is this live yet?", a: "Not fully. We're opening early access in small batches so we can test the diagnostic, missions, and marking before wider launch." },
+    { q: "Will I be charged today?", a: "No. The pricing buttons are interest signals only — they help us understand which offer parents actually want." },
+    { q: "Can this guarantee a Grade 4 or 5?", a: "No. No revision product can guarantee a grade. The goal is to help students practise the right topics more consistently." },
+    { q: "Is this an AI chatbot?", a: "No. Revily is being built as a revision engine — original questions, reliable marking logic, and daily missions structured around GCSE Maths skills." },
+    { q: "Is it exam-board specific?", a: "Content is intended to be mapped to GCSE Maths skills used across Edexcel, AQA, and OCR Foundation specs. We don't claim official endorsement from any exam board." },
+    { q: "Is this for Foundation or Higher tier?", a: "We're starting with Foundation tier and the Grade 3 → 4/5 pass path. Higher-tier support is on the roadmap." },
+    { q: "Is it suitable if my child is predicted a Grade 3?", a: "That's the core student we're designing for. Revily is being built to target the topics most likely to lift a Grade 3 toward a 4 or 5." },
+  ];
+  const [openIndex, setOpenIndex] = useState(0);
+  return (
+    <section id="faq" className="py-20 sm:py-28">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8">
+        <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05] text-center">Questions, answered honestly.</h2>
+        <div className="mt-12 space-y-3">
+          {items.map((item, i) => {
+            const open = openIndex === i;
+            return (
+              <div key={i} className={`rounded-2xl border transition-all ${open ? "border-[#0B1015] bg-white" : "border-black/[0.08] bg-white/60"}`}>
+                <button type="button" onClick={() => setOpenIndex(open ? -1 : i)}
+                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left" aria-expanded={open}>
+                  <span className="font-semibold text-[16px] sm:text-lg tracking-tight" style={display}>{item.q}</span>
+                  <ChevronDown className={`w-5 h-5 flex-shrink-0 text-[#0B1015] transition-transform ${open ? "rotate-180" : ""}`} strokeWidth={2.25} />
+                </button>
+                {open && <div className="px-6 pb-5 -mt-1 text-[15px] text-black/70 leading-relaxed">{item.a}</div>}
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-14 rounded-3xl bg-[#0B1015] text-white p-8 sm:p-10 text-center">
+          <h3 style={display} className="text-2xl sm:text-3xl font-bold tracking-tight">Help us build something parents actually want.</h3>
+          <p className="mt-3 text-white/70 max-w-md mx-auto">Join the early-access list. We&apos;ll email you when the first diagnostic beta opens.</p>
+          <button type="button"
+            onClick={() => { track("faq_bottom_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
+            className="mt-6 inline-flex items-center gap-2 bg-[#C2F751] text-[#0B1015] font-semibold px-6 py-3.5 rounded-full hover:bg-[#D2FF61] transition-colors">
+            Join early access<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          <p className="mt-4 text-xs text-white/50">You will not be charged today.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer({ display, mono, onOpenModal }: { display: React.CSSProperties; mono: React.CSSProperties; onOpenModal: (key: ModalKey) => void }) {
+  return (
+    <footer className="border-t border-black/[0.06] py-12">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg bg-[#0B1015] flex items-center justify-center flex-shrink-0">
+            <span className="text-[#C2F751] font-bold text-base leading-none" style={display}>R</span>
+          </div>
+          <div>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="font-semibold tracking-tight text-[15px]" style={display}>Revily</span>
+              <span className="text-[13px] text-black/55 italic">Know what to revise next.</span>
+            </div>
+            <div className="text-[12px] text-black/45 mt-1" style={mono}>
+              © {new Date().getFullYear()} Revily · Early-access prototype · Not affiliated with any exam board
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-6 text-sm text-black/55">
+          {(["privacy", "terms", "contact"] as ModalKey[]).map((key) => (
+            <button key={key} type="button" onClick={() => onOpenModal(key)}
+              className="hover:text-black transition-colors underline-offset-2 hover:underline capitalize">
+              {key}
+            </button>
+          ))}
+        </div>
+      </div>
+    </footer>
   );
 }

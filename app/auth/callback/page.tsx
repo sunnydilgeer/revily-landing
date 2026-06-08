@@ -14,7 +14,7 @@ export default function AuthCallbackPage() {
       (event, session) => {
         if (event === "SIGNED_IN" && session) {
           subscription.unsubscribe();
-          router.replace("/practice");
+          router.replace("/home");
         }
         // If something went wrong upstream, bail back to /auth
         if (event === "SIGNED_OUT") {
