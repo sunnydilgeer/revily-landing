@@ -10,8 +10,7 @@ type Profile = {
   streak: number;
 };
 
-const HIDDEN_ON = ["/auth", "/auth/callback"];
-
+const HIDDEN_ON = ["/", "/auth", "/auth/callback", "/admin"];
 export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
