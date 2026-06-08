@@ -13,7 +13,9 @@ type Profile = {
 type Skill = {
   id: number;
   name: string;
-  difficulty: string;
+  slug: string;
+  topic_area: string;
+  order_index: number;
 };
 
 type SkillProgress = {
@@ -42,15 +44,6 @@ function getLevelLabel(xp: number) {
   return "Master";
 }
 
-function getDifficultyColour(difficulty: string) {
-  switch (difficulty?.toLowerCase()) {
-    case "foundation": return { bg: "bg-[#4ade8020]", text: "text-[#4ade80]", border: "border-[#4ade8040]" };
-    case "crossover":  return { bg: "bg-[#f9c74f20]", text: "text-[#f9c74f]", border: "border-[#f9c74f40]" };
-    case "higher":     return { bg: "bg-[#f8717120]", text: "text-[#f87171]", border: "border-[#f8717140]" };
-    default:           return { bg: "bg-[#8a8fa820]", text: "text-[#8a8fa8]", border: "border-[#8a8fa840]" };
-  }
-}
-
 function getStreakMessage(streak: number) {
   if (streak === 0) return "Start your streak today!";
   if (streak === 1) return "Day 1 — keep it going tomorrow!";
@@ -60,7 +53,7 @@ function getStreakMessage(streak: number) {
 }
 
 // ── Progress ring ──────────────────────────────────────────────────────────
-function ProgressRing({ pct, colour }: { pct: number; colour: string }) {
+function ProgressRing({ pct }: { pct: number }) {
   const r = 18;
   const circ = 2 * Math.PI * r;
   const offset = circ - (pct / 100) * circ;
@@ -69,7 +62,7 @@ function ProgressRing({ pct, colour }: { pct: number; colour: string }) {
       <circle cx="22" cy="22" r={r} fill="none" stroke="#2e3248" strokeWidth="3" />
       <circle
         cx="22" cy="22" r={r} fill="none"
-        stroke={colour} strokeWidth="3"
+        stroke="#f9c74f" strokeWidth="3"
         strokeDasharray={circ}
         strokeDashoffset={offset}
         strokeLinecap="round"
@@ -89,10 +82,6 @@ function SkillCardComponent({
 }) {
   const pct = skill.total > 0 ? Math.round((skill.correct / skill.total) * 100) : 0;
   const started = skill.answered > 0;
-  const diff = getDifficultyColour(skill.difficulty);
-  const ringColour = skill.difficulty === "foundation"
-    ? "#4ade80" : skill.difficulty === "higher"
-    ? "#f87171" : "#f9c74f";
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-5 transition-all duration-200 hover:border-[#f9c74f40] hover:bg-[#1e2130]">
@@ -106,13 +95,11 @@ function SkillCardComponent({
           >
             {skill.name}
           </div>
-          <div className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${diff.bg} ${diff.text} ${diff.border}`}>
-            {skill.difficulty
-              ? skill.difficulty.charAt(0).toUpperCase() + skill.difficulty.slice(1)
-              : "General"}
+          <div className="inline-flex items-center rounded-full border border-[#2e3248] bg-[#22263a] px-2 py-0.5 text-xs font-semibold text-[#8a8fa8]">
+            {skill.topic_area || "General"}
           </div>
         </div>
-        <ProgressRing pct={pct} colour={ringColour} />
+        <ProgressRing pct={pct} />
       </div>
 
       {/* Progress bar */}
@@ -122,8 +109,8 @@ function SkillCardComponent({
       </div>
       <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-[#22263a]">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: ringColour }}
+          className="h-full rounded-full bg-[#f9c74f] transition-all duration-500"
+          style={{ width: `${pct}%` }}
         />
       </div>
 
@@ -177,11 +164,11 @@ export default function HomePage() {
 
       if (profileData) setProfile(profileData);
 
-      // Skills
+      // Skills — using actual columns
       const { data: skillsData } = await supabase
         .from("skills")
-        .select("id, name, difficulty")
-        .order("id");
+        .select("id, name, slug, topic_area, order_index")
+        .order("order_index");
 
       if (!skillsData?.length) {
         setLoading(false);
@@ -207,6 +194,7 @@ export default function HomePage() {
         const myAttempts = (attemptData ?? []).filter(
           (a: any) => a.questions?.skill_id === skill.id
         );
+
         // Dedupe by question_id — only count each question once (best attempt)
         const seenIds = new Set<number>();
         let answered = 0;
@@ -241,8 +229,8 @@ export default function HomePage() {
 
   return (
     <div
-    className="min-h-[calc(100vh-3.5rem)] bg-[#0f1117] px-4 pb-16 pt-8"
-    style={{ fontFamily: "'DM Sans', sans-serif" }}
+      className="min-h-[calc(100vh-3.5rem)] bg-[#0f1117] px-4 pb-16 pt-8"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       {/* Glow */}
       <div
@@ -341,7 +329,7 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* ── Skill map ── */}
+        {/* ── Skills ── */}
         <div>
           <div className="mb-4 flex items-center justify-between">
             <h2

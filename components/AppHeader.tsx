@@ -10,7 +10,6 @@ type Profile = {
   streak: number;
 };
 
-const HIDDEN_ON = ["/", "/auth", "/auth/callback", "/admin"];
 export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -49,7 +48,6 @@ export function AppHeader() {
     setMounted(true);
     loadProfile();
 
-    // Re-fetch whenever practice awards XP
     window.addEventListener("revily:xp-updated", loadProfile);
 
     const {
@@ -68,9 +66,18 @@ export function AppHeader() {
       window.removeEventListener("revily:xp-updated", loadProfile);
     };
   }, []);
-  console.log("AppHeader debug:", { mounted, pathname, profile });
 
-  if (!mounted || pathname === "/" || HIDDEN_ON.some((p) => pathname?.startsWith(p))) return null;
+  // Hide until mounted (avoids hydration flash)
+  if (!mounted) return null;
+
+  // Hide on marketing, auth, and admin routes
+  if (
+    pathname === "/" ||
+    pathname?.startsWith("/auth") ||
+    pathname?.startsWith("/admin")
+  ) return null;
+
+  // Show spacer while profile loads so layout doesn't jump
   if (!profile) return <div className="h-14" />;
 
   const level = Math.floor(profile.xp / 100) + 1;
@@ -87,7 +94,6 @@ export function AppHeader() {
         className="sticky top-0 z-50 w-full border-b border-[#2e3248]"
         style={{
           fontFamily: "'DM Sans', sans-serif",
-          // Fix: Safari needs -webkit-backdrop-filter, and a solid fallback
           backgroundColor: "rgba(15, 17, 23, 0.92)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
@@ -97,8 +103,8 @@ export function AppHeader() {
 
           {/* Logo */}
           <button
-onClick={() => router.push("/home")}
-className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opacity hover:opacity-80"
+            onClick={() => router.push("/home")}
+            className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opacity hover:opacity-80"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Revily
@@ -107,7 +113,7 @@ className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opaci
           {/* Stats + avatar */}
           <div className="flex items-center gap-2">
 
-            {/* Map button — visible on all sizes now */}
+            {/* Map button */}
             <div className="relative">
               <span
                 className="absolute inset-0 rounded-full animate-ping"
@@ -134,7 +140,6 @@ className="text-xl font-extrabold tracking-tight text-[#f9c74f] transition-opaci
                 }}
               >
                 <span>🗺</span>
-                {/* Hide "Map" label on very small screens to save space, keep icon */}
                 <span className="hidden sm:inline">Map</span>
               </button>
               <style>{`
