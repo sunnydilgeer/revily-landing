@@ -8,15 +8,16 @@ export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // createBrowserClient handles PKCE code exchange automatically.
-    // We just listen for the resulting SIGNED_IN event and redirect.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "SIGNED_IN" && session) {
           subscription.unsubscribe();
           router.replace("/home");
         }
-        // If something went wrong upstream, bail back to /auth
+        if (event === "PASSWORD_RECOVERY") {
+          subscription.unsubscribe();
+          router.replace("/auth/reset-password");
+        }
         if (event === "SIGNED_OUT") {
           router.replace("/auth");
         }

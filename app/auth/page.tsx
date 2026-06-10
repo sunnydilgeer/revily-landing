@@ -200,6 +200,19 @@ export default function AuthPage() {
               />
             </div>
 
+            {/* Forgot password */}
+            {mode === "signin" && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => router.push("/auth/reset-password")}
+                  className="text-xs text-[#555a73] hover:text-[#f9c74f] transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
             {/* Error */}
             {error && (
               <div className="rounded-xl border border-[#f87171] bg-[#1e0f0f] px-4 py-3 text-xs text-[#f87171]">

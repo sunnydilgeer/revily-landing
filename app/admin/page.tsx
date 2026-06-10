@@ -65,8 +65,7 @@ function Input({ value, onChange, placeholder, type = "text" }: {
 }) {
   return (
     <input
-      type={type}
-      value={value}
+      type={type} value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       className="w-full rounded-xl border border-[#2e3248] bg-[#0f1117] px-3 py-2 text-sm text-[#f1f0ee] placeholder-[#555a73] focus:border-[#f9c74f] focus:outline-none transition-colors"
@@ -80,11 +79,9 @@ function Textarea({ value, onChange, placeholder, rows = 3 }: {
 }) {
   return (
     <textarea
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      placeholder={placeholder}
-      rows={rows}
-      className="w-full rounded-xl border border-[#2e3248] bg-[#0f1117] px-3 py-2 text-sm text-[#f1f0ee] placeholder-[#555a73] focus:border-[#f9c74f] focus:outline-none transition-colors resize-none"
+      value={value} onChange={e => onChange(e.target.value)}
+      placeholder={placeholder} rows={rows}
+      className="w-full rounded-xl border border-[#2e3248] bg-[#0f1117] px-3 py-2 text-sm text-[#f1f0ee] placeholder-[#555a73] focus:border-[#f9c74f] focus:outline-none transition-colors resize-none font-mono"
     />
   );
 }
@@ -94,11 +91,8 @@ function Select({ value, onChange, options }: {
   options: { label: string; value: string }[];
 }) {
   return (
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className="w-full rounded-xl border border-[#2e3248] bg-[#0f1117] px-3 py-2 text-sm text-[#f1f0ee] focus:border-[#f9c74f] focus:outline-none transition-colors"
-    >
+    <select value={value} onChange={e => onChange(e.target.value)}
+      className="w-full rounded-xl border border-[#2e3248] bg-[#0f1117] px-3 py-2 text-sm text-[#f1f0ee] focus:border-[#f9c74f] focus:outline-none transition-colors">
       {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
   );
@@ -114,60 +108,128 @@ function Btn({ onClick, children, variant = "primary", disabled }: {
     danger:  "text-[#f87171] hover:bg-[#f8717115]",
   };
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
+    <button onClick={onClick} disabled={disabled}
       className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${styles[variant]} disabled:opacity-40`}
-      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-    >
+      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
       {children}
     </button>
   );
 }
 
 function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-5">
-      {children}
-    </div>
-  );
+  return <div className="rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-5">{children}</div>;
 }
 
 function SectionHeader({ title, onAdd }: { title: string; onAdd: () => void }) {
   return (
     <div className="mb-4 flex items-center justify-between">
       <h2 className="text-lg font-extrabold text-[#f1f0ee]"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-        {title}
-      </h2>
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>{title}</h2>
       <Btn onClick={onAdd} variant="primary">+ Add</Btn>
     </div>
   );
 }
 
-// ── Prerequisites multi-select ─────────────────────────────────────────────
-function PrerequisitesPicker({
-  allSkills,
-  currentSkillId,
-  selected,
-  onChange,
-}: {
-  allSkills: Skill[];
-  currentSkillId?: number;
-  selected: number[];
-  onChange: (ids: number[]) => void;
+// ── Worked Solution Editor with Cheat Sheet ────────────────────────────────
+function WorkedSolutionEditor({ value, onChange }: {
+  value: string;
+  onChange: (v: string) => void;
 }) {
-  // Exclude the skill being edited from its own prerequisites
+  const [showCheatSheet, setShowCheatSheet] = useState(false);
+
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between">
+        <Label>Worked Solution</Label>
+        <button
+          onClick={() => setShowCheatSheet(s => !s)}
+          className="text-xs text-[#818cf8] hover:opacity-80 transition-opacity"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        >
+          {showCheatSheet ? "Hide guide ↑" : "Show formatting guide ↓"}
+        </button>
+      </div>
+
+      {/* Cheat sheet */}
+      {showCheatSheet && (
+        <div className="mb-3 rounded-xl border border-[#818cf833] bg-[#818cf808] p-4">
+          <div className="mb-3 text-xs font-bold uppercase tracking-wider text-[#818cf8]"
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            Formatting guide
+          </div>
+
+          {/* Rule 1: STEP */}
+          <div className="mb-4">
+            <div className="mb-1 flex items-center gap-2">
+              <span className="rounded-md bg-[#818cf822] px-2 py-0.5 font-mono text-xs text-[#a5b4fc]">[STEP]</span>
+              <span className="text-xs text-[#8a8fa8]">splits the solution into separate steps</span>
+            </div>
+            <div className="rounded-lg bg-[#0f1117] px-3 py-2 font-mono text-xs text-[#555a73] leading-relaxed">
+              First, find a common denominator.[STEP]Now add the numerators.
+            </div>
+          </div>
+
+          {/* Rule 2: TRANSFORM */}
+          <div className="mb-4">
+            <div className="mb-1 flex items-center gap-2">
+              <span className="rounded-md bg-[#818cf822] px-2 py-0.5 font-mono text-xs text-[#a5b4fc]">[TRANSFORM: before -{'>'} after]</span>
+              <span className="text-xs text-[#8a8fa8]">tap-to-reveal equation change</span>
+            </div>
+            <div className="rounded-lg bg-[#0f1117] px-3 py-2 font-mono text-xs text-[#555a73] leading-relaxed">
+              Add 4 to both sides: [TRANSFORM: 3x - 4 = 11 -{'>'} 3x = 15]
+            </div>
+          </div>
+
+          {/* Rule 3: LaTeX */}
+          <div className="mb-4">
+            <div className="mb-1 flex items-center gap-2">
+              <span className="rounded-md bg-[#818cf822] px-2 py-0.5 font-mono text-xs text-[#a5b4fc]">$...$</span>
+              <span className="text-xs text-[#8a8fa8]">wraps maths in proper notation</span>
+            </div>
+            <div className="rounded-lg bg-[#0f1117] px-3 py-2 font-mono text-xs text-[#555a73] leading-relaxed">
+              Divide both sides by $3$ to get $x = 5$
+            </div>
+          </div>
+
+          {/* Full example */}
+          <div className="border-t border-[#2e3248] pt-3">
+            <div className="mb-1.5 text-xs font-semibold text-[#555a73]">Full example — Solve 3x − 4 = 11</div>
+            <div className="rounded-lg bg-[#0f1117] px-3 py-2 font-mono text-xs text-[#555a73] leading-relaxed whitespace-pre-wrap">
+{`Get $x$ on its own. First, add $4$ to both sides: [TRANSFORM: 3x - 4 = 11 -> 3x = 15]
+
+[STEP]
+
+Now divide both sides by $3$: [TRANSFORM: 3x = 15 -> x = 5]`}
+            </div>
+            <button
+              onClick={() => onChange(`Get $x$ on its own. First, add $4$ to both sides: [TRANSFORM: 3x - 4 = 11 -> 3x = 15]\n\n[STEP]\n\nNow divide both sides by $3$: [TRANSFORM: 3x = 15 -> x = 5]`)}
+              className="mt-2 text-xs text-[#818cf8] hover:opacity-80 transition-opacity"
+            >
+              ↑ Copy this example into editor
+            </button>
+          </div>
+        </div>
+      )}
+
+      <Textarea
+        value={value}
+        onChange={onChange}
+        placeholder={`Write the solution here. Use [STEP] to split into steps, and [TRANSFORM: before -> after] for tap-to-reveal equations.`}
+        rows={5}
+      />
+    </div>
+  );
+}
+
+// ── Prerequisites multi-select ─────────────────────────────────────────────
+function PrerequisitesPicker({ allSkills, currentSkillId, selected, onChange }: {
+  allSkills: Skill[]; currentSkillId?: number;
+  selected: number[]; onChange: (ids: number[]) => void;
+}) {
   const options = allSkills.filter(s => s.id !== currentSkillId);
-
   function toggle(id: number) {
-    onChange(
-      selected.includes(id)
-        ? selected.filter(x => x !== id)
-        : [...selected, id]
-    );
+    onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
   }
-
   return (
     <div>
       <Label>Prerequisites (must complete before this unlocks)</Label>
@@ -178,16 +240,13 @@ function PrerequisitesPicker({
           {options.map(s => {
             const active = selected.includes(s.id);
             return (
-              <button
-                key={s.id}
-                onClick={() => toggle(s.id)}
+              <button key={s.id} onClick={() => toggle(s.id)}
                 className="rounded-full border px-3 py-1 text-xs font-semibold transition-all"
                 style={{
                   borderColor: active ? "#f9c74f" : "#2e3248",
                   backgroundColor: active ? "#f9c74f15" : "#0f1117",
                   color: active ? "#f9c74f" : "#8a8fa8",
-                }}
-              >
+                }}>
                 {active ? "✓ " : ""}{s.name}
               </button>
             );
@@ -213,7 +272,6 @@ function SkillsTab() {
     const { data } = await supabase.from("skills").select("*").order("order_index");
     if (data) setSkills(data.map(s => ({ ...s, prerequisites: s.prerequisites ?? [] })));
   }
-
   useEffect(() => { load(); }, []);
 
   function blank(): Partial<Skill> {
@@ -224,10 +282,8 @@ function SkillsTab() {
     if (!editing) return;
     setSaving(true);
     const payload = {
-      name: editing.name,
-      slug: editing.slug,
-      order_index: editing.order_index,
-      topic_area: editing.topic_area,
+      name: editing.name, slug: editing.slug,
+      order_index: editing.order_index, topic_area: editing.topic_area,
       prerequisites: editing.prerequisites ?? [],
     };
     if (editing.id) {
@@ -235,9 +291,7 @@ function SkillsTab() {
     } else {
       await supabase.from("skills").insert(payload);
     }
-    setSaving(false);
-    setEditing(null);
-    load();
+    setSaving(false); setEditing(null); load();
   }
 
   async function del(id: number) {
@@ -249,7 +303,6 @@ function SkillsTab() {
   return (
     <div>
       <SectionHeader title="Skills" onAdd={() => setEditing(blank())} />
-
       {editing && (
         <Card>
           <div className="mb-4 text-sm font-bold text-[#f9c74f]"
@@ -270,24 +323,19 @@ function SkillsTab() {
               <Input type="number" value={editing.order_index ?? 0} onChange={v => setEditing(e => ({ ...e, order_index: parseInt(v) }))} />
             </div>
           </div>
-
-          {/* Prerequisites picker — full width below the grid */}
           <div className="mt-3">
             <PrerequisitesPicker
-              allSkills={skills}
-              currentSkillId={editing.id}
+              allSkills={skills} currentSkillId={editing.id}
               selected={editing.prerequisites ?? []}
               onChange={ids => setEditing(e => ({ ...e, prerequisites: ids }))}
             />
           </div>
-
           <div className="mt-4 flex gap-2">
             <Btn onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Btn>
             <Btn onClick={() => setEditing(null)} variant="ghost">Cancel</Btn>
           </div>
         </Card>
       )}
-
       <div className="mt-4 flex flex-col gap-3">
         {skills.map(s => (
           <Card key={s.id}>
@@ -300,11 +348,7 @@ function SkillsTab() {
                 </div>
                 {s.prerequisites.length > 0 && (
                   <div className="mt-1 text-xs text-[#555a73]">
-                    Requires:{" "}
-                    {s.prerequisites
-                      .map(id => skills.find(sk => sk.id === id)?.name)
-                      .filter(Boolean)
-                      .join(", ")}
+                    Requires: {s.prerequisites.map(id => skills.find(sk => sk.id === id)?.name).filter(Boolean).join(", ")}
                   </div>
                 )}
               </div>
@@ -333,7 +377,6 @@ function QuestionsTab({ skills }: { skills: Skill[] }) {
     const { data } = await q;
     if (data) setQuestions(data);
   }
-
   useEffect(() => { load(); }, [filterSkill]);
 
   function blank(): Partial<Question> {
@@ -361,9 +404,7 @@ function QuestionsTab({ skills }: { skills: Skill[] }) {
     } else {
       await supabase.from("questions").insert(payload);
     }
-    setSaving(false);
-    setEditing(null);
-    load();
+    setSaving(false); setEditing(null); load();
   }
 
   async function del(id: number) {
@@ -376,19 +417,16 @@ function QuestionsTab({ skills }: { skills: Skill[] }) {
     { label: "All skills", value: "all" },
     ...skills.map(s => ({ label: s.name, value: String(s.id) })),
   ];
-
   const diffOptions = [
     { label: "Foundation", value: "foundation" },
     { label: "Crossover", value: "crossover" },
     { label: "Higher", value: "higher" },
   ];
-
-  const correctOptions = ["a", "b", "c", "d"].map(v => ({ label: v.toUpperCase(), value: v }));
+  const correctOptions = ["a","b","c","d"].map(v => ({ label: v.toUpperCase(), value: v }));
 
   return (
     <div>
       <SectionHeader title="Questions" onAdd={() => setEditing(blank())} />
-
       <div className="mb-4 w-64">
         <Select value={filterSkill} onChange={setFilterSkill} options={skillOptions} />
       </div>
@@ -420,7 +458,7 @@ function QuestionsTab({ skills }: { skills: Skill[] }) {
                 placeholder="Enter the question…" rows={2} />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              {(["a", "b", "c", "d"] as const).map(opt => (
+              {(["a","b","c","d"] as const).map(opt => (
                 <div key={opt}><Label>Option {opt.toUpperCase()}</Label>
                   <Input value={(editing as any)[`option_${opt}`] ?? ""}
                     onChange={v => setEditing(e => ({ ...e, [`option_${opt}`]: v }))}
@@ -435,11 +473,12 @@ function QuestionsTab({ skills }: { skills: Skill[] }) {
                   options={correctOptions} />
               </div>
             </div>
-            <div><Label>Worked Solution</Label>
-              <Textarea value={editing.worked_solution ?? ""}
-                onChange={v => setEditing(e => ({ ...e, worked_solution: v }))}
-                placeholder="Explain the correct answer step by step…" rows={3} />
-            </div>
+
+            {/* Worked solution with cheat sheet */}
+            <WorkedSolutionEditor
+              value={editing.worked_solution ?? ""}
+              onChange={v => setEditing(e => ({ ...e, worked_solution: v }))}
+            />
           </div>
           <div className="mt-4 flex gap-2">
             <Btn onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Btn>
@@ -460,12 +499,15 @@ function QuestionsTab({ skills }: { skills: Skill[] }) {
                       {skill?.name ?? "Unknown skill"}
                     </span>
                     <span className="text-xs text-[#555a73] capitalize">{q.difficulty}</span>
+                    {q.worked_solution?.includes("[STEP]") && (
+                      <span className="rounded-full bg-[#818cf815] border border-[#818cf830] px-2 py-0.5 text-xs text-[#818cf8]">
+                        step-by-step
+                      </span>
+                    )}
                   </div>
-                  <div className="font-semibold text-[#f1f0ee] text-sm leading-snug">
-                    {q.question_text}
-                  </div>
+                  <div className="font-semibold text-[#f1f0ee] text-sm leading-snug">{q.question_text}</div>
                   <div className="mt-2 grid grid-cols-2 gap-1">
-                    {(["a", "b", "c", "d"] as const).map(opt => (
+                    {(["a","b","c","d"] as const).map(opt => (
                       <div key={opt} className={`text-xs px-2 py-1 rounded-lg ${q.correct_option === opt ? "bg-[#4ade8015] text-[#4ade80] border border-[#4ade8030]" : "text-[#555a73]"}`}>
                         {opt.toUpperCase()}: {(q as any)[`option_${opt}`]}
                       </div>
@@ -505,14 +547,12 @@ function HintsTab({ skills }: { skills: Skill[] }) {
     const { data } = await q;
     if (data) setQuestions(data as Question[]);
   }
-
   async function loadHints() {
     let q = supabase.from("hints").select("*").order("question_id").order("order_index");
     if (filterQuestion !== "all") q = q.eq("question_id", filterQuestion);
     const { data } = await q;
     if (data) setHints(data);
   }
-
   useEffect(() => { loadQuestions(); }, [filterSkill]);
   useEffect(() => { loadHints(); }, [filterQuestion]);
 
@@ -523,19 +563,13 @@ function HintsTab({ skills }: { skills: Skill[] }) {
   async function save() {
     if (!editing) return;
     setSaving(true);
-    const payload = {
-      question_id: editing.question_id,
-      hint_text: editing.hint_text,
-      order_index: editing.order_index,
-    };
+    const payload = { question_id: editing.question_id, hint_text: editing.hint_text, order_index: editing.order_index };
     if (editing.id) {
       await supabase.from("hints").update(payload).eq("id", editing.id);
     } else {
       await supabase.from("hints").insert(payload);
     }
-    setSaving(false);
-    setEditing(null);
-    loadHints();
+    setSaving(false); setEditing(null); loadHints();
   }
 
   async function del(id: number) {
@@ -544,11 +578,7 @@ function HintsTab({ skills }: { skills: Skill[] }) {
     loadHints();
   }
 
-  const skillOptions = [
-    { label: "All skills", value: "all" },
-    ...skills.map(s => ({ label: s.name, value: String(s.id) })),
-  ];
-
+  const skillOptions = [{ label: "All skills", value: "all" }, ...skills.map(s => ({ label: s.name, value: String(s.id) }))];
   const questionOptions = [
     { label: "All questions", value: "all" },
     ...questions.map(q => ({ label: q.question_text.slice(0, 60) + (q.question_text.length > 60 ? "…" : ""), value: String(q.id) })),
@@ -557,7 +587,6 @@ function HintsTab({ skills }: { skills: Skill[] }) {
   return (
     <div>
       <SectionHeader title="Hints" onAdd={() => setEditing(blank())} />
-
       <div className="mb-4 flex gap-3 flex-wrap">
         <div className="w-56">
           <Select value={filterSkill} onChange={v => { setFilterSkill(v); setFilterQuestion("all"); }} options={skillOptions} />
@@ -605,11 +634,7 @@ function HintsTab({ skills }: { skills: Skill[] }) {
             <Card key={h.id}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  {q && (
-                    <div className="mb-1 text-xs text-[#555a73] truncate">
-                      Q: {q.question_text.slice(0, 80)}
-                    </div>
-                  )}
+                  {q && <div className="mb-1 text-xs text-[#555a73] truncate">Q: {q.question_text.slice(0, 80)}</div>}
                   <div className="text-sm text-[#f1f0ee]">{h.hint_text}</div>
                   <div className="mt-1 text-xs text-[#555a73]">Order: {h.order_index}</div>
                 </div>
@@ -644,14 +669,12 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
     const { data } = await q;
     if (data) setMisconceptions(data);
   }
-
   useEffect(() => { load(); }, [filterSkill]);
 
   function blank(): Partial<Misconception> {
     return {
-      skill_id: skills[0]?.id, code: "", title: "",
-      description: "", example_wrong_answer: "",
-      example_wrong_thinking: "", diagnostic_meaning: "", order_index: 0,
+      skill_id: skills[0]?.id, code: "", title: "", description: "",
+      example_wrong_answer: "", example_wrong_thinking: "", diagnostic_meaning: "", order_index: 0,
     };
   }
 
@@ -669,9 +692,7 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
     } else {
       await supabase.from("misconceptions").insert(payload);
     }
-    setSaving(false);
-    setEditing(null);
-    load();
+    setSaving(false); setEditing(null); load();
   }
 
   async function del(id: number) {
@@ -680,15 +701,11 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
     load();
   }
 
-  const skillOptions = [
-    { label: "All skills", value: "all" },
-    ...skills.map(s => ({ label: s.name, value: String(s.id) })),
-  ];
+  const skillOptions = [{ label: "All skills", value: "all" }, ...skills.map(s => ({ label: s.name, value: String(s.id) }))];
 
   return (
     <div>
       <SectionHeader title="Misconceptions" onAdd={() => setEditing(blank())} />
-
       <div className="mb-4 w-64">
         <Select value={filterSkill} onChange={setFilterSkill} options={skillOptions} />
       </div>
@@ -709,9 +726,7 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
                 />
               </div>
               <div><Label>Code (e.g. M1)</Label>
-                <Input value={editing.code ?? ""}
-                  onChange={v => setEditing(e => ({ ...e, code: v }))}
-                  placeholder="M1" />
+                <Input value={editing.code ?? ""} onChange={v => setEditing(e => ({ ...e, code: v }))} placeholder="M1" />
               </div>
               <div><Label>Order</Label>
                 <Input type="number" value={editing.order_index ?? 0}
@@ -719,20 +734,17 @@ function MisconceptionsTab({ skills }: { skills: Skill[] }) {
               </div>
             </div>
             <div><Label>Title</Label>
-              <Input value={editing.title ?? ""}
-                onChange={v => setEditing(e => ({ ...e, title: v }))}
+              <Input value={editing.title ?? ""} onChange={v => setEditing(e => ({ ...e, title: v }))}
                 placeholder="e.g. Does Not Understand What an Equation Represents" />
             </div>
             <div><Label>Description</Label>
-              <Textarea value={editing.description ?? ""}
-                onChange={v => setEditing(e => ({ ...e, description: v }))}
+              <Textarea value={editing.description ?? ""} onChange={v => setEditing(e => ({ ...e, description: v }))}
                 placeholder="Describe the misconception…" rows={2} />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div><Label>Example Wrong Answer</Label>
                 <Input value={editing.example_wrong_answer ?? ""}
-                  onChange={v => setEditing(e => ({ ...e, example_wrong_answer: v }))}
-                  placeholder="e.g. 22" />
+                  onChange={v => setEditing(e => ({ ...e, example_wrong_answer: v }))} placeholder="e.g. 22" />
               </div>
               <div><Label>Example Wrong Thinking</Label>
                 <Textarea value={editing.example_wrong_thinking ?? ""}
@@ -817,8 +829,7 @@ export default function AdminPage() {
   function handleLogin() {
     if (pw === ADMIN_PASSWORD) {
       sessionStorage.setItem("revily_admin", "1");
-      setAuthed(true);
-      setPwError(false);
+      setAuthed(true); setPwError(false);
     } else {
       setPwError(true);
     }
@@ -831,25 +842,18 @@ export default function AdminPage() {
         <div className="w-full max-w-sm rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-8">
           <div className="mb-6 text-center">
             <div className="mb-1 text-2xl font-extrabold text-[#f9c74f]"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-              Revily Admin
-            </div>
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Revily Admin</div>
             <div className="text-xs text-[#555a73]">Content management</div>
           </div>
           <Label>Password</Label>
-          <input
-            type="password"
-            value={pw}
+          <input type="password" value={pw}
             onChange={e => setPw(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handleLogin()}
             placeholder="Enter admin password"
             className="w-full rounded-xl border border-[#2e3248] bg-[#0f1117] px-3 py-2 text-sm text-[#f1f0ee] placeholder-[#555a73] focus:border-[#f9c74f] focus:outline-none transition-colors mb-3"
           />
-          {pwError && (
-            <div className="mb-3 text-xs text-[#f87171]">Incorrect password.</div>
-          )}
-          <button
-            onClick={handleLogin}
+          {pwError && <div className="mb-3 text-xs text-[#f87171]">Incorrect password.</div>}
+          <button onClick={handleLogin}
             className="w-full rounded-full bg-[#f9c74f] py-2.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Enter
@@ -870,31 +874,23 @@ export default function AdminPage() {
     <div className="min-h-screen bg-[#0f1117] px-4 pb-16 pt-8"
       style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <div className="mx-auto max-w-4xl">
-
-        {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             <div className="text-2xl font-extrabold text-[#f9c74f]"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-              Revily Admin
-            </div>
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Revily Admin</div>
             <div className="text-xs text-[#555a73]">Content management</div>
           </div>
-          <button
-            onClick={() => { sessionStorage.removeItem("revily_admin"); setAuthed(false); }}
+          <button onClick={() => { sessionStorage.removeItem("revily_admin"); setAuthed(false); }}
             className="text-xs text-[#555a73] hover:text-[#f1f0ee] transition-colors">
             Sign out
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="mb-6 flex gap-1 rounded-2xl border border-[#2e3248] bg-[#1a1d27] p-1 w-fit">
           {tabs.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
-                tab === t.key
-                  ? "bg-[#f9c74f] text-[#0f1117]"
-                  : "text-[#8a8fa8] hover:text-[#f1f0ee]"
+                tab === t.key ? "bg-[#f9c74f] text-[#0f1117]" : "text-[#8a8fa8] hover:text-[#f1f0ee]"
               }`}
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {t.label}
@@ -902,10 +898,9 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Content */}
-        {tab === "skills" && <SkillsTab />}
-        {tab === "questions" && <QuestionsTab skills={skills} />}
-        {tab === "hints" && <HintsTab skills={skills} />}
+        {tab === "skills"         && <SkillsTab />}
+        {tab === "questions"      && <QuestionsTab skills={skills} />}
+        {tab === "hints"          && <HintsTab skills={skills} />}
         {tab === "misconceptions" && <MisconceptionsTab skills={skills} />}
       </div>
     </div>
