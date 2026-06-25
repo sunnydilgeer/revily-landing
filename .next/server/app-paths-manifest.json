@@ -1,7 +1,8 @@
 {
   "/practice/page": "app/practice/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/auth/page": "app/auth/page.js",
+  "/page": "app/page.js",
   "/home/page": "app/home/page.js",
-  "/auth/reset-password/page": "app/auth/reset-password/page.js"
+  "/auth/page": "app/auth/page.js",
+  "/admin/generate/page": "app/admin/generate/page.js",
+  "/auth/callback/page": "app/auth/callback/page.js"
 }

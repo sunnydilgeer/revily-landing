@@ -1,3 +1,4 @@
+// app/generate/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -8,6 +9,7 @@ const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "";
 
 type Skill = { id: number; name: string };
 
+// question_type is now part of every generated question
 type GeneratedQuestion = {
   question_text: string;
   option_a: string;
@@ -17,6 +19,7 @@ type GeneratedQuestion = {
   correct_option: string;
   worked_solution: string;
   difficulty: string;
+  question_type: "fluency" | "worded" | "exam_style" | "mixed_review";
   hints: string[];
   misconceptions: {
     wrong_option: string;
@@ -27,6 +30,17 @@ type GeneratedQuestion = {
 
 type ReviewQuestion = GeneratedQuestion & {
   status: "pending" | "approved" | "rejected";
+};
+
+// ── Question type display config ───────────────────────────────────────────
+const QUESTION_TYPE_CONFIG: Record<string, { label: string; colour: string; bg: string; border: string }> = {
+  fluency:      { label: "Fluency",      colour: "#60a5fa", bg: "#60a5fa10", border: "#60a5fa30" },
+  worded:       { label: "Worded",       colour: "#34d399", bg: "#34d39910", border: "#34d39930" },
+  application:  { label: "Application",  colour: "#a78bfa", bg: "#a78bfa10", border: "#a78bfa30" },
+  mixed_review: { label: "Mixed Review", colour: "#f9c74f", bg: "#f9c74f10", border: "#f9c74f30" },
+  repair:       { label: "Repair",       colour: "#f87171", bg: "#f8717110", border: "#f8717130" },
+  retrieval:    { label: "Retrieval",    colour: "#4ade80", bg: "#4ade8010", border: "#4ade8030" },
+  diagnostic:   { label: "Diagnostic",  colour: "#f4845f", bg: "#f4845f10", border: "#f4845f30" },
 };
 
 // ── Shared UI ──────────────────────────────────────────────────────────────
@@ -80,6 +94,24 @@ function Card({ children, dimmed }: { children: React.ReactNode; dimmed?: boolea
   );
 }
 
+// ── Question type badge ────────────────────────────────────────────────────
+function QuestionTypeBadge({ type }: { type: string }) {
+  const cfg = QUESTION_TYPE_CONFIG[type] ?? {
+    label: type,
+    colour: "#8a8fa8",
+    bg: "#8a8fa810",
+    border: "#8a8fa830",
+  };
+  return (
+    <span
+      className="rounded-full border px-2 py-0.5 text-xs font-semibold"
+      style={{ color: cfg.colour, backgroundColor: cfg.bg, borderColor: cfg.border }}
+    >
+      {cfg.label}
+    </span>
+  );
+}
+
 // ── Question preview card ──────────────────────────────────────────────────
 function QuestionPreview({ q, index, onApprove, onReject }: {
   q: ReviewQuestion;
@@ -99,7 +131,7 @@ function QuestionPreview({ q, index, onApprove, onReject }: {
   return (
     <Card dimmed={q.status === "rejected"}>
       <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-bold text-[#555a73]">Q{index + 1}</span>
           <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${statusBadge.color}`}>
             {statusBadge.label}
@@ -107,6 +139,8 @@ function QuestionPreview({ q, index, onApprove, onReject }: {
           <span className="rounded-full bg-[#f9c74f15] border border-[#f9c74f30] px-2 py-0.5 text-xs text-[#f9c74f] capitalize">
             {q.difficulty}
           </span>
+          {/* Question type badge — the new addition */}
+          {q.question_type && <QuestionTypeBadge type={q.question_type} />}
         </div>
         {q.status === "pending" && (
           <div className="flex gap-2">
@@ -200,6 +234,7 @@ export default function GeneratePage() {
   const [skillId, setSkillId] = useState<string>("");
   const [difficulty, setDifficulty] = useState("foundation");
   const [count, setCount] = useState("5");
+  const [questionType, setQuestionType] = useState("mixed");
 
   // Paper upload state
   const [paperFile, setPaperFile] = useState<File | null>(null);
@@ -236,12 +271,9 @@ export default function GeneratePage() {
     setPaperFile(file);
     setPaperBase64(null);
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = () => {
-      const result = reader.result as string;
-      // Strip the data:application/pdf;base64, prefix
-      const base64 = result.split(",")[1];
+      const base64 = (reader.result as string).split(",")[1];
       setPaperBase64(base64);
     };
     reader.readAsDataURL(file);
@@ -271,6 +303,7 @@ export default function GeneratePage() {
           skillName: skill.name,
           difficulty,
           count,
+          questionType,
           paperBase64: paperBase64 ?? undefined,
         }),
       });
@@ -324,6 +357,7 @@ export default function GeneratePage() {
           correct_option: q.correct_option,
           worked_solution: q.worked_solution,
           difficulty: q.difficulty,
+          question_type: q.question_type, // ← new field saved here
         })
         .select("id")
         .single();
@@ -374,12 +408,28 @@ export default function GeneratePage() {
   const approvedCount = questions.filter(q => q.status === "approved").length;
   const pendingCount  = questions.filter(q => q.status === "pending").length;
 
+  // Type breakdown for the results summary bar
+  const typeCounts = questions.reduce<Record<string, number>>((acc, q) => {
+    if (q.question_type) acc[q.question_type] = (acc[q.question_type] ?? 0) + 1;
+    return acc;
+  }, {});
+
   const diffOptions = [
     { label: "Foundation", value: "foundation" },
     { label: "Crossover",  value: "crossover"  },
     { label: "Higher",     value: "higher"      },
   ];
   const countOptions = ["3","5","8","10"].map(v => ({ label: v + " questions", value: v }));
+  const typeOptions = [
+    { label: "Mixed (Claude decides)",  value: "mixed"        },
+    { label: "Fluency",                 value: "fluency"      },
+    { label: "Worded",                  value: "worded"       },
+    { label: "Application",             value: "application"  },
+    { label: "Mixed Review",            value: "mixed_review" },
+    { label: "Repair",                  value: "repair"       },
+    { label: "Retrieval",               value: "retrieval"    },
+    { label: "Diagnostic",              value: "diagnostic"   },
+  ];
 
   if (!authed) {
     return (
@@ -434,7 +484,7 @@ export default function GeneratePage() {
             Configure generation
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3 mb-4">
+          <div className="grid gap-4 sm:grid-cols-2 mb-4">
             <div>
               <Label>Topic / Skill</Label>
               <Select
@@ -446,6 +496,10 @@ export default function GeneratePage() {
             <div>
               <Label>Difficulty</Label>
               <Select value={difficulty} onChange={setDifficulty} options={diffOptions} />
+            </div>
+            <div>
+              <Label>Question type</Label>
+              <Select value={questionType} onChange={setQuestionType} options={typeOptions} />
             </div>
             <div>
               <Label>Number of questions</Label>
@@ -511,10 +565,19 @@ export default function GeneratePage() {
         {questions.length > 0 && (
           <>
             <div className="mb-4 flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3 text-xs text-[#8a8fa8]">
+              <div className="flex items-center gap-3 flex-wrap text-xs text-[#8a8fa8]">
                 <span>{questions.length} generated</span>
                 <span className="text-[#4ade80]">✓ {approvedCount} approved</span>
                 <span className="text-[#555a73]">{pendingCount} pending</span>
+                {/* Type breakdown — useful at a glance when "Mixed" was selected */}
+                {Object.entries(typeCounts).map(([type, n]) => {
+                  const cfg = QUESTION_TYPE_CONFIG[type];
+                  return cfg ? (
+                    <span key={type} style={{ color: cfg.colour }}>
+                      {n} {cfg.label.toLowerCase()}
+                    </span>
+                  ) : null;
+                })}
               </div>
               <div className="flex items-center gap-3">
                 {approvedCount > 0 && (

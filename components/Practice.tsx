@@ -26,6 +26,8 @@ type UIQuestion = {
   options: Record<string, string>;
   correct: string;
   worked: string;
+  skillId: number;
+  difficulty: string;
 };
 
 type Hint = {
@@ -257,6 +259,8 @@ function toUIQuestion(q: Question): UIQuestion {
     options: { A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d },
     correct: q.correct_option.toUpperCase(),
     worked: q.worked_solution,
+    skillId: q.skill_id,
+    difficulty: q.difficulty,
   };
 }
 
@@ -267,17 +271,23 @@ function getSessionId(): string {
   return id;
 }
 
-// ── Supabase helpers ───────────────────────────────────────────────────────
-async function logAttempt(questionId: number, answerPicked: string, isCorrect: boolean, userId: string | null) {
-  await supabase.from("attempts").insert({
-    question_id: questionId,
-    session_id: getSessionId(),
-    answer_picked: answerPicked.toLowerCase(),
-    is_correct: isCorrect,
-    user_id: userId ?? null,
+// ── Attempt logging (via API route) ─────────────────────────────────────────
+async function logAttempt(q: UIQuestion, answerPicked: string, isCorrect: boolean, userId: string | null) {
+  await fetch("/api/attempt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      questionId: q.id,
+      skillId: q.skillId,
+      answerPicked,
+      isCorrect,
+      userId,
+      sessionId: getSessionId(),
+    }),
   });
 }
 
+// ── Supabase helpers (XP / streak — unchanged) ──────────────────────────────
 async function awardXP(userId: string): Promise<number> {
   const { data } = await supabase.from("profiles").select("xp").eq("user_id", userId).single();
   const newXP = (data?.xp ?? 0) + 10;
@@ -649,8 +659,7 @@ function ScoreScreen({ results, xpEarned, onHome }: {
         ))}
       </div>
       <button onClick={onHome}
-        className="w-full rounded-full bg-[#f9c74f] py-3 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        className="w-full rounded-full bg-[#f9c74f] py-3 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90">
         Back to Home
       </button>
     </div>
@@ -728,7 +737,7 @@ export default function Practice() {
       allStepsRevealedRef.current = true;
     }    setResults(prev => [...prev, { q, picked: key, correct: isCorrect }]);
     if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
-    logAttempt(q.id, key, isCorrect, userId);
+    logAttempt(q, key, isCorrect, userId);
     if (isCorrect && userId) {
       await Promise.all([awardXP(userId), updateStreak(userId)]);
       setXpEarned(prev => prev + 10);

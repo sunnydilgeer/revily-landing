@@ -1,8 +1,10 @@
+// app/api/generate-questions/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { paperBase64, skillName, difficulty, count } = body;
+  const { paperBase64, skillName, difficulty, count, questionType } = body;
 
   const paperContextMessage = paperBase64
     ? {
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
       }
     : null;
 
-  const prompt = buildPrompt(skillName, difficulty, count, !!paperBase64);
+  const prompt = buildPrompt(skillName, difficulty, count, !!paperBase64, questionType);
 
   const messages = paperContextMessage
     ? [paperContextMessage, { role: "user", content: prompt }]
@@ -56,11 +58,16 @@ function buildPrompt(
   skillName: string,
   difficulty: string,
   count: string,
-  hasPaper: boolean
+  hasPaper: boolean,
+  questionType: string
 ): string {
   const styleInstruction = hasPaper
     ? `Mirror the question phrasing, real-world contexts, and mark-appropriate complexity from the past paper above.`
     : `Use authentic AQA/Edexcel Foundation phrasing conventions.`;
+
+  const typeInstruction = questionType && questionType !== "mixed"
+    ? `Generate ALL ${count} questions as type "${questionType}" (see question_type rules below).`
+    : `Vary the question_type across the ${count} questions — aim for a natural mix of fluency, worded, and exam_style types. Include mixed_review only if it fits naturally.`;
 
   return `You are an expert GCSE Foundation Maths teacher creating multiple-choice quiz questions.
 
@@ -68,6 +75,17 @@ Generate exactly ${count} questions for the topic: "${skillName}"
 Difficulty: ${difficulty}
 
 ${styleInstruction}
+
+${typeInstruction}
+
+QUESTION TYPE RULES — assign one question_type to every question:
+- "fluency": bare procedural question, no real-world context. Tests whether the student can execute the method directly.
+- "worded": same skill in a real-world scenario. Tests whether the student can recognise which method to use.
+- "application": GCSE-style, often multi-step or combining skills. Mirrors actual exam paper style and complexity.
+- "mixed_review": does not signal which skill is needed. Tests whether learning has generalised beyond immediate practice.
+- "repair": targets a specific known misconception or weakness. Used after an error has been identified.
+- "retrieval": brings a previously learned skill back after time has passed. Should feel slightly unfamiliar.
+- "diagnostic": designed to reveal whether the student can access the skill at baseline. Clean, unambiguous, single-step.
 
 PHRASING RULES — follow exactly:
 - Use "Work out..." for calculation questions
@@ -94,7 +112,7 @@ WORKED SOLUTION RULES — read carefully:
 - Text outside [TRANSFORM] blocks should be plain English with maths in $...$
 
 EVERY question object MUST include ALL of these fields:
-question_text, option_a, option_b, option_c, option_d, correct_option, difficulty, worked_solution, hints, misconceptions
+question_text, option_a, option_b, option_c, option_d, correct_option, difficulty, question_type, worked_solution, hints, misconceptions
 
 Return ONLY a raw JSON array — no markdown, no explanation, no code fences.
 
@@ -108,6 +126,7 @@ Example of ONE correctly formatted question:
   "option_d": "12",
   "correct_option": "b",
   "difficulty": "${difficulty}",
+  "question_type": "fluency",
   "worked_solution": "[STEP] Divide 24 by the denominator [TRANSFORM: 24 \\div 4 -> 6][STEP] Multiply by the numerator [TRANSFORM: 6 \\times 3 -> 18]",
   "hints": [
     "Think about what the word 'of' means in maths.",
