@@ -19,7 +19,7 @@ type GeneratedQuestion = {
   correct_option: string;
   worked_solution: string;
   difficulty: string;
-  question_type: "fluency" | "worded" | "exam_style" | "mixed_review";
+  question_type: "fluency" | "worded" | "application" | "mixed_review" | "repair" | "retrieval" | "diagnostic";
   hints: string[];
   misconceptions: {
     wrong_option: string;
