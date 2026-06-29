@@ -553,9 +553,10 @@ function SkillsTab() {
 }
 
 // ── Questions tab ──────────────────────────────────────────────────────────
-function QuestionsTab({ skills, initialSkillFilter, onJumpToQuestion }: {
+function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId, onJumpToQuestion }: {
   skills: Skill[];
   initialSkillFilter?: string | null;
+  highlightQuestionId?: number | null;
   onJumpToQuestion?: (id: number) => void;
 }) {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -614,7 +615,7 @@ function QuestionsTab({ skills, initialSkillFilter, onJumpToQuestion }: {
   return (
     <div>
       <SectionHeader title="Questions" onAdd={() => setEditing(blank())} />
-      <div className="mb-4 w-64"><Select value={filterSkill} onChange={setFilterSkill} options={skillOptions} /></div>
+      <div className="mb-4 max-w-sm"><Select value={filterSkill} onChange={setFilterSkill} options={skillOptions} /></div>
 
       {editing && (
         <Card>
@@ -662,14 +663,21 @@ function QuestionsTab({ skills, initialSkillFilter, onJumpToQuestion }: {
         {questions.map(q => {
           const skill = skills.find(s => s.id === q.skill_id);
           const isEditing = editing?.id === q.id;
+          const isHighlighted = highlightQuestionId === q.id;
           return (
-            <div key={q.id} className={`rounded-2xl border bg-[#1a1d27] p-5 transition-colors ${isEditing ? "border-[#f9c74f44]" : "border-[#2e3248]"}`}>
+            <div
+              key={q.id}
+              ref={isHighlighted ? (el => { if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }) : undefined}
+              className={`rounded-2xl border bg-[#1a1d27] p-5 transition-colors ${
+                isEditing ? "border-[#f9c74f44]" : isHighlighted ? "border-[#f9c74f] ring-2 ring-[#f9c74f33]" : "border-[#2e3248]"
+              }`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2 flex-wrap">
                     <span className="rounded-full bg-[#f9c74f15] border border-[#f9c74f30] px-2 py-0.5 text-xs text-[#f9c74f]">{skill?.name ?? "Unknown skill"}</span>
                     <span className="text-xs text-[#555a73] capitalize">{q.difficulty}</span>
                     {q.worked_solution?.includes("[STEP]") && <span className="rounded-full bg-[#818cf815] border border-[#818cf830] px-2 py-0.5 text-xs text-[#818cf8]">step-by-step</span>}
+                    {isHighlighted && <span className="rounded-full bg-[#f9c74f20] border border-[#f9c74f44] px-2 py-0.5 text-xs text-[#f9c74f] font-semibold">Just generated</span>}
                   </div>
                   <div className="font-semibold text-[#f1f0ee] text-sm leading-snug">{q.question_text}</div>
                   <div className="mt-2 grid grid-cols-2 gap-1">
@@ -699,7 +707,7 @@ function QuestionsTab({ skills, initialSkillFilter, onJumpToQuestion }: {
 // ── Generate tab ───────────────────────────────────────────────────────────
 function GenerateTab({ skills, onSwitchToQuestions }: {
   skills: Skill[];
-  onSwitchToQuestions: (skillId: string) => void;
+  onSwitchToQuestions: (skillId: string, questionId: number) => void;
 }) {
   const [skillId, setSkillId] = useState<string>(String(skills[0]?.id ?? ""));
   const [difficulty, setDifficulty] = useState("foundation");
@@ -745,8 +753,21 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
       const data = await response.json();
       if (!response.ok) { setGenerationError(data?.error?.message ?? "API error."); setGenerating(false); return; }
       text = data.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
-      const clean = text.replace(/```json|```/gi, "").trim();
-      const parsed: GeneratedQuestion[] = JSON.parse(clean);
+      const clean = text
+        .replace(/```json|```/gi, "")
+        .trim();
+      // Claude outputs LaTeX inside JSON strings. Some sequences like \frac, \div, \times
+      // accidentally match valid JSON single-char escapes (\f = form feed, \t = tab, \n = newline)
+      // causing JSON.parse to misinterpret them. Strategy:
+      // 1. Temporarily replace already-valid \\ (doubled) with a placeholder
+      // 2. Replace all remaining single \ with \\
+      // 3. Restore the placeholder
+      const PLACEHOLDER = "\x00DBLSLASH\x00";
+      const sanitised = clean
+        .replace(/\\\\/g, PLACEHOLDER)       // protect already-escaped backslashes
+        .replace(/\\/g, "\\\\")              // double all remaining single backslashes
+        .replace(new RegExp(PLACEHOLDER.replace(/\x00/g, "\\x00"), "g"), "\\\\"); // restore
+      const parsed: GeneratedQuestion[] = JSON.parse(sanitised);
       setQuestions(parsed.map(q => ({ ...q, savedId: null })));
     } catch (err) {
       console.error("Raw text was:", text); console.error("Parse error:", err);
@@ -864,7 +885,10 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
             </div>
             {savedCount > 0 && (
               <button
-                onClick={() => onSwitchToQuestions(skillId)}
+                onClick={() => {
+                  const firstSaved = questions.find(q => typeof q.savedId === "number");
+                  if (firstSaved) onSwitchToQuestions(skillId, firstSaved.savedId as number);
+                }}
                 className="rounded-full border border-[#4ade8044] px-4 py-1.5 text-xs font-bold text-[#4ade80] hover:bg-[#4ade8015] transition-colors"
                 style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Edit saved questions →
@@ -901,7 +925,7 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-[#4ade80]">✓ Saved</span>
                         <button
-                          onClick={() => onSwitchToQuestions(skillId)}
+                          onClick={() => onSwitchToQuestions(skillId, q.savedId as number)}
                           className="text-xs text-[#4ade80] underline underline-offset-2 hover:opacity-80 transition-opacity"
                           style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                           Edit in questions →
@@ -1012,6 +1036,7 @@ function AdminPageInner() {
   const [urlSkillFilter] = useState<string | null>(() => searchParams.get("skill"));
   // For jumping from Generate → Questions pre-filtered
   const [questionsSkillFilter, setQuestionsSkillFilter] = useState<string | null>(null);
+  const [highlightQuestionId, setHighlightQuestionId] = useState<number | null>(null);
 
   useEffect(() => {
     if (authed) {
@@ -1027,8 +1052,9 @@ function AdminPageInner() {
     else { setPwError(true); }
   }
 
-  function handleSwitchToQuestions(skillId: string) {
+  function handleSwitchToQuestions(skillId: string, questionId: number) {
     setQuestionsSkillFilter(skillId);
+    setHighlightQuestionId(questionId);
     setTab("questions");
   }
 
@@ -1088,6 +1114,7 @@ function AdminPageInner() {
           <QuestionsTab
             skills={skills}
             initialSkillFilter={questionsSkillFilter ?? urlSkillFilter}
+            highlightQuestionId={highlightQuestionId}
           />
         )}
         {tab === "generate"  && (
