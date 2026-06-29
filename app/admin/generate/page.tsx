@@ -1,4 +1,3 @@
-// app/generate/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -9,7 +8,6 @@ const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "";
 
 type Skill = { id: number; name: string };
 
-// question_type is now part of every generated question
 type GeneratedQuestion = {
   question_text: string;
   option_a: string;
@@ -32,7 +30,6 @@ type ReviewQuestion = GeneratedQuestion & {
   status: "pending" | "approved" | "rejected";
 };
 
-// ── Question type display config ───────────────────────────────────────────
 const QUESTION_TYPE_CONFIG: Record<string, { label: string; colour: string; bg: string; border: string }> = {
   fluency:      { label: "Fluency",      colour: "#60a5fa", bg: "#60a5fa10", border: "#60a5fa30" },
   worded:       { label: "Worded",       colour: "#34d399", bg: "#34d39910", border: "#34d39930" },
@@ -43,7 +40,6 @@ const QUESTION_TYPE_CONFIG: Record<string, { label: string; colour: string; bg: 
   diagnostic:   { label: "Diagnostic",  colour: "#f4845f", bg: "#f4845f10", border: "#f4845f30" },
 };
 
-// ── Shared UI ──────────────────────────────────────────────────────────────
 function Label({ children }: { children: React.ReactNode }) {
   return (
     <label className="block text-xs font-semibold uppercase tracking-widest text-[#555a73] mb-1">
@@ -94,30 +90,18 @@ function Card({ children, dimmed }: { children: React.ReactNode; dimmed?: boolea
   );
 }
 
-// ── Question type badge ────────────────────────────────────────────────────
 function QuestionTypeBadge({ type }: { type: string }) {
-  const cfg = QUESTION_TYPE_CONFIG[type] ?? {
-    label: type,
-    colour: "#8a8fa8",
-    bg: "#8a8fa810",
-    border: "#8a8fa830",
-  };
+  const cfg = QUESTION_TYPE_CONFIG[type] ?? { label: type, colour: "#8a8fa8", bg: "#8a8fa810", border: "#8a8fa830" };
   return (
-    <span
-      className="rounded-full border px-2 py-0.5 text-xs font-semibold"
-      style={{ color: cfg.colour, backgroundColor: cfg.bg, borderColor: cfg.border }}
-    >
+    <span className="rounded-full border px-2 py-0.5 text-xs font-semibold"
+      style={{ color: cfg.colour, backgroundColor: cfg.bg, borderColor: cfg.border }}>
       {cfg.label}
     </span>
   );
 }
 
-// ── Question preview card ──────────────────────────────────────────────────
 function QuestionPreview({ q, index, onApprove, onReject }: {
-  q: ReviewQuestion;
-  index: number;
-  onApprove: () => void;
-  onReject: () => void;
+  q: ReviewQuestion; index: number; onApprove: () => void; onReject: () => void;
 }) {
   const [showWorked, setShowWorked] = useState(false);
   const optionLabels = ["a", "b", "c", "d"] as const;
@@ -139,7 +123,6 @@ function QuestionPreview({ q, index, onApprove, onReject }: {
           <span className="rounded-full bg-[#f9c74f15] border border-[#f9c74f30] px-2 py-0.5 text-xs text-[#f9c74f] capitalize">
             {q.difficulty}
           </span>
-          {/* Question type badge — the new addition */}
           {q.question_type && <QuestionTypeBadge type={q.question_type} />}
         </div>
         {q.status === "pending" && (
@@ -159,12 +142,9 @@ function QuestionPreview({ q, index, onApprove, onReject }: {
         {optionLabels.map(opt => {
           const isCorrect = q.correct_option.toLowerCase() === opt;
           return (
-            <div key={opt}
-              className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
-                isCorrect
-                  ? "border-[#4ade8044] bg-[#4ade8010] text-[#4ade80]"
-                  : "border-[#2e3248] text-[#8a8fa8]"
-              }`}>
+            <div key={opt} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+              isCorrect ? "border-[#4ade8044] bg-[#4ade8010] text-[#4ade80]" : "border-[#2e3248] text-[#8a8fa8]"
+            }`}>
               <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
                 isCorrect ? "bg-[#4ade80] text-[#0d1f15]" : "bg-[#2e3248] text-[#8a8fa8]"
               }`} style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
@@ -194,19 +174,15 @@ function QuestionPreview({ q, index, onApprove, onReject }: {
               <div className="text-xs font-bold text-[#f87171] mb-0.5">
                 ⚠ Option {m.wrong_option.toUpperCase()}: {m.title}
               </div>
-              <div className="text-xs text-[#c88]">
-                <MathText text={m.description} />
-              </div>
+              <div className="text-xs text-[#c88]"><MathText text={m.description} /></div>
             </div>
           ))}
         </div>
       )}
 
-      <button
-        onClick={() => setShowWorked(s => !s)}
+      <button onClick={() => setShowWorked(s => !s)}
         className="text-xs text-[#818cf8] hover:opacity-80 transition-opacity mb-2"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-      >
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
         {showWorked ? "Hide worked solution ↑" : "Preview worked solution ↓"}
       </button>
 
@@ -221,7 +197,6 @@ function QuestionPreview({ q, index, onApprove, onReject }: {
   );
 }
 
-// ── Main generate page ─────────────────────────────────────────────────────
 export default function GeneratePage() {
   const [authed, setAuthed] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -236,7 +211,6 @@ export default function GeneratePage() {
   const [count, setCount] = useState("5");
   const [questionType, setQuestionType] = useState("mixed");
 
-  // Paper upload state
   const [paperFile, setPaperFile] = useState<File | null>(null);
   const [paperBase64, setPaperBase64] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -246,7 +220,12 @@ export default function GeneratePage() {
   const [questions, setQuestions] = useState<ReviewQuestion[]>([]);
 
   const [saving, setSaving] = useState(false);
-  const [saveResult, setSaveResult] = useState<string | null>(null);
+  // ── Changed: store structured save result so we can build the link ─────
+  const [saveResult, setSaveResult] = useState<{
+    count: number;
+    failed: number;
+    skillId: string;
+  } | null>(null);
 
   useEffect(() => {
     if (authed) {
@@ -288,7 +267,6 @@ export default function GeneratePage() {
   async function handleGenerate() {
     const skill = skills.find(s => String(s.id) === skillId);
     if (!skill) return;
-
     setGenerating(true);
     setGenerationError(null);
     setQuestions([]);
@@ -300,37 +278,27 @@ export default function GeneratePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          skillName: skill.name,
-          difficulty,
-          count,
-          questionType,
+          skillName: skill.name, difficulty, count, questionType,
           paperBase64: paperBase64 ?? undefined,
         }),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         setGenerationError(data?.error?.message ?? "API error. Check your key.");
         setGenerating(false);
         return;
       }
 
-      text = data.content
-        .filter((b: any) => b.type === "text")
-        .map((b: any) => b.text)
-        .join("");
-
+      text = data.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
       const clean = text.replace(/```json|```/gi, "").trim();
       const parsed: GeneratedQuestion[] = JSON.parse(clean);
-
       setQuestions(parsed.map(q => ({ ...q, status: "pending" })));
     } catch (err) {
       console.error("Raw text was:", text);
       console.error("Parse error:", err);
       setGenerationError("Failed to parse response. Try generating again.");
     }
-
     setGenerating(false);
   }
 
@@ -350,14 +318,12 @@ export default function GeneratePage() {
         .insert({
           skill_id: parseInt(skillId),
           question_text: q.question_text,
-          option_a: q.option_a,
-          option_b: q.option_b,
-          option_c: q.option_c,
-          option_d: q.option_d,
+          option_a: q.option_a, option_b: q.option_b,
+          option_c: q.option_c, option_d: q.option_d,
           correct_option: q.correct_option,
           worked_solution: q.worked_solution,
           difficulty: q.difficulty,
-          question_type: q.question_type, // ← new field saved here
+          question_type: q.question_type,
         })
         .select("id")
         .single();
@@ -368,11 +334,7 @@ export default function GeneratePage() {
 
       if (q.hints?.length > 0) {
         await supabase.from("hints").insert(
-          q.hints.map((hint, i) => ({
-            question_id: questionId,
-            hint_text: hint,
-            order_index: i,
-          }))
+          q.hints.map((hint, i) => ({ question_id: questionId, hint_text: hint, order_index: i }))
         );
       }
 
@@ -397,18 +359,13 @@ export default function GeneratePage() {
     }
 
     setSaving(false);
-    setSaveResult(
-      failed === 0
-        ? `✓ ${inserted} question${inserted !== 1 ? "s" : ""} saved to Supabase.`
-        : `Saved ${inserted}, failed ${failed}. Check console.`
-    );
+    // ── Store structured result instead of a string ────────────────────
+    setSaveResult({ count: inserted, failed, skillId });
     setQuestions(prev => prev.filter(q => q.status !== "approved"));
   }
 
   const approvedCount = questions.filter(q => q.status === "approved").length;
   const pendingCount  = questions.filter(q => q.status === "pending").length;
-
-  // Type breakdown for the results summary bar
   const typeCounts = questions.reduce<Record<string, number>>((acc, q) => {
     if (q.question_type) acc[q.question_type] = (acc[q.question_type] ?? 0) + 1;
     return acc;
@@ -483,15 +440,11 @@ export default function GeneratePage() {
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Configure generation
           </div>
-
           <div className="grid gap-4 sm:grid-cols-2 mb-4">
             <div>
               <Label>Topic / Skill</Label>
-              <Select
-                value={skillId}
-                onChange={setSkillId}
-                options={skills.map(s => ({ label: s.name, value: String(s.id) }))}
-              />
+              <Select value={skillId} onChange={setSkillId}
+                options={skills.map(s => ({ label: s.name, value: String(s.id) }))} />
             </div>
             <div>
               <Label>Difficulty</Label>
@@ -507,20 +460,13 @@ export default function GeneratePage() {
             </div>
           </div>
 
-          {/* Past paper upload */}
           <div className="mb-5">
             <Label>Past paper style reference (optional)</Label>
             {!paperFile ? (
               <label className="flex items-center gap-3 w-full cursor-pointer rounded-xl border border-dashed border-[#2e3248] bg-[#0f1117] px-4 py-3 text-sm text-[#555a73] hover:border-[#f9c74f40] hover:text-[#8a8fa8] transition-colors">
                 <span>📄</span>
                 <span>Upload AQA / Edexcel past paper PDF</span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="application/pdf"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
+                <input ref={fileInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleFileChange} />
               </label>
             ) : (
               <div className="flex items-center gap-3 rounded-xl border border-[#4ade8044] bg-[#4ade8010] px-4 py-3">
@@ -528,9 +474,7 @@ export default function GeneratePage() {
                 <span className="flex-1 text-sm text-[#4ade80] truncate">{paperFile.name}</span>
                 {!paperBase64 && <span className="text-xs text-[#555a73]">Reading…</span>}
                 {paperBase64 && <span className="text-xs text-[#4ade80]">✓ Ready</span>}
-                <button onClick={clearPaper} className="text-xs text-[#555a73] hover:text-[#f87171] transition-colors">
-                  Remove
-                </button>
+                <button onClick={clearPaper} className="text-xs text-[#555a73] hover:text-[#f87171] transition-colors">Remove</button>
               </div>
             )}
             <p className="mt-1.5 text-xs text-[#555a73]">
@@ -539,12 +483,9 @@ export default function GeneratePage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={handleGenerate}
-              disabled={generating || !skillId}
+            <button onClick={handleGenerate} disabled={generating || !skillId}
               className="rounded-full bg-[#f9c74f] px-6 py-2.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90 disabled:opacity-40"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            >
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {generating ? "Generating…" : "⚡ Generate questions"}
             </button>
             {generating && (
@@ -569,50 +510,54 @@ export default function GeneratePage() {
                 <span>{questions.length} generated</span>
                 <span className="text-[#4ade80]">✓ {approvedCount} approved</span>
                 <span className="text-[#555a73]">{pendingCount} pending</span>
-                {/* Type breakdown — useful at a glance when "Mixed" was selected */}
                 {Object.entries(typeCounts).map(([type, n]) => {
                   const cfg = QUESTION_TYPE_CONFIG[type];
                   return cfg ? (
-                    <span key={type} style={{ color: cfg.colour }}>
-                      {n} {cfg.label.toLowerCase()}
-                    </span>
+                    <span key={type} style={{ color: cfg.colour }}>{n} {cfg.label.toLowerCase()}</span>
                   ) : null;
                 })}
               </div>
               <div className="flex items-center gap-3">
                 {approvedCount > 0 && (
-                  <button
-                    onClick={handleSaveApproved}
-                    disabled={saving}
+                  <button onClick={handleSaveApproved} disabled={saving}
                     className="rounded-full bg-[#4ade80] px-5 py-2 text-xs font-bold text-[#0d1f15] transition-opacity hover:opacity-90 disabled:opacity-40"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                  >
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     {saving ? "Saving…" : `Save ${approvedCount} approved →`}
                   </button>
                 )}
               </div>
             </div>
 
+            {/* ── Save result banner with Edit in admin link ── */}
             {saveResult && (
-              <div className={`mb-4 rounded-xl border px-4 py-3 text-xs ${
-                saveResult.startsWith("✓")
-                  ? "border-[#4ade8044] bg-[#4ade8010] text-[#4ade80]"
-                  : "border-[#f8717144] bg-[#f871710a] text-[#f87171]"
+              <div className={`mb-4 rounded-xl border px-4 py-3 flex items-center justify-between gap-4 flex-wrap ${
+                saveResult.failed === 0
+                  ? "border-[#4ade8044] bg-[#4ade8010]"
+                  : "border-[#f8717144] bg-[#f871710a]"
               }`}>
-                {saveResult}
+                <span className={`text-xs font-semibold ${saveResult.failed === 0 ? "text-[#4ade80]" : "text-[#f87171]"}`}>
+                  {saveResult.failed === 0
+                    ? `✓ ${saveResult.count} question${saveResult.count !== 1 ? "s" : ""} saved.`
+                    : `Saved ${saveResult.count}, failed ${saveResult.failed}. Check console.`
+                  }
+                </span>
+                {saveResult.failed === 0 && (
+                  <a
+                    href={`/admin?tab=questions&skill=${saveResult.skillId}`}
+                    className="rounded-full border border-[#4ade8044] px-4 py-1.5 text-xs font-bold text-[#4ade80] hover:bg-[#4ade8015] transition-colors"
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  >
+                    Edit in admin →
+                  </a>
+                )}
               </div>
             )}
 
             <div className="flex flex-col gap-4">
               {questions.map((q, i) => (
-                <QuestionPreview
-                  key={i} q={q} index={i}
-                  onApprove={() => setQuestions(prev =>
-                    prev.map((x, j) => j === i ? { ...x, status: "approved" } : x)
-                  )}
-                  onReject={() => setQuestions(prev =>
-                    prev.map((x, j) => j === i ? { ...x, status: "rejected" } : x)
-                  )}
+                <QuestionPreview key={i} q={q} index={i}
+                  onApprove={() => setQuestions(prev => prev.map((x, j) => j === i ? { ...x, status: "approved" } : x))}
+                  onReject={() => setQuestions(prev => prev.map((x, j) => j === i ? { ...x, status: "rejected" } : x))}
                 />
               ))}
             </div>

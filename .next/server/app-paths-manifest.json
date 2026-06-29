@@ -1,5 +1,6 @@
 {
   "/api/generate-questions/route": "app/api/generate-questions/route.js",
-  "/admin/generate/page": "app/admin/generate/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/admin/page": "app/admin/page.js",
+  "/page": "app/page.js",
+  "/admin/generate/page": "app/admin/generate/page.js"
 }
