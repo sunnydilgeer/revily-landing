@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import MathText from "@/components/MathText";
@@ -994,8 +994,8 @@ function WorkedSolutionToggle({ solution }: { solution: string }) {
   );
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
-export default function AdminPage() {
+// ── Main (inner — needs Suspense for useSearchParams) ──────────────────────
+function AdminPageInner() {
   const searchParams = useSearchParams();
 
   const [authed, setAuthed] = useState(() => {
@@ -1098,5 +1098,14 @@ export default function AdminPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// ── Default export — wraps in Suspense for useSearchParams ─────────────────
+export default function AdminPage() {
+  return (
+    <Suspense>
+      <AdminPageInner />
+    </Suspense>
   );
 }
