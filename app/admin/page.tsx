@@ -28,6 +28,8 @@ type Question = {
   correct_option: string;
   worked_solution: string;
   difficulty: string;
+  answer_type: "mcq" | "free_response";
+  correct_answer: string | null;
 };
 
 type Hint = {
@@ -51,13 +53,17 @@ type Misconception = {
   order_index: number;
 };
 
+// answer_type/correct_answer added for free response generation.
+// MCQ fields are optional now since free response questions don't have them.
 type GeneratedQuestion = {
   question_text: string;
-  option_a: string;
-  option_b: string;
-  option_c: string;
-  option_d: string;
-  correct_option: string;
+  answer_type: "mcq" | "free_response";
+  option_a?: string;
+  option_b?: string;
+  option_c?: string;
+  option_d?: string;
+  correct_option?: string;
+  correct_answer?: string;
   worked_solution: string;
   difficulty: string;
   question_type: "fluency" | "worded" | "application" | "mixed_review" | "repair" | "retrieval" | "diagnostic";
@@ -66,7 +72,6 @@ type GeneratedQuestion = {
 };
 
 type GenerateQuestion = GeneratedQuestion & {
-  // null = unsaved, number = saved question ID, "saving" = in progress, "error" = failed
   savedId: number | null | "saving" | "error";
 };
 
@@ -324,7 +329,7 @@ function MisconceptionSlot({ option, questionId, skillId, existing, onSaved, onD
   );
 }
 
-// ── Options grid with integrated misconception slots ───────────────────────
+// ── Options grid with integrated misconception slots (MCQ editor only) ─────
 function OptionsWithMisconceptions({ editing, setEditing, misconceptions, reloadMisconceptions }: {
   editing: Question;
   setEditing: (fn: (q: Question) => Question) => void;
@@ -362,6 +367,27 @@ function OptionsWithMisconceptions({ editing, setEditing, misconceptions, reload
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ── Free response answer editor (replaces options grid when answer_type is free_response) ─
+function FreeResponseAnswerEditor({ editing, setEditing }: {
+  editing: Question;
+  setEditing: (fn: (q: Question) => Question) => void;
+}) {
+  return (
+    <div className="rounded-xl border border-[#4ade8044] bg-[#4ade8010] px-4 py-3">
+      <Label>Correct answer (exact text Claude will grade against)</Label>
+      <Input
+        value={editing.correct_answer ?? ""}
+        onChange={v => setEditing(q => ({ ...q, correct_answer: v }))}
+        placeholder='e.g. "7.38" or "3:2" or "x = 5"'
+      />
+      <p className="mt-2 text-xs text-[#555a73]">
+        This is graded by Claude at answer time, which already accepts mathematically equivalent
+        forms (e.g. 0.75 = 3/4 = 75%). You don't need to list every variant here — just the canonical answer.
+      </p>
     </div>
   );
 }
@@ -553,11 +579,10 @@ function SkillsTab() {
 }
 
 // ── Questions tab ──────────────────────────────────────────────────────────
-function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId, onJumpToQuestion }: {
+function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId }: {
   skills: Skill[];
   initialSkillFilter?: string | null;
   highlightQuestionId?: number | null;
-  onJumpToQuestion?: (id: number) => void;
 }) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [filterSkill, setFilterSkill] = useState<string>(initialSkillFilter ?? "all");
@@ -582,17 +607,42 @@ function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId, onJumpT
   }, [editing?.id]);
 
   function blank(): Question {
-    return { id: 0, skill_id: skills[0]?.id, question_text: "", option_a: "", option_b: "", option_c: "", option_d: "", correct_option: "a", worked_solution: "", difficulty: "foundation" };
+    return {
+      id: 0, skill_id: skills[0]?.id, question_text: "",
+      option_a: "", option_b: "", option_c: "", option_d: "",
+      correct_option: "a", worked_solution: "", difficulty: "foundation",
+      answer_type: "mcq", correct_answer: null,
+    };
   }
 
   async function save() {
     if (!editing) return;
     setSaving(true);
-    const payload = {
-      skill_id: editing.skill_id, question_text: editing.question_text,
-      option_a: editing.option_a, option_b: editing.option_b, option_c: editing.option_c, option_d: editing.option_d,
-      correct_option: editing.correct_option, worked_solution: editing.worked_solution, difficulty: editing.difficulty,
+    const basePayload = {
+      skill_id: editing.skill_id,
+      question_text: editing.question_text,
+      worked_solution: editing.worked_solution,
+      difficulty: editing.difficulty,
+      answer_type: editing.answer_type,
     };
+    // Build one flat object with every possible column present (nulled where
+    // not applicable) instead of a conditional union — Supabase's insert/update
+    // typing rejects payloads that could be one of two different shapes.
+    const payload = editing.answer_type === "free_response"
+      ? {
+          ...basePayload,
+          correct_answer: editing.correct_answer,
+          option_a: null, option_b: null, option_c: null, option_d: null,
+          correct_option: null,
+        }
+      : {
+          ...basePayload,
+          option_a: editing.option_a, option_b: editing.option_b,
+          option_c: editing.option_c, option_d: editing.option_d,
+          correct_option: editing.correct_option,
+          correct_answer: null,
+        };
+
     if (editing.id) {
       await supabase.from("questions").update(payload).eq("id", editing.id);
     } else {
@@ -611,6 +661,10 @@ function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId, onJumpT
   const skillOptions = [{ label: "All skills", value: "all" }, ...skills.map(s => ({ label: s.name, value: String(s.id) }))];
   const diffOptions = [{ label: "Foundation", value: "foundation" }, { label: "Crossover", value: "crossover" }, { label: "Higher", value: "higher" }];
   const correctOptions = ["a","b","c","d"].map(v => ({ label: v.toUpperCase(), value: v }));
+  const answerTypeOptions = [
+    { label: "Multiple choice", value: "mcq" },
+    { label: "Free response", value: "free_response" },
+  ];
 
   return (
     <div>
@@ -625,33 +679,51 @@ function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId, onJumpT
             </div>
             {editing.id && <span className="text-xs text-[#555a73] font-mono">ID {editing.id}</span>}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 mb-4">
+
+          <div className="grid gap-3 sm:grid-cols-3 mb-4">
             <div><Label>Skill</Label>
               <Select value={String(editing.skill_id ?? skills[0]?.id)} onChange={v => setEditing(q => q ? { ...q, skill_id: parseInt(v) } : q)} options={skills.map(s => ({ label: s.name, value: String(s.id) }))} />
             </div>
             <div><Label>Difficulty</Label>
               <Select value={editing.difficulty ?? "foundation"} onChange={v => setEditing(q => q ? { ...q, difficulty: v } : q)} options={diffOptions} />
             </div>
+            <div><Label>Answer type</Label>
+              <Select value={editing.answer_type ?? "mcq"} onChange={v => setEditing(q => q ? { ...q, answer_type: v as "mcq" | "free_response" } : q)} options={answerTypeOptions} />
+            </div>
           </div>
+
           <div className="mb-4"><Label>Question Text</Label>
             <Textarea value={editing.question_text ?? ""} onChange={v => setEditing(q => q ? { ...q, question_text: v } : q)} placeholder="Enter the question…" rows={2} />
           </div>
+
           <div className="mb-4">
-            <div className="mb-2 flex items-center justify-between">
-              <Label>Options &amp; Misconceptions</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[#555a73]">Correct:</span>
-                <Select value={editing.correct_option ?? "a"} onChange={v => setEditing(q => q ? { ...q, correct_option: v } : q)} options={correctOptions} />
-              </div>
-            </div>
-            <OptionsWithMisconceptions editing={editing} setEditing={fn => setEditing(q => q ? fn(q) : q)} misconceptions={misconceptions} reloadMisconceptions={() => editing.id && loadMisconceptions(editing.id)} />
+            {editing.answer_type === "free_response" ? (
+              <>
+                <Label>Answer</Label>
+                <FreeResponseAnswerEditor editing={editing} setEditing={fn => setEditing(q => q ? fn(q) : q)} />
+              </>
+            ) : (
+              <>
+                <div className="mb-2 flex items-center justify-between">
+                  <Label>Options &amp; Misconceptions</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#555a73]">Correct:</span>
+                    <Select value={editing.correct_option ?? "a"} onChange={v => setEditing(q => q ? { ...q, correct_option: v } : q)} options={correctOptions} />
+                  </div>
+                </div>
+                <OptionsWithMisconceptions editing={editing} setEditing={fn => setEditing(q => q ? fn(q) : q)} misconceptions={misconceptions} reloadMisconceptions={() => editing.id && loadMisconceptions(editing.id)} />
+              </>
+            )}
           </div>
+
           <div className="mb-4"><WorkedSolutionEditor value={editing.worked_solution ?? ""} onChange={v => setEditing(q => q ? { ...q, worked_solution: v } : q)} /></div>
+
           <div className="flex gap-2">
             <Btn onClick={save} disabled={saving}>{saving ? "Saving…" : "Save question"}</Btn>
             <Btn onClick={() => setEditing(null)} variant="ghost">Close</Btn>
             {editing.id && <Btn onClick={() => del(editing.id)} variant="danger">Delete question</Btn>}
           </div>
+
           {editing.id
             ? <HintsEditor questionId={editing.id} />
             : <div className="mt-5 border-t border-[#2e3248] pt-4 text-xs text-[#555a73]">💡 Save the question first to add hints.</div>
@@ -676,17 +748,26 @@ function QuestionsTab({ skills, initialSkillFilter, highlightQuestionId, onJumpT
                   <div className="mb-1 flex items-center gap-2 flex-wrap">
                     <span className="rounded-full bg-[#f9c74f15] border border-[#f9c74f30] px-2 py-0.5 text-xs text-[#f9c74f]">{skill?.name ?? "Unknown skill"}</span>
                     <span className="text-xs text-[#555a73] capitalize">{q.difficulty}</span>
+                    {q.answer_type === "free_response" && (
+                      <span className="rounded-full bg-[#4ade8015] border border-[#4ade8030] px-2 py-0.5 text-xs text-[#4ade80]">free response</span>
+                    )}
                     {q.worked_solution?.includes("[STEP]") && <span className="rounded-full bg-[#818cf815] border border-[#818cf830] px-2 py-0.5 text-xs text-[#818cf8]">step-by-step</span>}
                     {isHighlighted && <span className="rounded-full bg-[#f9c74f20] border border-[#f9c74f44] px-2 py-0.5 text-xs text-[#f9c74f] font-semibold">Just generated</span>}
                   </div>
                   <div className="font-semibold text-[#f1f0ee] text-sm leading-snug">{q.question_text}</div>
-                  <div className="mt-2 grid grid-cols-2 gap-1">
-                    {(["a","b","c","d"] as const).map(opt => (
-                      <div key={opt} className={`text-xs px-2 py-1 rounded-lg ${q.correct_option === opt ? "bg-[#4ade8015] text-[#4ade80] border border-[#4ade8030]" : "text-[#555a73]"}`}>
-                        {opt.toUpperCase()}: {(q as any)[`option_${opt}`]}
-                      </div>
-                    ))}
-                  </div>
+                  {q.answer_type === "free_response" ? (
+                    <div className="mt-2 inline-block rounded-lg bg-[#4ade8015] text-[#4ade80] border border-[#4ade8030] text-xs px-2 py-1">
+                      Answer: {q.correct_answer}
+                    </div>
+                  ) : (
+                    <div className="mt-2 grid grid-cols-2 gap-1">
+                      {(["a","b","c","d"] as const).map(opt => (
+                        <div key={opt} className={`text-xs px-2 py-1 rounded-lg ${q.correct_option === opt ? "bg-[#4ade8015] text-[#4ade80] border border-[#4ade8030]" : "text-[#555a73]"}`}>
+                          {opt.toUpperCase()}: {(q as any)[`option_${opt}`]}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <Btn onClick={() => setEditing(isEditing ? null : q)} variant="ghost">{isEditing ? "Close" : "Edit"}</Btn>
@@ -713,6 +794,8 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
   const [difficulty, setDifficulty] = useState("foundation");
   const [count, setCount] = useState("5");
   const [questionType, setQuestionType] = useState("mixed");
+  // NEW: answer type selector, defaults to MCQ to preserve existing behaviour
+  const [answerType, setAnswerType] = useState<"mcq" | "free_response">("mcq");
   const [paperFile, setPaperFile] = useState<File | null>(null);
   const [paperBase64, setPaperBase64] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -720,7 +803,6 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<GenerateQuestion[]>([]);
 
-  // Sync skillId when skills load
   useEffect(() => {
     if (skills.length > 0 && !skillId) setSkillId(String(skills[0].id));
   }, [skills]);
@@ -748,25 +830,22 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
       const response = await fetch("/api/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillName: skill.name, difficulty, count, questionType, paperBase64: paperBase64 ?? undefined }),
+        body: JSON.stringify({
+          skillName: skill.name, difficulty, count, questionType,
+          answerType, // NEW — tells the route which JSON shape to request from Claude
+          paperBase64: paperBase64 ?? undefined,
+        }),
       });
       const data = await response.json();
       if (!response.ok) { setGenerationError(data?.error?.message ?? "API error."); setGenerating(false); return; }
       text = data.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
-      const clean = text
-        .replace(/```json|```/gi, "")
-        .trim();
-      // Claude outputs LaTeX inside JSON strings. Some sequences like \frac, \div, \times
-      // accidentally match valid JSON single-char escapes (\f = form feed, \t = tab, \n = newline)
-      // causing JSON.parse to misinterpret them. Strategy:
-      // 1. Temporarily replace already-valid \\ (doubled) with a placeholder
-      // 2. Replace all remaining single \ with \\
-      // 3. Restore the placeholder
+      const clean = text.replace(/```json|```/gi, "").trim();
+      // Backslash sanitisation for LaTeX inside JSON strings (\frac, \div, \geq etc.)
       const PLACEHOLDER = "\x00DBLSLASH\x00";
       const sanitised = clean
-        .replace(/\\\\/g, PLACEHOLDER)       // protect already-escaped backslashes
-        .replace(/\\/g, "\\\\")              // double all remaining single backslashes
-        .replace(new RegExp(PLACEHOLDER.replace(/\x00/g, "\\x00"), "g"), "\\\\"); // restore
+        .replace(/\\\\/g, PLACEHOLDER)
+        .replace(/\\/g, "\\\\")
+        .replace(new RegExp(PLACEHOLDER.replace(/\x00/g, "\\x00"), "g"), "\\\\");
       const parsed: GeneratedQuestion[] = JSON.parse(sanitised);
       setQuestions(parsed.map(q => ({ ...q, savedId: null })));
     } catch (err) {
@@ -780,18 +859,36 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
     const q = questions[index];
     if (!q || typeof q.savedId === "number") return;
 
-    // Mark as saving
     setQuestions(prev => prev.map((x, i) => i === index ? { ...x, savedId: "saving" } : x));
+
+    const basePayload = {
+      skill_id: parseInt(skillId),
+      question_text: q.question_text,
+      worked_solution: q.worked_solution,
+      difficulty: q.difficulty,
+      question_type: q.question_type,
+      answer_type: q.answer_type,
+    };
+
+    // Same fix as QuestionsTab.save() — one flat shape with all columns
+    // present (nulled where not applicable), not a conditional union.
+    const payload = q.answer_type === "free_response"
+      ? {
+          ...basePayload,
+          correct_answer: q.correct_answer,
+          option_a: null, option_b: null, option_c: null, option_d: null,
+          correct_option: null,
+        }
+      : {
+          ...basePayload,
+          option_a: q.option_a, option_b: q.option_b, option_c: q.option_c, option_d: q.option_d,
+          correct_option: q.correct_option,
+          correct_answer: null,
+        };
 
     const { data: qData, error: qErr } = await supabase
       .from("questions")
-      .insert({
-        skill_id: parseInt(skillId),
-        question_text: q.question_text,
-        option_a: q.option_a, option_b: q.option_b, option_c: q.option_c, option_d: q.option_d,
-        correct_option: q.correct_option, worked_solution: q.worked_solution,
-        difficulty: q.difficulty, question_type: q.question_type,
-      })
+      .insert(payload)
       .select("id")
       .single();
 
@@ -807,13 +904,21 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
     }
     if (q.misconceptions?.length > 0) {
       await supabase.from("misconceptions").insert(q.misconceptions.map((m, i) => ({
-        skill_id: parseInt(skillId), question_id: questionId, wrong_option: m.wrong_option,
-        code: `GEN_${questionId}_${m.wrong_option.toUpperCase()}`, title: m.title, description: m.description,
-        example_wrong_answer: "", example_wrong_thinking: "", diagnostic_meaning: "", order_index: i,
+        skill_id: parseInt(skillId),
+        question_id: questionId,
+        // For free response, wrong_option is a free-text snake_case label
+        // (e.g. "rounded_up_instead_of_down") rather than a letter A-D.
+        wrong_option: m.wrong_option,
+        code: `GEN_${questionId}_${m.wrong_option.toUpperCase().replace(/\s+/g, "_")}`,
+        title: m.title,
+        description: m.description,
+        example_wrong_answer: "",
+        example_wrong_thinking: "",
+        diagnostic_meaning: "",
+        order_index: i,
       })));
     }
 
-    // Mark as saved with the real question ID
     setQuestions(prev => prev.map((x, i) => i === index ? { ...x, savedId: questionId } : x));
   }
 
@@ -832,6 +937,10 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
     { label: "Retrieval",     value: "retrieval"    },
     { label: "Diagnostic",    value: "diagnostic"   },
   ];
+  const answerTypeOptions = [
+    { label: "Multiple choice", value: "mcq" },
+    { label: "Free response", value: "free_response" },
+  ];
 
   return (
     <div>
@@ -845,6 +954,37 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
           <div><Label>Question type</Label><Select value={questionType} onChange={setQuestionType} options={typeOptions} /></div>
           <div><Label>Number of questions</Label><Select value={count} onChange={setCount} options={countOptions} /></div>
         </div>
+
+        {/* NEW: Answer type selector */}
+        <div className="mb-4">
+          <Label>Answer type</Label>
+          <div className="flex gap-2">
+            {answerTypeOptions.map(opt => {
+              const active = answerType === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setAnswerType(opt.value as "mcq" | "free_response")}
+                  className="flex-1 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all"
+                  style={{
+                    borderColor: active ? "#f9c74f" : "#2e3248",
+                    backgroundColor: active ? "#f9c74f15" : "#0f1117",
+                    color: active ? "#f9c74f" : "#8a8fa8",
+                  }}
+                >
+                  {active ? "✓ " : ""}{opt.label}
+                </button>
+              );
+            })}
+          </div>
+          {answerType === "free_response" && (
+            <p className="mt-2 text-xs text-[#555a73]">
+              Claude will write an expected answer instead of four options, and will grade student
+              responses against it at answer time (accepting equivalent forms like 0.75 = 3/4 = 75%).
+            </p>
+          )}
+        </div>
+
         <div className="mb-5">
           <Label>Past paper style reference (optional)</Label>
           {!paperFile ? (
@@ -874,7 +1014,6 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
         {generationError && <div className="mt-3 rounded-xl border border-[#f87171] bg-[#1e0f0f] px-4 py-3 text-xs text-[#f87171]">{generationError}</div>}
       </div>
 
-      {/* Results summary */}
       {questions.length > 0 && (
         <>
           <div className="mb-4 flex items-center justify-between gap-4 flex-wrap">
@@ -907,11 +1046,13 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
                 <div key={i} className={`rounded-2xl border p-5 transition-all ${
                   isSaved ? "border-[#4ade8044] bg-[#4ade8008]" : "border-[#2e3248] bg-[#1a1d27]"
                 }`}>
-                  {/* Card header */}
                   <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-[#555a73]">Q{i + 1}</span>
                       <span className="rounded-full bg-[#f9c74f15] border border-[#f9c74f30] px-2 py-0.5 text-xs text-[#f9c74f] capitalize">{q.difficulty}</span>
+                      {q.answer_type === "free_response" && (
+                        <span className="rounded-full bg-[#4ade8015] border border-[#4ade8030] px-2 py-0.5 text-xs text-[#4ade80]">free response</span>
+                      )}
                       {cfg && (
                         <span className="rounded-full border px-2 py-0.5 text-xs font-semibold"
                           style={{ color: cfg.colour, backgroundColor: cfg.bg, borderColor: cfg.border }}>
@@ -920,7 +1061,6 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
                       )}
                     </div>
 
-                    {/* Action / status */}
                     {isSaved ? (
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-[#4ade80]">✓ Saved</span>
@@ -943,29 +1083,34 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
                     )}
                   </div>
 
-                  {/* Question text */}
                   <div className="mb-4 text-base font-bold text-[#f1f0ee] leading-snug"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     <MathText text={q.question_text} />
                   </div>
 
-                  {/* Options */}
-                  <div className="mb-4 grid grid-cols-2 gap-2">
-                    {(["a","b","c","d"] as const).map(opt => {
-                      const isCorrect = q.correct_option.toLowerCase() === opt;
-                      return (
-                        <div key={opt} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${isCorrect ? "border-[#4ade8044] bg-[#4ade8010] text-[#4ade80]" : "border-[#2e3248] text-[#8a8fa8]"}`}>
-                          <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isCorrect ? "bg-[#4ade80] text-[#0d1f15]" : "bg-[#2e3248] text-[#8a8fa8]"}`}
-                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                            {opt.toUpperCase()}
-                          </span>
-                          <MathText text={(q as any)[`option_${opt}`]} />
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {/* Branch on answer type for the preview body */}
+                  {q.answer_type === "free_response" ? (
+                    <div className="mb-4 flex items-center gap-2 rounded-xl border border-[#4ade8044] bg-[#4ade8010] px-4 py-3">
+                      <span className="text-xs font-bold text-[#4ade80] uppercase tracking-wider">Expected answer</span>
+                      <span className="text-base font-bold text-[#4ade80]"><MathText text={q.correct_answer ?? ""} /></span>
+                    </div>
+                  ) : (
+                    <div className="mb-4 grid grid-cols-2 gap-2">
+                      {(["a","b","c","d"] as const).map(opt => {
+                        const isCorrect = q.correct_option?.toLowerCase() === opt;
+                        return (
+                          <div key={opt} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${isCorrect ? "border-[#4ade8044] bg-[#4ade8010] text-[#4ade80]" : "border-[#2e3248] text-[#8a8fa8]"}`}>
+                            <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isCorrect ? "bg-[#4ade80] text-[#0d1f15]" : "bg-[#2e3248] text-[#8a8fa8]"}`}
+                              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                              {opt.toUpperCase()}
+                            </span>
+                            <MathText text={(q as any)[`option_${opt}`]} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
-                  {/* Hints */}
                   {q.hints && q.hints.length > 0 && (
                     <div className="mb-4 flex flex-col gap-2">
                       {q.hints.map((hint, hi) => (
@@ -977,19 +1122,19 @@ function GenerateTab({ skills, onSwitchToQuestions }: {
                     </div>
                   )}
 
-                  {/* Misconceptions */}
                   {q.misconceptions && q.misconceptions.length > 0 && (
                     <div className="mb-4 flex flex-col gap-2">
                       {q.misconceptions.map((m, mi) => (
                         <div key={mi} className="rounded-xl border border-[#f8717122] bg-[#f871710a] px-3 py-2">
-                          <div className="text-xs font-bold text-[#f87171] mb-0.5">⚠ Option {m.wrong_option.toUpperCase()}: {m.title}</div>
+                          <div className="text-xs font-bold text-[#f87171] mb-0.5">
+                            ⚠ {q.answer_type === "free_response" ? m.wrong_option.replace(/_/g, " ") : `Option ${m.wrong_option.toUpperCase()}`}: {m.title}
+                          </div>
                           <div className="text-xs text-[#c88]"><MathText text={m.description} /></div>
                         </div>
                       ))}
                     </div>
                   )}
 
-                  {/* Worked solution toggle */}
                   <WorkedSolutionToggle solution={q.worked_solution} />
                 </div>
               );
@@ -1034,7 +1179,6 @@ function AdminPageInner() {
   });
   const [skills, setSkills] = useState<Skill[]>([]);
   const [urlSkillFilter] = useState<string | null>(() => searchParams.get("skill"));
-  // For jumping from Generate → Questions pre-filtered
   const [questionsSkillFilter, setQuestionsSkillFilter] = useState<string | null>(null);
   const [highlightQuestionId, setHighlightQuestionId] = useState<number | null>(null);
 

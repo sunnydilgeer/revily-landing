@@ -18,16 +18,21 @@ type Question = {
   worked_solution: string;
   difficulty: string;
   skill_id: number;
+  answer_type: "mcq" | "free_response";
+  // NOTE: correct_answer is intentionally NOT selected from the DB here.
+  // Free response questions are graded server-side in /api/grade-response,
+  // which fetches correct_answer itself. The client never sees it.
 };
 
 type UIQuestion = {
   id: number;
   question: string;
   options: Record<string, string>;
-  correct: string;
+  correct: string; // empty string for free_response — unused in that path
   worked: string;
   skillId: number;
   difficulty: string;
+  answerType: "mcq" | "free_response";
 };
 
 type Hint = {
@@ -43,7 +48,23 @@ type Misconception = {
   description: string;
 };
 
-type Result = { q: UIQuestion; picked: string; correct: boolean };
+// `feedback` is only populated for free_response results, used by ScoreScreen
+type Result = { q: UIQuestion; picked: string; correct: boolean; feedback?: string };
+
+// Grading result shape returned by /api/grade-response
+type GradeResult = {
+  correct: boolean;
+  misconception_code: string | null;
+  feedback: string;
+};
+
+// Typed discriminator replaces the old magic-string "__next__" approach.
+// Every call site must specify a kind, and TypeScript enforces the payload
+// shape for each — no silent no-ops if a field is missing.
+type AnswerAction =
+  | { kind: "mcq"; key: string }
+  | { kind: "graded"; result: GradeResult; studentAnswer: string }
+  | { kind: "next" };
 
 // ── Worked solution parser ─────────────────────────────────────────────────
 type TransformBlock = { type: "transform"; from: string; to: string };
@@ -62,7 +83,6 @@ function parseWorkedSolution(raw: string): StepBlock[] {
   const stepStrings = raw.split(/\[STEP\]/i).map(s => s.trim()).filter(Boolean);
   return stepStrings.map(stepStr => {
     const blocks: StepBlock = [];
-    // Match both "before -> after" and single-sided "[TRANSFORM: result]"
     const transformRe = /\[TRANSFORM:\s*([\s\S]+?)\s*\]/gi;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
@@ -78,7 +98,6 @@ function parseWorkedSolution(raw: string): StepBlock[] {
           to:   extractLatex(arrowMatch[2].trim()),
         });
       } else {
-        // Single-sided — just show the result as a reveal tile
         blocks.push({
           type: "transform",
           from: "",
@@ -139,28 +158,26 @@ function TransformTile({ from, to, onReveal }: { from: string; to: string; onRev
         style={{ color: flipped ? "#4ade8088" : "#818cf888" }}>
         {flipped ? "after" : "tap to reveal →"}
       </div>
-      
+
       <div key={String(flipped)} className="flex items-center justify-center gap-3 revily-fade-in">
-  {from && (
-    <div className="text-base" style={{ color: flipped ? "#4ade80" : "#a5b4fc" }}>
-      <MathSpan latex={from} />
-    </div>
-  )}
-  {!flipped && (
-    <div className="flex items-center gap-1.5 text-sm font-bold text-[#818cf8]">
-      {from && <span>→</span>}
-      <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-dashed border-[#818cf8] text-sm text-[#818cf8]">?</span>
-    </div>
-  )}
-  {flipped && (
-    <div className="flex items-center gap-2 text-base text-[#4ade80]">
-      {from && <span className="text-sm font-bold">→</span>}
-      <MathSpan latex={to} />
-    </div>
-  )}
-</div>
-
-
+        {from && (
+          <div className="text-base" style={{ color: flipped ? "#4ade80" : "#a5b4fc" }}>
+            <MathSpan latex={from} />
+          </div>
+        )}
+        {!flipped && (
+          <div className="flex items-center gap-1.5 text-sm font-bold text-[#818cf8]">
+            {from && <span>→</span>}
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-dashed border-[#818cf8] text-sm text-[#818cf8]">?</span>
+          </div>
+        )}
+        {flipped && (
+          <div className="flex items-center gap-2 text-base text-[#4ade80]">
+            {from && <span className="text-sm font-bold">→</span>}
+            <MathSpan latex={to} />
+          </div>
+        )}
+      </div>
 
       {flipped && <div className="mt-2 text-center text-[10px] text-[#4ade8066]">tap to reset</div>}
     </button>
@@ -257,10 +274,11 @@ function toUIQuestion(q: Question): UIQuestion {
     id: q.id,
     question: q.question_text,
     options: { A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d },
-    correct: q.correct_option.toUpperCase(),
+    correct: q.correct_option?.toUpperCase() ?? "",
     worked: q.worked_solution,
     skillId: q.skill_id,
     difficulty: q.difficulty,
+    answerType: q.answer_type ?? "mcq",
   };
 }
 
@@ -271,7 +289,9 @@ function getSessionId(): string {
   return id;
 }
 
-// ── Attempt logging (via API route) ─────────────────────────────────────────
+// ── Attempt logging (MCQ path only — via API route) ─────────────────────────
+// Free response attempts are logged server-side inside /api/grade-response,
+// so this function is only ever called for answer_type === "mcq".
 async function logAttempt(q: UIQuestion, answerPicked: string, isCorrect: boolean, userId: string | null) {
   await fetch("/api/attempt", {
     method: "POST",
@@ -287,7 +307,8 @@ async function logAttempt(q: UIQuestion, answerPicked: string, isCorrect: boolea
   });
 }
 
-// ── Supabase helpers (XP / streak — unchanged) ──────────────────────────────
+// ── Supabase helpers (XP / streak — MCQ path only) ───────────────────────────
+// Free response XP/streak is awarded server-side inside /api/grade-response.
 async function awardXP(userId: string): Promise<number> {
   const { data } = await supabase.from("profiles").select("xp").eq("user_id", userId).single();
   const newXP = (data?.xp ?? 0) + 10;
@@ -376,7 +397,6 @@ function OptionButton({ label, text, state, onClick, disabled }: {
     dimmed:    "bg-[#2e3248] text-[#555a73]",
   };
   const keyHints: Record<string, string> = { A: "1", B: "2", C: "3", D: "4" };
-  const hint = keyHints[label];
 
   return (
     <button className={`${base} ${styles[state]}`} onClick={onClick} disabled={disabled}>
@@ -384,13 +404,112 @@ function OptionButton({ label, text, state, onClick, disabled }: {
         className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold ${letterStyles[state]}`}
         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
-  {keyHints[label]}
-  </div>
+        {keyHints[label]}
+      </div>
       <span className="flex-1 text-lg font-bold leading-snug" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
         <MathText text={text} />
       </span>
-      
     </button>
+  );
+}
+
+// ── FreeResponseInput ────────────────────────────────────────────────────────
+// Plain text input for free response questions. Submits to /api/grade-response,
+// which is the ONLY place that knows the correct answer — this component
+// never receives or sends correct_answer. Only questionId + the student's
+// typed text are sent.
+function FreeResponseInput({
+  questionId,
+  skillId,
+  userId,
+  onGraded,
+  disabled,
+}: {
+  questionId: number;
+  skillId: number;
+  userId: string | null;
+  onGraded: (result: GradeResult, studentAnswer: string) => void;
+  disabled: boolean;
+}) {
+  const [value, setValue] = useState("");
+  const [grading, setGrading] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Reset local state whenever the question changes (new questionId)
+  useEffect(() => {
+    setValue("");
+    setGrading(false);
+    setRateLimited(false);
+    inputRef.current?.focus();
+  }, [questionId]);
+
+  async function handleSubmit() {
+    if (!value.trim() || grading || disabled) return;
+    setGrading(true);
+    setRateLimited(false);
+
+    try {
+      const res = await fetch("/api/grade-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId,
+          skillId,
+          studentAnswer: value.trim(),
+          userId,
+          sessionId: getSessionId(),
+        }),
+      });
+
+      if (res.status === 429) {
+        setRateLimited(true);
+        setGrading(false);
+        return;
+      }
+
+      const data: GradeResult = await res.json();
+      onGraded(data, value.trim());
+    } catch (err) {
+      console.error("Grading request failed:", err);
+      onGraded(
+        { correct: false, misconception_code: null, feedback: "Something went wrong — please try again." },
+        value.trim()
+      );
+    } finally {
+      setGrading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onKeyDown={e => e.key === "Enter" && !disabled && handleSubmit()}
+        disabled={disabled || grading}
+        placeholder="Type your answer…"
+        className="w-full rounded-xl border-2 border-[#2e3248] bg-[#22263a] px-4 py-4 text-lg font-bold text-[#f1f0ee] placeholder-[#555a73] focus:border-[#f9c74f] focus:outline-none transition-colors disabled:opacity-60"
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+      />
+      {!disabled && (
+        <button
+          onClick={handleSubmit}
+          disabled={!value.trim() || grading}
+          className="w-full rounded-xl bg-[#f9c74f] py-3.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90 disabled:opacity-40"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        >
+          {grading ? "Checking…" : "Submit answer"}
+        </button>
+      )}
+      {rateLimited && (
+        <div className="rounded-xl border border-[#f8717144] bg-[#f871710d] px-4 py-3 text-xs text-[#f87171]">
+          You've made a lot of attempts in a short time — take a short break and try again in a few minutes.
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -437,6 +556,26 @@ function MisconceptionPanel({ misconception }: { misconception: Misconception | 
   );
 }
 
+// Lightweight feedback panel for free response — shows Claude's one-sentence
+// feedback directly, rather than reusing MisconceptionPanel which expects
+// a DB-shaped misconception object with title/description.
+function FreeResponseFeedback({ feedback, correct }: { feedback: string; correct: boolean }) {
+  if (correct) return null;
+  return (
+    <div className="mt-3 rounded-xl border border-[#f8717133] bg-[#f871710d] px-4 py-3">
+      <div
+        className="mb-1 text-xs font-bold uppercase tracking-wider text-[#f87171]"
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+      >
+        💡 Feedback
+      </div>
+      <div className="text-sm leading-relaxed text-[#c88]">
+        <MathText text={feedback} />
+      </div>
+    </div>
+  );
+}
+
 // ── ProgressDots ───────────────────────────────────────────────────────────
 function ProgressDots({ results, total, currentIndex }: {
   results: Result[];
@@ -466,21 +605,34 @@ function ProgressDots({ results, total, currentIndex }: {
 
 // ── QuestionCard ───────────────────────────────────────────────────────────
 function QuestionCard({
-  q, index, total, onAnswer, firstResult, hints, misconceptions, onAllStepsRevealed, allStepsRevealed,
+  q, index, total, userId, onAnswerAction, firstResult, freeResponseGrade,
+  hints, misconceptions, onAllStepsRevealed, allStepsRevealed,
 }: {
   q: UIQuestion;
   index: number;
   total: number;
-  onAnswer: (key: string) => void;
-  firstResult: string | null;
+  userId: string | null;
+  onAnswerAction: (action: AnswerAction) => void;
+  firstResult: string | null;       // MCQ letter, or sentinel "__correct__" / "__wrong__" for free response
+  freeResponseGrade: GradeResult | null; // populated only when q.answerType === "free_response" and answered
   hints: Hint[];
   misconceptions: Misconception[];
   onAllStepsRevealed: () => void;
   allStepsRevealed: boolean;
 }) {
+  const isFreeResponse = q.answerType === "free_response";
   const answered = firstResult !== null;
-  const wasWrong = answered && firstResult !== q.correct;
 
+  // wasWrong means different things per type:
+  // - MCQ: picked letter doesn't match q.correct
+  // - free response: freeResponseGrade.correct === false
+  const wasWrong = isFreeResponse
+    ? answered && freeResponseGrade?.correct === false
+    : answered && firstResult !== q.correct;
+
+  // Reattempt flow is MCQ-only by design — free response goes straight to
+  // feedback + worked solution + Next, since "retyping the same wrong text"
+  // isn't a meaningful interaction the way "pick a different letter" is.
   const [reattempt, setReattempt] = useState<string | null>(null);
   const reattemptDone = reattempt !== null;
 
@@ -499,18 +651,26 @@ function QuestionCard({
     return "dimmed";
   }
 
-  function handleClick(key: string) {
+  function handleMCQClick(key: string) {
     if (wasWrong && allStepsRevealed && !reattemptDone) { setReattempt(key); return; }
-    if (!answered) onAnswer(key);
+    if (!answered) onAnswerAction({ kind: "mcq", key });
   }
 
-  const activeMisconception = wasWrong
+  function handleGraded(result: GradeResult, studentAnswer: string) {
+    onAnswerAction({ kind: "graded", result, studentAnswer });
+  }
+
+  const activeMisconception = !isFreeResponse && wasWrong
     ? misconceptions.find(
         m => m.question_id === q.id && m.wrong_option?.toUpperCase() === firstResult?.toUpperCase()
       ) ?? null
     : null;
 
-  const nextUnlocked = answered && (firstResult === q.correct ? true : reattemptDone);
+  // For free response: once answered, always unlocked to move on (no reattempt).
+  // For MCQ: unchanged existing logic.
+  const nextUnlocked = isFreeResponse
+    ? answered
+    : answered && (firstResult === q.correct ? true : reattemptDone);
 
   return (
     <div>
@@ -537,40 +697,67 @@ function QuestionCard({
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
-        {Object.entries(q.options).map(([k, v]) => (
-          <OptionButton
-            key={k} label={k} text={v}
-            state={wasWrong && allStepsRevealed && !reattemptDone
-              ? "idle"
-              : reattemptDone
-              ? getReattemptState(k)
-              : getState(k)
-            }
-            onClick={() => handleClick(k)}
-            disabled={
-              (!wasWrong && answered) ||
-              (wasWrong && !allStepsRevealed) ||
-              reattemptDone
-            }
-          />
-        ))}
-      </div>
+      {/* Answer input — branches on answer type */}
+      {isFreeResponse ? (
+        <FreeResponseInput
+          questionId={q.id}
+          skillId={q.skillId}
+          userId={userId}
+          onGraded={handleGraded}
+          disabled={answered}
+        />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {Object.entries(q.options).map(([k, v]) => (
+            <OptionButton
+              key={k} label={k} text={v}
+              state={wasWrong && allStepsRevealed && !reattemptDone
+                ? "idle"
+                : reattemptDone
+                ? getReattemptState(k)
+                : getState(k)
+              }
+              onClick={() => handleMCQClick(k)}
+              disabled={
+                (!wasWrong && answered) ||
+                (wasWrong && !allStepsRevealed) ||
+                reattemptDone
+              }
+            />
+          ))}
+        </div>
+      )}
 
       {/* Post-answer section */}
       {answered && (
         <>
-          {wasWrong && <MisconceptionPanel misconception={activeMisconception} />}
+          {isFreeResponse
+            ? wasWrong && freeResponseGrade && (
+                <FreeResponseFeedback feedback={freeResponseGrade.feedback} correct={false} />
+              )
+            : wasWrong && <MisconceptionPanel misconception={activeMisconception} />
+          }
 
           <div className="mt-3 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
             <div
               className={`mb-1 text-xs font-bold uppercase tracking-wider ${!wasWrong ? "text-[#4ade80]" : "text-[#f87171]"}`}
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
-              {!wasWrong ? "✓ Correct!" : "💡 Nearly! Here's where it went wrong:"}
+              {!wasWrong
+                ? "✓ Correct!"
+                : isFreeResponse
+                ? "💡 Not quite — here's the worked solution:"
+                : "💡 Nearly! Here's where it went wrong:"}
             </div>
 
-            {wasWrong && (
+            {wasWrong && isFreeResponse && (
+              <StepByStepSolution
+                worked={q.worked}
+                onAllRevealed={onAllStepsRevealed}
+              />
+            )}
+
+            {wasWrong && !isFreeResponse && (
               <>
                 {!allStepsRevealed && (
                   <p className="mb-3 text-xs text-[#555a73]">
@@ -609,7 +796,7 @@ function QuestionCard({
             </p>
           )}
           <button
-            onClick={() => nextUnlocked && onAnswer("__next__")}
+            onClick={() => nextUnlocked && onAnswerAction({ kind: "next" })}
             disabled={!nextUnlocked}
             className="rounded-full bg-[#f9c74f] px-7 py-2.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
@@ -645,15 +832,26 @@ function ScoreScreen({ results, xpEarned, onHome }: {
           ⚡ +{xpEarned} XP earned this session
         </div>
       )}
-      
+
       <div className="mb-8 flex flex-col gap-2 text-left">
         {results.map((r, i) => (
           <div key={i} className="flex items-center gap-3 rounded-xl bg-[#22263a] px-4 py-3 text-sm">
             <div className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${r.correct ? "bg-[#4ade80]" : "bg-[#f87171]"}`} />
             <span className="text-[#8a8fa8]">
               <strong className="text-[#f1f0ee]">Q{i + 1}:</strong>{" "}
-              {r.q.question.replace(/\$+[^$]*\$+/g, "…").split(":")[0]} — you picked {r.picked}
-              {!r.correct && `, answer was ${r.q.correct}`}
+              {r.q.question.replace(/\$+[^$]*\$+/g, "…").split(":")[0]}
+              {r.q.answerType === "free_response" ? (
+                // Free response — show Claude's feedback sentence naturally,
+                // never "you picked: <feedback>" (fixes the underspecified
+                // ScoreScreen tweak from the original review).
+                r.feedback ? <> — {r.feedback}</> : null
+              ) : (
+                // MCQ — unchanged behaviour
+                <>
+                  {" "}— you picked {r.picked}
+                  {!r.correct && `, answer was ${r.q.correct}`}
+                </>
+              )}
             </span>
           </div>
         ))}
@@ -682,6 +880,7 @@ export default function Practice() {
   const [index, setIndex] = useState(0);
   const [results, setResults] = useState<Result[]>([]);
   const [currentResult, setCurrentResult] = useState<string | null>(null);
+  const [freeResponseGrade, setFreeResponseGrade] = useState<GradeResult | null>(null);
   const [allStepsRevealed, setAllStepsRevealed] = useState(false);
   const [done, setDone] = useState(false);
   const [shake, setShake] = useState(false);
@@ -716,26 +915,57 @@ export default function Practice() {
 
   const q = questions[index];
 
-  const handleAnswer = useCallback(async (key: string) => {
-    if (key === "__next__") {
-      if (index + 1 >= questions.length) { setDone(true); }
-      else {
+  const handleAnswerAction = useCallback(async (action: AnswerAction) => {
+    if (action.kind === "next") {
+      if (index + 1 >= questions.length) {
+        setDone(true);
+      } else {
         setIndex(i => i + 1);
         setCurrentResult(null);
+        setFreeResponseGrade(null);
         setAllStepsRevealed(false);
         allStepsRevealedRef.current = false;
       }
       return;
     }
 
-    if (currentResult) return;
+    if (currentResult) return; // already answered this question
+
+    if (action.kind === "graded") {
+      // Free response — grading, attempt logging, and XP/streak already
+      // happened server-side inside /api/grade-response. This branch only
+      // updates local UI state to reflect the result.
+      const { result, studentAnswer } = action;
+      setFreeResponseGrade(result);
+      setCurrentResult(result.correct ? "__correct__" : "__wrong__");
+      if (result.correct) {
+        setAllStepsRevealed(true);
+        allStepsRevealedRef.current = true;
+      }
+      setResults(prev => [...prev, {
+        q,
+        picked: studentAnswer,
+        correct: result.correct,
+        feedback: result.feedback,
+      }]);
+      if (!result.correct) { setShake(true); setTimeout(() => setShake(false), 400); }
+      if (result.correct) {
+        setXpEarned(prev => prev + 10);
+        fireXPFloat();
+        window.dispatchEvent(new Event("revily:xp-updated"));
+      }
+      return;
+    }
+
+    // action.kind === "mcq" — existing logic, unchanged
+    const key = action.key;
     const isCorrect = key === q.correct;
     setCurrentResult(key);
     if (isCorrect) {
-      // Unlock Enter/Space immediately for correct answers
       setAllStepsRevealed(true);
       allStepsRevealedRef.current = true;
-    }    setResults(prev => [...prev, { q, picked: key, correct: isCorrect }]);
+    }
+    setResults(prev => [...prev, { q, picked: key, correct: isCorrect }]);
     if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
     logAttempt(q, key, isCorrect, userId);
     if (isCorrect && userId) {
@@ -749,17 +979,26 @@ export default function Practice() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      // Free response questions own their own input field — keyboard letter
+      // shortcuts (1-4, a-d) should not fire for them.
+      if (q?.answerType === "free_response") {
+        if ((e.key === "Enter" || e.key === " ") && currentResult) {
+          e.preventDefault();
+          if (allStepsRevealedRef.current) handleAnswerAction({ kind: "next" });
+        }
+        return;
+      }
       const keyMap: Record<string, string> = { a:"A", b:"B", c:"C", d:"D", "1":"A", "2":"B", "3":"C", "4":"D" };
       const mapped = keyMap[e.key.toLowerCase()];
-      if (mapped && !currentResult && q) { handleAnswer(mapped); return; }
+      if (mapped && !currentResult && q) { handleAnswerAction({ kind: "mcq", key: mapped }); return; }
       if ((e.key === "Enter" || e.key === " ") && currentResult) {
         e.preventDefault();
-        if (allStepsRevealedRef.current) handleAnswer("__next__");
+        if (allStepsRevealedRef.current) handleAnswerAction({ kind: "next" });
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentResult, q, handleAnswer]);
+  }, [currentResult, q, handleAnswerAction]);
 
   if (loading) return (
     <div className="flex min-h-screen items-center justify-center bg-[#0f1117]">
@@ -808,8 +1047,10 @@ export default function Practice() {
               q={q}
               index={index}
               total={questions.length}
-              onAnswer={handleAnswer}
+              userId={userId}
+              onAnswerAction={handleAnswerAction}
               firstResult={currentResult}
+              freeResponseGrade={freeResponseGrade}
               hints={hints}
               misconceptions={misconceptions}
               onAllStepsRevealed={() => {

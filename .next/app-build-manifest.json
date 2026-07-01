@@ -17,22 +17,26 @@
       "static/css/app/admin/page.css",
       "static/chunks/app/admin/page.js"
     ],
+    "/api/generate-questions/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/generate-questions/route.js"
+    ],
     "/practice/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/practice/page.css",
       "static/chunks/app/practice/page.js"
     ],
-    "/admin/generate/page": [
+    "/api/attempt/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/admin/generate/page.css",
-      "static/chunks/app/admin/generate/page.js"
+      "static/chunks/app/api/attempt/route.js"
     ],
-    "/api/generate-questions/route": [
+    "/api/grade-response/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/generate-questions/route.js"
+      "static/chunks/app/api/grade-response/route.js"
     ]
   }
 }

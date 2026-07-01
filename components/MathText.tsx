@@ -11,7 +11,10 @@ interface MathTextProps {
 
 // ── MathText ───────────────────────────────────────────────────────────────
 // Renders a string that may contain $...$ (inline) or $$...$$ (display)
-// delimiters mixed with plain text.
+// delimiters mixed with plain text. Plain text segments also have literal
+// "\n" escape sequences converted to real <br> line breaks — without this,
+// a string like "Work out X.\n\nGive your answer..." renders the literal
+// backslash-n characters instead of a paragraph break.
 export default function MathText({ text, className }: MathTextProps) {
   const containerRef = useRef<HTMLSpanElement>(null);
 
@@ -46,7 +49,20 @@ export default function MathText({ text, className }: MathTextProps) {
         }
         fragment.appendChild(el);
       } else {
-        fragment.appendChild(document.createTextNode(part));
+        // Plain text segment — convert literal "\n" escape sequences into
+        // real line breaks. Handles both an actual newline character and
+        // the two-character literal backslash-n (which is what we get when
+        // a JSON string like "...\n\nGive your answer..." has already been
+        // parsed, since JSON.parse converts \n to a real newline char — but
+        // if a double-escaped \\n slips through anywhere upstream, this
+        // also catches the literal two-character form defensively).
+        const normalised = part.replace(/\\n/g, "\n");
+        const lines = normalised.split("\n");
+
+        lines.forEach((line, i) => {
+          if (line) fragment.appendChild(document.createTextNode(line));
+          if (i < lines.length - 1) fragment.appendChild(document.createElement("br"));
+        });
       }
     });
 
