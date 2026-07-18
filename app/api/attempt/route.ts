@@ -32,7 +32,7 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { questionId, skillId, answerPicked, isCorrect, userId, sessionId } = body;
+  const { questionId, skillId, answerPicked, isCorrect, userId, sessionId, misconceptionCode } = body;
 
   console.log("[/api/attempt] received", { questionId, skillId, answerPicked, isCorrect, userId });
 
@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
     answer_picked: String(answerPicked).toLowerCase(),
     is_correct: isCorrect,
     user_id: userId ?? null,
+    misconception_code: misconceptionCode ?? null,
+
   });
 
   if (attemptError) {

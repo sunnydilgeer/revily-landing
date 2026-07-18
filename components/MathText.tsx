@@ -9,6 +9,30 @@ interface MathTextProps {
   className?: string;
 }
 
+// ── splitMathClauses ─────────────────────────────────────────────────────
+// Long sentences with 2+ inline math segments (e.g. "Complete the
+// equivalent fractions: $\frac{3}{4}$ = $?/20$ and $\frac{2}{5}$ = $?/20$.")
+// render as one dense wrapped paragraph. This breaks them onto separate
+// logical lines at natural clause boundaries — after an instruction colon,
+// and around " and " when it's joining two equations — before the string
+// hits the existing $...$ splitter below. Short strings (MCQ option rows,
+// single-fraction sentences) are left untouched via the length + math-count
+// gates, so this only fires on the run-on question-stem case it's meant for.
+function splitMathClauses(str: string): string {
+  const mathCount = (str.match(/\$[^$\n]+?\$/g) || []).length;
+  if (mathCount < 2) return str;
+  if (str.length < 40) return str;
+
+  return str
+    .replace(/:\s*(?=\$)/g, ":\n")
+    .replace(/\$\s+and\s+(?=\$)/g, "$\nand ")
+    // break once, right before "answer =" — absorb any comma/space before it
+    .replace(/,?\s*(?=answer\s*=)/g, "\n")
+    // safety net: collapse any line that's just a stray comma (in case another rule left one)
+    .replace(/\n,\s*\n/g, "\n")
+    .replace(/^\s*,\s*\n/gm, "");
+}
+
 // ── MathText ───────────────────────────────────────────────────────────────
 // Renders a string that may contain $...$ (inline) or $$...$$ (display)
 // delimiters mixed with plain text. Plain text segments also have literal
@@ -22,7 +46,9 @@ export default function MathText({ text, className }: MathTextProps) {
     if (!containerRef.current) return;
 
     // Supabase double-escapes backslashes — unescape before parsing
-    const unescaped = (text ?? "").replace(/\\\\/g, "\\");
+    const unescapedRaw = (text ?? "").replace(/\\\\/g, "\\");
+    // Insert clause-break newlines for long multi-equation sentences
+    const unescaped = splitMathClauses(unescapedRaw);
     const parts = unescaped.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]+?\$)/g);
 
     const fragment = document.createDocumentFragment();
@@ -55,7 +81,8 @@ export default function MathText({ text, className }: MathTextProps) {
         // a JSON string like "...\n\nGive your answer..." has already been
         // parsed, since JSON.parse converts \n to a real newline char — but
         // if a double-escaped \\n slips through anywhere upstream, this
-        // also catches the literal two-character form defensively).
+        // also catches the literal two-character form defensively). This
+        // also picks up the \n inserted by splitMathClauses above.
         const normalised = part.replace(/\\n/g, "\n");
         const lines = normalised.split("\n");
 

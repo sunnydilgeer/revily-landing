@@ -5,11 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import MathText from "@/components/MathText";
 import { MathSpan } from "@/components/MathText";
+import TeachCard, { TeachContent } from "@/components/TeachCard";
 
 // ── Types ──────────────────────────────────────────────────────────────────
+type GuidedBlank = { id: string; prompt: string; answer: string };
+
 type Question = {
   id: number;
   question_text: string;
+  question_type: string;
   option_a: string;
   option_b: string;
   option_c: string;
@@ -18,7 +22,11 @@ type Question = {
   worked_solution: string;
   difficulty: string;
   skill_id: number;
-  answer_type: "mcq" | "free_response";
+  answer_type: "mcq" | "free_response" | "guided" | "teach";
+  blanks: GuidedBlank[] | null;
+  teach_content: TeachContent | null; // only populated when answer_type === "teach"
+  probe_for_code: string | null;   // set on diagnostic questions that branch-check this code
+  repair_for_code: string | null;  // set on repair questions that fix this code
   // NOTE: correct_answer is intentionally NOT selected from the DB here.
   // Free response questions are graded server-side in /api/grade-response,
   // which fetches correct_answer itself. The client never sees it.
@@ -27,12 +35,17 @@ type Question = {
 type UIQuestion = {
   id: number;
   question: string;
+  questionType: string;
   options: Record<string, string>;
-  correct: string; // empty string for free_response — unused in that path
+  correct: string; // empty string for free_response/guided/teach — unused in that path
   worked: string;
   skillId: number;
   difficulty: string;
-  answerType: "mcq" | "free_response";
+  answerType: "mcq" | "free_response" | "guided" | "teach";
+  blanks: GuidedBlank[] | null;
+  teachContent: TeachContent | null;
+  probeForCode: string | null;
+  repairForCode: string | null;
 };
 
 type Hint = {
@@ -44,12 +57,18 @@ type Hint = {
 type Misconception = {
   question_id: number;
   wrong_option: string;
+  code: string;
   title: string;
   description: string;
 };
 
 // `feedback` is only populated for free_response results, used by ScoreScreen
 type Result = { q: UIQuestion; picked: string; correct: boolean; feedback?: string };
+
+// The DB copy of a Result — deliberately drops `q`. Question content is
+// always re-attached from the live `questions` array on restore, so a
+// saved session never shows stale text if a question is edited later.
+type PersistedResult = { picked: string; correct: boolean; feedback?: string };
 
 // Grading result shape returned by /api/grade-response
 type GradeResult = {
@@ -58,12 +77,20 @@ type GradeResult = {
   feedback: string;
 };
 
+// Per-question-index progress status, used by ProgressDots. Kept separate
+// from `Result` because "seen" (a teach interstitial) is not a scored
+// outcome — it has no correct/incorrect value and must never enter the
+// score total.
+type StepStatus = "correct" | "wrong" | "seen";
+
 // Typed discriminator replaces the old magic-string "__next__" approach.
 // Every call site must specify a kind, and TypeScript enforces the payload
 // shape for each — no silent no-ops if a field is missing.
 type AnswerAction =
-  | { kind: "mcq"; key: string }
+  | { kind: "mcq"; key: string; misconceptionCode?: string }
   | { kind: "graded"; result: GradeResult; studentAnswer: string }
+  | { kind: "guided"; blankAnswers: Record<string, string>; isCorrect: boolean }
+  | { kind: "teach_continue" }
   | { kind: "next" };
 
 // ── Worked solution parser ─────────────────────────────────────────────────
@@ -79,7 +106,8 @@ function extractLatex(s: string): string {
     .trim();
 }
 
-function parseWorkedSolution(raw: string): StepBlock[] {
+function parseWorkedSolution(raw: string | null | undefined): StepBlock[] {
+  if (!raw) return [];
   const stepStrings = raw.split(/\[STEP\]/i).map(s => s.trim()).filter(Boolean);
   return stepStrings.map(stepStr => {
     const blocks: StepBlock = [];
@@ -189,11 +217,11 @@ function StepByStepSolution({
   worked,
   onAllRevealed,
 }: {
-  worked: string;
+  worked: string | null | undefined;
   onAllRevealed: () => void;
 }) {
   const steps = parseWorkedSolution(worked);
-  const isSimple = steps.length <= 1 && !worked.includes("[TRANSFORM");
+  const isSimple = !worked || (steps.length <= 1 && !worked.includes("[TRANSFORM"));
   const [revealed, setRevealed] = useState(1);
   const [tilesRevealed, setTilesRevealed] = useState<Record<string, boolean>>({});
 
@@ -214,7 +242,7 @@ function StepByStepSolution({
   if (isSimple) {
     return (
       <div className="text-sm leading-relaxed text-[#8a8fa8]">
-        <MathText text={worked} />
+        <MathText text={worked ?? "Check your answer above and try again."} />
       </div>
     );
   }
@@ -273,12 +301,17 @@ function toUIQuestion(q: Question): UIQuestion {
   return {
     id: q.id,
     question: q.question_text,
+    questionType: q.question_type,
     options: { A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d },
     correct: q.correct_option?.toUpperCase() ?? "",
     worked: q.worked_solution,
     skillId: q.skill_id,
     difficulty: q.difficulty,
     answerType: q.answer_type ?? "mcq",
+    blanks: q.blanks ?? null,
+    teachContent: q.teach_content ?? null,
+    probeForCode: q.probe_for_code ?? null,
+    repairForCode: q.repair_for_code ?? null,
   };
 }
 
@@ -289,10 +322,10 @@ function getSessionId(): string {
   return id;
 }
 
-// ── Attempt logging (MCQ path only — via API route) ─────────────────────────
+// ── Attempt logging (MCQ + guided path — via API route) ─────────────────────
 // Free response attempts are logged server-side inside /api/grade-response,
-// so this function is only ever called for answer_type === "mcq".
-async function logAttempt(q: UIQuestion, answerPicked: string, isCorrect: boolean, userId: string | null) {
+// so this function is only ever called for answer_type === "mcq" or "guided".
+async function logAttempt(q: UIQuestion, answerPicked: string, isCorrect: boolean, userId: string | null, misconceptionCode?: string) {
   await fetch("/api/attempt", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -303,11 +336,12 @@ async function logAttempt(q: UIQuestion, answerPicked: string, isCorrect: boolea
       isCorrect,
       userId,
       sessionId: getSessionId(),
+      misconceptionCode: misconceptionCode ?? null,
     }),
   });
 }
 
-// ── Supabase helpers (XP / streak — MCQ path only) ───────────────────────────
+// ── Supabase helpers (XP / streak — MCQ + guided path) ───────────────────────
 // Free response XP/streak is awarded server-side inside /api/grade-response.
 async function awardXP(userId: string): Promise<number> {
   const { data } = await supabase.from("profiles").select("xp").eq("user_id", userId).single();
@@ -513,6 +547,101 @@ function FreeResponseInput({
   );
 }
 
+// ── GuidedScaffold ───────────────────────────────────────────────────────────
+// Multi-blank fill-in-the-blank input for the "Guided Example" lesson stage.
+// Grading is simple client-side normalized-string matching — these are short,
+// low-stakes scaffold steps (a single number or short fraction per blank),
+// not a full graded assessment, so the equivalence-rule machinery in
+// /api/grade-response would be overkill here.
+function normalizeBlankAnswer(s: string): string {
+  return s.trim().replace(/\s+/g, "");
+}
+
+function GuidedScaffold({
+  blanks,
+  disabled,
+  onSubmit,
+}: {
+  blanks: GuidedBlank[];
+  disabled: boolean;
+  onSubmit: (values: Record<string, string>, allCorrect: boolean) => void;
+}) {
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setValues({});
+  }, [blanks]);
+
+  const allFilled = blanks.every(b => (values[b.id] ?? "").trim().length > 0);
+
+  function handleSubmit() {
+    if (disabled || !allFilled) return;
+    const allCorrect = blanks.every(
+      b => normalizeBlankAnswer(values[b.id] ?? "") === normalizeBlankAnswer(b.answer)
+    );
+    onSubmit(values, allCorrect);
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {blanks.map((b, i) => (
+        <div key={b.id} className="flex flex-col gap-2">
+          <div className="text-sm leading-relaxed text-[#8a8fa8]">
+            <span
+              className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#818cf833] text-[10px] font-bold text-[#818cf8]"
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            >
+              {i + 1}
+            </span>
+            <MathText text={b.prompt} />
+          </div>
+          <input
+            type="text"
+            value={values[b.id] ?? ""}
+            onChange={e => setValues(prev => ({ ...prev, [b.id]: e.target.value }))}
+            onKeyDown={e => e.key === "Enter" && handleSubmit()}
+            disabled={disabled}
+            placeholder="?"
+            className="w-full rounded-xl border-2 border-[#2e3248] bg-[#22263a] px-4 py-3 text-lg font-bold text-[#f1f0ee] placeholder-[#555a73] focus:border-[#f9c74f] focus:outline-none transition-colors disabled:opacity-60"
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          />
+        </div>
+      ))}
+      {!disabled && (
+        <button
+          onClick={handleSubmit}
+          disabled={!allFilled}
+          className="w-full rounded-xl bg-[#f9c74f] py-3.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90 disabled:opacity-40"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        >
+          Check my answers
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Post-answer feedback for guided scaffolds — shows each blank with the
+// student's answer alongside the correct one, color-coded per blank.
+function GuidedFeedback({ blanks, studentAnswers }: { blanks: GuidedBlank[]; studentAnswers: Record<string, string> }) {
+  return (
+    <div className="mt-3 flex flex-col gap-2 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
+      {blanks.map((b, i) => {
+        const given = studentAnswers[b.id] ?? "";
+        const correct = normalizeBlankAnswer(given) === normalizeBlankAnswer(b.answer);
+        return (
+          <div key={b.id} className="flex items-center justify-between text-sm">
+            <span className="text-[#8a8fa8]">Blank {i + 1}: {given || "—"}</span>
+            <span className={correct ? "text-[#4ade80]" : "text-[#f87171]"}>
+              {correct ? "✓ correct" : `should be ${b.answer}`}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── HintButton ─────────────────────────────────────────────────────────────
 function HintButton({ hints, answered }: { hints: Hint[]; answered: boolean }) {
   const [revealed, setRevealed] = useState(0);
@@ -577,24 +706,36 @@ function FreeResponseFeedback({ feedback, correct }: { feedback: string; correct
 }
 
 // ── ProgressDots ───────────────────────────────────────────────────────────
-function ProgressDots({ results, total, currentIndex }: {
-  results: Result[];
+// Driven by `stepStatus` (indexed by position in the questions array) rather
+// than the scored results list, so a "teach" interstitial — which never
+// produces a Result — doesn't shift every dot after it out of alignment.
+function ProgressDots({ stepStatus, total, currentIndex, onDotClick }: {
+  stepStatus: Record<number, StepStatus>;
   total: number;
   currentIndex: number;
+  onDotClick: (i: number) => void;
 }) {
   return (
     <div className="flex gap-1.5 items-center">
       {Array.from({ length: total }).map((_, i) => {
-        const result = results[i];
-        const isCurrent = i === currentIndex && !result;
+        const status = stepStatus[i];
+        const isCurrent = i === currentIndex && !status;
+        const clickable = !!status; // only steps already answered/seen are reviewable
         let bg = "bg-[#22263a]";
-        if (result?.correct) bg = "bg-[#4ade80]";
-        else if (result && !result.correct) bg = "bg-[#f87171]";
+        if (status === "correct") bg = "bg-[#4ade80]";
+        else if (status === "wrong") bg = "bg-[#f87171]";
+        else if (status === "seen") bg = "bg-[#818cf8]"; // teach step — viewed, not scored
         else if (isCurrent) bg = "bg-[#f9c74f]";
         return (
-          <div
+          <button
             key={i}
-            className={`h-2 flex-1 rounded-full transition-all duration-300 ${bg}`}
+            type="button"
+            onClick={() => clickable && onDotClick(i)}
+            disabled={!clickable}
+            aria-label={clickable ? `Review question ${i + 1}` : `Question ${i + 1}`}
+            className={`h-2 flex-1 rounded-full transition-all duration-300 ${bg} ${
+              clickable ? "cursor-pointer hover:opacity-75" : "cursor-default"
+            }`}
             style={{ transform: isCurrent ? "scaleY(1.4)" : "scaleY(1)" }}
           />
         );
@@ -603,36 +744,133 @@ function ProgressDots({ results, total, currentIndex }: {
   );
 }
 
+// ── ReviewCard ─────────────────────────────────────────────────────────────
+// Read-only summary shown when a past (already-answered/seen) progress dot
+// is tapped. Deliberately NOT the interactive QuestionCard — no reattempt,
+// no resubmission, nothing that could rewrite resultsByIndex/stepStatus.
+// This is a viewer, not a second attempt.
+function ReviewCard({
+  q,
+  result,
+  status,
+  onClose,
+}: {
+  q: UIQuestion;
+  result: Result | null; // null for "teach" steps
+  status: StepStatus | undefined;
+  onClose: () => void;
+}) {
+  if (q.answerType === "teach") {
+    return <TeachCard content={q.teachContent!} onContinue={onClose} continueLabel="Close" />;
+  }
+
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between">
+        <div className="text-xs uppercase tracking-widest text-[#8a8fa8]">Reviewing a past question</div>
+      </div>
+
+      <div
+        className="mb-5 text-2xl leading-snug text-[#f1f0ee]"
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700 }}
+      >
+        <MathText text={q.question} />
+      </div>
+
+      {q.answerType === "mcq" && (
+        <div className="flex flex-col gap-3">
+          {Object.entries(q.options).map(([k, v]) => {
+            let state: OptionState = "dimmed";
+            if (k === q.correct) state = result?.picked === k ? "correct" : "highlight";
+            else if (k === result?.picked) state = "wrong";
+            return <OptionButton key={k} label={k} text={v} state={state} onClick={() => {}} disabled />;
+          })}
+        </div>
+      )}
+
+      {(q.answerType === "free_response" || q.answerType === "guided") && (
+        <div className="rounded-xl border border-[#2e3248] bg-[#22263a] px-4 py-4 text-sm text-[#f1f0ee]">
+          You answered: <span className="font-bold">{result?.picked}</span>
+          {result?.feedback && (
+            <div className="mt-2 text-[#8a8fa8]">
+              <MathText text={result.feedback} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {status && (
+        <div
+          className={`mt-4 text-xs font-bold uppercase tracking-wider ${
+            status === "correct" ? "text-[#4ade80]" : "text-[#f87171]"
+          }`}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        >
+          {status === "correct" ? "✓ Correct" : "✗ Incorrect"}
+        </div>
+      )}
+
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={onClose}
+          className="rounded-full bg-[#f9c74f] px-7 py-2.5 text-sm font-bold text-[#0f1117] transition-opacity hover:opacity-90"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── QuestionCard ───────────────────────────────────────────────────────────
 function QuestionCard({
-  q, index, total, userId, onAnswerAction, firstResult, freeResponseGrade,
-  hints, misconceptions, onAllStepsRevealed, allStepsRevealed,
+  q, index, total, userId, onAnswerAction, firstResult, freeResponseGrade, guidedAnswers,
+  hints, misconceptions, onAllStepsRevealed, allStepsRevealed, isDetour,
 }: {
   q: UIQuestion;
   index: number;
   total: number;
   userId: string | null;
   onAnswerAction: (action: AnswerAction) => void;
-  firstResult: string | null;       // MCQ letter, or sentinel "__correct__" / "__wrong__" for free response
+  firstResult: string | null;       // MCQ letter, or sentinel "__correct__" / "__wrong__" for free response/guided
   freeResponseGrade: GradeResult | null; // populated only when q.answerType === "free_response" and answered
+  guidedAnswers: Record<string, string> | null; // populated only when q.answerType === "guided" and answered
   hints: Hint[];
   misconceptions: Misconception[];
   onAllStepsRevealed: () => void;
   allStepsRevealed: boolean;
+  isDetour: boolean; // true when shown as a Route D branch, out of flat sequence
 }) {
+  // Teach interstitial — non-quiz, no scoring, no progress-gating logic.
+  // Bypasses everything below (its own "Key Point" header, its own
+  // continue button) rather than reusing the "Question X of Y" chrome.
+  if (q.answerType === "teach") {
+    return (
+      <TeachCard
+        content={q.teachContent!}
+        onContinue={() => onAnswerAction({ kind: "teach_continue" })}
+      />
+    );
+  }
+
   const isFreeResponse = q.answerType === "free_response";
+  const isGuided = q.answerType === "guided";
   const answered = firstResult !== null;
 
   // wasWrong means different things per type:
   // - MCQ: picked letter doesn't match q.correct
   // - free response: freeResponseGrade.correct === false
-  const wasWrong = isFreeResponse
+  // - guided: firstResult sentinel is "__wrong__"
+  const wasWrong = isGuided
+    ? answered && firstResult === "__wrong__"
+    : isFreeResponse
     ? answered && freeResponseGrade?.correct === false
     : answered && firstResult !== q.correct;
 
-  // Reattempt flow is MCQ-only by design — free response goes straight to
-  // feedback + worked solution + Next, since "retyping the same wrong text"
-  // isn't a meaningful interaction the way "pick a different letter" is.
+  // Reattempt flow is MCQ-only by design — free response and guided go
+  // straight to feedback + Next, since retrying isn't a meaningful
+  // interaction the way "pick a different letter" is.
   const [reattempt, setReattempt] = useState<string | null>(null);
   const reattemptDone = reattempt !== null;
 
@@ -653,31 +891,46 @@ function QuestionCard({
 
   function handleMCQClick(key: string) {
     if (wasWrong && allStepsRevealed && !reattemptDone) { setReattempt(key); return; }
-    if (!answered) onAnswerAction({ kind: "mcq", key });
+    if (!answered) {
+      const code = misconceptions.find(
+        m => m.question_id === q.id && m.wrong_option?.toUpperCase() === key.toUpperCase()
+      )?.code;
+      onAnswerAction({ kind: "mcq", key, misconceptionCode: code });
+    }
   }
 
   function handleGraded(result: GradeResult, studentAnswer: string) {
     onAnswerAction({ kind: "graded", result, studentAnswer });
   }
 
-  const activeMisconception = !isFreeResponse && wasWrong
+  function handleGuidedSubmit(values: Record<string, string>, allCorrect: boolean) {
+    onAnswerAction({ kind: "guided", blankAnswers: values, isCorrect: allCorrect });
+  }
+
+  const activeMisconception = !isFreeResponse && !isGuided && wasWrong
     ? misconceptions.find(
         m => m.question_id === q.id && m.wrong_option?.toUpperCase() === firstResult?.toUpperCase()
       ) ?? null
     : null;
 
-  // For free response: once answered, always unlocked to move on (no reattempt).
-  // For MCQ: unchanged existing logic.
-  const nextUnlocked = isFreeResponse
+  // For free response/guided: once answered, always unlocked to move on
+  // (no reattempt). For MCQ: unchanged existing logic.
+  const nextUnlocked = (isFreeResponse || isGuided)
     ? answered
     : answered && (firstResult === q.correct ? true : reattemptDone);
 
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <div className="text-xs uppercase tracking-widest text-[#8a8fa8]">
-          Question {index + 1} of {total}
-        </div>
+        {isDetour ? (
+          <div className="text-xs uppercase tracking-widest text-[#818cf8]">
+            {q.questionType === "repair" ? "🛠 Targeted Repair" : "🔍 Quick Check"}
+          </div>
+        ) : (
+          <div className="text-xs uppercase tracking-widest text-[#8a8fa8]">
+            Question {index + 1} of {total}
+          </div>
+        )}
       </div>
 
       <div
@@ -698,7 +951,13 @@ function QuestionCard({
       )}
 
       {/* Answer input — branches on answer type */}
-      {isFreeResponse ? (
+      {isGuided ? (
+        <GuidedScaffold
+          blanks={q.blanks ?? []}
+          disabled={answered}
+          onSubmit={handleGuidedSubmit}
+        />
+      ) : isFreeResponse ? (
         <FreeResponseInput
           questionId={q.id}
           skillId={q.skillId}
@@ -731,56 +990,71 @@ function QuestionCard({
       {/* Post-answer section */}
       {answered && (
         <>
-          {isFreeResponse
+          {isGuided
+            ? wasWrong && guidedAnswers && (
+                <GuidedFeedback blanks={q.blanks ?? []} studentAnswers={guidedAnswers} />
+              )
+            : isFreeResponse
             ? wasWrong && freeResponseGrade && (
                 <FreeResponseFeedback feedback={freeResponseGrade.feedback} correct={false} />
               )
             : wasWrong && <MisconceptionPanel misconception={activeMisconception} />
           }
 
-          <div className="mt-3 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
-            <div
-              className={`mb-1 text-xs font-bold uppercase tracking-wider ${!wasWrong ? "text-[#4ade80]" : "text-[#f87171]"}`}
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            >
-              {!wasWrong
-                ? "✓ Correct!"
-                : isFreeResponse
-                ? "💡 Not quite — here's the worked solution:"
-                : "💡 Nearly! Here's where it went wrong:"}
-            </div>
+          {!isGuided && (
+            <div className="mt-3 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
+              <div
+                className={`mb-1 text-xs font-bold uppercase tracking-wider ${!wasWrong ? "text-[#4ade80]" : "text-[#f87171]"}`}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              >
+                {!wasWrong
+                  ? "✓ Correct!"
+                  : isFreeResponse
+                  ? "💡 Not quite — here's the worked solution:"
+                  : "💡 Nearly! Here's where it went wrong:"}
+              </div>
 
-            {wasWrong && isFreeResponse && (
-              <StepByStepSolution
-                worked={q.worked}
-                onAllRevealed={onAllStepsRevealed}
-              />
-            )}
-
-            {wasWrong && !isFreeResponse && (
-              <>
-                {!allStepsRevealed && (
-                  <p className="mb-3 text-xs text-[#555a73]">
-                    Work through the steps below, then you'll get another shot at it.
-                  </p>
-                )}
-                {allStepsRevealed && !reattemptDone && (
-                  <p className="mb-3 text-xs text-[#f9c74f]">
-                    Got it? Now try it again ↑
-                  </p>
-                )}
-                {reattemptDone && (
-                  <p className="mb-3 text-xs" style={{ color: reattempt === q.correct ? "#4ade80" : "#f87171" }}>
-                    {reattempt === q.correct ? "✓ You got it this time!" : `Not quite — the answer was ${q.correct}.`}
-                  </p>
-                )}
+              {wasWrong && isFreeResponse && (
                 <StepByStepSolution
                   worked={q.worked}
                   onAllRevealed={onAllStepsRevealed}
                 />
-              </>
-            )}
-          </div>
+              )}
+
+              {wasWrong && !isFreeResponse && (
+                <>
+                  {!allStepsRevealed && (
+                    <p className="mb-3 text-xs text-[#555a73]">
+                      Work through the steps below, then you'll get another shot at it.
+                    </p>
+                  )}
+                  {allStepsRevealed && !reattemptDone && (
+                    <p className="mb-3 text-xs text-[#f9c74f]">
+                      Got it? Now try it again ↑
+                    </p>
+                  )}
+                  {reattemptDone && (
+                    <p className="mb-3 text-xs" style={{ color: reattempt === q.correct ? "#4ade80" : "#f87171" }}>
+                      {reattempt === q.correct ? "✓ You got it this time!" : `Not quite — the answer was ${q.correct}.`}
+                    </p>
+                  )}
+                  <StepByStepSolution
+                    worked={q.worked}
+                    onAllRevealed={onAllStepsRevealed}
+                  />
+                </>
+              )}
+            </div>
+          )}
+
+          {isGuided && (
+            <div
+              className={`mt-3 text-xs font-bold uppercase tracking-wider ${!wasWrong ? "text-[#4ade80]" : "text-[#f87171]"}`}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            >
+              {!wasWrong ? "✓ Correct!" : "💡 Close — check the blanks above"}
+            </div>
+          )}
         </>
       )}
 
@@ -846,10 +1120,10 @@ function ScoreScreen({ results, xpEarned, onHome }: {
                 // ScoreScreen tweak from the original review).
                 r.feedback ? <> — {r.feedback}</> : null
               ) : (
-                // MCQ — unchanged behaviour
+                // MCQ / guided — unchanged behaviour
                 <>
                   {" "}— you picked {r.picked}
-                  {!r.correct && `, answer was ${r.q.correct}`}
+                  {!r.correct && r.q.answerType === "mcq" && `, answer was ${r.q.correct}`}
                 </>
               )}
             </span>
@@ -878,13 +1152,32 @@ export default function Practice() {
   const [hints, setHints] = useState<Hint[]>([]);
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
   const [index, setIndex] = useState(0);
-  const [results, setResults] = useState<Result[]>([]);
+  // Route D branching state (see doc §1.4). `index` remains the flat-
+  // sequence resume pointer — it never moves during a detour, so
+  // finishing one naturally "returns to the original skill" at the
+  // same point. `shownIds` prevents a question already shown via detour
+  // from reappearing when flat sequence later reaches its normal slot.
+  const [detourQueue, setDetourQueue] = useState<number[]>([]);
+  const [activeDetourId, setActiveDetourId] = useState<number | null>(null);
+  const [shownIds, setShownIds] = useState<Set<number>>(new Set());
+  // Indexed by question position (not push-ordered) so a "teach" step —
+  // which never produces a Result — can't shift later indices out of
+  // alignment. See ProgressDots and the ScoreScreen call site below.
+  const [resultsByIndex, setResultsByIndex] = useState<Record<number, Result>>({});
+  const [stepStatus, setStepStatus] = useState<Record<number, StepStatus>>({});
+  const [reviewIndex, setReviewIndex] = useState<number | null>(null);
   const [currentResult, setCurrentResult] = useState<string | null>(null);
   const [freeResponseGrade, setFreeResponseGrade] = useState<GradeResult | null>(null);
+  const [guidedAnswers, setGuidedAnswers] = useState<Record<string, string> | null>(null);
   const [allStepsRevealed, setAllStepsRevealed] = useState(false);
   const [done, setDone] = useState(false);
   const [shake, setShake] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  // Gates the persistence-write effect further down — stays false until
+  // the restore-on-load fetch has run (whether or not it found anything),
+  // so that effect can never fire on mount and overwrite a saved row with
+  // the empty default state before restoration has had a chance to apply.
+  const [restored, setRestored] = useState(false);
   const allStepsRevealedRef = useRef(false);
 
   useEffect(() => {
@@ -895,37 +1188,171 @@ export default function Practice() {
         const { data: skill } = await supabase.from("skills").select("name").eq("id", skillId).single();
         if (skill) setSkillName(skill.name);
       }
-      let query = supabase.from("questions").select("*").order("id");
+      // Ordered by display_order, not id — the guided/teach interstitials
+      // are inserted after their surrounding questions and rely on
+      // fractional display_order values (e.g. 4.5) to sit in the right
+      // place in the lesson flow.
+      let query = supabase.from("questions").select("*").order("display_order");
       if (skillId) query = query.eq("skill_id", skillId);
       const { data: qData, error: qErr } = await query;
       if (qErr || !qData) { setError("Failed to load questions. Please refresh."); setLoading(false); return; }
       const uiQuestions = (qData as Question[]).map(toUIQuestion);
       setQuestions(uiQuestions);
       const qIds = qData.map((q: Question) => q.id);
-      const [{ data: hData }, { data: mData }] = await Promise.all([
+      const [{ data: hData }, { data: mData }, { data: catalogData }] = await Promise.all([
         supabase.from("hints").select("question_id, hint_text, order_index").in("question_id", qIds),
-        supabase.from("misconceptions").select("question_id, wrong_option, title, description").in("question_id", qIds),
+        supabase.from("misconceptions").select("question_id, wrong_option, code, title, description").in("question_id", qIds),
+        // Skill-level catalog rows (question_id is null) — per the import
+        // convention, question-linked rows are often title-only, relying
+        // on the catalog entry with the same `code` for the description.
+        // /api/grade-response already does this fallback server-side for
+        // free response; this does the equivalent for the MCQ panel.
+        skillId
+          ? supabase.from("misconceptions").select("code, title, description").eq("skill_id", skillId).is("question_id", null)
+          : Promise.resolve({ data: [] as { code: string; title: string; description: string }[] }),
       ]);
       setHints((hData as Hint[]) ?? []);
-      setMisconceptions((mData as Misconception[]) ?? []);
+      const catalogByCode: Record<string, { title: string; description: string }> = {};
+      (catalogData ?? []).forEach((c) => { catalogByCode[c.code] = c; });
+      const enrichedMisconceptions = ((mData as Misconception[]) ?? []).map((m) => ({
+        ...m,
+        title: m.title || catalogByCode[m.code]?.title || m.title,
+        description: m.description || catalogByCode[m.code]?.description || "",
+      }));
+      setMisconceptions(enrichedMisconceptions);
+
+      // Restore saved progress. identityKey mirrors what's written below:
+      // the signed-in user's id when available (resumes across devices),
+      // otherwise the anonymous session_id (resumes on this device only —
+      // there's no cross-device identity to key on without an account).
+      if (skillId) {
+        const identityKey = session?.user?.id ?? getSessionId();
+        const { data: progress, error: progressErr } = await supabase
+          .from("practice_progress")
+          .select("*")
+          .eq("identity_key", identityKey)
+          .eq("skill_id", skillId)
+          .maybeSingle();
+
+        if (progressErr) {
+          console.error("Failed to load saved progress:", progressErr);
+        } else if (progress && !progress.done) {
+          setIndex(progress.current_index ?? 0);
+          setStepStatus((progress.step_status as Record<number, StepStatus>) ?? {});
+          const raw = (progress.results_by_index as Record<string, PersistedResult>) ?? {};
+          const rehydrated: Record<number, Result> = {};
+          for (const [k, r] of Object.entries(raw)) {
+            const i = Number(k);
+            if (uiQuestions[i]) rehydrated[i] = { ...r, q: uiQuestions[i] };
+          }
+          setResultsByIndex(rehydrated);
+          setXpEarned(progress.xp_earned ?? 0);
+          setDetourQueue((progress.detour_queue as number[]) ?? []);
+          setActiveDetourId(progress.active_detour_id ?? null);
+          setShownIds(new Set((progress.shown_ids as number[]) ?? []));
+        }
+      }
+
       setLoading(false);
+      setRestored(true);
     }
     init();
   }, [skillId]);
 
-  const q = questions[index];
+  // Persist progress after every change, once restoration above has run.
+  // Fires once per answer/teach-continue — not high frequency, so a plain
+  // upsert per change is fine without debouncing.
+  useEffect(() => {
+    if (!restored || !skillId) return;
+    supabase
+      .from("practice_progress")
+      .upsert(
+        {
+          user_id: userId,
+          session_id: getSessionId(),
+          skill_id: Number(skillId),
+          current_index: index,
+          results_by_index: Object.fromEntries(
+            Object.entries(resultsByIndex).map(([k, r]) => [
+              k,
+              { picked: r.picked, correct: r.correct, feedback: r.feedback } as PersistedResult,
+            ])
+          ),
+          step_status: stepStatus,
+          xp_earned: xpEarned,
+          done,
+          detour_queue: detourQueue,
+          active_detour_id: activeDetourId,
+          shown_ids: Array.from(shownIds),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "identity_key,skill_id" }
+      )
+      .then(({ error }) => {
+        if (error) console.error("Failed to save progress:", error);
+      });
+  }, [index, resultsByIndex, stepStatus, xpEarned, done, detourQueue, activeDetourId, shownIds, restored, skillId, userId]);
+
+  // The currently-displayed question: a detour target when one is
+  // active (Route D branch), otherwise the flat-sequence question at
+  // `index`. `recordIndex` is its position in the base array — that's
+  // always what resultsByIndex/stepStatus key off, regardless of
+  // whether it was reached by branching or by normal sequence, so a
+  // probe answered early via detour still lights up its own dot.
+  const q = activeDetourId !== null
+    ? questions.find(qq => qq.id === activeDetourId)
+    : questions[index];
+  const recordIndex = q ? questions.findIndex(qq => qq.id === q.id) : index;
+
+  // Advances `index` past any question already shown via detour, so
+  // flat sequence never re-shows something the student already saw.
+  function nextFlatIndex(from: number): number {
+    let i = from;
+    while (i < questions.length && shownIds.has(questions[i].id)) i++;
+    return i;
+  }
+
+  // Shared by "next" and "teach_continue": if a detour is active, step
+  // out of it (into whatever's next in detourQueue, or back to flat
+  // sequence if empty). Otherwise advance the flat pointer, skipping
+  // anything already shown via an earlier detour.
+  function advance() {
+    // A queued target takes priority over flat advancement, whether it
+    // was queued while already mid-detour (chaining probe -> repair) or
+    // queued just now from an ordinary flat question — both cases must
+    // route into it, not silently drop it.
+    if (detourQueue.length > 0) {
+      const [nextId, ...rest] = detourQueue;
+      setDetourQueue(rest);
+      setActiveDetourId(nextId);
+    } else if (activeDetourId !== null) {
+      // Nothing left queued — return to flat sequence where it left off.
+      setActiveDetourId(null);
+      const ni = nextFlatIndex(index + 1);
+      if (ni >= questions.length) setDone(true); else setIndex(ni);
+    } else {
+      const ni = nextFlatIndex(index + 1);
+      if (ni >= questions.length) setDone(true); else setIndex(ni);
+    }
+    setCurrentResult(null);
+    setFreeResponseGrade(null);
+    setGuidedAnswers(null);
+    setAllStepsRevealed(false);
+    allStepsRevealedRef.current = false;
+  }
 
   const handleAnswerAction = useCallback(async (action: AnswerAction) => {
+    if (action.kind === "teach_continue") {
+      // Mark seen for the progress dots, then advance — but never touch
+      // resultsByIndex, xpEarned, or attempt logging, since a teach
+      // interstitial is not a scored or graded event.
+      setStepStatus(prev => ({ ...prev, [recordIndex]: "seen" }));
+      advance();
+      return;
+    }
+
     if (action.kind === "next") {
-      if (index + 1 >= questions.length) {
-        setDone(true);
-      } else {
-        setIndex(i => i + 1);
-        setCurrentResult(null);
-        setFreeResponseGrade(null);
-        setAllStepsRevealed(false);
-        allStepsRevealedRef.current = false;
-      }
+      advance();
       return;
     }
 
@@ -942,12 +1369,11 @@ export default function Practice() {
         setAllStepsRevealed(true);
         allStepsRevealedRef.current = true;
       }
-      setResults(prev => [...prev, {
-        q,
-        picked: studentAnswer,
-        correct: result.correct,
-        feedback: result.feedback,
-      }]);
+      setResultsByIndex(prev => ({
+        ...prev,
+        [recordIndex]: { q, picked: studentAnswer, correct: result.correct, feedback: result.feedback },
+      }));
+      setStepStatus(prev => ({ ...prev, [recordIndex]: result.correct ? "correct" : "wrong" }));
       if (!result.correct) { setShake(true); setTimeout(() => setShake(false), 400); }
       if (result.correct) {
         setXpEarned(prev => prev + 10);
@@ -957,7 +1383,31 @@ export default function Practice() {
       return;
     }
 
-    // action.kind === "mcq" — existing logic, unchanged
+    if (action.kind === "guided") {
+      // Guided scaffold — graded client-side (simple normalized string
+      // match per blank), logged via /api/attempt same as MCQ.
+      const { blankAnswers, isCorrect } = action;
+      setGuidedAnswers(blankAnswers);
+      setCurrentResult(isCorrect ? "__correct__" : "__wrong__");
+      if (isCorrect) {
+        setAllStepsRevealed(true);
+        allStepsRevealedRef.current = true;
+      }
+      const pickedSummary = Object.values(blankAnswers).join(", ");
+      setResultsByIndex(prev => ({ ...prev, [recordIndex]: { q, picked: pickedSummary, correct: isCorrect } }));
+      setStepStatus(prev => ({ ...prev, [recordIndex]: isCorrect ? "correct" : "wrong" }));
+      if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
+      logAttempt(q, pickedSummary, isCorrect, userId);
+      if (isCorrect && userId) {
+        await Promise.all([awardXP(userId), updateStreak(userId)]);
+        setXpEarned(prev => prev + 10);
+        fireXPFloat();
+        window.dispatchEvent(new Event("revily:xp-updated"));
+      }
+      return;
+    }
+
+    // action.kind === "mcq"
     const key = action.key;
     const isCorrect = key === q.correct;
     setCurrentResult(key);
@@ -965,23 +1415,57 @@ export default function Practice() {
       setAllStepsRevealed(true);
       allStepsRevealedRef.current = true;
     }
-    setResults(prev => [...prev, { q, picked: key, correct: isCorrect }]);
+    setResultsByIndex(prev => ({ ...prev, [recordIndex]: { q, picked: key, correct: isCorrect } }));
+    setStepStatus(prev => ({ ...prev, [recordIndex]: isCorrect ? "correct" : "wrong" }));
     if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
-    logAttempt(q, key, isCorrect, userId);
+    logAttempt(q, key, isCorrect, userId, action.misconceptionCode);
+
+    // Route D branching (doc §1.4): a wrong answer with a resolved
+    // misconception code jumps to that code's diagnostic probe. If the
+    // question just answered IS the probe and it was also wrong, that
+    // "confirms" the pattern — jump to the matching repair instead. A
+    // repair is terminal: it never triggers a further branch, per
+    // "before returning to the original skill."
+    if (!isCorrect && action.misconceptionCode) {
+      let targetId: number | undefined;
+      if (q.questionType === "diagnostic") {
+        targetId = questions.find(
+          qq => qq.questionType === "repair" && qq.repairForCode === action.misconceptionCode
+        )?.id;
+      } else if (q.questionType !== "repair") {
+        targetId = questions.find(
+          qq => qq.questionType === "diagnostic" && qq.probeForCode === action.misconceptionCode
+        )?.id;
+      }
+      if (targetId !== undefined && targetId !== q.id && !shownIds.has(targetId)) {
+        setDetourQueue(prev => [...prev, targetId!]);
+        setShownIds(prev => new Set(prev).add(targetId!));
+      }
+    }
+
     if (isCorrect && userId) {
       await Promise.all([awardXP(userId), updateStreak(userId)]);
       setXpEarned(prev => prev + 10);
       fireXPFloat();
       window.dispatchEvent(new Event("revily:xp-updated"));
     }
-  }, [q, userId, currentResult, index, questions.length]);
+  }, [q, recordIndex, userId, currentResult, index, questions, shownIds, detourQueue, activeDetourId]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      // Free response questions own their own input field — keyboard letter
-      // shortcuts (1-4, a-d) should not fire for them.
-      if (q?.answerType === "free_response") {
+      // Teach interstitials own a single "continue" action — Enter/Space
+      // advances immediately, no answered-state gating like the quiz types.
+      if (q?.answerType === "teach") {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleAnswerAction({ kind: "teach_continue" });
+        }
+        return;
+      }
+      // Free response / guided questions own their own input field(s) —
+      // keyboard letter shortcuts (1-4, a-d) should not fire for them.
+      if (q?.answerType === "free_response" || q?.answerType === "guided") {
         if ((e.key === "Enter" || e.key === " ") && currentResult) {
           e.preventDefault();
           if (allStepsRevealedRef.current) handleAnswerAction({ kind: "next" });
@@ -990,7 +1474,13 @@ export default function Practice() {
       }
       const keyMap: Record<string, string> = { a:"A", b:"B", c:"C", d:"D", "1":"A", "2":"B", "3":"C", "4":"D" };
       const mapped = keyMap[e.key.toLowerCase()];
-      if (mapped && !currentResult && q) { handleAnswerAction({ kind: "mcq", key: mapped }); return; }
+      if (mapped && !currentResult && q) {
+        const code = misconceptions.find(
+          m => m.question_id === q.id && m.wrong_option?.toUpperCase() === mapped.toUpperCase()
+        )?.code;
+        handleAnswerAction({ kind: "mcq", key: mapped, misconceptionCode: code });
+        return;
+      }
       if ((e.key === "Enter" || e.key === " ") && currentResult) {
         e.preventDefault();
         if (allStepsRevealedRef.current) handleAnswerAction({ kind: "next" });
@@ -998,7 +1488,7 @@ export default function Practice() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentResult, q, handleAnswerAction]);
+  }, [currentResult, q, handleAnswerAction, misconceptions]);
 
   if (loading) return (
     <div className="flex min-h-screen items-center justify-center bg-[#0f1117]">
@@ -1036,21 +1526,36 @@ export default function Practice() {
         </div>
 
         <div className="mb-6">
-          <ProgressDots results={results} total={questions.length} currentIndex={index} />
+          <ProgressDots
+            stepStatus={stepStatus}
+            total={questions.length}
+            currentIndex={index}
+            onDotClick={(i) => setReviewIndex(i)}
+          />
         </div>
 
-        {done ? (
-          <ScoreScreen results={results} xpEarned={xpEarned} onHome={() => router.push("/home")} />
+        {reviewIndex !== null ? (
+          <div key={`review-${reviewIndex}`} className="pop">
+            <ReviewCard
+              q={questions[reviewIndex]}
+              result={resultsByIndex[reviewIndex] ?? null}
+              status={stepStatus[reviewIndex]}
+              onClose={() => setReviewIndex(null)}
+            />
+          </div>
+        ) : done ? (
+          <ScoreScreen results={Object.values(resultsByIndex)} xpEarned={xpEarned} onHome={() => router.push("/home")} />
         ) : (
-          <div key={index} className="pop">
+          <div key={q?.id ?? index} className="pop">
             <QuestionCard
               q={q}
-              index={index}
+              index={recordIndex}
               total={questions.length}
               userId={userId}
               onAnswerAction={handleAnswerAction}
               firstResult={currentResult}
               freeResponseGrade={freeResponseGrade}
+              guidedAnswers={guidedAnswers}
               hints={hints}
               misconceptions={misconceptions}
               onAllStepsRevealed={() => {
@@ -1058,6 +1563,7 @@ export default function Practice() {
                 allStepsRevealedRef.current = true;
               }}
               allStepsRevealed={allStepsRevealed}
+              isDetour={activeDetourId !== null}
             />
           </div>
         )}

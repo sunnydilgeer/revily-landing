@@ -1,6 +1,6 @@
 {
+  "/api/attempt/route": "app/api/attempt/route.js",
   "/api/grade-response/route": "app/api/grade-response/route.js",
-  "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/practice/page": "app/practice/page.js"
+  "/practice/page": "app/practice/page.js",
+  "/home/page": "app/home/page.js"
 }
