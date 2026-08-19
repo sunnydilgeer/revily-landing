@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import MathText from "@/components/MathText";
 import { MathSpan } from "@/components/MathText";
-import TeachCard, { TeachContent } from "@/components/TeachCard";
+// import TeachCard, { TeachContent } from "@/components/TeachCard"; // DISABLED - rebuilding later
+
 // ── Types ──────────────────────────────────────────────────────────────────
 type GuidedBlank = { id: string; prompt: string; answer: string };
 
@@ -23,7 +24,7 @@ type Question = {
   skill_id: number;
   answer_type: "mcq" | "free_response" | "guided" | "teach";
   blanks: GuidedBlank[] | null;
-  teach_content: TeachContent | null; // only populated when answer_type === "teach"
+  teach_content: unknown | null;   // TeachContent DISABLED
   probe_for_code: string | null;   // set on diagnostic questions that branch-check this code
   repair_for_code: string | null;  // set on repair questions that fix this code
   // NOTE: correct_answer is intentionally NOT selected from the DB here.
@@ -42,7 +43,7 @@ type UIQuestion = {
   difficulty: string;
   answerType: "mcq" | "free_response" | "guided" | "teach";
   blanks: GuidedBlank[] | null;
-  teachContent: TeachContent | null;
+  teachContent: unknown | null;  // TeachContent DISABLED
   probeForCode: string | null;
   repairForCode: string | null;
 };
@@ -447,10 +448,6 @@ function OptionButton({ label, text, state, onClick, disabled }: {
 }
 
 // ── FreeResponseInput ────────────────────────────────────────────────────────
-// Plain text input for free response questions. Submits to /api/grade-response,
-// which is the ONLY place that knows the correct answer — this component
-// never receives or sends correct_answer. Only questionId + the student's
-// typed text are sent.
 function FreeResponseInput({
   questionId,
   skillId,
@@ -469,7 +466,6 @@ function FreeResponseInput({
   const [rateLimited, setRateLimited] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset local state whenever the question changes (new questionId)
   useEffect(() => {
     setValue("");
     setGrading(false);
@@ -547,11 +543,6 @@ function FreeResponseInput({
 }
 
 // ── GuidedScaffold ───────────────────────────────────────────────────────────
-// Multi-blank fill-in-the-blank input for the "Guided Example" lesson stage.
-// Grading is simple client-side normalized-string matching — these are short,
-// low-stakes scaffold steps (a single number or short fraction per blank),
-// not a full graded assessment, so the equivalence-rule machinery in
-// /api/grade-response would be overkill here.
 function normalizeBlankAnswer(s: string): string {
   return s.trim().replace(/\s+/g, "");
 }
@@ -620,8 +611,6 @@ function GuidedScaffold({
   );
 }
 
-// Post-answer feedback for guided scaffolds — shows each blank with the
-// student's answer alongside the correct one, color-coded per blank.
 function GuidedFeedback({ blanks, studentAnswers }: { blanks: GuidedBlank[]; studentAnswers: Record<string, string> }) {
   return (
     <div className="mt-3 flex flex-col gap-2 rounded-xl border border-[#2e3248] bg-[#22263a] p-4">
@@ -684,9 +673,6 @@ function MisconceptionPanel({ misconception }: { misconception: Misconception | 
   );
 }
 
-// Lightweight feedback panel for free response — shows Claude's one-sentence
-// feedback directly, rather than reusing MisconceptionPanel which expects
-// a DB-shaped misconception object with title/description.
 function FreeResponseFeedback({ feedback, correct }: { feedback: string; correct: boolean }) {
   if (correct) return null;
   return (
@@ -705,9 +691,6 @@ function FreeResponseFeedback({ feedback, correct }: { feedback: string; correct
 }
 
 // ── ProgressDots ───────────────────────────────────────────────────────────
-// Driven by `stepStatus` (indexed by position in the questions array) rather
-// than the scored results list, so a "teach" interstitial — which never
-// produces a Result — doesn't shift every dot after it out of alignment.
 function ProgressDots({ stepStatus, total, currentIndex, onDotClick }: {
   stepStatus: Record<number, StepStatus>;
   total: number;
@@ -719,11 +702,11 @@ function ProgressDots({ stepStatus, total, currentIndex, onDotClick }: {
       {Array.from({ length: total }).map((_, i) => {
         const status = stepStatus[i];
         const isCurrent = i === currentIndex && !status;
-        const clickable = !!status; // only steps already answered/seen are reviewable
+        const clickable = !!status;
         let bg = "bg-[#22263a]";
         if (status === "correct") bg = "bg-[#4ade80]";
         else if (status === "wrong") bg = "bg-[#f87171]";
-        else if (status === "seen") bg = "bg-[#818cf8]"; // teach step — viewed, not scored
+        else if (status === "seen") bg = "bg-[#818cf8]";
         else if (isCurrent) bg = "bg-[#f9c74f]";
         return (
           <button
@@ -744,10 +727,6 @@ function ProgressDots({ stepStatus, total, currentIndex, onDotClick }: {
 }
 
 // ── ReviewCard ─────────────────────────────────────────────────────────────
-// Read-only summary shown when a past (already-answered/seen) progress dot
-// is tapped. Deliberately NOT the interactive QuestionCard — no reattempt,
-// no resubmission, nothing that could rewrite resultsByIndex/stepStatus.
-// This is a viewer, not a second attempt.
 function ReviewCard({
   q,
   result,
@@ -755,12 +734,13 @@ function ReviewCard({
   onClose,
 }: {
   q: UIQuestion;
-  result: Result | null; // null for "teach" steps
+  result: Result | null;
   status: StepStatus | undefined;
   onClose: () => void;
 }) {
   if (q.answerType === "teach") {
-    return <TeachCard content={q.teachContent!} onContinue={onClose} continueLabel="Close" />;
+    // return <TeachCard content={q.teachContent!} onContinue={onClose} continueLabel="Close" />; // DISABLED
+    return <div className="p-4 text-gray-400 text-sm">Lesson content coming soon</div>;
   }
 
   return (
@@ -832,24 +812,22 @@ function QuestionCard({
   total: number;
   userId: string | null;
   onAnswerAction: (action: AnswerAction) => void;
-  firstResult: string | null;       // MCQ letter, or sentinel "__correct__" / "__wrong__" for free response/guided
-  freeResponseGrade: GradeResult | null; // populated only when q.answerType === "free_response" and answered
-  guidedAnswers: Record<string, string> | null; // populated only when q.answerType === "guided" and answered
+  firstResult: string | null;
+  freeResponseGrade: GradeResult | null;
+  guidedAnswers: Record<string, string> | null;
   hints: Hint[];
   misconceptions: Misconception[];
   onAllStepsRevealed: () => void;
   allStepsRevealed: boolean;
-  isDetour: boolean; // true when shown as a Route D branch, out of flat sequence
+  isDetour: boolean;
 }) {
-  // Teach interstitial — non-quiz, no scoring, no progress-gating logic.
-  // Bypasses everything below (its own "Key Point" header, its own
-  // continue button) rather than reusing the "Question X of Y" chrome.
   if (q.answerType === "teach") {
     return (
-      <TeachCard
-        content={q.teachContent!}
-        onContinue={() => onAnswerAction({ kind: "teach_continue" })}
-      />
+      // <TeachCard                                    // DISABLED - rebuilding later
+      //   content={q.teachContent!}
+      //   onContinue={() => onAnswerAction({ kind: "teach_continue" })}
+      // />
+      <div className="p-4 text-gray-400 text-sm">Lesson content coming soon</div>
     );
   }
 
@@ -857,19 +835,12 @@ function QuestionCard({
   const isGuided = q.answerType === "guided";
   const answered = firstResult !== null;
 
-  // wasWrong means different things per type:
-  // - MCQ: picked letter doesn't match q.correct
-  // - free response: freeResponseGrade.correct === false
-  // - guided: firstResult sentinel is "__wrong__"
   const wasWrong = isGuided
     ? answered && firstResult === "__wrong__"
     : isFreeResponse
     ? answered && freeResponseGrade?.correct === false
     : answered && firstResult !== q.correct;
 
-  // Reattempt flow is MCQ-only by design — free response and guided go
-  // straight to feedback + Next, since retrying isn't a meaningful
-  // interaction the way "pick a different letter" is.
   const [reattempt, setReattempt] = useState<string | null>(null);
   const reattemptDone = reattempt !== null;
 
@@ -912,8 +883,6 @@ function QuestionCard({
       ) ?? null
     : null;
 
-  // For free response/guided: once answered, always unlocked to move on
-  // (no reattempt). For MCQ: unchanged existing logic.
   const nextUnlocked = (isFreeResponse || isGuided)
     ? answered
     : answered && (firstResult === q.correct ? true : reattemptDone);
@@ -939,7 +908,6 @@ function QuestionCard({
         <MathText text={q.question} />
       </div>
 
-      {/* Pre-answer: hints only — no worked example */}
       {!answered && (
         <div className="mb-4">
           <HintButton
@@ -949,7 +917,6 @@ function QuestionCard({
         </div>
       )}
 
-      {/* Answer input — branches on answer type */}
       {isGuided ? (
         <GuidedScaffold
           blanks={q.blanks ?? []}
@@ -986,7 +953,6 @@ function QuestionCard({
         </div>
       )}
 
-      {/* Post-answer section */}
       {answered && (
         <>
           {isGuided
@@ -1114,12 +1080,8 @@ function ScoreScreen({ results, xpEarned, onHome }: {
               <strong className="text-[#f1f0ee]">Q{i + 1}:</strong>{" "}
               {r.q.question.replace(/\$+[^$]*\$+/g, "…").split(":")[0]}
               {r.q.answerType === "free_response" ? (
-                // Free response — show Claude's feedback sentence naturally,
-                // never "you picked: <feedback>" (fixes the underspecified
-                // ScoreScreen tweak from the original review).
                 r.feedback ? <> — {r.feedback}</> : null
               ) : (
-                // MCQ / guided — unchanged behaviour
                 <>
                   {" "}— you picked {r.picked}
                   {!r.correct && r.q.answerType === "mcq" && `, answer was ${r.q.correct}`}
@@ -1151,17 +1113,9 @@ export default function Practice() {
   const [hints, setHints] = useState<Hint[]>([]);
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
   const [index, setIndex] = useState(0);
-  // Route D branching state (see doc §1.4). `index` remains the flat-
-  // sequence resume pointer — it never moves during a detour, so
-  // finishing one naturally "returns to the original skill" at the
-  // same point. `shownIds` prevents a question already shown via detour
-  // from reappearing when flat sequence later reaches its normal slot.
   const [detourQueue, setDetourQueue] = useState<number[]>([]);
   const [activeDetourId, setActiveDetourId] = useState<number | null>(null);
   const [shownIds, setShownIds] = useState<Set<number>>(new Set());
-  // Indexed by question position (not push-ordered) so a "teach" step —
-  // which never produces a Result — can't shift later indices out of
-  // alignment. See ProgressDots and the ScoreScreen call site below.
   const [resultsByIndex, setResultsByIndex] = useState<Record<number, Result>>({});
   const [stepStatus, setStepStatus] = useState<Record<number, StepStatus>>({});
   const [reviewIndex, setReviewIndex] = useState<number | null>(null);
@@ -1172,10 +1126,6 @@ export default function Practice() {
   const [done, setDone] = useState(false);
   const [shake, setShake] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
-  // Gates the persistence-write effect further down — stays false until
-  // the restore-on-load fetch has run (whether or not it found anything),
-  // so that effect can never fire on mount and overwrite a saved row with
-  // the empty default state before restoration has had a chance to apply.
   const [restored, setRestored] = useState(false);
   const allStepsRevealedRef = useRef(false);
 
@@ -1187,10 +1137,6 @@ export default function Practice() {
         const { data: skill } = await supabase.from("skills").select("name").eq("id", skillId).single();
         if (skill) setSkillName(skill.name);
       }
-      // Ordered by display_order, not id — the guided/teach interstitials
-      // are inserted after their surrounding questions and rely on
-      // fractional display_order values (e.g. 4.5) to sit in the right
-      // place in the lesson flow.
       let query = supabase.from("questions").select("*").order("display_order");
       if (skillId) query = query.eq("skill_id", skillId);
       const { data: qData, error: qErr } = await query;
@@ -1201,11 +1147,6 @@ export default function Practice() {
       const [{ data: hData }, { data: mData }, { data: catalogData }] = await Promise.all([
         supabase.from("hints").select("question_id, hint_text, order_index").in("question_id", qIds),
         supabase.from("misconceptions").select("question_id, wrong_option, code, title, description").in("question_id", qIds),
-        // Skill-level catalog rows (question_id is null) — per the import
-        // convention, question-linked rows are often title-only, relying
-        // on the catalog entry with the same `code` for the description.
-        // /api/grade-response already does this fallback server-side for
-        // free response; this does the equivalent for the MCQ panel.
         skillId
           ? supabase.from("misconceptions").select("code, title, description").eq("skill_id", skillId).is("question_id", null)
           : Promise.resolve({ data: [] as { code: string; title: string; description: string }[] }),
@@ -1220,10 +1161,6 @@ export default function Practice() {
       }));
       setMisconceptions(enrichedMisconceptions);
 
-      // Restore saved progress. identityKey mirrors what's written below:
-      // the signed-in user's id when available (resumes across devices),
-      // otherwise the anonymous session_id (resumes on this device only —
-      // there's no cross-device identity to key on without an account).
       if (skillId) {
         const identityKey = session?.user?.id ?? getSessionId();
         const { data: progress, error: progressErr } = await supabase
@@ -1258,9 +1195,6 @@ export default function Practice() {
     init();
   }, [skillId]);
 
-  // Persist progress after every change, once restoration above has run.
-  // Fires once per answer/teach-continue — not high frequency, so a plain
-  // upsert per change is fine without debouncing.
   useEffect(() => {
     if (!restored || !skillId) return;
     supabase
@@ -1292,40 +1226,23 @@ export default function Practice() {
       });
   }, [index, resultsByIndex, stepStatus, xpEarned, done, detourQueue, activeDetourId, shownIds, restored, skillId, userId]);
 
-  // The currently-displayed question: a detour target when one is
-  // active (Route D branch), otherwise the flat-sequence question at
-  // `index`. `recordIndex` is its position in the base array — that's
-  // always what resultsByIndex/stepStatus key off, regardless of
-  // whether it was reached by branching or by normal sequence, so a
-  // probe answered early via detour still lights up its own dot.
   const q = activeDetourId !== null
     ? questions.find(qq => qq.id === activeDetourId)
     : questions[index];
   const recordIndex = q ? questions.findIndex(qq => qq.id === q.id) : index;
 
-  // Advances `index` past any question already shown via detour, so
-  // flat sequence never re-shows something the student already saw.
   function nextFlatIndex(from: number): number {
     let i = from;
     while (i < questions.length && shownIds.has(questions[i].id)) i++;
     return i;
   }
 
-  // Shared by "next" and "teach_continue": if a detour is active, step
-  // out of it (into whatever's next in detourQueue, or back to flat
-  // sequence if empty). Otherwise advance the flat pointer, skipping
-  // anything already shown via an earlier detour.
   function advance() {
-    // A queued target takes priority over flat advancement, whether it
-    // was queued while already mid-detour (chaining probe -> repair) or
-    // queued just now from an ordinary flat question — both cases must
-    // route into it, not silently drop it.
     if (detourQueue.length > 0) {
       const [nextId, ...rest] = detourQueue;
       setDetourQueue(rest);
       setActiveDetourId(nextId);
     } else if (activeDetourId !== null) {
-      // Nothing left queued — return to flat sequence where it left off.
       setActiveDetourId(null);
       const ni = nextFlatIndex(index + 1);
       if (ni >= questions.length) setDone(true); else setIndex(ni);
@@ -1342,9 +1259,6 @@ export default function Practice() {
 
   const handleAnswerAction = useCallback(async (action: AnswerAction) => {
     if (action.kind === "teach_continue") {
-      // Mark seen for the progress dots, then advance — but never touch
-      // resultsByIndex, xpEarned, or attempt logging, since a teach
-      // interstitial is not a scored or graded event.
       setStepStatus(prev => ({ ...prev, [recordIndex]: "seen" }));
       advance();
       return;
@@ -1355,12 +1269,9 @@ export default function Practice() {
       return;
     }
 
-    if (currentResult) return; // already answered this question
+    if (currentResult) return;
 
     if (action.kind === "graded") {
-      // Free response — grading, attempt logging, and XP/streak already
-      // happened server-side inside /api/grade-response. This branch only
-      // updates local UI state to reflect the result.
       const { result, studentAnswer } = action;
       setFreeResponseGrade(result);
       setCurrentResult(result.correct ? "__correct__" : "__wrong__");
@@ -1383,8 +1294,6 @@ export default function Practice() {
     }
 
     if (action.kind === "guided") {
-      // Guided scaffold — graded client-side (simple normalized string
-      // match per blank), logged via /api/attempt same as MCQ.
       const { blankAnswers, isCorrect } = action;
       setGuidedAnswers(blankAnswers);
       setCurrentResult(isCorrect ? "__correct__" : "__wrong__");
@@ -1419,12 +1328,6 @@ export default function Practice() {
     if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
     logAttempt(q, key, isCorrect, userId, action.misconceptionCode);
 
-    // Route D branching (doc §1.4): a wrong answer with a resolved
-    // misconception code jumps to that code's diagnostic probe. If the
-    // question just answered IS the probe and it was also wrong, that
-    // "confirms" the pattern — jump to the matching repair instead. A
-    // repair is terminal: it never triggers a further branch, per
-    // "before returning to the original skill."
     if (!isCorrect && action.misconceptionCode) {
       let targetId: number | undefined;
       if (q.questionType === "diagnostic") {
@@ -1453,8 +1356,6 @@ export default function Practice() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      // Teach interstitials own a single "continue" action — Enter/Space
-      // advances immediately, no answered-state gating like the quiz types.
       if (q?.answerType === "teach") {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -1462,8 +1363,6 @@ export default function Practice() {
         }
         return;
       }
-      // Free response / guided questions own their own input field(s) —
-      // keyboard letter shortcuts (1-4, a-d) should not fire for them.
       if (q?.answerType === "free_response" || q?.answerType === "guided") {
         if ((e.key === "Enter" || e.key === " ") && currentResult) {
           e.preventDefault();
