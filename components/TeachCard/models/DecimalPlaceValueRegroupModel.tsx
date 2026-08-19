@@ -14,7 +14,7 @@ import { HundredGrid } from "../shared";
 import MathText from "@/components/MathText";
 
 type PlaceValueRow = {
-  decimal: string; // "0.305"
+  decimal: string;
   ones: string;
   tenths: string;
   hundredths: string;
@@ -24,12 +24,12 @@ type PlaceValueRow = {
 };
 
 type RegroupExample = {
-  decimal: string; // "0.32"
-  totalParts: number; // 100
-  shadedParts: number; // 32
-  groupSize: number; // 4
-  simplifiedNumerator: number; // 8
-  simplifiedDenominator: number; // 25
+  decimal: string;
+  totalParts: number;
+  shadedParts: number;
+  groupSize: number;
+  simplifiedNumerator: number;
+  simplifiedDenominator: number;
 };
 
 export interface DecimalPlaceValueRegroupProps {
@@ -85,7 +85,7 @@ export function DecimalPlaceValueRegroupModel({
                     </td>
                   ))}
                   <td className="pl-3 whitespace-nowrap">
-                    <MathText>{`$=\\frac{${row.fractionNumerator}}{${row.fractionDenominator}}$`}</MathText>
+                    <MathText text={`$=\\frac{${row.fractionNumerator}}{${row.fractionDenominator}}$`} />
                   </td>
                 </tr>
               ))}
@@ -98,8 +98,8 @@ export function DecimalPlaceValueRegroupModel({
       <div className="flex flex-col items-center gap-4 border-t pt-4">
         <div className="text-sm font-semibold self-start">
           Visual model: {decimal} becomes{" "}
-          <MathText>{`$\\frac{${shadedParts}}{${totalParts}}$`}</MathText> and then{" "}
-          <MathText>{`$\\frac{${simplifiedNumerator}}{${simplifiedDenominator}}$`}</MathText>
+          <MathText text={`$\\frac{${shadedParts}}{${totalParts}}$`} /> and then{" "}
+          <MathText text={`$\\frac{${simplifiedNumerator}}{${simplifiedDenominator}}$`} />
         </div>
 
         <div className="flex items-center gap-4 flex-wrap justify-center">
@@ -125,9 +125,9 @@ export function DecimalPlaceValueRegroupModel({
           </span>
         </div>
 
-        <MathText>
-          {`$${decimal} = \\frac{${shadedParts}}{${totalParts}} = \\frac{${shadedParts} \\div ${groupSize}}{${totalParts} \\div ${groupSize}} = \\frac{${simplifiedNumerator}}{${simplifiedDenominator}}$`}
-        </MathText>
+        <MathText
+          text={`$${decimal} = \\frac{${shadedParts}}{${totalParts}} = \\frac{${shadedParts} \\div ${groupSize}}{${totalParts} \\div ${groupSize}} = \\frac{${simplifiedNumerator}}{${simplifiedDenominator}}$`}
+        />
 
         <div className="text-xs text-center">
           Every change is equivalent because the numerator and denominator are divided by the same
@@ -138,14 +138,6 @@ export function DecimalPlaceValueRegroupModel({
   );
 }
 
-// Coarser grid where each cell represents one GROUP of small squares, not one square.
-// This is a shared-build candidate — any future skill that shows "regroup into blocks of N"
-// (e.g. simplifying other hundredths fractions) can reuse this as-is. Promote to shared.tsx
-// the first time a second model needs it, per HBO's "candidate shared build" convention.
-//
-// NOTE: uses inline style (not a Tailwind bg-{color}-400 string) deliberately — dynamic
-// Tailwind class names get purged unless safelisted. Check how HundredGrid handles its
-// `color` prop and match that convention once you can see its real source.
 function GroupedGrid({
   totalGroups,
   shadedGroups,
