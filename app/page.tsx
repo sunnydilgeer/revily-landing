@@ -6,16 +6,15 @@ import {
   Sparkles,
   Target,
   Clock,
-  TrendingUp,
-  CheckCircle2,
   Zap,
   BarChart3,
   ShieldCheck,
   ChevronDown,
   Check,
   Calculator,
-  AlertCircle,
   GraduationCap,
+  Award,
+  Wrench,
   X,
 } from "lucide-react";
 
@@ -23,15 +22,19 @@ const track = (event: string, payload: Record<string, unknown> = {}) => {
   console.log("[track]", event, payload);
 };
 
+// Update manually as Alpha applications are accepted.
+const ALPHA_PLACES_TOTAL = 30;
+const ALPHA_PLACES_REMAINING = 30;
+
 const LEGAL_CONTENT = {
   privacy: {
     title: "Privacy Notice",
-    updated: "19 May 2026",
+    updated: "17 Aug 2026",
     sections: [
-      { heading: "What Revily is", body: "Revily is an early-access GCSE Maths Revision prototype. We are not a fully launched product." },
-      { heading: "What we collect", body: "When you submit the early-access form, we collect: your email address; whether you are a parent, student, or tutor; your exam board; tier; target grade; any pricing-interest option you selected; the page URL; and the time of submission." },
-      { heading: "Why we collect it", body: "We use this information to manage the early-access waitlist, understand what parents and students actually want, decide what to build first, and contact you about Revily when the product develops." },
-      { heading: "Legal basis", body: "We process early-access signup information because you have asked to join the waitlist and because we have a legitimate interest in understanding demand for Revily and improving the product. Where we send marketing emails, we will follow applicable UK electronic marketing rules." },
+      { heading: "What Revily is", body: "Revily is a GCSE Maths revision app currently in Alpha. A working prototype exists and we are opening it to a small first cohort of students. We are not a fully launched product." },
+      { heading: "What we collect", body: "When you submit the Alpha application form, we collect: your email address; whether you are a parent, student, or tutor; your exam board; tier; target grade; whether you could commit to daily practice during the Alpha; the page URL; and the time of submission." },
+      { heading: "Why we collect it", body: "We use this information to select and manage the first Alpha cohort, understand what parents and students actually want, decide what to build first, and contact you about Revily when the product develops." },
+      { heading: "Legal basis", body: "We process Alpha application information because you have asked to join the cohort and because we have a legitimate interest in understanding demand for Revily and improving the product. Where we send marketing emails, we will follow applicable UK electronic marketing rules." },
       { heading: "How we store it", body: "Form submissions are processed and stored through Formspree. We do not operate our own database at this stage." },
       { heading: "Payments", body: "We do not take payments on this page. Pricing buttons are interest signals only — clicking them does not start a payment or subscription." },
       { heading: "Sharing", body: "We do not sell your personal information. We do not share it with third parties except as needed to operate the service (e.g. Formspree for form processing)." },
@@ -43,14 +46,14 @@ const LEGAL_CONTENT = {
   },
   terms: {
     title: "Terms of Use",
-    updated: "19 May 2026",
+    updated: "17 Aug 2026",
     sections: [
-      { heading: "Early-access prototype", body: "Revily is currently an early-access prototype. It is not a fully launched product." },
+      { heading: "Alpha product", body: "Revily is currently an Alpha — a working prototype being opened to a small first cohort. It is not a fully launched product." },
       { heading: "No payments", body: "Pricing buttons on this page do not start a payment or subscription. They are interest signals only." },
       { heading: "No grade guarantees", body: "Revily does not guarantee any GCSE grade or exam outcome." },
-      { heading: "Mock-ups and planned features", body: "Content shown on the page includes mock-ups and planned features. The final product may differ." },
+      { heading: "Prototype screens and planned features", body: "Content shown on the page includes prototype screens and planned features. The final product may differ." },
       { heading: "No exam-board affiliation", body: "Revily is independent and is not affiliated with, endorsed by, or approved by any exam board." },
-      { heading: "Educational guidance", body: "This site is for product validation and general educational interest only at this stage." },
+      { heading: "Educational guidance", body: "This site is for Alpha recruitment and general educational interest only at this stage." },
       { heading: "Changes", body: "We may update these terms as the product develops." },
       { heading: "Contact", body: "hello@revily.co.uk" },
     ],
@@ -61,18 +64,12 @@ const LEGAL_CONTENT = {
     sections: [
       { heading: null, body: "For questions, feedback, or data deletion requests, get in touch at:", highlight: false },
       { heading: null, body: "hello@revily.co.uk", highlight: true },
-      { heading: null, body: "Revily is currently an early-access prototype, so response times may vary. We'll always reply.", highlight: false },
+      { heading: null, body: "Revily is currently in Alpha, so response times may vary. We'll always reply.", highlight: false },
     ],
   },
 };
 
 type ModalKey = "privacy" | "terms" | "contact";
-
-interface PricingIntent {
-  plan: string;
-  price: string;
-  event: string;
-}
 
 function LegalModal({ modalKey, onClose }: { modalKey: ModalKey; onClose: () => void }) {
   const content = LEGAL_CONTENT[modalKey];
@@ -150,15 +147,6 @@ function LegalModal({ modalKey, onClose }: { modalKey: ModalKey; onClose: () => 
 export default function RevilyLanding() {
   const [legalModal, setLegalModal] = useState<ModalKey | null>(null);
   const closeLegal = useCallback(() => setLegalModal(null), []);
-  const [pricingIntent, setPricingIntent] = useState<PricingIntent | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const plan = params.get("plan");
-    const price = params.get("price");
-    const event = params.get("pricingEvent");
-    if (plan && price) setPricingIntent({ plan, price, event: event || "" });
-  }, []);
 
   const display = { fontFamily: "'Bricolage Grotesque', system-ui, sans-serif" };
   const body = { fontFamily: "'Manrope', system-ui, sans-serif" };
@@ -169,14 +157,10 @@ export default function RevilyLanding() {
       className="min-h-screen w-full antialiased selection:bg-[#C2F751] selection:text-[#0B1015]">
       <Nav display={display} mono={mono} />
       <Hero display={display} mono={mono} />
-      <StatusBox display={display} mono={mono} />
-      <TrustStrip />
-      <ProductPreview display={display} mono={mono} />
       <HowItWorks display={display} mono={mono} />
-      <Differentiation display={display} />
-      <ParentPain display={display} />
-      <Pricing display={display} mono={mono} setPricingIntent={setPricingIntent} pricingIntent={pricingIntent} />
-      <SignupForm display={display} pricingIntent={pricingIntent} />
+      <HonestState display={display} mono={mono} />
+      <Founders display={display} mono={mono} />
+      <SignupForm display={display} />
       <FAQ display={display} />
       <Footer display={display} mono={mono} onOpenModal={setLegalModal} />
       {legalModal && <LegalModal modalKey={legalModal} onClose={closeLegal} />}
@@ -196,19 +180,19 @@ function Nav({ display, mono }: { display: React.CSSProperties; mono: React.CSSP
             <span className="font-semibold tracking-tight text-[15px]" style={display}>Revily</span>
             <span className="hidden sm:inline text-[12px] text-black/45 font-medium">GCSE Maths Revision</span>
           </div>
-          <span className="ml-2 text-[10px] font-bold tracking-wider text-black/55 bg-black/[0.06] px-2 py-0.5 rounded" style={mono}>
-            EARLY ACCESS
+          <span className="ml-2 text-[10px] font-bold tracking-wider text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded" style={mono}>
+            ALPHA SOON
           </span>
         </a>
         <nav className="hidden md:flex items-center gap-7 text-sm text-black/70">
           <a href="#how" className="hover:text-black transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-black transition-colors">Early pricing</a>
+          <a href="#founders" className="hover:text-black transition-colors">Who&apos;s behind it</a>
           <a href="#faq" className="hover:text-black transition-colors">FAQs</a>
         </nav>
         <button type="button"
           onClick={() => { track("nav_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
           className="inline-flex items-center gap-1.5 bg-[#0B1015] hover:bg-[#1F2A0F] text-[#C2F751] text-sm font-semibold px-4 py-2 rounded-full transition-colors">
-          Join early access
+          Join the Alpha
           <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
         </button>
       </div>
@@ -220,7 +204,7 @@ function Hero({ display, mono }: { display: React.CSSProperties; mono: React.CSS
   return (
     <section id="top" className="relative overflow-hidden">
       <div aria-hidden className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{ backgroundImage: "linear-gradient(#0B1015 1px, transparent 1px), linear-gradient(90deg, #0B1015 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+        style={{ backgroundImage: "linear-gradient(#0B1015 1px, transpa rent 1px), linear-gradient(90deg, #0B1015 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
       <div aria-hidden className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full pointer-events-none"
         style={{ background: "radial-gradient(circle, #C2F751 0%, transparent 65%)", opacity: 0.35 }} />
       <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-16 sm:pb-20">
@@ -228,31 +212,31 @@ function Hero({ display, mono }: { display: React.CSSProperties; mono: React.CSS
           <div>
             <div className="inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] px-3 py-1.5 rounded-full text-xs font-semibold mb-6">
               <GraduationCap className="w-3.5 h-3.5" strokeWidth={2.5} />
-              <span style={mono}>EARLY ACCESS · GCSE MATHS FOUNDATION</span>
+              <span style={mono}>JOIN ALPHA: HELP US TEST GCSE MATHS</span>
             </div>
             <h1 style={display} className="text-[44px] leading-[1.02] sm:text-[60px] sm:leading-[1] lg:text-[72px] lg:leading-[0.98] font-bold tracking-[-0.03em]">
-              GCSE Maths revision shouldn&apos;t feel like{" "}
+              GCSE Maths revision that is {" "}
               <span className="relative inline-block">
-                <span className="relative z-10">guesswork</span>
+                <span className="relative z-10">enjoyable</span>
                 <span aria-hidden className="absolute left-0 right-0 bottom-1 sm:bottom-2 h-[14px] sm:h-[20px] -z-0 bg-[#C2F751] rounded-sm" />
               </span>.
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-black/70 max-w-[580px] leading-relaxed">
-              We&apos;re building Revily, a 10-minute-a-day GCSE Maths revision tool for Foundation students working toward a Grade 4/5.{" "}
-              <span className="text-black/85 font-medium">Join early access and help shape the first version.</span>
+              Revily is a 10-minute-a-day GCSE Maths revision app for Foundation students working toward a Grade 4/5.{" "}
+              <span className="text-black/85 font-medium"><p></p>We&apos;re opening Alpha testing to our first 30 students.</span>
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <button type="button"
                 onClick={() => { track("hero_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
                 className="group inline-flex items-center justify-center gap-2 bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold px-6 py-4 rounded-full text-base transition-all hover:scale-[1.02]">
-                Join early access
+                Join the Alpha
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
               </button>
             </div>
             <div className="mt-8 flex items-start gap-3 text-sm text-black/60 max-w-[520px]">
               <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
-              <p>Being developed with GCSE Maths teaching expertise.{" "}
-                <span className="text-black/80 font-medium">No random AI answers. No irrelevant curriculum. No false confidence.</span>
+              <p>Every lesson is built from the teaching framework of experienced GCSE and IB Maths tutors — the same method used in real lessons.{" "}
+                <span className="text-black/80 font-medium"><p></p>No random AI answers. No irrelevant curriculum. No false confidence.</span>
               </p>
             </div>
           </div>
@@ -269,13 +253,13 @@ function HeroMockup({ display, mono }: { display: React.CSSProperties; mono: Rea
       <div className="absolute -top-4 -left-4 sm:-left-8 z-20 rotate-[-6deg]">
         <div className="bg-[#C2F751] rounded-2xl px-3 py-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.2)] flex items-center gap-1.5">
           <Sparkles className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
-          <span className="font-bold text-sm text-[#0B1015]" style={display}>Product preview</span>
+          <span className="font-bold text-sm text-[#0B1015]" style={display}>From the prototype</span>
         </div>
       </div>
       <div className="absolute -bottom-4 -right-2 sm:-right-6 z-20 rotate-[5deg]">
         <div className="bg-white border border-black/10 rounded-2xl px-3 py-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.2)] flex items-center gap-1.5">
           <Target className="w-4 h-4 text-[#0B1015]" strokeWidth={2.5} />
-          <span className="font-bold text-sm text-[#0B1015]" style={display}>In development</span>
+          <span className="font-bold text-sm text-[#0B1015]" style={display}>Alpha soon</span>
         </div>
       </div>
       <div className="relative bg-[#0B1015] rounded-[44px] p-3 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]">
@@ -285,7 +269,7 @@ function HeroMockup({ display, mono }: { display: React.CSSProperties; mono: Rea
           </div>
           <div className="px-5 pt-2 pb-4 flex items-center justify-between">
             <div>
-              <div className="text-[11px] text-black/50 uppercase tracking-wider font-semibold" style={mono}>Mock-up · Foundation tier</div>
+              <div className="text-[11px] text-black/50 uppercase tracking-wider font-semibold" style={mono}>Foundation tier</div>
               <h3 className="text-xl font-bold mt-0.5" style={display}>Today&apos;s mission</h3>
             </div>
             <div className="w-9 h-9 rounded-full bg-[#0B1015] flex items-center justify-center text-[#C2F751] text-xs font-bold">S</div>
@@ -317,7 +301,7 @@ function HeroMockup({ display, mono }: { display: React.CSSProperties; mono: Rea
             </div>
             <div className="mt-3 flex items-center gap-1.5 text-xs text-black/60">
               <Clock className="w-3.5 h-3.5" strokeWidth={2} />
-              <span>~10 minutes per mission (planned)</span>
+              <span>~10 minutes per mission</span>
             </div>
           </div>
         </div>
@@ -326,45 +310,40 @@ function HeroMockup({ display, mono }: { display: React.CSSProperties; mono: Rea
   );
 }
 
-function StatusBox({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
-  return (
-    <section className="pb-6 sm:pb-10 -mt-4 sm:-mt-8">
-      <div className="max-w-5xl mx-auto px-5 sm:px-8">
-        <div className="relative rounded-2xl border border-[#0B1015]/15 bg-white p-5 sm:p-6 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.08)] flex gap-4 sm:gap-5">
-          <div className="flex-shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-[#0B1015] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-[#C2F751]" strokeWidth={2.25} />
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="text-[10px] font-bold text-[#0B1015] tracking-wider" style={mono}>STATUS</span>
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0B1015] animate-pulse" />
-                Early-access prototype
-              </span>
-            </div>
-            <p className="text-[15px] text-black/75 leading-relaxed">
-              Revily is not fully launched yet.{" "}
-              <span className="text-[#0B1015] font-semibold">You will not be charged today.</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function TrustStrip() {
-  const items = ["Foundation-tier focused", "Mapped to GCSE Maths skills", "Teacher review planned before launch", "Reliable marking logic", "Parent progress updates"];
+
+function HonestState({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  const rows = [
+    {
+      label: "LIVE TODAY",
+      dot: "#C2F751",
+      copy: "Two complete modules with 35+ Foundation sub-topics — daily missions and reliable marking with the working shown, running in the prototype now.",
+    },
+    {
+      label: "COMING IN ALPHA",
+      dot: "#FF8B6B",
+      copy: "A stable multi-user platform, the ~5-minute diagnostic that surfaces weak topics, and the first version of parent progress updates — built with the first cohort.",
+    },
+    {
+      label: "BUILDING TOWARD",
+      dot: "rgba(11,16,21,0.25)",
+      copy: "Full GCSE Maths Foundation coverage, then Higher tier — and eventually the same approach applied to English and Science.",
+    },
+  ];
   return (
-    <section className="border-y border-black/[0.06] bg-white/40">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-5">
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {items.map((item) => (
-            <div key={item} className="flex items-center gap-2 text-sm text-black/65">
-              <CheckCircle2 className="w-4 h-4 text-[#0B1015]" strokeWidth={2.25} />
-              <span className="font-medium">{item}</span>
+    <section className="py-14 sm:py-18">
+      <div className="max-w-5xl mx-auto px-5 sm:px-8">
+        <div className="mb-6">
+          <h2 style={display} className="text-3xl sm:text-4xl font-bold tracking-[-0.02em] leading-[1.05]">What&apos;s built and what&apos;s next.</h2>
+        </div>
+        <div className="rounded-3xl bg-white border border-black/[0.07] overflow-hidden divide-y divide-black/[0.06]">
+          {rows.map((row) => (
+            <div key={row.label} className="grid sm:grid-cols-[200px_1fr] gap-2 sm:gap-6 p-5 sm:p-6">
+              <div className="flex items-center gap-2.5 self-start">
+                <span aria-hidden className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: row.dot }} />
+                <span className="text-[11px] font-bold tracking-wider text-[#0B1015]" style={mono}>{row.label}</span>
+              </div>
+              <p className="text-[15px] text-black/70 leading-relaxed">{row.copy}</p>
             </div>
           ))}
         </div>
@@ -373,132 +352,20 @@ function TrustStrip() {
   );
 }
 
-function ProductPreview({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
-  return (
-    <section className="py-20 sm:py-28">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8">
-        <div className="max-w-2xl">
-          <div className="text-[11px] font-bold text-black/50 tracking-wider uppercase mb-3" style={mono}>What we&apos;re building</div>
-          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">GCSE Maths revision without the guesswork.</h2>
-          <p className="mt-4 text-lg text-black/65 max-w-xl">These are the four things Revily&apos;s GCSE Maths Revision is being designed around.</p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-2 gap-5">
-          <PreviewCard badge="TODAY" title="Today's mission" accent display={display} mono={mono}
-            description="The first version is being designed around focused daily missions — around 10 minutes, hand-picked from each student's weak topics.">
-            <div className="bg-[#0B1015] rounded-2xl p-5 text-white">
-              <div className="text-[11px] text-[#C2F751] font-semibold mb-2" style={mono}>MISSION · PREVIEW</div>
-              <div className="font-semibold text-lg mb-4" style={display}>Linear equations · 5 questions</div>
-              <div className="space-y-2">
-                {[{ q: "Solve 3x + 7 = 22", done: true }, { q: "Solve 5x − 4 = 21", done: true }, { q: "Solve 2(x + 3) = 14", done: true }, { q: "Solve x/4 + 1 = 6", done: false }, { q: "Form & solve from word problem", done: false }].map((row, i) => (
-                  <div key={i} className="flex items-center gap-2.5 text-sm">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${row.done ? "bg-[#C2F751] border-[#C2F751]" : "border-white/30"}`}>
-                      {row.done && <Check className="w-2.5 h-2.5 text-[#0B1015]" strokeWidth={3} />}
-                    </div>
-                    <span className={row.done ? "text-white/50 line-through" : "text-white"}>{row.q}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </PreviewCard>
 
-          <PreviewCard badge="DIAGNOSTIC" title="Weak topics, surfaced" display={display} mono={mono}
-            description="The planned diagnostic will surface the topics most likely to cost marks, so the mission engine can target those first.">
-            <div className="space-y-3">
-              {[{ topic: "Fractions & percentages", level: 32, tag: "Priority" }, { topic: "Ratio", level: 41, tag: "Priority" }, { topic: "Linear equations", level: 48, tag: "Priority" }, { topic: "Area & volume", level: 62, tag: null }, { topic: "Averages", level: 78, tag: "Strong" }].map((row) => (
-                <div key={row.topic}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="font-semibold text-[#0B1015]">{row.topic}</span>
-                    <div className="flex items-center gap-2">
-                      {row.tag === "Priority" && <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-1.5 py-0.5 rounded" style={mono}>PRIORITY</span>}
-                      {row.tag === "Strong" && <span className="text-[10px] font-bold text-black/60 bg-black/[0.06] px-1.5 py-0.5 rounded" style={mono}>STRONG</span>}
-                      <span className="text-xs text-black/50 tabular-nums" style={mono}>{row.level}%</span>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-black/[0.06] rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${row.level < 50 ? "bg-[#FF8B6B]" : row.level < 75 ? "bg-[#0B1015]" : "bg-[#C2F751]"}`} style={{ width: `${row.level}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </PreviewCard>
-
-          <PreviewCard badge="FEEDBACK" title="Reliable marking, with the working shown" display={display} mono={mono}
-            description="Every answer marked against reliable logic, with the working shown so students learn the method — not just the answer.">
-            <div className="space-y-3">
-              <div className="bg-[#FAF7F2] rounded-xl p-4 border border-black/[0.07]">
-                <div className="text-xs text-black/55 mb-2 font-semibold" style={mono}>YOUR ANSWER</div>
-                <div className="text-lg font-semibold text-[#0B1015]" style={mono}>x = 5</div>
-              </div>
-              <div className="bg-[#C2F751] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 rounded-full bg-[#0B1015] flex items-center justify-center">
-                    <Check className="w-3 h-3 text-[#C2F751]" strokeWidth={3} />
-                  </div>
-                  <div className="text-xs font-bold text-[#0B1015]" style={mono}>CORRECT</div>
-                </div>
-                <p className="text-sm text-[#0B1015] leading-snug font-medium">
-                  Subtract 7 from both sides → <span style={mono}>3x = 15</span>. Divide by 3 → <span style={mono}>x = 5</span>.
-                </p>
-              </div>
-            </div>
-          </PreviewCard>
-
-          <PreviewCard badge="PROGRESS" title="Progress, visible to parents" display={display} mono={mono}
-            description="A planned readiness view that shows what's being practised and where progress is happening.">
-            <div className="bg-[#0B1015] rounded-2xl p-5 text-white">
-              <div className="flex items-end gap-4 mb-5">
-                <div>
-                  <div className="text-[11px] text-white/60 font-semibold mb-1" style={mono}>READINESS (PREVIEW)</div>
-                  <div className="text-5xl font-bold tabular-nums" style={display}>62<span className="text-2xl text-white/50">%</span></div>
-                </div>
-                <div className="flex items-center gap-1 text-[#C2F751] text-sm font-semibold pb-2">
-                  <TrendingUp className="w-4 h-4" strokeWidth={2.5} />Trending up
-                </div>
-              </div>
-              <div className="text-[11px] text-white/60 font-semibold mb-2" style={mono}>EXAMPLE TREND</div>
-              <div className="flex items-end gap-1 h-16">
-                {[35, 38, 42, 41, 45, 48, 47, 50, 53, 55, 54, 58, 60, 62].map((v, i) => (
-                  <div key={i} className="flex-1 rounded-sm" style={{ height: `${v}%`, backgroundColor: i === 13 ? "#C2F751" : "rgba(255,255,255,0.25)" }} />
-                ))}
-              </div>
-            </div>
-          </PreviewCard>
-        </div>
-        <p className="mt-8 text-sm text-black/50 text-center max-w-2xl mx-auto">Screens shown are product mock-ups. The shipping version may differ.</p>
-      </div>
-    </section>
-  );
-}
-
-function PreviewCard({ badge, title, description, children, display, mono, accent }: {
-  badge: string; title: string; description: string; children: React.ReactNode;
-  display: React.CSSProperties; mono: React.CSSProperties; accent?: boolean;
-}) {
-  return (
-    <div className={`rounded-3xl p-6 sm:p-7 border ${accent ? "bg-[#FAF7F2] border-black/[0.08]" : "bg-white border-black/[0.07]"} hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.12)] transition-shadow`}>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2 py-0.5 rounded" style={mono}>{badge}</span>
-      </div>
-      <h3 className="text-2xl font-bold tracking-[-0.01em]" style={display}>{title}</h3>
-      <p className="mt-2 text-[15px] text-black/65 leading-relaxed mb-5">{description}</p>
-      <div>{children}</div>
-    </div>
-  );
-}
 
 function HowItWorks({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
   const steps = [
-    { icon: Calculator, title: "Start with a short diagnostic", copy: "Planned: a ~5-minute diagnostic to find the topics that'll cost the most marks if they aren't fixed." },
-    { icon: Target, title: "Get a 10-minute daily mission", copy: "Planned: each day, a focused mission targeting weak topics — sized for an evening break, not a study marathon." },
-    { icon: BarChart3, title: "Practise, get feedback, track progress", copy: "Planned: reliable instant marking with the working shown, a readiness view that climbs as gaps close, and an optional parent summary." },
+    { icon: Calculator, title: "A short diagnostic", copy: "A 5 minute diagnostic finds the topics that'll cost the most marks if they aren't fixed. Alpha students will be the first to take it." },
+    { icon: Target, title: "The 10-minute daily mission", copy: "Each day, a focused mission targeting weak topics — sized for an evening break, not a study marathon. Already running in the prototype." },
+    { icon: BarChart3, title: "Practise, Feedback, Progress", copy: "Reliable instant marking with the working shown, a readiness view that climbs as gaps close, and an optional parent summary." },
   ];
   return (
     <section id="how" className="py-20 sm:py-28 bg-[#0B1015] text-white">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         <div className="max-w-2xl">
-          <div className="text-[11px] font-bold text-[#C2F751] tracking-wider uppercase mb-3" style={mono}>How it&apos;ll work</div>
-          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Three steps. No revision overwhelm.</h2>
-          <p className="mt-4 text-white/60 max-w-xl">This is the shape we&apos;re building toward. Early-access members will help us pressure-test each step before it ships.</p>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Three Step Learning. </h2>
+          <p className="mt-4 text-white/60 max-w-xl">The first 30 Alpha students will pressure-test each step with us before wider launch.</p>
         </div>
         <div className="mt-14 grid md:grid-cols-3 gap-5 md:gap-4">
           {steps.map((step, i) => {
@@ -522,65 +389,75 @@ function HowItWorks({ display, mono }: { display: React.CSSProperties; mono: Rea
   );
 }
 
-function Differentiation({ display }: { display: React.CSSProperties }) {
-  const points = [
-    { icon: ShieldCheck, title: "Reliable marking", copy: "Based on well-known GCSE marking principles, not AI slop." },
-    { icon: Target, title: "Foundation-first focus", copy: "The first beta is focused on the Grade 3 → 4/5 path, not every tier and every subject at once." },
-    { icon: GraduationCap, title: "Mapped to GCSE Maths skills", copy: "Exercises are intended to be mapped to GCSE Maths Foundation skills and exam-board specifications." },
-    { icon: BarChart3, title: "Parent visibility planned", copy: "Progress updates are planned so parents can see whether revision is actually happening." },
+
+
+function Founders({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
+  const teachingCreds = [
+    "8+ years of one-to-one Maths teaching experience",
+    "GCSE, IGCSE, IB (SL & HL), SAT and ACT curriculum",
+    "Students among Outstanding Cambridge Learner Award winners",
+    "Diagnostic-first method: assess, plan milestones, practise, track weekly",
   ];
   return (
-    <section className="py-20 sm:py-28">
+    <section id="founders" className="py-20 sm:py-28 bg-[#0B1015] text-white">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         <div className="max-w-2xl">
-          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Why this isn&apos;t another revision app.</h2>
-          <p className="mt-4 text-lg text-black/65 max-w-xl">Mapped to GCSE Maths Foundation skills. Built around the topics most likely to move a Grade 3 toward a 4 or 5.</p>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Built with tutors, not AI.</h2>
+          <p className="mt-4 text-white/60 max-w-xl">Most revision apps are built by engineers guessing the curriculum, or generate questions with unchecked AI. <p></p>Revily is founded by a pair with years of teaching and product development experience — every lesson starts from a real tutoring framework, then gets engineered into the app.</p>
         </div>
-        <div className="mt-12 grid sm:grid-cols-2 gap-4">
-          {points.map((p, i) => {
-            const Icon = p.icon;
-            return (
-              <div key={i} className="rounded-3xl bg-white border border-black/[0.07] p-7 flex gap-5 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.1)] transition-shadow">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#0B1015] flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-[#C2F751]" strokeWidth={2.25} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold tracking-tight mb-1.5" style={display}>{p.title}</h3>
-                  <p className="text-[15px] text-black/65 leading-relaxed">{p.copy}</p>
-                </div>
+        <div className="mt-12 grid md:grid-cols-[1.15fr_0.85fr] gap-5">
+          <div className="rounded-3xl bg-white/[0.04] border border-white/10 p-7 sm:p-8">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-2xl bg-[#C2F751] flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="w-6 h-6 text-[#0B1015]" strokeWidth={2.25} />
               </div>
-            );
-          })}
+              <div>
+                <h3 className="text-xl font-bold" style={display}>The teaching side</h3>
+                <p className="text-sm text-[#C2F751] font-semibold" style={mono}>CURRICULUM &amp; PEDAGOGY</p>
+              </div>
+            </div>
+            <p className="text-[15px] text-white/70 leading-relaxed mb-5">
+              Every question, worked solution and mission in Revily comes from a working tutor&apos;s framework: diagnose first, build a personalised path with clear milestones, then practise with guided problem-solving and visual breakdowns — with regular progress tracking so students know exactly where they stand.
+            </p>
+            <div className="space-y-2.5">
+              {teachingCreds.map((c) => (
+                <div key={c} className="flex items-start gap-2.5 text-[14px]">
+                  <Award className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#C2F751]" strokeWidth={2.25} />
+                  <span className="text-white/80">{c}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-3xl bg-white/[0.04] border border-white/10 p-7 sm:p-8 flex flex-col">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0">
+                <Wrench className="w-6 h-6 text-[#C2F751]" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={display}>The building side</h3>
+                <p className="text-sm text-[#C2F751] font-semibold" style={mono}>PRODUCT &amp; ENGINEERING</p>
+              </div>
+            </div>
+            <p className="text-[15px] text-white/70 leading-relaxed">
+              Years of software development experience, turned toward one job: converting the tutoring framework into the mission engine, marking logic and progress tracking you see on screen — while working directly with the first {ALPHA_PLACES_TOTAL} Alpha families to shape what ships next.
+            </p>
+            <div className="mt-auto pt-6">
+              <div className="rounded-2xl bg-[#C2F751] p-4">
+                <p className="text-sm text-[#0B1015] font-semibold leading-snug">
+                  Tutor-designed curriculum + purpose-built engine. That&apos;s the whole idea.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function ParentPain({ display }: { display: React.CSSProperties }) {
-  return (
-    <section className="py-20 sm:py-28">
-      <div className="max-w-5xl mx-auto px-5 sm:px-8">
-        <div className="relative rounded-[36px] overflow-hidden p-8 sm:p-14 lg:p-20" style={{ backgroundColor: "#FFEFE8" }}>
-          <div aria-hidden className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full"
-            style={{ background: "radial-gradient(circle, #FF8B6B 0%, transparent 65%)", opacity: 0.45 }} />
-          <div className="relative max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold text-[#0B1015] mb-6">
-              <AlertCircle className="w-3.5 h-3.5" strokeWidth={2.5} />For parents
-            </div>
-            <h2 style={display} className="text-3xl sm:text-4xl lg:text-[52px] font-bold tracking-[-0.02em] leading-[1.05]">
-              Your child may be revising —{" "}<span className="italic">but are they revising the right things?</span>
-            </h2>
-            <div className="mt-6 space-y-4 text-[17px] text-[#0B1015]/75 leading-relaxed">
-              <p>GCSE Maths can feel overwhelming when your child doesn&apos;t know what to practise next.</p>
-              <p>Revily is an early-access GCSE Maths revision tool for Foundation students predicted around Grade 3 and aiming for a 4 or 5.</p>
-              <p className="text-[#0B1015] font-semibold">Early-access parents will help shape what the weekly progress updates look like.</p>
-            </div>
-            <button type="button"
-              onClick={() => { track("parent_pain_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
-              className="mt-8 inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] font-semibold px-6 py-4 rounded-full hover:bg-black transition-colors">
-              Join early access<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-            </button>
+        <div className="mt-5 rounded-3xl bg-white/[0.04] border border-white/10 p-7 sm:p-10">
+          <div className="text-[11px] font-bold text-[#C2F751] tracking-wider uppercase mb-4" style={mono}>A note from the founders</div>
+          <p className="text-lg sm:text-xl text-white/85 leading-relaxed italic max-w-3xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            &ldquo;We&apos;ve both watched capable students lose marks — and confidence — not because the maths was beyond them, but because the learning experience was not interactive enough. Revily is the tool we wished those students had: ten focused minutes a day, on exactly the right topics, marked the way an exam would mark them.&rdquo;
+          </p>
+          <div className="mt-5">
+            <p className="text-sm font-bold text-white" style={display}>The Revily founders</p>
+            <p className="text-[11px] text-white/50 mt-1 tracking-wider" style={mono}>ONE TUTOR + ONE BUILDER. THIRTY STUDENTS TO START.</p>
           </div>
         </div>
       </div>
@@ -588,96 +465,17 @@ function ParentPain({ display }: { display: React.CSSProperties }) {
   );
 }
 
-function Pricing({ display, mono, setPricingIntent, pricingIntent }: {
-  display: React.CSSProperties; mono: React.CSSProperties;
-  setPricingIntent: (intent: PricingIntent) => void; pricingIntent: PricingIntent | null;
-}) {
-  const plans = [
-    { name: "Free beta", price: "£0", sub: "If you want to try it for free when it opens", cta: "I'd join the free beta", ctaEvent: "pricing_interest_free", features: ["Planned: daily 10-minute missions", "Planned: diagnostic & weak topics", "Foundation-tier content", "Limited beta spaces"] },
-    { name: "Revision Sprint", price: "£19", sub: "Hypothetical one-off price for the full version", cta: "I'd pay £19 one-off", ctaEvent: "pricing_interest_19", features: ["Everything in the free beta", "Full question bank (planned)", "Daily mission engine (planned)", "Reliable marking & worked solutions", "Readiness view & history (planned)"] },
-    { name: "Parent Pack", price: "£29", sub: "Hypothetical price — Sprint plus weekly parent updates", cta: "I'd pay £29 with updates", ctaEvent: "pricing_interest_29", features: ["Everything in Revision Sprint", "Weekly progress email to parents", "Topic-by-topic improvement view", "Priority early-access support"] },
-  ];
 
-  const handlePricingClick = (plan: typeof plans[0]) => {
-    setPricingIntent({ plan: plan.name, price: plan.price, event: plan.ctaEvent });
-    const params = new URLSearchParams(window.location.search);
-    params.set("plan", plan.name);
-    params.set("price", plan.price);
-    params.set("pricingEvent", plan.ctaEvent);
-    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-    track(plan.ctaEvent, { plan: plan.name, price: plan.price });
-    document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
-  };
 
-  return (
-    <section id="pricing" className="py-20 sm:py-28">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8">
-        <div className="max-w-2xl">
-          <div className="text-[11px] font-bold text-black/50 tracking-wider uppercase mb-3" style={mono}>Early pricing test</div>
-          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Help us land the right price.</h2>
-          <p className="mt-4 text-lg text-black/65 max-w-xl">
-            We&apos;re testing which offer parents actually want.{" "}
-            <span className="text-[#0B1015] font-semibold">You will not be charged today.</span>
-          </p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-5">
-          {plans.map((plan) => {
-            const isSelected = pricingIntent?.plan === plan.name;
-            return (
-              <div key={plan.name} className={`relative rounded-3xl p-7 border bg-white text-[#0B1015] transition-shadow ${isSelected ? "border-[#0B1015] shadow-[0_16px_50px_-20px_rgba(0,0,0,0.22)]" : "border-black/[0.07] hover:shadow-[0_16px_50px_-20px_rgba(0,0,0,0.18)]"}`}>
-                {isSelected && (
-                  <div className="absolute -top-3 left-7">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0B1015] bg-[#C2F751] px-2.5 py-1 rounded-full">
-                      <Check className="w-2.5 h-2.5" strokeWidth={3} /> Selected
-                    </span>
-                  </div>
-                )}
-                <div className="text-sm font-semibold opacity-70 mb-2">{plan.name}</div>
-                <div className="flex items-baseline gap-1.5 mb-1">
-                  <span className="text-5xl font-bold tracking-tight" style={display}>{plan.price}</span>
-                </div>
-                <div className="text-[13px] mb-6 text-black/55">{plan.sub}</div>
-                <button type="button" onClick={() => handlePricingClick(plan)}
-                  className="w-full font-semibold px-5 py-3.5 rounded-full transition-colors bg-[#0B1015] text-[#C2F751] hover:bg-black">
-                  {plan.cta}
-                </button>
-                <div className="mt-6 pt-6 border-t border-black/[0.07] space-y-2.5">
-                  {plan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5 text-[14px]">
-                      <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#0B1015]" strokeWidth={3} />
-                      <span className="text-black/75">{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-8 flex items-start gap-3 max-w-2xl mx-auto bg-[#0B1015]/[0.04] border border-[#0B1015]/10 rounded-2xl p-4">
-          <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
-          <p className="text-sm text-black/70 leading-relaxed">
-            These buttons help us understand demand.{" "}
-            <span className="text-[#0B1015] font-semibold">They do not start a payment or subscription.</span>
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SignupForm({ display, pricingIntent }: { display: React.CSSProperties; pricingIntent: PricingIntent | null }) {
-  const [form, setForm] = useState({ email: "", role: "Parent", board: "Not sure", tier: "Not sure", target: "Get a 4" });
+function SignupForm({ display }: { display: React.CSSProperties }) {
+  const [form, setForm] = useState({ email: "", role: "Parent", board: "Not sure", tier: "Not sure", target: "Get a 4", commitment: "Yes, we're in" });
   const [submitted, setSubmitted] = useState(false);
   const handleChange = (key: string) => (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams(window.location.search);
-    const selectedPlan = pricingIntent?.plan || params.get("plan") || "";
-    const selectedPrice = pricingIntent?.price || params.get("price") || "";
-    const selectedPricingEvent = pricingIntent?.event || params.get("pricingEvent") || "";
-    const payload = { ...form, selectedPlan, selectedPrice, selectedPricingEvent, pricingIntentSelected: Boolean(selectedPlan), submittedAt: new Date().toISOString(), page: window.location.href };
+    const payload = { ...form, submittedAt: new Date().toISOString(), page: window.location.href };
     track("signup_submit", payload);
     try {
       const response = await fetch("https://formspree.io/f/xojbjvaj", {
@@ -692,29 +490,16 @@ function SignupForm({ display, pricingIntent }: { display: React.CSSProperties; 
     }
   };
 
-  const resolvedPlan = pricingIntent?.plan || "";
-  const resolvedPrice = pricingIntent?.price || "";
-
   return (
     <section id="signup" className="py-20 sm:py-28 bg-white border-y border-black/[0.06]">
       <div className="max-w-3xl mx-auto px-5 sm:px-8">
         <div className="text-center max-w-xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-[#0B1015] text-[#C2F751] px-3 py-1.5 rounded-full text-xs font-semibold mb-5">
-            <Zap className="w-3.5 h-3.5" strokeWidth={2.5} />Early access · GCSE Maths Foundation
+            <Zap className="w-3.5 h-3.5" strokeWidth={2.5} />Alpha · {ALPHA_PLACES_REMAINING} of {ALPHA_PLACES_TOTAL} places remaining · GCSE Maths Foundation
           </div>
-          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Join the early access list.</h2>
-          <p className="mt-4 text-lg text-black/65">Tell us a bit about your child&apos;s GCSE Maths. We&apos;ll email you when the first diagnostic beta opens.</p>
+          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Join the Alpha.</h2>
+          <p className="mt-4 text-lg text-black/65">Tell us a bit about your child&apos;s GCSE Maths. We&apos;ll email you as places in the first cohort open.</p>
         </div>
-
-        {resolvedPlan && !submitted && (
-          <div className="mt-8 flex items-start gap-3 bg-[#0B1015] text-white rounded-2xl px-5 py-4">
-            <Check className="w-5 h-5 text-[#C2F751] flex-shrink-0 mt-0.5" strokeWidth={2.5} />
-            <div>
-              <p className="text-sm font-semibold text-white">Selected interest: {resolvedPlan} — {resolvedPrice}</p>
-              <p className="text-xs text-white/60 mt-0.5">You will not be charged today.</p>
-            </div>
-          </div>
-        )}
 
         {!submitted ? (
           <form onSubmit={handleSubmit} className="mt-6 bg-[#FAF7F2] border border-black/[0.07] rounded-3xl p-6 sm:p-8 space-y-5">
@@ -768,9 +553,20 @@ function SignupForm({ display, pricingIntent }: { display: React.CSSProperties; 
                 ))}
               </div>
             </label>
+            <label className="block">
+              <span className="text-[13px] font-semibold text-black/70 mb-2 block">Could your child do 10 minutes a day for the first 2 weeks of the Alpha (and tell us what&apos;s working)?</span>
+              <div className="flex flex-wrap gap-2">
+                {["Yes, we're in", "Most days", "Not sure yet"].map((opt) => (
+                  <button key={opt} type="button" onClick={() => setForm((f) => ({ ...f, commitment: opt }))}
+                    className={`px-4 py-2.5 rounded-full text-sm font-semibold border transition-colors ${form.commitment === opt ? "bg-[#0B1015] border-[#0B1015] text-[#C2F751]" : "bg-white border-black/10 text-black/70 hover:border-black/30"}`}>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </label>
             <button type="submit"
               className="w-full bg-[#0B1015] hover:bg-black text-[#C2F751] font-semibold px-6 py-4 rounded-full text-base inline-flex items-center justify-center gap-2 transition-colors">
-              Join the early access list<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+              Join the Alpha<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </button>
             <p className="text-xs text-black/50 text-center">We&apos;ll only email you about Revily. Unsubscribe any time. You will not be charged today.</p>
           </form>
@@ -779,16 +575,8 @@ function SignupForm({ display, pricingIntent }: { display: React.CSSProperties; 
             <div className="w-14 h-14 rounded-full bg-[#C2F751] mx-auto flex items-center justify-center mb-5">
               <Check className="w-7 h-7 text-[#0B1015]" strokeWidth={3} />
             </div>
-            <h3 style={display} className="text-3xl font-bold tracking-tight">You&apos;re on the list.</h3>
-            {resolvedPlan ? (
-              <p className="mt-3 text-white/70 max-w-md mx-auto leading-relaxed">
-                Thanks — you&apos;re on the list. We&apos;ve recorded your interest in{" "}
-                <span className="text-[#C2F751] font-medium">{resolvedPlan}</span> at{" "}
-                <span className="text-[#C2F751] font-medium">{resolvedPrice}</span>. You will not be charged today.
-              </p>
-            ) : (
-              <p className="mt-3 text-white/70 max-w-md mx-auto">Thanks — we&apos;ll email you when the first beta opens.</p>
-            )}
+            <h3 style={display} className="text-3xl font-bold tracking-tight">Application received.</h3>
+            <p className="mt-3 text-white/70 max-w-md mx-auto">Thanks — we&apos;ll email you as places in the first Alpha cohort open.</p>
           </div>
         )}
       </div>
@@ -798,13 +586,15 @@ function SignupForm({ display, pricingIntent }: { display: React.CSSProperties; 
 
 function FAQ({ display }: { display: React.CSSProperties }) {
   const items = [
-    { q: "Is this live yet?", a: "Not fully. We're opening early access in small batches so we can test the diagnostic, missions, and marking before wider launch." },
-    { q: "Will I be charged today?", a: "No. The pricing buttons are interest signals only — they help us understand which offer parents actually want." },
+    { q: "Is this live yet?", a: "The prototype is working — two modules and 35+ sub-topics are built. We're moving it to a stable platform now and opening the Alpha to a first cohort of 30 students in small batches." },
+    { q: "How many places are there?", a: "The first Alpha cohort is limited to 30 students. We're keeping it small so we can work closely with each family, fix issues fast, and shape the diagnostic and parent updates around real feedback." },
+    { q: "Will I be charged today?", a: "No. Applying for the Alpha is completely free. You will not be charged today or when the Alpha opens." },
     { q: "Can this guarantee a Grade 4 or 5?", a: "No. No revision product can guarantee a grade. The goal is to help students practise the right topics more consistently." },
-    { q: "Is this an AI chatbot?", a: "No. Revily is being built as a revision engine — original questions, reliable marking logic, and daily missions structured around GCSE Maths skills." },
-    { q: "Is it exam-board specific?", a: "Content is intended to be mapped to GCSE Maths skills used across Edexcel, AQA, and OCR Foundation specs. We don't claim official endorsement from any exam board." },
+    { q: "Is this an AI chatbot?", a: "No. Revily is a revision engine — original questions, reliable marking logic, and daily missions structured around GCSE Maths skills. The curriculum comes from an experienced GCSE Maths tutor's teaching framework, not from unchecked AI generation." },
+    { q: "Who designs the questions?", a: "Every module is built from the teaching framework of our tutor co-founder — 8+ years of experience across GCSE, IGCSE, IB, SAT and ACT, with students among Outstanding Cambridge Learner Award winners. Nothing goes into a lesson that a real tutor wouldn't teach." },
+    { q: "Is it exam-board specific?", a: "Content is mapped to GCSE Maths skills used across Edexcel, AQA, and OCR Foundation specs. We don't claim official endorsement from any exam board." },
     { q: "Is this for Foundation or Higher tier?", a: "We're starting with Foundation tier and the Grade 3 → 4/5 pass path. Higher-tier support is on the roadmap." },
-    { q: "Is it suitable if my child is predicted a Grade 3?", a: "That's the core student we're designing for. Revily is being built to target the topics most likely to lift a Grade 3 toward a 4 or 5." },
+    { q: "Is it suitable if my child is predicted a Grade 3?", a: "That's the core student we're designing for. Revily targets the topics most likely to lift a Grade 3 toward a 4 or 5." },
   ];
   const [openIndex, setOpenIndex] = useState(0);
   return (
@@ -827,12 +617,12 @@ function FAQ({ display }: { display: React.CSSProperties }) {
           })}
         </div>
         <div className="mt-14 rounded-3xl bg-[#0B1015] text-white p-8 sm:p-10 text-center">
-          <h3 style={display} className="text-2xl sm:text-3xl font-bold tracking-tight">Help us build something parents actually want.</h3>
-          <p className="mt-3 text-white/70 max-w-md mx-auto">Join the early-access list. We&apos;ll email you when the first diagnostic beta opens.</p>
+          <h3 style={display} className="text-2xl sm:text-3xl font-bold tracking-tight">{ALPHA_PLACES_REMAINING} of {ALPHA_PLACES_TOTAL} places remaining. Real curriculum. Alpha opening soon.</h3>
+          <p className="mt-3 text-white/70 max-w-md mx-auto">Apply for the first cohort. We&apos;ll email you as places open.</p>
           <button type="button"
             onClick={() => { track("faq_bottom_cta_click"); document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" }); }}
             className="mt-6 inline-flex items-center gap-2 bg-[#C2F751] text-[#0B1015] font-semibold px-6 py-3.5 rounded-full hover:bg-[#D2FF61] transition-colors">
-            Join early access<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+            Join the Alpha<ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </button>
           <p className="mt-4 text-xs text-white/50">You will not be charged today.</p>
         </div>
@@ -855,7 +645,7 @@ function Footer({ display, mono, onOpenModal }: { display: React.CSSProperties; 
               <span className="text-[13px] text-black/55 italic">Know what to revise next.</span>
             </div>
             <div className="text-[12px] text-black/45 mt-1" style={mono}>
-              © {new Date().getFullYear()} Revily · Early-access prototype · Not affiliated with any exam board
+              © {new Date().getFullYear()} Revily · Alpha · Not affiliated with any exam board
             </div>
           </div>
         </div>

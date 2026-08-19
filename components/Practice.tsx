@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase";
 import MathText from "@/components/MathText";
 import { MathSpan } from "@/components/MathText";
 import TeachCard, { TeachContent } from "@/components/TeachCard";
-
 // ── Types ──────────────────────────────────────────────────────────────────
 type GuidedBlank = { id: string; prompt: string; answer: string };
 
