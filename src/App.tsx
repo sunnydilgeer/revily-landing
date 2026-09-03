@@ -1,4 +1,5 @@
 import './App.css'
+import EquationBalanceLesson from './features/equation-balance/EquationBalanceLesson'
 
 function App() {
   return (
@@ -37,31 +38,7 @@ function App() {
             </div>
           </div>
 
-          <div className="concept-card" aria-label="Equation balance preview">
-            <div className="concept-card-header">
-              <span>Equation balance</span>
-              <span className="status-pill">Coming next</span>
-            </div>
-
-            <div className="equation-preview" aria-hidden="true">
-              <div className="equation-side">
-                <span className="math-tile math-tile-variable">x</span>
-                <span className="math-symbol">+</span>
-                <span className="math-tile">3</span>
-              </div>
-
-              <span className="equals-sign">=</span>
-
-              <div className="equation-side">
-                <span className="math-tile math-tile-answer">8</span>
-              </div>
-            </div>
-
-            <p>
-              What can you remove from both sides while keeping the equation
-              balanced?
-            </p>
-          </div>
+          <EquationBalanceLesson />
         </section>
 
         <section className="prototype-section" id="prototype">
