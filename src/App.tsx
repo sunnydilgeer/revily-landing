@@ -1,121 +1,121 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
+    <div className="app-shell">
+      <header className="site-header">
+        <a className="brand" href="/" aria-label="Revily home">
+          <span className="brand-mark" aria-hidden="true">
+            R
+          </span>
+          <span>Revily</span>
+        </a>
+
+        <span className="prototype-label">Foundation prototype</span>
+      </header>
+
+      <main>
+        <section className="hero">
+          <div className="hero-copy">
+            <p className="eyebrow">GCSE Foundation Maths</p>
+
+            <h1>Learn maths by doing.</h1>
+
+            <p className="hero-description">
+              Explore ideas, make predictions and understand why the maths
+              works—before memorising the method.
+            </p>
+
+            <div className="hero-actions">
+              <a className="button button-primary" href="#prototype">
+                See the first lesson
+              </a>
+
+              <a className="button button-secondary" href="#principles">
+                How Revily teaches
+              </a>
+            </div>
+          </div>
+
+          <div className="concept-card" aria-label="Equation balance preview">
+            <div className="concept-card-header">
+              <span>Equation balance</span>
+              <span className="status-pill">Coming next</span>
+            </div>
+
+            <div className="equation-preview" aria-hidden="true">
+              <div className="equation-side">
+                <span className="math-tile math-tile-variable">x</span>
+                <span className="math-symbol">+</span>
+                <span className="math-tile">3</span>
+              </div>
+
+              <span className="equals-sign">=</span>
+
+              <div className="equation-side">
+                <span className="math-tile math-tile-answer">8</span>
+              </div>
+            </div>
+
+            <p>
+              What can you remove from both sides while keeping the equation
+              balanced?
+            </p>
+          </div>
+        </section>
+
+        <section className="prototype-section" id="prototype">
+          <div>
+            <p className="eyebrow">Prototype 01</p>
+            <h2>Equality as balance</h2>
+          </div>
+
           <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+            Our first working lesson will let students manipulate both sides of
+            an equation and see why performing the same operation preserves
+            equality.
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        </section>
 
-      <div className="ticks"></div>
+        <section className="principles-section" id="principles">
+          <div className="section-heading">
+            <p className="eyebrow">Learning progression</p>
+            <h2>From understanding to independence</h2>
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
+          <ol className="principle-grid">
             <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
+              <span>01</span>
+              <h3>Concrete</h3>
+              <p>Begin with objects and actions students can make sense of.</p>
             </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            <li>
+              <span>02</span>
+              <h3>Visual</h3>
+              <p>Reveal the mathematical relationship through interaction.</p>
+            </li>
+
+            <li>
+              <span>03</span>
+              <h3>Symbolic</h3>
+              <p>Fade the support and connect the experience to notation.</p>
+            </li>
+
+            <li>
+              <span>04</span>
+              <h3>Exam</h3>
+              <p>Apply the idea independently in GCSE-style problems.</p>
+            </li>
+          </ol>
+        </section>
+      </main>
+
+      <footer>
+        <span>Revily</span>
+        <span>Learn GCSE Maths by doing.</span>
+      </footer>
+    </div>
   )
 }
 
