@@ -73,6 +73,7 @@ export function AppHeader() {
   // Hide on marketing, auth, and admin routes
   if (
     pathname === "/" ||
+    pathname?.startsWith("/preview") ||
     pathname?.startsWith("/auth") ||
     pathname?.startsWith("/admin")
   ) return null;

@@ -13,8 +13,6 @@ import {
   Check,
   Calculator,
   GraduationCap,
-  Award,
-  Wrench,
   X,
 } from "lucide-react";
 
@@ -159,7 +157,6 @@ export default function RevilyLanding() {
       <Hero display={display} mono={mono} />
       <HowItWorks display={display} mono={mono} />
       <HonestState display={display} mono={mono} />
-      <Founders display={display} mono={mono} />
       <SignupForm display={display} />
       <FAQ display={display} />
       <Footer display={display} mono={mono} onOpenModal={setLegalModal} />
@@ -186,7 +183,6 @@ function Nav({ display, mono }: { display: React.CSSProperties; mono: React.CSSP
         </a>
         <nav className="hidden md:flex items-center gap-7 text-sm text-black/70">
           <a href="#how" className="hover:text-black transition-colors">How it works</a>
-          <a href="#founders" className="hover:text-black transition-colors">Who&apos;s behind it</a>
           <a href="#faq" className="hover:text-black transition-colors">FAQs</a>
         </nav>
         <button type="button"
@@ -222,8 +218,8 @@ function Hero({ display, mono }: { display: React.CSSProperties; mono: React.CSS
               </span>.
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-black/70 max-w-[580px] leading-relaxed">
-              Revily is a 10-minute-a-day GCSE Maths revision app for Foundation students working toward a Grade 4/5.{" "}
-              <span className="text-black/85 font-medium"><p></p>We&apos;re opening Alpha testing to our first 30 students.</span>
+              Revily is a 10-minute-a-day GCSE Maths revision app for Foundation students working toward a Grade 4/5.
+              <span className="block text-black/85 font-medium">We&apos;re opening Alpha testing to our first 30 students.</span>
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <button type="button"
@@ -235,8 +231,8 @@ function Hero({ display, mono }: { display: React.CSSProperties; mono: React.CSS
             </div>
             <div className="mt-8 flex items-start gap-3 text-sm text-black/60 max-w-[520px]">
               <ShieldCheck className="w-5 h-5 text-[#0B1015] flex-shrink-0 mt-0.5" strokeWidth={2} />
-              <p>Every lesson is built from the teaching framework of experienced GCSE and IB Maths tutors — the same method used in real lessons.{" "}
-                <span className="text-black/80 font-medium"><p></p>No random AI answers. No irrelevant curriculum. No false confidence.</span>
+              <p>Every lesson is built from the teaching framework of experienced GCSE and IB Maths tutors — the same method used in real lessons.
+                <span className="block text-black/80 font-medium">No random AI answers. No irrelevant curriculum. No false confidence.</span>
               </p>
             </div>
           </div>
@@ -391,82 +387,6 @@ function HowItWorks({ display, mono }: { display: React.CSSProperties; mono: Rea
 
 
 
-function Founders({ display, mono }: { display: React.CSSProperties; mono: React.CSSProperties }) {
-  const teachingCreds = [
-    "8+ years of one-to-one Maths teaching experience",
-    "GCSE, IGCSE, IB (SL & HL), SAT and ACT curriculum",
-    "Students among Outstanding Cambridge Learner Award winners",
-    "Diagnostic-first method: assess, plan milestones, practise, track weekly",
-  ];
-  return (
-    <section id="founders" className="py-20 sm:py-28 bg-[#0B1015] text-white">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8">
-        <div className="max-w-2xl">
-          <h2 style={display} className="text-4xl sm:text-5xl font-bold tracking-[-0.02em] leading-[1.05]">Built with tutors, not AI.</h2>
-          <p className="mt-4 text-white/60 max-w-xl">Most revision apps are built by engineers guessing the curriculum, or generate questions with unchecked AI. <p></p>Revily is founded by a pair with years of teaching and product development experience — every lesson starts from a real tutoring framework, then gets engineered into the app.</p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-[1.15fr_0.85fr] gap-5">
-          <div className="rounded-3xl bg-white/[0.04] border border-white/10 p-7 sm:p-8">
-            <div className="flex items-center gap-4 mb-5">
-              <div className="w-14 h-14 rounded-2xl bg-[#C2F751] flex items-center justify-center flex-shrink-0">
-                <GraduationCap className="w-6 h-6 text-[#0B1015]" strokeWidth={2.25} />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold" style={display}>The teaching side</h3>
-                <p className="text-sm text-[#C2F751] font-semibold" style={mono}>CURRICULUM &amp; PEDAGOGY</p>
-              </div>
-            </div>
-            <p className="text-[15px] text-white/70 leading-relaxed mb-5">
-              Every question, worked solution and mission in Revily comes from a working tutor&apos;s framework: diagnose first, build a personalised path with clear milestones, then practise with guided problem-solving and visual breakdowns — with regular progress tracking so students know exactly where they stand.
-            </p>
-            <div className="space-y-2.5">
-              {teachingCreds.map((c) => (
-                <div key={c} className="flex items-start gap-2.5 text-[14px]">
-                  <Award className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#C2F751]" strokeWidth={2.25} />
-                  <span className="text-white/80">{c}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-3xl bg-white/[0.04] border border-white/10 p-7 sm:p-8 flex flex-col">
-            <div className="flex items-center gap-4 mb-5">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0">
-                <Wrench className="w-6 h-6 text-[#C2F751]" strokeWidth={2} />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold" style={display}>The building side</h3>
-                <p className="text-sm text-[#C2F751] font-semibold" style={mono}>PRODUCT &amp; ENGINEERING</p>
-              </div>
-            </div>
-            <p className="text-[15px] text-white/70 leading-relaxed">
-              Years of software development experience, turned toward one job: converting the tutoring framework into the mission engine, marking logic and progress tracking you see on screen — while working directly with the first {ALPHA_PLACES_TOTAL} Alpha families to shape what ships next.
-            </p>
-            <div className="mt-auto pt-6">
-              <div className="rounded-2xl bg-[#C2F751] p-4">
-                <p className="text-sm text-[#0B1015] font-semibold leading-snug">
-                  Tutor-designed curriculum + purpose-built engine. That&apos;s the whole idea.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mt-5 rounded-3xl bg-white/[0.04] border border-white/10 p-7 sm:p-10">
-          <div className="text-[11px] font-bold text-[#C2F751] tracking-wider uppercase mb-4" style={mono}>A note from the founders</div>
-          <p className="text-lg sm:text-xl text-white/85 leading-relaxed italic max-w-3xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
-            &ldquo;We&apos;ve both watched capable students lose marks — and confidence — not because the maths was beyond them, but because the learning experience was not interactive enough. Revily is the tool we wished those students had: ten focused minutes a day, on exactly the right topics, marked the way an exam would mark them.&rdquo;
-          </p>
-          <div className="mt-5">
-            <p className="text-sm font-bold text-white" style={display}>The Revily founders</p>
-            <p className="text-[11px] text-white/50 mt-1 tracking-wider" style={mono}>ONE TUTOR + ONE BUILDER. THIRTY STUDENTS TO START.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-
-
 function SignupForm({ display }: { display: React.CSSProperties }) {
   const [form, setForm] = useState({ email: "", role: "Parent", board: "Not sure", tier: "Not sure", target: "Get a 4", commitment: "Yes, we're in" });
   const [submitted, setSubmitted] = useState(false);
@@ -591,7 +511,7 @@ function FAQ({ display }: { display: React.CSSProperties }) {
     { q: "Will I be charged today?", a: "No. Applying for the Alpha is completely free. You will not be charged today or when the Alpha opens." },
     { q: "Can this guarantee a Grade 4 or 5?", a: "No. No revision product can guarantee a grade. The goal is to help students practise the right topics more consistently." },
     { q: "Is this an AI chatbot?", a: "No. Revily is a revision engine — original questions, reliable marking logic, and daily missions structured around GCSE Maths skills. The curriculum comes from an experienced GCSE Maths tutor's teaching framework, not from unchecked AI generation." },
-    { q: "Who designs the questions?", a: "Every module is built from the teaching framework of our tutor co-founder — 8+ years of experience across GCSE, IGCSE, IB, SAT and ACT, with students among Outstanding Cambridge Learner Award winners. Nothing goes into a lesson that a real tutor wouldn't teach." },
+    { q: "How are the questions designed?", a: "Every module follows a structured teaching framework: diagnose the gap, explain the idea clearly, practise it step by step, then apply it independently. Lessons are reviewed against the GCSE Maths curriculum before they are released." },
     { q: "Is it exam-board specific?", a: "Content is mapped to GCSE Maths skills used across Edexcel, AQA, and OCR Foundation specs. We don't claim official endorsement from any exam board." },
     { q: "Is this for Foundation or Higher tier?", a: "We're starting with Foundation tier and the Grade 3 → 4/5 pass path. Higher-tier support is on the roadmap." },
     { q: "Is it suitable if my child is predicted a Grade 3?", a: "That's the core student we're designing for. Revily targets the topics most likely to lift a Grade 3 toward a 4 or 5." },
