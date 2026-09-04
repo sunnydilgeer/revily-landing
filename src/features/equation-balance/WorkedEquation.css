@@ -1,0 +1,128 @@
+.worked-equation {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worked-equation__line {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.72fr) minmax(170px, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--colour-border);
+  border-radius: 12px;
+  background: white;
+  opacity: 0;
+  animation: working-line-in 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--line-index) * 220ms);
+}
+
+.worked-equation__line--accent {
+  border-color: #bbc7ff;
+  background: var(--colour-primary-soft);
+}
+
+.worked-equation__math {
+  color: var(--colour-ink);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.worked-equation__part {
+  position: relative;
+  display: inline-block;
+  padding: 2px 0;
+  border-radius: 5px;
+}
+
+.worked-equation__part--added,
+.worked-equation__part--result {
+  margin-inline: 2px;
+  padding-inline: 5px;
+  color: var(--colour-primary-dark);
+  background: #fff1a8;
+  animation: changed-part-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.worked-equation__part--result {
+  color: #16624d;
+  background: var(--colour-accent-soft);
+}
+
+.worked-equation__part--cancelled::after {
+  position: absolute;
+  right: -1px;
+  bottom: 50%;
+  left: -1px;
+  height: 2px;
+  border-radius: 999px;
+  background: #d26464;
+  content: '';
+  transform: scaleX(0) rotate(-8deg);
+  transform-origin: left;
+  animation: cancelled-part-out 360ms 650ms ease-out forwards;
+}
+
+.worked-equation__note {
+  color: var(--colour-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+@keyframes working-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes changed-part-in {
+  from {
+    background: transparent;
+    transform: translateY(4px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes cancelled-part-out {
+  to {
+    color: var(--colour-muted);
+    transform: scaleX(1) rotate(-8deg);
+  }
+}
+
+@media (max-width: 500px) {
+  .worked-equation__line {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worked-equation__line {
+    opacity: 1;
+    animation: none;
+  }
+
+  .worked-equation__part--added,
+  .worked-equation__part--result,
+  .worked-equation__part--cancelled::after {
+    animation: none;
+  }
+
+  .worked-equation__part--cancelled::after {
+    transform: scaleX(1) rotate(-8deg);
+  }
+}

@@ -1,291 +1,459 @@
-import { useState } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
+import EquationBalance, { type BalanceExpression } from './EquationBalance'
+import WorkedEquation from './WorkedEquation'
+import {
+  equalityLesson,
+  type LessonChoice,
+  type LessonStep,
+} from './equalityLesson'
 import './EquationBalanceLesson.css'
 
-type LessonStage = 'identify' | 'break' | 'preserve' | 'complete'
 type Side = 'left' | 'right'
+type FeedbackTone = 'success' | 'hint'
 
-const STARTING_COUNT = 5
+const emptyExpression: BalanceExpression = { unitCount: 0 }
 
-function NumberTiles({ count }: { count: number }) {
-  return (
-    <div className="number-tiles" aria-hidden="true">
-      {Array.from({ length: count }, (_, index) => (
-        <span className="number-tile" key={index}>
-          1
-        </span>
-      ))}
-    </div>
-  )
+function cloneExpression(expression?: BalanceExpression): BalanceExpression {
+  return { ...(expression ?? emptyExpression) }
 }
 
 function EquationBalanceLesson() {
-  const [stage, setStage] = useState<LessonStage>('identify')
-  const [leftCount, setLeftCount] = useState(STARTING_COUNT)
-  const [rightCount, setRightCount] = useState(STARTING_COUNT)
-  const [feedback, setFeedback] = useState(
-    'Count the blocks on each side before choosing.',
+  const [stepIndex, setStepIndex] = useState(0)
+  const step = equalityLesson.steps[stepIndex]
+  const [left, setLeft] = useState(() => cloneExpression(step.left))
+  const [right, setRight] = useState(() => cloneExpression(step.right))
+  const [leftChanged, setLeftChanged] = useState(false)
+  const [rightChanged, setRightChanged] = useState(false)
+  const [feedback, setFeedback] = useState<string | null>(null)
+  const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>('hint')
+  const [resolved, setResolved] = useState(step.type === 'explain')
+  const [answer, setAnswer] = useState('')
+  const [attempts, setAttempts] = useState(0)
+  const [workingLineCount, setWorkingLineCount] = useState(1)
+
+  const progress = useMemo(
+    () => Math.round(((stepIndex + 1) / equalityLesson.steps.length) * 100),
+    [stepIndex],
   )
-  const [canContinue, setCanContinue] = useState(false)
-  const [leftRemoved, setLeftRemoved] = useState(false)
-  const [rightRemoved, setRightRemoved] = useState(false)
 
-  const balanceState =
-    leftCount === rightCount
-      ? 'balanced'
-      : leftCount > rightCount
-        ? 'left-heavy'
-        : 'right-heavy'
-
-  const progress =
-    stage === 'identify' ? 1 : stage === 'break' ? 2 : 3
-
-  const equationSymbol = balanceState === 'balanced' ? '=' : '≠'
-
-  function answerEquality(answer: 'equal' | 'not-equal') {
-    if (answer === 'equal') {
-      setFeedback(
-        'Correct. Both sides contain five blocks, so they have the same value.',
-      )
-      setCanContinue(true)
-      return
-    }
-
-    setFeedback(
-      'Not quite. Count each side again: both sides contain five blocks.',
-    )
-  }
-
-  function removeForBreak(side: Side) {
-    if (canContinue) {
-      return
-    }
-
-    if (side === 'left') {
-      setLeftCount((count) => count - 1)
-    } else {
-      setRightCount((count) => count - 1)
-    }
-
-    setFeedback(
-      'One side changed, but the other did not. The two sides are no longer equal.',
-    )
-    setCanContinue(true)
-  }
-
-  function removeForPreserve(side: Side) {
-    if (side === 'left' && !leftRemoved) {
-      const completesAction = rightRemoved
-
-      setLeftCount((count) => count - 1)
-      setLeftRemoved(true)
-
-      if (completesAction) {
-        setStage('complete')
-        setFeedback(
-          'You removed one block from both sides, so equality was preserved.',
-        )
-      } else {
-        setFeedback(
-          'The balance has tilted. What matching action is needed on the right?',
-        )
-      }
-    }
-
-    if (side === 'right' && !rightRemoved) {
-      const completesAction = leftRemoved
-
-      setRightCount((count) => count - 1)
-      setRightRemoved(true)
-
-      if (completesAction) {
-        setStage('complete')
-        setFeedback(
-          'You removed one block from both sides, so equality was preserved.',
-        )
-      } else {
-        setFeedback(
-          'The balance has tilted. What matching action is needed on the left?',
-        )
-      }
-    }
+  function loadStep(nextIndex: number) {
+    const nextStep = equalityLesson.steps[nextIndex]
+    setStepIndex(nextIndex)
+    setLeft(cloneExpression(nextStep.left))
+    setRight(cloneExpression(nextStep.right))
+    setLeftChanged(false)
+    setRightChanged(false)
+    setFeedback(null)
+    setFeedbackTone('hint')
+    setResolved(nextStep.type === 'explain')
+    setAnswer('')
+    setAttempts(0)
+    setWorkingLineCount(1)
   }
 
   function continueLesson() {
-    if (stage === 'identify') {
-      setStage('break')
-      setFeedback('Remove one block from either side and watch what happens.')
+    if (stepIndex < equalityLesson.steps.length - 1) {
+      loadStep(stepIndex + 1)
+    }
+  }
+
+  function chooseAnswer(choice: LessonChoice) {
+    if (resolved) return
+
+    setFeedback(choice.feedback)
+    setFeedbackTone(choice.correct ? 'success' : 'hint')
+    setAttempts((count) => count + 1)
+
+    if (choice.correct) {
+      setResolved(true)
+    }
+  }
+
+  function breakBalance(side: Side, amount: number) {
+    if (resolved) return
+
+    changeSide(side, amount)
+    setResolved(true)
+    setFeedbackTone('hint')
+    setFeedback(
+      'The balance tips. One side is now worth less, so the equals sign is no longer true.',
+    )
+  }
+
+  function changeSide(side: Side, amount: number) {
+    const update = (current: BalanceExpression) => ({
+      ...current,
+      unitCount: Math.max(0, current.unitCount - amount),
+    })
+
+    if (side === 'left') {
+      setLeft(update)
+    } else {
+      setRight(update)
+    }
+  }
+
+  function makeMatchingMove(side: Side, amount: number) {
+    if (side === 'left' && !leftChanged) {
+      changeSide('left', amount)
+      setLeftChanged(true)
+
+      if (rightChanged) {
+        completeMatchingMove()
+      } else {
+        setFeedbackTone('hint')
+        setFeedback('One side has changed. Now take 1 from the right too.')
+      }
+      return
     }
 
-    if (stage === 'break') {
-      setStage('preserve')
-      setLeftCount(STARTING_COUNT)
-      setRightCount(STARTING_COUNT)
-      setLeftRemoved(false)
-      setRightRemoved(false)
-      setFeedback(
-        'Remove one block from both sides to keep the balance equal.',
-      )
+    if (side === 'right' && !rightChanged) {
+      changeSide('right', amount)
+      setRightChanged(true)
+
+      if (leftChanged) {
+        completeMatchingMove()
+      } else {
+        setFeedbackTone('hint')
+        setFeedback('One side has changed. Now take 1 from the left too.')
+      }
+    }
+  }
+
+  function completeMatchingMove() {
+    setResolved(true)
+    setFeedbackTone('success')
+    setFeedback(
+      'Both sides are worth 4. You changed them in the same way, so they are still equal.',
+    )
+  }
+
+  function revealWorkingLine() {
+    if (step.type !== 'worked' || resolved) return
+
+    const nextCount = Math.min(workingLineCount + 1, step.working.length)
+    setWorkingLineCount(nextCount)
+
+    if (nextCount === step.working.length) {
+      setResolved(true)
+    }
+  }
+
+  function submitNumber(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (step.type !== 'number' || resolved) return
+
+    const numericAnswer = Number(answer)
+    setAttempts((count) => count + 1)
+
+    if (answer.trim() !== '' && numericAnswer === step.answer) {
+      setResolved(true)
+      setFeedbackTone('success')
+      setFeedback(step.success)
+      return
     }
 
-    setCanContinue(false)
+    setFeedbackTone('hint')
+    setFeedback(
+      step.diagnostics?.[String(numericAnswer)] ??
+        step.hints[Math.min(attempts, step.hints.length - 1)],
+    )
   }
 
   function restartLesson() {
-    setStage('identify')
-    setLeftCount(STARTING_COUNT)
-    setRightCount(STARTING_COUNT)
-    setLeftRemoved(false)
-    setRightRemoved(false)
-    setCanContinue(false)
-    setFeedback('Count the blocks on each side before choosing.')
+    loadStep(0)
   }
 
+  const showBalance = step.visual && step.left && step.right
+
   return (
-    <section className="concept-card equation-lesson">
-      <div className="concept-card-header">
-        <span>Equality as balance</span>
+    <section
+      className="concept-card equation-lesson"
+      id="lesson"
+      aria-labelledby="lesson-title"
+    >
+      <header className="concept-card-header">
+        <div>
+          <span className="lesson-kicker">Interactive lesson</span>
+          <span id="lesson-title">{equalityLesson.title}</span>
+        </div>
+
         <span className="status-pill">
-          Step {progress} of 3
+          {stepIndex + 1} / {equalityLesson.steps.length}
         </span>
-      </div>
+      </header>
 
       <div
-        className={`equation-preview balance-visual balance-visual--${balanceState}`}
-        role="img"
-        aria-label={`The left side has ${leftCount} blocks. The right side has ${rightCount} blocks. The balance is ${balanceState.replace('-', ' ')}.`}
+        className="lesson-progress"
+        role="progressbar"
+        aria-label={`${step.label}. ${progress}% complete`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
       >
-        <div className="balance-beam" />
-
-        <div className="balance-pivot" aria-hidden="true">
-          <span />
-        </div>
-
-        <div className="balance-pans">
-          <div className="balance-pan balance-pan--left">
-            <span className="pan-label">Left side</span>
-            <NumberTiles count={leftCount} />
-          </div>
-
-          <div className="balance-pan balance-pan--right">
-            <span className="pan-label">Right side</span>
-            <NumberTiles count={rightCount} />
-          </div>
-        </div>
+        <span style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="equation-readout" aria-hidden="true">
-        <strong>{leftCount}</strong>
-        <span>{equationSymbol}</span>
-        <strong>{rightCount}</strong>
-      </div>
+      <div className="lesson-stage" key={step.id}>
+        <p className="lesson-stage-label">{step.label}</p>
 
-      <div className="lesson-prompt">
-        {stage === 'identify' && (
-          <>
-            <h2>Do both sides have the same value?</h2>
-
-            <div className="lesson-actions">
-              <button
-                className="lesson-button lesson-button--primary"
-                type="button"
-                onClick={() => answerEquality('equal')}
-              >
-                Equal
-              </button>
-
-              <button
-                className="lesson-button"
-                type="button"
-                onClick={() => answerEquality('not-equal')}
-              >
-                Not equal
-              </button>
-            </div>
-          </>
+        {showBalance && (
+          <EquationBalance
+            left={left}
+            right={right}
+            variableValue={step.variableValue}
+          />
         )}
 
-        {stage === 'break' && (
-          <>
-            <h2>Change only one side</h2>
-
-            <div className="lesson-actions">
-              <button
-                className="lesson-button"
-                type="button"
-                disabled={canContinue}
-                onClick={() => removeForBreak('left')}
-              >
-                Remove 1 from left
-              </button>
-
-              <button
-                className="lesson-button"
-                type="button"
-                disabled={canContinue}
-                onClick={() => removeForBreak('right')}
-              >
-                Remove 1 from right
-              </button>
-            </div>
-          </>
+        {!showBalance && step.equation && step.type !== 'complete' && (
+          <div
+            className="equation-focus"
+            aria-label={`Current equation: ${step.equation}`}
+          >
+            <span>{step.equation}</span>
+          </div>
         )}
 
-        {stage === 'preserve' && (
-          <>
-            <h2>Keep the balance equal</h2>
+        <div className="lesson-prompt">
+          <h2>{step.title}</h2>
+          <p className="lesson-instruction">{step.instruction}</p>
 
-            <div className="lesson-actions">
-              <button
-                className="lesson-button"
-                type="button"
-                disabled={leftRemoved}
-                onClick={() => removeForPreserve('left')}
-              >
-                {leftRemoved ? 'Removed from left' : 'Remove 1 from left'}
-              </button>
+          <StepActivity
+            step={step}
+            answer={answer}
+            leftChanged={leftChanged}
+            rightChanged={rightChanged}
+            resolved={resolved}
+            onAnswerChange={setAnswer}
+            onBreak={breakBalance}
+            onChoice={chooseAnswer}
+            onMatchingMove={makeMatchingMove}
+            onNumberSubmit={submitNumber}
+            onRestart={restartLesson}
+            onRevealWorking={revealWorkingLine}
+            workingLineCount={workingLineCount}
+          />
 
-              <button
-                className="lesson-button"
-                type="button"
-                disabled={rightRemoved}
-                onClick={() => removeForPreserve('right')}
-              >
-                {rightRemoved ? 'Removed from right' : 'Remove 1 from right'}
-              </button>
-            </div>
-          </>
-        )}
-
-        {stage === 'complete' && (
-          <>
-            <h2>The balance stayed equal</h2>
-
-            <button
-              className="lesson-button"
-              type="button"
-              onClick={restartLesson}
+          {feedback && (
+            <div
+              className={`lesson-feedback lesson-feedback--${feedbackTone}`}
+              role={feedbackTone === 'success' ? 'status' : 'alert'}
+              key={`${step.id}-${attempts}-${feedback}`}
             >
-              Try it again
+              <span aria-hidden="true">{feedbackTone === 'success' ? '✓' : '→'}</span>
+              <p>{feedback}</p>
+            </div>
+          )}
+
+          {resolved && step.type !== 'complete' && (
+            <button
+              className="lesson-continue"
+              type="button"
+              onClick={continueLesson}
+            >
+              {stepIndex === 0 ? 'Start lesson' : 'Continue'}
+              <span aria-hidden="true">→</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+type StepActivityProps = {
+  step: LessonStep
+  answer: string
+  leftChanged: boolean
+  rightChanged: boolean
+  resolved: boolean
+  onAnswerChange: (value: string) => void
+  onBreak: (side: Side, amount: number) => void
+  onChoice: (choice: LessonChoice) => void
+  onMatchingMove: (side: Side, amount: number) => void
+  onNumberSubmit: (event: FormEvent<HTMLFormElement>) => void
+  onRestart: () => void
+  onRevealWorking: () => void
+  workingLineCount: number
+}
+
+function StepActivity({
+  step,
+  answer,
+  leftChanged,
+  rightChanged,
+  resolved,
+  onAnswerChange,
+  onBreak,
+  onChoice,
+  onMatchingMove,
+  onNumberSubmit,
+  onRestart,
+  onRevealWorking,
+  workingLineCount,
+}: StepActivityProps) {
+  if (step.type === 'choice') {
+    return (
+      <div className="lesson-actions lesson-actions--stacked">
+        {step.choices.map((choice) => (
+          <button
+            className="lesson-button"
+            disabled={resolved}
+            key={choice.id}
+            onClick={() => onChoice(choice)}
+            type="button"
+          >
+            {choice.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  if (step.type === 'break') {
+    return (
+      <div className="lesson-actions">
+        <button
+          className="lesson-button"
+          disabled={resolved}
+          onClick={() => onBreak('left', step.amount)}
+          type="button"
+        >
+          Remove {step.amount} from left
+        </button>
+        <button
+          className="lesson-button"
+          disabled={resolved}
+          onClick={() => onBreak('right', step.amount)}
+          type="button"
+        >
+          Remove {step.amount} from right
+        </button>
+      </div>
+    )
+  }
+
+  if (step.type === 'matching') {
+    return (
+      <div className="lesson-actions">
+        <MatchingButton
+          amount={step.amount}
+          changed={leftChanged}
+          side="left"
+          onMove={onMatchingMove}
+        />
+        <MatchingButton
+          amount={step.amount}
+          changed={rightChanged}
+          side="right"
+          onMove={onMatchingMove}
+        />
+      </div>
+    )
+  }
+
+  if (step.type === 'worked') {
+    const nextLine = step.working[workingLineCount]
+
+    return (
+      <div className="worked-example">
+        <WorkedEquation lines={step.working.slice(0, workingLineCount)} />
+        {!resolved && nextLine && (
+          <>
+            <p className="worked-prediction">
+              What do you think the next line will be?
+            </p>
+            <button
+              className="lesson-button worked-example__reveal"
+              onClick={onRevealWorking}
+              type="button"
+            >
+              {nextLine.revealLabel ?? 'Reveal the next line'}
+              <span aria-hidden="true">↓</span>
             </button>
           </>
         )}
-
-        <p className="lesson-feedback" aria-live="polite">
-          {feedback}
-        </p>
-
-        {canContinue && (
-          <button
-            className="lesson-continue"
-            type="button"
-            onClick={continueLesson}
-          >
-            Continue
-            <span aria-hidden="true">→</span>
-          </button>
-        )}
       </div>
-    </section>
+    )
+  }
+
+  if (step.type === 'number') {
+    return (
+      <form className="number-answer" onSubmit={onNumberSubmit}>
+        <label htmlFor={`answer-${step.id}`}>{step.suffix ?? 'Answer'}</label>
+        <input
+          id={`answer-${step.id}`}
+          inputMode="numeric"
+          pattern="-?[0-9]*"
+          value={answer}
+          onChange={(event) => onAnswerChange(event.target.value)}
+          disabled={resolved}
+          aria-describedby={`instruction-${step.id}`}
+        />
+        <button
+          className="lesson-button lesson-button--primary"
+          disabled={resolved || answer.trim() === ''}
+          type="submit"
+        >
+          Check answer
+        </button>
+        <span className="sr-only" id={`instruction-${step.id}`}>
+          Enter a number, then check your answer.
+        </span>
+      </form>
+    )
+  }
+
+  if (step.type === 'complete') {
+    return (
+      <div className="lesson-complete">
+        <div className="lesson-complete__badge" aria-hidden="true">
+          <span>✓</span>
+        </div>
+        <p className="lesson-complete__rule">Do the same operation to both sides.</p>
+        <ul>
+          <li>Saw what the equals sign means</li>
+          <li>Followed the method one line at a time</li>
+          <li>Chose steps that keep both sides equal</li>
+          <li>Solved equations without the balance</li>
+          <li>Used the rule in a real problem</li>
+        </ul>
+        <button
+          className="lesson-button lesson-button--primary"
+          onClick={onRestart}
+          type="button"
+        >
+          Practise again
+        </button>
+      </div>
+    )
+  }
+
+  return null
+}
+
+function MatchingButton({
+  amount,
+  changed,
+  side,
+  onMove,
+}: {
+  amount: number
+  changed: boolean
+  side: Side
+  onMove: (side: Side, amount: number) => void
+}) {
+  return (
+    <button
+      className="lesson-button"
+      disabled={changed}
+      onClick={() => onMove(side, amount)}
+      type="button"
+    >
+      {changed
+        ? `Subtracted ${amount} from ${side}`
+        : `Subtract ${amount} from ${side}`}
+    </button>
   )
 }
 

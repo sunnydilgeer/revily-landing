@@ -28,8 +28,8 @@ function App() {
             </p>
 
             <div className="hero-actions">
-              <a className="button button-primary" href="#prototype">
-                See the first lesson
+              <a className="button button-primary" href="#lesson">
+                Start the first lesson
               </a>
 
               <a className="button button-secondary" href="#principles">
@@ -48,9 +48,8 @@ function App() {
           </div>
 
           <p>
-            Our first working lesson will let students manipulate both sides of
-            an equation and see why performing the same operation preserves
-            equality.
+            See what happens when only one side changes. Then solve equations by
+            doing the same operation to both sides.
           </p>
         </section>
 
