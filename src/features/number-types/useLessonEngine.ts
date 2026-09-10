@@ -11,9 +11,12 @@ export function useLessonEngine(lesson: LessonDefinition) {
   const [history, setHistory] = useState<string[]>([])
   const [selection, setSelection] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
+  const [quotientValue, setQuotientValue] = useState('')
+  const [remainderValue, setRemainderValue] = useState('')
   const [feedback, setFeedback] = useState<FeedbackState | null>(null)
   const [pendingTarget, setPendingTarget] = useState<string | null>(null)
   const [attempts, setAttempts] = useState<Record<string, StateAttempt>>({})
+  const [hintsUsed, setHintsUsed] = useState<Record<string, boolean>>({})
   const [lessonState, setLessonState] = useState<Record<string, boolean | number | string>>({})
   const [completed, setCompleted] = useState(false)
 
@@ -23,6 +26,8 @@ export function useLessonEngine(lesson: LessonDefinition) {
   function resetResponse() {
     setSelection([])
     setInputValue('')
+    setQuotientValue('')
+    setRemainderValue('')
     setFeedback(null)
     setPendingTarget(null)
   }
@@ -46,36 +51,52 @@ export function useLessonEngine(lesson: LessonDefinition) {
     if (state.interaction.type === 'continue') {
       setAttempts((current) => ({
         ...current,
-        [state.id]: { attempts: 1, correct: true, correctFirstTry: true, usedHint: false },
+        [state.id]: { attempts: 1, correct: true, correctFirstTry: true, usedHint: false, misconceptionIdsTriggered: [] },
       }))
       if (state.stateUpdate) setLessonState((current) => ({ ...current, ...state.stateUpdate }))
     }
     const target = state.transition.onComplete ?? lesson.states[stateIndex + 1]?.id
     if (target) goTo(target)
+    else if (stateIndex === lesson.states.length - 1) setCompleted(true)
   }
 
   function submit() {
     const response = state.interaction.type === 'numericInput'
       ? inputValue
+      : state.interaction.type === 'quotientRemainderInput'
+        ? { quotient: quotientValue, remainder: remainderValue }
+      : state.interaction.type === 'order'
+        ? (selection.length > 0 ? selection : state.interaction.initialOrder ?? [])
       : state.interaction.type === 'select'
         ? selection[0]
         : selection
     const correct = checkAnswer(state.interaction, response)
     const previous = attempts[state.id]
     const nextAttemptCount = (previous?.attempts ?? 0) + 1
+    const selectedOption = state.interaction.type === 'select'
+      ? state.interaction.options?.find((option) => option.id === selection[0])
+      : undefined
+    const triggeredMisconception = correct ? undefined : selectedOption?.misconceptionId ?? state.analytics?.misconceptionId
+    const misconceptionIdsTriggered = [
+      ...(previous?.misconceptionIdsTriggered ?? []),
+      ...(triggeredMisconception ? [triggeredMisconception] : []),
+    ]
     setAttempts((current) => ({
       ...current,
       [state.id]: {
         attempts: nextAttemptCount,
         correct: previous?.correct || correct,
         correctFirstTry: previous?.correctFirstTry || (correct && nextAttemptCount === 1),
-        usedHint: previous?.usedHint || !correct || state.phase === 'repair',
+        usedHint: previous?.usedHint || Boolean(hintsUsed[state.id]),
+        misconceptionIdsTriggered: [...new Set(misconceptionIdsTriggered)],
       },
     }))
     const definition = correct ? state.feedback?.correct : state.feedback?.incorrect
     setFeedback({
       correct,
-      message: definition?.message ?? (correct ? 'Correct.' : 'Here’s the answer.'),
+      message: !correct && selectedOption?.feedback
+        ? selectedOption.feedback
+        : definition?.message ?? (correct ? 'Correct.' : 'Here’s the answer.'),
       evidence: definition?.evidence,
       visualAction: definition?.visualAction,
       followUpPrompt: definition?.followUpPrompt,
@@ -103,6 +124,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
     setCurrentId(lesson.states[0].id)
     setHistory([])
     setAttempts({})
+    setHintsUsed({})
     setLessonState({})
     setCompleted(false)
     resetResponse()
@@ -117,6 +139,15 @@ export function useLessonEngine(lesson: LessonDefinition) {
     setSelection((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id])
   }
 
+  function setOrder(ids: string[]) {
+    if (feedback || state.interaction.type !== 'order') return
+    setSelection(ids)
+  }
+
+  function markHintUsed() {
+    setHintsUsed((current) => ({ ...current, [state.id]: true }))
+  }
+
   const progress = useMemo(() => deriveProgress(lesson, attempts), [lesson, attempts])
   const coreStateIds = new Set(lesson.states.filter((candidate) => candidate.phase !== 'repair').map((candidate) => candidate.id))
   const percentComplete = Math.round((Object.entries(attempts).filter(([id, attempt]) => coreStateIds.has(id) && attempt.correct).length / coreStateIds.size) * 100)
@@ -126,6 +157,8 @@ export function useLessonEngine(lesson: LessonDefinition) {
     stateIndex,
     selection,
     inputValue,
+    quotientValue,
+    remainderValue,
     feedback,
     attempts,
     lessonState,
@@ -134,7 +167,11 @@ export function useLessonEngine(lesson: LessonDefinition) {
     completed,
     canGoBack: history.length > 0,
     setInputValue,
+    setQuotientValue,
+    setRemainderValue,
     toggleOption,
+    setOrder,
+    markHintUsed,
     submit,
     back,
     continueLesson,
@@ -162,7 +199,10 @@ function deriveProgress(lesson: LessonDefinition, attempts: Record<string, State
       attempts: attempted.reduce((sum, item) => sum + attempts[item.id].attempts, 0),
       correctFirstTry: attempted.filter((item) => attempts[item.id].correctFirstTry).length,
       correctAfterHint: attempted.filter((item) => attempts[item.id].correct && attempts[item.id].usedHint).length,
-      misconceptionIdsTriggered: [...new Set(attempted.filter((item) => attempts[item.id].usedHint).map((item) => item.analytics?.misconceptionId).filter(Boolean) as string[])],
+      misconceptionIdsTriggered: [...new Set(attempted.flatMap((item) =>
+        attempts[item.id].misconceptionIdsTriggered
+        ?? (attempts[item.id].usedHint && item.analytics?.misconceptionId ? [item.analytics.misconceptionId] : []),
+      ))],
       independentItemsCorrect: independentCorrect,
       masteryStatus,
     }

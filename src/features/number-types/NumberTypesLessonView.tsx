@@ -6,7 +6,7 @@ import { useLessonEngine } from './useLessonEngine'
 import { ChoiceCards } from './components/ChoiceCards'
 import { FeedbackPanel } from './components/FeedbackPanel'
 import { StateVisual } from './components/StateVisual'
-import type { MicroSkillId } from './types'
+import type { LessonDefinition, MicroSkillId } from './types'
 import './RationalNumbersLesson.css'
 
 const journey: MicroSkillId[] = [
@@ -18,11 +18,19 @@ const journey: MicroSkillId[] = [
   'mixed',
 ]
 
-export default function NumberTypesLessonView() {
-  const engine = useLessonEngine(numberTypesLesson)
+export default function NumberTypesLessonView({
+  lesson = numberTypesLesson,
+  labels = microSkillLabels,
+  variantLabel,
+}: {
+  lesson?: LessonDefinition
+  labels?: Partial<Record<MicroSkillId, string>>
+  variantLabel?: string
+}) {
+  const engine = useLessonEngine(lesson)
   const { state } = engine
-  const coreStates = numberTypesLesson.states.filter((candidate) => candidate.phase !== 'repair')
-  const completedCoreStates = numberTypesLesson.states
+  const coreStates = lesson.states.filter((candidate) => candidate.phase !== 'repair')
+  const completedCoreStates = lesson.states
     .slice(0, engine.stateIndex + 1)
     .filter((candidate) => candidate.phase !== 'repair').length
   const stateNumber = state.phase === 'repair' ? Math.max(1, completedCoreStates) : coreStates.findIndex((candidate) => candidate.id === state.id) + 1
@@ -47,8 +55,8 @@ export default function NumberTypesLessonView() {
     <section className="numbers-lesson" id="lesson" aria-labelledby="numbers-lesson-title">
       <header className="numbers-lesson__header">
         <div>
-          <span className="lesson-kicker">{numberTypesLesson.level} · Lesson 1</span>
-          <h2 id="numbers-lesson-title">{numberTypesLesson.title}</h2>
+          <span className="lesson-kicker">{lesson.level} · Lesson 1{variantLabel ? ` · ${variantLabel}` : ''}</span>
+          <h2 id="numbers-lesson-title">{lesson.title}</h2>
         </div>
         <div className="lesson-state-count" aria-label={`Part ${partNumber} of ${journey.length}`}>
           <strong>{partNumber}</strong><span>/ {journey.length}</span>
@@ -66,27 +74,32 @@ export default function NumberTypesLessonView() {
           return (
             <div className={`micro-skill-map__item micro-skill-map__item--${status}`} key={id} aria-current={status === 'current' ? 'step' : undefined}>
               <span>{status === 'complete' ? '✓' : index + 1}</span>
-              <small>{microSkillLabels[id]}</small>
+              <small>{labels[id]}</small>
             </div>
           )
         })}
       </nav>
 
       <article className="lesson-state" key={state.id}>
-        <div className="lesson-state__copy">
-          {state.content.eyebrow && <p className="lesson-state__eyebrow">{state.content.eyebrow}</p>}
-          {state.content.title ? (
-            <h3 ref={stateHeadingRef} tabIndex={-1}>{state.content.title}</h3>
-          ) : (
-            <h3 ref={stateHeadingRef} tabIndex={-1} className="lesson-state__prompt lesson-state__prompt--standalone">
-              {state.content.prompt || 'Lesson activity'}
-            </h3>
-          )}
-          {state.content.body && <p className="lesson-state__body">{state.content.body}</p>}
-          {state.content.title && state.content.prompt && <p className="lesson-state__prompt">{state.content.prompt}</p>}
-        </div>
+        {isContinue && (
+          <div className="lesson-state__copy">
+            {state.content.eyebrow && <p className="lesson-state__eyebrow">{state.content.eyebrow}</p>}
+            <h3 ref={stateHeadingRef} tabIndex={-1}>{state.content.title || state.content.prompt || 'Lesson activity'}</h3>
+            {state.content.body && <p className="lesson-state__body">{state.content.body}</p>}
+            {state.content.title && state.content.prompt && <p className="lesson-state__prompt">{state.content.prompt}</p>}
+          </div>
+        )}
 
         <StateVisual visual={state.component} revealed={isContinue || Boolean(engine.feedback)} />
+
+        {!isContinue && (
+          <div className="lesson-state__copy lesson-state__copy--question">
+            {state.content.eyebrow && <p className="lesson-state__eyebrow">{state.content.eyebrow}</p>}
+            <h3 ref={stateHeadingRef} tabIndex={-1}>{state.content.title || state.content.prompt || 'Lesson activity'}</h3>
+            {state.content.body && <p className="lesson-state__body">{state.content.body}</p>}
+            {state.content.title && state.content.prompt && <p className="lesson-state__prompt">{state.content.prompt}</p>}
+          </div>
+        )}
 
         {!isContinue && !engine.feedback && (
           <div className="lesson-response">

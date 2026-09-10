@@ -4,6 +4,28 @@ export type MicroSkillId =
   | 'primes'
   | 'squares-cubes'
   | 'rational-irrational'
+  | 'operation-priority'
+  | 'brackets-indices'
+  | 'equal-priority'
+  | 'fraction-grouping'
+  | 'digit-place-value'
+  | 'decimal-places'
+  | 'placeholder-zeroes'
+  | 'decimal-comparison'
+  | 'short-division-layout'
+  | 'short-division-partial-dividend'
+  | 'short-division-regrouping'
+  | 'short-division-place-value'
+  | 'short-division-check'
+  | 'long-multiplication-layout'
+  | 'long-multiplication-ones'
+  | 'long-multiplication-tens'
+  | 'long-multiplication-carrying'
+  | 'long-multiplication-application'
+  | 'decimal-addition'
+  | 'decimal-subtraction'
+  | 'decimal-multiplication'
+  | 'decimal-division'
   | 'mixed'
 
 export type LessonPhase =
@@ -29,15 +51,28 @@ export type NumberOption = {
   id: string
   label: string
   detail?: string
+  errorMethod?: string
+  misconceptionId?: string
+  rationale?: string
+  feedback?: string
+}
+
+export type DivisionAnswer = {
+  quotient: number
+  remainder: number
 }
 
 export type InteractionDefinition = {
-  type: 'select' | 'multiSelect' | 'numericInput' | 'continue'
+  type: 'select' | 'multiSelect' | 'numericInput' | 'quotientRemainderInput' | 'order' | 'continue'
   options?: NumberOption[]
-  correctAnswer?: string | string[] | number | number[]
+  correctAnswer?: string | string[] | number | number[] | DivisionAnswer
+  initialOrder?: string[]
+  displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'oneOf'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'nonNegativeInteger' | 'ordered' | 'oneOf'
+  dividend?: number
+  divisor?: number
 }
 
 export type FeedbackDefinition = {
@@ -109,6 +144,286 @@ export type EquationVisual = {
   props: { expression: string; resolvedExpression?: string }
 }
 
+export type OperationPriorityVisual = {
+  type: 'operationPriority'
+  props: { compact?: boolean }
+}
+
+export type OperationSpotlightVisual = {
+  type: 'operationSpotlight'
+  props: { example: 'all-bidmas' | 'brackets-indices' }
+}
+
+export type NextOperationToken = {
+  text: string
+  superscript?: string
+  actionId?: string
+  actionLabel?: string
+}
+
+export type NextOperationStage = {
+  accessibleExpression: string
+  tokens: NextOperationToken[]
+  resolvedExpression: string
+  correctActionId: string
+  operation: string
+  correctFeedback: string
+  incorrectFeedback: string
+}
+
+export type NextOperationVisual = {
+  type: 'nextOperation'
+  props: {
+    stages: NextOperationStage[]
+    finalExpression: string
+    finalAnswer: string
+  }
+}
+
+export type WorkedExpressionStep = {
+  expression: string
+  operation: string
+}
+
+export type OperationLegendItem = {
+  label: string
+  status: 'now' | 'later' | 'absent'
+  step?: number
+  detail?: string
+}
+
+export type ExpressionStepsVisual = {
+  type: 'expressionSteps'
+  props: {
+    expression: string
+    steps: WorkedExpressionStep[]
+    legend?: OperationLegendItem[]
+    optionId?: string
+    optionLabel?: string
+    revealStepsOnAnswer?: boolean
+    secondary?: {
+      expression: string
+      steps: WorkedExpressionStep[]
+      label?: string
+      legend?: OperationLegendItem[]
+      optionId?: string
+      optionLabel?: string
+    }
+  }
+}
+
+export type GroupedFractionVisual = {
+  type: 'groupedFraction'
+  props: {
+    numerator: string
+    denominator: string
+    resolvedNumerator?: string
+    resolvedDenominator?: string
+    simplified?: string
+    numeratorOperation?: string
+    denominatorOperation?: string
+    simplifyOperation?: string
+    legend?: OperationLegendItem[]
+    showLabels?: boolean
+    revealStepsOnAnswer?: boolean
+  }
+}
+
+export type SetNumberLineVisual = {
+  type: 'setNumberLine'
+  props: {
+    mode: 'whole' | 'integer'
+    values: number[]
+    excluded?: string[]
+  }
+}
+
+export type NestedNumberSetsVisual = {
+  type: 'nestedNumberSets'
+  props: {
+    tokens: Array<{
+      label: string
+      region: 'whole' | 'integer-only' | 'rational-non-integer' | 'irrational'
+    }>
+    revealPlacementsOnAnswer?: boolean
+  }
+}
+
+export type FactorsMultiplesComparisonVisual = {
+  type: 'factorsMultiplesComparison'
+  props: { target: number }
+}
+
+export type PrimeGridVisual = {
+  type: 'primeGrid'
+  props: {
+    max: number
+    highlightedPrimes: number[]
+  }
+}
+
+export type PlaceValueChartVisual = {
+  type: 'placeValueChart'
+  props: {
+    value: string
+    highlightIndices?: number[]
+    interactive?: boolean
+    initialSelectedIndex?: number
+    showReadout?: boolean
+    revealReadoutOnAnswer?: boolean
+    hideZeroesUntilReveal?: boolean
+    equation?: string
+    revealedEquation?: string
+    compact?: boolean
+  }
+}
+
+export type DecimalComparisonVisual = {
+  type: 'decimalComparison'
+  props: {
+    values: [string, string]
+    optionIds?: [string, string]
+    relation?: '<' | '>' | '='
+    revealResultOnAnswer?: boolean
+  }
+}
+
+export type DecimalOrderingVisual = {
+  type: 'decimalOrdering'
+  props: {
+    values: Array<{ id: string; label: string }>
+    alignedValues?: Record<string, string>
+    revealAlignedOnAnswer?: boolean
+  }
+}
+
+export type ShortDivisionStage = {
+  label?: string
+  narration: string
+  durationMs?: number
+  quotientDigits?: Array<string | null>
+  activeDividendIndices?: number[]
+  working?: string[]
+  regroup?: {
+    result: string
+    carryDigit: string
+    targetIndex: number
+  }
+}
+
+export type ShortDivisionVisual = {
+  type: 'shortDivision'
+  props: {
+    dividend: string
+    divisor: number
+    mode?: 'static' | 'question' | 'paused' | 'stepper'
+    quotientDigits?: Array<string | null>
+    activeDividendIndices?: number[]
+    working?: string[]
+    stages?: ShortDivisionStage[]
+    answer?: {
+      label: string
+      quotientDigits: Array<string | null>
+      remainder?: number
+      working?: string[]
+    }
+    showLabels?: boolean
+  }
+}
+
+export type DivisionCheckVisual = {
+  type: 'divisionCheck'
+  props: {
+    dividend: number
+    divisor: number
+    quotient: number
+    remainder: number
+    revealOnAnswer?: boolean
+  }
+}
+
+export type LongMultiplicationStage = {
+  label: string
+  narration: string
+  nextPrompt?: string
+  showMultiplicand?: boolean
+  showMultiplier?: boolean
+  showRule?: boolean
+  multiplicationPairs?: Array<{
+    topIndex: number
+    bottomIndex: number
+  }>
+  durationMs?: number
+  active?: 'setup' | 'ones' | 'zero' | 'tens' | 'add' | 'scale'
+  onesRow?: string
+  tensRow?: string
+  total?: string
+  working?: string[]
+  carry?: {
+    value: string
+    fromColumn: string
+    toColumn: string
+  }
+  placeValue?: {
+    digit: string
+    place: string
+    value: string
+  }
+}
+
+export type LongMultiplicationVisual = {
+  type: 'longMultiplication'
+  props: {
+    multiplicand: string
+    multiplier: string
+    mode?: 'static' | 'question' | 'stepper'
+    stages?: LongMultiplicationStage[]
+    onesRow?: string
+    tensRow?: string
+    total?: string
+    visibleOnesRow?: string
+    visibleTensRow?: string
+    visibleTotal?: string
+    answer?: string
+    showLabels?: boolean
+  }
+}
+
+export type MultiplicationScaleVisual = {
+  type: 'multiplicationScale'
+  props: {
+    known: { left: string; right: string; product: string }
+    target: { left: string; right: string; product?: string }
+    leftScale: number
+    rightScale: number
+    revealOnAnswer?: boolean
+  }
+}
+
+export type DecimalOperationStage = {
+  label: string
+  narration: string
+  expression: string
+  rows?: string[]
+  activeColumn?: number
+  markers?: string[]
+  durationMs?: number
+}
+
+export type DecimalOperationVisual = {
+  type: 'decimalOperation'
+  props: {
+    kind: 'place-value' | 'add' | 'subtract' | 'multiply' | 'divide'
+    expression: string
+    mode?: 'static' | 'question' | 'stepper'
+    rows?: string[]
+    result?: string
+    visibleResult?: string
+    stages?: DecimalOperationStage[]
+    answer?: string
+  }
+}
+
 export type LessonVisual =
   | NumberLineVisual
   | ArrayVisual
@@ -118,6 +433,23 @@ export type LessonVisual =
   | DecimalVisual
   | ClassificationVisual
   | EquationVisual
+  | OperationPriorityVisual
+  | OperationSpotlightVisual
+  | NextOperationVisual
+  | ExpressionStepsVisual
+  | GroupedFractionVisual
+  | SetNumberLineVisual
+  | NestedNumberSetsVisual
+  | FactorsMultiplesComparisonVisual
+  | PrimeGridVisual
+  | PlaceValueChartVisual
+  | DecimalComparisonVisual
+  | DecimalOrderingVisual
+  | ShortDivisionVisual
+  | DivisionCheckVisual
+  | LongMultiplicationVisual
+  | MultiplicationScaleVisual
+  | DecimalOperationVisual
 
 export type LearningState = {
   id: string
@@ -162,6 +494,7 @@ export type StateAttempt = {
   correct: boolean
   correctFirstTry: boolean
   usedHint: boolean
+  misconceptionIdsTriggered?: string[]
 }
 
 export type MicroSkillProgress = {

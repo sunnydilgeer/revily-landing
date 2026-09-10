@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { JourneyMap } from "@/components/JourneyMap";
 
 type Profile = {
@@ -18,6 +18,11 @@ export function AppHeader() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [initials, setInitials] = useState<string>("");
   const [mounted, setMounted] = useState(false);
+  const headerHidden =
+    pathname === "/" ||
+    pathname?.startsWith("/preview") ||
+    pathname?.startsWith("/auth") ||
+    pathname?.startsWith("/admin");
 
   async function loadProfile() {
     const {
@@ -46,6 +51,9 @@ export function AppHeader() {
 
   useEffect(() => {
     setMounted(true);
+
+    if (headerHidden || !isSupabaseConfigured) return;
+
     loadProfile();
 
     window.addEventListener("revily:xp-updated", loadProfile);
@@ -65,18 +73,16 @@ export function AppHeader() {
       subscription.unsubscribe();
       window.removeEventListener("revily:xp-updated", loadProfile);
     };
-  }, []);
+  }, [headerHidden]);
 
   // Hide until mounted (avoids hydration flash)
   if (!mounted) return null;
 
   // Hide on marketing, auth, and admin routes
-  if (
-    pathname === "/" ||
-    pathname?.startsWith("/preview") ||
-    pathname?.startsWith("/auth") ||
-    pathname?.startsWith("/admin")
-  ) return null;
+  if (headerHidden) return null;
+
+  // Supabase-backed navigation is intentionally inactive until configured.
+  if (!isSupabaseConfigured) return null;
 
   // Show spacer while profile loads so layout doesn't jump
   if (!profile) return <div className="h-14" />;

@@ -171,7 +171,7 @@ function EquationBalanceLesson() {
   return (
     <section
       className="concept-card equation-lesson"
-      id="lesson"
+      id="equality-lesson"
       aria-labelledby="lesson-title"
     >
       <header className="concept-card-header">

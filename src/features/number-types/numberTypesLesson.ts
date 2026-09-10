@@ -87,16 +87,16 @@ const states: LearningState[] = [
   },
   continueState({
     id: 'L1-F01', microSkillId: 'factors-multiples', phase: 'teach',
-    teachingIntent: 'Establish factors as exact grouping dimensions.',
-    content: { eyebrow: 'Micro-skill 2', title: 'Dividers or times table?', body: 'Every complete rectangular arrangement gives a factor pair.', prompt: 'See how all 12 counters can form different equal rows.' },
-    component: { type: 'arrayBuilder', props: { total: 12, arrangements: [{ rows: 1, columns: 12 }, { rows: 2, columns: 6 }, { rows: 3, columns: 4 }], mode: 'factors', activeArrangement: 2 } },
+    teachingIntent: 'Contrast factors that fit into a number with multiples that build out from it.',
+    content: { eyebrow: 'Micro-skill 2', title: 'Factors fit in. Multiples build out.', body: 'Use 10 as the anchor. Factors multiply together to make 10; multiples are made by adding another equal group of 10.' },
+    component: { type: 'factorsMultiplesComparison', props: { target: 10 } },
     transition: { onComplete: 'L1-F02' },
   }),
   continueState({
     id: 'L1-F02', microSkillId: 'factors-multiples', phase: 'teach',
     teachingIntent: 'Name the factor rule after visual experience.',
-    content: { title: 'Factors divide exactly', body: 'A factor divides into a number with no remainder.', prompt: 'The complete arrangements reveal every factor of 12.' },
-    component: { type: 'factorPairs', props: { target: 12, pairs: [[1, 12], [2, 6], [3, 4]], revealCount: 3 } },
+    content: { title: 'Factors fit exactly into 10', body: 'A factor divides into a number with no remainder.', prompt: 'Pair the side lengths of every complete rectangle.' },
+    component: { type: 'factorPairs', props: { target: 10, pairs: [[1, 10], [2, 5]], revealCount: 2 } },
     transition: { onComplete: 'L1-F03' },
   }),
   {
@@ -111,7 +111,7 @@ const states: LearningState[] = [
   continueState({
     id: 'L1-M01', microSkillId: 'factors-multiples', phase: 'teach',
     teachingIntent: 'Build multiples as repeated additions and times-table steps.',
-    content: { title: 'Multiples grow in equal steps', body: 'Multiples are the numbers in a number’s times table.', prompt: 'Follow five jumps of 7.' },
+    content: { title: 'Multiples build in equal groups', body: 'Multiples are the numbers in a number’s times table.', prompt: 'Start with one group of 7, then add another 7 each time.' },
     component: { type: 'multipleStepper', props: { base: 7, count: 5 } }, transition: { onComplete: 'L1-M02' },
   }),
   {
@@ -147,9 +147,9 @@ const states: LearningState[] = [
   },
   continueState({
     id: 'L1-P01', microSkillId: 'primes', phase: 'teach',
-    teachingIntent: 'Introduce prime numbers through their factor list.',
-    content: { eyebrow: 'Micro-skill 3', title: 'What makes a number prime?', body: 'A prime number is a positive integer greater than 1 with exactly two positive factors: 1 and itself.', prompt: 'The only factors of 7 are 1 and 7.' },
-    component: { type: 'factorPairs', props: { target: 7, pairs: [[1, 7]], revealCount: 1 } },
+    teachingIntent: 'Introduce primes through a 1–50 grid and inspect factor evidence for every number.',
+    content: { eyebrow: 'Micro-skill 3', title: 'Explore prime numbers to 50', body: 'There is no repeating pattern or magic shortcut for finding prime numbers. A prime number can only be divided exactly by 1 and itself—not by 2, 3 or another whole number, unless that number is the prime itself.', prompt: 'Hover over or focus any number to see its factors. Prime numbers are highlighted.' },
+    component: { type: 'primeGrid', props: { max: 50, highlightedPrimes: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47] } },
     transition: { onComplete: 'L1-P02' },
   }),
   {
@@ -357,7 +357,7 @@ export const numberTypesLesson: LessonDefinition = {
   states,
 }
 
-export const microSkillLabels: Record<MicroSkillId, string> = {
+export const microSkillLabels: Partial<Record<MicroSkillId, string>> = {
   'whole-values': 'Whole or not?',
   'factors-multiples': 'Factors & multiples',
   primes: 'Prime numbers',

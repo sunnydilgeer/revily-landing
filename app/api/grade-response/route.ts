@@ -2,10 +2,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // service role — server only, never exposed to client
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase =
+  supabaseUrl && supabaseServiceRoleKey
+    ? createClient(supabaseUrl, supabaseServiceRoleKey)
+    : null;
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!;
 
@@ -15,6 +17,8 @@ const RATE_LIMIT_MAX = 20;
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
 
 async function checkRateLimit(sessionId: string): Promise<boolean> {
+  if (!supabase) return false;
+
   const now = new Date();
   const { data } = await supabase
     .from("grading_rate_limit")
@@ -67,6 +71,13 @@ const FALLBACK_RESULT: GradeResult = {
 
 // ── Route handler ────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Supabase is not configured." },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { questionId, studentAnswer, userId, sessionId, skillId } = body;

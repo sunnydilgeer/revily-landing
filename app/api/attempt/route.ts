@@ -25,12 +25,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { nextBox, nextDueDate, hasIntervalElapsed } from "@/lib/learningEngine";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAdmin =
+  supabaseUrl && supabaseServiceRoleKey
+    ? createClient(supabaseUrl, supabaseServiceRoleKey)
+    : null;
 
 export async function POST(req: NextRequest) {
+  if (!supabaseAdmin) {
+    return NextResponse.json(
+      { error: "Supabase is not configured." },
+      { status: 503 }
+    );
+  }
+
   const body = await req.json();
   const { questionId, skillId, answerPicked, isCorrect, userId, sessionId, misconceptionCode } = body;
 
