@@ -1,0 +1,78 @@
+.lesson-state.lesson-state--variant-d { min-height: 0; padding: 28px clamp(16px, 4vw, 40px); }
+.d-activity { width: 100%; max-width: 620px; margin: 0 auto; }
+.d-activity h3 { font-size: clamp(20px, 2.4vw, 26px); line-height: 1.35; margin: 24px 0 14px; outline: none; }
+.d-body { color: #52645c; font-size: 16px; line-height: 1.6; margin: 0 0 18px; }
+.d-stage { margin: 0; padding: 24px clamp(16px, 3vw, 32px); background: #f3f7f4; border: 1px solid #e0e9e2; border-radius: 18px; text-align: center; }
+.d-stage figcaption { color: #52645c; font-size: 14px; margin-top: 10px; }
+.d-line { position: relative; height: 104px; margin: 12px 16px 0; }
+.d-line__rail { position: absolute; left: 0; right: 0; top: 54px; height: 3px; background: #718879; }
+.d-line__tick { position: absolute; top: 45px; transform: translateX(-50%); }
+.d-line__tick i { display: block; width: 2px; height: 20px; margin: auto; background: #718879; }
+.d-line__tick b { display: block; margin-top: 8px; font-size: 15px; font-weight: 600; color: #4e6055; }
+.d-line__point { position: absolute; top: 0; transform: translateX(-50%); transition: left 250ms ease; }
+.d-line__point b { display: block; white-space: nowrap; font-size: 20px; line-height: 28px; color: #135737; }
+.d-line__point i { display: block; height: 16px; width: 16px; margin: 19px auto 0; background: #207950; border: 3px solid white; box-shadow: 0 0 0 2px #207950; border-radius: 50%; }
+.d-readout { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; min-height: 40px; }
+.d-readout strong { font-size: 32px; color: #135737; }
+.d-readout span { color: #405c4b; font-size: 15px; }
+.d-slider-label { display: block; margin: 4px 0 8px; color: #52645c; font-size: 14px; }
+.d-slider { display: block; width: calc(100% - 32px); margin: 0 16px 18px; accent-color: #207950; cursor: pointer; height: 28px; }
+.d-presets { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.d-presets button, .d-demo-action { border: 1px solid #b7ccbe; border-radius: 10px; padding: 10px 16px; min-height: 44px; background: white; font: inherit; color: #225a3d; cursor: pointer; }
+.d-presets button[aria-pressed="true"] { background: #dceee2; border-color: #207950; }
+.d-expression { font-size: 42px; font-weight: 600; color: #244b35; min-height: 68px; display: flex; align-items: center; justify-content: center; margin: 12px 0; }
+.d-fraction { display: inline-flex; vertical-align: middle; flex-direction: column; align-items: stretch; text-align: center; line-height: 1.1; padding: 0 3px; }
+.d-fraction > span:first-child { border-bottom: 1.5px solid currentColor; padding: 0 4px 3px; }
+.d-fraction > span:last-child { padding: 3px 4px 0; }
+.d-equation { font-size: clamp(17px, 2vw, 22px); color: #244b35; line-height: 1.6; margin: 10px 0; }
+.d-worked__reveal { min-height: 48px; color: #52645c; }
+.d-conclusion { font-size: 17px; font-weight: 600; color: #135737; margin: 4px 0 18px; }
+.d-demo-action { margin-top: 12px; }
+.d-choices { display: flex; gap: 10px; flex-wrap: wrap; }
+.d-choice { display: flex; flex: 1 1 140px; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; padding: 14px 18px; border: 2px solid #dbe4de; border-radius: 12px; background: white; color: #293e31; font: inherit; font-weight: 600; line-height: 1.4; text-align: left; cursor: pointer; }
+.d-choices--grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.d-choice__mark { color: #6d8376; font-size: 20px; flex-shrink: 0; }
+.d-choice:hover:not(:disabled), .d-choice--selected { border-color: #207950; background: #f0f8f2; }
+.d-choice:disabled { cursor: default; opacity: 1; }
+.d-choice--correct { border-color: #207950; background: #eaf5ed; }
+.d-choice--incorrect { border-color: #bd6947; background: #fff4ee; }
+.d-choice--correct .d-choice__mark { color: #207950; }
+.d-choice--incorrect .d-choice__mark { color: #a24b2d; }
+.d-choices--reasons { flex-direction: column; }
+.d-choices--reasons .d-choice { flex: none; }
+.d-feedback { margin-top: 18px; padding: 16px 18px; border-left: 4px solid #bd6947; background: #fff7f1; border-radius: 8px; color: #503e32; }
+.d-feedback--correct { border-color: #207950; background: #edf6ef; color: #244b35; }
+.d-feedback strong { font-size: 16px; }
+.d-feedback p { margin: 6px 0 0; font-size: 16px; line-height: 1.55; }
+.d-actions { margin-top: 22px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+.d-actions .lesson-secondary-action { margin-right: auto; }
+.d-activity button:focus-visible, .d-slider:focus-visible { outline: 3px solid #347bd3; outline-offset: 3px; }
+@media (max-width: 600px) {
+  .lesson-state.lesson-state--variant-d { padding: 20px 16px; }
+  .d-stage { padding: 18px 12px; }
+  .d-choices--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .d-choice { padding: 12px; flex-basis: 110px; font-size: 15px; }
+  .d-activity h3 { margin-top: 20px; }
+  .d-expression { font-size: 36px; }
+  .d-equation { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .d-line__point { transition: none; } }
+.numbers-lesson:has(.lesson-state--variant-d) .lesson-state-count { flex-shrink: 0; white-space: nowrap; }
+
+.d-numeric input { width: 100%; box-sizing: border-box; min-height: 56px; padding: 14px 16px; border: 2px solid #b7ccbe; border-radius: 12px; background: white; color: #293e31; font: inherit; font-size: 20px; }
+.d-numeric input:disabled { opacity: 1; color: #293e31; background: #f3f7f4; }
+.d-numeric input:focus-visible { outline: 3px solid #347bd3; outline-offset: 3px; }
+.d-claim { margin: 0; color: #244b35; font-size: 19px; line-height: 1.6; }
+.d-claim > span { display: block; margin-bottom: 8px; color: #52645c; font-size: 14px; }
+
+.numbers-lesson.numbers-lesson--focused { border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+.study-topic { padding: 2px 0 14px; }
+.study-topic h2 { margin: 0; color: #617065; font-size: 14px; font-weight: 500; line-height: 1.4; }
+.numbers-lesson--focused .lesson-progress { height: 5px; border-radius: 99px; overflow: hidden; background: #e1e7ed; }
+.numbers-lesson--focused .lesson-state { margin-top: 24px; border-radius: 20px; background: white; }
+.numbers-lesson--focused .lesson-state--variant-d { padding: 24px 32px; }
+.numbers-lesson--focused .d-activity { max-width: none; }
+@media (max-width: 600px) {
+  .numbers-lesson--focused .lesson-state { margin-top: 18px; }
+  .numbers-lesson--focused .lesson-state--variant-d { padding: 18px 16px; }
+}

@@ -37,8 +37,33 @@ function parseNumericList(value: unknown): number[] {
     .filter(Number.isFinite) ?? []
 }
 
+// Deliberately parse a small numeric grammar; never evaluate learner input as code.
+export function parseDecimalOrFraction(response: unknown): number | null {
+  const text = String(response ?? '').trim().replace(/−/g, '-').replace(/·/g, '.')
+  const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/
+  if (decimal.test(text)) {
+    const value = Number(text)
+    return Number.isFinite(value) ? value : null
+  }
+  const fraction = text.match(/^([+-]?\d+)\s*\/\s*([+-]?\d+)$/)
+  if (fraction) {
+    const numerator = Number(fraction[1]), denominator = Number(fraction[2])
+    return Number.isSafeInteger(numerator) && Number.isSafeInteger(denominator) && denominator !== 0 ? numerator / denominator : null
+  }
+  const mixed = text.match(/^([+-]?)(\d+)\s+(\d+)\s*\/\s*(\d+)$/)
+  if (!mixed) return null
+  const whole = Number(mixed[2]), numerator = Number(mixed[3]), denominator = Number(mixed[4])
+  if (![whole, numerator, denominator].every(Number.isSafeInteger) || denominator === 0 || numerator >= denominator) return null
+  return (mixed[1] === '-' ? -1 : 1) * (whole + numerator / denominator)
+}
+
 export function checkAnswer(interaction: InteractionDefinition, response: unknown): boolean {
   const expected = interaction.correctAnswer
+  if (interaction.acceptanceRule === 'openInterval') {
+    const value = parseDecimalOrFraction(response)
+    return value !== null && interaction.lowerBound !== undefined && interaction.upperBound !== undefined
+      && value > interaction.lowerBound && value < interaction.upperBound
+  }
   if (interaction.type === 'quotientRemainderInput') {
     if (!isDivisionAnswer(expected) || !isDivisionResponse(response)) return false
     const quotient = parseNonNegativeInteger(response.quotient)

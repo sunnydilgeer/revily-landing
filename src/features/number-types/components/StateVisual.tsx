@@ -1,4 +1,5 @@
 import type { LessonVisual } from '../types'
+import { IntegerValueVisual } from '../variant-d/IntegerValueVisual'
 import { ArrayBuilder } from './ArrayBuilder'
 import { DecimalPattern } from './DecimalPattern'
 import { FactorPairBuilder } from './FactorPairBuilder'
@@ -32,6 +33,7 @@ export function StateVisual({ visual, revealed, selected = [], onVisualSelect, o
   onVisualComplete?: () => void
 }) {
   switch (visual.type) {
+    case 'integerValues': return <IntegerValueVisual {...visual.props} revealed={revealed} />
     case 'numberLine': return visual.props.hideUntilAnswer && !revealed ? null : <NumberLine {...visual.props} revealed={revealed} />
     case 'arrayBuilder': return <ArrayBuilder {...visual.props} />
     case 'factorPairs': return <FactorPairBuilder {...visual.props} />

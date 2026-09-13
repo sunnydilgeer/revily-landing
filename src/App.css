@@ -500,3 +500,20 @@ footer span:first-child {
   .app-shell--lesson .preview-lesson-nav { width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); }
   .app-shell--lesson .preview-lesson-nav button { min-width: 0; padding-inline: 3px; font-size: .72rem; }
 }
+
+/* Student study view: keep navigation available without competing with the activity. */
+.app-shell.app-shell--study { width: min(760px, calc(100% - 32px)); }
+.app-shell--study .site-header { min-height: 64px; border: 0; flex-direction: row; align-items: center; padding: 8px 0; }
+.app-shell--study .brand { min-width: 44px; min-height: 44px; align-items: center; }
+.app-shell.app-shell--study .brand .brand-mark { display: grid; width: 30px; height: 30px; border-radius: 9px; font-size: 15px; }
+.app-shell--study .lesson-preview { padding: 4px 0 40px; }
+.study-menu-toggle, .study-menu-close { min-height: 44px; padding: 8px 12px; background: transparent; border: 0; border-radius: 9px; color: #526071; font: inherit; font-size: 14px; cursor: pointer; }
+.study-menu-toggle { display: inline-flex; align-items: center; gap: 12px; }
+.study-menu-toggle:hover, .study-menu-close:hover { background: #e9edf5; }
+.study-menu { padding: 16px; margin-bottom: 16px; background: white; border: 1px solid #dfe4ed; border-radius: 16px; }
+.study-menu .preview-lesson-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+.study-menu .preview-lesson-nav button { min-height: 44px; font-size: 14px; padding-inline: 4px; }
+.study-menu .preview-variant-nav { margin: 14px 0 4px; padding: 12px 0; border: 0; flex-direction: column; align-items: flex-start; }
+.study-menu .preview-variant-nav > div { display: flex; flex-wrap: wrap; }
+.study-menu .preview-variant-nav button { min-height: 44px; }
+.study-menu-toggle:focus-visible, .study-menu-close:focus-visible { outline: 3px solid #347bd3; outline-offset: 2px; }

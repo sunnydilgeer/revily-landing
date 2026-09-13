@@ -60,21 +60,21 @@ export function useLessonEngine(lesson: LessonDefinition) {
     else if (stateIndex === lesson.states.length - 1) setCompleted(true)
   }
 
-  function submit() {
+  function gradeSelection(selectedIds: string[]) {
     const response = state.interaction.type === 'numericInput'
       ? inputValue
       : state.interaction.type === 'quotientRemainderInput'
         ? { quotient: quotientValue, remainder: remainderValue }
       : state.interaction.type === 'order'
-        ? (selection.length > 0 ? selection : state.interaction.initialOrder ?? [])
+        ? (selectedIds.length > 0 ? selectedIds : state.interaction.initialOrder ?? [])
       : state.interaction.type === 'select'
-        ? selection[0]
-        : selection
+        ? selectedIds[0]
+        : selectedIds
     const correct = checkAnswer(state.interaction, response)
     const previous = attempts[state.id]
     const nextAttemptCount = (previous?.attempts ?? 0) + 1
     const selectedOption = state.interaction.type === 'select'
-      ? state.interaction.options?.find((option) => option.id === selection[0])
+      ? state.interaction.options?.find((option) => option.id === selectedIds[0])
       : undefined
     const triggeredMisconception = correct ? undefined : selectedOption?.misconceptionId ?? state.analytics?.misconceptionId
     const misconceptionIdsTriggered = [
@@ -109,6 +109,16 @@ export function useLessonEngine(lesson: LessonDefinition) {
     setPendingTarget(target ?? null)
     if (correct && state.stateUpdate) setLessonState((current) => ({ ...current, ...state.stateUpdate }))
     if (!target && stateIndex === lesson.states.length - 1) setCompleted(true)
+  }
+
+  function submit() {
+    gradeSelection(selection)
+  }
+
+  function submitSelection(ids: string[]) {
+    if (feedback || state.interaction.type !== 'select') return
+    setSelection(ids)
+    gradeSelection(ids)
   }
 
   function back() {
@@ -173,6 +183,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
     setOrder,
     markHintUsed,
     submit,
+    submitSelection,
     back,
     continueLesson,
   }

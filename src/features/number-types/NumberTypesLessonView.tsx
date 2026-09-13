@@ -7,6 +7,7 @@ import { ChoiceCards } from './components/ChoiceCards'
 import { FeedbackPanel } from './components/FeedbackPanel'
 import { StateVisual } from './components/StateVisual'
 import type { LessonDefinition, MicroSkillId } from './types'
+import { VariantDActivity } from './variant-d/VariantDActivity'
 import './RationalNumbersLesson.css'
 
 const journey: MicroSkillId[] = [
@@ -22,10 +23,12 @@ export default function NumberTypesLessonView({
   lesson = numberTypesLesson,
   labels = microSkillLabels,
   variantLabel,
+  focusMode = false,
 }: {
   lesson?: LessonDefinition
   labels?: Partial<Record<MicroSkillId, string>>
   variantLabel?: string
+  focusMode?: boolean
 }) {
   const engine = useLessonEngine(lesson)
   const { state } = engine
@@ -52,8 +55,8 @@ export default function NumberTypesLessonView({
   }, [state.id])
 
   return (
-    <section className="numbers-lesson" id="lesson" aria-labelledby="numbers-lesson-title">
-      <header className="numbers-lesson__header">
+    <section className={`numbers-lesson${focusMode ? ' numbers-lesson--focused' : ''}`} id="lesson" aria-labelledby="numbers-lesson-title">
+      {focusMode ? <header className="study-topic"><h2 id="numbers-lesson-title">{labels[state.microSkillId]}</h2></header> : <header className="numbers-lesson__header">
         <div>
           <span className="lesson-kicker">{lesson.level} · Lesson 1{variantLabel ? ` · ${variantLabel}` : ''}</span>
           <h2 id="numbers-lesson-title">{lesson.title}</h2>
@@ -61,13 +64,13 @@ export default function NumberTypesLessonView({
         <div className="lesson-state-count" aria-label={`Part ${partNumber} of ${journey.length}`}>
           <strong>{partNumber}</strong><span>/ {journey.length}</span>
         </div>
-      </header>
+      </header>}
 
-      <div className="lesson-progress" aria-label={`${visualProgress}% through lesson`}>
+      <div className="lesson-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={visualProgress} aria-label={`${visualProgress}% through lesson`}>
         <span style={{ width: `${visualProgress}%` }} />
       </div>
 
-      <nav className="micro-skill-map" aria-label="Lesson journey">
+      {!focusMode && <nav className="micro-skill-map" aria-label="Lesson journey">
         {journey.map((id, index) => {
           const currentIndex = journey.indexOf(state.microSkillId)
           const status = index < currentIndex ? 'complete' : index === currentIndex ? 'current' : 'upcoming'
@@ -78,9 +81,10 @@ export default function NumberTypesLessonView({
             </div>
           )
         })}
-      </nav>
+      </nav>}
 
-      <article className="lesson-state" key={state.id}>
+      <article className={`lesson-state${state.component.type === 'integerValues' ? ' lesson-state--variant-d' : ''}`} key={state.id}>
+        {state.component.type === 'integerValues' ? <VariantDActivity engine={engine} headingRef={stateHeadingRef} /> : <>
         {isContinue && (
           <div className="lesson-state__copy">
             {state.content.eyebrow && <p className="lesson-state__eyebrow">{state.content.eyebrow}</p>}
@@ -144,11 +148,12 @@ export default function NumberTypesLessonView({
             </button>
           )}
         </div>
+        </>}
       </article>
 
-      <footer className="numbers-lesson__footer">
+      {!focusMode && <footer className="numbers-lesson__footer">
         <p><strong>Habit:</strong> Work out the value → recall the rule → check the evidence.</p>
-      </footer>
+      </footer>}
     </section>
   )
 }

@@ -66,11 +66,13 @@ export type InteractionDefinition = {
   type: 'select' | 'multiSelect' | 'numericInput' | 'quotientRemainderInput' | 'order' | 'continue'
   options?: NumberOption[]
   correctAnswer?: string | string[] | number | number[] | DivisionAnswer
+  lowerBound?: number
+  upperBound?: number
   initialOrder?: string[]
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'nonNegativeInteger' | 'ordered' | 'oneOf'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval'
   dividend?: number
   divisor?: number
 }
@@ -424,8 +426,17 @@ export type DecimalOperationVisual = {
   }
 }
 
+export type IntegerValueVisualDefinition = {
+  type: 'integerValues'
+  props:
+    | { kind: 'explorer' | 'fractionWorked' | 'fractionValue' | 'equivalentForms' | 'rootsWorked' | 'challenge' | 'squareEquation' | 'openInterval' | 'midpointClaim' }
+    | { kind: 'classify'; expression: string; value: number; min: number; max: number; resolution?: string }
+    | { kind: 'rootCheck'; radicand: number; lower: number; upper: number }
+}
+
 export type LessonVisual =
   | NumberLineVisual
+  | IntegerValueVisualDefinition
   | ArrayVisual
   | FactorPairsVisual
   | MultipleVisual
