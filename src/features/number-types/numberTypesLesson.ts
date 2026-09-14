@@ -1,3 +1,4 @@
+import { withLessonExplanation } from './lessonExplanations'
 import type { LearningState, LessonDefinition, MicroSkillId } from './types'
 
 const integerOptions = [
@@ -354,7 +355,7 @@ export const numberTypesLesson: LessonDefinition = {
   title: 'Numbers',
   level: 'GCSE Foundation',
   goal: 'I can look at a number, identify what type of number it is, and explain why.',
-  states,
+  states: states.map(withLessonExplanation),
 }
 
 export const microSkillLabels: Partial<Record<MicroSkillId, string>> = {

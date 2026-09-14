@@ -30,3 +30,7 @@ rounding lesson.
 - Theatre context: `246 × 18 = 4,428 seats`
 - Known-fact scaling: `24 × 16 = 384` to `240 × 16 = 3,840`
 - GCSE-style scaling: `2.96 × 3.2 = 9.472` to `29.6 × 32 = 947.2`
+
+## Variant B
+
+`variant-b/` adds a 26-screen, 19-question sequence with a split area model, visible column carries, replayable examples and factor-scaling exploration. Guidance is inside collapsed hints; both grading paths retain responses and provide structured explanations. B is the initial preview selection, with A preserved in the menu. See `variant-b/SPEC.md` and `variant-b/QA.md`; the renderer lives in `../written-methods/`.

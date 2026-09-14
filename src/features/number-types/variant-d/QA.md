@@ -65,3 +65,14 @@ The user approved the revised flow and requested the remaining PDF content. The 
 - Opening/closing the menu retains explorer value 2.5 and typed interval answer 6.2. Escape and Back to lesson close the disclosure and return focus to its toggle. Variant A can be selected through the menu and retains its expanded presentation; switching back to D restores the compact view.
 - Wrong answers still show feedback and Continue. Menu controls fit a 320px viewport, use 44px minimum heights and readable labels. Browser QA uses the actual preview in temporary fixed-width frames; no real-device testing or measured cognitive-load study is claimed.
 - Final local preview left on Maya's question. No deployment, commit or push. Temporary layout QA HTML removed from the isolated preview directory.
+
+## Worked explanations (13 September 2026)
+
+- Production build passes after the final styling change.
+- Content coverage: every interactive question has complete correct/incorrect worked feedback (A: 28, B: 27, D: 39). Both outcomes share the working.
+- Compared against HEAD: state IDs, counts, question content, visuals, answer keys, acceptance rules and transitions remain unchanged in all variants.
+- Rendered D was traversed through all 39 questions, including factors/multiples, primes, squares/cubes, rational/irrational, mixed and transfer. Every question displayed Explanation. Continue remained enabled through the sequence; the final question offered Start lesson again.
+- A and B wrong-answer smoke checks displayed the new steps and Continue. D covered both correct and incorrect attempts. Open-response 6.2 was accepted while the source final value 6·5 was labelled Example answer.
+- Real 320px iframe viewport: the four-step tutor example and stacked fractions fit without horizontal overflow (document width and scroll width both 320px, article 288px). Screenshot verified spacing and accessible numbering. Desktop screenshot and computed list style verified decimal step numbering.
+- PDF extracted and checked against all eight tutor explanations. Source worked wording/equations retained; marking annotations omitted. Source terminology caveats are documented in SPEC.md.
+- Changes remain local; no deployment performed for this update.

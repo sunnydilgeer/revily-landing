@@ -14,3 +14,7 @@ Lesson 4 uses the shared declarative lesson engine to teach the formal short-div
 - `ShortDivisionHint` provides accessible, answer-safe method prompts.
 
 Incorrect answers reveal the accepted answer and unlock **Continue** after one submission. Formal long division with multi-digit divisors, decimal or fractional answers and contextual remainder interpretation are intentionally reserved for later lessons.
+
+## Variant B
+
+`variant-b/` adds a 25-screen, 16-question sequence with equal-group and exchange explorations, progressive bus-stop examples, collapsed hints and structured feedback. B is the initial preview selection; A remains available in the lesson menu. See `variant-b/SPEC.md` and `variant-b/QA.md`. The renderer is shared with Lesson 5 B in `../written-methods/`.

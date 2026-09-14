@@ -1,0 +1,52 @@
+.wm-lesson { font-variant-numeric: tabular-nums; }
+.wm-statements { display: grid; gap: 14px; padding: 12px 0; }
+.wm-statements p { margin: 0; font-size: clamp(18px, 2.6vw, 27px); line-height: 1.5; overflow-wrap: anywhere; }
+.wm-bus { display: grid; grid-template-columns: 1.2em auto; grid-template-rows: 1.6em 1.8em; width: max-content; max-width: 100%; margin: 12px auto; font-size: clamp(27px, 4vw, 38px); }
+.wm-bus__quotient { grid-column: 2; display: grid; grid-template-columns: repeat(var(--digits), 1.3em); padding-left: .2em; }
+.wm-bus__divisor { grid-row: 2; padding-top: .25em; }
+.wm-bus__dividend { grid-column: 2; grid-row: 2; display: grid; grid-template-columns: repeat(var(--digits), 1.3em); border-top: 2px solid #42694f; border-left: 2px solid #42694f; padding: .2em 0 .2em .2em; }
+.wm-bus b { position: relative; font-weight: 500; }
+.wm-bus b.is-active { border-radius: 6px; background: #d6e9dd; }
+.wm-bus sup { position: absolute; top: -.1em; left: -.12em; font-size: 13px; color: #286e46; }
+.wm-column { width: max-content; max-width: 100%; margin: 0 auto; font-size: clamp(24px, 4vw, 34px); }
+.wm-column-row, .wm-column-carry { display: grid; grid-template-columns: .8em repeat(var(--digits), 1.05em); align-items: center; min-height: 1.4em; }
+.wm-column-row b { font-weight: 500; }
+.wm-column-carry { min-height: .9em; height: .9em; color: #247044; }
+.wm-column-carry small { font-size: 14px; font-weight: 700; }
+.wm-column hr { border: 0; border-top: 2px solid #6b8573; margin: 5px 0; }
+.wm-step-label { margin: 0 0 14px; color: #617065; font-size: 13px; }
+.wm-narration { font-size: 15px; line-height: 1.6; margin: 18px 0 0; }
+.wm-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 16px 0 0; }
+.wm-controls button { min-height: 44px; padding: 10px 12px; border: 1px solid #b7ccbe; border-radius: 9px; color: #245e3d; background: white; font: inherit; font-size: 14px; cursor: pointer; }
+.wm-controls button[aria-pressed=true] { background: #dceee2; border-color: #40845b; }
+.wm-controls button:disabled { opacity: .45; cursor: default; }
+.wm-counters { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.wm-counters i { display: block; width: 12px; height: 12px; border-radius: 50%; background: #53916b; }
+.wm-groups { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; min-height: 42px; }
+.wm-group { display: flex; align-items: center; padding: 10px; border: 1px solid #659476; border-radius: 10px; }
+.wm-leftovers { padding: 16px 4px; min-height: 46px; }
+.wm-exchange { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.wm-exchange > div > span:first-child { display: block; margin-bottom: 15px; }
+.wm-rods { display: flex; justify-content: center; gap: 5px; }
+.wm-rods i { display: block; height: 95px; width: 8px; background: repeating-linear-gradient(to bottom, #53916b 0, #53916b 8px, transparent 8px, transparent 9.5px); }
+.wm-area { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 1fr); min-height: 180px; gap: 3px; }
+.wm-area button { min-width: 0; background-color: #e0eee4; background-image: linear-gradient(#b4cbbd55 1px, transparent 1px), linear-gradient(90deg, #b4cbbd55 1px, transparent 1px); background-size: 20% calc(100% / 14); border: 2px solid #9bbbA6; border-radius: 6px; color: #245339; padding: 8px; font: inherit; font-size: 14px; cursor: pointer; }
+.wm-area button:first-child { background-size: 10% calc(100% / 14); }
+.wm-area button:last-child { background-size: 50% calc(100% / 14); }
+.wm-area button[aria-pressed=true] { border-color: #207950; background-color: #cbe6d5; }
+.wm-area button .wm-area-product { display: block; margin-top: 12px; }
+.wm-scale { padding-top: 22px; }
+.wm-scale strong { font-size: clamp(20px, 3vw, 28px); }
+.wm-scale p { font-size: 14px; line-height: 1.6; }
+.wm-pair-input { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wm-pair-input label { min-width: 0; }
+.wm-pair-input label > span { display: block; margin-bottom: 8px; font-size: 14px; color: #52645c; }
+.wm-pair-input .pvb-input { font-size: 18px; padding: 12px; }
+@media (max-width: 400px) {
+  .wm-area-unit { display: none; }
+  .wm-area button { font-size: 12px; padding: 5px; }
+  .wm-pair-input { grid-template-columns: 1fr; }
+  .wm-column { font-size: 25px; }
+  .wm-lesson .pvb-actions { gap: 8px; flex-wrap: wrap; }
+  .wm-lesson .lesson-primary-action { padding-left: 14px; padding-right: 14px; }
+}

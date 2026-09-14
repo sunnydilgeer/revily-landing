@@ -14,3 +14,11 @@ Lesson 3 uses the shared declarative lesson engine to teach digit/place/value, d
 - `PlaceValueHint` provides accessible, answer-safe method prompts.
 
 Incorrect answers reveal the accepted answer and always unlock **Continue**. Multiplication and division by powers of ten are intentionally reserved for a later lesson.
+
+## Variant B · Step by step
+
+The preview defaults to Variant B for Lesson 3. Use **Lesson menu → A Current** to compare the original lesson.
+
+Variant B has 26 screens and 17 questions, following the shared [lesson design pattern](../LESSON_DESIGN.md). It separates place from value, introduces whole-number columns before decimal columns, then teaches placeholder zeroes, equivalent decimals, comparison and ordering. Every question has a collapsed inline Hint. Worked examples are optional and replayable; submitted answers remain visible alongside structured explanations.
+
+Implementation and content live in `variant-b/`. See its [storyboard](variant-b/SPEC.md) and [QA record](variant-b/QA.md).

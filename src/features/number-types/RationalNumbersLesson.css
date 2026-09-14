@@ -356,3 +356,19 @@ button.prime-grid-cell:hover span, button.prime-grid-cell:focus-visible span { d
   .lesson-state { animation: none; }
   .lesson-progress span, .number-card { transition: none; }
 }
+
+/* Worked feedback is shared across Lesson 1 variants. */
+.lesson-explanation { min-width: 0; overflow-wrap: anywhere; }
+.lesson-explanation__heading { display: block; font-size: 1.05em; }
+.lesson-explanation ol { list-style: decimal; margin: 1rem 0; padding-left: 1.4rem; }
+.lesson-explanation li { display: list-item; padding-left: .25rem; margin: 0 0 1rem; }
+.lesson-explanation li:last-child { margin-bottom: 0; }
+.lesson-explanation li > strong { font-weight: 650; }
+.lesson-explanation li p { margin: .3rem 0 0; line-height: 1.6; }
+.lesson-explanation__answer { border-top: 1px solid currentColor; padding-top: .8rem; margin-bottom: 0; }
+
+.lesson-explanation__fraction { display: inline-flex; flex-direction: column; vertical-align: middle; align-items: stretch; text-align: center; line-height: 1.15; font-size: .9em; margin: .1em .15em; }
+.lesson-explanation__fraction > span:first-child { border-bottom: 1px solid currentColor; padding: 0 .12em .1em; }
+.lesson-explanation__fraction > span:last-child { padding-top: .1em; }
+
+.lesson-explanation__answer > strong { display: inline; }

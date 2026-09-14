@@ -69,3 +69,12 @@ Implementation adds D-only visuals for the equation, interval and midpoint, uses
 ## Cosmetic study view — 13 September 2026
 
 User requested a minimal studying screen after approving the content. `App.tsx` activates the compact shell for Lesson 1 Variant D. One Lesson menu disclosure contains existing lesson/variant navigation, supports Escape and returns focus to its toggle. Opening/closing the menu preserves the mounted lesson and its response state. `NumberTypesLessonView.tsx` accepts `focusMode` and shows only the active topic title and accessible progress bar above the activity, omitting the expanded header, journey and footer. Scoped App/VariantD styles reduce the overall width and remove the outer card decoration; the activity remains in its own readable white panel. A/B retain their previous presentation; all teaching, questions, answers and progression remain unchanged.
+
+
+## Worked explanations update
+
+Every question in Lesson 1 A, B and D now reveals “Explanation”, numbered worked steps and a final answer. Correct and incorrect attempts show the same complete working and allow Continue. The shared content map lives in `../lessonExplanations.ts`; `ExplanationSteps` renders it without changing other lessons.
+
+Anushka’s Q1–Q5 worked wording and equations are transcribed verbatim from the supplied PDF; exam marking annotations are omitted. Q5(b) labels 6·5 as an example because other values strictly between 6 and 7 are accepted. Other questions use newly written steps in the same instructional style.
+
+Source caveats retained at the user’s explicit request: the PDF calls negative integers “whole”; our formal whole-number set elsewhere starts at zero. Its root decimals are truncated displays, and “does not come out exactly” is informal wording rather than a definition of non-integer. The baseline A opening also predates the formal distinction and calls negative integers whole numbers. Question content is unchanged by this feedback-only update. New explanations outside the PDF use the precise term integer. Middle dots within source decimals retain the PDF typography; separator dots are also retained.

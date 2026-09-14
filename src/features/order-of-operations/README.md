@@ -1,5 +1,11 @@
 # Lesson 2: Order of operations
 
+## Variants
+
+The original implementation below remains **A · Current**. **B · Step by step** is available through the Lesson menu and is the default when selecting Lesson 2. It uses original Revily content in the teaching style and focused study layout of Lesson 1 D; no Anushka Lesson 2 source was supplied.
+
+Variant B lives in `variant-b/`: 27 screens, 17 one-tap or numeric questions, optional visual explorations, replayable worked examples, and full numbered explanations after every answer. It reuses the lesson engine and explanation renderer. See `variant-b/SPEC.md` for the storyboard and `variant-b/QA.md` for verification. The remaining documentation describes Variant A.
+
 Lesson 2 extends the existing declarative lesson engine without changing Lesson 1 content.
 
 ## Data flow

@@ -1,3 +1,4 @@
+import { withLessonExplanation } from '../lessonExplanations'
 import { numberTypesLesson } from '../numberTypesLesson'
 import type { LearningState, LessonDefinition, MicroSkillId } from '../types'
 
@@ -98,7 +99,7 @@ const firstSharedState = numberTypesLesson.states.findIndex((state) => state.id 
 export const variantBLesson: LessonDefinition = {
   ...numberTypesLesson,
   id: 'L001-B',
-  states: [...openingStates, ...numberTypesLesson.states.slice(firstSharedState)],
+  states: [...openingStates.map(withLessonExplanation), ...numberTypesLesson.states.slice(firstSharedState)],
 }
 
 export const variantBMicroSkillLabels: Partial<Record<MicroSkillId, string>> = {

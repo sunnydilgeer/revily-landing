@@ -1,3 +1,4 @@
+import { withLessonExplanation } from '../lessonExplanations'
 import { microSkillLabels, numberTypesLesson } from '../numberTypesLesson'
 import type { IntegerValueVisualDefinition, LearningState, LessonDefinition, MicroSkillId, NumberOption } from '../types'
 
@@ -61,5 +62,5 @@ export const variantDOpeningStates: LearningState[] = [
 ]
 const sharedStart = numberTypesLesson.states.findIndex(state => state.id === 'L1-F01')
 if (sharedStart < 0) throw new Error('Variant D needs L1-F01.')
-export const variantDLesson: LessonDefinition = { ...numberTypesLesson, id: 'L001-D', states: [...variantDOpeningStates, ...numberTypesLesson.states.slice(sharedStart)] }
+export const variantDLesson: LessonDefinition = { ...numberTypesLesson, id: 'L001-D', states: [...variantDOpeningStates.map(withLessonExplanation), ...numberTypesLesson.states.slice(sharedStart)] }
 export const variantDMicroSkillLabels: Partial<Record<MicroSkillId, string>> = { ...microSkillLabels, 'whole-values': 'Integers & non-integers' }

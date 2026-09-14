@@ -78,6 +78,7 @@ export type InteractionDefinition = {
 }
 
 export type FeedbackDefinition = {
+  workedExplanation?: { steps: Array<{ title: string; lines: string[] }>; answer: string; answerLabel?: string }
   message: string
   evidence?: string
   visualAction?: VisualAction

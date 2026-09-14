@@ -1,3 +1,4 @@
+import { ExplanationSteps } from '../components/ExplanationSteps'
 import type { Ref } from 'react'
 import { parseDecimalOrFraction } from '../lessonMath'
 import type { useLessonEngine } from '../useLessonEngine'
@@ -30,7 +31,7 @@ export function VariantDActivity({ engine, headingRef }: Props) {
         </button>
       })}
     </div>}
-    {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status"><strong>{feedback.message}</strong><p>{feedback.evidence}</p></div>}
+    {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status">{feedback.workedExplanation ? <ExplanationSteps explanation={feedback.workedExplanation} /> : <><strong>Explanation</strong><p>{feedback.evidence}</p></>}</div>}
     <div className="d-actions">
       {engine.canGoBack && !feedback && <button className="lesson-secondary-action" type="button" onClick={engine.back}>← Back</button>}
       {(multiple || numeric) && !feedback && <button className="lesson-primary-action" type="button" disabled={numeric ? !engine.inputValue.trim() : selection.length === 0} onClick={engine.submit}>Check answer</button>}

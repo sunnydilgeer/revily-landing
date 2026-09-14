@@ -97,6 +97,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
       message: !correct && selectedOption?.feedback
         ? selectedOption.feedback
         : definition?.message ?? (correct ? 'Correct.' : 'Here’s the answer.'),
+      workedExplanation: definition?.workedExplanation,
       evidence: definition?.evidence,
       visualAction: definition?.visualAction,
       followUpPrompt: definition?.followUpPrompt,

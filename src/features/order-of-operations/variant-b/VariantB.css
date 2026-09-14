@@ -1,0 +1,73 @@
+.numbers-lesson.opb-lesson { border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; scroll-margin-top: 16px; }
+.opb-topic { display: flex; justify-content: space-between; align-items: center; padding: 2px 0 14px; color: #617065; gap: 12px; }
+.opb-topic h2 { margin: 0; font-size: 14px; font-weight: 500; }
+.opb-topic > span { font-size: 12px; white-space: nowrap; }
+.opb-lesson .lesson-progress { height: 5px; border-radius: 99px; overflow: hidden; background: #e1e7ed; }
+.opb-activity { margin-top: 24px; padding: 28px 32px; border-radius: 20px; background: white; }
+.opb-activity h3 { margin: 24px 0 14px; color: #293e31; font-size: clamp(20px, 2.4vw, 26px); line-height: 1.35; outline: none; }
+.opb-body { margin: 0 0 18px; color: #52645c; font-size: 16px; line-height: 1.6; }
+.opb-stage { margin: 0; padding: 24px clamp(12px, 3vw, 28px); background: #f3f7f4; border: 1px solid #e0e9e2; border-radius: 18px; text-align: center; color: #244b35; }
+.opb-stage figcaption, .opb-note { color: #52645c; font-size: 14px; line-height: 1.6; margin: 10px 0 0; }
+.opb-math { display: flex; justify-content: center; align-items: center; min-height: 100px; font-size: clamp(21px, 3.5vw, 32px); }
+.opb-math .katex-display { margin: .5em 0; }
+.opb-toggles { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.opb-toggles button { min-height: 44px; padding: 10px 14px; border: 1px solid #b7ccbe; border-radius: 10px; background: white; font: inherit; font-size: 14px; color: #225a3d; cursor: pointer; }
+.opb-toggles button[aria-pressed="true"] { background: #dceee2; border-color: #207950; }
+.opb-counter-model { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.opb-grouped { display: flex; padding: 10px; gap: 8px; border: 1px dashed #8aab96; border-radius: 14px; }
+.opb-counters { display: grid; grid-template-columns: repeat(2, 12px); align-content: center; gap: 6px; min-height: 50px; padding: 8px; background: #dceee2; border: 1px solid #b7ccbe; border-radius: 8px; }
+.opb-counters--loose { border: 0; background: transparent; }
+.opb-counters i { width: 12px; height: 12px; background: #24774d; border-radius: 50%; }
+.opb-equation { font-size: 26px; margin: 8px 0; font-weight: 600; }
+.opb-step-label { margin: 0; color: #617065; font-size: 13px; }
+.opb-instruction { margin: 10px 0 0; font-weight: 600; line-height: 1.5; }
+.opb-choices { display: flex; flex-direction: column; gap: 10px; }
+.opb-choice { display: flex; justify-content: space-between; align-items: center; gap: 14px; min-height: 60px; padding: 14px 18px; border: 2px solid #dbe4de; border-radius: 12px; background: white; color: #293e31; font: inherit; font-weight: 600; line-height: 1.4; text-align: left; cursor: pointer; }
+.opb-choice > span:last-child { flex-shrink: 0; }
+.opb-choice:hover:not(:disabled) { border-color: #207950; background: #f0f8f2; }
+.opb-choice:disabled { opacity: 1; cursor: default; }
+.opb-choice--correct { border-color: #207950; background: #eaf5ed; }
+.opb-choice--incorrect { border-color: #bd6947; background: #fff4ee; }
+.opb-input { width: 100%; box-sizing: border-box; min-height: 56px; padding: 14px 16px; border: 2px solid #b7ccbe; border-radius: 12px; background: white; color: #293e31; font: inherit; font-size: 20px; }
+.opb-input:disabled { opacity: 1; background: #f3f7f4; }
+.opb-feedback { margin-top: 18px; padding: 16px 18px; border-left: 4px solid #bd6947; background: #fff7f1; border-radius: 8px; color: #503e32; }
+.opb-feedback--correct { border-color: #207950; background: #edf6ef; color: #244b35; }
+.opb-result { margin: 0 0 12px; font-size: 13px; font-weight: 600; }
+.opb-actions, .opb-check { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 22px; }
+.opb-actions:empty { display: none; }
+.opb-actions .lesson-secondary-action { margin-right: auto; }
+.opb-activity button:focus-visible, .opb-input:focus-visible { outline: 3px solid #347bd3; outline-offset: 3px; }
+.opb-priority { text-align: left; }
+.opb-priority ol { margin: 12px 0 0; padding: 0; list-style: none; }
+.opb-priority li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 10px 0; }
+.opb-priority__letters { display: grid; place-items: center; align-self: start; min-height: 36px; border-radius: 8px; background: #dceee2; font-size: 14px; }
+.opb-priority strong, .opb-priority span { display: block; }
+.opb-priority span { margin-top: 4px; color: #52645c; font-size: 14px; line-height: 1.5; }
+@media (max-width: 600px) {
+  .opb-activity { margin-top: 18px; padding: 18px 16px; }
+  .opb-stage { padding: 18px 10px; }
+  .opb-math { font-size: 20px; }
+  .opb-choice { font-size: 15px; padding: 12px; }
+  .opb-feedback { padding: 14px 12px; }
+  .opb-grouped { padding: 6px; gap: 5px; }
+  .opb-counter-model { gap: 6px; }
+  .opb-counters { grid-template-columns: repeat(2, 10px); gap: 4px; padding: 6px; }
+  .opb-counters i { width: 10px; height: 10px; }
+}
+
+/* The reference and its highlights appear only when the learner opens Hint. */
+.opb-hint-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; padding: 8px 12px; border: 0; border-radius: 8px; background: transparent; color: #617065; font: inherit; font-size: 13px; cursor: pointer; }
+.opb-hint-toggle:hover { background: #e5eee7; color: #216544; }
+.opb-reference[hidden] { display: none; }
+.opb-reference { max-width: 400px; margin: 12px auto 0; border-top: 1px solid #dce5df; padding-top: 12px; text-align: left; }
+.opb-reference__label { display: flex; justify-content: space-between; align-items: center; color: #617065; font-size: 12px; }
+.opb-reference__label strong { font-weight: 600; letter-spacing: .05em; }
+.opb-reference__rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.opb-reference__rules button { min-height: 48px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; padding: 5px 4px; border: 1px solid #dce5df; border-radius: 8px; background: transparent; color: #52645c; font: inherit; font-size: 13px; cursor: pointer; }
+.opb-reference__rules button strong { font-size: 12px; font-weight: 600; }
+.opb-reference__rules button span { font-size: 14px; line-height: 1.2; }
+.opb-reference__rules button:hover, .opb-reference__rules button[aria-pressed="true"] { background: #dceee2; border-color: #82a88f; color: #216544; }
+.opb-reference__note { margin-top: 10px; color: #52645c; font-size: 13px; line-height: 1.5; }
+.opb-reference__note p { margin: 0; }
+.opb-reference__note strong { font-weight: 600; color: #365b44; }
+@media (max-width: 600px) { .opb-reference { margin-top: 8px; } }
