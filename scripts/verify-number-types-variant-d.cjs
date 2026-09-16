@@ -40,6 +40,8 @@ const idSet = new Set(ids)
 assert(states.length === 67, `Expected 67 Lesson 1 states, found ${states.length}`)
 const clips = states.filter(state => state.component.type === 'lessonVideo')
 assert(clips.length === 5, 'Lesson 1 must have one video per topic')
+const videoView = fs.readFileSync(path.join(root, 'src/features/number-types/components/LessonVideoActivity.tsx'), 'utf8')
+assert(!videoView.includes('Ani’s explanation') && !videoView.includes('clip.clarification') && !videoView.includes('<details'), 'All Lesson 1 video screens must omit the removed attribution, correction and summary UI')
 for (const clip of clips) {
   assert(clip.interaction.type === 'continue', `${clip.id} must allow optional viewing`)
   const following = states[states.indexOf(clip) + 1]

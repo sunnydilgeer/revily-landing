@@ -40,10 +40,9 @@ export function LessonVideoActivity({ clip, headingRef, canGoBack, onBack, onCon
     >
       <source src={clip.src} type="video/mp4" />
       {clip.captions && <track kind="captions" src={clip.captions} srcLang="en" label="English" default />}
-      Your browser does not support this video. You can read the summary below and continue.
+      Your browser does not support this video. Continue to the activity.
     </video>
     <div className="lesson-video-toolbar">
-      <span>Ani’s explanation · {clip.durationLabel}</span>
       <label>Speed <select value={speed} onChange={event => {
         setSpeed(event.target.value)
         if (videoRef.current) videoRef.current.playbackRate = Number(event.target.value)
@@ -55,12 +54,7 @@ export function LessonVideoActivity({ clip, headingRef, canGoBack, onBack, onCon
         <option value="2">2×</option>
       </select></label>
     </div>
-    {clip.clarification && <p className="lesson-video-clarification">{clip.clarification}</p>}
-    {failed && <p className="lesson-video-error" role="status">The video couldn’t load. Read the summary or continue to the activity.</p>}
-    <details className="lesson-video-summary">
-      <summary>Read summary</summary>
-      <ul>{clip.summary.map(line => <li key={line}>{line}</li>)}</ul>
-    </details>
+    {failed && <p className="lesson-video-error" role="status">The video couldn’t load. Continue to the activity.</p>}
     <div className="lesson-state__actions">
       {canGoBack && <button className="lesson-secondary-action" type="button" onClick={onBack}>← Back</button>}
       {ended && <button className="lesson-secondary-action" type="button" onClick={replay}>Replay</button>}

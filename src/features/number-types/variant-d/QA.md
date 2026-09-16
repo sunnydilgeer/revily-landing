@@ -1,5 +1,11 @@
 # Lesson 1 — implementation QA
 
+## 16 September 2026 — owner-requested video simplification
+
+- Removed the attribution/duration line, correction paragraphs and Read summary sections from the shared player used by all five Lesson 1 clips. Source metadata remains for provenance; it is no longer rendered on video screens.
+- Playback, speed selection, Replay on completion, Back and Continue remain unchanged. Failure text no longer refers to the removed summary.
+- Inspected the simplified integers player locally. Both lesson verifiers, TypeScript, whitespace checks and an isolated production build passed before publishing.
+
 ## 15 September 2026 — canonical lesson and clickable progress
 
 - Removed the former Lesson 1 A/B selector, definitions, B-only visuals and unused legacy explanations. Anushka's 62-state sequence is now the only Lesson 1 and no variant name appears in the lesson or menu.

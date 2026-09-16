@@ -22,6 +22,10 @@ const { checkAnswer } = loadTypeScriptModule('src/features/number-types/lessonMa
 const { operationsVariantCLesson } = loadTypeScriptModule('src/features/order-of-operations/variant-c/variantCLesson.ts')
 const states = operationsVariantCLesson.states
 const videoStates = states.filter(state => state.video)
+const videoView = fs.readFileSync(path.join(root, 'src/features/order-of-operations/variant-c/TutorTeachingMedia.tsx'), 'utf8')
+assert.ok(!videoView.includes('On-screen captions') && !videoView.includes('<details') && !videoView.includes('aria-describedby'), 'Video panels must omit the removed caption note and walkthrough UI')
+const lessonView = fs.readFileSync(path.join(root, 'src/features/order-of-operations/variant-c/VariantCLessonView.tsx'), 'utf8')
+assert.ok(lessonView.includes('teaching && !state.video && state.content.body'), 'Video-backed Lesson 2 screens must omit the removed supporting body copy')
 assert.deepEqual(videoStates.map(state => state.id), ['L2C-02', 'L2C-16', 'L2C-25'], 'Each BIDMAS clip must appear at its matching topic demonstration')
 for (const state of videoStates) {
   assert.equal(state.interaction.type, 'continue', 'Videos must not interfere with answer submission')

@@ -51,9 +51,9 @@ function LessonVideo({ video, active, onShowWorking }: { video: LessonVideoDefin
   }
   return <figure className="opc-video-stage" aria-label={video.title}>
     <figcaption className="opc-video-heading"><span>Watch an example</span><span>{Math.ceil(video.durationSeconds)} sec</span></figcaption>
-    <video ref={player} controls playsInline preload="metadata" poster={video.poster} aria-label={video.title} aria-describedby={`${video.id}-note`} onEnded={() => setWatched(true)} onError={() => setFailed(true)}>
+    <video ref={player} controls playsInline preload="metadata" poster={video.poster} aria-label={video.title} onEnded={() => setWatched(true)} onError={() => setFailed(true)}>
       <source src={video.src} type="video/mp4" onError={() => setFailed(true)} />
-      Your browser cannot play this clip. Read the walkthrough below or use Step by step.
+      Your browser cannot play this clip. Use Step by step.
     </video>
     <div className="opc-video-tools">
       <button type="button" onClick={replay} disabled={failed} aria-label="Replay video"><RotateCcw size={16} aria-hidden="true" /> Replay</button>
@@ -64,9 +64,7 @@ function LessonVideo({ video, active, onShowWorking }: { video: LessonVideoDefin
       }}>{[0.75, 1, 1.25, 1.5, 2].map(value => <option key={value} value={value}>{value}×</option>)}</select></label>
       {watched && <span className="opc-video-watched" role="status">Watched ✓</span>}
     </div>
-    <p id={`${video.id}-note`} className="opc-video-note">On-screen captions · this clip has no audio. Pause, replay or use fullscreen for a larger view.</p>
     {playbackNotice && <p role="status" className="opc-video-note">{playbackNotice}</p>}
     {failed && <div className="opc-video-error" role="alert"><p>The video could not load. You can still learn this example.</p><button type="button" onClick={onShowWorking}>Use step-by-step working</button></div>}
-    <details className="opc-video-walkthrough"><summary>Read the walkthrough</summary><ol>{video.textAlternative.map(line => <li key={line}>{line}</li>)}</ol></details>
   </figure>
 }

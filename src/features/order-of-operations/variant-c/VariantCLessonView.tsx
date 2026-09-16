@@ -34,7 +34,7 @@ export default function OperationsVariantCLessonView() {
     <article className="opb-activity" key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <TutorTeachingMedia visual={state.visual} video={state.video} onConsultRule={feedback ? undefined : engine.markHintUsed} />
       <h3 ref={heading} tabIndex={-1}>{engine.completed ? 'Lesson complete' : state.content.title}</h3>
-      {teaching && state.content.body && <p className="opb-body">{state.content.body}</p>}
+      {teaching && !state.video && state.content.body && <p className="opb-body">{state.content.body}</p>}
       {textInput && <form onSubmit={event => { event.preventDefault(); if (!feedback && engine.inputValue.trim()) engine.submit() }}>
         <label className="opc-answer-label" htmlFor={`answer-${state.id}`}>{algebraInput ? 'Your simplified expression' : 'Your answer'}</label>
         <input className="opb-input" id={`answer-${state.id}`} inputMode={algebraInput ? 'text' : 'decimal'} type="text" autoComplete="off" autoCapitalize="none" spellCheck={false} value={engine.inputValue} disabled={Boolean(feedback)} placeholder={state.interaction.placeholder} onChange={event => engine.setInputValue(event.target.value)} />

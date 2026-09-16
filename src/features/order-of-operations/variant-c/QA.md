@@ -1,5 +1,12 @@
 # Lesson 2 Variant C - QA
 
+## 16 September 2026 — owner-requested video simplification
+
+- Removed the on-screen-caption note and Read the walkthrough section from all three video panels. Removed supporting body paragraphs from video-backed teaching screens only; mathematical working and other teaching screens are unchanged.
+- Removed the video's reference to the deleted description element and updated unsupported-player copy. Playback failure still offers Step by step.
+- Inspected the simplified BIDMAS screen locally; Replay played the clip, switching tabs paused it, and Next revealed cumulative working. No expandable sections or supporting body paragraphs remained.
+- Regression assertions cover the shared templates for all five Lesson 1 and all three Lesson 2 clips. Both lesson verifiers, TypeScript, whitespace checks and isolated production build passed before publishing.
+
 Verified locally on 16 September 2026. No deployment was performed.
 
 ## Cleaned in-flow video integration
