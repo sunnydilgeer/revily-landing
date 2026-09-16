@@ -11,8 +11,6 @@ import { GroupedFraction } from '../../order-of-operations/components/GroupedFra
 import { OperationPriority } from '../../order-of-operations/components/OperationPriority'
 import { BidmasSpotlight } from '../../order-of-operations/prototype/BidmasSpotlightPrototype'
 import { NextOperation } from '../../order-of-operations/components/NextOperation'
-import { NestedNumberSets } from '../variant-b/NestedNumberSets'
-import { SetNumberLine } from '../variant-b/SetNumberLine'
 import { FactorsMultiplesComparison } from './FactorsMultiplesComparison'
 import { PrimeHundredGrid } from './PrimeHundredGrid'
 import { PlaceValueChart } from '../../place-value/components/PlaceValueChart'
@@ -33,6 +31,7 @@ export function StateVisual({ visual, revealed, selected = [], onVisualSelect, o
   onVisualComplete?: () => void
 }) {
   switch (visual.type) {
+    case 'lessonVideo': return null // Video activities provide playback and navigation in the lesson view.
     case 'integerValues': return <IntegerValueVisual {...visual.props} revealed={revealed} />
     case 'numberLine': return visual.props.hideUntilAnswer && !revealed ? null : <NumberLine {...visual.props} revealed={revealed} />
     case 'arrayBuilder': return <ArrayBuilder {...visual.props} />
@@ -45,8 +44,6 @@ export function StateVisual({ visual, revealed, selected = [], onVisualSelect, o
     case 'nextOperation': return <NextOperation {...visual.props} onComplete={onVisualComplete} />
     case 'expressionSteps': return <ExpressionSteps {...visual.props} revealed={revealed} selected={selected} onSelect={onVisualSelect} />
     case 'groupedFraction': return <GroupedFraction {...visual.props} revealed={revealed} />
-    case 'setNumberLine': return <SetNumberLine {...visual.props} />
-    case 'nestedNumberSets': return <NestedNumberSets {...visual.props} revealed={revealed} />
     case 'factorsMultiplesComparison': return <FactorsMultiplesComparison {...visual.props} />
     case 'primeGrid': return <PrimeHundredGrid {...visual.props} />
     case 'placeValueChart': return <PlaceValueChart {...visual.props} revealed={revealed} />

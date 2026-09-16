@@ -1,44 +1,39 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { microSkillLabels, numberTypesLesson } from './numberTypesLesson'
 import { useLessonEngine } from './useLessonEngine'
 import { ChoiceCards } from './components/ChoiceCards'
 import { FeedbackPanel } from './components/FeedbackPanel'
 import { StateVisual } from './components/StateVisual'
+import { LessonVideoActivity } from './components/LessonVideoActivity'
 import type { LessonDefinition, MicroSkillId } from './types'
 import { VariantDActivity } from './variant-d/VariantDActivity'
 import './RationalNumbersLesson.css'
 
-const journey: MicroSkillId[] = [
-  'whole-values',
-  'factors-multiples',
-  'primes',
-  'squares-cubes',
-  'rational-irrational',
-  'mixed',
-]
-
 export default function NumberTypesLessonView({
-  lesson = numberTypesLesson,
-  labels = microSkillLabels,
-  variantLabel,
+  lesson,
+  labels,
   focusMode = false,
 }: {
-  lesson?: LessonDefinition
-  labels?: Partial<Record<MicroSkillId, string>>
-  variantLabel?: string
+  lesson: LessonDefinition
+  labels: Partial<Record<MicroSkillId, string>>
   focusMode?: boolean
 }) {
   const engine = useLessonEngine(lesson)
   const { state } = engine
-  const coreStates = lesson.states.filter((candidate) => candidate.phase !== 'repair')
-  const completedCoreStates = lesson.states
-    .slice(0, engine.stateIndex + 1)
-    .filter((candidate) => candidate.phase !== 'repair').length
-  const stateNumber = state.phase === 'repair' ? Math.max(1, completedCoreStates) : coreStates.findIndex((candidate) => candidate.id === state.id) + 1
-  const visualProgress = Math.round((stateNumber / coreStates.length) * 100)
+  const journey = [...new Set(lesson.states.map(candidate => candidate.microSkillId))] as MicroSkillId[]
   const partNumber = journey.indexOf(state.microSkillId) + 1
+  const progressSections = journey.map((id) => {
+    const stateIndexes = lesson.states
+      .map((candidate, index) => candidate.microSkillId === id ? index : -1)
+      .filter((index) => index >= 0)
+    const startIndex = stateIndexes[0]
+    const endIndex = stateIndexes.at(-1) ?? startIndex
+    const reached = startIndex <= engine.furthestStateIndex
+    const completedStates = reached ? Math.min(engine.furthestStateIndex, endIndex) - startIndex + 1 : 0
+    const progress = Math.round((completedStates / (endIndex - startIndex + 1)) * 100)
+    return { id, startIndex, startId: lesson.states[startIndex].id, reached, progress }
+  })
   const stateHeadingRef = useRef<HTMLHeadingElement>(null)
   const previousStateRef = useRef(state.id)
   const isContinue = state.interaction.type === 'continue'
@@ -58,7 +53,7 @@ export default function NumberTypesLessonView({
     <section className={`numbers-lesson${focusMode ? ' numbers-lesson--focused' : ''}`} id="lesson" aria-labelledby="numbers-lesson-title">
       {focusMode ? <header className="study-topic"><h2 id="numbers-lesson-title">{labels[state.microSkillId]}</h2></header> : <header className="numbers-lesson__header">
         <div>
-          <span className="lesson-kicker">{lesson.level} · Lesson 1{variantLabel ? ` · ${variantLabel}` : ''}</span>
+          <span className="lesson-kicker">{lesson.level} · Lesson 1</span>
           <h2 id="numbers-lesson-title">{lesson.title}</h2>
         </div>
         <div className="lesson-state-count" aria-label={`Part ${partNumber} of ${journey.length}`}>
@@ -66,9 +61,28 @@ export default function NumberTypesLessonView({
         </div>
       </header>}
 
-      <div className="lesson-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={visualProgress} aria-label={`${visualProgress}% through lesson`}>
-        <span style={{ width: `${visualProgress}%` }} />
-      </div>
+      <nav className="lesson-progress-nav" aria-label="Lesson 1 progress">
+        {progressSections.map((section) => {
+          const current = section.id === state.microSkillId
+          const name = labels[section.id] ?? section.id
+          return (
+            <button
+              type="button"
+              className={`lesson-progress-segment${current ? ' is-current' : ''}${section.reached ? ' is-reached' : ' is-locked'}`}
+              key={section.id}
+              disabled={!section.reached}
+              aria-current={current ? 'step' : undefined}
+              aria-label={section.reached ? `${name}: ${section.progress}% reached. Go to this section.` : `${name}: locked until earlier content is complete.`}
+              onClick={() => engine.navigateToReached(section.startId)}
+            >
+              <span className="lesson-progress-segment__track" aria-hidden="true">
+                <span className="lesson-progress-segment__fill" style={{ width: `${section.progress}%` }} />
+              </span>
+              <small aria-hidden="true">{name}</small>
+            </button>
+          )
+        })}
+      </nav>
 
       {!focusMode && <nav className="micro-skill-map" aria-label="Lesson journey">
         {journey.map((id, index) => {
@@ -84,7 +98,7 @@ export default function NumberTypesLessonView({
       </nav>}
 
       <article className={`lesson-state${state.component.type === 'integerValues' ? ' lesson-state--variant-d' : ''}`} key={state.id}>
-        {state.component.type === 'integerValues' ? <VariantDActivity engine={engine} headingRef={stateHeadingRef} /> : <>
+        {state.component.type === 'lessonVideo' ? <LessonVideoActivity clip={state.component.props} headingRef={stateHeadingRef} canGoBack={engine.canGoBack} onBack={engine.back} onContinue={engine.continueLesson} /> : state.component.type === 'integerValues' ? <VariantDActivity engine={engine} headingRef={stateHeadingRef} /> : <>
         {isContinue && (
           <div className="lesson-state__copy">
             {state.content.eyebrow && <p className="lesson-state__eyebrow">{state.content.eyebrow}</p>}

@@ -19,6 +19,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
   const [hintsUsed, setHintsUsed] = useState<Record<string, boolean>>({})
   const [lessonState, setLessonState] = useState<Record<string, boolean | number | string>>({})
   const [completed, setCompleted] = useState(false)
+  const [furthestStateIndex, setFurthestStateIndex] = useState(0)
 
   const stateIndex = Math.max(0, lesson.states.findIndex((state) => state.id === currentId))
   const state = lesson.states[stateIndex]
@@ -33,9 +34,20 @@ export function useLessonEngine(lesson: LessonDefinition) {
   }
 
   function goTo(targetId: string) {
-    if (!lesson.states.some((candidate) => candidate.id === targetId)) return
+    const targetIndex = lesson.states.findIndex((candidate) => candidate.id === targetId)
+    if (targetIndex < 0) return
     setHistory((items) => [...items, currentId])
     setCurrentId(targetId)
+    setFurthestStateIndex((current) => Math.max(current, targetIndex))
+    resetResponse()
+  }
+
+  function navigateToReached(targetId: string) {
+    const targetIndex = lesson.states.findIndex((candidate) => candidate.id === targetId)
+    if (targetIndex < 0 || targetIndex > furthestStateIndex || targetId === currentId) return
+    setHistory((items) => [...items, currentId])
+    setCurrentId(targetId)
+    setCompleted(false)
     resetResponse()
   }
 
@@ -166,6 +178,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
   return {
     state,
     stateIndex,
+    furthestStateIndex,
     selection,
     inputValue,
     quotientValue,
@@ -185,6 +198,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
     markHintUsed,
     submit,
     submitSelection,
+    navigateToReached,
     back,
     continueLesson,
   }

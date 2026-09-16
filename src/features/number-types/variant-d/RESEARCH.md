@@ -1,4 +1,4 @@
-# Rethinking Variant D — research and design decisions
+# Rethinking Lesson 1 — research and design decisions
 
 Reviewed 13 September 2026. Sources below are official product documentation, public product interfaces and teaching guidance. This is design research, not an efficacy comparison. No claim is made that these products teach this exact micro-skill in the same sequence.
 

@@ -1,6 +1,6 @@
 # Revily lesson design — agreed pattern
 
-Reference implementations: Lesson 1 Variant D and Lesson 2 Variant B. Lesson 1 D uses Anushka's source where provided; subsequent variants use original Revily content, without implying tutor review.
+Reference implementations: Lesson 1 and Lesson 2 Variant B. Lesson 1 uses Anushka's source where provided; subsequent variants use original Revily content, without implying tutor review.
 
 ## Teaching sequence
 

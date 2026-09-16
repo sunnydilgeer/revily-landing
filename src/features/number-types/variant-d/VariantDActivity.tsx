@@ -18,7 +18,7 @@ export function VariantDActivity({ engine, headingRef }: Props) {
     <h3 ref={headingRef} tabIndex={-1}>{state.content.title}</h3>
     {teaching && state.content.body && <p className="d-body">{state.content.body}</p>}
     {numeric && <div className="d-numeric">
-      <label className="d-slider-label" htmlFor={`response-${state.id}`}>Your answer · decimal or fraction</label>
+      <label className="d-slider-label" htmlFor={`response-${state.id}`}>{state.interaction.acceptanceRule === 'openInterval' ? 'Your answer · decimal or fraction' : 'Your answer'}</label>
       <input id={`response-${state.id}`} type="text" value={engine.inputValue} disabled={Boolean(feedback)} placeholder={state.interaction.placeholder} autoComplete="off" spellCheck={false} onChange={event => engine.setInputValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !feedback && engine.inputValue.trim()) engine.submit() }} />
     </div>}
     {!teaching && !numeric && <div className={`d-choices${(state.interaction.options?.length ?? 0) > 3 ? ' d-choices--grid' : reasons ? ' d-choices--reasons' : ''}`} role="group" aria-label={multiple ? 'Select all that apply' : 'Choose one answer'}>
@@ -35,7 +35,7 @@ export function VariantDActivity({ engine, headingRef }: Props) {
     <div className="d-actions">
       {engine.canGoBack && !feedback && <button className="lesson-secondary-action" type="button" onClick={engine.back}>← Back</button>}
       {(multiple || numeric) && !feedback && <button className="lesson-primary-action" type="button" disabled={numeric ? !engine.inputValue.trim() : selection.length === 0} onClick={engine.submit}>Check answer</button>}
-      {(teaching || feedback) && <button className="lesson-primary-action" type="button" onClick={engine.continueLesson}>Continue <span aria-hidden="true">→</span></button>}
+      {(teaching || feedback) && <button className="lesson-primary-action" type="button" onClick={engine.continueLesson}>{engine.completed ? 'Start lesson again' : 'Continue'} <span aria-hidden="true">→</span></button>}
     </div>
   </div>
 }

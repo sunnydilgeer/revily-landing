@@ -93,6 +93,11 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const wanted = parseFormattedNumber(expected)
     return actual !== null && wanted !== null && actual === wanted
   }
+  if (interaction.acceptanceRule === 'normalisedAlgebra') {
+    const actual = normaliseMonomial(response)
+    const wanted = normaliseMonomial(expected)
+    return actual !== null && wanted !== null && actual === wanted
+  }
   if (interaction.acceptanceRule === 'nonNegativeInteger') {
     const actual = parseNonNegativeInteger(response)
     const wanted = parseNonNegativeInteger(expected)
@@ -105,6 +110,33 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     return actual.length === wanted.length && actual.every((value, index) => value === wanted[index])
   }
   return String(response) === String(expected)
+}
+
+// Parse one authored monomial answer without evaluating learner input as code.
+// Equivalent factor order and common square notation are accepted.
+function normaliseMonomial(value: unknown): string | null {
+  let text = String(value ?? '').trim().toLowerCase()
+    .replace(/−/g, '-')
+    .replace(/²/g, '^2')
+    .replace(/\^\{(\d+)\}/g, '^$1')
+    .replace(/[×*·\s]/g, '')
+  const leading = text.match(/^([+-]?)(\d*)/)
+  if (!leading) return null
+  const sign = leading[1] === '-' ? -1 : 1
+  const coefficient = sign * Number(leading[2] || '1')
+  text = text.slice(leading[0].length)
+  if (!text || !Number.isSafeInteger(coefficient)) return null
+  const powers = new Map<string, number>()
+  let consumed = ''
+  for (const match of text.matchAll(/([a-z])(?:\^(\d+))?/g)) {
+    consumed += match[0]
+    const exponent = Number(match[2] || '1')
+    if (!Number.isSafeInteger(exponent) || exponent < 1) return null
+    powers.set(match[1], (powers.get(match[1]) ?? 0) + exponent)
+  }
+  if (consumed !== text) return null
+  const variables = [...powers.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([letter, power]) => `${letter}${power}`).join('')
+  return `${coefficient}|${variables}`
 }
 
 export function formatAcceptedAnswer(interaction: InteractionDefinition): string {

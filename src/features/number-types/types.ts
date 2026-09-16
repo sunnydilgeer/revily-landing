@@ -4,6 +4,10 @@ export type MicroSkillId =
   | 'primes'
   | 'squares-cubes'
   | 'rational-irrational'
+  | 'special-integers'
+  | 'rational-numbers'
+  | 'irrational-numbers'
+  | 'multiples-factors'
   | 'operation-priority'
   | 'brackets-indices'
   | 'equal-priority'
@@ -72,7 +76,7 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval'
   dividend?: number
   divisor?: number
 }
@@ -229,26 +233,6 @@ export type GroupedFractionVisual = {
     legend?: OperationLegendItem[]
     showLabels?: boolean
     revealStepsOnAnswer?: boolean
-  }
-}
-
-export type SetNumberLineVisual = {
-  type: 'setNumberLine'
-  props: {
-    mode: 'whole' | 'integer'
-    values: number[]
-    excluded?: string[]
-  }
-}
-
-export type NestedNumberSetsVisual = {
-  type: 'nestedNumberSets'
-  props: {
-    tokens: Array<{
-      label: string
-      region: 'whole' | 'integer-only' | 'rational-non-integer' | 'irrational'
-    }>
-    revealPlacementsOnAnswer?: boolean
   }
 }
 
@@ -433,9 +417,30 @@ export type IntegerValueVisualDefinition = {
     | { kind: 'explorer' | 'fractionWorked' | 'fractionValue' | 'equivalentForms' | 'rootsWorked' | 'challenge' | 'squareEquation' | 'openInterval' | 'midpointClaim' }
     | { kind: 'classify'; expression: string; value: number; min: number; max: number; resolution?: string }
     | { kind: 'rootCheck'; radicand: number; lower: number; upper: number }
+    | ({ kind: 'concept' } & (
+      | { concept: 'squareArrays' | 'cubeLayers' | 'fractionDecimal' | 'rationalForms' | 'rootJourney' | 'rootCompare' | 'surdSimplify' | 'multipleHops' | 'factorRectangles' | 'hcfCompare' | 'lcmCompare' }
+      | { concept: 'mathCard'; expression: string; caption?: string; revealLines?: string[] }
+      | { concept: 'rootInterval'; radicand: number; lower: number; upper: number; decimal?: string }
+    ))
+}
+
+export type LessonVideoDefinition = {
+  type: 'lessonVideo'
+  props: {
+    title: string
+    src: string
+    poster: string
+    width: number
+    height: number
+    durationLabel: string
+    summary: string[]
+    clarification?: string
+    captions?: string
+  }
 }
 
 export type LessonVisual =
+  | LessonVideoDefinition
   | NumberLineVisual
   | IntegerValueVisualDefinition
   | ArrayVisual
@@ -450,8 +455,6 @@ export type LessonVisual =
   | NextOperationVisual
   | ExpressionStepsVisual
   | GroupedFractionVisual
-  | SetNumberLineVisual
-  | NestedNumberSetsVisual
   | FactorsMultiplesComparisonVisual
   | PrimeGridVisual
   | PlaceValueChartVisual

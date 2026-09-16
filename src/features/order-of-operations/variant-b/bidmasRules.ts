@@ -14,7 +14,7 @@ const withoutAnnotations = (math: string) => math.replace(/\\underbrace\{([^{}]*
 const mark = (math: string) => `\\textcolor{#216544}{\\underline{${math}}}`
 
 function markSymbols(math: string, rule: BidmasRule): string {
-  return math.replace(/\d+\^\d+|\\times|\\div|[()+-]/g, token => {
+  return math.replace(/[A-Za-z0-9]+\^\{?\d+\}?|\\times|\\div|[()+-]/g, token => {
     const matches = rule === 'b' ? /^[()]$/.test(token)
       : rule === 'i' ? token.includes('^')
       : rule === 'dm' ? /^\\(times|div)$/.test(token)

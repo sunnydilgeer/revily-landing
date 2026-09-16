@@ -1,80 +1,157 @@
-# Lesson 1 Variant D — revised storyboard
+# Lesson 1 — Anushka
 
-## Scope and source authority
+## Scope
 
-This revision responds to the user's rejection of the initial presentation. Research and limitations are in RESEARCH.md. Anushka's five-page PDF and silent video remain source material; the user's teaching/UX instructions govern the implementation.
+This is the sole, source-led Lesson 1 path. The former Lesson 1 A and B definitions, selector, B-only visuals and legacy explanations are removed. The existing Anushka Integers & non-integers teaching sequence (`D-I-01`…`D-I-10`) is locked: its wording, answers, visuals and order stay unchanged. The N1.1 worksheet exercises (`D-I-11`, `D-P-01`…`D-P-07`) keep their existing interactions and order, with their question and explanation wording source-locked to the PDF. `D-P-07` leads to Special Integers.
 
-Change only `whole-values`; preserve A/B and all baseline states from `L1-F01` onward by reference. No deployment. Whole numbers retain the definition 0, 1, 2, …; negative integers are not called members of that subset. Classify values, not notation: 2.0 = 2 and 4/2 = 2. Roots use exact square identities/bounds, with proportional plotting.
+The remaining lesson contains four further sections: Special Integers, Rational Numbers, Irrational Numbers, and Multiples & Factors.
 
-## Interaction and presentation
+Each question retains the submitted response after grading. Correct and incorrect attempts reveal the same complete worked explanation and enable Continue. Demonstrations are learner-controlled but optional. Five optional section-introduction videos precede the existing activities, as described in the video integration update below.
 
-A compact teaching stage uses a shared number-line visual language. Demo controls move or resolve mathematical objects. Questions appear once, directly above choices. Single-choice taps submit immediately; multi-select uses Check answer. Choices stay visible after submission, accepted answers are marked and the learner's incorrect selection is distinguished. A short explanation gives the answer immediately, followed by an enabled Continue. No repeat guessing, repair route or forced wait.
+## Sources and adaptations
 
-Worked examples show one step at a time with optional advance/replay controls; Continue is always available. Reduced-motion preferences remove transitions. Final independent practice withdraws the diagram instead of repeating the same values above and inside options. Existing header/journey remain; only the D opening activity has compact styling.
+- `N1.2_Special_Integers.pdf`: all tasks Q1–Q5c.
+- `N1.3_Rational_Numbers.pdf`: all tasks Q1–Q5c. Q4b and Q5c move into the Irrational Numbers section so the required idea is taught first.
+- `N1.4_Irrational_Numbers.pdf`: all tasks Q1–Q5c.
+- `N1.5_Multiples_and_Factors.pdf`: all tasks Q1–Q5c.
+- Four WhatsApp teaching videos dated 14 September 2026: adapted into square/cube construction, fraction-to-decimal models, recurring-decimal reasoning, exact/non-exact root comparisons, the `√20` interval, `√45` simplification, number-line multiples, factor-pair rectangles, and HCF/LCM comparisons.
+- Historical Lesson 1 work at commit `7beec6f`: restored the original interactive 1–50 prime grid, including highlighted primes and complete factor lists on hover or keyboard focus.
 
-## Screens
+Difficulty badges, mark allocations, teacher-only marking annotations, subtitles and video chrome are omitted. PDF-derived question wording and answer wording remain source-locked, including the PDFs' middle-dot decimal notation, except for the recurring-dot display simplification requested by the lesson owner. Interactive answer controls and video-derived teaching screens remain UI adaptations. Explanation wording follows the PDFs except for the mathematical corrections and later owner-approved child-friendly presentation changes documented below.
 
-| ID | Visual and action | Learner task | Answer / explanation |
-| --- | --- | --- | --- |
-| D-I-01 | Movable point on −3…3. Slider steps by 0.5; presets 2, 2.5, 0, −2. Position and integer status update together. | Explore, then Continue. | Integers sit on integer ticks; values between ticks are non-integers. Negatives and zero count. |
-| D-I-02 | −3 on a line from −4 to 0. | Is −3 an integer? One tap. | Integer. It is a negative integer with no fractional part. |
-| D-I-03 | 1.5 between ticks 1 and 2, on 0…3. | Is 1.5 an integer? One tap. | Non-integer. It lies between 1 and 2. |
-| D-I-04 | Worked 12/4. Reveal division 12 ÷ 4 = 3, then plot 3 and conclude; replay available. | Study the worked example, then Continue. | 12/4 represents 3, an integer. Fraction notation does not exclude integer values. |
-| D-I-05 | 20/5 expression. Value revealed after a tap. | What is the value of 20/5? Choices 4, 5, 15. | 4. 20 ÷ 5 = 4. |
-| D-I-06 | 20/5 = 4 on the integer tick 4, line 2…6. | Is 20/5 an integer? One tap. | Integer, because its value is 4. Resolving and classifying are separate decisions. |
-| D-I-07 | Switch between 2, 2.0 and 4/2 while the point remains at 2. | Why are all three integers? One tap on a reason. | Each has the value 2. Neither a decimal point nor a fraction bar decides the category. |
-| D-I-08 | Worked roots: switch √49 / √11. Reveal 7² = 49 or 3² < 11 < 4²; then plot and classify. | Study either/both replayable examples, then Continue. | √49 = 7 is an integer; 3 < √11 < 4 makes √11 a non-integer. |
-| D-I-09 | √81 expression. On submission reveal 9² = 81 and its integer position. | Is √81 an integer? One tap. | Integer. √81 = 9. |
-| D-I-10 | √20 expression. On submission reveal 16 < 20 < 25 and plot between 4 and 5. | Is √20 an integer? One tap. | Non-integer. 4 < √20 < 5; no integer lies strictly between adjacent integer ticks. |
-| D-I-11 | Diagram withdrawn. Six values appear once as choices: −7, 1.5, 0, 12/4, √11, 26. | Select all the integers, then Check answer. | −7, 0, 12/4 and 26. Fraction resolves to 3; √11 and 1.5 lie between integers. Both result paths lead into the PDF practice extension at D-P-01. |
+### Transparent source corrections
 
-## Source adaptations
+1. Special Integers Q5a becomes “Show that 12 is not a prime number by writing it as a product of prime factors.” The source says “two prime factors” but its correct factorisation is `12 = 2 × 2 × 3`.
+2. Multiples & Factors Q5a becomes “Find one possible pair.” Both `12 and 18` and `18 and 24` are accepted because each pair lies between 10 and 30 and has HCF 6.
+3. The multiplication rule is taught as “a non-zero rational number multiplied by an irrational number is irrational.” Zero is stated as the exception: `0 × √5 = 0`.
 
-The video supplies the negative/zero/fractional contrast; cookie plates and video embedding are removed. Its inaccurate broad fraction claims and negative-whole terminology are corrected. The PDF supplies expression values, square-root contrasts and the final six-number set. Its inverse-square-root and midpoint tasks are deferred from this opening because they introduce additional problem-solving objectives. Difficulty labels and mark allocations are omitted. This is an intentional micro-skill adaptation, not a transcription of every worksheet item.
+### Owner-approved copy simplifications
 
-## Files and architecture
+- Square-root teaching uses decimal values and plain sentences: `√11 = 3.316…`; 3 squared is 9; 4 squared is 16; therefore √11 is between 3 and 4. The same pattern is used for √20, without chained less-than notation in the teaching visuals.
+- The square definition is “A number multiplied by itself is a square number.” The cube definition is “A number multiplied by itself three times is a cube number.”
+- The superseded 6/7-counter prime teaching state is removed. Cube teaching routes directly to the recovered 1–50 prime grid.
+- D-SI-05 keeps only the comma-separated 21–29 list in the green card. Its explanation checks 21, 22, 24, 25, 26, 27 and 28 on separate lines.
+- D-SI-08 expands the answer with separate `1 × 1 × 1`, `2 × 2 × 2` and `3 × 3 × 3` calculations.
+- Recurring decimals are displayed without a top-right dot (`0·6`, `0·7`, `0·18`). The wording still identifies them as recurring, and the repeated digits remain visible in the worked examples.
+- D-R-04 separates `π, √10, 0·6, √12` with commas and extra spacing in the green card.
+- The √20 placement interaction shows `√20 = 4.472…` as soon as the root is placed, before the learner reveals more digits.
+- D-IR-08 and D-IR-12 show every answer option as a decimal or exact value on its own explanation line.
+- Across Lesson 1, separate calculations and separate reasoning points must render on separate lines. Centred dots, semicolons and conjunctions must not be used to compress independent working into one line.
+- The approved line-by-line pass covers D-I-07, D-P-01–03, D-R-07, D-IR-01, D-IR-03–04, D-IR-06–07, D-IR-09, D-MF-01, D-MF-05 and D-MF-07–08.
 
-- `variant-d/variantDLesson.ts`: typed 18-screen opening (11 teaching/practice screens plus seven PDF tasks) and baseline rejoin; metadata/other journey labels inherit baseline.
-- `variant-d/IntegerValueVisual.tsx`: interactive explorer, number-line primitive, equivalent-form switches and replayable worked examples; local UI state resets per lesson state.
-- `variant-d/VariantDActivity.tsx`: D-only question/answer/feedback presentation, using the existing lesson engine; preserves choices after grading.
-- `variant-d/VariantD.css`: scoped compact stage, controls, answer/result styles and mobile/reduced-motion behavior.
-- `types.ts`: D visual definitions; no alteration of existing interaction definitions.
-- `NumberTypesLessonView.tsx`: dispatch D opening activities; render shared states with the existing player layout.
-- `useLessonEngine.ts`: additive single-choice submission helper to grade an explicit selected ID without stale React state. Existing submit/continue/grading paths remain shared.
-- `App.tsx`: existing A/B/D selection is retained. `StateVisual.tsx`: existing additive D visual dispatch is retained.
-- `RESEARCH.md`, `SPEC.md`, `QA.md`: evidence, storyboard and latest validation.
+## Screen map
 
-## Verification
+### Existing locked section
 
-Check the real demo controls, step/replay controls, touch/keyboard behavior, correct/incorrect one-tap submission, exact multi-select grading, retained choices, Continue, Back, A/B/D switching and the baseline rejoin. Inspect desktop and 390/320px layouts, marker positions, equivalent-form containment and reduced motion. Run type/build checks and assertions that shared states remain identical. Distinguish design QA from learning-outcome evidence: pupil testing is still needed to assess effectiveness.
-
-## Approved-flow extension: incorporate the full Anushka PDF
-
-The user approved the revised presentation and then requested incorporation of the PDF. Preserve D-I-01…11 and append the remaining worksheet tasks. D-I-11 now leads to D-P-01. The PDF's worked-example list already appears in D-I-11; the fraction and root reasoning are modelled earlier. This extends the opening to 18 screens without repeating that list.
-
-| ID / PDF task | Presentation and interaction | Correct answer / immediate explanation |
+| IDs | Source | Outcome |
 | --- | --- | --- |
-| D-P-01 / Q2 | Four values as choices once; one-tap integer selection. | −15. 4.2 and 3/8 = 0.375 have fractional parts; 2 < √7 < 3. |
-| D-P-02 / Q3 | Six choices; select all non-integers. | 6.5 and 11/4 = 2.75. −2, 0, 20/5 = 4 and √49 = 7 are integers. |
-| D-P-03 / Q4a | Five choices; select all integers. | 18/6 = 3, −9 and √81 = 9. √20 and 2.75 lie between integers. |
-| D-P-04 / Q4b | √20 above three full-width reason choices. After answering, plot √20 between ticks 4 and 5. | 4 < √20 < 5 because 16 < 20 < 25. A root sign alone does not decide the category. |
-| D-P-05 / Q5a | √n = 6 above three answer-and-reason choices. Reveal the square operation after answering. | n = 36, an integer, because 6 × 6 = 36. |
-| D-P-06 / Q5b | Blank interval line 6…7, then one question and a text field. Accept decimals, simple fractions and mixed fractions whose value is strictly inside the interval. Retain the submitted answer. Plot the learner's valid value after grading; otherwise plot example 6.5. | Any value strictly between 6 and 7, e.g. 6.2, 6.5, 13/2. Endpoints, out-of-range values and malformed input fail with immediate example and Continue. |
-| D-P-07 / Q5c | Maya's exact claim in a compact quote; one question above reason choices. After grading show the midpoint 5 on the 2…8 number line. | No: halfway between 2 and 8 is 5, an integer. One counterexample disproves “always”. Both outcomes rejoin L1-F01. |
+| D-I-01…D-I-10 | Original Anushka integer teaching | Explore and classify integers by value; unchanged. |
+| D-I-11, D-P-01…D-P-07 | N1.1 integer worksheet | Complete all existing integer/non-integer practice using source-locked wording. D-P-07 continues to D-SI-01. |
 
-The extra reasoning tasks are now included at the user's request; this supersedes their previous deferral. Difficulty labels, worksheet marks and claims that negatives are whole numbers are not copied. All options remain visible during feedback and wrong answers never block.
+### Special Integers
 
-Implementation adds D-only visuals for the equation, interval and midpoint, uses the existing number-line primitive, and adds a narrowly scoped `openInterval` grading rule with explicit bounds. Existing grading behavior is unchanged. PDF source: `/Users/sunnyd/Downloads/N1.1_Integers_vs_Non-Integers.pdf`.
+| ID | Adaptation / exercise | Correct outcome |
+| --- | --- | --- |
+| D-SI-01 | Switch 9/8 counters after the simple definition, “A number multiplied by itself is a square number.” | `3 × 3 = 9`; 8 cannot be made by multiplying a whole number by itself. |
+| D-SI-02 | Add two `2 × 2` layers after the simple cube definition. | One `2 × 2` layer; then `2 × 2 × 2 = 8`. |
+| D-SI-03A | Recovered legacy “Explore prime numbers to 50” screen. Hover or focus any cell to inspect its factors. | All primes to 50 are highlighted; every value reveals its complete factor list. |
+| D-SI-04 / Q1 | Classify 64. | Square and cube: `8² = 64`, `4³ = 64`. |
+| D-SI-05 / Q2 | Select primes from 20–30. Keep working out of the green card and show each composite calculation on a separate explanation line. | 23 and 29. |
+| D-SI-06 / Q3 | Explain why 51 is not prime. | `51 = 3 × 17`. |
+| D-SI-07 / Q4a | Odd square between 30 and 50. | 49. |
+| D-SI-08 / Q4b | First three positive cube numbers, with one full three-factor calculation per line. | 1, 8, 27. |
+| D-SI-09 / Q5a | Corrected prime-factor product task. | `12 = 2 × 2 × 3`. |
+| D-SI-10 / Q5b | Decide whether 1 is prime. | No; it has one positive factor. |
+| D-SI-11 / Q5c | Two-digit square and multiple of 5. | 25. |
 
-## Cosmetic study view — 13 September 2026
+### Rational Numbers
 
-User requested a minimal studying screen after approving the content. `App.tsx` activates the compact shell for Lesson 1 Variant D. One Lesson menu disclosure contains existing lesson/variant navigation, supports Escape and returns focus to its toggle. Opening/closing the menu preserves the mounted lesson and its response state. `NumberTypesLessonView.tsx` accepts `focusMode` and shows only the active topic title and accessible progress bar above the activity, omitting the expanded header, journey and footer. Scoped App/VariantD styles reduce the overall width and remove the outer card decoration; the activity remains in its own readable white panel. A/B retain their previous presentation; all teaching, questions, answers and progression remain unchanged.
+| ID | Adaptation / exercise | Correct outcome |
+| --- | --- | --- |
+| D-R-01 | Shade 5 of 8 equal parts, then connect division to the decimal. | `5/8 = 5 ÷ 8 = 0.625`. |
+| D-R-02 | Switch recurring fraction and integer forms. | `1/3 = 0.333…`; `4 = 4/1`; `−2 = −2/1`. |
+| D-R-03 / Q1 | Show 0.45 is rational. | `0.45 = 45/100 = 9/20`. |
+| D-R-04 / Q2 | Identify the rational value. Display the list with commas and without recurring-dot marks. | `0.6 recurring`. |
+| D-R-05 / Q3 | Convert `0.7 recurring`, displayed without its recurring-dot mark. | `7/9`. |
+| D-R-06 / Q4a | Show 5/8 is rational and terminating. | `5 ÷ 8 = 0.625`. |
+| D-R-07 / Q5a | Convert `0.181818…`; the short display is `0·18` without recurring-dot marks. | `2/11`. |
+| D-R-08 / Q5b | Decide whether every integer is rational. | Yes; `n = n/1`. |
 
+### Irrational Numbers
 
-## Worked explanations update
+| ID | Adaptation / exercise | Correct outcome |
+| --- | --- | --- |
+| D-IR-01 | Compare square areas 16, 20, 25; place √20 and immediately show `4.472…`, then reveal more digits. | `4 < √20 < 5`; decimal is non-terminating and non-recurring. |
+| D-IR-02 | Switch exact/non-exact roots. | `√16 = 4` is rational; `√20` is irrational. |
+| D-IR-03 | Build `√45 = √(9 × 5) = 3√5`; state the corrected product rule. | A non-zero rational times an irrational is irrational; zero is the exception. |
+| D-IR-04 / Q1 | Show √20 is irrational. | It lies between exact roots and has no exact rational value. |
+| D-IR-05 / Q2 | Identify the irrational value. | `√17`. |
+| D-IR-06 / Q3 | Explain why √30 is irrational. | `25 < 30 < 36`, so `5 < √30 < 6`. |
+| D-IR-07 / Q4a | Simplify and classify √45. | `3√5`, still irrational. |
+| D-IR-08 / Q4b | Irrational value between 3 and 4, with every option calculated on a separate explanation line. | Any of `√10`…`√15`. |
+| D-IR-09 / Q5a | Show `4 + √13` is irrational. | Adding 4 shifts the value; it does not terminate or recur. |
+| D-IR-10 / Q5b | Test “every square root is irrational”. | False: `√16 = 4`. |
+| D-IR-11 / Q5c | Disprove irrational × irrational is always irrational. | `√5 × √5 = 5`. |
+| D-IR-12 / Rational Q4b | Irrational value between 2 and 3, taught after irrational numbers, with every option calculated on a separate explanation line. | Any of `√5`…`√8`. |
+| D-IR-13 / Rational Q5c | Disprove irrational + irrational is always irrational. | `√2 + (−√2) = 0`. |
 
-Every question in Lesson 1 A, B and D now reveals “Explanation”, numbered worked steps and a final answer. Correct and incorrect attempts show the same complete working and allow Continue. The shared content map lives in `../lessonExplanations.ts`; `ExplanationSteps` renders it without changing other lessons.
+### Multiples & Factors
 
-Anushka’s Q1–Q5 worked wording and equations are transcribed verbatim from the supplied PDF; exam marking annotations are omitted. Q5(b) labels 6·5 as an example because other values strictly between 6 and 7 are accepted. Other questions use newly written steps in the same instructional style.
+| ID | Adaptation / exercise | Correct outcome |
+| --- | --- | --- |
+| D-MF-01 | Add hops of 6 on a number line. | 6, 12, 18, 24, 30. |
+| D-MF-02 | Switch rectangles for 24 counters. | 1×24, 2×12, 3×8, 4×6. |
+| D-MF-03 | Compare factor sets for 12 and 18. | Common factors 1, 2, 3, 6; HCF 6. |
+| D-MF-04 | Compare multiples of 8 and 12. | First shared landing point and LCM is 24. |
+| D-MF-05 / Q1 | List every factor of 42. | 1, 2, 3, 6, 7, 14, 21, 42. |
+| D-MF-06 / Q2 | First four positive multiples of 9. | 9, 18, 27, 36. |
+| D-MF-07 / Q3 | HCF of 24 and 36. | 12. |
+| D-MF-08 / Q4a | LCM of 8 and 12. | 24. |
+| D-MF-09 / Q4b | Common factor of 18 and 27 other than 1. | 3 or 9. |
+| D-MF-10 / Q5a | Corrected “one possible pair” task. | 12 and 18, or 18 and 24. |
+| D-MF-11 / Q5b | Is every number a factor of itself? | Yes; any number divided by itself gives 1, with no remainder. |
+| D-MF-12 / Q5c | Disprove “LCM is always bigger than both”. | `LCM(4, 8) = 8`. |
 
-Source caveats retained at the user’s explicit request: the PDF calls negative integers “whole”; our formal whole-number set elsewhere starts at zero. Its root decimals are truncated displays, and “does not come out exactly” is informal wording rather than a definition of non-integer. The baseline A opening also predates the formal distinction and calls negative integers whole numbers. Question content is unchanged by this feedback-only update. New explanations outside the PDF use the precise term integer. Middle dots within source decimals retain the PDF typography; separator dots are also retained.
+## Architecture
+
+- `variantDLesson.ts` owns all Lesson 1 screen data, stable state IDs, answers and routes.
+- `VariantDConceptVisual.tsx` provides the Lesson 1 interactive teaching and evidence visuals.
+- `IntegerValueVisual.tsx` retains the existing integer modes and delegates the new `concept` mode.
+- `VariantDActivity.tsx` continues to preserve submitted choices/input and render identical worked feedback for both outcomes.
+- `lessonExplanations.ts` contains a complete explanation entry for every D question.
+- `types.ts` includes the four source-led micro-skill IDs and a typed concept visual union.
+- `NumberTypesLessonView.tsx` derives its five-section journey from the canonical lesson.
+- The segmented progress control is clickable. A section becomes available only once the learner has reached its first state. Learners may then jump backward or forward among reached sections; locked later sections cannot be opened.
+- Navigating with the progress control opens the first state of the selected section, preserves recorded attempts and mastery, resets only the on-screen response, and never advances the furthest-reached boundary.
+- Choosing Start lesson again clears answers, attempts and activity state but preserves the furthest-reached boundary, so every completed section remains available from the progress control. A browser refresh still starts a fresh lesson until persistent user sessions are implemented.
+
+## Verification contract
+
+- Every ID is unique and reachable from `D-I-01`.
+- Every non-teaching screen has a valid correct answer and a worked explanation.
+- Correct and incorrect routes are identical and resolve to an existing next state.
+- Exact multi-select tasks reject incomplete subsets.
+- One-of tasks accept every documented alternative.
+- The recovered D-SI-03A screen retains the historical title, body, prompt, 1–50 range and exact highlighted-prime set.
+- PDF-derived question strings match N1.1–N1.5 exactly, apart from the three documented source corrections and the documented owner-approved recurring-dot display simplification. Worked explanations also include the documented owner-approved child-friendly formatting and elaborations.
+- Lesson 1 contains no shared post-integer `L1-*` states. The former A/B lesson definitions and Lesson 1 variant selector do not exist.
+- The progress control contains five labelled segments, unlocks sections only after they are reached, and remains usable at 320px with accessible button names and keyboard focus.
+- Desktop and 320px rendering have no horizontal overflow; arrays, number lines, fraction cells, roots and explanations remain legible.
+- TypeScript and the production build pass. No deployment.
+# Section videos — 16 September 2026
+
+Five optional, silent tutor animations introduce the current canonical sections. `lessonVideos.ts` inserts video states and redirects section-entry transitions without changing existing questions or marking. `LessonVideoActivity.tsx` is the reusable player; assets live in `public/lessons/lesson-1/videos/`.
+
+| Video | Placement | Length |
+| --- | --- | --- |
+| Integers and non-integers | Before D-I-01 | 0:58 |
+| Squares, cubes and primes | Before D-SI-01 | 0:53 |
+| Rational numbers | Before D-R-01 | 0:38 |
+| Irrational numbers | Before D-IR-01 | 0:38 |
+| Multiples and factors | Before D-MF-01 | 0:39 |
+
+Visual first: an inline 16:9 player, native playback/seeking/fullscreen controls, speed selector, collapsed written summary and Continue. No autoplay, compulsory viewing or automatic progression. Replay appears on completion. Text is already embedded in these silent clips, so no duplicate caption track is supplied.
+
+Original files are unchanged. Visible clarifications correct the integer clip's generalisation about fractions/negative whole numbers, the rational clip's whole-number wording, and the irrational clip's “never repeat” shorthand. Summaries use mathematically precise definitions.
+
+References: [Cognito's topic videos and practice](https://www.cognito.org/) and [Khan Academy's video controls](https://support.khanacademy.org/hc/en-us/articles/204794840-What-features-does-the-video-player-have). These inform optional short-video placement and learner-controlled playback, rather than claiming measured learning outcomes.

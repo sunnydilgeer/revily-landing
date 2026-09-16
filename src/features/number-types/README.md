@@ -2,14 +2,15 @@
 
 This feature turns the Lesson 1 storyboard into a declarative state tree rendered by reusable mathematical components. The central product test is whether lesson content can request mathematical behaviour without embedding animation or screen-specific React code in the data.
 
-The tree currently contains 38 learner steps. Incorrect answers reveal the accepted answer and continue without inserting a separate repair screen.
+The canonical Anushka lesson contains 62 learner steps. Incorrect answers reveal the accepted answer and continue without inserting a separate repair screen.
 
 ## Data flow
 
-`numberTypesLesson.ts` → `useLessonEngine.ts` → `NumberTypesLessonView.tsx` → `components/StateVisual.tsx` → mathematical component
+`variant-d/variantDLesson.ts` → `useLessonEngine.ts` → `NumberTypesLessonView.tsx` → `components/StateVisual.tsx` → mathematical component
 
 - The lesson definition owns wording, answers, feedback, misconception IDs, progress updates and transitions.
 - The engine owns attempts, answer checking, feedback routing, state history and derived mastery.
+- The engine records the furthest state reached so the section progress control can revisit reached content without unlocking future content.
 - The view owns layout and accessibility announcements.
 - `StateVisual` is the single registry between semantic component names and React implementations.
 - Mathematical components own their visual behaviour. They do not contain Lesson 1 wording.
@@ -33,7 +34,7 @@ The tree currently contains 38 learner steps. Incorrect answers reveal the accep
 
 - `types.ts`: stable content and runtime contracts.
 - `lessonMath.ts`: pure, testable maths and answer helpers.
-- `numberTypesLesson.ts`: Lesson 1 content only.
+- `variant-d/variantDLesson.ts`: canonical Lesson 1 content.
 - `useLessonEngine.ts`: generic state-machine behaviour and progression metadata.
 - `components/NumberCard.tsx`: number/expression presentation.
 - `components/ChoiceCards.tsx`: single- and multi-select interaction with a tap alternative to dragging.
