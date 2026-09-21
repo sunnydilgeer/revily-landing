@@ -1,4 +1,32 @@
-# Revily Science: first scaffold
+# Revily Science: local lesson preview
+
+## Easier-wording Lessons 7–9 — 21 September 2026
+
+[Variant B](http://localhost:3000/preview/science?variant=b) now continues into Topic B2a with three easier-wording-only drafts: Lesson 7 **Cells, tissues and organs**, Lesson 8 **Enzymes and reaction rates**, and Lesson 9 **Digestion and food tests**. There is intentionally no current-wording/A copy for these lessons. Their original diagrams, questions and datasets follow the supplied pages 17–21 without copying the book’s prose or artwork. See [alignment and safety boundaries](./LESSONS-7-9-ALIGNMENT.md), [current QA](./LESSONS-7-9-QA.md), and each lesson’s `STORYBOARD.md` under `variants/b/lesson-7` through `lesson-9`.
+
+Lessons 1–6 keep both independent A and B records. The B sequence now continues 6→7→8→9; Lesson 9 finishes with supervised practical work as the next step. The current AQA handbook’s ethanol-emulsion method is primary for lipids, while Sudan III is clearly identified as an alternative school method. All extended responses remain pending teacher review, and online work never certifies hands-on practical completion.
+
+## Curriculum map and Lesson 6 exam bridge
+
+Open the [six-lesson teaching coverage and paper register](http://localhost:3000/preview/science/coverage?variant=b) or [Lesson 6 exam-practice pilot](http://localhost:3000/preview/science/exam?variant=b). The map has 18 exact teaching-section links and a local teacher-review register for paper sub-questions. Official question matches are not pre-verified; inherited references are visibly pending. The pilot uses four original worked/supported/independent practice screens, saved separately from lesson progress, with written answers pending teacher review and no automatic score. Source/permission limits and QA: [EXAM-PREPARATION.md](./EXAM-PREPARATION.md). The current full suite has 117 grouped checks.
+
+## A/B wording variants
+
+Variant A retains the current six lessons and their existing progress. [Variant B](http://localhost:3000/preview/science?variant=b) contains independent simpler-wording copies of Lessons 1–6 plus the easier-only Lessons 7–9. Both share the interface, diagrams and assessment engine. Use **A · Current wording / B · Easier wording** on the hub or in Lessons 1–6. Lessons 7–9 display an easier-only badge instead of offering a missing comparison. Hub, lesson-menu and next-lesson links preserve the selected variant.
+
+B's content lives under `variants/b/lesson-1` through `lesson-9`, with its own `lesson.ts` and `teachingFrames.ts`. B lesson IDs end in `-B`; the new drafts use v0.1.0. A IDs, versions, legacy storage and content remain unchanged. There are fifteen separate local progress records. Run `npm run test:science` for the complete regression suite. See [variant design and QA](./VARIANTS.md).
+
+## Teaching-copy pass — all six lessons
+
+Learner-facing teaching, hints, explanations, worked examples, written-task guidance and relevant diagram captions have been audited across Lessons 1–6. Definitions now start with plain meaning; explanations explicitly connect features, effects and functions. Existing clear questions are retained. See [the editorial record](./TEACHING-COPY-PASS.md). This is an editorial update, not a new assessment version: IDs, sequence, answer keys, marks, evidence requirements and storage identities are preserved. `teachingCopy.test.ts` checks those contracts against fingerprints captured before editing.
+
+## Lessons 4–6 — 17 September 2026
+
+The picker now contains six built drafts. Lesson 4 (**B-CELL-004**, v0.1.0, 24 activities) teaches specialisation and differentiation; Lesson 5 (**B-CELL-005**, v0.1.0, 31 activities) teaches chromosomes, mitosis and stem cells; Lesson 6 (**B-CELL-006**, v0.1.0, 45 activities) teaches transport, exchange and required-practical-2 preparation. Open with `?lesson=4`, `5` or `6`. Each has an original storyboard, replayable visual walkthroughs, worked reasoning, independent checks and a written task saved pending judgement. Scripts are text fallbacks, not recorded video.
+
+Read [official-source alignment and boundaries](./LESSONS-4-6-ALIGNMENT.md), [current end-to-end QA](./LESSONS-4-6-QA.md) and each new lesson's `STORYBOARD.md`. Run `npm run test:science` for all 62 grouped checks. The six-lesson changes have also been transferred to the original checkout: use [localhost:3000/preview/science](http://localhost:3000/preview/science). Existing Lesson 1–3 browser records and unrelated Maths/tutor work are preserved. Port 3100 was the isolated authoring/QA preview, not the primary URL.
+
+The sections below describe the earlier Lessons 1–3 baseline. References there to three built lessons or later lessons being planned are historical and superseded by this update. No production, account, mastery or deployment integration has been added.
 
 Lesson 1 is **B-CELL-001 — Cells: animal, plant and bacterial**, content version **0.3.0**. It has a working local interactive preview, with draft content that is not yet teacher-approved.
 

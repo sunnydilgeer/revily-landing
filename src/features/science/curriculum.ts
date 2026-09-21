@@ -32,7 +32,13 @@ export const cellBiologySequence = [
   { title: 'Cells: animal, plant and bacterial', status: 'Built · draft', spec: '4.1.1.1–4.1.1.2' },
   { title: 'Microscopy: seeing cells and measuring them', status: 'Built · draft', spec: '4.1.1.5' },
   { title: 'Microscopy practical: prepare, observe and draw', status: 'Built · digital preparation draft', spec: '4.1.1.2; required practical 1' },
-  { title: 'Specialisation and differentiation', status: 'Planned', spec: '4.1.1.3–4.1.1.4' },
-  { title: 'Chromosomes, mitosis and stem cells', status: 'Planned', spec: '4.1.2' },
-  { title: 'Diffusion, osmosis and active transport', status: 'Planned', spec: '4.1.3' },
+  { title: 'Specialisation and differentiation', status: 'Built · draft', spec: '4.1.1.3–4.1.1.4' },
+  { title: 'Chromosomes, mitosis and stem cells', status: 'Built · draft', spec: '4.1.2' },
+  { title: 'Transport and exchange', status: 'Built · digital preparation draft', spec: '4.1.3; required practical 2' },
+] as const
+
+export const organisationSequence = [
+  { title: 'Cells, tissues and organs', status: 'Built · easier-wording draft', spec: '4.2.1; digestive-system context' },
+  { title: 'Enzymes and reaction rates', status: 'Built · digital preparation draft', spec: '4.2.2.1; required practical 4' },
+  { title: 'Digestion and food tests', status: 'Built · digital preparation draft', spec: '4.2.2.1; required practical 3' },
 ] as const

@@ -48,7 +48,7 @@ function Scope({ focus }: { focus: string }) {
     <ellipse cx="211" cy="207" rx="24" ry="9" fill="#ffeca0" stroke="#b6a14c" /><path d="M211 198v-12" stroke="#b6a14c" strokeWidth="3" />
     <circle cx="298" cy="129" r="19" fill="#36516b" stroke={focus === 'scope-coarse' || focus === 'scope-side' ? '#a581c9' : '#36516b'} strokeWidth="5" /><circle cx="323" cy="145" r="9" fill={focus === 'scope-fine' || high ? '#b795d5' : '#36516b'} stroke="#36516b" strokeWidth="2" />
     {focus === 'scope-side' && <><path d="M91 141q20 -17 40 0q-20 17 -40 0Z" fill="#fff" stroke="#36516b" /><circle cx="111" cy="141" r="5" fill="#36516b" /><path d="M139 141h56" stroke="#8662ad" strokeDasharray="5 4" strokeWidth="2" /><text x="39" y="116">Watch the gap</text></>}
-    {focus === 'scope-coarse' && <><path d="M246 134v25m-6 -7 6 7 6 -7" fill="none" stroke="#8662ad" strokeWidth="3" /><text x="49" y="249">Increase lens–slide separation</text></>}
+    {focus === 'scope-coarse' && <><path d="M246 134v25m-6 -7 6 7 6 -7" fill="none" stroke="#8662ad" strokeWidth="3" /><text x="49" y="249">Increase the gap between lens and slide</text></>}
     {(focus === 'scope-fine' || high) && <><path d="M373 111l-41 32" stroke="#8662ad" strokeWidth="2" /><text x="327" y="100">Fine focus</text></>}
     {focus === 'scope-stage' && <text x="54" y="67">Secure slide · light below</text>}
     {focus === 'scope-low' && <text x="52" y="249">Lowest objective first</text>}
@@ -64,7 +64,7 @@ function Observation({ animal = false, problem }: { animal?: boolean; problem?: 
         {animal ? [[157, 115], [265, 97], [243, 204], [131, 215]].map(([x, y], i) => <g key={i} transform={`translate(${x} ${y}) rotate(${i * 19})`}><path d="M-42 -18q7 -38 46 -24q49 21 28 54q-26 34 -60 13q-21 -8 -14 -43Z" fill="#eee5f7" stroke="#826d9e" strokeWidth="2" /><ellipse cx="1" cy="-2" rx="12" ry="10" fill="#ad91c7" stroke="#786098" /></g>) : <OnionCells />}
         {problem === 'bubbles' && <g fill="#fffdf1" fillOpacity=".9" stroke="#566374" strokeWidth="3"><circle cx="214" cy="117" r="32" /><circle cx="261" cy="182" r="19" /></g>}
       </g>}
-    </svg><figcaption className="science-micro-caption">Illustrated view, not a micrograph</figcaption>
+    </svg><figcaption className="science-micro-caption">Illustrated view, not a microscope photograph</figcaption>
   </figure>
 }
 function Drawing({ focus, variant = 'a' }: { focus: string; variant?: 'a' | 'b' }) {
@@ -87,7 +87,7 @@ export function PracticalVisual({ focus }: { focus: string }) {
   if (focus.startsWith('animal')) return <Observation animal />
   if (focus === 'drawing-choice') return <div className="science-practical-drawing-pair">{(['a', 'b'] as const).map(variant => <figure className="science-practical-figure" key={variant}><div className="science-cell__identity">Drawing {variant.toUpperCase()}</div><Drawing focus="assessment" variant={variant} /></figure>)}</div>
   if (focus.startsWith('drawing-') || focus === 'measure-scale') return <figure className="science-practical-figure"><Drawing focus={focus} />{focus === 'measure-scale' && <figcaption className="science-micro-caption">Example long cell: 300 µm · scale bar: 100 µm</figcaption>}</figure>
-  if (focus === 'measure-field') return <div className="science-practical-measure"><span>Calibrated field: 1.2 mm</span><div className="science-practical-field" aria-label="Four similar cells span the field diameter">{[1, 2, 3, 4].map(n => <span key={n}>{n}</span>)}</div><strong>1.2 mm ÷ 4 = 0.3 mm = 300 µm</strong><p>Estimate assumes similar lengths across the full diameter.</p></div>
+  if (focus === 'measure-field') return <div className="science-practical-measure"><span>Measured field width: 1.2 mm</span><div className="science-practical-field" aria-label="Four similar cells span the field diameter">{[1, 2, 3, 4].map(n => <span key={n}>{n}</span>)}</div><strong>1.2 mm ÷ 4 = 0.3 mm = 300 µm</strong><p>Estimate assumes similar cells fit end to end across the full width.</p></div>
   if (focus === 'measure-drawing') return <div className="science-practical-measure"><span>Two different magnifications</span><p><strong>Microscope</strong><br />Eyepiece × objective</p><p><strong>Drawing</strong><br />Drawing length ÷ real length</p></div>
   if (focus === 'B3-20') return <div className="science-practical-measure"><span>Supplied measurements</span><div className="science-practical-quantities"><p>Drawing length<strong>24 mm</strong></p><p>Real length<strong>0.3 mm</strong></p></div><p>Drawing magnification = ?</p></div>
   return null

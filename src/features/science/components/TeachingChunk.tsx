@@ -6,6 +6,7 @@ import { CellModel, cellParts } from './CellModel'
 import { AreaModel, BacterialCellModel, PlantCellModel, SizeReference } from './OtherCellModels'
 import { MicroscopyVisual } from './MicroscopyVisuals'
 import { PracticalVisual } from './PracticalVisuals'
+import { CellBiologyVisual } from './CellBiologyVisuals'
 
 export function CellComparison({ differences = false }: { differences?: boolean }) {
   return <div className="science-cell-comparison">
@@ -45,7 +46,7 @@ export function TeachingChunk({ state, onExposure, suspended = false, headingRef
     <div className="science-walkthrough__headline" aria-live="polite" aria-atomic="true">
       <h2 ref={headingRef} tabIndex={-1}>{current.label}</h2><p>{current.summary}</p><span className="science-walkthrough__cue">{current.cue}</span>
     </div>
-    {current.diagram === 'practical' ? <PracticalVisual focus={current.focus || ''} /> : current.diagram === 'microscopy' ? <MicroscopyVisual focus={current.focus} visibleFocuses={steps.slice(0, index + 1).flatMap(frame => frame.focus ? [frame.focus] : [])} onSelect={focus => {
+    {current.diagram === 'cellBiology' ? <CellBiologyVisual focus={current.focus || ''} /> : current.diagram === 'practical' ? <PracticalVisual focus={current.focus || ''} /> : current.diagram === 'microscopy' ? <MicroscopyVisual focus={current.focus} visibleFocuses={steps.slice(0, index + 1).flatMap(frame => frame.focus ? [frame.focus] : [])} onSelect={focus => {
       const target = steps.findIndex(frame => frame.focus === focus)
       if (target >= 0) move(target)
     }} />
@@ -83,7 +84,7 @@ export function WorkedReasoning({ state, onExposure }: { state: TeachingState; o
   const [revealed, setRevealed] = useState(0)
   const steps = state.steps || []
   return <div className="science-worked">
-    {state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />}
+    {/^B[4-9]-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />}
     <p className="science-worked__prompt">{state.body}</p>
     <ol className="science-worked__steps">{steps.slice(0, revealed).map((step, i) => <li key={step}><span>{i + 1}</span><p>{step}</p></li>)}</ol>
     <button type="button" className="science-secondary" onClick={() => { setRevealed(value => value === steps.length ? 0 : value + 1); onExposure() }}>{revealed === steps.length ? <><RotateCcw size={16} /> Replay steps</> : revealed === 0 ? 'Show the reasoning' : 'Show next step'}</button>

@@ -1,0 +1,32 @@
+.science-preview .exam-preparation { color: #26354b; }
+.science-preview .exam-preparation h1 { font-size: clamp(1.65rem, 4vw, 2.35rem); line-height: 1.2; margin: 12px 0 20px; }
+.science-preview .exam-preparation h2 { font-size: 1.4rem; margin: 0 0 16px; }
+.science-preview .exam-preparation h3 { font-size: 1.05rem; margin: 18px 0 8px; }
+.science-preview .exam-preparation p, .science-preview .exam-preparation li { line-height: 1.7; overflow-wrap: anywhere; }
+.science-preview .exam-preparation a { color: #086c9b; text-decoration: underline; text-underline-offset: 3px; }
+.science-preview .exam-panel { background: #fff; border: 1px solid #d6e5ee; border-radius: 20px; padding: clamp(18px, 4vw, 32px); margin: 24px 0; }
+.science-preview .exam-lesson { border-top: 1px solid #d6e5ee; padding: 18px 0; }
+.science-preview .exam-lesson summary { font-weight: 650; cursor: pointer; }
+.science-preview .exam-lesson li { margin: 18px 0; }
+.science-preview .exam-lesson li p { margin: 4px 0; }
+.science-preview .exam-preparation small { color: #53677d; }
+.science-preview .exam-links, .science-preview .exam-controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 18px 0; }
+.science-preview .exam-preparation button { border: 1px solid #a9bfd0; border-radius: 10px; padding: 12px 16px; background: #edf6fb; color: #26354b; cursor: pointer; font: inherit; }
+.science-preview .exam-preparation button:disabled { opacity: .5; cursor: not-allowed; }
+.science-preview .exam-preparation :is(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid #096d9f; outline-offset: 3px; }
+.science-preview .exam-preparation label { display: grid; gap: 8px; margin: 16px 0; font-weight: 550; }
+.science-preview .exam-preparation :is(input:not([type=checkbox]), select, textarea) { width: 100%; min-width: 0; border: 1px solid #a9bfd0; border-radius: 8px; padding: 10px; font: inherit; color: #26354b; background: #fff; box-sizing: border-box; }
+.science-preview .exam-preparation textarea { line-height: 1.7; resize: vertical; }
+.science-preview .exam-preparation textarea[readonly] { background: #f1f6f8; }
+.science-preview .exam-form-grid, .science-preview .exam-topic-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0 20px; }
+.science-preview .exam-preparation fieldset { border: 1px solid #d6e5ee; border-radius: 10px; padding: 12px; min-width: 0; }
+.science-preview .exam-preparation .exam-topic-options label, .science-preview .exam-preparation .exam-check { display: flex; align-items: flex-start; font-weight: 400; }
+.science-preview .exam-preparation input[type=checkbox] { margin-top: 5px; flex-shrink: 0; width: 18px; height: 18px; }
+.science-preview .exam-records { list-style: none; padding: 0; }
+.science-preview .exam-records > li { border-top: 1px solid #d6e5ee; padding: 12px 0; }
+.science-preview .exam-scaffold, .science-preview .exam-model { background: #f0f7fa; border-left: 3px solid #8baebe; padding: 16px; margin: 20px 0; }
+.science-preview .exam-prompt { font-size: 1.15rem; }
+.science-preview .exam-revisit { margin: 24px 0; }
+.science-preview .exam-revisit summary { cursor: pointer; }
+.science-preview .exam-progress { font-size: .9rem; color: #53677d; margin: 20px 0; }
+.science-preview .exam-answer { white-space: pre-wrap; }

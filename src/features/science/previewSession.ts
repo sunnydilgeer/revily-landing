@@ -28,8 +28,10 @@ export type SessionAction =
 const unique = (values: string[]) => [...new Set(values)]
 
 // Each lesson owns its IDs, grading context and storage key. Existing Lesson 1 exports remain compatible.
-export function createPreviewSessionEngine(lesson: ScienceLesson) {
-  const storageKey = `revily:science:${lesson.id}:${lesson.contentVersion}:preview`
+export function createPreviewSessionEngine(lesson: ScienceLesson) { return createNamespacedSessionEngine(lesson, 'science') }
+export function createCoachPreviewSessionEngine(lesson: ScienceLesson) { return createNamespacedSessionEngine(lesson, 'science-coach') }
+function createNamespacedSessionEngine(lesson: ScienceLesson, namespace: 'science' | 'science-coach') {
+  const storageKey = `revily:${namespace}:${lesson.id}:${lesson.contentVersion}:preview`
   const ids = new Set(lesson.states.map(s => s.id))
 
   function createPreviewSession(sessionId: string, seenAnswers: string[] = []): PreviewSession {

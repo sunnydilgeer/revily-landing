@@ -1,5 +1,15 @@
 # Unified Science preview — 14 September 2026
 
+## Easier-only organisation extension — 21 September 2026
+
+The strict lesson parser now accepts `?lesson=1` through `9`. Variant A still contains Lessons 1–6 only. Variant B adds Lessons 7–9, and every canonical link to those lesson numbers includes `variant=b`; requesting one without a variant is normalised to the easier-only lesson rather than implying an absent A copy. The B hub and lesson menu show nine cards/items, while A continues to show six. All fifteen A/B lesson records keep separate versioned local-storage identities.
+
+The B recommendation chain continues 6→7→8→9. Lessons 7–9 replace the two-way wording switch with an explicit “Easier wording · only version” badge. Invalid, absent and repeated lesson values still show the relevant hub rather than mounting an undefined lesson.
+
+## Six-lesson update — 17 September 2026
+
+Six ordered unlocked preview cards and menu switches now use `?lesson=1` through `6`. Invalid/repeated values still show the picker. All six direct links and reloads, all six menu switches/current indicators, back/forward, three existing aliases and invalid values were checked in the browser. Every menu fits an actual 320px viewport. The new menu and practical graph/table also fit 320, 360, 390, 430, 768, 820, 1280, 1366 and 1440px; actual `innerWidth` and document width were checked, not inferred from screenshots. Keyboard reverse/forward boundary wrapping and Escape/focus return were checked after excluding hidden disclosure links. No records were reset. [Detailed current QA](./LESSONS-4-6-QA.md). The earlier QA below remains the original three-lesson baseline.
+
 ## Design
 
 Single course entry `/preview/science`: three ordered, numbered lesson cards with a short description and Start/Resume/Review. Minimal learning-path inspiration from Duolingo's course home, not copied branding, artwork or reward system: https://blog.duolingo.com/new-duolingo-home-screen-design/.

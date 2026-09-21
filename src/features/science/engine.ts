@@ -129,5 +129,11 @@ export function recommendedNext(profile: Profile, retrievalDue: boolean, lesson?
     return { kind: 'repair' as const, skillId: lesson?.states[0].skillId || 'B-CELL-PARTS-FUNCTIONS' }
   }
   // Pending written marking does not block safe forward learning or falsely award explanation skill.
-  return { kind: 'lesson' as const, lessonId: currentLessonId === 'B-CELL-003' ? 'B-CELL-004' : currentLessonId === 'B-CELL-002' ? 'B-CELL-003' : 'B-CELL-002' }
+  const nextLessonIds: Record<string, string> = { 'B-CELL-001': 'B-CELL-002', 'B-CELL-002': 'B-CELL-003', 'B-CELL-003': 'B-CELL-004', 'B-CELL-004': 'B-CELL-005', 'B-CELL-005': 'B-CELL-006' }
+  const easierOnlyNextIds: Record<string, string> = { ...nextLessonIds, 'B-CELL-006': 'B-ORG-007', 'B-ORG-007': 'B-ORG-008', 'B-ORG-008': 'B-ORG-009' }
+  const isVariantB = currentLessonId.endsWith('-B')
+  const baseLessonId = isVariantB ? currentLessonId.slice(0, -2) : currentLessonId
+  const baseNextLessonId = (isVariantB ? easierOnlyNextIds : nextLessonIds)[baseLessonId]
+  const nextLessonId = baseNextLessonId && (isVariantB ? `${baseNextLessonId}-B` : baseNextLessonId)
+  return nextLessonId ? { kind: 'lesson' as const, lessonId: nextLessonId } : { kind: 'practical' as const, lessonId: currentLessonId }
 }

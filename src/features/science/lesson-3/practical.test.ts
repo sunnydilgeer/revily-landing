@@ -41,8 +41,8 @@ check('safety, observation limitations and magnification distinction are explici
   assert.ok(text.includes('Watch') || text.includes('watching the gap'))
   assert.ok(text.includes('fine adjustment at high power'))
   assert.ok(text.includes('does not complete required practical 1'))
-  assert.ok(text.includes('not a micrograph') && text.includes('normally have no chloroplasts'))
-  assert.ok(text.includes('not automatically the drawing magnification'))
+  assert.ok(text.includes('not a microscope photograph') && text.includes('normally have no chloroplasts'))
+  assert.ok(text.includes('drawing can be enlarged by a different amount from the microscope image'))
   assert.ok(text.includes('provided by your teacher'))
 })
 check('all options grade canonically with explanations, not guessed written marking', () => {

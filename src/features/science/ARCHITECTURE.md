@@ -1,5 +1,17 @@
 # Science scaffold architecture
 
+## Variant-B organisation extension — 21 September 2026
+
+The catalogue is intentionally asymmetric: Variant A has Lessons 1–6; Variant B has Lessons 1–9. `scienceLessonHref` treats lesson numbers 7–9 as easier-only and adds `variant=b`. The page resolves a lesson only from the selected variant catalogue, so an unsupported A record is never invented. `ScienceLessonPreview` uses the B-only organisation sequence and new original code-native visuals, while the existing six-lesson Coach pilot remains explicitly sliced to its original scope.
+
+`OrganisationVisuals.tsx` covers hierarchy, epithelial tissue, digestive organs, enzyme models and curves, required-practical preparation, digestive enzyme products, bile and food-test evidence. Assessment views hide answer-bearing labels where a diagram is part of the prompt. The content keeps the existing engine contracts: explicit choice keys, locked submissions, isolated session storage, `teacherOnly` writing and pending review. Required-practical screens teach method knowledge and interpretation but do not award hands-on completion.
+
+## Six-lesson extension — 17 September 2026
+
+The catalogue and strict single query parser now accept Lessons 1–6. Existing record IDs, content versions and keys for Lessons 1–3 are unchanged; B-CELL-004/005/006 each use v0.1.0 and their own engine instance/storage identity. `lessonAuthoring.ts` is an authoring helper, not a replacement grading policy. It declares independently sampled requirements rather than certifying a whole topic. `CellBiologyVisuals`, `DivisionVisuals` and `TransportVisuals` supply original schematic visuals with readable HTML equivalents and illustrative data. Optional plot controls are local, non-gating teaching state and never submit evidence.
+
+New sections map to existing activity IDs for chapter/resume navigation. Written answers remain teacherOnly, pending; the UI explicitly states that no teacher-marking queue is connected. Next recommendations now traverse 1→2→3→4→5→6, with supervised RPA2 preparation after Lesson 6. Repair, retrieval, exposure and evidence policies otherwise remain unchanged. Collapsed disclosure links are excluded from menu keyboard wrapping; the activity remains inert while the menu is open. Earlier three-lesson descriptions below are historical.
+
 ## Content versus learner state
 
 Keep the canonical curriculum, versioned content and learner events separate. A lesson version contains teaching states, interactions, visual briefs, references, misconception objects and an evidence contract. The learner session stores current state ID, draft response, hint state, feedback visibility, completed state IDs and an immutable attempt ledger. Opening the menu must not reset any of them. Do not infer exposure or assessment from simply rendering a screen.
