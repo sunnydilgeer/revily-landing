@@ -26,10 +26,18 @@ export type MicroSkillId =
   | 'long-multiplication-tens'
   | 'long-multiplication-carrying'
   | 'long-multiplication-application'
+  | 'long-division-layout'
+  | 'long-division-regrouping'
+  | 'long-division-remainders'
+  | 'long-division-check'
+  | 'long-division-two-digit'
   | 'decimal-addition'
   | 'decimal-subtraction'
   | 'decimal-multiplication'
   | 'decimal-division'
+  | 'prime-factorisation'
+  | 'hcf-lcm-listing'
+  | 'hcf-lcm-venn'
   | 'mixed'
 
 export type LessonPhase =
@@ -76,7 +84,7 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'fraction'
   dividend?: number
   divisor?: number
 }

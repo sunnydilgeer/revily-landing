@@ -59,6 +59,13 @@ export function parseDecimalOrFraction(response: unknown): number | null {
 
 export function checkAnswer(interaction: InteractionDefinition, response: unknown): boolean {
   const expected = interaction.correctAnswer
+  if (interaction.acceptanceRule === 'fraction') {
+    const text = String(response ?? '').trim()
+    if (!/^\d+\s*\/\s*\d+$/.test(text)) return false
+    const actual = parseDecimalOrFraction(text)
+    const wanted = parseDecimalOrFraction(expected)
+    return actual !== null && wanted !== null && actual === wanted
+  }
   if (interaction.acceptanceRule === 'openInterval') {
     const value = parseDecimalOrFraction(response)
     return value !== null && interaction.lowerBound !== undefined && interaction.upperBound !== undefined

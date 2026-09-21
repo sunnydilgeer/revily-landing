@@ -22,3 +22,7 @@ The preview defaults to Variant B for Lesson 3. Use **Lesson menu → A Current*
 Variant B has 26 screens and 17 questions, following the shared [lesson design pattern](../LESSON_DESIGN.md). It separates place from value, introduces whole-number columns before decimal columns, then teaches placeholder zeroes, equivalent decimals, comparison and ordering. Every question has a collapsed inline Hint. Worked examples are optional and replayable; submitted answers remain visible alongside structured explanations.
 
 Implementation and content live in `variant-b/`. See its [storyboard](variant-b/SPEC.md) and [QA record](variant-b/QA.md).
+
+## Active canonical lesson (17 September 2026)
+
+The application now opens `tutor/PlaceValueLessonView.tsx` directly, using `tutor/placeValueLesson.ts`. Lesson 3 has no variant selector. Earlier content and Variant B are retained only as implementation references. See `tutor/SOURCE-MAP.md`, `tutor/SPEC.md` and `tutor/QA.md` for the supplied PDF/video coverage, corrections and current validation.

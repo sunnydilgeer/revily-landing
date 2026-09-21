@@ -31,7 +31,7 @@ export function TutorTeachingMedia({ visual, video, onConsultRule }: {
   </div>
 }
 
-function LessonVideo({ video, active, onShowWorking }: { video: LessonVideoDefinition; active: boolean; onShowWorking: () => void }) {
+export function LessonVideo({ video, active, onShowWorking }: { video: LessonVideoDefinition; active: boolean; onShowWorking: () => void }) {
   const player = useRef<HTMLVideoElement>(null)
   const [watched, setWatched] = useState(false)
   const [failed, setFailed] = useState(false)

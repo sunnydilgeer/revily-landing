@@ -1,0 +1,3 @@
+# Lesson 5: long division
+
+Canonical route: `src/App.tsx` → `LongDivisionLessonView.tsx` → shared `TutorMethodLessonView`, with `longDivisionLesson.ts` as the sole active content. 11 screens, all seven N4.1 practice parts, one complete bundled video matching 375 ÷ 5. Replaces short division in the lesson menu, following the user's confirmed numbering. Initial teaching explains the source's compact bus-stop terminology. No variant selector. See [shared specification](../../written-methods/tutor/SPEC.md) for learner interactions and media behavior, [SOURCE-MAP.md](SOURCE-MAP.md) for coverage/clarifications, and [QA.md](QA.md) for verification.
