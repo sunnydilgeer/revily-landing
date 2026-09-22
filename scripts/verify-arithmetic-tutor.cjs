@@ -131,7 +131,8 @@ for (const lesson of [multiplication, division]) {
 assert.equal(34 * 26, 884); assert.equal(246 * 43, 10578); assert.equal(375 / 5, 75)
 assert.equal(multiplication.states.find(s => s.video).visual.examples.length, 2)
 const app = fs.readFileSync(path.join(__dirname, '..', 'src/App.tsx'), 'utf8')
-assert(app.includes('lesson === 4 ? <TutorLongMultiplicationLesson /> : lesson === 5 ? <TutorLongDivisionLesson />'))
+assert(app.includes('case 4:') && app.includes('return <TutorLongMultiplicationLesson />'))
+assert(app.includes('case 5:') && app.includes('return <TutorLongDivisionLesson />'))
 for (const legacy of ['divisionVariant', 'multiplicationVariant', 'variantNavigation', 'ShortDivisionLesson']) assert(!app.includes(legacy))
 console.log(`${records} separately labelled calculations, ${results} independently recomputed complete calculation lines; canonical arithmetic routes verified.`)
 

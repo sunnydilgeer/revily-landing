@@ -86,7 +86,7 @@ assert.equal(states[16].visual.steps.length, 5, 'Denominator multiplication and 
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(!app.includes('operationsVariant'), 'Lesson 2 must not have a variant selector')
 assert.ok(!app.includes('OperationsVariantBLesson') && !app.includes('OrderOfOperationsLesson'), 'Retired Lesson 2 paths must not be rendered')
-assert.ok(app.includes("lesson === 2 ? <OperationsVariantCLesson />"), 'Lesson 2 must open the tutor-backed lesson directly')
+assert.ok(app.includes('case 2:') && app.includes('return <OperationsVariantCLesson />'), 'Lesson 2 must open the tutor-backed lesson directly')
 assert.deepEqual(states.map(state => state.id), Array.from({ length: 34 }, (_, index) => `L2C-${String(index + 1).padStart(2, '0')}`))
 
 states.forEach((state, index) => {
