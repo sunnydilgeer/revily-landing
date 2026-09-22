@@ -140,8 +140,9 @@ assert.deepEqual(vennWorking(600, 540, ['p', 'q']).steps[2].frame.venn.middle, [
 const repaired = factors.states.find(state => state.sourceRef.startsWith('N7.1 Q5b'))
 assert(repaired.content.title.includes('even prime 2') && repaired.sourceRef.includes('wording repaired'))
 const app = fs.readFileSync(path.join(__dirname, '..', 'src/App.tsx'), 'utf8')
-assert(app.includes('lesson === 6 ? <TutorDecimalsLesson /> : <TutorFactorsLesson />'))
-assert(app.includes('[1, 2, 3, 4, 5, 6, 7]'))
+assert(app.includes('lesson === 6 ? <TutorDecimalsLesson />'))
+assert(app.includes('lesson === 7 ? <TutorFactorsLesson />'))
+assert(app.includes('[1, 2, 3, 4, 5, 6, 7, 8]'))
 
 console.log(`Lesson 6: ${decimals.states.length} screens, all 28 source practice parts and 4 source videos verified.`)
 console.log(`Lesson 7: ${factors.states.length} screens, all 21 source practice parts and 3 source videos verified.`)
