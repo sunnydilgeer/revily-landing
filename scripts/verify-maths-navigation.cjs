@@ -11,7 +11,7 @@ const registry = read('src/features/maths/courseRegistry.ts')
 const engine = read('src/features/number-types/useLessonEngine.ts')
 const css = read('src/features/maths/MathsNavigation.css')
 
-for (const number of [1, 2, 3, 4, 5, 6, 7, 8]) {
+for (const number of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
   assert.ok(registry.includes(`entry(${number},`), `Lesson ${number} must be registered once in course order`)
   assert.ok(app.includes(`case ${number}:`), `Lesson ${number} must retain its preview route`)
 }

@@ -69,6 +69,14 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
       && (!interaction.requireSimplest || bigintGcd(actual.numerator, actual.denominator) === BigInt(1))
       && actual.numerator * wanted.denominator === wanted.numerator * actual.denominator
   }
+  if (interaction.acceptanceRule === 'rationalInterval') {
+    const actual = parseExactRational(response)
+    if (actual === null || (interaction.requiredDenominator !== undefined && actual.denominator !== BigInt(interaction.requiredDenominator))) return false
+    const value = Number(actual.numerator) / Number(actual.denominator)
+    return Number.isFinite(value)
+      && (interaction.lowerBound === undefined || value > interaction.lowerBound)
+      && (interaction.upperBound === undefined || value < interaction.upperBound)
+  }
   if (interaction.acceptanceRule === 'fraction') {
     const text = String(response ?? '').trim()
     if (!/^\d+\s*\/\s*\d+$/.test(text)) return false
@@ -80,6 +88,10 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const value = parseDecimalOrFraction(response)
     return value !== null && interaction.lowerBound !== undefined && interaction.upperBound !== undefined
       && value > interaction.lowerBound && value < interaction.upperBound
+  }
+  if (interaction.acceptanceRule === 'greaterThan') {
+    const value = parseDecimalOrFraction(response)
+    return value !== null && interaction.lowerBound !== undefined && value > interaction.lowerBound
   }
   if (interaction.type === 'quotientRemainderInput') {
     if (!isDivisionAnswer(expected) || !isDivisionResponse(response)) return false

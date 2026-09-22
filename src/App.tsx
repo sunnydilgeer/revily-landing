@@ -11,6 +11,7 @@ import TutorLongDivisionLesson from './features/long-division/tutor/LongDivision
 import TutorDecimalsLesson from './features/decimals/tutor/DecimalsLessonView'
 import TutorFactorsLesson from './features/factors/tutor/FactorsLessonView'
 import TutorFractionsLesson from './features/fractions/tutor/FractionsLessonView'
+import TutorFractionsDecimalsPercentagesLesson from './features/fractions-decimals-percentages/tutor/FractionsDecimalsPercentagesLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import MathsCourseOverview from './features/maths/MathsCourseOverview'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
@@ -163,6 +164,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorFactorsLesson />
     case 8:
       return <TutorFractionsLesson />
+    case 9:
+      return <TutorFractionsDecimalsPercentagesLesson />
   }
 }
 

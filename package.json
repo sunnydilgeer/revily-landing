@@ -13,6 +13,7 @@
         "verify:arithmetic:tutor": "node scripts/verify-arithmetic-tutor.cjs",
         "verify:lessons67:tutor": "node scripts/verify-lessons-6-7-tutor.cjs",
         "verify:lesson8:tutor": "node scripts/verify-fractions-tutor.cjs",
+        "verify:lesson9:tutor": "node scripts/verify-fractions-decimals-percentages-tutor.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs"
     },
     "dependencies": {

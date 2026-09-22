@@ -7,8 +7,9 @@ import { tutorLongDivisionLesson } from '../long-division/tutor/longDivisionLess
 import { tutorDecimalsLesson } from '../decimals/tutor/decimalsLesson'
 import { tutorFactorsLesson } from '../factors/tutor/factorsLesson'
 import { tutorFractionsLesson } from '../fractions/tutor/fractionsLesson'
+import { tutorFractionsDecimalsPercentagesLesson } from '../fractions-decimals-percentages/tutor/fractionsDecimalsPercentagesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 export type MathsSection = {
   id: MicroSkillId
@@ -73,6 +74,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(6, tutorDecimalsLesson, 'Decimal calculations', 'Add, subtract, multiply and divide decimals.', tutorDecimalsLesson.labels),
   entry(7, tutorFactorsLesson, 'Prime factors, HCF and LCM', 'Use factor trees, lists and Venn diagrams.', tutorFactorsLesson.labels),
   entry(8, tutorFractionsLesson, 'Fractions', 'Simplify, convert and calculate with fractions and mixed numbers.', tutorFractionsLesson.labels),
+  entry(9, tutorFractionsDecimalsPercentagesLesson, 'Fractions, decimals and percentages', 'Convert between equivalent fractions, decimals and percentages.', tutorFractionsDecimalsPercentagesLesson.labels),
 ]
 
 export const mathsChapters: MathsChapter[] = [{

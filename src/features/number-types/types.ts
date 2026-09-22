@@ -46,6 +46,12 @@ export type MicroSkillId =
   | 'dividing-fractions'
   | 'mixed-fraction-calculations'
   | 'fractions-of-amounts'
+  | 'fraction-to-decimal'
+  | 'decimal-to-fraction'
+  | 'decimal-to-percentage'
+  | 'percentage-to-decimal'
+  | 'fraction-to-percentage'
+  | 'percentage-to-fraction'
   | 'mixed'
 
 export type LessonPhase =
@@ -92,7 +98,7 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'fraction' | 'rational'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'greaterThan' | 'fraction' | 'rational' | 'rationalInterval'
   responseShape?: 'fraction' | 'mixedNumber'
   requiredDenominator?: number
   requireSimplest?: boolean

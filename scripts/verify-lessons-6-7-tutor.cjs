@@ -143,7 +143,7 @@ const app = fs.readFileSync(path.join(__dirname, '..', 'src/App.tsx'), 'utf8')
 assert(app.includes('case 6:') && app.includes('return <TutorDecimalsLesson />'))
 assert(app.includes('case 7:') && app.includes('return <TutorFactorsLesson />'))
 const registry = fs.readFileSync(path.join(__dirname, '..', 'src/features/maths/courseRegistry.ts'), 'utf8')
-for (const lessonNumber of [1, 2, 3, 4, 5, 6, 7, 8]) assert(registry.includes(`entry(${lessonNumber},`))
+for (const lessonNumber of [1, 2, 3, 4, 5, 6, 7, 8, 9]) assert(registry.includes(`entry(${lessonNumber},`))
 
 console.log(`Lesson 6: ${decimals.states.length} screens, all 28 source practice parts and 4 source videos verified.`)
 console.log(`Lesson 7: ${factors.states.length} screens, all 21 source practice parts and 3 source videos verified.`)

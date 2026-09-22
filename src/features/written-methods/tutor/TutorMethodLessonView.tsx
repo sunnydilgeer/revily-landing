@@ -5,6 +5,7 @@ import { ExplanationSteps } from '../../number-types/components/ExplanationSteps
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { AnswerMethodWorking } from './MethodWorkedExample'
 import { AnswerFractionWorking } from '../../fractions/tutor/FractionWorkedExample'
+import { AnswerConversionWorking } from '../../fractions-decimals-percentages/tutor/ConversionWorkedExample'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import type { TutorMethodLesson } from './model'
 
@@ -14,6 +15,7 @@ import '../../order-of-operations/variant-c/VariantC.css'
 import '../WrittenMethods.css'
 import './TutorMethod.css'
 import '../../fractions/tutor/FractionsLesson.css'
+import '../../fractions-decimals-percentages/tutor/FractionsDecimalsPercentages.css'
 import type { TutorWorking } from './model'
 
 function Hint({ text, onConsult }: { text: string; onConsult: () => void }) {
@@ -38,7 +40,9 @@ function FractionAnswerInput({ id, mixed, disabled, onChange }: { id: string; mi
 }
 
 function AnswerWorking({ visual }: { visual: TutorWorking }) {
-  return visual.kind === 'fraction-worked' ? <AnswerFractionWorking visual={visual} /> : <AnswerMethodWorking visual={visual} />
+  if (visual.kind === 'fraction-worked') return <AnswerFractionWorking visual={visual} />
+  if (visual.kind === 'conversion-worked') return <AnswerConversionWorking visual={visual} />
+  return <AnswerMethodWorking visual={visual} />
 }
 
 export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodLesson }) {
@@ -87,7 +91,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
         const status = feedback ? correct ? 'correct' : selected ? 'incorrect' : 'neutral' : 'neutral'
         return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : '→'}</span></button>
       })}</div>}
-      {feedback && <div className={`pvb-feedback${feedback.correct ? ' pvb-feedback--correct' : ''}`} role="status"><p className="pvb-result">{feedback.correct ? 'Correct' : compactFeedback ? 'Not quite' : 'Here’s the working'}</p>{!compactFeedback && feedback.workedExplanation && <ExplanationSteps explanation={feedback.workedExplanation} />}</div>}
+      {feedback && <div className={`pvb-feedback${feedback.correct ? ' pvb-feedback--correct' : ''}`} role="status"><p className="pvb-result">{feedback.correct ? 'Correct' : compactFeedback ? 'Not quite' : 'Here’s the working'}</p>{compactFeedback && !feedback.correct && <p>{feedback.message} {feedback.correctAnswer}</p>}{!compactFeedback && feedback.workedExplanation && <ExplanationSteps explanation={feedback.workedExplanation} />}</div>}
       {feedback && state.working && <AnswerWorking visual={state.working} />}
       <div className="pvb-actions">
         {engine.canGoBack && !engine.completed && <button type="button" className="lesson-secondary-action" onClick={engine.back}>← Back</button>}

@@ -2,7 +2,7 @@ import type { InteractionDefinition, MicroSkillId } from '../../number-types/typ
 import { working } from '../model'
 import type { TutorMethodState, TutorMethodVisual } from './model'
 
-export function author(number: 4 | 5 | 6 | 7 | 8) {
+export function author(number: 4 | 5 | 6 | 7 | 8 | 9) {
   const states: TutorMethodState[] = []
   function add(topic: MicroSkillId, title: string, sourceRef: string, visual: TutorMethodVisual, interaction: InteractionDefinition = { type: 'continue' }, explanation?: ReturnType<typeof working>, hint?: string, body?: string) {
     const s: TutorMethodState = {
