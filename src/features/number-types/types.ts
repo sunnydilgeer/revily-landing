@@ -38,6 +38,14 @@ export type MicroSkillId =
   | 'prime-factorisation'
   | 'hcf-lcm-listing'
   | 'hcf-lcm-venn'
+  | 'simplifying-fractions'
+  | 'mixed-improper-fractions'
+  | 'adding-fractions'
+  | 'subtracting-fractions'
+  | 'multiplying-fractions'
+  | 'dividing-fractions'
+  | 'mixed-fraction-calculations'
+  | 'fractions-of-amounts'
   | 'mixed'
 
 export type LessonPhase =
@@ -75,7 +83,7 @@ export type DivisionAnswer = {
 }
 
 export type InteractionDefinition = {
-  type: 'select' | 'multiSelect' | 'numericInput' | 'quotientRemainderInput' | 'order' | 'continue'
+  type: 'select' | 'multiSelect' | 'numericInput' | 'fractionInput' | 'quotientRemainderInput' | 'order' | 'continue'
   options?: NumberOption[]
   correctAnswer?: string | string[] | number | number[] | DivisionAnswer
   lowerBound?: number
@@ -84,7 +92,11 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'fraction'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'fraction' | 'rational'
+  responseShape?: 'fraction' | 'mixedNumber'
+  requiredDenominator?: number
+  requireSimplest?: boolean
+  requireMixedForm?: boolean
   dividend?: number
   divisor?: number
 }

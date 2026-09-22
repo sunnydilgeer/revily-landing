@@ -4,22 +4,46 @@ import { useEffect, useRef, useId, useState } from 'react'
 import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { AnswerMethodWorking } from './MethodWorkedExample'
+import { AnswerFractionWorking } from '../../fractions/tutor/FractionWorkedExample'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import type { TutorMethodLesson } from './model'
 
 import '../../number-types/RationalNumbersLesson.css'
-import '../../place-value/variant-b/VariantB.css'
+import './TutorLessonBase.css'
 import '../../order-of-operations/variant-c/VariantC.css'
 import '../WrittenMethods.css'
 import './TutorMethod.css'
+import '../../fractions/tutor/FractionsLesson.css'
+import type { TutorWorking } from './model'
 
 function Hint({ text, onConsult }: { text: string; onConsult: () => void }) {
   const [open, setOpen] = useState(false), id = useId()
   return <div className="pvb-hint"><button type="button" className="pvb-hint-toggle" aria-expanded={open} aria-controls={id} onClick={() => { setOpen(!open); if (!open) onConsult() }}>Hint <span aria-hidden="true">{open ? '−' : '+'}</span></button><div id={id} className="pvb-hint__content" hidden={!open}><p>{text}</p></div></div>
 }
+
+function FractionAnswerInput({ id, mixed, disabled, onChange }: { id: string; mixed: boolean; disabled: boolean; onChange: (value: string) => void }) {
+  const [whole, setWhole] = useState(''), [numerator, setNumerator] = useState(''), [denominator, setDenominator] = useState('')
+  const update = (nextWhole: string, nextNumerator: string, nextDenominator: string) => {
+    const completeFraction = nextNumerator.trim() && nextDenominator.trim()
+    const value = completeFraction ? `${mixed && nextWhole.trim() ? `${nextWhole.trim()} ` : ''}${nextNumerator.trim()}/${nextDenominator.trim()}` : mixed && nextWhole.trim() && !nextNumerator.trim() && !nextDenominator.trim() ? nextWhole.trim() : ''
+    onChange(value)
+  }
+  return <div className="fr-fraction-input" role="group" aria-label={mixed ? 'Enter a whole number and fraction' : 'Enter a fraction'}>
+    {mixed && <label htmlFor={`whole-${id}`}>Whole<input id={`whole-${id}`} inputMode="numeric" autoComplete="off" disabled={disabled} value={whole} onChange={event => { setWhole(event.target.value); update(event.target.value, numerator, denominator) }} /></label>}
+    <div className="fr-fraction-input__stack">
+      <label htmlFor={`numerator-${id}`}>Numerator<input id={`numerator-${id}`} inputMode="numeric" autoComplete="off" disabled={disabled} value={numerator} onChange={event => { setNumerator(event.target.value); update(whole, event.target.value, denominator) }} /></label>
+      <label htmlFor={`denominator-${id}`}>Denominator<input id={`denominator-${id}`} inputMode="numeric" autoComplete="off" disabled={disabled} value={denominator} onChange={event => { setDenominator(event.target.value); update(whole, numerator, event.target.value) }} /></label>
+    </div>
+  </div>
+}
+
+function AnswerWorking({ visual }: { visual: TutorWorking }) {
+  return visual.kind === 'fraction-worked' ? <AnswerFractionWorking visual={visual} /> : <AnswerMethodWorking visual={visual} />
+}
+
 export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodLesson }) {
   const labels = lesson.labels
-  const compactFeedback = lesson.number === 6 || lesson.number === 7
+  const compactFeedback = lesson.number >= 6
   const engine = useLessonEngine(lesson)
   const state = lesson.states[engine.stateIndex]
   const { feedback, selection } = engine
@@ -27,6 +51,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const previousId = useRef(state.id)
   const teaching = state.interaction.type === 'continue'
   const numeric = state.interaction.type === 'numericInput'
+  const fraction = state.interaction.type === 'fractionInput'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const last = engine.stateIndex === lesson.states.length - 1
   const journey = [...new Set(lesson.states.map(candidate => candidate.microSkillId))]
@@ -53,20 +78,20 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {!teaching && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
       <h3 ref={heading} tabIndex={-1}>{engine.completed ? 'Lesson complete' : state.content.title}</h3>
       {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
-      {(numeric || pair) && <form id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && (pair ? engine.quotientValue.trim() && engine.remainderValue.trim() : engine.inputValue.trim())) engine.submit() }}>
+      {(numeric || fraction || pair) && <form id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && (pair ? engine.quotientValue.trim() && engine.remainderValue.trim() : engine.inputValue.trim())) engine.submit() }}>
         {numeric ? <><label className="wmt-label" htmlFor={`answer-${state.id}`}>{state.answerLabel ?? 'Your answer'}</label>
-        <input id={`answer-${state.id}`} className="pvb-input" inputMode="decimal" type="text" autoComplete="off" spellCheck={false} value={engine.inputValue} disabled={Boolean(feedback)} placeholder={state.interaction.placeholder} onChange={event => engine.setInputValue(event.target.value)} /></> : <div className="wm-pair-input">{(['quotient', 'remainder'] as const).map(field => <label key={field} htmlFor={`${field}-${state.id}`}><span>{field === 'quotient' ? 'Full boxes' : 'Buns left over'}</span><input id={`${field}-${state.id}`} className="pvb-input" type="text" inputMode="numeric" autoComplete="off" value={field === 'quotient' ? engine.quotientValue : engine.remainderValue} disabled={Boolean(feedback)} onChange={event => (field === 'quotient' ? engine.setQuotientValue : engine.setRemainderValue)(event.target.value)} /></label>)}</div>}
+        <input id={`answer-${state.id}`} className="pvb-input" inputMode="decimal" type="text" autoComplete="off" spellCheck={false} value={engine.inputValue} disabled={Boolean(feedback)} placeholder={state.interaction.placeholder} onChange={event => engine.setInputValue(event.target.value)} /></> : fraction ? <><span className="wmt-label">{state.answerLabel ?? 'Your answer'}</span><FractionAnswerInput id={state.id} mixed={state.interaction.responseShape === 'mixedNumber'} disabled={Boolean(feedback)} onChange={engine.setInputValue} /></> : <div className="wm-pair-input">{(['quotient', 'remainder'] as const).map(field => <label key={field} htmlFor={`${field}-${state.id}`}><span>{field === 'quotient' ? 'Full boxes' : 'Buns left over'}</span><input id={`${field}-${state.id}`} className="pvb-input" type="text" inputMode="numeric" autoComplete="off" value={field === 'quotient' ? engine.quotientValue : engine.remainderValue} disabled={Boolean(feedback)} onChange={event => (field === 'quotient' ? engine.setQuotientValue : engine.setRemainderValue)(event.target.value)} /></label>)}</div>}
       </form>}
-      {!teaching && !numeric && !pair && <div className="pvb-choices" role="group" aria-label="Choose one answer">{state.interaction.options?.map(option => {
+      {!teaching && !numeric && !fraction && !pair && <div className="pvb-choices" role="group" aria-label="Choose one answer">{state.interaction.options?.map(option => {
         const selected = selection.includes(option.id), correct = state.interaction.correctAnswer === option.id
         const status = feedback ? correct ? 'correct' : selected ? 'incorrect' : 'neutral' : 'neutral'
         return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : '→'}</span></button>
       })}</div>}
       {feedback && <div className={`pvb-feedback${feedback.correct ? ' pvb-feedback--correct' : ''}`} role="status"><p className="pvb-result">{feedback.correct ? 'Correct' : compactFeedback ? 'Not quite' : 'Here’s the working'}</p>{!compactFeedback && feedback.workedExplanation && <ExplanationSteps explanation={feedback.workedExplanation} />}</div>}
-      {feedback && state.working && <AnswerMethodWorking visual={state.working} />}
+      {feedback && state.working && <AnswerWorking visual={state.working} />}
       <div className="pvb-actions">
         {engine.canGoBack && !engine.completed && <button type="button" className="lesson-secondary-action" onClick={engine.back}>← Back</button>}
-        {!feedback && (numeric || pair) && <button type="submit" form={`form-${state.id}`} className="lesson-primary-action" disabled={pair ? !(engine.quotientValue.trim() && engine.remainderValue.trim()) : !engine.inputValue.trim()}>Check answer</button>}
+        {!feedback && (numeric || fraction || pair) && <button type="submit" form={`form-${state.id}`} className="lesson-primary-action" disabled={pair ? !(engine.quotientValue.trim() && engine.remainderValue.trim()) : !engine.inputValue.trim()}>Check answer</button>}
         {(teaching || feedback) && <button type="button" className="lesson-primary-action" onClick={engine.continueLesson}>{engine.completed ? 'Start lesson again' : last ? 'Finish lesson' : 'Continue'} <span aria-hidden="true">→</span></button>}
       </div>
     </article>

@@ -1,6 +1,6 @@
 # Revily lesson design — agreed pattern
 
-Reference implementations: Lesson 1 and Lesson 2 Variant B. Lesson 1 uses Anushka's source where provided; subsequent variants use original Revily content, without implying tutor review.
+Canonical implementations: the eight lessons exposed by `src/App.tsx`. Lesson 1 uses the supplied source where provided; later lessons use their source-mapped Revily content without implying tutor review. Superseded experimental variants are not retained in the active source tree.
 
 ## Teaching sequence
 

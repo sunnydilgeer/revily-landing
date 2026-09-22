@@ -8,7 +8,8 @@
         "start": "next start",
         "lint": "next lint",
         "test:science": "node scripts/test-science.cjs",
-        "verify:lesson2:tutor": "node scripts/verify-order-of-operations-variant-c.cjs"
+        "verify:lesson2:tutor": "node scripts/verify-order-of-operations-variant-c.cjs",
+        "verify:lesson8:tutor": "node scripts/verify-fractions-tutor.cjs"
     },
     "dependencies": {
         "@supabase/ssr": "^0.10.3",

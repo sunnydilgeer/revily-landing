@@ -1,6 +1,6 @@
 import type { FeedbackDefinition, InteractionDefinition, LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
-import type { BidmasContext } from '../variant-b/bidmasRules'
-import type { OperationsVisualDefinition } from '../variant-b/variantBLesson'
+import type { BidmasContext } from './bidmasRules'
+import type { OperationsVisualDefinition } from './visualTypes'
 
 type Step = { title: string; math: string; evidence: string; previousMath: string }
 type WorkedCalculation = { math: string; steps: Step[] }

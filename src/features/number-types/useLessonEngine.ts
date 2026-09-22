@@ -73,7 +73,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
   }
 
   function gradeSelection(selectedIds: string[]) {
-    const response = state.interaction.type === 'numericInput'
+    const response = state.interaction.type === 'numericInput' || state.interaction.type === 'fractionInput'
       ? inputValue
       : state.interaction.type === 'quotientRemainderInput'
         ? { quotient: quotientValue, remainder: remainderValue }

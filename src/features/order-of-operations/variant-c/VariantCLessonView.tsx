@@ -6,7 +6,7 @@ import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { operationsVariantCLesson, operationsVariantCLabels } from './variantCLesson'
 import { TutorTeachingMedia } from './TutorTeachingMedia'
 import '../../number-types/RationalNumbersLesson.css'
-import '../variant-b/VariantB.css'
+import './TutorOperations.css'
 import './VariantC.css'
 
 export default function OperationsVariantCLessonView() {
