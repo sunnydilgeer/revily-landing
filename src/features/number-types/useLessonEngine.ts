@@ -1,6 +1,11 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  MATHS_NAVIGATE_EVENT,
+  readMathsProgress,
+  saveMathsProgress,
+} from '../maths/lessonProgress'
 import { checkAnswer, formatAcceptedAnswer } from './lessonMath'
 import type { FeedbackDefinition, LessonDefinition, MicroSkillId, MicroSkillProgress, StateAttempt } from './types'
 
@@ -20,9 +25,28 @@ export function useLessonEngine(lesson: LessonDefinition) {
   const [lessonState, setLessonState] = useState<Record<string, boolean | number | string>>({})
   const [completed, setCompleted] = useState(false)
   const [furthestStateIndex, setFurthestStateIndex] = useState(0)
+  const [progressHydrated, setProgressHydrated] = useState(false)
 
   const stateIndex = Math.max(0, lesson.states.findIndex((state) => state.id === currentId))
   const state = lesson.states[stateIndex]
+
+  useEffect(() => {
+    const saved = readMathsProgress()[lesson.id]
+    const savedIndex = saved
+      ? lesson.states.findIndex(candidate => candidate.id === saved.currentStateId)
+      : -1
+    if (saved && savedIndex >= 0) {
+      const furthestIndex = Math.min(
+        lesson.states.length - 1,
+        Math.max(savedIndex, saved.furthestStateIndex),
+      )
+      setCurrentId(saved.currentStateId)
+      setHistory(lesson.states.slice(0, savedIndex).map(candidate => candidate.id))
+      setFurthestStateIndex(furthestIndex)
+      setCompleted(saved.completed)
+    }
+    setProgressHydrated(true)
+  }, [lesson])
 
   function resetResponse() {
     setSelection([])
@@ -50,6 +74,39 @@ export function useLessonEngine(lesson: LessonDefinition) {
     setCompleted(false)
     resetResponse()
   }
+
+  useEffect(() => {
+    function handleNavigation(event: Event) {
+      const detail = (event as CustomEvent<{ lessonId: string; stateId: string }>).detail
+      if (detail?.lessonId !== lesson.id) return
+      const targetIndex = lesson.states.findIndex(candidate => candidate.id === detail.stateId)
+      if (targetIndex < 0 || targetIndex > furthestStateIndex || detail.stateId === currentId) return
+      setHistory(items => [...items, currentId])
+      setCurrentId(detail.stateId)
+      setCompleted(false)
+      setSelection([])
+      setInputValue('')
+      setQuotientValue('')
+      setRemainderValue('')
+      setFeedback(null)
+      setPendingTarget(null)
+    }
+    window.addEventListener(MATHS_NAVIGATE_EVENT, handleNavigation)
+    return () => window.removeEventListener(MATHS_NAVIGATE_EVENT, handleNavigation)
+  }, [currentId, furthestStateIndex, lesson])
+
+  useEffect(() => {
+    if (!progressHydrated) return
+    saveMathsProgress({
+      lessonId: lesson.id,
+      currentStateId: state.id,
+      currentStateIndex: stateIndex,
+      furthestStateIndex,
+      totalStates: lesson.states.length,
+      currentSectionId: state.microSkillId,
+      completed,
+    })
+  }, [completed, furthestStateIndex, lesson, progressHydrated, state.id, state.microSkillId, stateIndex])
 
   function continueLesson() {
     if (completed) {

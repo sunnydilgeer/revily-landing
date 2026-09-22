@@ -82,6 +82,8 @@ for (const [name, expected] of Object.entries(mediaHashes)) {
 
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(app.includes('TutorFractionsLesson'), 'Lesson 8 must be mounted in the preview app')
-assert.ok(app.includes('useState<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8>(8)'), 'Lesson 8 must be the default preview')
+assert.ok(app.includes('case 8:') && app.includes('return <TutorFractionsLesson />'), 'Lesson 8 must open from the course overview and direct route')
+const registry = fs.readFileSync(path.join(root, 'src/features/maths/courseRegistry.ts'), 'utf8')
+assert.ok(registry.includes("entry(8, tutorFractionsLesson, 'Fractions'"), 'Lesson 8 must remain in the canonical course order')
 
-console.log('Lesson 8 verified: 72 screens, 56 source practice parts, 15 worked/video screens, 8 source-identical videos, exact arithmetic and canonical preview route.')
+console.log('Lesson 8 verified: 72 screens, 56 source practice parts, 15 worked/video screens, 8 source-identical videos, exact arithmetic and canonical course route.')

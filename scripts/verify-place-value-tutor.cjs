@@ -89,5 +89,5 @@ for (const s of states.filter(s => s.visual.kind === 'cumulative')) {
 }
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(!app.includes('placeValueVariant'))
-assert.ok(app.includes('lesson === 3 ? <TutorPlaceValueLesson />'))
+assert.ok(app.includes('case 3:') && app.includes('return <TutorPlaceValueLesson />'))
 console.log(`Verified Lesson 3: ${states.length} reachable screens, ${questions.length} source practice parts, ${videos.length} matching videos, ${calculations} cumulative calculations, ${transitions} underlined transitions.`)
