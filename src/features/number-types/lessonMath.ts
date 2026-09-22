@@ -59,6 +59,16 @@ export function parseDecimalOrFraction(response: unknown): number | null {
 
 export function checkAnswer(interaction: InteractionDefinition, response: unknown): boolean {
   const expected = interaction.correctAnswer
+  if (interaction.acceptanceRule === 'rational') {
+    const text = String(response ?? '').trim().replace(/−/g, '-')
+    const actual = parseExactRational(response)
+    const wanted = parseExactRational(expected)
+    return actual !== null && wanted !== null
+      && (interaction.requiredDenominator === undefined || actual.denominator === BigInt(interaction.requiredDenominator))
+      && (!interaction.requireMixedForm || /^[+-]?\d{1,12}\s+\d{1,12}\s*\/\s*\d{1,12}$/.test(text))
+      && (!interaction.requireSimplest || bigintGcd(actual.numerator, actual.denominator) === BigInt(1))
+      && actual.numerator * wanted.denominator === wanted.numerator * actual.denominator
+  }
   if (interaction.acceptanceRule === 'fraction') {
     const text = String(response ?? '').trim()
     if (!/^\d+\s*\/\s*\d+$/.test(text)) return false
@@ -117,6 +127,31 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     return actual.length === wanted.length && actual.every((value, index) => value === wanted[index])
   }
   return String(response) === String(expected)
+}
+
+function bigintGcd(a: bigint, b: bigint): bigint {
+  a = a < BigInt(0) ? -a : a
+  b = b < BigInt(0) ? -b : b
+  while (b !== BigInt(0)) { const remainder = a % b; a = b; b = remainder }
+  return a
+}
+
+// Parse integers, ordinary fractions and mixed numbers exactly. The learner's
+// answer is never evaluated as code and comparison uses integer cross-products.
+export function parseExactRational(value: unknown): { numerator: bigint; denominator: bigint } | null {
+  const text = String(value ?? '').trim().replace(/−/g, '-')
+  if (/^[+-]?\d{1,12}$/.test(text)) return { numerator: BigInt(text), denominator: BigInt(1) }
+  const fraction = text.match(/^([+-]?\d{1,12})\s*\/\s*(\d{1,12})$/)
+  if (fraction) {
+    const denominator = BigInt(fraction[2])
+    return denominator === BigInt(0) ? null : { numerator: BigInt(fraction[1]), denominator }
+  }
+  const mixed = text.match(/^([+-]?)(\d{1,12})\s+(\d{1,12})\s*\/\s*(\d{1,12})$/)
+  if (!mixed) return null
+  const whole = BigInt(mixed[2]), numerator = BigInt(mixed[3]), denominator = BigInt(mixed[4])
+  if (denominator === BigInt(0)) return null
+  const sign = mixed[1] === '-' ? BigInt(-1) : BigInt(1)
+  return { numerator: sign * (whole * denominator + numerator), denominator }
 }
 
 // Parse one authored monomial answer without evaluating learner input as code.

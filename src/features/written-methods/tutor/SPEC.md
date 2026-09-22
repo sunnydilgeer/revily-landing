@@ -1,6 +1,6 @@
 # Canonical tutor arithmetic lessons
 
-`src/App.tsx` opens only Lesson 4 long multiplication and Lesson 5 long division. Existing short-division and multiplication A/B implementations are retained as inactive references. No variant selector remains. Lessons 1–3 and 6 retain their routes.
+`src/App.tsx` opens only Lesson 4 long multiplication and Lesson 5 long division. The replaced short-division lesson and multiplication A/B implementations have been removed. No variant selector remains. Lessons 1–3 and 6 retain their routes.
 
 Lesson 4 has 15 sequential screens; Lesson 5 has 13. Each includes all seven supplied practice parts, the original worked example and two additional worked examples explicitly requested by the user. See each topic's SOURCE-MAP.md for exact source coverage and clarifications. The source document identifiers do not determine route numbering.
 

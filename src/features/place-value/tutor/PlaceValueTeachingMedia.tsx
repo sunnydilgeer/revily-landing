@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NumberDisplay, PlaceValueVisual } from '../variant-b/PlaceValueVisuals'
+import { NumberDisplay, PlaceValueVisual } from './PlaceValueVisuals'
 import { StackedWorkedExample } from '../../order-of-operations/variant-c/StackedWorkedExample'
 import { LessonVideo } from '../../order-of-operations/variant-c/TutorTeachingMedia'
 import type { TutorPlaceState } from './placeValueLesson'

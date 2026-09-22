@@ -1,6 +1,6 @@
 # Canonical Lesson 3 specification
 
-`placeValueLesson.ts` is the active content. `PlaceValueLessonView.tsx` renders it through the existing shared lesson engine. `src/App.tsx` routes Lesson 3 directly here with no approach selector. Legacy A/B content remains unrendered as an implementation reference.
+`placeValueLesson.ts` is the sole active content. `PlaceValueLessonView.tsx` renders it through the existing shared lesson engine. `src/App.tsx` routes Lesson 3 directly here with no approach selector. The superseded A/B lesson implementations have been removed.
 
 23 sequential states: large-number teaching, matching video/worked example and seven source practice parts; decimal teaching, PDF worked example, practice, matching video, fraction teaching and the remaining source practice parts; review. See SOURCE-MAP.md for every source and correction.
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { MethodWorkedExample } from './MethodWorkedExample'
+import { FractionWorkedExample } from '../../fractions/tutor/FractionWorkedExample'
 import { useState } from 'react'
 import { MethodVisual } from '../MethodVisual'
 import { LessonVideo } from '../../order-of-operations/variant-c/TutorTeachingMedia'
@@ -12,6 +13,7 @@ function Grid({ first, second }: { first: number[]; second: number[] }) {
 
 function TeachingVisual({ visual }: { visual: Visual }) {
   if (visual.kind === 'method-worked') return <div className="pvb-stage"><MethodWorkedExample visual={visual} /></div>
+  if (visual.kind === 'fraction-worked') return <div className="pvb-stage"><FractionWorkedExample visual={visual} /></div>
   if (visual.kind === 'grid') return <div className="pvb-stage"><Grid {...visual} /></div>
   return <div className="pvb-stage"><MethodVisual visual={visual.kind === 'diagram' ? visual.diagram : visual} /></div>
 }

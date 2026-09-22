@@ -1,5 +1,5 @@
 import type { FeedbackDefinition, InteractionDefinition, LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
-import type { PlaceHint, PlaceLessonVisual } from '../variant-b/variantBLesson'
+import type { PlaceHint, PlaceLessonVisual } from './model'
 import type { LessonVideoDefinition, TutorOperationsVisualDefinition } from '../../order-of-operations/variant-c/variantCLesson'
 
 type Calculation = Extract<TutorOperationsVisualDefinition, { kind: 'stacked-worked' }>

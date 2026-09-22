@@ -3,11 +3,11 @@
 import { useEffect, useRef } from 'react'
 import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
-import { InlinePlaceHint } from '../variant-b/PlaceValueHint'
+import { InlinePlaceHint } from './PlaceValueHint'
 import { PlaceValueTeachingMedia } from './PlaceValueTeachingMedia'
 import { tutorPlaceValueLesson as lesson, tutorPlaceValueLabels as labels } from './placeValueLesson'
 import '../../number-types/RationalNumbersLesson.css'
-import '../variant-b/VariantB.css'
+import '../../written-methods/tutor/TutorLessonBase.css'
 import '../../order-of-operations/variant-c/VariantC.css'
 import './PlaceValueLesson.css'
 

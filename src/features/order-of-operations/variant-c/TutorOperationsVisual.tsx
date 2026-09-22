@@ -1,5 +1,5 @@
-import { OperationsVisual } from '../variant-b/OperationsVisual'
-import type { OperationsVisualDefinition } from '../variant-b/variantBLesson'
+import { OperationsVisual } from './OperationsVisual'
+import type { OperationsVisualDefinition } from './visualTypes'
 import type { TutorOperationsVisualDefinition } from './variantCLesson'
 import { StackedWorkedExample } from './StackedWorkedExample'
 
