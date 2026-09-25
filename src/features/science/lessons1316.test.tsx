@@ -23,6 +23,7 @@ const at = '2026-09-22T18:45:00.000Z'
 // Lessons refactored to the Lesson 17–18 standard. Add each lesson's id as it is refactored.
 const refactored: Record<string, { version: string; banned: RegExp; hiddenAnswer: Record<string, RegExp> }> = {
   'B-ORG-013-B': { version: '0.2.0', banned: /phagocyt|fibrin|antitoxin/i, hiddenAnswer: { 'B13-15': /white blood cell|red blood cell|platelet|plasma/i } },
+  'B-ORG-014-B': { version: '0.2.0', banned: /heart attack|aerobic/i, hiddenAnswer: { 'B14-11': /leaky|stiff/i, 'B14-15': /stent|statin/i } },
 }
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')

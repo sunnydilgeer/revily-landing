@@ -306,7 +306,8 @@ function CoronarySupply({ assessment }: { assessment: boolean }) {
   </svg></div>
 }
 
-function CoronaryArtery({ stent, assessment }: { stent: boolean; assessment: boolean }) {
+function CoronaryArtery({ stent, assessment, hiMuscle = false, question = false }: { stent: boolean; assessment: boolean; hiMuscle?: boolean; question?: boolean }) {
+  const art = dim(!hiMuscle)
   const titleId = useId(), u = titleId.replace(/[^a-zA-Z0-9_-]/g, '')
   const dip = stent ? 66 : 92, rise = stent ? 125 : 118
   const lumen = `M22 60H170C195 60 205 ${dip} 235 ${dip}C265 ${dip} 280 60 305 60H448V130H275C262 130 252 ${rise} 235 ${rise}C218 ${rise} 208 130 195 130H22Z`
@@ -321,7 +322,8 @@ function CoronaryArtery({ stent, assessment }: { stent: boolean; assessment: boo
   return <div className="science-bio-model"><svg viewBox="0 0 470 236" role="img" aria-labelledby={titleId}>
     <title id={titleId}>{stent
       ? 'Lengthwise section of a coronary artery. A mesh stent sits against the artery wall where fatty material had built up, pressing the deposit back into the wall and holding the lumen wide open. Blood flows through normally and reaches the heart muscle beyond. Not to scale.'
-      : 'Lengthwise section of a coronary artery. Fatty material has built up inside the artery wall, under the inner lining, and bulges inwards, so the lumen is much narrower at that point. Fewer blood cells pass the narrowing, and the heart muscle beyond it receives less blood and oxygen. Not to scale.'}</title>
+      : question && assessment ? 'Lengthwise section of a coronary artery, badly narrowed by fatty material in its wall. A tag says the patient needs more blood flow now. Not to scale.'
+      : 'Lengthwise section of a coronary artery. Fatty material has built up inside the artery wall, under the inner lining, and bulges inwards, so the lumen is much narrower at that point. Fewer blood cells pass the narrowing, and the heart muscle beyond it receives less blood and oxygen. Not to scale.' + (hiMuscle ? ' The heart muscle beyond the narrowing is highlighted.' : '')}</title>
     <defs>
       <marker id={`${u}-a`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10L2 5Z" fill="#b8434f"/></marker>
       <pattern id={`${u}-fibre`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)"><path d="M0 0V10" stroke="#9b5552" strokeOpacity=".22" strokeWidth="1.4"/></pattern>
@@ -333,6 +335,7 @@ function CoronaryArtery({ stent, assessment }: { stent: boolean; assessment: boo
     {!stent && <path d="M300 159V196" stroke="#a8625f" strokeWidth="1.2" strokeDasharray="4 3"/>}
 
     {/* Artery wall, fatty deposits within it, then the blood-filled lumen with its inner lining */}
+    <g opacity={art}>
     <path d="M22 40Q235 34 448 40V150Q235 156 22 150Z" fill="#f2cfc3" stroke="#9b6461" strokeWidth="2"/>
     <g fill="#f1d27a" stroke="#b58a2c" strokeWidth="1.6"><path d={plaqueTop}/><path d={plaqueBot}/></g>
     {!stent && <g fill="#fbe9b4">{[[208, 60], [226, 70], [246, 58], [262, 68], [236, 80], [216, 131], [250, 130]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i % 2 ? 3 : 4}/>)}</g>}
@@ -347,8 +350,15 @@ function CoronaryArtery({ stent, assessment }: { stent: boolean; assessment: boo
       {[0, 1, 2, 3, 4, 5, 6, 7].map(i => { const x = 176 + i * 16; const top = (xx: number) => xx < 195 || xx > 280 ? 62 : 67; return <path key={i} d={`M${x} ${top(x)}L${x + 8} 95L${x} 124M${x + 8} 95L${x + 16} ${top(x + 16)}M${x + 8} 95L${x + 16} 124`}/> })}
       <path d="M176 62C200 64 214 67 235 67C256 67 272 64 304 62M176 125C200 124 214 123 235 123C256 123 272 124 304 125"/>
     </g>}
+    </g>
+    {question && assessment && <g>
+      <rect x="150" y="4" width="170" height="24" rx="12" fill="#fff4e0" stroke="#b58a2c" strokeWidth="1.5"/>
+      <Lbl x={235} y={21} anchor="middle" bold size={12}>needs more blood flow now</Lbl>
+      <Leader d="M235 30V52" to={[235, 54]}/>
+    </g>}
 
     {!assessment && <>
+      <g opacity={art}>
       <text x="22" y="25" {...t}>artery wall</text><path d="M48 29L60 42" stroke="#657a89"/><circle cx="60" cy="42" r="2" fill="#657a89"/>
       <text x="448" y="25" textAnchor="end" {...t}>inner lining</text><path d="M410 29L400 59" stroke="#657a89"/><circle cx="400" cy="59" r="2" fill="#657a89"/>
       {stent ? <><text x="235" y="18" textAnchor="middle" {...t} fontWeight="700" fill="#5d4a86">stent supports a wider lumen</text>
@@ -359,6 +369,7 @@ function CoronaryArtery({ stent, assessment }: { stent: boolean; assessment: boo
       {stent ? <text x="330" y="126" {...t} fontSize={11.5} fill="#8a3f47">flow restored</text>
         : <><text x="340" y="126" {...t} fontSize={11.5} fill="#8a3f47">less blood flow</text>
           <text x="320" y="80" {...t} fontSize={11.5}>narrowed lumen</text><path d="M318 76L262 100" stroke="#657a89"/><circle cx="262" cy="100" r="2" fill="#657a89"/></>}
+      </g>
       <text x="150" y="214" textAnchor="middle" {...t}>heart muscle</text>
       <text x="374" y="214" textAnchor="middle" {...t} fontWeight={stent ? 400 : 700}>{stent ? 'muscle keeps its' : 'less oxygen reaches'}</text>
       <text x="374" y="229" textAnchor="middle" {...t} fontWeight={stent ? 400 : 700}>{stent ? 'oxygen supply' : 'this muscle'}</text>
@@ -366,30 +377,232 @@ function CoronaryArtery({ stent, assessment }: { stent: boolean; assessment: boo
   </svg></div>
 }
 
+/* Small shared pieces for the Lesson 14 treatment diagrams. */
+function MiniArtery({ x, y, w, h = 54, narrow = 0, stent = false, grad }: { x: number; y: number; w: number; h?: number; narrow?: number; stent?: boolean; grad: string }) {
+  const m = x + w / 2, top = y + 9, bot = y + h - 9, nb = narrow * .6
+  const bumpTop = `M${m - 44} ${top}C${m - 22} ${top} ${m - 20} ${top + narrow} ${m} ${top + narrow}C${m + 20} ${top + narrow} ${m + 22} ${top} ${m + 44} ${top}`
+  const bumpBot = `M${m - 36} ${bot}C${m - 18} ${bot} ${m - 16} ${bot - nb} ${m} ${bot - nb}C${m + 16} ${bot - nb} ${m + 18} ${bot} ${m + 36} ${bot}`
+  const mid = (top + narrow + bot - nb) / 2
+  return <g>
+    <path d={`M${x} ${y}Q${m} ${y - 3} ${x + w} ${y}V${y + h}Q${m} ${y + h + 3} ${x} ${y + h}Z`} fill="#f2cfc3" stroke="#9b6461" strokeWidth="1.6"/>
+    <path d={`M${x} ${top}H${x + w}V${bot}H${x}Z`} fill="#fbe4e1"/>
+    <path d={`M${x} ${top}H${x + w}M${x} ${bot}H${x + w}`} stroke="#c0676f" strokeWidth="1.6"/>
+    {narrow > 0 && <><path d={bumpTop + 'Z'} fill="#f1d27a" stroke="#b58a2c" strokeWidth="1.2"/><path d={bumpBot + 'Z'} fill="#f1d27a" stroke="#b58a2c" strokeWidth="1.2"/></>}
+    {[[x + 18, y + h / 2 - 4, 10], [x + w - 22, y + h / 2 + 5, -15], [m + (stent ? 0 : 0), stent ? y + h / 2 : mid, 20]].map(([cx, cy, r], k) => <RBC key={k} x={cx} y={cy} r={8} rotate={r} grad={grad}/>)}
+    {stent && <g fill="none" stroke={purple} strokeWidth="1.8">{[0, 1, 2, 3, 4].map(k => { const sx = m - 30 + k * 12; return <path key={k} d={`M${sx} ${top + 1}L${sx + 6} ${y + h / 2}L${sx} ${bot - 1}M${sx + 6} ${y + h / 2}L${sx + 12} ${top + 1}M${sx + 6} ${y + h / 2}L${sx + 12} ${bot - 1}`}/> })}</g>}
+  </g>
+}
+function Tablet({ x, y }: { x: number; y: number }) {
+  return <g transform={`translate(${x} ${y}) rotate(-20)`}><rect x="-17" y="-8" width="34" height="16" rx="8" fill="#fff" stroke={ink} strokeWidth="1.6"/><path d="M0-8V8" stroke={ink} strokeWidth="1.2"/><rect x="-17" y="-8" width="17" height="16" rx="8" fill="#cfe3ee"/><rect x="-17" y="-8" width="34" height="16" rx="8" fill="none" stroke={ink} strokeWidth="1.6"/></g>
+}
+function HeartShape({ x, y, s = 1, fill, stroke = ink }: { x: number; y: number; s?: number; fill: string; stroke?: string }) {
+  return <path transform={`translate(${x} ${y}) scale(${s})`} d="M2 62C-38 40-58 12-50-16C-44-38-20-46-2-30C2-26 4-24 6-22C14-40 38-46 52-30C66-12 58 18 30 42C20 50 10 57 2 62Z" fill={fill} stroke={stroke} strokeWidth={2.2 / s}/>
+}
+
+function TreatmentCompare() {
+  const { t, u } = useSvgIds(), g = `${u}-rbc`
+  const panels = [
+    { x: 8, fill: '#eef7fb', head: 'fix the pipe', name: 'stent', note: ['works straight away,', 'at one artery'] },
+    { x: 186, fill: '#fbf4e2', head: 'slow the problem', name: 'statins', note: ['work slowly,', 'all over the body'] },
+    { x: 364, fill: '#f4eefa', head: 'replace the part', name: 'new valve or heart', note: ['major surgery,', 'for a failed part'] },
+  ]
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>Three ways to treat cardiovascular disease, side by side. Fix the pipe: a stent holds one narrowed artery open and works straight away. Slow the problem: statin tablets lower cholesterol and slow fatty build-up over time. Replace the part: a faulty valve or a failing heart is replaced in major surgery. Original schematic, not to scale.</title>
+    <defs><RBCGradient id={g}/></defs>
+    {panels.map((p, k) => <g key={k}>
+      <rect x={p.x} y="8" width="168" height="234" rx="18" fill={p.fill} stroke="#b9c9d2" strokeWidth="1.5"/>
+      <Lbl x={p.x + 84} y={34} anchor="middle" bold size={14}>{p.head}</Lbl>
+      <Lbl x={p.x + 84} y={186} anchor="middle" bold>{p.name}</Lbl>
+      {p.note.map((n, q) => <Lbl key={q} x={p.x + 84} y={206 + q * 15} anchor="middle" size={11.5} fill="#526976">{n}</Lbl>)}
+    </g>)}
+    <MiniArtery x={24} y={96} w={136} stent grad={g}/>
+    <Tablet x={236} y={72}/><Tablet x={276} y={64}/>
+    <MiniArtery x={202} y={100} w={136} narrow={9} grad={g}/>
+    <g transform="translate(412 118)"><circle r="30" fill="#e3ebef" stroke="#6e8593" strokeWidth="6"/><path d="M-3-25Q-20-14-21 0Q-20 14-3 25Z" fill="#c9d6dd" stroke="#55707f" strokeWidth="1.5"/><path d="M3-25Q20-14 21 0Q20 14 3 25Z" fill="#c9d6dd" stroke="#55707f" strokeWidth="1.5"/></g>
+    <HeartShape x={492} y={104} s={.52} fill="#e59a98"/>
+    <Lbl x={412} y={166} anchor="middle" size={11} fill="#526976">valve</Lbl><Lbl x={492} y={166} anchor="middle" size={11} fill="#526976">heart</Lbl>
+  </svg></div>
+}
+
+function StentBalance() {
+  const { t, u } = useSvgIds(), g = `${u}-rbc`
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>A coronary artery held open by a stent, with benefits on the left and risks on the right. Benefits: it works straight away and recovery is quick. Risks: an infection can start, or a blood clot can form near the stent. Original schematic, not to scale.</title>
+    <defs><RBCGradient id={g}/></defs>
+    <g transform="translate(90 34) scale(1.5)"><MiniArtery x={0} y={0} w={240} stent grad={g}/></g>
+    {/* a small clot forming just beyond the end of the stent */}
+    <g transform="translate(318 74)"><path d="M-9-6C-3-13 9-11 11-3C13 6 3 11-4 8C-11 6-13-1-9-6Z" fill="#b8434f" fillOpacity=".9"/><path d="M-11-2L12 4M-6-10L6 10M-12 5L11-6" stroke="#8a6db8" strokeWidth="1.1"/></g>
+    <Bacterium x={140} y={22} rotate={-15} s={.9}/>
+    <Lbl x={270} y={138} anchor="middle" size={12} fill="#5d4a86" bold>stent holds the artery open</Lbl>
+    <rect x="18" y="156" width="240" height="78" rx="14" fill="#edf7f1" stroke="#9fcbb2" strokeWidth="1.4"/>
+    <Lbl x={36} y={180} bold size={14} fill="#2f7d5b">benefits</Lbl>
+    <path d="M38 196l4 4 8-9M38 218l4 4 8-9" stroke="#2f7d5b" strokeWidth="2.2" fill="none"/>
+    <Lbl x={58} y={202}>works straight away</Lbl><Lbl x={58} y={224}>quick recovery</Lbl>
+    <rect x="282" y="156" width="240" height="78" rx="14" fill="#fbf0e9" stroke="#e1b9a2" strokeWidth="1.4"/>
+    <Lbl x={300} y={180} bold size={14} fill="#a1502a">risks</Lbl>
+    <Lbl x={300} y={202}>infection can start</Lbl><Lbl x={300} y={224}>a clot can form near the stent</Lbl>
+    <Lbl x={24} y={26} size={12}>infection</Lbl><Leader d="M80 22L124 22" to={[126, 22]}/>
+    <Lbl x={410} y={22} size={12}>blood clot</Lbl><Leader d="M406 18L323 69" to={[321, 71]}/>
+  </svg></div>
+}
+
+/* Cholesterol → fatty build-up, and what statins change. hi: 'cholesterol' highlights the top artery, 'statin' the bottom one. */
+function StatinVisual({ hi }: { hi: 'cholesterol' | 'statin' }) {
+  const { t, u } = useSvgIds(), g = `${u}-rbc`
+  const row = (y: number, many: boolean, narrow: number) => <g>
+    <MiniArtery x={150} y={y} w={250} narrow={narrow} grad={g}/>
+    {(many ? [[170, 22], [196, 34], [226, 24], [258, 38], [300, 26], [336, 36], [370, 24], [388, 34]] : [[190, 30], [320, 26], [372, 36]])
+      .map(([x, dy], i) => <circle key={i} cx={x} cy={y + dy} r="3.4" fill="#e3b53c" stroke="#9c7a1e" strokeWidth=".8"/>)}
+  </g>
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>{`Two coronary arteries. Top: blood with high cholesterol, shown as many small yellow particles, and a thick fatty layer narrowing the artery. Bottom: with statins, fewer cholesterol particles and a thinner fatty layer, so the artery stays wider.${hi === 'cholesterol' ? ' The top artery is highlighted.' : ' The bottom artery is highlighted.'} Original schematic, not to scale.`}</title>
+    <defs><RBCGradient id={g}/></defs>
+    <g opacity={dim(hi === 'cholesterol')}>
+      <Lbl x={138} y={58} anchor="end" bold>high cholesterol</Lbl><Lbl x={138} y={73} anchor="end" size={11.5} fill="#526976">more fatty build-up</Lbl>
+      {row(32, true, 10)}
+      <Lbl x={414} y={50} bold size={12}>cholesterol</Lbl><Lbl x={414} y={64} size={11.5}>in the blood</Lbl><Leader d="M410 48L392 58" to={[388, 62]}/>
+      <Lbl x={414} y={96} size={11.5}>fatty layer</Lbl><Leader d="M410 93L288 75" to={[286, 74]}/>
+    </g>
+    <g opacity={dim(hi === 'statin')}>
+      <Tablet x={42} y={170}/>
+      <Lbl x={138} y={176} anchor="end" bold>with statins</Lbl><Lbl x={138} y={191} anchor="end" size={11.5} fill="#526976">less cholesterol</Lbl>
+      {row(150, false, 3)}
+      <Lbl x={414} y={172} bold size={12}>thinner fatty layer</Lbl><Lbl x={414} y={186} size={11.5}>artery stays wider</Lbl><Leader d="M410 170L292 162" to={[290, 161]}/>
+    </g>
+    <Lbl x={270} y={240} anchor="middle" size={11} fill="#526976">original schematic, not to scale</Lbl>
+  </svg></div>
+}
+
+/* Cross-sections of the same artery over time, without and with statins. */
+function StatinTimeline() {
+  const { t } = useSvgIds()
+  const ring = (cx: number, cy: number, lumen: number) => <g>
+    <circle cx={cx} cy={cy} r="30" fill="#f2cfc3" stroke="#9b6461" strokeWidth="1.8"/>
+    <circle cx={cx} cy={cy} r="22" fill="#f1d27a" stroke="#b58a2c" strokeWidth="1.2"/>
+    <circle cx={cx} cy={cy - (22 - lumen)} r={lumen} fill="#e58b8e" stroke="#c0676f" strokeWidth="1.4"/>
+  </g>
+  const cols = [220, 330, 440]
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>Cross-sections of a coronary artery at the start, some years later and many years later. Without statins, the yellow fatty layer grows quickly and the red space for blood shrinks a lot. With statins taken regularly, the fatty layer grows more slowly and the space for blood stays wider. Statins must be taken regularly and side effects are possible. Original schematic, not to scale.</title>
+    {['start', 'years later', 'many years later'].map((h, i) => <Lbl key={h} x={cols[i]} y={26} anchor="middle" size={12} fill="#526976" bold>{h}</Lbl>)}
+    <path d="M180 38H486" stroke="#9fb2bd" strokeWidth="1.4"/><path d="M486 38l-8-4v8Z" fill="#9fb2bd"/>
+    <Lbl x={150} y={80} anchor="end" bold>without statins</Lbl><Lbl x={150} y={95} anchor="end" size={11.5} fill="#526976">narrows quickly</Lbl>
+    {[20, 13, 7].map((l, i) => <g key={i}>{ring(cols[i], 86, l)}</g>)}
+    <Tablet x={36} y={180}/>
+    <Lbl x={150} y={176} anchor="end" bold>with statins</Lbl><Lbl x={150} y={191} anchor="end" size={11.5} fill="#526976">narrows slowly</Lbl>
+    {[20, 18, 15].map((l, i) => <g key={i}>{ring(cols[i], 182, l)}</g>)}
+    <Lbl x={270} y={238} anchor="middle" size={12}>taken regularly for years · side effects are possible</Lbl>
+  </svg></div>
+}
+
+/* One valve panel: a vessel section with two flaps. kind: healthy (open wide), stiff (opens a little), leaky (closed with a gap, backflow). */
+function ValvePanel({ x, kind, u }: { x: number; kind: 'healthy' | 'stiff' | 'leaky'; u: string }) {
+  const L = x - 42, R = x + 42
+  const flaps = kind === 'healthy' ? `M${L} 70Q${L + 14} 112 ${L + 18} 138M${R} 70Q${R - 14} 112 ${R - 18} 138`
+    : kind === 'stiff' ? `M${L} 70Q${L + 22} 100 ${x - 7} 120M${R} 70Q${R - 22} 100 ${x + 7} 120`
+    : `M${L} 70Q${L + 22} 92 ${x - 8} 96M${R} 70Q${R - 22} 92 ${x + 8} 96`
+  return <g>
+    <path d={`M${L - 12} 36H${L}V190H${L - 12}ZM${R} 36H${R + 12}V190H${R}Z`} fill="#f2cfc3" stroke="#9b6461" strokeWidth="1.5"/>
+    <path d={`M${L} 36H${R}V190H${L}Z`} fill="#fbe4e1"/>
+    <path d={flaps} fill="none" stroke="#a8545d" strokeWidth="5" strokeLinecap="round"/>
+    {kind === 'healthy' && <path d={`M${x} 46V176`} stroke="#b8434f" strokeWidth="5" markerEnd={`url(#${u}-v)`}/>}
+    {kind === 'stiff' && <path d={`M${x} 46V176`} stroke="#b8434f" strokeWidth="1.8" markerEnd={`url(#${u}-v)`}/>}
+    {kind === 'leaky' && <path d={`M${x} 150V58`} stroke="#b8434f" strokeWidth="2.6" strokeDasharray="6 4" markerEnd={`url(#${u}-v)`}/>}
+  </g>
+}
+function ValveProblems({ question, assessment }: { question: boolean; assessment: boolean }) {
+  const { t, u } = useSvgIds()
+  const marker = <defs><marker id={`${u}-v`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10L2 5Z" fill="#b8434f"/></marker></defs>
+  if (question) return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>{assessment ? 'A heart valve seen in a lengthwise section. When closed, its two flaps do not meet, and a dashed arrow shows some blood flowing back through the gap. Original schematic, not to scale.' : 'A leaky heart valve: when closed, the two flaps do not meet, so some blood flows backwards through the gap. Original schematic, not to scale.'}</title>
+    {marker}
+    <g transform="translate(-54 -24) scale(1.2)"><ValvePanel x={270} kind="leaky" u={u}/></g>
+    <Lbl x={348} y={96} size={12}>flaps do not meet</Lbl><Leader d="M344 92L282 92" to={[279, 92]}/>
+    <Lbl x={348} y={150} size={12} fill="#8a3f47">blood flows back</Lbl><Leader d="M344 146L275 126" to={[272, 124]}/>
+    {!assessment && <Lbl x={270} y={228} anchor="middle" bold>leaky valve</Lbl>}
+  </svg></div>
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>Three heart valves in lengthwise section. Healthy: the flaps open wide and blood flows through strongly. Stiff: the flaps open only a little, so less blood flows through. Leaky: the flaps do not meet when closed, so some blood flows backwards. Original schematic, not to scale.</title>
+    {marker}
+    {(['healthy', 'stiff', 'leaky'] as const).map((k, i) => <g key={k}>
+      <ValvePanel x={100 + i * 170} kind={k} u={u}/>
+      <Lbl x={100 + i * 170} y={24} anchor="middle" bold size={13.5}>{k}</Lbl>
+      <Lbl x={100 + i * 170} y={214} anchor="middle" size={11.5} fill="#526976">{['opens wide,', 'opens only', 'does not close;'][i]}</Lbl>
+      <Lbl x={100 + i * 170} y={228} anchor="middle" size={11.5} fill="#526976">{['closes tightly', 'a little', 'blood flows back'][i]}</Lbl>
+    </g>)}
+  </svg></div>
+}
+
+function ValveTypes() {
+  const { t } = useSvgIds()
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>Two replacement heart valves seen from above. Left: a biological valve made of flexible tissue from an animal or human, with three soft flaps; it may wear out sooner. Right: a mechanical valve, a man-made ring with two hinged discs; it lasts longer, but the patient needs drugs to stop blood clots. Original schematic, not to scale.</title>
+    <g transform="translate(135 104)">
+      <circle r="64" fill="none" stroke="#d9c9b8" strokeWidth="7" strokeDasharray="3 3"/>
+      <circle r="58" fill="#eab2aa" stroke="#a8545d" strokeWidth="3"/>
+      {[-90, 30, 150].map(a => <path key={a} transform={`rotate(${a})`} d="M0 0Q26 6 58 0" fill="none" stroke="#8e3f48" strokeWidth="2.2"/>)}
+      {[-30, 90, 210].map(a => <path key={a} transform={`rotate(${a})`} d="M14 0Q34 -6 50 0" fill="none" stroke="#d98c86" strokeWidth="1.4"/>)}
+    </g>
+    <g transform="translate(405 104)">
+      <circle r="62" fill="#e3ebef" stroke="#6e8593" strokeWidth="9"/>
+      <path d="M-4-52Q-40-30-42 0Q-40 30-4 52Z" fill="#c9d6dd" stroke="#55707f" strokeWidth="2"/>
+      <path d="M4-52Q40-30 42 0Q40 30 4 52Z" fill="#c9d6dd" stroke="#55707f" strokeWidth="2"/>
+      <circle cx="0" cy="-54" r="3.5" fill="#55707f"/><circle cx="0" cy="54" r="3.5" fill="#55707f"/>
+    </g>
+    <Lbl x={135} y={194} anchor="middle" bold size={13.5}>biological valve</Lbl>
+    <Lbl x={135} y={211} anchor="middle" size={11.5}>tissue from an animal or human</Lbl>
+    <Lbl x={135} y={226} anchor="middle" size={11.5} fill="#a1502a">may wear out sooner</Lbl>
+    <Lbl x={405} y={194} anchor="middle" bold size={13.5}>mechanical valve</Lbl>
+    <Lbl x={405} y={211} anchor="middle" size={11.5}>man-made · lasts longer</Lbl>
+    <Lbl x={405} y={226} anchor="middle" size={11.5} fill="#a1502a">needs drugs to stop clots</Lbl>
+  </svg></div>
+}
+
+function HeartReplacement({ hi }: { hi: 'transplant' | 'artificial' }) {
+  const { t } = useSvgIds()
+  const Y = (x: number, y: number, r: number) => <g transform={`translate(${x} ${y}) rotate(${r}) scale(.9)`} stroke={purple} strokeWidth="2.6" fill="none" strokeLinecap="round"><path d="M0 9V0M0 0L-6-7M0 0L6-7"/></g>
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>{`Two ways to replace a failing heart. Left: a donor heart from another person, with the patient's defences, shown as small Y-shaped antibodies, able to attack it; the risk is immune rejection. Right: an artificial heart, a machine that pumps blood, powered through a cable by a battery pack; it is less likely to be rejected, but blood clots can form on it.${hi === 'transplant' ? ' The donor heart is highlighted.' : ' The artificial heart is highlighted.'} Original schematic, not to scale.`}</title>
+    <g opacity={dim(hi === 'transplant')}>
+      <Lbl x={135} y={26} anchor="middle" bold size={14}>donor heart</Lbl>
+      <path d="M118 62V40M144 58Q146 38 164 36" stroke="#c9525e" strokeWidth="11" strokeLinecap="round" fill="none"/>
+      <HeartShape x={134} y={108} s={1.05} fill="#e59a98"/>
+      <path d="M100 96C112 112 126 118 132 140M156 92C152 116 146 128 138 146" stroke="#b74347" strokeWidth="3" fill="none"/>
+      {Y(54, 90, 70)}{Y(48, 128, 100)}{Y(214, 102, -80)}{Y(206, 142, -110)}
+      <Lbl x={135} y={200} anchor="middle" size={12}>from a donor</Lbl>
+      <Lbl x={135} y={216} anchor="middle" size={12} bold fill="#a1502a">risk: immune rejection</Lbl>
+    </g>
+    <g opacity={dim(hi === 'artificial')}>
+      <Lbl x={405} y={26} anchor="middle" bold size={14}>artificial heart</Lbl>
+      <path d="M388 62V40M414 58Q416 38 434 36" stroke="#8aa0ad" strokeWidth="11" strokeLinecap="round" fill="none"/>
+      <path d={blobPath(404, 104, 52, 46, [1, .96, 1.02, .97, 1, .95, 1.02, .98], .3)} fill="#dfe8ed" stroke="#55707f" strokeWidth="2.5"/>
+      <circle cx="384" cy="104" r="18" fill="#f5f8fa" stroke="#55707f" strokeWidth="2"/><circle cx="426" cy="104" r="18" fill="#f5f8fa" stroke="#55707f" strokeWidth="2"/>
+      <path d="M376 104h16M418 104h16" stroke="#55707f" strokeWidth="2"/>
+      <path d="M430 146C440 166 470 160 482 176" stroke="#55707f" strokeWidth="2.5" fill="none"/>
+      <rect x="478" y="172" width="34" height="22" rx="5" fill="#c9d6dd" stroke="#55707f" strokeWidth="2"/>
+      <Lbl x={405} y={200} anchor="middle" size={12}>a machine that pumps</Lbl>
+      <Lbl x={405} y={216} anchor="middle" size={12} bold fill="#a1502a">risk: blood clots</Lbl>
+    </g>
+    <Lbl x={270} y={244} anchor="middle" size={11} fill="#526976">original schematic, not to scale</Lbl>
+  </svg></div>
+}
+
 function Coronary({ focus, assessment }: { focus: string; assessment: boolean }) {
   if (focus === 'cardio-heart') return <CoronarySupply assessment={assessment}/>
   if (focus === 'cardio-blockage' || focus === 'cardio-stent') return <CoronaryArtery stent={focus === 'cardio-stent'} assessment={assessment}/>
-  if (focus === 'cardio-stent-balance') return <Diagram title="A stented coronary artery with benefits and possible risks shown on either side.">
-    <rect x="150" y="76" width="240" height="92" rx="44" fill="#f5d4c9" stroke={ink} strokeWidth="3"/><rect x="150" y="101" width="240" height="42" rx="20" fill="#fff" stroke={red} strokeWidth="2"/>{Array.from({length:8},(_,i)=><g key={i} stroke={purple} strokeWidth="3"><line x1={205+i*18} y1="88" x2={223+i*18} y2="156"/><line x1={223+i*18} y1="88" x2={205+i*18} y2="156"/></g>)}
-    <g fill={ink} fontSize="12" textAnchor="middle"><text x="73" y="74" fontWeight="700">benefits</text><text x="73" y="99">wider lumen</text><text x="73" y="118">quick recovery</text><text x="467" y="74" fontWeight="700">risks</text><text x="467" y="99">infection</text><text x="467" y="118">blood clot</text></g><Arrow x1={124} y1={113} x2={150} y2={113} colour={green}/><Arrow x1={416} y1={113} x2={390} y2={113} colour={red}/>
-  </Diagram>
-  if (focus.includes('treatment')) return <Diagram title={assessment ? 'Two cardiovascular treatments with different sites and timescales.' : 'A stent acts directly at one narrowing, while a statin lowers blood cholesterol over time.'}>
-    <rect x="30" y="60" width="215" height="130" rx="20" fill="#eef7fb" stroke={ink} strokeWidth="2"/><rect x="295" y="60" width="215" height="130" rx="20" fill="#f3edf9" stroke={ink} strokeWidth="2"/><path d="M57 122H218" stroke={red} strokeWidth="32"/><path d="M57 122H218" stroke="white" strokeWidth="15"/>{Array.from({length:5},(_,i)=><path key={i} d={`M${108+i*17} 102L${124+i*17} 142M${124+i*17} 102L${108+i*17} 142`} stroke={purple} strokeWidth="3"/>)}<circle cx="367" cy="122" r="30" fill={yellow} stroke={ink} strokeWidth="2"/><rect x="391" y="100" width="58" height="44" rx="22" fill="#fff" stroke={ink} strokeWidth="2"/>
-    <g fill={ink} textAnchor="middle"><text x="137" y="89" fontSize="14" fontWeight="700">{assessment?'Treatment A':'stent'}</text><text x="137" y="172" fontSize="11">one narrowed artery · quick</text><text x="402" y="89" fontSize="14" fontWeight="700">{assessment?'Treatment B':'statin'}</text><text x="402" y="172" fontSize="11">whole bloodstream · long term</text></g>
-  </Diagram>
-  if (focus.includes('statin')) return <Diagram title="Statins lower blood cholesterol, slowing fatty deposit build-up and reducing cardiovascular risk over time.">
-    <g fill="#eef7fb" stroke={ink} strokeWidth="2"><rect x="28" y="76" width="135" height="91" rx="18"/><rect x="203" y="76" width="135" height="91" rx="18"/><rect x="378" y="76" width="135" height="91" rx="18"/></g><circle cx="95" cy="111" r="20" fill={yellow} stroke={ink}/><path d="M72 141H118" stroke={red} strokeWidth="12"/><path d="M72 141H118" stroke="white" strokeWidth="5"/><path d="M223 139H318" stroke={red} strokeWidth="18"/><path d="M223 139H318" stroke="white" strokeWidth="9"/><path d="M415 139H476" stroke={red} strokeWidth="18"/><path d="M415 139H476" stroke="white" strokeWidth="13"/>
-    <g fill={ink} textAnchor="middle"><text x="95" y="60" fontSize="13" fontWeight="700">statin taken regularly</text><text x="270" y="60" fontSize="13" fontWeight="700">lower cholesterol</text><text x="445" y="60" fontSize="13" fontWeight="700">slower build-up</text><text x="270" y="214" fontSize="12">benefit develops over time; side effects are possible</text></g><Arrow x1={164} y1={122} x2={201} y2={122}/><Arrow x1={339} y1={122} x2={376} y2={122}/>
-  </Diagram>
-  if (focus.includes('transplant') || focus.includes('artificial')) return <Diagram title={focus.includes('transplant') ? 'A donor heart transplant, with immune rejection and infection risks.' : 'An artificial heart pumping blood, with clot and bleeding risks.'}>
-    <g opacity={focus.includes('transplant')?1:.25}><path d="M145 189C64 140 68 72 111 52Q149 35 169 73Q189 34 232 55Q281 88 240 142Q205 175 145 189Z" fill="#f3b0ad" stroke={ink} strokeWidth="3"/><path d="M163 68V28M190 72L214 25" stroke={red} strokeWidth="14"/></g>
-    <g opacity={focus.includes('artificial')?1:.25}><path d="M359 187C294 150 294 82 333 57Q365 39 386 72Q409 40 443 62Q485 92 452 143Q417 174 359 187Z" fill="#d9e5ea" stroke={ink} strokeWidth="3"/><circle cx="386" cy="113" r="36" fill="#fff" stroke={purple} strokeWidth="6"/><path d="M386 77V36M418 92L460 55M354 92L322 56" stroke={purple} strokeWidth="12"/></g>
-    <g fill={ink} fontSize="12" fontWeight="700" textAnchor="middle"><text x="160" y="221">donor tissue · rejection risk</text><text x="386" y="221">mechanical pump · clot risk</text></g>
-  </Diagram>
-  if (focus === 'cardio-valve-types') return <Diagram title="A flexible biological replacement valve beside a durable mechanical valve.">
-    <g transform="translate(145 115)"><circle r="73" fill="#f7e5dd" stroke={ink} strokeWidth="4"/><path d="M-50 5Q-20-42 0 4Q20-42 50 5Q20 50 0 7Q-20 50-50 5Z" fill={red} stroke="#a8545d" strokeWidth="3"/></g><g transform="translate(395 115)"><circle r="73" fill="#dce7ec" stroke={ink} strokeWidth="4"/><circle r="44" fill="#fff" stroke={purple} strokeWidth="8"/><path d="M0-42V42M-42 0H42" stroke={ink} strokeWidth="6"/></g><g fill={ink} textAnchor="middle"><text x="145" y="215" fontSize="14" fontWeight="700">biological valve</text><text x="145" y="233" fontSize="11">tissue · flexible · may wear</text><text x="395" y="215" fontSize="14" fontWeight="700">mechanical valve</text><text x="395" y="233" fontSize="11">durable · clotting trade-off</text></g>
-  </Diagram>
-  return <div className="science-bio-model"><svg viewBox="0 0 460 170" role="img" aria-label="A healthy one-way valve beside stiff and leaky valve models.">{[['Healthy',60],['Stiff',220],['Leaky',380]].map(([name,x],i)=><g key={String(name)}><path d={`M${Number(x)-45} 30h90v110h-90Z`} fill="#e5f4f5" stroke={ink} strokeWidth="2"/><path d={i===0?`M${Number(x)-30} 74Q${x} 98 ${Number(x)+30} 74`:i===1?`M${Number(x)-12} 74Q${x} 82 ${Number(x)+12} 74`:`M${Number(x)-30} 71Q${Number(x)-6} 100 ${Number(x)+22} 82`} fill="none" stroke={purple} strokeWidth="5"/>{!assessment&&<text x={Number(x)} y="160" textAnchor="middle" fill={ink} fontSize="13">{name}</text>}</g>)}</svg></div>
+  if (focus === 'cardio-blockage-muscle') return <CoronaryArtery stent={false} assessment={assessment} hiMuscle/>
+  if (focus === 'cardio-treatment-question') return <CoronaryArtery stent={false} assessment={assessment} question/>
+  if (focus === 'cardio-compare') return <TreatmentCompare/>
+  if (focus === 'cardio-stent-balance') return <StentBalance/>
+  if (focus === 'cardio-cholesterol') return <StatinVisual hi="cholesterol"/>
+  if (focus === 'cardio-statin') return <StatinVisual hi="statin"/>
+  if (focus === 'cardio-statin-balance') return <StatinTimeline/>
+  if (focus === 'cardio-valve') return <ValveProblems question={false} assessment={assessment}/>
+  if (focus === 'cardio-valve-question') return <ValveProblems question assessment={assessment}/>
+  if (focus === 'cardio-valve-types') return <ValveTypes/>
+  if (focus === 'cardio-transplant') return <HeartReplacement hi="transplant"/>
+  if (focus === 'cardio-artificial') return <HeartReplacement hi="artificial"/>
+  return <CoronarySupply assessment={assessment}/>
 }
 
 function Health({ focus, assessment }: { focus: string; assessment: boolean }) {
