@@ -42,6 +42,14 @@ function FlowRate({ example = false }: { example?: boolean }) {
 
 
 /* ── Blood primitives ── */
+/** Highlight the part being taught: the rest fades to 30%. */
+const dim = (on: boolean) => (on ? 1 : .3)
+/** Seeded irregular outline around an ellipse, smoothed with quadratic curves. */
+function blobPath(cx: number, cy: number, rx: number, ry: number, ks: number[], rot = 0) {
+  const pts = ks.map((k, i) => { const a = (i / ks.length) * Math.PI * 2 + rot; return [cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k] })
+  const mid = (a: number[], b: number[]) => `${((a[0] + b[0]) / 2).toFixed(1)} ${((a[1] + b[1]) / 2).toFixed(1)}`
+  return `M${mid(pts[pts.length - 1], pts[0])}` + pts.map((p, i) => `Q${p[0].toFixed(1)} ${p[1].toFixed(1)} ${mid(p, pts[(i + 1) % pts.length])}`).join('') + 'Z'
+}
 function useSvgIds() { const t = useId(); return { t, u: t.replace(/[^a-zA-Z0-9_-]/g, '') } }
 /** Face-on red blood cell: shading only (paler dimple), never an inner ring that could read as a nucleus. */
 function RBC({ x, y, r = 11, rotate = 0, grad }: { x: number; y: number; r?: number; rotate?: number; grad: string }) {
@@ -63,54 +71,61 @@ function Bacterium({ x, y, rotate = 0, s = 1 }: { x: number; y: number; rotate?:
   return <g transform={`translate(${x} ${y}) rotate(${rotate}) scale(${s})`}><rect x="-12" y="-5.5" width="24" height="11" rx="5.5" fill="#9fcf93" stroke="#4d8a4e" strokeWidth="1.3"/><path d="M-12 0H-18M12 0H17" stroke="#4d8a4e" strokeWidth="1" strokeLinecap="round"/></g>
 }
 
-function RedCellVisual({ assessment }: { assessment: boolean }) {
+type RedFocus = 'all' | 'haemoglobin' | 'shape'
+function RedCellVisual({ assessment, hi = 'all' }: { assessment: boolean; hi?: RedFocus }) {
+  const face = dim(hi === 'all'), side = dim(hi === 'all' || hi === 'shape'), zoom = dim(hi === 'all' || hi === 'haemoglobin')
   const { t, u } = useSvgIds(), g = `${u}-rbc`
-  const side = 'M220 128C220 104 238 96 254 100C270 104 278 116 290 116C302 116 310 104 326 100C342 96 360 104 360 128C360 152 342 160 326 156C310 152 302 140 290 140C278 140 270 152 254 156C238 160 220 152 220 128Z'
+  const sidePath = 'M220 128C220 104 238 96 254 100C270 104 278 116 290 116C302 116 310 104 326 100C342 96 360 104 360 128C360 152 342 160 326 156C310 152 302 140 290 140C278 140 270 152 254 156C238 160 220 152 220 128Z'
   const hb = Array.from({ length: 22 }, (_, i) => [455 + Math.cos(i * 2.4) * (12 + (i * 7) % 34), 116 + Math.sin(i * 2.4) * (12 + (i * 7) % 34)])
   return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
-    <title id={t}>{assessment ? 'A biconcave blood component containing many carrier molecules and no nucleus.' : 'A red blood cell seen face-on and from the side. The side view shows a biconcave disc, thinner in the middle than at the rim, giving a large surface area. There is no nucleus. A zoomed-in circle shows the cell packed with haemoglobin molecules, some carrying oxygen.'}</title>
+    <title id={t}>{assessment ? 'A biconcave blood component containing many carrier molecules and no nucleus.' : 'A red blood cell seen face-on and from the side. The side view shows a biconcave disc, thinner in the middle than at the rim, giving a large surface area. There is no nucleus. A zoomed-in circle shows the cell packed with haemoglobin molecules, some carrying oxygen.' + (hi === 'haemoglobin' ? ' The haemoglobin close-up is highlighted.' : hi === 'shape' ? ' The side view is highlighted.' : '')}</title>
     <defs><radialGradient id={g}><stop offset="0" stopColor="#f7c9c6"/><stop offset=".4" stopColor="#efadad"/><stop offset=".64" stopColor="#d9707a"/><stop offset=".87" stopColor="#c24f5c"/><stop offset="1" stopColor="#a93f4c"/></radialGradient>
       <linearGradient id={`${u}-side`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#e27a80"/><stop offset=".5" stopColor="#c9525e"/><stop offset="1" stopColor="#a93f4c"/></linearGradient>
       <clipPath id={`${u}-zoom`}><circle cx="455" cy="116" r="54"/></clipPath></defs>
     {/* face view */}
-    <circle cx="110" cy="124" r="64" fill={`url(#${g})`} stroke="#a8404d" strokeWidth="2.5"/>
+    <circle opacity={face} cx="110" cy="124" r="64" fill={`url(#${g})`} stroke="#a8404d" strokeWidth="2.5"/>
     {/* side view: thick rim, thin centre */}
-    <path d={side} fill={`url(#${u}-side)`} stroke="#a8404d" strokeWidth="2.5"/>
-    {/* zoom: haemoglobin inside the cell */}
+    <g opacity={side}><path d={sidePath} fill={`url(#${u}-side)`} stroke="#a8404d" strokeWidth="2.5"/></g>
+    {/* zoom: haemoglobin inside the cell */}<g opacity={zoom}>
     <path d="M352 110L402 80M352 146L404 154" fill="none" stroke="#9fb2bd" strokeWidth="1.2" strokeDasharray="3 3"/>
     <circle cx="455" cy="116" r="54" fill="#f6d2cf" stroke="#a8404d" strokeWidth="2"/>
     <g clipPath={`url(#${u}-zoom)`}>{hb.map(([x, y], i) => <g key={i} transform={`translate(${x} ${y}) rotate(${i * 40})`}>
       <path d="M-5-1Q-5-6 0-5Q5-6 5-1Q6 4 1 5Q-5 6-5-1Z" fill="#c24a5a" stroke="#8e2d3c" strokeWidth=".7"/>
       {i % 3 === 0 && <g fill="#087f83"><circle cx="7" cy="-4" r="2.4"/><circle cx="10.5" cy="-6.5" r="2.4"/></g>}
-    </g>)}</g>
+    </g>)}</g></g>
     {!assessment && <>
-      <Lbl x={110} y={30} anchor="middle" bold>no nucleus</Lbl><Lbl x={110} y={45} anchor="middle" size={11.5}>more room for haemoglobin</Lbl>
-      <Leader d="M110 50V118" to={[110, 118]}/>
-      <Lbl x={290} y={50} anchor="middle" bold>biconcave disc</Lbl><Lbl x={290} y={65} anchor="middle" size={11.5}>thin centre: large surface area</Lbl>
-      <Leader d="M290 70V114" to={[290, 116]}/>
-      <Lbl x={455} y={196} anchor="middle" bold>haemoglobin</Lbl>
-      <g fill="#087f83"><circle cx="428" cy="211" r="2.6"/><circle cx="432" cy="208" r="2.6"/></g><Lbl x={439} y={214} size={11.5}>= oxygen</Lbl>
+      <g opacity={face}><Lbl x={110} y={30} anchor="middle" bold>no nucleus</Lbl><Lbl x={110} y={45} anchor="middle" size={11.5}>more room for haemoglobin</Lbl>
+      <Leader d="M110 50V118" to={[110, 118]}/></g>
+      <g opacity={side}><Lbl x={290} y={50} anchor="middle" bold>biconcave disc</Lbl><Lbl x={290} y={65} anchor="middle" size={11.5}>thin centre: large surface area</Lbl>
+      <Leader d="M290 70V114" to={[290, 116]}/></g>
+      <g opacity={zoom}><Lbl x={455} y={196} anchor="middle" bold>haemoglobin</Lbl>
+      <g fill="#087f83"><circle cx="428" cy="211" r="2.6"/><circle cx="432" cy="208" r="2.6"/></g><Lbl x={439} y={214} size={11.5}>= oxygen</Lbl></g>
       <Lbl x={110} y={220} anchor="middle" size={12} fill="#526976">face view</Lbl><Lbl x={290} y={188} anchor="middle" size={12} fill="#526976">side view</Lbl>
     </>}
   </svg></div>
 }
 
-function WhiteCellVisual() {
+type WhiteFocus = 'all' | 'engulf' | 'antibody'
+function WhiteCellVisual({ hi = 'all' }: { hi?: WhiteFocus }) {
+  const left = dim(hi !== 'antibody'), right = dim(hi !== 'engulf')
   const { t, u } = useSvgIds()
   const phago = 'M44 150C34 118 48 84 86 76C110 70 136 70 156 76C176 82 196 80 206 88C212 94 206 101 197 97C187 93 177 97 174 107C171 119 174 128 182 132C192 136 204 132 209 140C213 148 202 153 192 151C176 151 162 164 150 176C132 190 96 192 72 182C54 174 46 162 44 150Z'
   return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
-    <title id={t}>Two different kinds of white blood cell. Left: a phagocyte changes shape, wrapping around a bacterium to engulf it; a second bacterium is already inside the cell being digested. Right: a different white blood cell releases many small Y-shaped antibody molecules, which bind to matching bacteria and clump them together. Antibodies are molecules, not cells.</title>
+    <title id={t}>{`Two different kinds of white blood cell. Left: one white blood cell changes shape, wrapping around a bacterium to engulf it; a second bacterium is already inside the cell being digested. Right: a different white blood cell releases many small Y-shaped antibody molecules, which bind to matching bacteria and clump them together. Antibodies are molecules, not cells.` + (hi === 'engulf' ? ' The engulfing cell is highlighted.' : hi === 'antibody' ? ' The antibody-making cell is highlighted.' : '')}</title>
     <defs><marker id={`${u}-a`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10L2 5Z" fill={purple}/></marker></defs>
     <path d="M270 30V222" stroke="#d6e1e6" strokeWidth="2" strokeDasharray="5 5"/>
-    <Lbl x={135} y={24} anchor="middle" bold size={14}>some engulf pathogens</Lbl>
-    <Lbl x={405} y={24} anchor="middle" bold size={14}>others make antibodies</Lbl>
-    {/* phagocyte */}
+    <g opacity={left}><Lbl x={135} y={24} anchor="middle" bold size={14}>some engulf pathogens</Lbl>
+    {/* engulfing white blood cell */}
     <path d={phago} fill="#dceef8" stroke={ink} strokeWidth="2.5" strokeLinejoin="round"/>
     <path d="M70 124Q66 104 84 102Q96 100 96 112Q106 104 114 114Q122 126 110 134Q100 144 88 138Q72 140 70 124Z" fill={purple} stroke="#7a62a8"/>
     <ellipse cx="138" cy="158" rx="17" ry="12" fill="#eef6fb" stroke="#8fb2c4" strokeWidth="1.2"/>
     <Bacterium x={138} y={158} rotate={-18} s={.75}/>
     <Bacterium x={190} y={115} rotate={90} s={.9}/>
-    {/* antibody-producing white cell */}
+    <Lbl x={82} y={46} anchor="middle" size={11.5}>cell changes shape</Lbl><Lbl x={82} y={59} anchor="middle" size={11.5}>to wrap around it</Lbl><Leader d="M136 52L203 87" to={[205, 89]}/>
+    <Lbl x={214} y={176} size={11.5}>pathogen</Lbl><Lbl x={214} y={189} size={11.5}>digested</Lbl><Leader d="M212 180L154 162" to={[152, 160]}/>
+    <Lbl x={135} y={222} anchor="middle" size={12}>engulf and digest</Lbl></g>
+    {/* antibody-producing white cell */}<g opacity={right}>
+    <Lbl x={405} y={24} anchor="middle" bold size={14}>others make antibodies</Lbl>
     <circle cx="336" cy="130" r="40" fill="#dceef8" stroke={ink} strokeWidth="2.5"/>
     <circle cx="332" cy="130" r="26" fill={purple} stroke="#7a62a8"/>
     {(() => { const Y = (x: number, y: number, r: number, k = 1) => <g transform={`translate(${x} ${y}) rotate(${r}) scale(${k})`} stroke={purple} strokeWidth="3" fill="none" strokeLinecap="round"><path d="M0 9V0M0 0L-6-7M0 0L6-7"/></g>
@@ -120,13 +135,10 @@ function WhiteCellVisual() {
         <Bacterium x={468} y={98} rotate={20}/><Bacterium x={486} y={124} rotate={-15}/><Bacterium x={462} y={152} rotate={35}/>
         {Y(478, 110, -150, .9)}{Y(474, 138, 190, .9)}{Y(452, 124, 100, .9)}{Y(496, 142, -70, .9)}
       </> })()}
-    <Lbl x={96} y={60} anchor="middle" size={11.5}>cell changes shape</Lbl><Lbl x={96} y={73} anchor="middle" size={11.5}>to wrap around it</Lbl><Leader d="M150 64L204 88" to={[205, 89]}/>
-    <Lbl x={214} y={176} size={11.5}>pathogen</Lbl><Lbl x={214} y={189} size={11.5}>digested</Lbl><Leader d="M212 180L154 162" to={[152, 160]}/>
     <Lbl x={336} y={196} anchor="middle" size={11.5}>white blood cell</Lbl>
     <Lbl x={440} y={196} size={11.5} fill="#5d4a86" bold>antibodies</Lbl><Lbl x={440} y={210} size={11.5}>(molecules)</Lbl>
     <Leader d="M444 184L410 132" to={[409, 128]}/>
-    <Lbl x={135} y={222} anchor="middle" size={12}>phagocytosis: engulf and digest</Lbl>
-    <Lbl x={405} y={232} anchor="middle" size={12}>antibodies bind to matching pathogens</Lbl>
+    <Lbl x={405} y={232} anchor="middle" size={12}>antibodies bind to matching pathogens</Lbl></g>
   </svg></div>
 }
 
@@ -134,7 +146,7 @@ function PlateletVisual() {
   const { t, u } = useSvgIds(), g = `${u}-rbc`
   const fibrin = 'M226 64C244 82 262 70 278 88M232 90C252 76 270 100 290 84M238 112C260 98 274 118 300 104M222 82C236 104 250 92 262 118M250 60C262 80 250 100 270 118M284 66C276 88 294 100 282 120M214 104C232 116 256 106 276 128M296 92C304 110 290 120 306 132'
   return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
-    <title id={t}>Lengthwise section of a blood vessel with a tear in its upper wall. Platelets have collected at the damaged wall, and a mesh of fibrin threads traps red blood cells to form a clot that plugs the gap. The clot reduces blood loss and helps stop microorganisms outside from entering.</title>
+    <title id={t}>Lengthwise section of a blood vessel with a tear in its upper wall. Platelets have collected at the damaged wall, and a mesh of threads traps red blood cells to form a clot that plugs the gap. The clot reduces blood loss and helps stop microorganisms outside from entering.</title>
     <defs><RBCGradient id={g}/></defs>
     {/* outside tissue with microorganisms kept out */}
     <Bacterium x={330} y={30} rotate={-20} s={.9}/><Bacterium x={356} y={46} rotate={30} s={.9}/>
@@ -146,7 +158,7 @@ function PlateletVisual() {
     <path d="M24 96H516V188H24Z" fill="#fbe4e1"/>
     <path d="M24 96H220M310 96H516" fill="none" stroke="#c0676f" strokeWidth="2"/>
     {/* flowing cells */}
-    {[[40, 112, 10], [150, 152, 25], [196, 128, -20], [380, 150, 15], [424, 124, -10], [470, 162, 30]].map(([x, y, r], i) => <RBC key={i} x={x} y={y} r={12} rotate={r} grad={g}/>)}
+    {[[40, 112, 10], [150, 152, 25], [196, 128, -20], [380, 156, 15], [432, 174, -10], [480, 158, 30]].map(([x, y, r], i) => <RBC key={i} x={x} y={y} r={12} rotate={r} grad={g}/>)}
     {[[110, 160, 0], [350, 172, 40]].map(([x, y, r], i) => <Platelet key={i} x={x} y={y} rotate={r}/>)}
     {/* clot: platelets clumped at the tear, fibrin mesh trapping red cells */}
     <path d="M214 98C210 80 222 58 244 50C262 44 286 46 300 56C312 66 316 88 310 104C300 120 262 126 238 118C224 114 216 108 214 98Z" fill="#f7d9a4" fillOpacity=".55"/>
@@ -156,29 +168,30 @@ function PlateletVisual() {
     <path d="M60 176H150" stroke="#b8434f" strokeWidth="3"/><path d="M150 176l-9-5v10Z" fill="#b8434f"/>
     <Lbl x={24} y={236} size={11.5} fill="#8a3f47">blood flow</Lbl>
     <Lbl x={24} y={30} bold>damaged vessel wall</Lbl><Leader d="M90 36L213 72" to={[214, 74]}/>
-    <Lbl x={420} y={100} anchor="start" bold size={12}>fibrin mesh</Lbl><Lbl x={420} y={114} size={11.5}>traps red blood cells</Lbl><Leader d="M418 104L306 104" to={[304, 104]}/>
+    <Lbl x={420} y={122} anchor="start" bold size={12}>mesh of threads</Lbl><Lbl x={420} y={136} size={11.5}>traps red blood cells</Lbl><Leader d="M416 118L306 105" to={[304, 104]}/>
     <Lbl x={120} y={128} anchor="end" bold size={12}>platelets</Lbl><Lbl x={120} y={142} anchor="end" size={11.5}>clump at the wound</Lbl><Leader d="M124 128L219 94" to={[221, 93]}/>
     <Lbl x={372} y={40} size={11.5}>microorganisms</Lbl><Lbl x={372} y={54} size={11.5}>kept out</Lbl>
     <Lbl x={270} y={236} anchor="middle" bold>the clot seals the wound</Lbl>
   </svg></div>
 }
 
-function PlasmaVisual() {
+type PlasmaFocus = 'all' | 'useful' | 'waste'
+function PlasmaVisual({ hi = 'all' }: { hi?: PlasmaFocus }) {
   const { t, u } = useSvgIds(), g = `${u}-rbc`
   const routes = [
-    { from: 'small intestine', to: 'body cells', what: ['glucose +', 'amino acids'], sx: 64, dx: 150, c: '#c08a14' },
-    { from: 'glands', to: 'target organs', what: ['hormones'], sx: 176, dx: 262, c: '#7a5aa6' },
-    { from: 'body cells', to: 'lungs', what: ['carbon', 'dioxide'], sx: 288, dx: 374, c: '#5b7282' },
-    { from: 'liver', to: 'kidneys', what: ['urea'], sx: 400, dx: 478, c: '#1f8a86' },
+    { from: 'small intestine', to: 'body cells', what: ['glucose +', 'amino acids'], sx: 64, dx: 150, c: '#c08a14', kind: 'useful' },
+    { from: 'glands', to: 'target organs', what: ['hormones'], sx: 176, dx: 262, c: '#7a5aa6', kind: 'useful' },
+    { from: 'body cells', to: 'lungs', what: ['carbon', 'dioxide'], sx: 288, dx: 374, c: '#5b7282', kind: 'waste' },
+    { from: 'liver', to: 'kidneys', what: ['urea'], sx: 400, dx: 478, c: '#1f8a86', kind: 'waste' },
   ]
   return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
-    <title id={t}>A blood vessel filled with pale yellow plasma carrying red blood cells, a white blood cell and platelets. Four routes show dissolved substances entering the plasma and leaving further along: glucose and amino acids from the small intestine to body cells; hormones from glands to target organs; carbon dioxide from body cells to the lungs; urea from the liver to the kidneys.</title>
+    <title id={t}>{`A blood vessel filled with pale yellow plasma carrying red blood cells, a white blood cell and platelets. Four routes show dissolved substances entering the plasma and leaving further along: glucose and amino acids from the small intestine to body cells; hormones from glands to target organs; carbon dioxide from body cells to the lungs; urea from the liver to the kidneys.` + (hi === 'useful' ? ' The two useful-substance routes are highlighted.' : hi === 'waste' ? ' The two waste routes are highlighted.' : '')}</title>
     <defs><RBCGradient id={g}/>{routes.map((r, i) => <marker key={i} id={`${u}-m${i}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10L2 5Z" fill={r.c}/></marker>)}</defs>
     <path d="M10 104H530V150H10Z" fill="#fff3cf"/><path d="M10 104H530M10 150H530" stroke="#c9a85c" strokeWidth="2.5"/>
     {[[40, 128, 10], [112, 118, -20], [206, 136, 15], [322, 116, -10], [352, 138, 25], [444, 120, 5], [508, 138, -15]].map(([x, y, r], i) => <RBC key={i} x={x} y={y} r={10} rotate={r} grad={g}/>)}
     <circle cx="236" cy="124" r="11" fill="#dceef8" stroke={ink} strokeWidth="1.4"/><circle cx="235" cy="124" r="6" fill={purple}/>
     {[[84, 138, 0], [290, 138, 50], [466, 140, 20]].map(([x, y, r], i) => <Platelet key={i} x={x} y={y} rotate={r} s={.8}/>)}
-    {routes.map((r, i) => <g key={i}>
+    {routes.map((r, i) => <g key={i} opacity={dim(hi === 'all' || hi === r.kind)}>
       <rect x={r.sx - 52} y="10" width="104" height="26" rx="9" fill="#eef7fb" stroke={ink} strokeWidth="1.5"/>
       <Lbl x={r.sx} y={27} anchor="middle" size={11.5} bold>{r.from}</Lbl>
       <path d={`M${r.sx} 38V100`} stroke={r.c} strokeWidth="2.4" markerEnd={`url(#${u}-m${i})`}/>
@@ -194,19 +207,49 @@ function PlasmaVisual() {
   </svg></div>
 }
 
-function Blood({ focus, assessment }: { focus: string; assessment: boolean }) {
-  if (focus === 'blood-components') return <Diagram title="A labelled sample of blood showing red cells, a white cell and platelets carried in plasma.">
-    <rect x="28" y="38" width="484" height="158" rx="72" fill="#fff1c9" stroke={ink} strokeWidth="3"/>
-    {[[95,85],[155,145],[235,80],[326,142],[414,88],[465,145]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><ellipse rx="29" ry="17" fill={red} stroke="#ae5c62" strokeWidth="2"/><ellipse rx="11" ry="6" fill="#f6c7c2"/></g>)}
-    <g transform="translate(270 132)"><circle r="32" fill="#e8f3fb" stroke={ink} strokeWidth="2"/><path d="M-19 3Q-14-22 3-15Q22-10 17 10Q4 24-19 3Z" fill={purple}/></g>
-    {[[190,118],[375,112],[438,120]].map(([x,y],i)=><g key={i} fill={yellow} stroke="#a47b26"><circle cx={x} cy={y} r="5"/><circle cx={x+9} cy={y-5} r="4"/><circle cx={x+12} cy={y+6} r="3"/></g>)}
-    <path d="M94 74L72 23M270 100L270 18M385 108L418 24M476 164L500 220" fill="none" stroke={ink} strokeWidth="2"/>
-    <g fill={ink} fontSize="13" fontWeight="700"><text x="35" y="18">red blood cell</text><text x="222" y="15">white blood cell</text><text x="397" y="18">platelets</text><text x="438" y="238">plasma</text></g>
-  </Diagram>
+/* A magnified drop of blood: pale plasma with red cells, one white cell and platelets floating in it.
+   Assessment version swaps the labels for numbered markers: 1 red cell, 2 white cell, 3 platelets, 4 plasma. */
+function BloodSample({ assessment }: { assessment: boolean }) {
+  const { t, u } = useSvgIds(), g = `${u}-rbc`
+  const field = blobPath(270, 128, 150, 92, [1, .95, 1.03, .97, 1.02, .94, 1.04, .96, 1.01, .97], .2)
+  const cells: [number, number, number][] = [[160, 95, 20], [205, 70, -15], [252, 56, 30], [302, 60, 0], [356, 70, -25], [396, 104, 10], [174, 147, -30], [214, 114, 15], [266, 100, -10], [242, 152, 25], [290, 172, -5], [338, 162, 35], [392, 142, -15], [152, 121, 40], [212, 196, 12]]
+  const platelets: [number, number, number][] = [[178, 186, 0], [191, 176, 50], [186, 194, 110], [330, 200, 30], [342, 192, -40]]
+  const parts = [
+    { n: 1, name: 'red blood cell', job: 'carries oxygen', lx: 112, ly: 66, side: 'end', d: 'M116 70L155 92', to: [158, 94] },
+    { n: 2, name: 'white blood cell', job: 'defends the body', lx: 432, ly: 66, side: 'start', d: 'M428 70L351 102', to: [348, 104] },
+    { n: 3, name: 'platelets', job: 'help blood clot', lx: 112, ly: 188, side: 'end', d: 'M116 190L175 186', to: [178, 186] },
+    { n: 4, name: 'plasma', job: 'carries the rest', lx: 432, ly: 188, side: 'start', d: 'M428 190L370 188', to: [368, 188] },
+  ] as const
+  return <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}>
+    <title id={t}>{assessment ? 'A magnified drop of blood with four parts numbered 1 to 4. Original schematic, not to scale.' : 'A magnified drop of blood. Most of it is pale yellow plasma. Floating in the plasma are many red blood cells, one larger white blood cell with a nucleus, and small platelets. Original schematic, not to scale.'}</title>
+    <defs><RBCGradient id={g}/></defs>
+    <path d={field} fill="#fff3cf" stroke="#c9a85c" strokeWidth="2.5"/>
+    {cells.map(([x, y, r], i) => <RBC key={i} x={x} y={y} r={13} rotate={r} grad={g}/>)}
+    <path d={blobPath(328, 118, 27, 26, [1, .96, 1.04, .98, 1.02, .95, 1.03, .99], .4)} fill="#dceef8" stroke={ink} strokeWidth="2"/>
+    <path d="M314 112Q312 100 324 101Q332 102 330 110Q338 104 344 112Q348 122 338 126Q334 136 322 132Q312 128 316 120Q310 118 314 112Z" fill={purple} stroke="#7a62a8"/>
+    {platelets.map(([x, y, r], i) => <Platelet key={i} x={x} y={y} rotate={r} s={.9}/>)}
+    {parts.map(p => <g key={p.n}>
+      <Leader d={p.d} to={p.to as unknown as [number, number]}/>
+      {assessment
+        ? <g><circle cx={p.side === 'end' ? 102 : 442} cy={p.ly + 4} r="11" fill="#fff" stroke={ink} strokeWidth="2"/><Lbl x={p.side === 'end' ? 102 : 442} y={p.ly + 8.5} anchor="middle" bold>{p.n}</Lbl></g>
+        : <><Lbl x={p.lx} y={p.ly} anchor={p.side} bold>{p.name}</Lbl><Lbl x={p.lx} y={p.ly + 15} anchor={p.side} size={11.5} fill="#526976">{p.job}</Lbl></>}
+    </g>)}
+    <Lbl x={270} y={244} anchor="middle" size={11} fill="#526976">magnified · original schematic, not to scale</Lbl>
+  </svg></div>
+}
 
+function Blood({ focus, assessment }: { focus: string; assessment: boolean }) {
+  if (focus === 'blood-components') return <BloodSample assessment={assessment}/>
   if (focus === 'blood-red-cell' || focus === 'blood-red-question') return <RedCellVisual assessment={assessment}/>
+  if (focus === 'blood-red-haemoglobin') return <RedCellVisual assessment={assessment} hi="haemoglobin"/>
+  if (focus === 'blood-red-shape') return <RedCellVisual assessment={assessment} hi="shape"/>
   if (focus === 'blood-white-cell') return <WhiteCellVisual/>
+  if (focus === 'blood-white-engulf') return <WhiteCellVisual hi="engulf"/>
+  if (focus === 'blood-white-antibody') return <WhiteCellVisual hi="antibody"/>
   if (focus === 'blood-platelet') return <PlateletVisual/>
+  if (focus === 'blood-plasma') return <PlasmaVisual/>
+  if (focus === 'blood-plasma-useful') return <PlasmaVisual hi="useful"/>
+  if (focus === 'blood-plasma-waste') return <PlasmaVisual hi="waste"/>
   return <PlasmaVisual/>
 }
 

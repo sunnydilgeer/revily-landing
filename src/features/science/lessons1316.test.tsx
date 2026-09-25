@@ -12,7 +12,7 @@ import { lesson15, healthSections } from './variants/b/lesson-15/lesson'
 import { healthFrames } from './variants/b/lesson-15/teachingFrames'
 import { lesson16, riskCancerSections } from './variants/b/lesson-16/lesson'
 import { riskCancerFrames } from './variants/b/lesson-16/teachingFrames'
-import type { EvidenceDimension } from './types'
+import type { EvidenceDimension, ScienceState } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
@@ -20,12 +20,19 @@ const lessons = [lesson13, lesson14, lesson15, lesson16]
 const frameSets = [bloodFrames, cardiovascularFrames, healthFrames, riskCancerFrames]
 const sections = [bloodSections, cardiovascularSections, healthSections, riskCancerSections]
 const at = '2026-09-22T18:45:00.000Z'
+// Lessons refactored to the Lesson 17–18 standard. Add each lesson's id as it is refactored.
+const refactored: Record<string, { version: string; banned: RegExp; hiddenAnswer: Record<string, RegExp> }> = {
+  'B-ORG-013-B': { version: '0.2.0', banned: /phagocyt|fibrin|antitoxin/i, hiddenAnswer: { 'B13-15': /white blood cell|red blood cell|platelet|plasma/i } },
+}
+const learnerText = (state: ScienceState) => state.kind === 'teaching'
+  ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
+  : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
 lessons.forEach((lesson, index) => {
   const number = index + 13
   check(`${lesson.id}: metadata, source links and sampled requirements`, () => {
     assert.equal(lesson.id, `B-ORG-0${number}-B`)
-    assert.equal(lesson.contentVersion, '0.1.0')
+    assert.equal(lesson.contentVersion, refactored[lesson.id]?.version ?? '0.1.0')
     assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.qualification, 'AQA-8464F')
     assert.equal(lesson.retrieval.length, 0)
@@ -71,6 +78,42 @@ lessons.forEach((lesson, index) => {
       assert.match(html, /<svg[^>]+aria-(?:label|labelledby)/)
     })
   })
+
+  const standard = refactored[lesson.id]
+  if (standard) {
+    check(`${lesson.id}: Lesson 17–18 standard — answer spread, wording, hints and hidden answers`, () => {
+      assert.equal(lesson.states[0].kind === 'choice' && lesson.states[0].evidenceRole, 'diagnostic')
+      assert.equal(lesson.states.at(-1)!.kind, 'written')
+      assert.equal(sections[index][0].id, lesson.states[0].id)
+      assert.ok(lesson.states.length >= 15 && lesson.states.length <= 20, 'aim for 15–20 screens')
+      const positions = lesson.states.flatMap(state => state.kind === 'choice' ? [state.options.findIndex(option => option.id === state.answerId)] : [])
+      assert.ok(new Set(positions).size >= 3, 'use at least three answer positions')
+      const counts = positions.reduce<Record<number, number>>((all, p) => ({ ...all, [p]: (all[p] || 0) + 1 }), {})
+      assert.ok(Math.max(...Object.values(counts)) / positions.length <= .45, 'no single position should hold most answers')
+      const frames = Object.values(frameSets[index]).flat()
+      const all = [...frames.map(f => `${f.label}. ${f.summary} ${f.text}`), ...lesson.states.map(learnerText)].join(' ')
+      assert.doesNotMatch(all, /diagnostic|misconception|distractor/i)
+      assert.doesNotMatch(all, standard.banned)
+      for (const f of frames) for (const sentence of f.text.split(/(?<=[.!?])\s+/)) assert.ok(sentence.split(/\s+/).length <= 26, `long sentence: ${sentence}`)
+      for (const state of lesson.states) if (state.kind !== 'teaching') assert.ok(state.title.split(/\s+/).length <= 22, `${state.id}: question is too long`)
+      for (const state of lesson.states) if (state.kind === 'choice') assert.ok(!state.explanation.answer.toLowerCase().includes(state.hint.toLowerCase()), `${state.id}: hint repeats the answer`)
+      for (const f of frames) {
+        const html = renderToStaticMarkup(<CellBiologyVisual focus={f.focus!}/>)
+        assert.match(html, /<svg[^>]+role="img"[^>]+aria-labelledby=/)
+        assert.match(html, /<title[^>]*>[^<]{25,}<\/title>/)
+        assert.ok(!html.includes('undefined'))
+      }
+      const withVisual = lesson.states.filter(state => state.kind === 'choice' && state.visual)
+      assert.ok(withVisual.length >= 2, 'at least two question diagrams')
+      for (const state of withVisual) {
+        if (state.kind !== 'choice') continue
+        const hidden = renderToStaticMarkup(<CellBiologyVisual focus={state.visual!.id} assessment/>)
+        assert.ok(!hidden.toLowerCase().includes(state.explanation.answer.toLowerCase().replace(/^an? /, '')), `${state.id}: diagram reveals the answer`)
+        const extra = standard.hiddenAnswer[state.id]
+        if (extra) assert.doesNotMatch(hidden, extra)
+      }
+    })
+  }
 
   check(`${lesson.id}: complete flow reloads, locks and recommends the correct next lesson`, () => {
     const engine = createPreviewSessionEngine(lesson)
