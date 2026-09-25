@@ -605,45 +605,193 @@ function Coronary({ focus, assessment }: { focus: string; assessment: boolean })
   return <CoronarySupply assessment={assessment}/>
 }
 
+/* ---------- Lesson 15: health and disease ---------- */
+function Virus({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}>{[0, 45, 90, 135, 180, 225, 270, 315].map(a => <path key={a} transform={`rotate(${a})`} d="M0-7V-11" stroke="#4d8a4e" strokeWidth="1.6" strokeLinecap="round"/>)}<circle r="7" fill="#9fcf93" stroke="#4d8a4e" strokeWidth="1.4"/><circle cx="-2" cy="-1" r="1.6" fill="#4d8a4e"/><circle cx="2.5" cy="2" r="1.3" fill="#4d8a4e"/></g>
+}
+function Figure({ x, y, s = 1, fill = '#dceef8' }: { x: number; y: number; s?: number; fill?: string }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`} fill={fill} stroke={ink} strokeWidth={2 / s}><circle cy="-44" r="17"/><path d="M-28 34Q-30-6-16-20Q0-26 16-20Q30-6 28 34Q0 40-28 34Z"/></g>
+}
+function Cloud({ x, y, s = 1, fill = '#f4eefa' }: { x: number; y: number; s?: number; fill?: string }) {
+  return <path transform={`translate(${x} ${y}) scale(${s})`} d="M-40 10Q-54 8-52-6Q-50-20-34-18Q-30-34-12-32Q0-44 16-34Q34-38 38-22Q54-18 50-2Q52 14 34 14Q20 22 4 16Q-12 24-24 16Q-34 20-40 10Z" fill={fill} stroke="#8a78b0" strokeWidth={1.6 / s}/>
+}
+function TwoWay({ id, d, colour = '#7a6aa0' }: { id: string; d: string; colour?: string }) {
+  return <><defs><marker id={id} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10L2 5Z" fill={colour}/></marker></defs><path d={d} fill="none" stroke={colour} strokeWidth="2" markerStart={`url(#${id})`} markerEnd={`url(#${id})`}/></>
+}
+function OneWay({ id, d, colour = '#657a89', w = 2 }: { id: string; d: string; colour?: string; w?: number }) {
+  return <><defs><marker id={id} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10L2 5Z" fill={colour}/></marker></defs><path d={d} fill="none" stroke={colour} strokeWidth={w} markerEnd={`url(#${id})`}/></>
+}
+const Svg = ({ t, title, children }: { t: string; title: string; children: ReactNode }) => <div className="science-bio-model"><svg viewBox="0 0 540 250" role="img" aria-labelledby={t}><title id={t}>{title}</title>{children}</svg></div>
+const Note = () => <Lbl x={270} y={244} anchor="middle" size={11} fill="#526976">original schematic, not to scale</Lbl>
+
+function HealthWeek() {
+  const { t } = useSvgIds()
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const Drop = ({ x, y, k = 1.5 }: { x: number; y: number; k?: number }) => <path transform={`translate(${x} ${y}) scale(${k})`} d="M0-7Q6 0 0 5Q-6 0 0-7Z" fill="#9cc9e0" stroke="#3f86ad" strokeWidth={1 / k}/>
+  const Moon = ({ x, y, k = 1.4 }: { x: number; y: number; k?: number }) => <g transform={`translate(${x} ${y}) scale(${k})`}><path d="M4-10A10 10 0 1 0 6 8A8 8 0 1 1 4-10Z" fill="#c9cfe6" stroke="#5f6b93" strokeWidth={1.2 / k}/><path d="M9-8l5 5M14-8l-5 5" stroke="#b8434f" strokeWidth={1.6 / k}/></g>
+  const Exam = ({ x, y, k = 1.35 }: { x: number; y: number; k?: number }) => <g transform={`translate(${x} ${y}) scale(${k})`}><rect x="-9" y="-11" width="18" height="22" rx="2" fill="#fff" stroke={ink} strokeWidth={1.2 / k}/><path d="M-5-5h10M-5 0h10M-5 5h6" stroke="#9fb2bd"/><path d="M13-12l3-4M15-6l5-1M-13-12l-3-4" stroke="#c08a14" strokeWidth={1.6 / k} strokeLinecap="round"/></g>
+  return <Svg t={t} title="Sam's week, shown as seven day tiles from Monday to Sunday. Sam has a cold from Monday to Thursday, sleeps badly from Wednesday to Friday, and worries about an exam on Friday. None of these is serious alone, but together Sam does not feel well. Invented example.">
+    {days.map((d, i) => { const x = 20 + i * 72; return <g key={d}>
+      <rect x={x} y="36" width="64" height="146" rx="12" fill={i === 4 ? '#fff6e6' : '#f4f8fa'} stroke="#c3d2da" strokeWidth="1.4"/>
+      <Lbl x={x + 32} y={56} anchor="middle" bold size={12.5}>{d}</Lbl>
+      {i <= 3 && <><Drop x={x + 22} y={86}/><Drop x={x + 42} y={92}/></>}
+      {i >= 2 && i <= 4 && <Moon x={x + 26} y={126}/>}
+      {i === 4 && <Exam x={x + 32} y={160}/>}
+    </g> })}
+    <Lbl x={18} y={210} size={12}>Sam's week:</Lbl>
+    <Drop x={112} y={206} k={1.2}/><Lbl x={124} y={210} size={12}>a cold</Lbl>
+    <Moon x={198} y={205} k={1}/><Lbl x={222} y={210} size={12}>poor sleep</Lbl>
+    <Exam x={320} y={204} k={1}/><Lbl x={342} y={210} size={12}>exam worry</Lbl>
+    <Lbl x={270} y={238} anchor="middle" size={11} fill="#526976">invented example</Lbl>
+  </Svg>
+}
+
+function Wellbeing() {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title="Health is a state of physical and mental well-being. A person is shown in the middle. On the left, physical well-being is about the body. On the right, a thought bubble shows mental well-being: thoughts and feelings. A two-way arrow shows that the two can affect each other.">
+    <Figure x={270} y={124} s={1.35} fill="#e6f1f7"/>
+    <Cloud x={404} y={64} s={1.1}/>
+    <circle cx="336" cy="84" r="5" fill="#f4eefa" stroke="#8a78b0" strokeWidth="1.4"/><circle cx="322" cy="92" r="3" fill="#f4eefa" stroke="#8a78b0" strokeWidth="1.2"/>
+    <path d="M388 62q6-8 12 0M410 62q6-8 12 0M392 74q14 10 28 0" stroke="#6a5a90" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <Lbl x={118} y={108} anchor="end" bold size={14}>physical</Lbl><Lbl x={118} y={124} anchor="end" size={12}>the body</Lbl><Leader d="M122 116L238 138" to={[240, 138]}/>
+    <Lbl x={404} y={122} anchor="middle" bold size={14}>mental</Lbl><Lbl x={404} y={138} anchor="middle" size={12}>thoughts and feelings</Lbl>
+    <TwoWay id={`${u}-tw`} d="M150 200Q270 236 392 158"/>
+    <Lbl x={270} y={240} anchor="middle" size={12} bold fill="#6a5a90">the two can affect each other</Lbl>
+  </Svg>
+}
+
+function Spread({ question, noncomm = false }: { question: boolean; noncomm?: boolean }) {
+  const { t, u } = useSvgIds()
+  if (noncomm) return <Svg t={t} title="Two people. The person on the left has coronary heart disease, shown by a heart symbol. An arrow towards the second person is crossed out: a non-communicable disease cannot be caught from someone else. Original schematic.">
+    <Figure x={130} y={140}/><Figure x={410} y={140}/>
+    <HeartShape x={130} y={140} s={.28} fill="#e59a98"/>
+    <OneWay id={`${u}-n`} d="M176 130H356" colour="#9fb2bd"/>
+    <path d="M254 114l32 32M286 114l-32 32" stroke="#b8434f" strokeWidth="4" strokeLinecap="round"/>
+    <Lbl x={130} y={206} anchor="middle" size={12}>coronary heart disease</Lbl>
+    <Lbl x={270} y={42} anchor="middle" bold size={14}>cannot be caught from someone else</Lbl>
+    <Lbl x={270} y={232} anchor="middle" size={12} fill="#526976">non-communicable disease</Lbl>
+  </Svg>
+  return <Svg t={t} title={question ? 'Two people. Small virus particles labelled Disease X travel from the person on the left to the person on the right. Original schematic.' : 'Two people. Small virus particles, a kind of pathogen, travel from the person on the left to the person on the right: a communicable disease can spread between people. Original schematic.'}>
+    <Figure x={130} y={140}/><Figure x={410} y={140} fill={question ? '#dceef8' : '#eaf5e6'}/>
+    {[[190, 112, .9], [226, 128, 1], [262, 106, .8], [300, 124, 1], [336, 110, .9]].map(([x, y, k], i) => <Virus key={i} x={x} y={y} s={k}/>)}
+    <OneWay id={`${u}-c`} d="M176 150H360" colour="#4d8a4e"/>
+    {question
+      ? <><rect x="196" y="28" width="148" height="28" rx="14" fill="#eef7ea" stroke="#4d8a4e" strokeWidth="1.4"/><Lbl x={270} y={47} anchor="middle" bold>Disease X · a virus</Lbl></>
+      : <><Lbl x={270} y={42} anchor="middle" bold size={14}>pathogens pass between people</Lbl><Lbl x={270} y={232} anchor="middle" size={12} fill="#526976">communicable disease: it can spread</Lbl></>}
+    <Lbl x={130} y={206} anchor="middle" size={12}>ill</Lbl><Lbl x={410} y={206} anchor="middle" size={12}>catches it</Lbl>
+  </Svg>
+}
+
+function ImmuneDefence() {
+  const { t } = useSvgIds()
+  const ring = (cx: number, n: number, gaps: boolean) => Array.from({ length: n }, (_, i) => { const a = i / n * Math.PI * 2; if (gaps && i % 3 !== 0) return null; return <g key={i} transform={`translate(${cx + Math.cos(a) * 66} ${118 + Math.sin(a) * 66})`}><circle r="10" fill="#dceef8" stroke={ink} strokeWidth="1.4"/><circle r="4.5" fill={purple}/></g> })
+  return <Svg t={t} title="Two circles stand for the body. Left: a working immune system, a full ring of white blood cells, keeps pathogens outside. Right: an immune system that does not work properly, with gaps in the ring, so pathogens get inside and infections are more likely. Original schematic.">
+    <circle cx="140" cy="118" r="54" fill="#fbf1ec"/><circle cx="400" cy="118" r="54" fill="#fbf1ec"/>
+    {ring(140, 18, false)}{ring(400, 18, true)}
+    {[[52, 60], [226, 70], [60, 184], [224, 176]].map(([x, y], i) => <Virus key={i} x={x} y={y} s={.9}/>)}
+    {[[380, 100], [412, 138], [424, 92], [470, 44], [332, 186]].map(([x, y], i) => <Virus key={i} x={x} y={y} s={.9}/>)}
+    <Lbl x={140} y={28} anchor="middle" bold size={13.5}>working immune system</Lbl>
+    <Lbl x={400} y={28} anchor="middle" bold size={13.5}>not working properly</Lbl>
+    <Lbl x={140} y={214} anchor="middle" size={12}>pathogens kept out</Lbl>
+    <Lbl x={400} y={214} anchor="middle" size={12} bold fill="#a1502a">more infections likely</Lbl>
+    <Lbl x={270} y={238} anchor="middle" size={11} fill="#526976">ring of white blood cells · original schematic</Lbl>
+  </Svg>
+}
+
+function VirusCancer() {
+  const { t, u } = useSvgIds()
+  const cell = (x: number, y: number, r = 34, k = 0) => <g><path d={blobPath(x, y, r, r * .9, [1, .96, 1.03, .98, 1.01, .95, 1.02, .99], k)} fill="#fbe7df" stroke="#b27d74" strokeWidth="1.8"/><circle cx={x - 4} cy={y + 2} r={r * .32} fill="#e7c6d9" stroke="#a07090" strokeWidth="1.2"/></g>
+  return <Svg t={t} title="Three steps. A virus enters a body cell. The virus lives inside the cell. In some cases this can trigger the cell to divide out of control, forming a growing clump of cells: some viruses can trigger some cancers. Not every infected person gets cancer. Original schematic.">
+    {cell(84, 116)}<Virus x={40} y={72} s={1.1}/><OneWay id={`${u}-1`} d="M50 80L64 94" colour="#4d8a4e"/>
+    {cell(250, 116, 34, 1)}<Virus x={256} y={124} s={.9}/>
+    {[[420, 96], [452, 108], [436, 134], [404, 128], [470, 140], [446, 162], [412, 158], [478, 114]].map(([x, y], i) => <g key={i}>{cell(x, y, 17, i)}</g>)}
+    <OneWay id={`${u}-2`} d="M134 116H194"/><OneWay id={`${u}-3`} d="M300 116H362"/>
+    <Lbl x={84} y={180} anchor="middle" bold size={12.5}>a virus enters</Lbl><Lbl x={84} y={195} anchor="middle" size={12}>a body cell</Lbl>
+    <Lbl x={250} y={180} anchor="middle" bold size={12.5}>it lives</Lbl><Lbl x={250} y={195} anchor="middle" size={12}>inside the cell</Lbl>
+    <Lbl x={440} y={196} anchor="middle" bold size={12.5}>cells may divide</Lbl><Lbl x={440} y={211} anchor="middle" size={12}>out of control</Lbl>
+    <Lbl x={270} y={32} anchor="middle" bold size={14}>some viruses can trigger some cancers</Lbl>
+    <Lbl x={270} y={238} anchor="middle" size={11.5} fill="#526976">this does not happen to every infected person</Lbl>
+  </Svg>
+}
+
+function Allergy() {
+  const { t, u } = useSvgIds()
+  const Pollen = ({ x, y }: { x: number; y: number }) => <g transform={`translate(${x} ${y})`}>{Array.from({ length: 12 }, (_, i) => <path key={i} transform={`rotate(${i * 30})`} d="M0-9V-13" stroke="#a47b26" strokeWidth="1.6" strokeLinecap="round"/>)}<circle r="9" fill={yellow} stroke="#a47b26" strokeWidth="1.4"/></g>
+  const Guard = ({ x, y }: { x: number; y: number }) => <g><circle cx={x} cy={y} r="16" fill="#dceef8" stroke={ink} strokeWidth="1.6"/><circle cx={x - 2} cy={y} r="7" fill={purple}/></g>
+  return <Svg t={t} title="An allergy. First, the immune system reacts to a pathogen. Later it also reacts to something harmless, such as pollen. This reaction can cause a skin rash or asthma, where the airways narrow. Original schematic.">
+    <Lbl x={24} y={36} bold size={13}>1 · reacts to a pathogen</Lbl>
+    <Virus x={60} y={78} s={1.2}/><OneWay id={`${u}-a`} d="M76 78H106" colour="#8a78b0"/><Guard x={126} y={78}/>
+    <Lbl x={24} y={140} bold size={13}>2 · then reacts to</Lbl><Lbl x={24} y={156} bold size={13}>something harmless</Lbl>
+    <Pollen x={60} y={194}/><OneWay id={`${u}-b`} d="M76 194H106" colour="#8a78b0"/><Guard x={126} y={194}/>
+    <OneWay id={`${u}-c`} d="M150 186Q220 150 292 90" w={2.4}/><OneWay id={`${u}-d`} d="M150 200Q220 206 292 186" w={2.4}/>
+    <path d="M304 60H500V120H304Z" fill="#f6d9cc" stroke="#b27d74" strokeWidth="1.6" rx="10"/>
+    {[[332, 80], [352, 96], [376, 78], [398, 100], [424, 84], [448, 98], [470, 80]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" fill="#d9707a" fillOpacity=".7"/>)}
+    <Lbl x={402} y={48} anchor="middle" bold size={13}>skin rash</Lbl>
+    <path d="M304 164H500M304 208H500" stroke="#b27d74" strokeWidth="2"/>
+    <path d="M304 168H370Q400 180 430 168H500V204H430Q400 192 370 204H304Z" fill="#f9e3dc"/>
+    <path d="M370 168Q400 180 430 168M370 204Q400 192 430 204" fill="none" stroke="#b27d74" strokeWidth="2"/>
+    <Lbl x={402} y={154} anchor="middle" bold size={13}>asthma</Lbl><Lbl x={402} y={228} anchor="middle" size={12}>airways narrow</Lbl>
+    <Lbl x={126} y={116} anchor="middle" size={11}>white blood cell</Lbl>
+  </Svg>
+}
+
+function BodyMind() {
+  const { t, u } = useSvgIds()
+  const box = (x: number, head: string, sub: string, fill: string) => <g><rect x={x - 76} y="70" width="152" height="96" rx="16" fill={fill} stroke="#b9c9d2" strokeWidth="1.4"/><Lbl x={x} y={146} anchor="middle" bold size={13}>{head}</Lbl><Lbl x={x} y={160} anchor="middle" size={11.5} fill="#526976">{sub}</Lbl></g>
+  return <Svg t={t} title="Physical and mental health can affect each other. A long-term illness stops a person playing sport. This leads to low mood that lasts a long time, which can be depression. A return arrow shows mental health can affect the body too. Original schematic.">
+    {box(92, 'long illness', 'physical health', '#eef7fb')}{box(270, 'stops sport', 'daily life changes', '#fbf4e2')}{box(448, 'low mood', 'mental health', '#f4eefa')}
+    <Figure x={82} y={114} s={.55} fill="#dceef8"/><g transform="translate(114 100)"><rect x="-3.5" y="-20" width="7" height="26" rx="3.5" fill="#fff" stroke={ink} strokeWidth="1.3"/><circle cy="9" r="6" fill="#d9707a" stroke={ink} strokeWidth="1.3"/><path d="M0 8V-12" stroke="#d9707a" strokeWidth="3"/></g>
+    <g transform="translate(270 104)"><circle r="16" fill="#fff" stroke={ink} strokeWidth="1.6"/><path d="M-16 0Q0-8 16 0M-11-11Q0 0-11 11M11-11Q0 0 11 11" fill="none" stroke={ink} strokeWidth="1.2"/><path d="M-22-22L22 22" stroke="#b8434f" strokeWidth="3"/></g>
+    <Cloud x={448} y={104} s={.62} fill="#e3e0ee"/><path d="M438 128l-3 8M450 128l-3 8M462 128l-3 8" stroke="#6a8fb0" strokeWidth="1.6"/>
+    <OneWay id={`${u}-1`} d="M170 118H192" w={2.4}/><OneWay id={`${u}-2`} d="M348 118H370" w={2.4}/>
+    <OneWay id={`${u}-3`} d="M448 170Q448 214 270 214Q92 214 92 172" colour="#8a78b0"/>
+    <Lbl x={270} y={236} anchor="middle" size={12} fill="#6a5a90">mental health can affect the body too</Lbl>
+    <Lbl x={270} y={40} anchor="middle" bold size={14}>body and mind affect each other</Lbl>
+  </Svg>
+}
+
+function HealthFactors({ hi }: { hi: 'dietStress' | 'life' }) {
+  const { t, u } = useSvgIds()
+  const on = (k: 'diet' | 'stress' | 'life') => dim(hi === 'life' ? k === 'life' : k !== 'life')
+  return <Svg t={t} title={`Other factors that affect health. A person sits in the middle. Arrows point to them from a plate of food (diet), a tangle of lines (stress) and a house and clinic (life situation: money, housing and access to healthcare).${hi === 'life' ? ' Life situation is highlighted.' : ' Diet and stress are highlighted.'} Original schematic.`}>
+    <Figure x={270} y={138} s={1.1} fill="#e6f1f7"/>
+    <g opacity={on('diet')}><g transform="translate(86 74)"><circle r="30" fill="#fff" stroke={ink} strokeWidth="1.6"/><circle r="22" fill="none" stroke="#c3d2da"/><path d="M0 0L0-22A22 22 0 0 1 19 11Z" fill="#9fcf93"/><path d="M0 0L19 11A22 22 0 0 1-19 11Z" fill="#f0cf73"/><path d="M0 0L-19 11A22 22 0 0 1 0-22Z" fill="#e8a08c"/></g>
+      <Lbl x={86} y={124} anchor="middle" bold>diet</Lbl><OneWay id={`${u}-d`} d="M120 84L222 112"/></g>
+    <g opacity={on('stress')}><path d="M424 50q10-14 20 0t20 0t20 0M424 64q10-14 20 0t20 0t20 0M424 78q10-14 20 0t20 0t20 0" fill="none" stroke="#c08a14" strokeWidth="2"/>
+      <Lbl x={454} y={104} anchor="middle" bold>stress</Lbl><OneWay id={`${u}-s`} d="M416 70L318 106"/></g>
+    <g opacity={on('life')}><g transform="translate(410 172)"><path d="M-40 10L-20-10L0 10V36H-40Z" fill="#f4e3c8" stroke={ink} strokeWidth="1.6"/><rect x="10" y="4" width="36" height="32" rx="3" fill="#eef7fb" stroke={ink} strokeWidth="1.6"/><path d="M28 12v16M20 20h16" stroke="#b8434f" strokeWidth="3"/></g>
+      <Lbl x={456} y={225} anchor="end" bold>life situation</Lbl><Lbl x={530} y={240} anchor="end" size={11.5} fill="#526976">money · housing · healthcare</Lbl><OneWay id={`${u}-l`} d="M366 190L318 170"/></g>
+    <Lbl x={270} y={224} anchor="middle" size={12} bold>physical and mental health</Lbl>
+  </Svg>
+}
+
+function AbsenceChart() {
+  const { t } = useSvgIds()
+  const data: [string, number, string][] = [['colds', 24, '#9cc9e0'], ['stomach bugs', 12, '#b9d9a8'], ['asthma', 8, '#d9c6ea'], ['injuries', 6, '#f0cf9a']]
+  const x0 = 80, y0 = 200, k = 6.5, bw = 70
+  return <Svg t={t} title="Bar chart of example data, not real measurements: the number of students who missed school in one term for each reason. Colds 24, stomach bugs 12, asthma 8, injuries 6. The vertical axis goes from 0 to 24, with gridlines every 2 students.">
+    {Array.from({ length: 13 }, (_, i) => i * 2).map(v => <g key={v}><path d={`M${x0} ${y0 - v * k}H${x0 + 420}`} stroke={v % 4 ? '#eef2f4' : '#d6e1e6'} strokeWidth="1"/>{v % 4 === 0 && <Lbl x={x0 - 8} y={y0 - v * k + 4} anchor="end" size={11}>{v}</Lbl>}</g>)}
+    {data.map(([name, v, c], i) => { const x = x0 + 30 + i * 102; return <g key={name}><rect x={x} y={y0 - v * k} width={bw} height={v * k} fill={c} stroke={ink} strokeWidth="1.2"/><Lbl x={x + bw / 2} y={y0 + 18} anchor="middle" size={12}>{name}</Lbl></g> })}
+    <path d={`M${x0} ${y0 - 25 * k}V${y0}H${x0 + 420}`} fill="none" stroke={ink} strokeWidth="1.6"/>
+    <text x="24" y={y0 - 12 * k} transform={`rotate(-90 24 ${y0 - 12 * k})`} textAnchor="middle" fill={ink} fontSize="12">number of students</text>
+    <Lbl x={290} y={242} anchor="middle" size={11} fill="#526976">example data · not real measurements</Lbl>
+  </Svg>
+}
+
 function Health({ focus, assessment }: { focus: string; assessment: boolean }) {
-  if (focus === 'health-wellbeing') return <Diagram title="Physical and mental well-being overlap to make up health.">
-    <circle cx="215" cy="119" r="84" fill="#dbeef8" stroke={blue} strokeWidth="3"/><circle cx="325" cy="119" r="84" fill="#eee5f8" stroke={purple} strokeWidth="3"/>
-    <g fill={ink} textAnchor="middle"><text x="170" y="105" fontSize="16" fontWeight="700">physical</text><text x="170" y="126" fontSize="13">body function</text><text x="370" y="105" fontSize="16" fontWeight="700">mental</text><text x="370" y="126" fontSize="13">thoughts + feelings</text><text x="270" y="111" fontSize="17" fontWeight="800">health</text><text x="270" y="134" fontSize="12">well-being</text></g>
-    <path d="M86 214Q270 178 454 214" fill="none" stroke={green} strokeWidth="5"/><text x="270" y="237" textAnchor="middle" fill={ink} fontSize="13">the two parts can affect each other</text>
-  </Diagram>
-
-  if (focus.includes('communicable') || focus === 'health-classify-question') {
-    const nonCommunicable = focus === 'health-noncommunicable'
-    return <Diagram title={assessment ? 'Two disease patterns labelled Type A and Type B.' : nonCommunicable ? 'A non-communicable disease affects one person but is not passed to another.' : 'A pathogen passing between two organisms causes communicable disease.'}>
-      <Person x={125} y={125} colour={nonCommunicable ? red : blue}/><Person x={415} y={125} colour="#d9e7ec"/>
-      {nonCommunicable ? <><path d="M107 127Q125 99 143 127Q125 154 107 127Z" fill={red} stroke={ink}/><Arrow x1={185} y1={124} x2={355} y2={124} colour="#b7c7cf"/><path d="M264 86L296 162M296 86L264 162" stroke="#ba5b64" strokeWidth="8"/><text x="270" y="218" textAnchor="middle" fill={ink} fontSize="14" fontWeight="700">does not spread between organisms</text></> : <><g fill={green} stroke={ink}>{[[199,100],[228,137],[260,111],[294,139],[326,102]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="8"/>)}</g><Arrow x1={180} y1={124} x2={360} y2={124}/><text x="270" y="218" textAnchor="middle" fill={ink} fontSize="14" fontWeight="700">pathogen can pass between organisms</text></>}
-      {!assessment && <g fill={ink} fontSize="13" fontWeight="700" textAnchor="middle"><text x="125" y="55">{nonCommunicable ? 'affected person' : 'infected organism'}</text><text x="415" y="55">another organism</text></g>}
-    </Diagram>
-  }
-
-  if (focus === 'health-virus-cancer') return <Diagram title="Some viruses infect cells, contribute to cell changes and increase the risk of certain cancers.">
-    <g transform="translate(72 118)" fill={green} stroke={ink} strokeWidth="2">{Array.from({length:7},(_,i)=><g key={i} transform={`rotate(${i*51})`}><circle cy="-31" r="8"/><line y1="-39" y2="-51"/></g>)}<circle r="29"/></g><Arrow x1={112} y1={118} x2={195} y2={118}/>
-    <g transform="translate(245 118)"><circle r="48" fill="#dbeef8" stroke={ink} strokeWidth="3"/><circle r="19" fill={purple}/><circle cx="-22" cy="-8" r="6" fill={green}/><circle cx="25" cy="14" r="6" fill={green}/></g><Arrow x1={300} y1={118} x2={378} y2={118}/>
-    <g transform="translate(450 118)" fill={red} stroke={ink}>{[[0,0],[-25,-21],[22,-25],[-27,20],[26,22],[0,42]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="17"/>)}</g>
-    <g fill={ink} fontSize="13" fontWeight="700" textAnchor="middle"><text x="72" y="205">virus</text><text x="245" y="205">infected cell</text><text x="450" y="205">higher cancer risk</text></g>
-  </Diagram>
-
-  if (focus === 'health-physical-mental') return <Diagram title="Physical and mental health can influence each other in both directions.">
-    <rect x="45" y="74" width="175" height="102" rx="25" fill="#dbeef8" stroke={blue} strokeWidth="3"/><rect x="320" y="74" width="175" height="102" rx="25" fill="#eee5f8" stroke={purple} strokeWidth="3"/>
-    <g fill={ink} textAnchor="middle"><text x="132" y="112" fontSize="16" fontWeight="700">physical health</text><text x="132" y="139" fontSize="12">pain · energy · activity</text><text x="407" y="112" fontSize="16" fontWeight="700">mental health</text><text x="407" y="139" fontSize="12">mood · sleep · behaviour</text></g><Arrow x1={225} y1={102} x2={315} y2={102}/><Arrow x1={315} y1={151} x2={225} y2={151} colour={blue}/>
-  </Diagram>
-
-  if (focus === 'health-interactions') return <Diagram title="Examples of diseases interacting: reduced immune defence raises infection risk, and immune reactions can worsen other conditions.">
-    <path d="M86 45L127 62V113Q127 151 86 174Q45 151 45 113V62Z" fill="#dff2ea" stroke={green} strokeWidth="4"/><path d="M66 105L81 120L109 85" fill="none" stroke={ink} strokeWidth="6"/><text x="86" y="205" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">immune defence</text>
-    <Arrow x1={143} y1={111} x2={219} y2={111}/><g fill={red} stroke={ink}>{[[260,92],[282,126],[241,139]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="14"/>)}</g><text x="260" y="205" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">infection risk</text>
-    <Arrow x1={310} y1={111} x2={376} y2={111}/><path d="M405 78Q445 48 483 82Q501 124 462 157Q421 176 390 141Q373 105 405 78Z" fill="#eee5f8" stroke={purple} strokeWidth="3"/><path d="M408 119Q426 93 440 122T477 114" fill="none" stroke={red} strokeWidth="4"/><text x="440" y="205" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">another condition worsens</text>
-  </Diagram>
-
-  return <Diagram title="Diet, stress and life situation all feed into health outcomes.">
-    <circle cx="270" cy="126" r="58" fill="#fff3b9" stroke={yellow} strokeWidth="4"/><text x="270" y="122" textAnchor="middle" fill={ink} fontSize="18" fontWeight="800">health</text><text x="270" y="144" textAnchor="middle" fill={ink} fontSize="12">many influences</text>
-    <g fill="#eef7fb" stroke={ink} strokeWidth="2"><rect x="25" y="70" width="135" height="92" rx="20"/><rect x="202" y="12" width="136" height="50" rx="18"/><rect x="380" y="70" width="135" height="92" rx="20"/></g>
-    <g fill={ink} textAnchor="middle"><text x="92" y="106" fontSize="16" fontWeight="700">diet</text><text x="92" y="132" fontSize="12">nutrients + energy</text><text x="270" y="43" fontSize="16" fontWeight="700">stress</text><text x="447" y="106" fontSize="16" fontWeight="700">life situation</text><text x="447" y="132" fontSize="12">housing + care</text></g><Arrow x1={160} y1={116} x2={207} y2={122}/><Arrow x1={270} y1={62} x2={270} y2={68}/><Arrow x1={380} y1={116} x2={333} y2={122}/><text x="270" y="226" textAnchor="middle" fill={ink} fontSize="13">factors interact; none guarantees an outcome</text>
-  </Diagram>
+  if (focus === 'health-week') return <HealthWeek/>
+  if (focus === 'health-wellbeing') return <Wellbeing/>
+  if (focus === 'health-communicable') return <Spread question={false}/>
+  if (focus === 'health-noncommunicable') return <Spread question={false} noncomm/>
+  if (focus === 'health-classify-question') return <Spread question/>
+  if (focus === 'health-immune' || focus === 'health-interactions') return <ImmuneDefence/>
+  if (focus === 'health-virus-cancer') return <VirusCancer/>
+  if (focus === 'health-allergy') return <Allergy/>
+  if (focus === 'health-physical-mental') return <BodyMind/>
+  if (focus === 'health-life') return <HealthFactors hi="life"/>
+  if (focus === 'health-diet-stress' || focus === 'health-factors') return <HealthFactors hi="dietStress"/>
+  if (focus === 'health-absence-chart') return <AbsenceChart/>
+  return <Wellbeing/>
 }
 
 function RiskCancer({ focus, assessment }: { focus: string; assessment: boolean }) {
