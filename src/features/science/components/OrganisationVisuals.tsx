@@ -10,11 +10,55 @@ function Hierarchy({ focus, assessment }: { focus: string; assessment: boolean }
   </div>
 }
 
+/** A continuous row of similar columnar cells that share their side walls (no gaps), with small natural variation. */
+function epithelialRow(x0: number, x1: number, top: (x: number) => number, h: number, seed = 1) {
+  const widths = [34, 38, 31, 36, 40, 33, 37, 35, 32, 39, 34, 36, 33]
+  const xs = [x0]; let k = 0
+  while (xs[xs.length - 1] < x1 - 20) { xs.push(Math.min(x1, xs[xs.length - 1] + widths[(k + seed) % widths.length])); k++ }
+  xs[xs.length - 1] = x1
+  const wob = (n: number) => Math.sin(n * 2.7 + seed) * 2.2
+  const b = xs.map((x, n) => ({ tx: x + wob(n), ty: top(x), bx: x - wob(n) * .8, by: top(x) + h + wob(n + 3) * .6, cx: x + wob(n + 1) * 1.6 }))
+  return b.slice(0, -1).map((l, n) => {
+    const r = b[n + 1], mx = (l.tx + r.tx) / 2, dome = top(mx) - 5 - (n % 3)
+    const d = `M${l.tx.toFixed(1)} ${l.ty.toFixed(1)}Q${mx.toFixed(1)} ${dome.toFixed(1)} ${r.tx.toFixed(1)} ${r.ty.toFixed(1)}Q${r.cx.toFixed(1)} ${((r.ty + r.by) / 2).toFixed(1)} ${r.bx.toFixed(1)} ${r.by.toFixed(1)}L${l.bx.toFixed(1)} ${l.by.toFixed(1)}Q${l.cx.toFixed(1)} ${((l.ty + l.by) / 2).toFixed(1)} ${l.tx.toFixed(1)} ${l.ty.toFixed(1)}Z`
+    return { d, nx: (l.bx + r.bx) / 2 + wob(n + 5), ny: l.by - h * (.28 + ((n * 7) % 5) * .03), fill: n % 3 === 0 ? '#f6dfe9' : n % 3 === 1 ? '#f3e4ec' : '#f8e6ee', mid: mx, top: dome }
+  })
+}
+function EpiCells({ cells }: { cells: ReturnType<typeof epithelialRow> }) {
+  return <g strokeLinejoin="round">{cells.map((c, n) => <g key={n}><path d={c.d} fill={c.fill} stroke={pink} strokeWidth="1.8"/><ellipse cx={c.nx} cy={c.ny} rx="6.5" ry="8.5" transform={`rotate(${(n % 3) * 6 - 6} ${c.nx} ${c.ny})`} fill={purple} stroke="#7a62a8" strokeWidth=".8"/></g>)}</g>
+}
 function Epithelial({ layer }: { layer: boolean }) {
-  const title = useId()
-  return <div className="science-bio-model"><svg viewBox="0 0 440 175" role="img" aria-labelledby={title}><title id={title}>{layer ? 'A row of similar epithelial cells joined into a continuous lining.' : 'One epithelial cell beside a group of similar cells forming a lining.'}</title>
-    {Array.from({ length: layer ? 9 : 6 }, (_, i) => <g key={i} transform={`translate(${45 + i * 39} 0)`}><path d="M0 54q19-15 38 0v67q-19 15-38 0Z" fill={i % 2 ? '#f8dce8' : '#f4e7ef'} stroke={pink} strokeWidth="2"/><circle cx="19" cy="88" r="7" fill={purple}/></g>)}
-    <path d="M37 137H403" stroke={ink} strokeWidth="4"/><text x="220" y="160" textAnchor="middle" fill={ink} fontSize="14">many similar cells form a lining</text>
+  const title = useId(), t = { fill: ink, fontSize: 12.5 }
+  if (layer) {
+    const top = (x: number) => 66 + ((x - 220) / 220) ** 2 * 22, h = 58
+    const cells = epithelialRow(22, 418, top, h, 2), one = cells[5]
+    const along = (a: number, b: number, f: (x: number) => number) => Array.from({ length: 41 }, (_, k) => a + (b - a) * k / 40).map((x, k) => `${k ? 'L' : 'M'}${x.toFixed(1)} ${f(x).toFixed(1)}`).join('')
+    return <div className="science-bio-model"><svg viewBox="0 0 440 190" role="img" aria-labelledby={title}><title id={title}>A curved lining made of many similar column-shaped epithelial cells. Neighbouring cells share their side walls, so the layer is continuous with no gaps. Each cell has a nucleus; sizes vary slightly. The space inside the organ is above the lining and other tissue lies beneath. One cell is outlined to compare one cell with the whole tissue.</title>
+      <path d={`${along(14, 426, x => top(x) + h + 1)}L426 186H14Z`} fill="#f4ebe4"/>
+      <EpiCells cells={cells}/>
+      <path d={along(14, 426, x => top(x) + h + 1)} fill="none" stroke="#b58a9c" strokeWidth="2"/>
+      <path d={one.d} fill="none" stroke={ink} strokeWidth="2.6"/>
+      <text x="220" y="20" textAnchor="middle" {...t} fontSize={11.5} fill="#526976">space inside the organ, e.g. the digestive system</text>
+      <path d={along(24, 416, x => top(x) - 16)} fill="none" stroke="#9c70c7" strokeWidth="2"/>
+      <text x="220" y={top(220) - 22} textAnchor="middle" {...t} fontWeight="700" fill="#7d55a8">epithelial tissue: the whole layer</text>
+      <text x={one.mid} y="176" textAnchor="middle" {...t} fontWeight="700">one cell</text>
+      <path d={`M${one.mid} 164L${one.mid} ${top(one.mid) + h - 6}`} stroke="#657a89"/><circle cx={one.mid} cy={top(one.mid) + h - 6} r="2" fill="#657a89"/>
+      <text x="300" y="176" {...t} fontSize={11.5} fill="#526976">underlying tissue</text>
+      <text x="24" y="162" {...t} fontSize={11.5}>many similar cells,</text><text x="24" y="176" {...t} fontSize={11.5}>no gaps between them</text>
+    </svg></div>
+  }
+  const top = (x: number) => 64 + Math.sin((x - 150) / 60) * 3, h = 62
+  const cells = epithelialRow(150, 420, top, h, 4)
+  return <div className="science-bio-model"><svg viewBox="0 0 440 175" role="img" aria-labelledby={title}><title id={title}>Left: one epithelial cell on its own. Right: many similar epithelial cells joined side by side, sharing their walls, to form a continuous lining: epithelial tissue.</title>
+    <path d="M36 66Q56 54 76 66Q80 96 76 126Q56 132 36 126Q32 96 36 66Z" fill="#f6dfe9" stroke={pink} strokeWidth="2"/><ellipse cx="56" cy="106" rx="6.5" ry="8.5" fill={purple} stroke="#7a62a8" strokeWidth=".8"/>
+    <text x="56" y="152" textAnchor="middle" {...t} fontWeight="700">one cell</text>
+    <path d="M94 96H132" stroke={ink} strokeWidth="2"/><path d="M132 96l-8-5v10Z" fill={ink}/>
+    <text x="113" y="84" textAnchor="middle" {...t} fontSize={11}>many</text><text x="113" y="116" textAnchor="middle" {...t} fontSize={11}>join</text>
+    <path d="M146 130Q285 134 424 130V146H146Z" fill="#f4ebe4"/>
+    <EpiCells cells={cells}/>
+    <text x="285" y="30" textAnchor="middle" {...t} fontWeight="700" fill="#7d55a8">epithelial tissue</text>
+    <path d="M152 44Q285 36 418 44" fill="none" stroke="#9c70c7" strokeWidth="2"/>
+    <text x="285" y="166" textAnchor="middle" fill={ink} fontSize="13">many similar cells form a lining</text>
   </svg></div>
 }
 
@@ -48,66 +92,114 @@ function DigestiveSystem({ focus }: { focus: string }) {
     <g opacity={opacity('intestines')}>
       <path d="M177 215H334C347 215 354 224 354 237V293C354 309 345 318 329 318H305C291 318 280 326 273 335M177 215C163 215 155 224 155 238V292C155 305 164 314 178 314" fill="none" stroke="#b97852" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M177 215H334C347 215 354 224 354 237V293C354 309 345 318 329 318H305C291 318 280 326 273 335M177 215C163 215 155 224 155 238V292C155 305 164 314 178 314" fill="none" stroke="#f2c79f" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M184 238C202 225 222 227 231 242C240 257 224 267 205 260C187 253 180 271 193 281C208 293 229 277 244 270C261 262 279 270 276 284C273 299 249 302 235 290C220 278 202 290 206 304M287 239C304 229 326 237 326 251C326 266 307 271 292 263C279 256 268 245 257 246C245 247 241 257 245 270" fill="none" stroke="#e5a94e" strokeWidth="9" strokeLinecap="round"/>
+      <path d="M298 214C320 218 336 232 332 246C328 260 307 266 291 257C275 248 262 243 247 250C232 258 236 273 252 278C270 284 280 298 269 308C257 319 238 310 224 298C210 286 197 287 187 279C175 269 179 252 194 247C211 241 226 252 231 264" fill="none" stroke="#c8893d" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M298 214C320 218 336 232 332 246C328 260 307 266 291 257C275 248 262 243 247 250C232 258 236 273 252 278C270 284 280 298 269 308C257 319 238 310 224 298C210 286 197 287 187 279C175 269 179 252 194 247C211 241 226 252 231 264" fill="none" stroke="#efb44d" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M273 334v5" stroke="#b97852" strokeWidth="12" strokeLinecap="round"/>
     </g>
     {label('salivary glands', 18, 22, 231, 27, 'left', 'upper')}
     {label('mouth', 18, 48, 247, 34, 'left', 'upper')}
     {label('oesophagus', 18, 75, 258, 73, 'left', 'upper')}
-    {label('liver', 18, 112, 124, 109, 'left', 'bile')}
+    {label('liver', 18, 112, 186, 111, 'left', 'bile')}
     {label('gall bladder', 18, 158, 207, 153, 'left', 'bile')}
     {label('stomach', 502, 126, 337, 132, 'right', 'upper')}
     {label('pancreas', 502, 184, 349, 185, 'right', 'upper')}
     {label('duodenum', 502, 211, 334, 213, 'right', 'intestines')}
     {label('large intestine', 502, 246, 352, 247, 'right', 'intestines')}
-    {label('small intestine', 502, 282, 316, 276, 'right', 'intestines')}
+    {label('small intestine', 502, 282, 269, 281, 'right', 'intestines')}
     {label('rectum', 502, 326, 276, 326, 'right', 'intestines')}
   </svg><p className="science-bio-note">Simplified front view · organ positions are approximate · not to scale</p></div>
 }
 
+/* ── Enzyme model: shared shapes (enzyme-local coordinates, 0–112 × 0–124) ──
+   The active site is a pocket with a stepped back wall; substrate part A is its exact negative (2-unit clearance). */
+const enzymeOutline = 'M14 22C28 4 62 0 84 10C100 17 108 30 104 44L88 44Q82 44 82 50Q82 54 76 54L70 56Q64 58 64 64Q64 72 72 74L88 80Q98 82 104 82C110 96 100 114 80 120C56 128 24 122 12 104C0 86 0 42 14 22Z'
+const activeSite = 'M104 44L88 44Q82 44 82 50Q82 54 76 54L70 56Q64 58 64 64Q64 72 72 74L88 80Q98 82 104 82'
+const substrateA = 'M112 46.5H88.5Q84.5 46.5 84.5 51.5Q84.5 56.5 77 56.5L71 58.3Q66.5 60 66.5 64Q66.5 70 72.6 71.6L88.6 77.6Q97 80 112 80Z'
+const substrateB = 'M112 49Q121 41 133 45Q146 49 146 63Q146 77 133 80Q121 83 112 77Z'
+/* A non-matching molecule of similar size: a pointed, taller tip that cannot sit in the stepped pocket. */
+const otherA = 'M112 40H96Q90 40 86 45L64 63L86 81Q90 86 96 86H112Z'
+const folds = 'M24 36C36 26 52 30 50 44S30 58 34 72S56 92 44 106M58 18C70 24 76 34 68 42M40 114C54 108 66 116 80 106M88 96C94 104 92 110 84 112'
+function Enzyme({ x, y, k = .85, opacity = 1 }: { x: number; y: number; k?: number; opacity?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${k})`} opacity={opacity} strokeLinejoin="round" strokeLinecap="round">
+    <path d={enzymeOutline} fill="#efd8e7" stroke={ink} strokeWidth="2.5"/>
+    <path d={folds} fill="none" stroke="#d6a2bf" strokeWidth="2.2" opacity=".7"/>
+    <path d={activeSite} fill="none" stroke={pink} strokeWidth="4.5"/>
+  </g>
+}
+/** Substrate (A + B joined by a bond), or a single product part. `flip` mirrors it top-to-bottom: same size, wrong shape. */
+function Molecule({ x, y, k = .85, part = 'both', flip = false, rotate = 0, colour = 'substrate', opacity = 1 }: { x: number; y: number; k?: number; part?: 'both' | 'A' | 'B'; flip?: boolean; rotate?: number; colour?: 'substrate' | 'other'; opacity?: number }) {
+  const [a, b] = colour === 'other' ? [yellow, '#f4dc97'] : [blue, '#8fcbe2']
+  const cx = part === 'A' ? 90 : part === 'B' ? 130 : 106
+  return <g transform={`translate(${x} ${y}) rotate(${rotate}) scale(${k}) translate(${-cx} -63)${flip ? ' translate(0 126) scale(1 -1)' : ''}`} opacity={opacity} strokeLinejoin="round">
+    {part !== 'B' && <path d={colour === 'other' ? otherA : substrateA} fill={a} stroke={ink} strokeWidth="2"/>}
+    {part !== 'A' && <path d={substrateB} fill={b} stroke={ink} strokeWidth="2"/>}
+    {part === 'both' && <path d="M112 49V77" stroke={ink} strokeWidth="2.4"/>}
+  </g>
+}
+
 function EnzymeModel({ focus, assessment }: { focus: string; assessment: boolean }) {
-  const title = useId()
+  const title = useId(), u = title.replace(/[^a-zA-Z0-9_-]/g, '')
   const specific = focus === 'enzyme-specific' || focus === 'enzyme-match'
   const stageOpacity = (stage: 'before' | 'bound' | 'after') => focus === 'enzyme-products' ? stage === 'after' ? 1 : .32 : focus === 'enzyme-fit' ? stage === 'after' ? .32 : 1 : 1
-  const enzymePath = 'M8 18C25-2 67 0 86 18C101 31 100 48 84 57L69 64L84 72C101 82 101 100 84 113C61 131 25 124 8 105C-7 88-9 37 8 18Z'
-  const boundPath = 'M8 18C25-2 67 0 86 18C99 30 99 46 87 55L76 64L87 73C100 84 99 100 84 113C61 131 25 124 8 105C-7 88-9 37 8 18Z'
-  const substratePath = 'M0 16L18 4Q26 0 34 6L43 16L34 27Q25 33 18 28L5 33Z'
-  const EnzymeBlob = ({ x, y, bound = false, opacity = 1 }: { x: number; y: number; bound?: boolean; opacity?: number }) => <g transform={`translate(${x} ${y})`} opacity={opacity}>
-    <path d={bound ? boundPath : enzymePath} fill="#efd8e7" stroke={ink} strokeWidth="2.5"/>
-    <path d={bound ? 'M86 55L76 64L87 73' : 'M84 57L69 64L84 72'} fill="none" stroke={pink} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="38" cy="34" r="6" fill="#f8e9f1"/><circle cx="29" cy="88" r="8" fill="#e4c4d9"/><circle cx="62" cy="101" r="5" fill="#f8e9f1"/>
-  </g>
-  const Substrate = ({ x, y, opacity = 1 }: { x: number; y: number; opacity?: number }) => <path d={substratePath} transform={`translate(${x} ${y})`} fill={blue} stroke={ink} strokeWidth="2" opacity={opacity}/>
-  const arrow = (x1: number, y1: number, x2: number, y2: number, opacity = 1) => <g opacity={opacity}><path d={`M${x1} ${y1}L${x2} ${y2}`} stroke={ink} strokeWidth="2.5" fill="none"/><path d={`M${x2} ${y2}l-9-5m9 5l-8 7`} stroke={ink} strokeWidth="2.5" fill="none" strokeLinecap="round"/></g>
-  if (specific) return <div className="science-bio-model"><svg viewBox="0 0 600 255" role="img" aria-labelledby={title}><title id={title}>{assessment ? 'An enzyme with a shaped active site is shown beside two differently shaped possible substrates.' : 'A simplified specificity model: one substrate has a complementary shape and can bind to the active site; a differently shaped molecule cannot bind.'}</title>
-    <EnzymeBlob x={78} y={65}/>
-    <path d="M170 129C221 103 261 91 304 91" fill="none" stroke={green} strokeWidth="3" strokeDasharray="6 5"/>
-    <Substrate x={307} y={75}/>
-    <path d="M170 140C222 161 261 176 304 177" fill="none" stroke="#b2bdc6" strokeWidth="3" strokeDasharray="6 5"/>
-    <rect x="310" y="156" width="44" height="44" rx="15" fill={yellow} stroke={ink} strokeWidth="2" transform="rotate(18 332 178)"/>
+  const marker = (id: string, colour: string) => <marker id={`${u}-${id}`} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10L2 5Z" fill={colour}/></marker>
+  const arrow = (d: string, opacity = 1, colour = ink, id = 'ink') => <path d={d} fill="none" stroke={colour} strokeWidth="2.4" markerEnd={`url(#${u}-${id})`} opacity={opacity}/>
+  /* enzyme-local point → absolute, for an enzyme drawn at (ex, ey) with scale k */
+  const at = (ex: number, ey: number, k: number, lx: number, ly: number) => [ex + lx * k, ey + ly * k]
+
+  if (specific) {
+    const [ex, ey, k] = [52, 62, 1.1], mouth = at(ex, ey, k, 106, 63)
+    return <div className="science-bio-model"><svg viewBox="0 0 600 255" role="img" aria-labelledby={title}><title id={title}>{assessment ? 'An enzyme with a shaped active site is shown beside two possible molecules of similar size but different shape.' : 'A simplified specificity model. The blue substrate has a shape complementary to the active site and can bind. The yellow molecule is a similar size but has a pointed, taller end that does not match the stepped active site, so it cannot bind.'}</title>
+      <defs>{marker('ink', ink)}</defs>
+      <Enzyme x={ex} y={ey} k={k}/>
+      <path d={`M${mouth[0] + 6} ${mouth[1] - 6}C230 100 262 90 296 90`} fill="none" stroke={green} strokeWidth="3" strokeDasharray="6 5"/>
+      <Molecule x={344} y={90} k={1.05}/>
+      <path d={`M${mouth[0] + 6} ${mouth[1] + 6}C232 164 262 178 296 178`} fill="none" stroke="#b2bdc6" strokeWidth="3" strokeDasharray="6 5"/>
+      <Molecule x={344} y={178} k={1.05} colour="other"/>
+      {!assessment && <>
+        <text x={ex + 56 * k} y="226" textAnchor="middle" fill={ink} fontSize="14" fontWeight="700">enzyme</text>
+        <text x="138" y="44" fill={pink} fontSize="12.5" fontWeight="700">active site</text>
+        <path d={`M160 50L${at(ex, ey, k, 76, 62).join(' ')}`} stroke={pink} strokeWidth="1.5"/>
+        <circle cx="415" cy="80" r="10" fill={green}/><path d="M410 80l4 4l7-9" fill="none" stroke="white" strokeWidth="2.5"/>
+        <text x="432" y="84" fill={ink} fontSize="13.5" fontWeight="700">complementary shape</text>
+        <text x="432" y="104" fill={green} fontSize="12.5">can bind</text>
+        <circle cx="415" cy="168" r="10" fill="#9aa8b1"/><path d="M411 164l8 8m0-8l-8 8" stroke="white" strokeWidth="2.5"/>
+        <text x="432" y="172" fill={ink} fontSize="13.5" fontWeight="700">different shape</text>
+        <text x="432" y="192" fill="#687a87" fontSize="12.5">does not bind well</text>
+      </>}
+    </svg>{!assessment && <p className="science-bio-note">Simplified specificity model · real enzyme molecules are flexible, not rigid locks.</p>}</div>
+  }
+
+  const k = .85, E1 = [14, 66], E2 = [214, 66], E3 = [414, 66]
+  return <div className="science-bio-model"><svg viewBox="0 0 600 262" role="img" aria-labelledby={title}><title id={title}>A three-stage enzyme model. 1: a substrate molecule with a shape complementary to the enzyme’s active site approaches. 2: the substrate is bound in the active site, forming a temporary enzyme–substrate complex. 3: the substrate has been broken into two products, which leave; the enzyme is unchanged, and a return arrow shows it can catalyse the reaction again.</title>
+    <defs>{marker('ink', ink)}{marker('green', green)}</defs>
+    {!assessment && <g fill={ink} fontSize="13" fontWeight="700" textAnchor="middle"><text x="100" y="22">1 · before</text><text x="300" y="22">2 · substrate bound</text><text x="500" y="22">3 · after</text></g>}
+
+    <g opacity={stageOpacity('before')}>
+      <Enzyme x={E1[0]} y={E1[1]}/>
+      <Molecule x={E1[0] + (106 + 34) * k} y={E1[1] + 63 * k}/>
+      {arrow('M176 96H138')}
+    </g>
+    <g opacity={stageOpacity('bound')}>
+      <Enzyme x={E2[0]} y={E2[1]}/>
+      <Molecule x={E2[0] + 106 * k} y={E2[1] + 63 * k}/>
+    </g>
+    <g opacity={stageOpacity('after')}>
+      <Enzyme x={E3[0]} y={E3[1]}/>
+      <Molecule x={538} y={98} part="A" rotate={-18}/>
+      <Molecule x={570} y={150} part="B" rotate={24}/>
+      {arrow('M562 88L580 76')}{arrow('M576 170L586 184')}
+    </g>
+    {arrow('M178 128H204', stageOpacity('bound'))}{arrow('M372 128H400', stageOpacity('after'))}
+    <path d="M462 180Q462 214 436 214H86Q62 214 62 186" fill="none" stroke={green} strokeWidth="2.4" strokeDasharray="7 5" markerEnd={`url(#${u}-green)`} opacity={stageOpacity('after')}/>
+
     {!assessment && <>
-      <text x="128" y="219" textAnchor="middle" fill={ink} fontSize="14" fontWeight="700">enzyme</text>
-      <text x="175" y="121" fill={pink} fontSize="12.5" fontWeight="700">active site</text>
-      <text x="375" y="92" fill={ink} fontSize="13.5" fontWeight="700">complementary shape</text>
-      <text x="375" y="112" fill={green} fontSize="12.5">can bind</text>
-      <text x="375" y="177" fill={ink} fontSize="13.5" fontWeight="700">different shape</text>
-      <text x="375" y="197" fill="#687a87" fontSize="12.5">does not bind well</text>
-      <circle cx="355" cy="80" r="10" fill={green}/><path d="M350 80l4 4l7-9" fill="none" stroke="white" strokeWidth="2.5"/>
-      <circle cx="355" cy="166" r="10" fill="#9aa8b1"/><path d="M351 162l8 8m0-8l-8 8" stroke="white" strokeWidth="2.5"/>
-    </>}
-  </svg>{!assessment && <p className="science-bio-note">Simplified specificity model · real enzyme molecules are flexible, not rigid locks.</p>}</div>
-  return <div className="science-bio-model"><svg viewBox="0 0 600 255" role="img" aria-labelledby={title}><title id={title}>A three-stage enzyme model showing a substrate approaching a complementary active site, an enzyme-substrate complex, and products leaving while the enzyme remains available for reuse.</title>
-    {!assessment && <g fill={ink} fontSize="13" fontWeight="700"><text x="100" y="24" textAnchor="middle">1 · before</text><text x="300" y="24" textAnchor="middle">2 · bound complex</text><text x="500" y="24" textAnchor="middle">3 · after</text></g>}
-    <g opacity={stageOpacity('before')}><EnzymeBlob x={35} y={63}/><Substrate x={145} y={112}/>{arrow(181,128,139,128)}</g>
-    <g opacity={stageOpacity('bound')}><EnzymeBlob x={235} y={63} bound/><Substrate x={307} y={112}/></g>
-    <g opacity={stageOpacity('after')}><EnzymeBlob x={435} y={63}/><path d="M545 111l18-9l13 13l-14 15l-17-7Z" fill={blue} stroke={ink} strokeWidth="2"/><path d="M548 145l14-10l18 8l-7 18l-20 2Z" fill="#88c4dd" stroke={ink} strokeWidth="2"/>{arrow(536,128,570,128)}</g>
-    {arrow(194,128,220,128, stageOpacity('bound'))}{arrow(394,128,420,128, stageOpacity('after'))}
-    {!assessment && <>
-      <path d="M116 80L103 119" stroke={pink} strokeWidth="1.5"/><text x="71" y="72" fill={pink} fontSize="12.5" fontWeight="700">active site</text>
-      <text x="166" y="177" textAnchor="middle" fill={ink} fontSize="12.5">substrate</text>
-      <text x="300" y="211" textAnchor="middle" fill={ink} fontSize="12.5">temporary enzyme–substrate complex</text>
-      <text x="565" y="187" textAnchor="middle" fill={ink} fontSize="12.5">products</text>
-      <text x="500" y="238" textAnchor="middle" fill={green} fontSize="12.5" fontWeight="700">enzyme available again</text>
+      <text x="14" y="52" fill={ink} fontSize="12.5" fontWeight="700">enzyme</text>
+      <text x="92" y="52" fill={pink} fontSize="12.5" fontWeight="700">active site</text>
+      <path d={`M112 57L${at(E1[0], E1[1], k, 74, 60).join(' ')}`} stroke={pink} strokeWidth="1.5"/>
+      <text x="142" y="164" textAnchor="middle" fill={ink} fontSize="12.5">substrate</text>
+      <text x="300" y="194" textAnchor="middle" fill={ink} fontSize="12.5">temporary enzyme–substrate complex</text>
+      <text x="540" y="198" textAnchor="middle" fill={ink} fontSize="12.5">products leave</text>
+      <text x="262" y="236" textAnchor="middle" fill={green} fontSize="12.5" fontWeight="700">enzyme unchanged: available again</text>
     </>}
   </svg>{!assessment && <p className="science-bio-note">The substrate changes into products. The enzyme is not used up.</p>}</div>
 }
@@ -159,6 +251,10 @@ function FoodTests({ focus, assessment }: { focus: string; assessment: boolean }
   return <div className="science-food-tests">{visible.map(i=>{ const [test,target,result] = testCards[i]; return <div key={test}><span className={`science-test-tube science-test-tube--${i}`} aria-hidden="true"/><strong>{test}</strong>{!assessment && <><small>tests for {target}</small><p>{result}</p></>}</div> })}</div>
 }
 
+function RateEquation({ breathing }: { breathing: boolean }) {
+  return <div className="science-micro-equation"><strong>{breathing ? 'breathing rate' : 'blood-flow rate'}</strong><span className="science-micro-equation__equals">=</span><div className="science-micro-equation__operation"><span>{breathing ? 'number of breaths' : 'volume of blood'}</span><b>÷</b><span>time</span></div><p>{breathing ? 'Example: 84 breaths ÷ 6 min = 14 breaths per minute' : 'Example: 1,260 cm³ ÷ 7 min = 180 cm³ per minute'}</p></div>
+}
+
 export function OrganisationVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
   if (focus.startsWith('organisation-') || focus.startsWith('stomach-')) return <Hierarchy focus={focus} assessment={assessment}/>
   if (focus.startsWith('epithelial')) return <Epithelial layer={focus.endsWith('layer')}/>
@@ -174,5 +270,7 @@ export function OrganisationVisual({ focus, assessment = false }: { focus: strin
   if (focus.startsWith('bile-')) return <BileVisual focus={focus}/>
   if (focus === 'food-sample' || focus === 'food-safety') return <div className="science-bio-cards"><div><strong>Prepare</strong><br/>one labelled food sample</div><div><strong>Test</strong><br/>use the named reagent safely</div><div><strong>Record</strong><br/>observation before conclusion</div></div>
   if (focus.startsWith('food-')) return <FoodTests focus={focus} assessment={assessment}/>
+  if (focus === 'breathing-rate') return <RateEquation breathing/>
+  if (focus === 'blood-flow-rate') return <RateEquation breathing={false}/>
   return <Hierarchy focus="organisation-compare" assessment={assessment}/>
 }
