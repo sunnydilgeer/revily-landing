@@ -14,6 +14,7 @@ import './TutorLessonBase.css'
 import '../../order-of-operations/variant-c/VariantC.css'
 import '../WrittenMethods.css'
 import './TutorMethod.css'
+import './NumberSenseLesson.css'
 import '../../fractions/tutor/FractionsLesson.css'
 import '../../fractions-decimals-percentages/tutor/FractionsDecimalsPercentages.css'
 import type { TutorWorking } from './model'
@@ -48,6 +49,7 @@ function AnswerWorking({ visual }: { visual: TutorWorking }) {
 export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodLesson }) {
   const labels = lesson.labels
   const compactFeedback = lesson.number >= 6
+  const numberSense = lesson.number === 10 || lesson.number === 11
   const engine = useLessonEngine(lesson)
   const state = lesson.states[engine.stateIndex]
   const { feedback, selection } = engine
@@ -65,7 +67,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     heading.current?.focus({ preventScroll: true })
     document.getElementById(`lesson-${lesson.number}`)?.scrollIntoView({ block: 'start', behavior: 'instant' })
   }, [state.id, lesson.number])
-  return <section className="numbers-lesson pvb-lesson wm-lesson wmt-lesson" id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
+  const question = <h3 ref={heading} tabIndex={-1}>{engine.completed ? 'Lesson complete' : state.content.title}</h3>
+  return <section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     <header className="pvb-topic"><h2 id={`wmt-topic-${lesson.number}`}>{labels[state.microSkillId]}</h2><span>{engine.stateIndex + 1} / {lesson.states.length}</span></header>
     <nav className="lesson-progress-nav" aria-label={`Lesson ${lesson.number} progress`}>{journey.map(topic => {
       const indexes = lesson.states.flatMap((candidate, i) => candidate.microSkillId === topic ? [i] : [])
@@ -78,9 +81,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       </button>
     })}</nav>
     <article className="pvb-activity" key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
-      <TutorMethodMedia state={state} />
-      {!teaching && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
-      <h3 ref={heading} tabIndex={-1}>{engine.completed ? 'Lesson complete' : state.content.title}</h3>
+      {numberSense && question}
+      {(!numberSense || teaching) && <TutorMethodMedia state={state} />}
+      {!numberSense && !teaching && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
+      {!numberSense && question}
       {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
       {(numeric || fraction || pair) && <form id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && (pair ? engine.quotientValue.trim() && engine.remainderValue.trim() : engine.inputValue.trim())) engine.submit() }}>
         {numeric ? <><label className="wmt-label" htmlFor={`answer-${state.id}`}>{state.answerLabel ?? 'Your answer'}</label>
@@ -91,7 +95,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
         const status = feedback ? correct ? 'correct' : selected ? 'incorrect' : 'neutral' : 'neutral'
         return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : '→'}</span></button>
       })}</div>}
-      {feedback && <div className={`pvb-feedback${feedback.correct ? ' pvb-feedback--correct' : ''}`} role="status"><p className="pvb-result">{feedback.correct ? 'Correct' : compactFeedback ? 'Not quite' : 'Here’s the working'}</p>{compactFeedback && !feedback.correct && <p>{feedback.message} {feedback.correctAnswer}</p>}{!compactFeedback && feedback.workedExplanation && <ExplanationSteps explanation={feedback.workedExplanation} />}</div>}
+      {numberSense && !teaching && !feedback && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
+      {feedback && (numberSense ? <div className={`ns-feedback${feedback.correct ? ' is-correct' : ''}`} role="status"><span aria-hidden="true">{feedback.correct ? '✓' : '↳'}</span><p>{feedback.correct ? 'Correct' : numeric ? <>Not quite. <strong>{feedback.correctAnswer}</strong></> : 'Not quite. The correct answer is highlighted above.'}</p></div> : <div className={`pvb-feedback${feedback.correct ? ' pvb-feedback--correct' : ''}`} role="status"><p className="pvb-result">{feedback.correct ? 'Correct' : compactFeedback ? 'Not quite' : 'Here’s the working'}</p>{compactFeedback && !feedback.correct && <p>{feedback.message} {feedback.correctAnswer}</p>}{!compactFeedback && feedback.workedExplanation && <ExplanationSteps explanation={feedback.workedExplanation} />}</div>)}
       {feedback && state.working && <AnswerWorking visual={state.working} />}
       <div className="pvb-actions">
         {engine.canGoBack && !engine.completed && <button type="button" className="lesson-secondary-action" onClick={engine.back}>← Back</button>}

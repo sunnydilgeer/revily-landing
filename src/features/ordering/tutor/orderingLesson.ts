@@ -31,28 +31,24 @@ type OrderModel = {
 }
 
 function orderingModel(model: OrderModel): TutorWorking {
-  return numberSenseWorking(model.expression, model.label, model.original, [
+  return numberSenseWorking(model.expression, model.label, [
     {
-      title: 'Write the values in a comparable form',
+      title: 'Make the values comparable',
       equation: model.expression,
       instruction: model.method,
-      rows: model.comparable,
-      note: 'Compare equal place values or equivalent forms',
+      ordering: { values: model.comparable },
     },
     {
-      title: 'Compare in the requested direction',
+      title: 'Compare the values',
       equation: model.comparison,
-      instruction: model.conclusion ?? 'Compare from the greatest place value first. When values tie, move one place to the right.',
-      rows: [...model.comparable, `Order: ${model.comparison.replaceAll('\\,', ' ')}`],
-      note: 'Complete comparison',
+      instruction: model.conclusion ?? (model.comparison.includes('-') ? 'On a number line, values farther left are smaller. Read each comparison in the direction shown.' : 'Compare the greatest place value first. If the digits match, move one place to the right.'),
+      ordering: { comparison: model.comparison },
     },
     {
-      title: 'Give the answer in the original forms',
+      title: 'Write the answer',
       equation: model.comparison,
-      instruction: `Keep the requested direction and return converted fractions or percentages to their original forms. The answer is ${model.answer}.`,
-      rows: [`Answer: ${model.answer}`],
-      result: model.answer,
-      note: `Answer: ${model.answer}`,
+      instruction: 'Use the original forms and units, and check that your answer follows the question’s requested direction.',
+      ordering: { answer: model.answer },
     },
   ])
 }
