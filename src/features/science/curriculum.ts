@@ -55,4 +55,5 @@ export const organisationSequence = [
 export const infectionSequence = [
   { title: 'Pathogens and how disease spreads', status: 'Built · easier-wording draft', spec: '4.3.1.1' },
   { title: 'Diseases people pass on', status: 'Built · easier-wording draft', spec: '4.3.1.2–4.3.1.3' },
+  { title: 'Plant diseases and malaria', status: 'Built · easier-wording draft', spec: '4.3.1.2; 4.3.1.4–4.3.1.5' },
 ] as const
