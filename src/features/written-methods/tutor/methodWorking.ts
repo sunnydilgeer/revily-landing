@@ -11,6 +11,16 @@ export type VennFrame = {
   left: number[]; middle: number[]; right: number[]
   hcf?: number; lcm?: number
 }
+export type RoundingFrame = {
+  original: string
+  target: string
+  kept: string
+  decisionDigit: string
+  remaining: string
+  stage: 'identify' | 'decide' | 'result'
+  roundsUp: boolean
+  answer?: string
+}
 export type MethodFrame = {
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
@@ -20,13 +30,14 @@ export type MethodFrame = {
   factorSplits?: FactorSplit[]; factorAnswer?: string
   numberLists?: NumberListFrame
   venn?: VennFrame
+  rounding?: RoundingFrame
 }
 export type MethodStep = {
   title: string; operation: string; equation: string; instruction: string; frame: MethodFrame
   focus?: { topPlace?: number; factorPlace: number } | { dividendIndex: number; dividendStart?: number } | { cell: string }
 }
 export type MethodExample = {
-  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'factor-tree' | 'number-lists' | 'venn'
+  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'factor-tree' | 'number-lists' | 'venn'
   expression: string; label: string; first: number; second: number
   grid?: { first: number[]; second: number[] }
   steps: MethodStep[]

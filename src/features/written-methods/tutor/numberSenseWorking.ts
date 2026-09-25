@@ -1,4 +1,4 @@
-import type { MethodStep, MethodWorking } from './methodWorking'
+import type { MethodStep, MethodWorking, RoundingFrame } from './methodWorking'
 
 export type NumberSenseStep = {
   title: string
@@ -7,6 +7,7 @@ export type NumberSenseStep = {
   rows?: string[]
   result?: string
   note?: string
+  rounding?: RoundingFrame
 }
 
 /**
@@ -30,11 +31,12 @@ export function numberSenseWorking(
       decimalRows: step.rows ?? initialRows,
       decimalResult: step.result,
       decimalNote: step.note,
+      rounding: step.rounding,
     },
   }))
 
   return {
     kind: 'method-worked',
-    examples: [{ method: 'decimal', expression, label, first: 0, second: 0, steps }],
+    examples: [{ method: authoredSteps.some(step => step.rounding) ? 'rounding' : 'decimal', expression, label, first: 0, second: 0, steps }],
   }
 }
