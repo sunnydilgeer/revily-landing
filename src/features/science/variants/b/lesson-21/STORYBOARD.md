@@ -131,3 +131,5 @@ State and frame shapes match Lessons 17–20. ✓ marks the correct option. Diag
 - Correct answer positions: 0 ×2, 1 ×3, 2 ×4, 3 ×2. The largest share is 36%.
 - Question diagrams: 4, all in `assessment` form (B21-04, B21-09, B21-12, B21-14).
 - Base scenes: the `disease-card` extended for plants, `plantdisease-chain` (one chain reused for both plant diseases), `malaria-cycle`, `disease-grid7` and the fungicide chart.
+
+> **Diagram revision (after build):** the teaching diagrams are now scenes (PlantDiseaseVisuals.tsx), not four-panel cards. See the QA note.

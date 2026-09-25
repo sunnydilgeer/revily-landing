@@ -16,10 +16,10 @@ The checks cover:
 - **Navigation:** the hub, the B3 chapter, the parser and the canonical links all include Lessons 19–20.
 
 Full-repository verification on 25 September 2026:
-- `npm run test:science` passed, including Lessons 1–20, navigation, variant, exam-preparation, Coach and revision regressions.
+- `npm run test:science` passed, including Lessons 1–22, navigation, variant, exam-preparation, Coach and revision regressions.
 - `npx tsc --noEmit` passed.
 - `npm run build` passed.
-- Recommendation chain 17 → 18 → 19 → 20 → practical passed.
+- Recommendation chain 17 → 18 → 19 → 20 → 21 → 22 → practical passed.
 - The Lesson 19 prerequisite resolves to Lesson 15's `B-HEALTH` skill.
 - Lessons 19–20 show the Infection and response sequence in the lesson-information panel.
 
@@ -39,3 +39,13 @@ Full-repository verification on 25 September 2026:
 - **Invented data:** the hand-gel and measles-vaccination data are illustrative, not real observations.
 - **Written-answer rubrics** for B19-16 and B20-18.
 - **Links:** the Lesson 1 link (bacterial cells) and Lesson 15 link (communicable disease) assume those lessons use those terms.
+
+## Diagram revision (Lesson 20)
+The four-panel disease cards were replaced with one scene per disease, following the Lesson 17–18 pattern: a base scene with the part being taught highlighted and the rest faded. The new component is `components/HumanDiseaseVisuals.tsx`. Focus IDs, lesson text and questions are unchanged.
+- **Salmonella:** a kitchen worktop (raw chicken, hand, salad), and a zoom into the gut where toxins damage the lining.
+- **Gonorrhoea:** two figures joined by an arrow, a zoom into paired bacteria, and a penicillin capsule. Resistant bacteria are drawn highlighted and survive; the barrier and a different antibiotic stop them.
+- **Measles:** the Lesson 19 classroom scene again, with measles virus in the droplets, then a rash and fever, then the vaccinated shield.
+- **HIV:** routes (sexual contact, blood and needles), a timeline of the signs, a zoom into the blood with immune cells, antiretroviral drugs blocking copying, and damaged immune cells at the late stage.
+- **Grids and cards** remain only for the end-of-lesson comparison (`disease-grid`), the question diagrams and the data chart.
+
+These were checked at 540px and 330px with 0 problems. The complete Science suite passes, including the full-flow, repair-route and storage-isolation checks. The strict type check and production build also pass.

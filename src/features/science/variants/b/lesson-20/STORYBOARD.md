@@ -143,3 +143,5 @@ State and frame shapes match `lesson-18/lesson.ts` and `teachingFrames.ts`. ✓ 
 - Correct answer positions: 0 ×2, 1 ×4, 2 ×4, 3 ×2. The largest share is 33%.
 - Question diagrams: 3, all in `assessment` form (B20-14, B20-15, B20-16).
 - Base scenes: `disease-card` (one four-part card, recoloured per disease, with the current part highlighted), `disease-grid`, the symptom card and the data chart.
+
+> **Diagram revision (after build):** the teaching diagrams are now scenes (HumanDiseaseVisuals.tsx), not four-panel cards. See the QA note.

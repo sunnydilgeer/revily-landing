@@ -310,81 +310,7 @@ function HandGelData() {
 }
 
 // ---------- Lesson 20: disease cards ----------
-type DiseaseKey = 'salmonella' | 'gonorrhoea' | 'measles' | 'hiv' | 'tmv' | 'blackspot' | 'malaria'
-type Panel = 'cause' | 'signs' | 'spread' | 'stop'
-const PANELS: Panel[] = ['cause', 'signs', 'spread', 'stop']
-const panelTitle: Record<Panel, string> = { cause: 'caused by', signs: 'signs', spread: 'spreads by', stop: 'stopped by' }
-type DiseaseInfo = { name: string; pathogen: 'bacteria' | 'virus' | 'fungus' | 'protist'; plant?: boolean; order: string[]; lit: Record<string, Panel[]>; text: Record<Panel, string[]>; stepText?: Record<string, Partial<Record<Panel, string[]>>> }
-// Plant cards reuse the same four panels; the last two are retitled (see plantTitle).
-const plantTitle: Record<Panel, string> = { ...panelTitle, spread: 'effect on the plant', stop: 'spread and control' }
-const diseases: Record<DiseaseKey, DiseaseInfo> = {
-  salmonella: { name: 'Salmonella', pathogen: 'bacteria', order: ['cause', 'signs', 'spread', 'stop'], lit: {},
-    text: { cause: ['bacteria that', 'make toxins'], signs: ['fever, stomach', 'cramps, vomiting,', 'diarrhoea'], spread: ['food with Salmonella', 'in it; unclean', 'kitchens and hands'], stop: ['UK poultry are', 'vaccinated; clean', 'hands and kitchens'] } },
-  gonorrhoea: { name: 'Gonorrhoea', pathogen: 'bacteria', order: ['cause', 'signs', 'treat', 'resistant', 'stop'], lit: { cause: ['cause', 'spread'], treat: ['stop'], resistant: ['stop'] },
-    text: { cause: ['bacteria; a sexually', 'transmitted disease', '(STD)'], signs: ['thick yellow or', 'green discharge;', 'pain when urinating'], spread: ['sexual contact'], stop: ['condoms (a barrier', 'method); the right', 'antibiotic'] } },
-  measles: { name: 'Measles', pathogen: 'virus', order: ['cause', 'signs', 'stop'], lit: { cause: ['cause', 'spread'] },
-    text: { cause: ['a virus'], signs: ['fever (a high', 'temperature);', 'red skin rash'], spread: ['droplets from', 'coughs and sneezes'], stop: ['most young', 'children are', 'vaccinated'] } },
-  hiv: { name: 'HIV', pathogen: 'virus', order: ['cause', 'signs', 'stop', 'late'], lit: { cause: ['cause', 'spread'], late: ['signs'] },
-    text: { cause: ['a virus'], signs: ['flu-like at first,', 'then no symptoms', 'for years'], spread: ['sexual contact;', 'body fluids such', 'as blood (sharing', 'needles)'], stop: ['antiretroviral', 'drugs stop it', 'copying itself'] } },
-  // Lesson 21. The "effect" step is taught on the photosynthesis chain, so the card reveals it when the next card step appears.
-  tmv: { name: 'Tobacco mosaic virus (TMV)', pathogen: 'virus', plant: true, order: ['cause', 'signs', 'effect', 'spread'], lit: { effect: ['spread'], spread: ['stop'] },
-    text: { cause: ['a virus'], signs: ['a mosaic pattern:', 'pale patches on', 'the leaves'], spread: ['less chlorophyll, so', 'less photosynthesis;', 'poor growth'], stop: ['touch: plants,', 'hands and tools'] } },
-  blackspot: { name: 'Rose black spot', pathogen: 'fungus', plant: true, order: ['cause', 'signs', 'effect', 'spread', 'stop'], lit: { effect: ['spread'], spread: ['stop'] },
-    text: { cause: ['a fungus'], signs: ['purple or black', 'spots; leaves turn', 'yellow and drop'], spread: ['fewer leaves, so less', 'photosynthesis;', 'poor growth'], stop: ['water or wind;', 'fungicide; destroy', 'spotted leaves'] },
-    stepText: { spread: { stop: ['spread by water', 'or wind'] } } },
-  malaria: { name: 'Malaria', pathogen: 'protist', order: ['cause', 'signs', 'stop'], lit: { cause: ['cause', 'spread'] },
-    text: { cause: ['a protist'], signs: ['fever that keeps', 'coming back;', 'it can kill'], spread: ['mosquito bites:', 'the mosquito is', 'a vector'], stop: ['stop mosquitoes', 'breeding; sleep', 'under nets'] } },
-}
-function PanelIcon({ disease, panel, x, y, step = '' }: { disease: DiseaseKey; panel: Panel; x: number; y: number; step?: string }) {
-  const d = diseases[disease]
-  if (disease === 'tmv' && panel === 'stop') return <g transform={`translate(${x} ${y - 6}) scale(.26)`}><Hands x={0} y={0} /></g>
-  if (disease === 'blackspot' && panel === 'stop' && step !== 'stop') return <g>{[-10, 0, 10].map(dx => <path key={dx} d={`M${x + dx - 8} ${y - 12 + dx / 3}q6 -5 12 0t12 0`} stroke={water} strokeWidth="2" fill="none" />)}{[-8, 4].map(dx => <path key={dx} d={`M${x + dx} ${y + 6}q4 6 0 10q-4 -4 0 -10z`} fill={water} />)}</g>
-  if (disease === 'blackspot' && panel === 'stop') return <g><rect x={x - 12} y={y - 8} width={20} height={28} rx="4" fill="#dfeee0" stroke={ink} strokeWidth="1.6" /><path d={`M${x - 8} ${y - 8}v-8h14l6 4`} stroke={ink} strokeWidth="1.6" fill="none" />{[0, 6, 12].map(dy => <circle key={dy} cx={x + 18 + dy / 2} cy={y - 16 + dy} r="1.8" fill={water} />)}</g>
-  if (panel === 'cause') return d.pathogen === 'bacteria' ? <Bacterium cx={x - 6} cy={y} length={34} thick={16} seed={disease === 'salmonella' ? 3 : 9} angle={-10} />
-    : d.pathogen === 'fungus' ? <g transform={`translate(${x} ${y + 4}) scale(.42) translate(${-x} ${-y})`}><Fungus cx={x} cy={y} /></g>
-    : d.pathogen === 'protist' ? <g transform={`translate(${x} ${y}) scale(.5) translate(${-x} ${-y})`}><Protist cx={x} cy={y} /></g>
-    : <Virus cx={x} cy={y} r={10} seed={disease === 'hiv' ? 7 : disease === 'tmv' ? 5 : 3} />
-  if (d.plant && panel === 'signs') return <LeafIcon x={x} y={y} kind={disease === 'tmv' ? 'mosaic' : 'spots'} />
-  if (d.plant && panel === 'spread') return <g><LeafIcon x={x} y={y - 6} kind={disease === 'tmv' ? 'mosaic' : 'spots'} small /><Arrow x1={x + 18} y1={y - 14} x2={x + 18} y2={y + 16} colour={amber} width={2} /></g>
-  if (disease === 'malaria' && panel === 'spread') return <g transform={`translate(${x} ${y}) scale(.7) translate(${-x} ${-y})`}><Mosquito x={x - 4} y={y + 2} /></g>
-  if (panel === 'signs') return <g><rect x={x - 5} y={y - 22} width={10} height={34} rx="5" fill="white" stroke={ink} strokeWidth="1.6" /><circle cx={x} cy={y + 14} r="8" fill={red} stroke={ink} strokeWidth="1.6" /><rect x={x - 2} y={y - 6} width={4} height={18} fill={red} /></g>
-  if (panel === 'spread') {
-    if (disease === 'salmonella') return <g><path d={`M${x - 14} ${y + 12}C${x - 26} ${y - 4} ${x - 6} ${y - 24} ${x + 10} ${y - 12}C${x + 20} ${y - 4} ${x + 6} ${y + 10} ${x - 4} ${y + 10}Z`} fill={amberFill} stroke={amber} strokeWidth="1.8" /><path d={`M${x - 10} ${y + 10}l-8 10`} stroke="#e9e1d3" strokeWidth="5" strokeLinecap="round" /></g>
-    if (disease === 'measles') return <Droplets from={[x - 16, y]} to={[x + 18, y]} count={7} spread={24} seed={21} />
-    if (disease === 'hiv') return <path d={`M${x} ${y - 18}C${x + 10} ${y - 4} ${x + 14} ${y + 4} ${x + 14} ${y + 8}A14 14 0 0 1 ${x - 14} ${y + 8}C${x - 14} ${y + 4} ${x - 10} ${y - 4} ${x} ${y - 18}Z`} fill={red} stroke="#8f2f38" strokeWidth="1.4" />
-    return <g><circle cx={x - 9} cy={y - 8} r="8" fill={skin} stroke={skinLine} strokeWidth="1.4" /><circle cx={x + 9} cy={y - 8} r="8" fill={skin} stroke={skinLine} strokeWidth="1.4" /><path d={`M${x - 19} ${y + 16}q10 -18 20 0M${x - 1} ${y + 16}q10 -18 20 0`} fill={jumperA} stroke={ink} strokeWidth="1.4" /></g>
-  }
-  return <path d={`M${x} ${y - 18}l15 6v12c0 12 -7 18 -15 22c-8 -4 -15 -10 -15 -22v-12z`} fill="white" stroke={ink} strokeWidth="1.8" />
-}
-const PANEL_POS: Record<Panel, Pt> = { cause: [10, 64], signs: [274, 64], spread: [10, 180], stop: [274, 180] }
-function DiseaseCard({ focus }: { focus: string }) {
-  const [, disease, step] = focus.split('-') as [string, DiseaseKey, string]
-  const d = diseases[disease]
-  const lit = d.lit[step] || [step as Panel]
-  const reached = d.order.indexOf(step)
-  const revealed = new Set<Panel>(d.order.slice(0, reached + 1).flatMap(s => d.lit[s] || [s as Panel]))
-  const stopText = disease === 'gonorrhoea' && step === 'treat' ? ['treated with', 'penicillin, an', 'antibiotic']
-    : disease === 'gonorrhoea' && step === 'resistant' ? ['many strains now', 'resistant to', 'penicillin; other', 'antibiotics used'] : d.text.stop
-  const signsText = disease === 'hiv' && step === 'late' ? ['flu-like, then no', 'symptoms for years;', 'untreated: immune', 'cells damaged', '(late stage: AIDS)'] : d.text.signs
-  const titles = d.plant ? plantTitle : panelTitle
-  const textFor = (panel: Panel) => d.stepText?.[step]?.[panel] ?? (panel === 'stop' ? stopText : panel === 'signs' ? signsText : d.text[panel])
-  const describe = PANELS.filter(p => revealed.has(p)).map(p => `${titles[p]}: ${textFor(p).join(' ')}`).join('. ')
-  const headerFill = d.plant ? '#eef6ea' : d.pathogen === 'bacteria' ? '#fbeef4' : '#f3eefb'
-  const kind = { bacteria: 'bacterial', virus: 'viral', fungus: 'fungal', protist: 'protist' }[d.pathogen] + (d.plant ? ' disease of plants' : ' disease')
-  return <Diagram viewBox="0 0 540 300" title={`A disease card for ${d.name}, filled in so far. ${describe}. The part being taught now is highlighted.`}>
-    <rect x={10} y={8} width={520} height={46} rx="10" fill={headerFill} stroke={panelLine} />
-    <text x={26} y={38} fill={ink} fontSize="19" fontWeight="700">{d.name}</text>
-    <text x={514} y={37} textAnchor="end" fill={bugDeep} fontSize="13" fontWeight="600">{kind}</text>
-    {PANELS.map(panel => { const [x, y] = PANEL_POS[panel]; const on = lit.includes(panel), shown = revealed.has(panel), text = textFor(panel)
-      return <g key={panel} opacity={on ? 1 : shown ? .55 : faded}>
-        <rect x={x} y={y} width={256} height={108} rx="10" fill={on ? 'white' : panelFill} stroke={on ? ink : panelLine} strokeWidth={on ? 2.2 : 1.4} />
-        <text x={x + 14} y={y + 22} fill={ink} fontSize="13" fontWeight="700">{titles[panel]}</text>
-        {shown ? <><PanelIcon disease={disease} panel={panel} x={x + 34} y={y + 66} step={step} />
-          <text x={x + 72} y={y + 68 - 8 * (text.length - 1)} fill={ink} fontSize="13" fontWeight={on ? 600 : 500}>{text.map((line, i) => <tspan key={line} x={x + 72} dy={i ? 16 : 0}>{line}</tspan>)}</text></>
-          : <text x={x + 128} y={y + 66} textAnchor="middle" fill="#9aabb8" fontSize="22" fontWeight="700">?</text>}
-      </g> })}
-  </Diagram>
-}
+// The per-disease cards were replaced by scenes: HumanDiseaseVisuals.tsx (Lesson 20) and PlantDiseaseVisuals.tsx (Lesson 21).
 
 const GRID: Array<{ name: string; rows: string[][] }> = [
   { name: 'Salmonella', rows: [['bacteria'], ['food; unclean', 'kitchens'], ['fever, cramps,', 'vomiting,', 'diarrhoea']] },
@@ -553,7 +479,6 @@ export function InfectionVisual({ focus, assessment = false }: { focus: string; 
   if (focus === 'disease-grid-question') return <DiseaseGrid assessment={assessment} question />
   if (focus === 'disease-symptom-card') return <SymptomCard assessment={assessment} />
   if (focus === 'disease-measles-data') return <MeaslesData />
-  if (/^disease-(?:salmonella|gonorrhoea|measles|hiv|tmv|blackspot|malaria)-/.test(focus)) return <DiseaseCard focus={focus} />
   if (focus.startsWith('plantdisease-chain-')) return <PhotoChain focus={focus} assessment={assessment} />
   if (focus === 'plantdisease-fungicide-data') return <FungicideData />
   if (focus.startsWith('malaria-cycle-')) return <MalariaCycle focus={focus} assessment={assessment} />
@@ -564,4 +489,4 @@ export function InfectionVisual({ focus, assessment = false }: { focus: string; 
 
 // Shared with DefenceVisuals.tsx (Lessons 22–23) so every B3 diagram uses the same drawing style.
 export const infectionPalette = { ink, water, dropFill, faded, bug, bugFill, bugDeep, amber, amberFill, red, skin, skinLine, jumperA, jumperB, tissueFill, tissueLine, panelFill, panelLine }
-export { seeded, blob, Diagram, Arrow, Label, Badge, Virus, Bacterium, BodyCell, Mini }
+export { seeded, blob, Diagram, Arrow, Label, Badge, Virus, Bacterium, BodyCell, Mini, Person, Droplets, Hands, Fungus, Protist, Mosquito }

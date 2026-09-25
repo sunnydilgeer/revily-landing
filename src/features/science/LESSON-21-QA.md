@@ -17,10 +17,10 @@ The checks cover:
 - **Navigation:** the hub, the B3 chapter [19, 20, 21], the parser and the links include Lesson 21, and Lesson 20 now leads to Lesson 21.
 
 Full-repository verification on 25 September 2026:
-- `npm run test:science` passed, including Lessons 1–21, navigation, variant, exam-preparation, Coach and revision regressions.
+- `npm run test:science` passed, including Lessons 1–22, navigation, variant, exam-preparation, Coach and revision regressions.
 - `npx tsc --noEmit` passed.
 - `npm run build` passed.
-- Recommendation chain 17 → 18 → 19 → 20 → 21 → practical passed.
+- Recommendation chain 17 → 18 → 19 → 20 → 21 → 22 → practical passed.
 - The B3 chapter, hub, parser, canonical links and isolated storage records include Lesson 21.
 
 ## Checked (visual)
@@ -32,3 +32,13 @@ Full-repository verification on 25 September 2026:
 - **Wording:** "Malaria can kill" and "fever that keeps coming back" were kept to plain language on purpose.
 - **Invented data:** the fungicide data is illustrative.
 - **Written-answer rubric** for B21-16.
+
+## Diagram revision
+The disease cards and the column-of-boxes chain were replaced with scenes in `components/PlantDiseaseVisuals.tsx`, following the Lesson 17–18 pattern. Focus IDs, lesson text and questions are unchanged.
+- **TMV:** a tomato plant; a zoomed-in mosaic leaf; sunlight arrows absorbed by green parts and passing through pale patches; a stunted plant beside a healthy one; spread on a hand.
+- **Rose black spot:** a rose bush; a zoomed-in spotted leaf with fungus; yellow leaves falling; sunlight missing the lost leaves (the same chain as TMV, written on the scene); wind and rain carrying the fungus; a fungicide spray and a bin.
+- **Malaria:** a person with a zoom into the blood showing protists; a temperature graph with fever that keeps coming back; a bed with a mosquito net, and still water where mosquitoes breed crossed out.
+- **Unchanged:** the question diagrams (the chain with a blank step, the numbered bite cycle, the seven-disease grid) and the fungicide chart.
+- **Removed:** the old disease-card code in `InfectionVisuals.tsx`, which is no longer used.
+
+All 86 diagram states for Lessons 19–22 were checked at 540px and 330px with 0 problems. The complete Science suite passes, including the full-flow, repair-route and storage-isolation checks. The strict type check and production build also pass.
