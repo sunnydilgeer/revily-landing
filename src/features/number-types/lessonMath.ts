@@ -89,9 +89,23 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     return value !== null && interaction.lowerBound !== undefined && interaction.upperBound !== undefined
       && value > interaction.lowerBound && value < interaction.upperBound
   }
+  if (interaction.acceptanceRule === 'integerInterval') {
+    const value = parseDecimalOrFraction(response)
+    return value !== null && Number.isInteger(value)
+      && interaction.lowerBound !== undefined && interaction.upperBound !== undefined
+      && value > interaction.lowerBound && value < interaction.upperBound
+  }
   if (interaction.acceptanceRule === 'greaterThan') {
     const value = parseDecimalOrFraction(response)
     return value !== null && interaction.lowerBound !== undefined && value > interaction.lowerBound
+  }
+  if (interaction.acceptanceRule === 'exactDecimalPlaces') {
+    const text = String(response ?? '').trim().replace(/−/g, '-').replace(/·/g, '.')
+    const match = text.match(/^[+-]?\d+\.(\d+)$/)
+    const expectedValue = parseDecimalOrFraction(expected)
+    return match !== null && expectedValue !== null
+      && Number(text) === expectedValue
+      && match[1].length === interaction.requiredDecimalPlaces
   }
   if (interaction.type === 'quotientRemainderInput') {
     if (!isDivisionAnswer(expected) || !isDivisionResponse(response)) return false

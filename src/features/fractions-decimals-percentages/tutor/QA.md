@@ -17,5 +17,5 @@ Visual checks:
 - Correct and incorrect submissions both expose replayable full working.
 - The lesson progress strip contains six conversion sections plus Review.
 - Contents lists Lesson 9 last and expands its section list when current.
-- The overview shows nine lessons and the full Lesson 9 title.
+- The eleven-lesson overview keeps Lesson 9 in ninth position and shows its full title.
 - At a mobile viewport, the three equivalent-form cards stack and all fraction inputs remain usable.

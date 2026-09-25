@@ -14,6 +14,8 @@
         "verify:lessons67:tutor": "node scripts/verify-lessons-6-7-tutor.cjs",
         "verify:lesson8:tutor": "node scripts/verify-fractions-tutor.cjs",
         "verify:lesson9:tutor": "node scripts/verify-fractions-decimals-percentages-tutor.cjs",
+        "verify:lesson10:tutor": "node scripts/verify-rounding-tutor.cjs",
+        "verify:lesson11:tutor": "node scripts/verify-ordering-tutor.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs"
     },
     "dependencies": {
