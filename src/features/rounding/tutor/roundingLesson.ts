@@ -35,30 +35,36 @@ type RoundModel = {
 function roundingModel(model: RoundModel): TutorWorking {
   const roundsUp = model.cutDigit >= 5
   const answerWithUnit = `${model.answer}${model.suffix ? ` ${model.suffix}` : ''}`
-  return numberSenseWorking(model.expression ?? model.original.replaceAll(' ', '\\,'), `Round to ${model.target}`, [
-    `Original: ${model.original}`,
-    `Cut-off: ${model.split}`,
-  ], [
+  const [kept = '', discarded = ''] = model.split.split('|').map(part => part.trim())
+  const decisionDigit = discarded.charAt(0)
+  const roundingFrame = (stage: 'identify' | 'decide' | 'result') => ({
+    original: model.original,
+    target: model.target,
+    kept,
+    decisionDigit,
+    remaining: discarded.slice(1),
+    stage,
+    roundsUp,
+    answer: stage === 'result' ? answerWithUnit : undefined,
+  })
+  return numberSenseWorking(model.expression ?? model.original.replaceAll(' ', '\\,'), `Round to ${model.target}`, [], [
     {
       title: 'Find the last digit to keep',
       equation: model.split.replace('|', '\\mid').replaceAll(' ', '\\,'),
-      instruction: `For ${model.target}, the ${model.keptDigit} is the last digit kept. The digit immediately after it is the cut-off digit.`,
-      note: `${model.keptDigit} is the last digit kept`,
+      instruction: `For ${model.target}, the ${model.keptDigit} is the last digit kept. The digit immediately after it is the decision digit.`,
+      rounding: roundingFrame('identify'),
     },
     {
-      title: 'Use the cut-off digit',
+      title: 'Use the decision digit',
       equation: roundsUp ? `${model.cutDigit}\\geq5` : `${model.cutDigit}<5`,
       instruction: `${model.cutDigit} is ${roundsUp ? '5 or more, so round the kept digit up' : 'below 5, so leave the kept digit unchanged'}.${model.carry ? ` ${model.carry}` : ''}`,
-      rows: [`Cut-off digit: ${model.cutDigit}`, roundsUp ? 'Round up' : 'Keep the digit'],
-      note: roundsUp ? '5 or more rounds up' : 'Below 5 stays the same',
+      rounding: roundingFrame('decide'),
     },
     {
       title: 'Write the rounded value',
       equation: `${model.original.replaceAll(' ', '\\,')}\\to${model.answer.replaceAll(' ', '\\,')}`,
-      instruction: `${model.finalNote ?? 'Remove digits after a decimal cut-off, or replace whole-number digits after the cut-off with zeroes.'} The rounded value is ${answerWithUnit}.`,
-      rows: [`Original: ${model.original}`, `Rounded: ${answerWithUnit}`],
-      result: answerWithUnit,
-      note: `Answer: ${answerWithUnit}`,
+      instruction: `${model.finalNote ?? 'Remove decimal digits to the right of the rounding point, or replace later whole-number digits with zeroes.'} The rounded value is ${answerWithUnit}.`,
+      rounding: roundingFrame('result'),
     },
   ])
 }
