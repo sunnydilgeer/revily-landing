@@ -21,6 +21,11 @@ export type RoundingFrame = {
   roundsUp: boolean
   answer?: string
 }
+export type OrderingFrame = {
+  values?: string[]
+  comparison?: string
+  answer?: string
+}
 export type MethodFrame = {
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
@@ -31,13 +36,14 @@ export type MethodFrame = {
   numberLists?: NumberListFrame
   venn?: VennFrame
   rounding?: RoundingFrame
+  ordering?: OrderingFrame
 }
 export type MethodStep = {
   title: string; operation: string; equation: string; instruction: string; frame: MethodFrame
   focus?: { topPlace?: number; factorPlace: number } | { dividendIndex: number; dividendStart?: number } | { cell: string }
 }
 export type MethodExample = {
-  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'factor-tree' | 'number-lists' | 'venn'
+  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'factor-tree' | 'number-lists' | 'venn'
   expression: string; label: string; first: number; second: number
   grid?: { first: number[]; second: number[] }
   steps: MethodStep[]

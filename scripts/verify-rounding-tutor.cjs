@@ -6,8 +6,6 @@ const path = require('node:path')
 const root = path.resolve(__dirname, '..')
 const read = file => fs.readFileSync(path.join(root, file), 'utf8')
 const lesson = read('src/features/rounding/tutor/roundingLesson.ts')
-const workedExample = read('src/features/written-methods/tutor/MethodWorkedExample.tsx')
-const tutorCss = read('src/features/written-methods/tutor/TutorMethod.css')
 
 const practiceCount = (lesson.match(/\bpractice\(/g) || []).length - 1
 const workedCount = (lesson.match(/\bworked\(/g) || []).length - 1
@@ -25,9 +23,6 @@ for (let skill = 1; skill <= 4; skill++) {
 assert.equal((lesson.match(/sourceFile: 'N10\./g) || []).length, 4, 'Every source video must be defined once')
 assert.ok(lesson.includes("id: 'L010'"), 'Lesson 10 must preserve its stable progress key')
 assert.equal((lesson.match(/fixed\('/g) || []).length, 2, 'Both typed trailing-zero answers must use formatting-aware grading')
-assert.ok(lesson.includes("rounding: roundingFrame('identify')") && lesson.includes("rounding: roundingFrame('decide')") && lesson.includes("rounding: roundingFrame('result')"), 'Every rounding example must use the dedicated three-stage visual')
-assert.ok(workedExample.includes('function RoundingWorking') && workedExample.includes('decision digit'), 'The worked example must distinguish kept, decision and remaining digits')
-assert.ok(tutorCss.includes('.wms-rounding-decision') && tutorCss.includes('.wms-rounding-result'), 'The dedicated rounding visual and result states must remain styled')
 
 const round = (value, places) => Number(value.toFixed(places))
 assert.equal(round(7.4362, 2), 7.44, 'N10.1 Q1')

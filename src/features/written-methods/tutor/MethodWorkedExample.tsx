@@ -3,6 +3,7 @@
 import { useId, useState, type CSSProperties } from 'react'
 import { MathSpan } from '../../../../components/MathText'
 import { methodProgress, type MethodExample, type MethodFrame, type MethodStep, type MethodWorking } from './methodWorking'
+import { isNumberSenseWorking, NumberSenseWorkedExample } from './NumberSenseWorkedExample'
 
 function Equation({ math, operation }: { math: string; operation?: string }) {
   if (operation && math.startsWith(operation)) math = `\\underline{${operation}}${math.slice(operation.length)}`
@@ -72,35 +73,6 @@ function DecimalWorking({ frame }: { frame: MethodFrame }) {
   </div>
 }
 
-function RoundingWorking({ frame }: { frame: MethodFrame }) {
-  const rounding = frame.rounding
-  if (!rounding) return null
-  const comparison = rounding.roundsUp ? `${rounding.decisionDigit} is 5 or more` : `${rounding.decisionDigit} is below 5`
-  const direction = rounding.roundsUp ? 'Round up' : 'Keep it the same'
-  const label = rounding.stage === 'result'
-    ? `${rounding.original} rounded to ${rounding.target} is ${rounding.answer}`
-    : `${rounding.original}. Keep ${rounding.kept}; decision digit ${rounding.decisionDigit}${rounding.remaining ? `; remaining digits ${rounding.remaining}` : ''}`
-
-  return <div className={`wms-rounding wms-rounding--${rounding.stage}`} role="img" aria-label={label}>
-    <div className="wms-rounding-target" aria-hidden="true"><span>Round to</span><strong>{rounding.target}</strong></div>
-    {rounding.stage !== 'result' ? <>
-      <div className="wms-rounding-number" aria-hidden="true">
-        <span className="wms-rounding-kept"><small>Keep</small><b>{rounding.kept}</b></span>
-        <i className="wms-rounding-boundary" />
-        <span className="wms-rounding-decision"><small>Check next</small><b>{rounding.decisionDigit}</b></span>
-        {rounding.remaining && <span className="wms-rounding-remaining"><small>Ignore</small><b>{rounding.remaining}</b></span>}
-      </div>
-      {rounding.stage === 'decide' && <div className={`wms-rounding-rule ${rounding.roundsUp ? 'is-up' : 'is-same'}`} aria-hidden="true">
-        <span className="wms-rounding-rule__digit">{rounding.decisionDigit}</span>
-        <span><small>{comparison}</small><strong>{direction}</strong></span>
-        <span className="wms-rounding-rule__arrow">{rounding.roundsUp ? '↑' : '→'}</span>
-      </div>}
-    </> : <div className="wms-rounding-result" aria-hidden="true">
-      <span>{rounding.original}</span><i>→</i><strong>{rounding.answer}</strong>
-    </div>}
-  </div>
-}
-
 function FactorTree({ example, frame }: { example: MethodExample; frame: MethodFrame }) {
   const markerId = `factor-tree-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
   const splits = new Map(frame.factorSplits?.map(split => [split.value, split]) ?? [])
@@ -167,7 +139,6 @@ function WorkingDiagram({ example, frame, step }: { example: MethodExample; fram
   if (example.method === 'grid') return <Grid example={example} frame={frame} step={step} />
   if (example.method === 'long-division') return <LongDivision example={example} frame={frame} step={step} />
   if (example.method === 'division') return <Division example={example} frame={frame} step={step} />
-  if (example.method === 'rounding') return <RoundingWorking frame={frame} />
   if (example.method === 'decimal') return <DecimalWorking frame={frame} />
   if (example.method === 'factor-tree') return <FactorTree example={example} frame={frame} />
   if (example.method === 'number-lists') return <NumberLists frame={frame} />
@@ -175,40 +146,40 @@ function WorkingDiagram({ example, frame, step }: { example: MethodExample; fram
 }
 
 export function MethodWorkedExample({ visual }: { visual: MethodWorking }) {
+  return isNumberSenseWorking(visual) ? <NumberSenseWorkedExample visual={visual} /> : <ArithmeticWorkedExample visual={visual} />
+}
+
+function ArithmeticWorkedExample({ visual }: { visual: MethodWorking }) {
   const [revealed, setRevealed] = useState(0)
   const { total, working, active, current, completed } = methodProgress(visual, revealed)
-  const rounding = working[active]?.example.method === 'rounding'
   const controls = <div className="wm-controls wms-controls">
     <button type="button" className="wms-control--back" aria-label="Previous calculation step" disabled={!revealed} onClick={() => setRevealed(n => n - 1)}>← Back</button>
     <button type="button" className="wms-control--replay" aria-label="Replay calculation" disabled={!revealed} onClick={() => setRevealed(0)}>Replay</button>
     <button type="button" className="wms-control--next" aria-label="Next calculation step" disabled={revealed === total} onClick={() => setRevealed(n => n + 1)}>Next <span aria-hidden="true">→</span></button>
   </div>
-  return <figure className={`wms-worked${rounding ? ' wms-worked--rounding' : ''}`} data-revealed-steps={revealed}>
-    {rounding ? <div className="wms-step-progress" aria-label={revealed ? `Step ${revealed} of ${total}` : 'Ready to start'}>
-      <span>{revealed ? `Step ${revealed} of ${total}` : 'Ready to start'}</span>
-      <div aria-hidden="true">{Array.from({ length: total }, (_, index) => <i className={index < revealed ? 'is-complete' : index === revealed ? 'is-current' : ''} key={index} />)}</div>
-    </div> : <p className="wm-step-label">{revealed ? `Step ${revealed} of ${total}` : 'Ready to start'}</p>}
+  return <figure className="wms-worked" data-revealed-steps={revealed}>
+    <p className="wm-step-label">{revealed ? `Step ${revealed} of ${total}` : 'Ready to start'}</p>
     {working.map(({ example, count }, index) => index > active ? null : <div className="wms-example" key={index}>
       {working.length > 1 && <p className="wm-step-label">Example {index + 1}: {example.label}</p>}
-      {example.method !== 'rounding' && <div className="wmt-original" aria-label="Original calculation"><MathSpan latex={example.expression} display /></div>}
+      <div className="wmt-original" aria-label="Original calculation"><MathSpan latex={example.expression} display /></div>
       <WorkingDiagram example={example} frame={example.steps[count - 1]?.frame ?? {}} step={index === active ? current : undefined} />
       {index === active && <>
         {current ? <div className="wms-current" role="group" aria-label="Current calculation step" data-step-index={revealed}>
           <p className="wms-current-title">{current.title}</p>
-          {example.method !== 'rounding' && <div className="wmt-math"><Equation math={current.equation} operation={current.operation} /></div>}
+          <div className="wmt-math"><Equation math={current.equation} operation={current.operation} /></div>
           <p>{current.instruction}</p>
         </div> : <p className="wms-start">Click Next to begin the working.</p>}
         {controls}
       </>}
     </div>)}
-    {!rounding && completed.length > 1 && <p className="wms-history-title">Earlier working</p>}
-    {!rounding && <ol className="wms-history" aria-label="Earlier calculation working">{completed.slice(0, -1).map(({ step, example, index, number }) => <li key={`${index}-${number}`}>
+    {completed.length > 1 && <p className="wms-history-title">Earlier working</p>}
+    <ol className="wms-history" aria-label="Earlier calculation working">{completed.slice(0, -1).map(({ step, example, index, number }) => <li key={`${index}-${number}`}>
       <span className="wms-history-number" aria-hidden="true">{number}</span><div>
         {working.length > 1 && number === 1 && <span className="wmt-line-label">Example {index + 1}: {example.label}</span>}
         <div className="wmt-math"><Equation math={step.equation} /></div>
         <p>{step.instruction}</p>
       </div>
-    </li>)}</ol>}
+    </li>)}</ol>
     <p className="sr-only" aria-live="polite">{working.flatMap(w => w.example.steps.slice(0, w.count)).at(-1)?.instruction ?? 'No calculation steps revealed.'}</p>
   </figure>
 }
@@ -216,5 +187,6 @@ export function MethodWorkedExample({ visual }: { visual: MethodWorking }) {
 export function AnswerMethodWorking({ visual }: { visual: MethodWorking }) {
   const [open, setOpen] = useState(false)
   const id = useId()
+  if (isNumberSenseWorking(visual)) return <div className="ns-answer-working"><button type="button" className="ns-explanation-toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>{open ? 'Hide explanation' : 'Show explanation'} <span aria-hidden="true">{open ? '−' : '+'}</span></button><div id={id} hidden={!open}>{open && <MethodWorkedExample visual={visual} />}</div></div>
   return <div className="wms-answer-working"><button type="button" className="lesson-secondary-action" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>{open ? 'Hide step by step' : 'See this calculation step by step'}</button><div id={id} className="pvb-stage" hidden={!open}><MethodWorkedExample visual={visual} /></div></div>
 }

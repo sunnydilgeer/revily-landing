@@ -47,7 +47,7 @@ function roundingModel(model: RoundModel): TutorWorking {
     roundsUp,
     answer: stage === 'result' ? answerWithUnit : undefined,
   })
-  return numberSenseWorking(model.expression ?? model.original.replaceAll(' ', '\\,'), `Round to ${model.target}`, [], [
+  return numberSenseWorking(model.expression ?? model.original.replaceAll(' ', '\\,'), `Round to ${model.target}`, [
     {
       title: 'Find the last digit to keep',
       equation: model.split.replace('|', '\\mid').replaceAll(' ', '\\,'),
@@ -63,7 +63,7 @@ function roundingModel(model: RoundModel): TutorWorking {
     {
       title: 'Write the rounded value',
       equation: `${model.original.replaceAll(' ', '\\,')}\\to${model.answer.replaceAll(' ', '\\,')}`,
-      instruction: `${model.finalNote ?? 'Remove decimal digits to the right of the rounding point, or replace later whole-number digits with zeroes.'} The rounded value is ${answerWithUnit}.`,
+      instruction: model.finalNote ?? 'Remove decimal digits to the right of the rounding point, or replace later whole-number digits with zeroes.',
       rounding: roundingFrame('result'),
     },
   ])
