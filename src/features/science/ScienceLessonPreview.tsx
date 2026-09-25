@@ -23,6 +23,8 @@ import { healthFrames as healthFramesB } from './variants/b/lesson-15/teachingFr
 import { riskCancerFrames as riskCancerFramesB } from './variants/b/lesson-16/teachingFrames'
 import { plantTissueFrames as plantTissueFramesB } from './variants/b/lesson-17/teachingFrames'
 import { plantTransportFrames as plantTransportFramesB } from './variants/b/lesson-18/teachingFrames'
+import { pathogenFrames as pathogenFramesB } from './variants/b/lesson-19/teachingFrames'
+import { humanDiseaseFrames as humanDiseaseFramesB } from './variants/b/lesson-20/teachingFrames'
 import { ExplanationSteps } from '../number-types/components/ExplanationSteps'
 import { evidenceProfile, progress, recommendedNext, retrievalDueAt } from './engine'
 import { lesson1 } from './lesson-1/lesson'
@@ -48,6 +50,8 @@ import { healthSections } from './variants/b/lesson-15/lesson'
 import { riskCancerSections } from './variants/b/lesson-16/lesson'
 import { plantTissueSections } from './variants/b/lesson-17/lesson'
 import { plantTransportSections } from './variants/b/lesson-18/lesson'
+import { pathogenSections } from './variants/b/lesson-19/lesson'
+import { humanDiseaseSections } from './variants/b/lesson-20/lesson'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import type { LessonNumber } from './lessonNavigation'
 import { createCoachPreviewSessionEngine, createPreviewSessionEngine } from './previewSession'
@@ -57,7 +61,7 @@ import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { AreaModel } from './components/OtherCellModels'
 import { MicroscopyVisual } from './components/MicroscopyVisuals'
 import { PracticalVisual } from './components/PracticalVisuals'
-import { cellBiologySequence, organisationSequence, scienceCurriculum } from './curriculum'
+import { cellBiologySequence, infectionSequence, organisationSequence, scienceCurriculum } from './curriculum'
 import type { EvidenceDimension, ScienceState } from './types'
 import './ScienceLesson.css'
 import './FriendlyLesson.css'
@@ -87,7 +91,7 @@ function newSessionId() { return window.crypto.randomUUID() }
 const sessionEngines: Record<number, ReturnType<typeof createPreviewSessionEngine>> = { 1: createPreviewSessionEngine(lesson1), 2: createPreviewSessionEngine(lesson2), 3: createPreviewSessionEngine(lesson3), 4: createPreviewSessionEngine(lesson4), 5: createPreviewSessionEngine(lesson5), 6: createPreviewSessionEngine(lesson6) }
 const sessionEnginesB = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
 const coachEngines = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
-const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB, 10: lungsFramesB, 11: heartFramesB, 12: vesselsFramesB, 13: bloodFramesB, 14: cardiovascularFramesB, 15: healthFramesB, 16: riskCancerFramesB, 17: plantTissueFramesB, 18: plantTransportFramesB }
+const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB, 10: lungsFramesB, 11: heartFramesB, 12: vesselsFramesB, 13: bloodFramesB, 14: cardiovascularFramesB, 15: healthFramesB, 16: riskCancerFramesB, 17: plantTissueFramesB, 18: plantTransportFramesB, 19: pathogenFramesB, 20: humanDiseaseFramesB }
 const transportStory = [
   { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
   { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
@@ -104,7 +108,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   const currentLessonItem = scienceLessons.find(item => item.number === lessonNumber)!
   const nextLessonItem = scienceLessons.find(item => item.number === lessonNumber + 1)
   const practicalLesson = [3, 6, 8, 9].includes(lessonNumber)
-  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections, 10: lungsSections, 11: heartSections, 12: vesselsSections, 13: bloodSections, 14: cardiovascularSections, 15: healthSections, 16: riskCancerSections, 17: plantTissueSections, 18: plantTransportSections }[lessonNumber]
+  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections, 10: lungsSections, 11: heartSections, 12: vesselsSections, 13: bloodSections, 14: cardiovascularSections, 15: healthSections, 16: riskCancerSections, 17: plantTissueSections, 18: plantTransportSections, 19: pathogenSections, 20: humanDiseaseSections }[lessonNumber]
   const customFrames = variant === 'b' ? framesB[lessonNumber] : { 1: undefined, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames }[lessonNumber]
   const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : variant === 'b' ? sessionEnginesB : sessionEngines)[lessonNumber]
   function reducer(session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) {
@@ -287,7 +291,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
         <summary>Lesson information and options</summary>
         {!isCoach && <ScienceVariantSwitch variant={variant} lessonNumber={lessonNumber} activity={state?.id} />}
         <nav className="science-lesson-options__links" aria-label="Lesson resources">{isCoach ? <Link href="/preview/scienceB?view=review">Your short review</Link> : <><Link href={`/preview/science/coverage?variant=${variant}`}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={`/preview/science/exam?variant=${variant}`}>Lesson 6 exam practice</Link>}</>}</nav>
-        <details className="science-curriculum"><summary>Where this lesson fits</summary><p>AQA Combined Science: Trilogy · Foundation. {scienceLessons.length} lessons are built in this wording route, awaiting qualified teacher review.</p><ol>{(lessonNumber <= 6 ? cellBiologySequence : organisationSequence).map(item => <li key={item.title}><strong>{item.title}</strong><span>{item.status} · {item.spec}</span></li>)}</ol>{scienceCurriculum.map(strand => <section key={strand.strand}><h3>{strand.strand}</h3>{strand.papers.map(paper => <p key={paper.paper}>Paper {paper.paper}: {paper.topics.map(([code, title]) => `${code} ${title}`).join(' · ')}</p>)}</section>)}<p>Working scientifically, maths and practical skills run across all three subjects. Digital lessons prepare learners for practical work but never certify hands-on completion.</p></details>
+        <details className="science-curriculum"><summary>Where this lesson fits</summary><p>AQA Combined Science: Trilogy · Foundation. {scienceLessons.length} lessons are built in this wording route, awaiting qualified teacher review.</p><ol>{(lessonNumber <= 6 ? cellBiologySequence : lessonNumber >= 19 ? infectionSequence : organisationSequence).map(item => <li key={item.title}><strong>{item.title}</strong><span>{item.status} · {item.spec}</span></li>)}</ol>{scienceCurriculum.map(strand => <section key={strand.strand}><h3>{strand.strand}</h3>{strand.papers.map(paper => <p key={paper.paper}>Paper {paper.paper}: {paper.topics.map(([code, title]) => `${code} ${title}`).join(' · ')}</p>)}</section>)}<p>Working scientifically, maths and practical skills run across all three subjects. Digital lessons prepare learners for practical work but never certify hands-on completion.</p></details>
         <details className="science-curriculum"><summary>Lesson sources</summary><ul>{lesson.sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.locator}</span></li>)}</ul></details>
         <button type="button" className="science-text-button" onClick={() => setResetConfirm(true)}><RotateCcw size={14} /> Restart local preview</button>
         {resetConfirm && <div className="science-reset-confirm"><p>Restart this lesson? Submitted answers will normally be remembered as previously seen, so a repeat is practice rather than fresh evidence.</p><label className="science-reset-confirm__history"><input type="checkbox" checked={clearPracticeHistory} onChange={event => setClearPracticeHistory(event.target.checked)} /> Clear this lesson’s local practice history too</label>{clearPracticeHistory && <p>This resets only this lesson’s local preview record. Use it to test a fresh lesson; it does not change any account or production learning history.</p>}<div><button type="button" className="science-secondary" onClick={() => { setResetConfirm(false); setClearPracticeHistory(false) }}>Keep my progress</button><button type="button" className="science-primary" onClick={restart}>Restart lesson</button></div></div>}
@@ -300,7 +304,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
 }
 
 function LessonVisual({ state, feedbackVisible }: { state: ScienceState; feedbackVisible: boolean }) {
-  if (/^B(?:[4-9]|1[0-8])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
+  if (/^B(?:[4-9]|1\d|20)-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
   if (state.id === 'B3-01') return <PracticalVisual focus="onion" />
   if (state.id === 'B3-17') return <PracticalVisual focus="drawing-choice" />
   if (state.id === 'B2-01') return <MicroscopyVisual focus="light" />

@@ -134,7 +134,8 @@ export function recommendedNext(profile: Profile, retrievalDue: boolean, lesson?
     'B-CELL-006': 'B-ORG-007', 'B-ORG-007': 'B-ORG-008', 'B-ORG-008': 'B-ORG-009',
     'B-ORG-009': 'B-ORG-010', 'B-ORG-010': 'B-ORG-011', 'B-ORG-011': 'B-ORG-012',
     'B-ORG-012': 'B-ORG-013', 'B-ORG-013': 'B-ORG-014', 'B-ORG-014': 'B-ORG-015', 'B-ORG-015': 'B-ORG-016',
-    'B-ORG-016': 'B-ORG-017', 'B-ORG-017': 'B-ORG-018' }
+    'B-ORG-016': 'B-ORG-017', 'B-ORG-017': 'B-ORG-018',
+    'B-ORG-018': 'B-INF-019', 'B-INF-019': 'B-INF-020' }
   const isVariantB = currentLessonId.endsWith('-B')
   const baseLessonId = isVariantB ? currentLessonId.slice(0, -2) : currentLessonId
   const baseNextLessonId = (isVariantB ? easierOnlyNextIds : nextLessonIds)[baseLessonId]

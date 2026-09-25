@@ -124,10 +124,10 @@ for(let i=0;i<6;i++) {
     assert.equal(e.restorePreviewSession({...opening,lessonId:a.id}),null)
   })
 }
-check('24 separate records; A/B answers and drafts cannot leak or cross-restore',()=>{
+check('26 separate records; A/B answers and drafts cannot leak or cross-restore',()=>{
   const items=[...originals,...simpler]
   const engines=items.map(x=>createPreviewSessionEngine(x.lesson))
-  assert.equal(new Set(engines.map(e=>e.storageKey)).size,24)
+  assert.equal(new Set(engines.map(e=>e.storageKey)).size,26)
   engines.forEach((e,i)=>{
     const original=e.createPreviewSession('isolation')
     for(const other of engines) if(e!==other)assert.equal(other.restorePreviewSession(original),null)
