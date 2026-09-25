@@ -52,6 +52,14 @@ export type MicroSkillId =
   | 'percentage-to-decimal'
   | 'fraction-to-percentage'
   | 'percentage-to-fraction'
+  | 'rounding-decimal-places'
+  | 'rounding-significant-figures'
+  | 'rounding-powers-of-ten'
+  | 'rounding-carrying'
+  | 'ordering-decimals'
+  | 'ordering-large-numbers'
+  | 'ordering-negative-numbers'
+  | 'ordering-fractions-decimals-percentages'
   | 'mixed'
 
 export type LessonPhase =
@@ -98,9 +106,10 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'greaterThan' | 'fraction' | 'rational' | 'rationalInterval'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval'
   responseShape?: 'fraction' | 'mixedNumber'
   requiredDenominator?: number
+  requiredDecimalPlaces?: number
   requireSimplest?: boolean
   requireMixedForm?: boolean
   dividend?: number
