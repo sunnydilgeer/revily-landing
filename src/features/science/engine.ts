@@ -130,7 +130,11 @@ export function recommendedNext(profile: Profile, retrievalDue: boolean, lesson?
   }
   // Pending written marking does not block safe forward learning or falsely award explanation skill.
   const nextLessonIds: Record<string, string> = { 'B-CELL-001': 'B-CELL-002', 'B-CELL-002': 'B-CELL-003', 'B-CELL-003': 'B-CELL-004', 'B-CELL-004': 'B-CELL-005', 'B-CELL-005': 'B-CELL-006' }
-  const easierOnlyNextIds: Record<string, string> = { ...nextLessonIds, 'B-CELL-006': 'B-ORG-007', 'B-ORG-007': 'B-ORG-008', 'B-ORG-008': 'B-ORG-009' }
+  const easierOnlyNextIds: Record<string, string> = { ...nextLessonIds,
+    'B-CELL-006': 'B-ORG-007', 'B-ORG-007': 'B-ORG-008', 'B-ORG-008': 'B-ORG-009',
+    'B-ORG-009': 'B-ORG-010', 'B-ORG-010': 'B-ORG-011', 'B-ORG-011': 'B-ORG-012',
+    'B-ORG-012': 'B-ORG-013', 'B-ORG-013': 'B-ORG-014', 'B-ORG-014': 'B-ORG-015', 'B-ORG-015': 'B-ORG-016',
+    'B-ORG-016': 'B-ORG-017', 'B-ORG-017': 'B-ORG-018' }
   const isVariantB = currentLessonId.endsWith('-B')
   const baseLessonId = isVariantB ? currentLessonId.slice(0, -2) : currentLessonId
   const baseNextLessonId = (isVariantB ? easierOnlyNextIds : nextLessonIds)[baseLessonId]

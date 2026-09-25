@@ -2,8 +2,8 @@
 
 import { useEffect, useReducer, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronUp, Lightbulb, RotateCcw, X } from 'lucide-react'
-import { getScienceHubLessons, getScienceLessons, scienceHubHref, scienceLessonHref, type ScienceVariant } from './lessonNavigation'
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronRight, ChevronUp, Lightbulb, ListTree, RotateCcw, X } from 'lucide-react'
+import { getScienceHubLessons, getScienceLessons, scienceChapters, scienceHubHref, scienceLessonHref, type ScienceVariant } from './lessonNavigation'
 import { ScienceVariantSwitch } from './components/ScienceVariantSwitch'
 import { teachingFrames as cellsFramesB } from './variants/b/lesson-1/teachingFrames'
 import { microscopyFrames as microscopyFramesB } from './variants/b/lesson-2/teachingFrames'
@@ -14,6 +14,15 @@ import { transportFrames as transportFramesB } from './variants/b/lesson-6/teach
 import { enzymeFrames as enzymeFramesB } from './variants/b/lesson-8/teachingFrames'
 import { digestionFrames as digestionFramesB } from './variants/b/lesson-9/teachingFrames'
 import { organisationFrames as organisationFramesB } from './variants/b/lesson-7/teachingFrames'
+import { lungsFrames as lungsFramesB } from './variants/b/lesson-10/teachingFrames'
+import { heartFrames as heartFramesB } from './variants/b/lesson-11/teachingFrames'
+import { vesselsFrames as vesselsFramesB } from './variants/b/lesson-12/teachingFrames'
+import { bloodFrames as bloodFramesB } from './variants/b/lesson-13/teachingFrames'
+import { cardiovascularFrames as cardiovascularFramesB } from './variants/b/lesson-14/teachingFrames'
+import { healthFrames as healthFramesB } from './variants/b/lesson-15/teachingFrames'
+import { riskCancerFrames as riskCancerFramesB } from './variants/b/lesson-16/teachingFrames'
+import { plantTissueFrames as plantTissueFramesB } from './variants/b/lesson-17/teachingFrames'
+import { plantTransportFrames as plantTransportFramesB } from './variants/b/lesson-18/teachingFrames'
 import { ExplanationSteps } from '../number-types/components/ExplanationSteps'
 import { evidenceProfile, progress, recommendedNext, retrievalDueAt } from './engine'
 import { lesson1 } from './lesson-1/lesson'
@@ -30,6 +39,15 @@ import { transportFrames } from './lesson-6/teachingFrames'
 import { organisationSections } from './variants/b/lesson-7/lesson'
 import { enzymeSections } from './variants/b/lesson-8/lesson'
 import { digestionSections } from './variants/b/lesson-9/lesson'
+import { lungsSections } from './variants/b/lesson-10/lesson'
+import { heartSections } from './variants/b/lesson-11/lesson'
+import { vesselsSections } from './variants/b/lesson-12/lesson'
+import { bloodSections } from './variants/b/lesson-13/lesson'
+import { cardiovascularSections } from './variants/b/lesson-14/lesson'
+import { healthSections } from './variants/b/lesson-15/lesson'
+import { riskCancerSections } from './variants/b/lesson-16/lesson'
+import { plantTissueSections } from './variants/b/lesson-17/lesson'
+import { plantTransportSections } from './variants/b/lesson-18/lesson'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import type { LessonNumber } from './lessonNavigation'
 import { createCoachPreviewSessionEngine, createPreviewSessionEngine } from './previewSession'
@@ -43,6 +61,7 @@ import { cellBiologySequence, organisationSequence, scienceCurriculum } from './
 import type { EvidenceDimension, ScienceState } from './types'
 import './ScienceLesson.css'
 import './FriendlyLesson.css'
+import './AnatomyVisuals.css'
 
 const cellsSections = [
   { id: 'B1-01', label: 'Start here', detail: 'Your starting knowledge' },
@@ -68,7 +87,13 @@ function newSessionId() { return window.crypto.randomUUID() }
 const sessionEngines: Record<number, ReturnType<typeof createPreviewSessionEngine>> = { 1: createPreviewSessionEngine(lesson1), 2: createPreviewSessionEngine(lesson2), 3: createPreviewSessionEngine(lesson3), 4: createPreviewSessionEngine(lesson4), 5: createPreviewSessionEngine(lesson5), 6: createPreviewSessionEngine(lesson6) }
 const sessionEnginesB = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
 const coachEngines = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
-const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB }
+const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB, 10: lungsFramesB, 11: heartFramesB, 12: vesselsFramesB, 13: bloodFramesB, 14: cardiovascularFramesB, 15: healthFramesB, 16: riskCancerFramesB, 17: plantTissueFramesB, 18: plantTransportFramesB }
+const transportStory = [
+  { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
+  { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
+  { lesson: 11, title: 'The heart pumps blood', route: 'Blood completes two linked circuits' },
+  { lesson: 12, title: 'Vessels deliver and exchange', route: 'Blood reaches body cells and returns' },
+] as const
 
 export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', initialActivity, experience = 'lessons' }: { lessonNumber?: LessonNumber; variant?: ScienceVariant; initialActivity?: string; experience?: 'lessons' | 'coach' }) {
   const isCoach = experience === 'coach'
@@ -79,7 +104,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   const currentLessonItem = scienceLessons.find(item => item.number === lessonNumber)!
   const nextLessonItem = scienceLessons.find(item => item.number === lessonNumber + 1)
   const practicalLesson = [3, 6, 8, 9].includes(lessonNumber)
-  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections }[lessonNumber]
+  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections, 10: lungsSections, 11: heartSections, 12: vesselsSections, 13: bloodSections, 14: cardiovascularSections, 15: healthSections, 16: riskCancerSections, 17: plantTissueSections, 18: plantTransportSections }[lessonNumber]
   const customFrames = variant === 'b' ? framesB[lessonNumber] : { 1: undefined, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames }[lessonNumber]
   const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : variant === 'b' ? sessionEnginesB : sessionEngines)[lessonNumber]
   function reducer(session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) {
@@ -98,6 +123,15 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   const previousId = useRef<string | null>('loading')
   const state = lesson.states.find(s => s.id === session.currentId)
   const stateIndex = state ? lesson.states.indexOf(state) : lesson.states.length
+  const currentSectionIndex = sections.reduce((active, section, index) => {
+    const startIndex = lesson.states.findIndex(item => item.id === section.id)
+    return startIndex >= 0 && startIndex <= stateIndex ? index : active
+  }, 0)
+  const digestionPhase = lessonNumber === 9 && state
+    ? stateIndex < lesson.states.findIndex(item => item.id === 'B9-13')
+      ? { number: 1, title: 'Digestion', detail: 'Food becomes small, soluble molecules that can enter the blood.' }
+      : { number: 2, title: 'Food tests', detail: 'Laboratory observations identify carbohydrates, proteins and lipids.' }
+    : null
   const submitted = state ? session.answers[state.id] : undefined
   const hintOpen = Boolean(state && session.hintsOpen.includes(state.id))
   const completion = progress(lesson, session.completedIds)
@@ -136,6 +170,12 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   useEffect(() => {
     if (menuOpen) menuPanel.current?.querySelector<HTMLButtonElement>('button')?.focus()
   }, [menuOpen])
+  useEffect(() => {
+    if (!menuOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = previousOverflow }
+  }, [menuOpen])
 
   function closeMenu() { setMenuOpen(false); setResetConfirm(false); setClearPracticeHistory(false); menuButton.current?.focus() }
   function jump(id: string) { dispatch({ type: 'jump', id }); closeMenu() }
@@ -163,29 +203,29 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   }}>
     <header className="science-header">
       <a className="science-brand" href="/" aria-label="Revily home"><span aria-hidden="true">R</span><strong>Revily</strong></a>
-      <Link className="science-header__subject science-all-lessons" href={hubHref}><ArrowLeft size={15} aria-hidden="true" /> {isCoach ? 'Science Coach' : 'All lessons'}</Link>
-      <button ref={menuButton} className="science-menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="science-lesson-menu" onClick={() => menuOpen ? closeMenu() : setMenuOpen(true)}>Lesson menu {menuOpen ? <X size={16} /> : <ChevronDown size={16} />}</button>
+      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href={hubHref}>{isCoach ? 'Science Coach' : 'Science'}</Link><ChevronRight size={14} aria-hidden="true" /><span>Biology</span><ChevronRight size={14} aria-hidden="true" /><strong>{lessonNumber <= 6 ? 'Cell biology' : 'Organisation'}</strong></nav>
+      <button ref={menuButton} className="science-menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="science-lesson-menu" onClick={() => menuOpen ? closeMenu() : setMenuOpen(true)}><ListTree size={17} aria-hidden="true" /> Contents</button>
     </header>
-    {menuOpen && <div className="science-menu" id="science-lesson-menu" ref={menuPanel} role="region" aria-label="Science lesson menu">
-      <div className="science-menu__heading"><div><span className="science-eyebrow">Local preview</span><h2>Explore the lesson</h2></div><button className="science-icon-button" type="button" aria-label="Close lesson menu" onClick={closeMenu}><X size={19} /></button></div>
-      <nav className="science-lesson-picker" aria-label="Switch science lesson">{scienceLessons.map(item => <Link key={item.number} href={lessonHref(item.number)} aria-current={item.number === lessonNumber ? 'page' : undefined}><span>{item.number}</span>{item.title}</Link>)}</nav>
-      <p className="science-muted">Jump to a section to inspect the prototype. Skipping screens does not count as completion.</p>
-      <nav className="science-menu__sections" aria-label="Preview sections">{sections.map(section => <button type="button" key={section.id} onClick={() => jump(section.id)}><strong>{section.label}</strong><span>{section.detail}</span><ArrowRight size={16} /></button>)}</nav>
-      <nav className="science-menu__footer" aria-label="Exam preparation">{isCoach ? <Link href="/preview/scienceB?view=review">Your short review</Link> : <><Link href={`/preview/science/coverage?variant=${variant}`}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={`/preview/science/exam?variant=${variant}`}>Lesson 6 exam practice</Link>}</>}</nav>
-      <details className="science-curriculum"><summary>Where this lesson fits</summary><p>AQA Combined Science: Trilogy · Foundation. {scienceLessons.length} lessons are built in this wording route, awaiting qualified teacher review.</p><ol>{(lessonNumber <= 6 ? cellBiologySequence : organisationSequence).map(item => <li key={item.title}><strong>{item.title}</strong><span>{item.status} · {item.spec}</span></li>)}</ol>{scienceCurriculum.map(strand => <section key={strand.strand}><h3>{strand.strand}</h3>{strand.papers.map(paper => <p key={paper.paper}>Paper {paper.paper}: {paper.topics.map(([code, title]) => `${code} ${title}`).join(' · ')}</p>)}</section>)}<p>Working scientifically, maths and practical skills run across all three subjects. Digital lessons prepare learners for practical work but never certify hands-on completion.</p></details>
-      <div className="science-menu__footer"><Link href={hubHref}>{isCoach ? 'Back to Science Coach' : 'All science lessons'} <ArrowRight size={15} /></Link><a href="/preview">Open Maths preview <ArrowRight size={15} /></a><button type="button" className="science-text-button" onClick={() => setResetConfirm(true)}><RotateCcw size={14} /> Restart local preview</button></div>
-      {resetConfirm && <div className="science-reset-confirm"><p>Restart this lesson? Submitted answers will normally be remembered as previously seen, so a repeat is practice rather than fresh evidence.</p><label className="science-reset-confirm__history"><input type="checkbox" checked={clearPracticeHistory} onChange={event => setClearPracticeHistory(event.target.checked)} /> Clear this lesson’s local practice history too</label>{clearPracticeHistory && <p>This resets only this lesson’s local preview record. Use it to test a fresh lesson; it does not change any account or production learning history.</p>}<div><button type="button" className="science-secondary" onClick={() => { setResetConfirm(false); setClearPracticeHistory(false) }}>Keep my progress</button><button type="button" className="science-primary" onClick={restart}>Restart lesson</button></div></div>}
-      <p className="science-menu__note">{storageAvailable ? 'Progress is saved on this browser only. No account or production mastery records are updated.' : 'Browser storage is unavailable. Progress lasts only while this page stays open.'}</p>
-      <details className="science-curriculum"><summary>Lesson sources</summary><ul>{lesson.sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.locator}</span></li>)}</ul></details>
-    </div>}
+    {menuOpen && <><button className="science-menu-backdrop" type="button" aria-label="Close course contents" onClick={closeMenu} /><aside className="science-menu" id="science-lesson-menu" ref={menuPanel} role="dialog" aria-modal="true" aria-label="Course contents">
+      <div className="science-menu__heading"><div><h2>Course contents</h2><span>Biology · {scienceLessons.length} lessons</span></div><button className="science-icon-button" type="button" aria-label="Close course contents" onClick={closeMenu}><X size={19} /></button></div>
+      <nav className="science-course-outline" aria-label="Biology course contents">{scienceChapters.map(chapter => <section key={chapter.code} className="science-course-outline__chapter" aria-labelledby={`outline-${chapter.code}`}>
+        <h3 id={`outline-${chapter.code}`}>{chapter.code} · {chapter.title}</h3>
+        <ol>{scienceLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).map(item => <li key={item.number} className={item.number === lessonNumber ? 'is-current' : undefined}>
+          <Link href={lessonHref(item.number)} aria-current={item.number === lessonNumber ? 'page' : undefined}><span>{item.number}</span><strong>{item.title}</strong>{item.number === lessonNumber && <small>{completion.completed}/{completion.total}</small>}</Link>
+          {item.number === lessonNumber && <ol className="science-course-outline__sections">{sections.map((section, index) => <li key={section.id}><button type="button" className={index === currentSectionIndex ? 'is-current' : undefined} aria-current={index === currentSectionIndex ? 'step' : undefined} onClick={() => jump(section.id)}><span>{section.label}</span></button></li>)}</ol>}
+        </li>)}</ol>
+      </section>)}</nav>
+      <Link className="science-menu__all-lessons" href={hubHref}><ArrowLeft size={15} aria-hidden="true" /> {isCoach ? 'Science Coach home' : 'All science lessons'}</Link>
+    </aside></>}
     <main className="science-main" aria-busy={!ready} inert={menuOpen || undefined}>
-      {!isCoach && <ScienceVariantSwitch variant={variant} lessonNumber={lessonNumber} activity={state?.id} />}
       <div className="science-topic"><div><span className="science-eyebrow">{lessonNumber <= 6 ? 'B1 Cell biology' : 'B2 Organisation'} · Lesson {lessonNumber}</span><h1>{lesson.title}</h1></div><span className="science-topic__count">{state ? `${stateIndex + 1} / ${lesson.states.length}` : `${completion.completed} / ${completion.total}`}</span></div>
+      {lessonNumber >= 9 && lessonNumber <= 12 && <nav className="science-transport-story" aria-label="How Lessons 9 to 12 connect"><span className="science-eyebrow">The transport story</span><ol>{transportStory.map(item => <li key={item.lesson} className={item.lesson === lessonNumber ? 'is-current' : undefined}><Link href={lessonHref(item.lesson)} aria-current={item.lesson === lessonNumber ? 'page' : undefined}><span>{item.lesson}</span><strong>{item.title}</strong><small>{item.route}</small></Link></li>)}</ol></nav>}
       <div className="science-progress" role="progressbar" aria-label="Lesson completion" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(completion.fraction * 100)}><span style={{ width: `${completion.fraction * 100}%` }} /></div>
+      {digestionPhase && <div className="science-lesson-phase"><span>Part {digestionPhase.number} of 2</span><div><strong>{digestionPhase.title}</strong><small>{digestionPhase.detail}</small></div></div>}
       {!ready ? <article className="science-activity"><p className="science-muted">Opening your lesson…</p></article> : state ? <article className="science-activity" data-state-id={state.id}>
         {state.kind !== 'teaching' && state.exam && <div className="science-activity__meta"><span className="science-exam-label">Exam-style · {state.exam.marks} {state.exam.marks === 1 ? 'mark' : 'marks'}</span></div>}
         {state.kind === 'teaching' && state.media ? <>
-          <TeachingChunk state={state} customFrames={customFrames?.[state.id]} onExposure={expose} suspended={menuOpen} headingRef={heading} key={state.id} />
+          <TeachingChunk state={state} customFrames={customFrames?.[state.id]} onExposure={expose} headingRef={heading} key={state.id} />
         </> : state.kind === 'teaching' && state.steps ? <>
           <h2 ref={heading} tabIndex={-1} className="science-question science-question--teach">{state.title}</h2>
           <WorkedReasoning state={state} onExposure={expose} key={state.id} />
@@ -243,6 +283,16 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
         {session.lastExposureAt && <p className="science-summary__retrieval">Delayed retrieval is not assessed yet. Earliest eligible check: <time dateTime={retrievalDueAt(session.lastExposureAt)}>{new Date(retrievalDueAt(session.lastExposureAt)).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</time>. Retrieval scheduling is not live in this preview.</p>}
         <div className="science-actions">{completion.fraction !== 1 ? <button className="science-primary" type="button" onClick={() => jump(lesson.states.find(s => !session.completedIds.includes(s.id))!.id)}>Return to unfinished activity <ArrowRight size={16} /></button> : <button className="science-secondary" type="button" onClick={() => jump(lesson.states.find(s => s.kind === 'teaching')!.id)}><RotateCcw size={16} /> Review the teaching</button>}</div>
       </article>}
+      <details className="science-lesson-options">
+        <summary>Lesson information and options</summary>
+        {!isCoach && <ScienceVariantSwitch variant={variant} lessonNumber={lessonNumber} activity={state?.id} />}
+        <nav className="science-lesson-options__links" aria-label="Lesson resources">{isCoach ? <Link href="/preview/scienceB?view=review">Your short review</Link> : <><Link href={`/preview/science/coverage?variant=${variant}`}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={`/preview/science/exam?variant=${variant}`}>Lesson 6 exam practice</Link>}</>}</nav>
+        <details className="science-curriculum"><summary>Where this lesson fits</summary><p>AQA Combined Science: Trilogy · Foundation. {scienceLessons.length} lessons are built in this wording route, awaiting qualified teacher review.</p><ol>{(lessonNumber <= 6 ? cellBiologySequence : organisationSequence).map(item => <li key={item.title}><strong>{item.title}</strong><span>{item.status} · {item.spec}</span></li>)}</ol>{scienceCurriculum.map(strand => <section key={strand.strand}><h3>{strand.strand}</h3>{strand.papers.map(paper => <p key={paper.paper}>Paper {paper.paper}: {paper.topics.map(([code, title]) => `${code} ${title}`).join(' · ')}</p>)}</section>)}<p>Working scientifically, maths and practical skills run across all three subjects. Digital lessons prepare learners for practical work but never certify hands-on completion.</p></details>
+        <details className="science-curriculum"><summary>Lesson sources</summary><ul>{lesson.sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.locator}</span></li>)}</ul></details>
+        <button type="button" className="science-text-button" onClick={() => setResetConfirm(true)}><RotateCcw size={14} /> Restart local preview</button>
+        {resetConfirm && <div className="science-reset-confirm"><p>Restart this lesson? Submitted answers will normally be remembered as previously seen, so a repeat is practice rather than fresh evidence.</p><label className="science-reset-confirm__history"><input type="checkbox" checked={clearPracticeHistory} onChange={event => setClearPracticeHistory(event.target.checked)} /> Clear this lesson’s local practice history too</label>{clearPracticeHistory && <p>This resets only this lesson’s local preview record. Use it to test a fresh lesson; it does not change any account or production learning history.</p>}<div><button type="button" className="science-secondary" onClick={() => { setResetConfirm(false); setClearPracticeHistory(false) }}>Keep my progress</button><button type="button" className="science-primary" onClick={restart}>Restart lesson</button></div></div>}
+        <p className="science-menu__note">{storageAvailable ? 'Progress is saved on this browser only. No account or production mastery records are updated.' : 'Browser storage is unavailable. Progress lasts only while this page stays open.'}</p>
+      </details>
       <p className="science-preview-note">AQA Combined Science: Trilogy · Foundation <span aria-hidden="true">/</span> Draft preview · teacher review pending</p>
       {!storageAvailable && <p className="science-storage-warning" role="status">Progress can’t be saved in this browser. Keep this page open while you explore.</p>}
     </main>
@@ -250,7 +300,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
 }
 
 function LessonVisual({ state, feedbackVisible }: { state: ScienceState; feedbackVisible: boolean }) {
-  if (/^B[4-9]-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
+  if (/^B(?:[4-9]|1[0-8])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
   if (state.id === 'B3-01') return <PracticalVisual focus="onion" />
   if (state.id === 'B3-17') return <PracticalVisual focus="drawing-choice" />
   if (state.id === 'B2-01') return <MicroscopyVisual focus="light" />

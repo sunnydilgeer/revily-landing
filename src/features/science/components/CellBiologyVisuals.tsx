@@ -2,6 +2,9 @@ import { useId } from 'react'
 import { DivisionVisual } from './DivisionVisuals'
 import { TransportVisual } from './TransportVisuals'
 import { OrganisationVisual } from './OrganisationVisuals'
+import { CirculationVisual } from './anatomy/CirculationVisuals'
+import { HealthDiseaseVisual } from './HealthDiseaseVisuals'
+import { PlantOrganisationVisual } from './PlantOrganisationVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -36,7 +39,10 @@ function SpecialisedCell({ focus, assessment }: { focus: string; assessment: boo
 }
 
 export function CellBiologyVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
-  if (/^(?:epithelial$|(?:organisation|epithelial|stomach|digestive|enzyme|digestion|bile|food)-)/.test(focus)) return <OrganisationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('plant-')) return <PlantOrganisationVisual focus={focus} assessment={assessment} />
+  if (/^(?:lung|heart|vessel)-/.test(focus)) return <CirculationVisual focus={focus} assessment={assessment}/>
+  if (/^(?:blood|cardio|health|risk|cancer)-/.test(focus)) return <HealthDiseaseVisual focus={focus} assessment={assessment}/>
+  if (/^(?:epithelial$|(?:organisation|epithelial|stomach|digestive|enzyme|digestion|bile|food|lung|heart|vessel|breathing|blood-flow)-)/.test(focus)) return <OrganisationVisual focus={focus} assessment={assessment} />
   if (descriptions[focus]) return <SpecialisedCell focus={focus} assessment={assessment} />
   if (focus === 'specialisation') return <div className="science-bio-cards">{['Feature: long extension', 'Effect: more surface area', 'Job: absorb water and mineral ions'].map(s => <div key={s}>{s}</div>)}</div>
   if (focus === 'differentiate') return <div className="science-bio-cards"><div>Unspecialised cell</div><div>Develops structures suited to a job →</div><div>Specialised cell</div></div>

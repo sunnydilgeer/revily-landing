@@ -2,9 +2,9 @@
 
 ## Easier-only organisation extension — 21 September 2026
 
-The strict lesson parser now accepts `?lesson=1` through `9`. Variant A still contains Lessons 1–6 only. Variant B adds Lessons 7–9, and every canonical link to those lesson numbers includes `variant=b`; requesting one without a variant is normalised to the easier-only lesson rather than implying an absent A copy. The B hub and lesson menu show nine cards/items, while A continues to show six. All fifteen A/B lesson records keep separate versioned local-storage identities.
+The strict lesson parser now accepts `?lesson=1` through `18`. Variant A still contains Lessons 1–6 only. Variant B adds Lessons 7–18, and every canonical link to those lesson numbers includes `variant=b`; requesting one without a variant is normalised to the easier-only lesson rather than implying an absent A copy. The main hub exposes all eighteen built lessons and switches to Variant B for easier-only lesson links. All twenty-four A/B lesson records keep separate versioned local-storage identities.
 
-The B recommendation chain continues 6→7→8→9. Lessons 7–9 replace the two-way wording switch with an explicit “Easier wording · only version” badge. Invalid, absent and repeated lesson values still show the relevant hub rather than mounting an undefined lesson.
+The B recommendation chain continues 6→7→8→9→10→11→12→13→14→15→16→17→18. Lessons 7–18 replace the two-way wording switch with an explicit “Easier wording · only version” badge. Invalid, absent and repeated lesson values still show the relevant hub rather than mounting an undefined lesson.
 
 ## Six-lesson update — 17 September 2026
 

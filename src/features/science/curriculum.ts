@@ -41,4 +41,13 @@ export const organisationSequence = [
   { title: 'Cells, tissues and organs', status: 'Built · easier-wording draft', spec: '4.2.1; digestive-system context' },
   { title: 'Enzymes and reaction rates', status: 'Built · digital preparation draft', spec: '4.2.2.1; required practical 4' },
   { title: 'Digestion and food tests', status: 'Built · digital preparation draft', spec: '4.2.2.1; required practical 3' },
+  { title: 'The lungs', status: 'Built · easier-wording draft', spec: '4.2.2.2' },
+  { title: 'Circulatory system: the heart', status: 'Built · easier-wording draft', spec: '4.2.2.2' },
+  { title: 'Circulatory system: blood vessels', status: 'Built · easier-wording draft', spec: '4.2.2.2' },
+  { title: 'Blood', status: 'Built · easier-wording draft', spec: '4.2.2.3' },
+  { title: 'Cardiovascular disease and treatments', status: 'Built · easier-wording draft', spec: '4.2.2.4' },
+  { title: 'Health and disease', status: 'Built · easier-wording draft', spec: '4.2.2.5' },
+  { title: 'Risk factors and cancer', status: 'Built · easier-wording draft', spec: '4.2.2.6–4.2.2.7' },
+  { title: 'Plant tissues and the leaf', status: 'Built · easier-wording draft', spec: '4.2.3.1; 4.2.3.2' },
+  { title: 'Water and food on the move', status: 'Built · easier-wording draft', spec: '4.2.3.2' },
 ] as const
