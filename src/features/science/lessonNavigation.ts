@@ -25,15 +25,16 @@ import { lesson18 as lesson18B } from './variants/b/lesson-18/lesson'
 import { lesson19 as lesson19B } from './variants/b/lesson-19/lesson'
 import { lesson20 as lesson20B } from './variants/b/lesson-20/lesson'
 import { lesson21 as lesson21B } from './variants/b/lesson-21/lesson'
+import { lesson22 as lesson22B } from './variants/b/lesson-22/lesson'
 
-export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21
+export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22
 export type ScienceVariant = 'a' | 'b'
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [7, 8, 9, 10, 11, 12] },
   { code: 'B2b', title: 'Health and disease', lessonNumbers: [13, 14, 15, 16] },
   { code: 'B2c', title: 'Plant organisation', lessonNumbers: [17, 18] },
-  { code: 'B3', title: 'Infection and response', lessonNumbers: [19, 20, 21] },
+  { code: 'B3', title: 'Infection and response', lessonNumbers: [19, 20, 21, 22] },
 ] as const
 export const scienceLessons = [
   { number: 1, title: 'Cells', detail: 'Animal, plant and bacterial cells', lesson: lesson1 },
@@ -65,6 +66,7 @@ export const scienceLessonsB = [
   { number: 19, title: 'Pathogens and how disease spreads', detail: 'Four pathogens, three routes and how to stop them', lesson: lesson19B },
   { number: 20, title: 'Diseases people pass on', detail: 'Salmonella, gonorrhoea, measles and HIV', lesson: lesson20B },
   { number: 21, title: 'Plant diseases and malaria', detail: 'TMV, rose black spot and malaria', lesson: lesson21B },
+  { number: 22, title: 'How your body defends itself', detail: 'Barriers, white blood cells, antibodies and antitoxins', lesson: lesson22B },
 ] as const
 export function getScienceLessons(variant: ScienceVariant = 'a') { return variant === 'b' ? scienceLessonsB : scienceLessons }
 // The main catalogue exposes easier-only new lessons even while A is selected.
@@ -79,5 +81,5 @@ export function scienceLessonHref(number: LessonNumber, variant: ScienceVariant 
 }
 export function parseScienceVariant(value: string | string[] | undefined): ScienceVariant { return value === 'b' ? 'b' : 'a' }
 export function parseScienceLesson(value: string | string[] | undefined): LessonNumber | null {
-  return ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21'].includes(typeof value === 'string' ? value : '') ? Number(value) as LessonNumber : null
+  return ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22'].includes(typeof value === 'string' ? value : '') ? Number(value) as LessonNumber : null
 }

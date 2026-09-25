@@ -68,7 +68,7 @@ export function WorkedReasoning({ state, onExposure }: { state: TeachingState; o
   const [revealed, setRevealed] = useState(0)
   const steps = state.steps || []
   return <div className="science-worked">
-    {/^B(?:[4-9]|1\d|2[01])-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />}
+    {/^B(?:[4-9]|1\d|2[0-2])-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />}
     <p className="science-worked__prompt">{state.body}</p>
     <ol className="science-worked__steps">{steps.slice(0, revealed).map((step, i) => <li key={step}><span>{i + 1}</span><p>{step}</p></li>)}</ol>
     <button type="button" className="science-secondary" onClick={() => { setRevealed(value => value === steps.length ? 0 : value + 1); onExposure() }}>{revealed === steps.length ? <><RotateCcw size={16} /> Replay steps</> : revealed === 0 ? 'Show the reasoning' : 'Show next step'}</button>

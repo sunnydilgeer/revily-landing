@@ -6,6 +6,7 @@ import { CirculationVisual } from './anatomy/CirculationVisuals'
 import { HealthDiseaseVisual } from './HealthDiseaseVisuals'
 import { PlantOrganisationVisual } from './PlantOrganisationVisuals'
 import { InfectionVisual } from './InfectionVisuals'
+import { DefenceVisual } from './DefenceVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -145,6 +146,7 @@ function SpecialisedCell({ focus, assessment }: { focus: string; assessment: boo
 
 export function CellBiologyVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
   if (focus.startsWith('plant-')) return <PlantOrganisationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('defence-')) return <DefenceVisual focus={focus} assessment={assessment} />
   if (/^(?:pathogen|disease|plantdisease|malaria)-/.test(focus)) return <InfectionVisual focus={focus} assessment={assessment} />
   if (/^(?:lung|heart|vessel)-/.test(focus)) return <CirculationVisual focus={focus} assessment={assessment}/>
   if (/^(?:blood|cardio|health|risk|cancer)-/.test(focus)) return <HealthDiseaseVisual focus={focus} assessment={assessment}/>

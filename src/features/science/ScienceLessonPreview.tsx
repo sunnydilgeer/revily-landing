@@ -26,6 +26,7 @@ import { plantTransportFrames as plantTransportFramesB } from './variants/b/less
 import { pathogenFrames as pathogenFramesB } from './variants/b/lesson-19/teachingFrames'
 import { humanDiseaseFrames as humanDiseaseFramesB } from './variants/b/lesson-20/teachingFrames'
 import { plantMalariaFrames as plantMalariaFramesB } from './variants/b/lesson-21/teachingFrames'
+import { defenceFrames as defenceFramesB } from './variants/b/lesson-22/teachingFrames'
 import { ExplanationSteps } from '../number-types/components/ExplanationSteps'
 import { evidenceProfile, progress, recommendedNext, retrievalDueAt } from './engine'
 import { lesson1 } from './lesson-1/lesson'
@@ -54,6 +55,7 @@ import { plantTransportSections } from './variants/b/lesson-18/lesson'
 import { pathogenSections } from './variants/b/lesson-19/lesson'
 import { humanDiseaseSections } from './variants/b/lesson-20/lesson'
 import { plantMalariaSections } from './variants/b/lesson-21/lesson'
+import { defenceSections } from './variants/b/lesson-22/lesson'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import type { LessonNumber } from './lessonNavigation'
 import { createCoachPreviewSessionEngine, createPreviewSessionEngine } from './previewSession'
@@ -93,7 +95,7 @@ function newSessionId() { return window.crypto.randomUUID() }
 const sessionEngines: Record<number, ReturnType<typeof createPreviewSessionEngine>> = { 1: createPreviewSessionEngine(lesson1), 2: createPreviewSessionEngine(lesson2), 3: createPreviewSessionEngine(lesson3), 4: createPreviewSessionEngine(lesson4), 5: createPreviewSessionEngine(lesson5), 6: createPreviewSessionEngine(lesson6) }
 const sessionEnginesB = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
 const coachEngines = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
-const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB, 10: lungsFramesB, 11: heartFramesB, 12: vesselsFramesB, 13: bloodFramesB, 14: cardiovascularFramesB, 15: healthFramesB, 16: riskCancerFramesB, 17: plantTissueFramesB, 18: plantTransportFramesB, 19: pathogenFramesB, 20: humanDiseaseFramesB, 21: plantMalariaFramesB }
+const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB, 10: lungsFramesB, 11: heartFramesB, 12: vesselsFramesB, 13: bloodFramesB, 14: cardiovascularFramesB, 15: healthFramesB, 16: riskCancerFramesB, 17: plantTissueFramesB, 18: plantTransportFramesB, 19: pathogenFramesB, 20: humanDiseaseFramesB, 21: plantMalariaFramesB, 22: defenceFramesB }
 const transportStory = [
   { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
   { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
@@ -110,7 +112,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   const currentLessonItem = scienceLessons.find(item => item.number === lessonNumber)!
   const nextLessonItem = scienceLessons.find(item => item.number === lessonNumber + 1)
   const practicalLesson = [3, 6, 8, 9].includes(lessonNumber)
-  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections, 10: lungsSections, 11: heartSections, 12: vesselsSections, 13: bloodSections, 14: cardiovascularSections, 15: healthSections, 16: riskCancerSections, 17: plantTissueSections, 18: plantTransportSections, 19: pathogenSections, 20: humanDiseaseSections, 21: plantMalariaSections }[lessonNumber]
+  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections, 10: lungsSections, 11: heartSections, 12: vesselsSections, 13: bloodSections, 14: cardiovascularSections, 15: healthSections, 16: riskCancerSections, 17: plantTissueSections, 18: plantTransportSections, 19: pathogenSections, 20: humanDiseaseSections, 21: plantMalariaSections, 22: defenceSections }[lessonNumber]
   const customFrames = variant === 'b' ? framesB[lessonNumber] : { 1: undefined, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames }[lessonNumber]
   const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : variant === 'b' ? sessionEnginesB : sessionEngines)[lessonNumber]
   function reducer(session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) {
@@ -306,7 +308,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
 }
 
 function LessonVisual({ state, feedbackVisible }: { state: ScienceState; feedbackVisible: boolean }) {
-  if (/^B(?:[4-9]|1\d|2[01])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
+  if (/^B(?:[4-9]|1\d|2[0-2])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
   if (state.id === 'B3-01') return <PracticalVisual focus="onion" />
   if (state.id === 'B3-17') return <PracticalVisual focus="drawing-choice" />
   if (state.id === 'B2-01') return <MicroscopyVisual focus="light" />

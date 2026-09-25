@@ -561,3 +561,7 @@ export function InfectionVisual({ focus, assessment = false }: { focus: string; 
   if (focus === 'disease-grid7-question') return <Grid7 assessment={assessment} question />
   return <ClassScene focus="pathogen-class-overview" />
 }
+
+// Shared with DefenceVisuals.tsx (Lessons 22–23) so every B3 diagram uses the same drawing style.
+export const infectionPalette = { ink, water, dropFill, faded, bug, bugFill, bugDeep, amber, amberFill, red, skin, skinLine, jumperA, jumperB, tissueFill, tissueLine, panelFill, panelLine }
+export { seeded, blob, Diagram, Arrow, Label, Badge, Virus, Bacterium, BodyCell, Mini }

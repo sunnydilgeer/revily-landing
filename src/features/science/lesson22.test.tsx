@@ -6,23 +6,23 @@ import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
 import { getScienceHubLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson21, plantMalariaSections } from './variants/b/lesson-21/lesson'
-import { plantMalariaFrames } from './variants/b/lesson-21/teachingFrames'
-import { lesson20 } from './variants/b/lesson-20/lesson'
+import { lesson22, defenceSections } from './variants/b/lesson-22/lesson'
+import { defenceFrames } from './variants/b/lesson-22/teachingFrames'
+import { lesson21 } from './variants/b/lesson-21/lesson'
 import type { EvidenceDimension, ScienceState } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
-const lessons = [lesson21]
-const frameSets = [plantMalariaFrames]
-const sections = [plantMalariaSections]
+const lessons = [lesson22]
+const frameSets = [defenceFrames]
+const sections = [defenceSections]
 const at = '2026-09-25T17:00:00.000Z'
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
 lessons.forEach((lesson, index) => {
-  const number = index + 21
+  const number = index + 22
   check(`${lesson.id}: metadata, source links, sections and sampled requirements`, () => {
     assert.equal(lesson.id, `B-INF-0${number}-B`)
     assert.equal(lesson.contentVersion, '0.1.0')
@@ -80,7 +80,7 @@ lessons.forEach((lesson, index) => {
   check(`${lesson.id}: plain Year 10 wording, one idea per sentence`, () => {
     const frames = Object.values(frameSets[index]).flat()
     const all = [...frames.map(f => `${f.label}. ${f.summary} ${f.text}`), ...lesson.states.map(learnerText)].join(' ')
-    assert.doesNotMatch(all, /Plasmodium|Anopheles|hyphae|mycelium|spore|antimalarial|quinine|phagocyt|antigen|antibod|herd immunity|diagnostic|misconception|distractor/i)
+    assert.doesNotMatch(all, /lymphocyte|phagocyte\b|memory cell|non-specific|immunity|vaccin|lysozyme|goblet|macrophage|diagnostic|misconception|distractor/i)
     for (const f of frames) for (const sentence of f.text.split(/(?<=[.!?])\s+/)) assert.ok(sentence.split(/\s+/).length <= 26, `long sentence: ${sentence}`)
     for (const state of lesson.states) if (state.kind !== 'teaching') assert.ok(state.title.split(/\s+/).length <= 22, `${state.id}: question is too long`)
   })
@@ -92,7 +92,7 @@ lessons.forEach((lesson, index) => {
       assert.equal(state.media.script, frames.map(f => `${f.label}. ${f.summary} ${f.text}`).join(' '))
       assert.equal(new Set(frames.map(f => f.label)).size, frames.length, `${id}: step labels must be unique`)
       for (const f of frames) {
-        assert.ok(f.label && f.summary && f.cue.startsWith('Think: ') && f.text && /^(?:disease|plantdisease|malaria)-/.test(f.focus || ''))
+        assert.ok(f.label && f.summary && f.cue.startsWith('Think: ') && f.text && (f.focus || '').startsWith('defence-'))
         const html = renderToStaticMarkup(createElement(TeachingChunk, { state, onExposure: () => {}, customFrames: [f] }))
         const escaped = f.text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' }[c]!))
         assert.ok(html.includes(escaped), `${id}: frame copy must appear on the teaching screen`)
@@ -116,10 +116,9 @@ lessons.forEach((lesson, index) => {
       assert.ok(hidden.length > 30 && !hidden.includes('NaN'))
       assert.match(hidden, /<svg[^>]+aria-labelledby=/)
       const answer = state.explanation.answer.toLowerCase()
-      if (state.id === 'B21-04') { assert.doesNotMatch(hidden, /less photosynthesis/i); assert.match(shown, /less photosynthesis/) }
-      if (state.id === 'B21-09') { assert.doesNotMatch(hidden, /picks up|passes the protist|stage 4/i); assert.match(shown, /passes the protist on/) }
-      if (state.id === 'B21-12') { assert.doesNotMatch(hidden, /protist|bacteria|virus|fung/i); assert.match(shown, /protists/) }
-      if (state.id === 'B21-14') assert.doesNotMatch(hidden, /fewer spotted|cures/i)
+      if (state.id === 'B22-03') { assert.doesNotMatch(hidden, /nose<|skin<|stomach<|bronchi<|defence 4/i); assert.match(shown, /stomach/) }
+      if (state.id === 'B22-09') { assert.doesNotMatch(hidden, /antigen|antibod/i); assert.match(shown, /antigens/) }
+      if (state.id === 'B22-14') assert.doesNotMatch(hidden, /as the antibody level rose/i)
       assert.ok(!hidden.toLowerCase().includes(answer), `${state.id}: the answer text must not appear in the question diagram`)
     }
   })
@@ -145,7 +144,7 @@ lessons.forEach((lesson, index) => {
     assert.equal(profile.pendingReview.length, 1)
     assert.equal(profile.dimensions.explanation === 'secureInSession', false)
     const next = recommendedNext(profile, false, lesson)
-    assert.equal(next.kind, 'lesson'); if (next.kind === 'lesson') assert.equal(next.lessonId, 'B-INF-022-B')
+    assert.equal(next.kind, 'practical')
   })
 
   check(`${lesson.id}: a wrong independent answer keeps the learner on a repair route`, () => {
@@ -161,34 +160,33 @@ lessons.forEach((lesson, index) => {
   })
 })
 
-check('Scope: the chain is taught once and reused; earlier lessons stay brief links', () => {
-  const l21 = Object.values(plantMalariaFrames).flat().map(frame => `${frame.summary} ${frame.text}`).join(' ')
-  assert.match(l21, /Lesson 17|Lesson 19/); assert.match(l21, /Lesson 19/); assert.match(l21, /Lesson 20/)
-  assert.match(l21, /Chlorophyll is/); assert.match(l21, /A fungicide is/); assert.match(l21, /A life cycle is/); assert.match(l21, /vector/)
-  assert.equal((l21.match(/Chlorophyll is/g) || []).length, 1, 'chlorophyll is defined once, not retaught for roses')
-  assert.match(plantMalariaFrames['B21-05'].map(frame => frame.summary).join(' '), /same chain/)
-  assert.doesNotMatch(l21, /mosquito[^.]*causes malaria/i, 'the protist causes malaria, the mosquito carries it')
+check('Scope: barriers first, then three white blood cell actions; earlier lessons stay brief links', () => {
+  const l22 = Object.values(defenceFrames).flat().map(frame => `${frame.summary} ${frame.text}`).join(' ')
+  assert.match(l22, /Lesson 10/); assert.match(l22, /Lesson 13/); assert.match(l22, /Lesson 19/)
+  for (const term of [/Mucus is/, /Cilia are/, /hydrochloric acid/, /immune system is/, /phagocytosis/, /called antigens/, /make antibodies/, /antitoxins/]) assert.match(l22, term)
+  assert.doesNotMatch(l22, /antibod[^.]*kill|antigens? (?:are|is) made by white/i, 'antigens belong to the pathogen; antibodies do not kill by themselves')
 })
 
-check('Flow: one garden (tomatoes then roses) before malaria; the grid comes last', () => {
-  const order = lesson21.states.map(state => state.id)
-  assert.ok(order.indexOf('B21-02') < order.indexOf('B21-05') && order.indexOf('B21-05') < order.indexOf('B21-08') && order.indexOf('B21-08') < order.indexOf('B21-11'))
-  assert.match(plantMalariaFrames['B21-05'][0].text, /same gardener/)
+check('Flow: follows one set of bacteria from the door handle to the cut; barriers before the immune system', () => {
+  const order = lesson22.states.map(state => state.id)
+  assert.ok(order.indexOf('B22-02') < order.indexOf('B22-06') && order.indexOf('B22-06') < order.indexOf('B22-08'))
+  assert.match(defenceFrames['B22-02'][0].text, /door handle/); assert.match(defenceFrames['B22-06'][0].text, /cut/)
+  assert.ok(defenceFrames['B22-08'].findIndex(f => /antigens/.test(f.text)) < defenceFrames['B22-08'].findIndex(f => /make antibodies/.test(f.text)))
 })
 
-check('Lesson 21 has its own storage record, separate from Lesson 20', () => {
-  const [mine, previous] = [lesson21, lesson20].map(createPreviewSessionEngine)
+check('Lesson 22 has its own storage record, separate from Lesson 21', () => {
+  const [mine, previous] = [lesson22, lesson21].map(createPreviewSessionEngine)
   assert.notEqual(mine.storageKey, previous.storageKey)
   assert.equal(previous.restorePreviewSession(mine.createPreviewSession('isolation')), null)
   assert.equal(mine.restorePreviewSession(previous.createPreviewSession('isolation')), null)
 })
 
-check('Hub, chapter, parser and links include Lesson 21; Lesson 20 now leads here', () => {
+check('Hub, chapter, parser and links include Lesson 22; Lesson 21 now leads here', () => {
   assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22])
-  assert.ok(getScienceHubLessons('b').some(item => item.number === 21) && getScienceHubLessons('a').some(item => item.number === 21))
-  assert.equal(parseScienceLesson('21'), 21)
-  assert.equal(scienceLessonHref(21, 'a'), '/preview/science?lesson=21&variant=b')
-  assert.deepEqual(recommendedNext({ dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }, false, { ...lesson21, id: 'B-INF-020-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-INF-021-B' })
+  assert.ok(getScienceHubLessons('b').some(item => item.number === 22) && getScienceHubLessons('a').some(item => item.number === 22))
+  assert.equal(parseScienceLesson('22'), 22)
+  assert.equal(scienceLessonHref(22, 'a'), '/preview/science?lesson=22&variant=b')
+  assert.deepEqual(recommendedNext({ dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }, false, { ...lesson22, id: 'B-INF-021-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-INF-022-B' })
 })
 
-console.log(`${checks} Lesson 21 checks passed`)
+console.log(`${checks} Lesson 22 checks passed`)
