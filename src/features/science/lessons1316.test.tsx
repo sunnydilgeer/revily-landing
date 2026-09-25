@@ -25,6 +25,7 @@ const refactored: Record<string, { version: string; banned: RegExp; hiddenAnswer
   'B-ORG-013-B': { version: '0.2.0', banned: /phagocyt|fibrin|antitoxin/i, hiddenAnswer: { 'B13-15': /white blood cell|red blood cell|platelet|plasma/i } },
   'B-ORG-014-B': { version: '0.2.0', banned: /heart attack|aerobic/i, hiddenAnswer: { 'B14-11': /leaky|stiff/i, 'B14-15': /stent|statin/i } },
   'B-ORG-015-B': { version: '0.2.0', banned: /protist|fungi|fungus/i, hiddenAnswer: { 'B15-13': /communicable|allerg/i } },
+  'B-ORG-016-B': { version: '0.2.0', banned: /insulin|lymph|screening|fetus/i, hiddenAnswer: { 'B16-16': /correlation|cause/i, 'B16-17': /malignant|benign|secondary/i } },
 }
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')

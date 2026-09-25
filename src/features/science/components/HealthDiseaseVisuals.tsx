@@ -794,71 +794,269 @@ function Health({ focus, assessment }: { focus: string; assessment: boolean }) {
   return <Wellbeing/>
 }
 
+/* ---------- Lesson 16: risk factors and cancer ---------- */
+function Mini({ x, y, ill }: { x: number; y: number; ill: boolean }) {
+  return <g transform={`translate(${x} ${y})`} fill={ill ? '#e3a0a0' : '#e6f1f7'} stroke={ill ? '#a8545d' : '#8aa3b2'} strokeWidth="1.2"><circle cy="-9" r="4.5"/><path d="M-7 9Q-7-2-3-3H3Q7-2 7 9Z"/></g>
+}
+function ChanceGrid({ gene = false }: { gene?: boolean }) {
+  const { t } = useSvgIds()
+  const grid = (x0: number, illSet: number[]) => Array.from({ length: 20 }, (_, i) => <Mini key={i} x={x0 + (i % 5) * 30} y={82 + Math.floor(i / 5) * 34} ill={illSet.includes(i)}/>)
+  const heads = gene ? ['no inherited gene', 'inherited gene'] : ['without the risk factor', 'with the risk factor']
+  return <Svg t={t} title={`Two groups of 20 people. ${heads[0]}: 2 in 20 become ill. ${heads[1]}: 8 in 20 become ill. The risk factor makes the disease more likely, but most people with it still do not become ill. Example numbers.`}>
+    <rect x="30" y="38" width="200" height="160" rx="16" fill="#f4f8fa" stroke="#c3d2da"/><rect x="310" y="38" width="200" height="160" rx="16" fill="#fbf1ec" stroke="#e1c3b6"/>
+    <Lbl x={130} y={28} anchor="middle" bold size={13}>{heads[0]}</Lbl><Lbl x={410} y={28} anchor="middle" bold size={13}>{heads[1]}</Lbl>
+    {grid(70, [7, 16])}{grid(350, [1, 4, 7, 9, 12, 13, 17, 19])}
+    <Lbl x={130} y={216} anchor="middle" size={12}>2 in 20 ill</Lbl><Lbl x={410} y={216} anchor="middle" size={12} bold fill="#a1502a">8 in 20 ill</Lbl>
+    <Lbl x={270} y={240} anchor="middle" size={12} bold>more likely, not certain</Lbl>
+  </Svg>
+}
+function Cigarette({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}><rect x="-22" y="-4" width="34" height="8" rx="2" fill="#fff" stroke="#8aa3b2"/><rect x="12" y="-4" width="10" height="8" rx="2" fill="#e0a45c" stroke="#a47b26"/><rect x="-24" y="-4" width="4" height="8" fill="#e8745a"/><path d="M-28-6q-5-6 0-12t0-12" fill="none" stroke="#9fb2bd" strokeWidth="1.6"/></g>
+}
+function Trefoil({ x, y, r = 22 }: { x: number; y: number; r?: number }) {
+  return <g transform={`translate(${x} ${y})`}><circle r={r} fill={yellow} stroke="#a47b26" strokeWidth="1.5"/>{[0, 120, 240].map(a => <path key={a} transform={`rotate(${a - 90})`} d={`M${r * .22} ${-r * .12}L${r * .82} ${-r * .5}A${r * .95} ${r * .95} 0 0 1 ${r * .82} ${r * .5}L${r * .22} ${r * .12}Z`} fill="#3d4750"/>)}<circle r={r * .14} fill="#3d4750"/></g>
+}
+function Helix({ x, y }: { x: number; y: number }) {
+  return <g transform={`translate(${x} ${y})`}><path d="M-10-30Q14-15-10 0T-10 30M10-30Q-14-15 10 0T10 30" fill="none" stroke={purple} strokeWidth="3"/>{[-22, -12, 8, 18].map(v => <path key={v} d={`M-6 ${v}H6`} stroke="#8a78b0" strokeWidth="2"/>)}</g>
+}
+function RiskTypes() {
+  const { t } = useSvgIds()
+  const cols = [{ x: 96, h: 'how we live', f: '#eef7fb' }, { x: 270, h: 'environment', f: '#fbf4e2' }, { x: 444, h: 'genes', f: '#f4eefa' }]
+  return <Svg t={t} title="Where risk factors come from. How we live: smoking, diet and exercise. The environment: for example radiation. Genes: the genes a person inherits, which are not a choice. Many diseases are caused by several risk factors acting together.">
+    {cols.map(c => <g key={c.h}><rect x={c.x - 82} y="10" width="164" height="178" rx="16" fill={c.f} stroke="#c3d2da"/><Lbl x={c.x} y={36} anchor="middle" bold size={14}>{c.h}</Lbl></g>)}
+    <Cigarette x={80} y={74}/><g transform="translate(70 124)"><circle r="20" fill="#fff" stroke={ink} strokeWidth="1.4"/><path d="M0 0L0-15A15 15 0 0 1 13 8Z" fill="#9fcf93"/><path d="M0 0L13 8A15 15 0 0 1-13 8Z" fill="#f0cf73"/><path d="M0 0L-13 8A15 15 0 0 1 0-15Z" fill="#e8a08c"/></g>
+    <g transform="translate(128 126)"><path d="M-16 0H16" stroke="#55707f" strokeWidth="4"/><rect x="-24" y="-11" width="8" height="22" rx="2" fill="#8aa3b2" stroke="#55707f"/><rect x="16" y="-11" width="8" height="22" rx="2" fill="#8aa3b2" stroke="#55707f"/></g>
+    <Lbl x={96} y={172} anchor="middle" size={11.5} fill="#526976">smoking · diet · exercise</Lbl>
+    <Trefoil x={270} y={104} r={30}/><Lbl x={270} y={172} anchor="middle" size={11.5} fill="#526976">e.g. radiation</Lbl>
+    <Helix x={444} y={104}/><Lbl x={444} y={164} anchor="middle" size={11.5} fill="#526976">inherited,</Lbl><Lbl x={444} y={177} anchor="middle" size={11.5} fill="#526976">not a choice</Lbl>
+    <Lbl x={270} y={220} anchor="middle" size={12.5} bold>often several act together</Lbl>
+  </Svg>
+}
+function Scatter({ t, pts, xl, yl, ticksX, ticksY, title, note }: { t: string; pts: [number, number][]; xl: string; yl: string; ticksX?: number[]; ticksY?: number[]; title: string; note: string }) {
+  const X = (v: number) => 90 + v, Y = (v: number) => 196 - v
+  return <Svg t={t} title={title}>
+    {ticksY && ticksY.map(v => <g key={v}><path d={`M90 ${Y(v * .8)}H470`} stroke="#eef2f4"/><Lbl x={82} y={Y(v * .8) + 4} anchor="end" size={11}>{v}</Lbl></g>)}
+    {ticksX && ticksX.map(v => <Lbl key={v} x={X(v * 14)} y={214} anchor="middle" size={11}>{v}</Lbl>)}
+    <path d="M90 34V196H470" fill="none" stroke={ink} strokeWidth="1.8"/>
+    {pts.map(([x, y], i) => <circle key={i} cx={X(x)} cy={Y(y)} r="5.5" fill="#d9707a" stroke="#8e2d3c" strokeWidth="1.2"/>)}
+    <Lbl x={280} y={232} anchor="middle" size={12}>{xl}</Lbl>
+    <text x="30" y="115" transform="rotate(-90 30 115)" textAnchor="middle" fill={ink} fontSize="12">{yl}</text>
+    <Lbl x={280} y={18} anchor="middle" size={10.5} fill="#526976">{note}</Lbl>
+  </Svg>
+}
+function Correlation() {
+  const { t } = useSvgIds()
+  return <Scatter t={t} pts={[[30, 20], [80, 40], [120, 36], [170, 70], [220, 88], [270, 100], [320, 128], [360, 136]]} xl="how common the factor is →" yl="how common the disease is →" title="A scatter graph: as a factor becomes more common, a disease also becomes more common. The points rise together, which is a correlation. Example pattern, not real data." note="the two go together: a correlation · example pattern"/>
+}
+function Causation() {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title="The sun in the middle has arrows to ice cream sales on the left and sunburn on the right: sunny weather increases both. A dashed arrow from ice cream sales to sunburn is crossed out, because ice cream does not cause sunburn.">
+    <g transform="translate(270 58)"><circle r="24" fill={yellow} stroke="#a47b26" strokeWidth="1.6"/>{Array.from({ length: 10 }, (_, i) => <path key={i} transform={`rotate(${i * 36})`} d="M0-30V-38" stroke="#c9a03c" strokeWidth="3" strokeLinecap="round"/>)}</g>
+    <Lbl x={270} y={116} anchor="middle" bold>sunny weather</Lbl>
+    <rect x="40" y="150" width="150" height="48" rx="14" fill="#fbf4e2" stroke="#c3d2da"/><Lbl x={115} y={179} anchor="middle" bold>ice cream sales</Lbl>
+    <rect x="350" y="150" width="150" height="48" rx="14" fill="#fbf1ec" stroke="#c3d2da"/><Lbl x={425} y={179} anchor="middle" bold>sunburn</Lbl>
+    <OneWay id={`${u}-a`} d="M240 78L130 146" w={2.4}/><OneWay id={`${u}-b`} d="M300 78L410 146" w={2.4}/>
+    <path d="M196 174H344" stroke="#9fb2bd" strokeWidth="2" strokeDasharray="6 5"/><path d="M258 162l24 24M282 162l-24 24" stroke="#b8434f" strokeWidth="3.5" strokeLinecap="round"/>
+    <Lbl x={270} y={224} anchor="middle" size={12}>ice cream does not cause sunburn</Lbl>
+  </Svg>
+}
+function Mechanism() {
+  const { t, u } = useSvgIds()
+  const cells = [0, 1, 2, 3, 4, 5]
+  return <Svg t={t} title="A cigarette on the left gives off smoke. Particles in the smoke reach a row of lung cells on the right. Two cells are shown damaged, with dark, broken nuclei: chemicals in smoke damage lung cells. Original schematic, not to scale.">
+    <Cigarette x={70} y={120} s={1.4}/>
+    {[[140, 112], [170, 126], [196, 104], [226, 122], [252, 108]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4" fill="#8f9aa3"/>)}
+    <OneWay id={`${u}-m`} d="M130 150H280" colour="#8f9aa3"/>
+    {cells.map(i => { const x = 310 + (i % 3) * 64, y = 84 + Math.floor(i / 3) * 70, bad = i === 1 || i === 3; return <g key={i}><path d={blobPath(x, y, 30, 30, [1, .96, 1.03, .98, 1.01, .95, 1.02, .99], i)} fill={bad ? '#f0d4cc' : '#fbe7df'} stroke="#b27d74" strokeWidth="1.6"/><path d={bad ? `M${x - 9} ${y - 2}l6-6l4 7l5-6l3 9l-8 4l-6-3Z` : ''} fill="#6e3b4a"/>{!bad && <circle cx={x} cy={y} r="9" fill="#e7c6d9" stroke="#a07090" strokeWidth="1.2"/>}</g> })}
+    <Lbl x={370} y={36} anchor="middle" bold>lung cells</Lbl>
+    <Lbl x={70} y={172} anchor="middle" size={12}>tobacco smoke</Lbl>
+    <Lbl x={374} y={206} size={12} bold fill="#a1502a">damaged cells</Lbl><Leader d="M370 200L318 160" to={[316, 158]}/>
+    <Lbl x={270} y={238} anchor="middle" size={12}>chemicals in smoke damage lung cells</Lbl>
+  </Svg>
+}
+function Lungs({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}><path d="M0-50V-16M0-16L-14-4M0-16L14-4" stroke="#b27d74" strokeWidth={5 / s} fill="none" strokeLinecap="round"/><path d="M-10-18C-40-22-58 10-56 40C-54 58-30 60-14 52C-8 30-6 0-10-18Z" fill="#f2c4bf" stroke="#b27d74" strokeWidth={2 / s}/><path d="M10-18C40-22 58 10 56 40C54 58 30 60 14 52C8 30 6 0 10-18Z" fill="#f2c4bf" stroke="#b27d74" strokeWidth={2 / s}/></g>
+}
+function Smoking() {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title="A pair of lungs with grey smoke particles inside. Arrows lead from the lungs to three risks: lung disease, lung cancer and cardiovascular disease. Original schematic, not to scale.">
+    <Lungs x={140} y={120} s={1.3}/>
+    {[[110, 110], [124, 140], [98, 150], [170, 108], [160, 146], [182, 136], [140, 60]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="3.6" fill="#7d8790"/>)}
+    <Cigarette x={60} y={40}/>
+    {[['lung disease', 60], ['lung cancer', 122], ['cardiovascular disease', 184]].map(([n, y], i) => <g key={i}><OneWay id={`${u}-${i}`} d={`M232 ${120 + (i - 1) * 22}L318 ${Number(y) - 4}`} w={2}/><Lbl x={326} y={Number(y)} bold>{n}</Lbl></g>)}
+    <HeartShape x={500} y={170} s={.3} fill="#e59a98"/>
+    <Lbl x={270} y={238} anchor="middle" size={12}>smoking raises the risk of all three</Lbl>
+  </Svg>
+}
+function Lifestyle({ hi }: { hi: 'diet' | 'obesity' }) {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title={`Two risk factors. Top: a high-fat diet and little exercise raise the risk of cardiovascular disease. Bottom: obesity, carrying a lot of extra body fat, is a risk factor for Type 2 diabetes.${hi === 'diet' ? ' The top row is highlighted.' : ' The bottom row is highlighted.'}`}>
+    <g opacity={dim(hi === 'diet')}>
+      <g transform="translate(64 64)"><circle r="26" fill="#fff" stroke={ink} strokeWidth="1.4"/><circle r="17" fill="#f1d27a" stroke="#b58a2c"/></g>
+      <g transform="translate(150 64)"><path d="M-20 12q6-24 28-22q12 2 14 12l2 10h-44Z" fill="#cfe3ee" stroke={ink} strokeWidth="1.4"/><path d="M-26-20L28 22" stroke="#b8434f" strokeWidth="3"/></g>
+      <Lbl x={64} y={110} anchor="middle" size={12}>high-fat diet</Lbl><Lbl x={150} y={110} anchor="middle" size={12}>little exercise</Lbl>
+      <OneWay id={`${u}-a`} d="M200 64H300" w={2.4}/><HeartShape x={340} y={58} s={.42} fill="#e59a98"/>
+      <Lbl x={380} y={68} bold>cardiovascular disease</Lbl>
+    </g>
+    <g opacity={dim(hi === 'obesity')}>
+      <g transform="translate(106 176)" fill="#e6f1f7" stroke={ink} strokeWidth="1.6"><circle cy="-34" r="13"/><path d="M-34 36Q-40-4-16-18Q0-22 16-18Q40-4 34 36Q0 42-34 36Z"/></g>
+      <Lbl x={106} y={234} anchor="middle" size={12}>obesity: a lot of extra body fat</Lbl>
+      <OneWay id={`${u}-b`} d="M200 176H300" w={2.4}/>
+      <g transform="translate(340 172)"><path d="M0-22Q16-2 14 8Q10 22 0 22Q-10 22-14 8Q-16-2 0-22Z" fill="#e58b8e" stroke="#a8404d" strokeWidth="1.5"/>{[[-4, 4], [4, 10], [3, -2]].map(([a, b], i) => <rect key={i} x={a - 2.5} y={b - 2.5} width="5" height="5" fill="#f5d36b" stroke="#a47b26" strokeWidth=".8"/>)}</g>
+      <Lbl x={380} y={180} bold>Type 2 diabetes</Lbl>
+    </g>
+  </Svg>
+}
+function Alcohol() {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title="A glass of alcohol with arrows to the liver and the brain. Drinking a lot of alcohol can damage the liver and affect how the brain works. Original schematic, not to scale.">
+    <g transform="translate(90 124)"><path d="M-22-40H22L14 30H-14Z" fill="#fff" stroke={ink} strokeWidth="1.8"/><path d="M-18-12H18L14 28H-14Z" fill="#f0cf9a"/></g>
+    <OneWay id={`${u}-a`} d="M130 110L230 72" w={2.4}/><OneWay id={`${u}-b`} d="M130 140L230 172" w={2.4}/>
+    <path d="M250 60C290 36 380 40 420 54C440 62 428 84 400 92C360 104 300 104 262 90C244 82 238 68 250 60Z" fill="#b8665a" stroke="#7d3a31" strokeWidth="2"/>
+    {[[300, 70], [340, 80], [376, 66]].map(([x, y], i) => <path key={i} d={`M${x - 6} ${y - 4}l12 8M${x + 6} ${y - 4}l-12 8`} stroke="#f3d7c8" strokeWidth="2"/>)}
+    <path d={blobPath(334, 176, 70, 44, [1, .97, 1.02, .98, 1.01, .96, 1.03, .98], .2)} fill="#f3d2d6" stroke="#a8545d" strokeWidth="2"/>
+    <path d="M280 170q14-18 28 0t28 0t28 0M290 190q14-14 28 0t28 0t28 0" fill="none" stroke="#c98a93" strokeWidth="1.8"/>
+    <Lbl x={440} y={60} bold>liver</Lbl><Lbl x={440} y={76} size={11.5}>can be damaged</Lbl>
+    <Lbl x={414} y={170} bold>brain</Lbl><Lbl x={414} y={186} size={11.5}>works less well</Lbl>
+    <Lbl x={270} y={238} anchor="middle" size={12}>risk depends on how much and how often</Lbl>
+  </Svg>
+}
+function Pregnancy() {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title="An unborn baby inside the uterus, joined by the umbilical cord to the placenta. Smoke and alcohol from the mother's blood pass across the placenta to the baby. Original schematic, not to scale.">
+    <path d={blobPath(300, 128, 120, 96, [1, .97, 1.02, .99, 1, .97, 1.02, .98], .1)} fill="#fbe7df" stroke="#b27d74" strokeWidth="2.4"/>
+    <path d="M198 88C220 60 250 70 256 96C262 120 236 136 214 128C196 120 190 104 198 88Z" fill="#c9525e" stroke="#8e2d3c" strokeWidth="1.6"/>
+    <path d="M252 110C280 118 294 140 318 140" stroke="#b27d74" strokeWidth="4" fill="none"/>
+    <g transform="translate(340 140)"><circle cx="8" cy="-30" r="22" fill="#f6d6c6" stroke="#b27d74" strokeWidth="1.6"/><path d="M-26 14C-34-12-10-14 4-8C24 0 34 14 26 30C16 46-18 44-26 14Z" fill="#f6d6c6" stroke="#b27d74" strokeWidth="1.6"/></g>
+    <Cigarette x={70} y={74}/><g transform="translate(62 150)"><path d="M-14-22H14L9 18H-9Z" fill="#fff" stroke={ink} strokeWidth="1.5"/><path d="M-11-4H11L9 18H-9Z" fill="#f0cf9a"/></g>
+    <OneWay id={`${u}-a`} d="M108 80L190 96" colour="#8f9aa3" w={2.2}/><OneWay id={`${u}-b`} d="M88 146L192 116" colour="#c08a14" w={2.2}/>
+    <Lbl x={226} y={40} anchor="middle" bold size={12.5}>placenta</Lbl><Leader d="M226 46V70" to={[226, 72]}/>
+    <Lbl x={470} y={96} anchor="middle" bold size={12.5}>unborn baby</Lbl><Leader d="M440 100L376 118" to={[372, 120]}/>
+    <Lbl x={270} y={244} anchor="middle" size={12}>harmful substances can cross the placenta</Lbl>
+  </Svg>
+}
+function Carcinogen() {
+  const { t, u } = useSvgIds()
+  return <Svg t={t} title="Two carcinogens, things that can cause cancer: an X-ray source giving off ionising radiation, and tobacco smoke. Both point to a cell whose genetic material, shown as a DNA strand, is broken. Original schematic, not to scale.">
+    <g transform="translate(80 70)"><rect x="-34" y="-22" width="68" height="44" rx="8" fill="#e3ebef" stroke="#55707f" strokeWidth="2"/><Trefoil x={0} y={0} r={15}/></g>
+    <path d="M118 70l14-6l-4 12l14-6l-4 12l14-6" fill="none" stroke="#c9a03c" strokeWidth="2.4"/>
+    <Cigarette x={90} y={176} s={1.2}/><OneWay id={`${u}-s`} d="M128 170L250 142" colour="#8f9aa3" w={2.2}/>
+    <OneWay id={`${u}-r`} d="M164 74L250 108" colour="#c9a03c" w={2.2}/>
+    <path d={blobPath(340, 124, 84, 76, [1, .97, 1.02, .98, 1.01, .96, 1.03, .98], .3)} fill="#fbe7df" stroke="#b27d74" strokeWidth="2"/>
+    <circle cx="340" cy="124" r="36" fill="#efd8e4" stroke="#a07090" strokeWidth="1.6"/>
+    <path d="M314 108Q326 96 338 108T362 108M314 140Q326 128 338 140T362 140" fill="none" stroke={purple} strokeWidth="2.4"/>
+    <path d="M336 118l6 6l-8 4l6 6" fill="none" stroke="#b8434f" strokeWidth="2.6"/>
+    <Lbl x={80} y={112} anchor="middle" size={12}>ionising radiation</Lbl><Lbl x={90} y={206} anchor="middle" size={12}>tobacco smoke</Lbl>
+    <Lbl x={486} y={100} anchor="middle" size={12} bold>damaged</Lbl><Lbl x={486} y={116} anchor="middle" size={12} bold>genetic material</Lbl><Leader d="M434 108L364 122" to={[362, 122]}/>
+    <Lbl x={270} y={238} anchor="middle" size={12.5} bold>carcinogens can cause cancer</Lbl>
+  </Svg>
+}
+function CancerFormation() {
+  const { t, u } = useSvgIds()
+  const c = (x: number, y: number, r: number, bad: boolean, k: number) => <g key={`${x}-${y}`}><path d={blobPath(x, y, r, r * .92, [1, .96, 1.03, .98, 1.01, .95, 1.02, .99], k)} fill={bad ? '#e9b7bf' : '#fbe7df'} stroke={bad ? '#8e3f48' : '#b27d74'} strokeWidth="1.4"/><circle cx={x} cy={y} r={r * .34} fill={bad ? '#8e3f48' : '#e7c6d9'}/></g>
+  const row = (x0: number, badIdx: number[]) => [0, 1, 2].map(i => c(x0 + i * 24, 150, 11, badIdx.includes(i), i))
+  return <Svg t={t} title="Four steps. Normal tissue: a row of similar cells. One cell changes. The changed cell divides again and again. The cells pile up into a lump called a tumour. Original schematic, not to scale.">
+    {row(28, [])}{row(160, [1])}
+    {[[284, 150], [306, 150], [296, 130], [318, 130], [328, 150]].map(([x, y], i) => c(x, y, 11, true, i))}
+    {[[416, 150], [438, 150], [460, 150], [482, 150], [428, 130], [450, 130], [472, 130], [440, 110], [462, 110], [451, 90]].map(([x, y], i) => c(x, y, 11, true, i))}
+    <OneWay id={`${u}-1`} d="M104 150H140"/><OneWay id={`${u}-2`} d="M236 150H264"/><OneWay id={`${u}-3`} d="M350 140H396"/>
+    {[['normal cells', 52], ['one cell changes', 184], ['divides again', 306], ['a tumour', 450]].map(([n, x], i) => <Lbl key={i} x={Number(x)} y={190} anchor="middle" size={12} bold={i === 3}>{n}</Lbl>)}
+    <Lbl x={306} y={206} anchor="middle" size={12}>and again</Lbl>
+    <Lbl x={270} y={40} anchor="middle" bold size={14}>cell division out of control</Lbl>
+  </Svg>
+}
+function Tumours({ hi, question = false, assessment = false }: { hi: 'benign' | 'malignant' | 'both'; question?: boolean; assessment?: boolean }) {
+  const { t, u } = useSvgIds()
+  const c = (x: number, y: number, k: number) => <g key={`${x}-${y}-${k}`}><path d={blobPath(x, y, 9, 8.4, [1, .96, 1.03, .98, 1.01, .95, 1.02, .99], k)} fill="#e9b7bf" stroke="#8e3f48" strokeWidth="1.1"/><circle cx={x} cy={y} r="3" fill="#8e3f48"/></g>
+  const cluster = (cx: number, cy: number) => [[-14, -8], [0, -12], [14, -6], [-18, 6], [-4, 4], [10, 8], [-8, 16], [6, 18], [20, 10]].map(([a, b], k) => c(cx + a, cy + b, k))
+  const malignantBody = (arrow: boolean) => <g>
+    <path d="M300 186H530V214H300Z" fill="#fbe4e1"/><path d="M300 186H530M300 214H530" stroke="#c0676f" strokeWidth="2"/>
+    {cluster(380, 110)}{c(404, 138, 3)}{c(396, 160, 4)}{c(408, 196, 5)}{c(452, 200, 6)}
+    {arrow && <OneWay id={`${u}-f`} d="M420 200H470" colour="#b8434f" w={1.8}/>}
+    <g transform="translate(498 150)">{[[-8, -4], [6, -6], [0, 8], [12, 6]].map(([a, b], k) => c(a, b, k + 2))}</g>
+    <path d="M488 170Q496 178 500 186" stroke="#8e3f48" strokeWidth="1.4" fill="none"/>
+  </g>
+  const malignant = malignantBody(true)
+  const title = question && assessment ? 'A group of abnormal cells in body tissue. Some cells have moved into a nearby blood vessel, travelled along it, and formed a second group of cells further away. Original schematic, not to scale.'
+    : `Two tumours in body tissue. Left: a benign tumour, a lump of cells held inside a membrane, staying in one place. Right: a malignant tumour, whose cells invade nearby tissue, enter a blood vessel, travel in the blood and form a secondary tumour elsewhere.${hi === 'benign' ? ' The benign tumour is highlighted.' : hi === 'malignant' ? ' The malignant tumour is highlighted.' : ''} Original schematic, not to scale.`
+  if (question) return <Svg t={t} title={title}>
+    <rect x="12" y="8" width="516" height="234" rx="16" fill="#fdf1ec" stroke="#e1c3b6"/>
+    <g transform="translate(-430 -130) scale(1.7)">{malignantBody(false)}</g><OneWay id={`${u}-qa`} d="M284 210H366" colour="#b8434f" w={2.6}/>
+    {!assessment && <><Lbl x={166} y={62} anchor="end" bold>malignant tumour</Lbl><Lbl x={446} y={104} bold>secondary</Lbl><Lbl x={446} y={118} bold>tumour</Lbl></>}
+    <Lbl x={516} y={178} anchor="end" size={11.5} fill="#526976">blood vessel</Lbl>
+  </Svg>
+  return <Svg t={t} title={title}>
+    <rect x="10" y="20" width="520" height="210" rx="16" fill="#fdf1ec" stroke="#e1c3b6"/>
+    <g opacity={dim(hi !== 'malignant')}>
+      <circle cx="130" cy="120" r="40" fill="none" stroke="#6e8593" strokeWidth="2.4" strokeDasharray="1 0"/>{cluster(130, 118)}
+      <Lbl x={130} y={44} anchor="middle" bold size={13.5}>benign</Lbl>
+      <Lbl x={130} y={184} anchor="middle" size={11.5}>held in a membrane,</Lbl><Lbl x={130} y={198} anchor="middle" size={11.5}>stays in one place</Lbl>
+    </g>
+    <g opacity={dim(hi !== 'benign')}>
+      {malignant}
+      <Lbl x={380} y={44} anchor="middle" bold size={13.5}>malignant (cancer)</Lbl>
+      <Lbl x={330} y={160} anchor="end" size={11.5}>invades nearby tissue</Lbl><Leader d="M334 156L392 150" to={[394, 150]}/>
+      <Lbl x={498} y={120} anchor="middle" size={11.5} bold>secondary</Lbl><Lbl x={498} y={134} anchor="middle" size={11.5} bold>tumour</Lbl>
+      <Lbl x={414} y={226} anchor="middle" size={11} fill="#526976">cells travel in the blood</Lbl>
+    </g>
+  </Svg>
+}
+function Prevention() {
+  const { t } = useSvgIds()
+  return <Svg t={t} title="Ways to lower some cancer risks: not smoking, shown by a crossed-out cigarette, and protecting skin from the sun, shown by a sun hat and sunscreen. These lower some risks, but no one can remove every risk.">
+    <g transform="translate(150 100)"><circle r="54" fill="#fff" stroke="#b8434f" strokeWidth="6"/><Cigarette x={6} y={4} s={1.5}/><path d="M-38-38L38 38" stroke="#b8434f" strokeWidth="6"/></g>
+    <g transform="translate(390 100)"><ellipse cx="0" cy="20" rx="64" ry="14" fill="#f4e3c8" stroke="#a47b26" strokeWidth="1.6"/><path d="M-34 18Q-34-30 0-30Q34-30 34 18Z" fill="#f4e3c8" stroke="#a47b26" strokeWidth="1.6"/><path d="M-34 6H34" stroke="#c08a14" strokeWidth="5"/><rect x="48" y="-32" width="22" height="40" rx="5" fill="#fff" stroke={ink} strokeWidth="1.5"/><rect x="52" y="-40" width="14" height="10" rx="2" fill="#9cc9e0"/></g>
+    <Lbl x={150} y={184} anchor="middle" bold>not smoking</Lbl><Lbl x={390} y={184} anchor="middle" bold>protecting skin from the sun</Lbl>
+    <Lbl x={270} y={228} anchor="middle" size={12.5}>these lower some risks, not every risk</Lbl>
+  </Svg>
+}
+function Costs() {
+  const { t } = useSvgIds()
+  const cols = [{ x: 96, h: 'person and family', l: ['pain, shorter life', 'lost income'] }, { x: 270, h: 'health services', l: ['treatment and care', 'cost money'] }, { x: 444, h: 'country', l: ['fewer people', 'able to work'] }]
+  return <Svg t={t} title="The costs of non-communicable disease at three levels. Person and family: pain, a shorter life and lost income. Health services: treatment and care cost money. Country: fewer people are able to work.">
+    {cols.map(c => <g key={c.h}><rect x={c.x - 82} y="10" width="164" height="200" rx="16" fill="#f4f8fa" stroke="#c3d2da"/><Lbl x={c.x} y={36} anchor="middle" bold size={13.5}>{c.h}</Lbl>{c.l.map((l, i) => <Lbl key={i} x={c.x} y={172 + i * 16} anchor="middle" size={12}>{l}</Lbl>)}</g>)}
+    <Figure x={80} y={108} s={.7}/><Figure x={116} y={116} s={.52} fill="#f3e6d6"/>
+    <g transform="translate(270 104)"><rect x="-40" y="-30" width="80" height="60" rx="4" fill="#fff" stroke={ink} strokeWidth="1.6"/><path d="M0-16v24M-12-4h24" stroke="#b8434f" strokeWidth="5"/><path d="M-48-30L0-58L48-30Z" fill="#dceef8" stroke={ink} strokeWidth="1.6"/></g>
+    <g transform="translate(444 104)"><circle r="36" fill="#dceef8" stroke={ink} strokeWidth="1.6"/><path d="M-36 0H36M0-36Q-20 0 0 36Q20 0 0-36M-30-18H30M-30 18H30" fill="none" stroke="#8aa3b2" strokeWidth="1.3"/></g>
+    <Lbl x={270} y={236} anchor="middle" size={12} bold>human costs and money costs</Lbl>
+  </Svg>
+}
+function RiskData() {
+  const { t } = useSvgIds()
+  const data: [number, number][] = [[0, 12], [5, 40], [10, 62], [15, 96], [20, 122], [25, 146]]
+  const X = (v: number) => 110 + v * 14, Y = (v: number) => 200 - v
+  return <Svg t={t} title="A scatter graph of example data, not real measurements. Six groups of people: cigarettes smoked per day from 0 to 25 on the horizontal axis; lung cancer cases per 100 000 people on the vertical axis. The points rise from about 12 to about 146 as cigarettes per day increase.">
+    {[0, 40, 80, 120, 160].map(v => <g key={v}><path d={`M110 ${Y(v)}H470`} stroke="#eef2f4"/><Lbl x={102} y={Y(v) + 4} anchor="end" size={11}>{v}</Lbl></g>)}
+    {[0, 5, 10, 15, 20, 25].map(v => <Lbl key={v} x={X(v)} y={216} anchor="middle" size={11}>{v}</Lbl>)}
+    <path d="M110 30V200H470" fill="none" stroke={ink} strokeWidth="1.8"/>
+    {data.map(([a, b], i) => <circle key={i} cx={X(a)} cy={Y(b)} r="5.5" fill="#d9707a" stroke="#8e2d3c" strokeWidth="1.2"/>)}
+    <Lbl x={290} y={234} anchor="middle" size={12}>cigarettes smoked per day</Lbl>
+    <text x="36" y="115" transform="rotate(-90 36 115)" textAnchor="middle" fill={ink} fontSize="12">lung cancer cases per 100 000</text>
+    <Lbl x={290} y={18} anchor="middle" size={10.5} fill="#526976">example data · not real measurements</Lbl>
+  </Svg>
+}
+
 function RiskCancer({ focus, assessment }: { focus: string; assessment: boolean }) {
-  if (focus === 'risk-chance') return <Diagram title="Two groups show that a risk factor can raise probability without guaranteeing disease.">
-    <g fill={ink} fontSize="14" fontWeight="700" textAnchor="middle"><text x="145" y="25">lower-risk group</text><text x="395" y="25">higher-risk group</text></g>
-    {[0,1].map(group=>Array.from({length:20},(_,i)=>{const affected=group===0?i<3:i<9; const x=78+group*250+(i%5)*34,y=58+Math.floor(i/5)*35; return <g key={`${group}-${i}`}><circle cx={x} cy={y-7} r="6" fill={affected?red:blue}/><path d={`M${x-8} ${y+15}Q${x} ${y-1} ${x+8} ${y+15}`} fill={affected?red:blue}/></g>}))}
-    <g fill={ink} fontSize="12" textAnchor="middle"><text x="145" y="218">some develop disease; most do not</text><text x="395" y="218">more develop disease; some still do not</text></g>
-  </Diagram>
-
-  if (focus === 'risk-types') return <Diagram title="Lifestyle, environmental and inherited factors can combine to change disease risk.">
-    <circle cx="270" cy="133" r="50" fill="#fff3b9" stroke={yellow} strokeWidth="4"/><text x="270" y="128" textAnchor="middle" fill={ink} fontSize="16" fontWeight="800">disease</text><text x="270" y="148" textAnchor="middle" fill={ink} fontSize="12">probability</text>
-    {[[65,45,'lifestyle','choices + habits'],[362,45,'environment','exposures'],[197,202,'inherited','gene variants']].map(([x,y,label,note],i)=><g key={String(label)}><rect x={Number(x)} y={Number(y)} width="114" height="48" rx="14" fill={i===0?'#dbeef8':i===1?'#dff2ea':'#eee5f8'} stroke={ink} strokeWidth="2"/><text x={Number(x)+57} y={Number(y)+20} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{label}</text><text x={Number(x)+57} y={Number(y)+37} textAnchor="middle" fill={ink} fontSize="10">{note}</text></g>)}
-    <Arrow x1={180} y1={87} x2={228} y2={108}/><Arrow x1={360} y1={87} x2={312} y2={108}/><Arrow x1={254} y1={201} x2={264} y2={184}/>
-  </Diagram>
-
-  if (focus === 'risk-correlation' || focus === 'risk-evidence-question') return <Diagram title={assessment ? 'A data pattern beside a proposed biological pathway.' : 'Correlation in data must be tested alongside other variables and a plausible causal mechanism.'}>
-    <g transform="translate(42 32)" stroke={ink}><line y1="160" x2="190" y2="160"/><line y1="160" y2="5"/>{[[25,139],[53,126],[73,115],[102,96],[123,91],[151,61],[174,44]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="6" fill={blue}/>) }<path d="M18 145L180 37" stroke={purple} strokeWidth="3" strokeDasharray="6 5"/><text x="95" y="189" textAnchor="middle" fill={ink} stroke="none" fontSize="12">risk factor exposure</text><text transform="translate(-22 85) rotate(-90)" textAnchor="middle" fill={ink} stroke="none" fontSize="12">disease rate</text></g>
-    <Arrow x1={255} y1={118} x2={305} y2={118}/><g fill="#eef7fb" stroke={ink} strokeWidth="2"><rect x="318" y="42" width="178" height="58" rx="14"/><rect x="318" y="137" width="178" height="58" rx="14"/></g><g fill={ink} textAnchor="middle"><text x="407" y="66" fontSize="13" fontWeight="700">check other variables</text><text x="407" y="84" fontSize="11">repeat studies</text><text x="407" y="161" fontSize="13" fontWeight="700">test a mechanism</text><text x="407" y="179" fontSize="11">how could it cause harm?</text></g>
-  </Diagram>
-
-  if (focus === 'risk-causation') return <Diagram title="A causal pathway links harmful exposure to cell or tissue damage and then to increased disease risk.">
-    <g fill="#eef7fb" stroke={ink} strokeWidth="2"><rect x="28" y="82" width="135" height="82" rx="18"/><rect x="203" y="82" width="135" height="82" rx="18"/><rect x="378" y="82" width="135" height="82" rx="18"/></g><g fill={ink} textAnchor="middle"><text x="95" y="113" fontSize="14" fontWeight="700">exposure</text><text x="95" y="139" fontSize="11">chemical or radiation</text><text x="270" y="113" fontSize="14" fontWeight="700">biological damage</text><text x="270" y="139" fontSize="11">DNA, cells or tissue</text><text x="445" y="113" fontSize="14" fontWeight="700">higher disease risk</text><text x="445" y="139" fontSize="11">not a certain outcome</text></g><Arrow x1={164} y1={123} x2={201} y2={123}/><Arrow x1={339} y1={123} x2={376} y2={123}/>
-  </Diagram>
-
-  if (focus === 'risk-smoking') return <Diagram title="Smoking can damage airways, blood vessels and DNA, raising several disease risks.">
-    <path d="M270 39V104M270 79Q225 65 183 105M270 79Q315 65 357 105" fill="none" stroke={ink} strokeWidth="10"/><path d="M183 105Q132 118 124 184Q162 219 218 181Q227 133 183 105ZM357 105Q408 118 416 184Q378 219 322 181Q313 133 357 105Z" fill="#f3b0ad" stroke={ink} strokeWidth="3"/><g fill="#6d6570">{[[78,45],[103,55],[126,39],[151,55]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r={10+i*2}/>)}</g><Arrow x1={155} y1={62} x2={218} y2={95}/><g fill={red} stroke={ink}>{[[452,75],[476,105],[446,129],[486,155]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="11"/>)}</g><text x="270" y="235" textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">lung damage · cardiovascular disease · cancer risk</text>
-  </Diagram>
-
-  if (focus === 'risk-alcohol') return <Diagram title="Risk from alcohol depends on amount and duration, with the liver, brain and a developing fetus potentially affected.">
-    <path d="M86 40H151L140 115Q135 145 118 153V196H157V213H63V196H102V153Q85 145 80 115Z" fill="#eef7fb" stroke={ink} strokeWidth="3"/><path d="M84 91H146L139 120Q132 139 116 140Q94 138 86 120Z" fill={yellow}/><Arrow x1={165} y1={125} x2={230} y2={125}/><path d="M261 77Q306 52 333 83Q349 110 327 133Q303 156 259 139Q226 122 235 96Q241 83 261 77Z" fill="#d99090" stroke={ink} strokeWidth="3"/><path d="M405 73Q455 45 483 79Q496 100 482 121Q463 148 413 137Q377 125 382 97Q385 83 405 73Z" fill="#eee5f8" stroke={ink} strokeWidth="3"/><g fill={ink} fontSize="13" fontWeight="700" textAnchor="middle"><text x="116" y="235">exposure</text><text x="285" y="181">liver</text><text x="438" y="181">brain</text></g>
-  </Diagram>
-
-  if (focus === 'risk-obesity') return <Diagram title="Excess body fat can reduce insulin sensitivity and increase the risk of type 2 diabetes and other diseases.">
-    <Person x={96} y={118} colour={yellow}/><Arrow x1={145} y1={118} x2={210} y2={118}/><g transform="translate(270 118)"><circle r="54" fill="#dbeef8" stroke={ink} strokeWidth="3"/><circle r="24" fill={purple}/><path d="M-43-33L-64-57M39-37L61-61M45 31L69 50" stroke={red} strokeWidth="5"/><text y="80" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">cell responds less to insulin</text></g><Arrow x1={330} y1={118} x2={390} y2={118}/><rect x="401" y="72" width="115" height="92" rx="18" fill="#f8e5e3" stroke={ink} strokeWidth="2"/><text x="458" y="105" textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">higher risk</text><text x="458" y="129" textAnchor="middle" fill={ink} fontSize="11">type 2 diabetes</text><text x="458" y="146" textAnchor="middle" fill={ink} fontSize="11">some cancers</text>
-  </Diagram>
-
-  if (focus === 'risk-radiation') return <Diagram title="Ultraviolet radiation, ionising radiation and some viruses can contribute to cell changes that raise cancer risk.">
-    <g transform="translate(74 81)" stroke={yellow} strokeWidth="6">{Array.from({length:8},(_,i)=><line key={i} y1="-31" y2="-55" transform={`rotate(${i*45})`}/>) }<circle r="26" fill={yellow}/></g><text x="74" y="153" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">UV</text><path d="M172 36L139 104H172L151 173L213 91H178L203 36Z" fill={purple} stroke={ink} strokeWidth="2"/><text x="176" y="199" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">ionising radiation</text><g transform="translate(285 84)" fill={green} stroke={ink}>{Array.from({length:8},(_,i)=><line key={i} y1="-26" y2="-41" transform={`rotate(${i*45})`}/>) }<circle r="26"/></g><text x="285" y="153" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">some viruses</text><Arrow x1={327} y1={112} x2={383} y2={112}/><g transform="translate(450 112)" fill={red} stroke={ink}>{[[0,0],[-25,-20],[25,-20],[-30,21],[30,21],[0,43]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="16"/>)}</g><text x="450" y="191" textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">cell changes</text>
-  </Diagram>
-
-  if (focus === 'cancer-formation') return <Diagram title="Cell changes can remove control of division, producing a growing tumour.">
-    <g transform="translate(70 122)" fill="#dbeef8" stroke={ink} strokeWidth="2"><circle r="28"/><circle r="10" fill={purple}/></g><Arrow x1={108} y1={122} x2={165} y2={122}/><g transform="translate(220 122)" fill={red} stroke={ink}>{[[-18,-14],[18,-14],[-18,18],[18,18]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="22"/>)}</g><Arrow x1={261} y1={122} x2={320} y2={122}/><g transform="translate(421 122)" fill={red} stroke={ink}>{Array.from({length:12},(_,i)=><circle key={i} cx={Math.cos(i*.9)*(18+(i%3)*17)} cy={Math.sin(i*.9)*(18+(i%3)*15)} r="19"/>)}</g><g fill={ink} fontSize="13" fontWeight="700" textAnchor="middle"><text x="70" y="205">changed cell</text><text x="220" y="205">uncontrolled division</text><text x="421" y="205">tumour mass</text></g>
-  </Diagram>
-
-  if (focus === 'cancer-benign' || focus === 'cancer-malignant' || focus === 'cancer-spread-question') {
-    const malignant = focus !== 'cancer-benign'
-    return <Diagram title={assessment ? 'One tumour stays within a boundary while another invades tissue and sends cells through a vessel.' : malignant ? 'A malignant tumour invading tissue and spreading cells through a blood vessel to form a secondary tumour.' : 'A benign tumour contained within a membrane and not invading nearby tissue.'}>
-      <path d="M30 35H510V215H30Z" fill="#f4ece6" stroke={ink} strokeWidth="2"/><path d="M40 172H500V205H40Z" fill="#dbeef8" stroke={blue} strokeWidth="3"/>
-      <g transform="translate(190 112)" fill={red} stroke={ink}>{Array.from({length:11},(_,i)=><circle key={i} cx={Math.cos(i*.9)*(18+(i%3)*16)} cy={Math.sin(i*.9)*(16+(i%3)*14)} r="18"/>)}</g>
-      {!malignant && <ellipse cx="190" cy="112" rx="86" ry="76" fill="none" stroke={green} strokeWidth="5"/>}
-      {malignant && <><path d="M241 126Q286 142 310 174" fill="none" stroke={red} strokeWidth="8"/><g fill={red} stroke={ink}>{[[335,188],[382,189],[430,188]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="11"/>)}</g><g transform="translate(466 112)" fill={red} stroke={ink}>{[[0,0],[-21,-18],[22,-17],[-23,20],[23,21]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r="15"/>)}</g></>}
-      {!assessment && <g fill={ink} fontSize="13" fontWeight="700"><text x="105" y="24">{malignant?'primary tumour invades':'contained tumour'}</text>{malignant&&<><text x="304" y="159">cells enter blood</text><text x="407" y="76">secondary tumour</text></>}</g>}
-    </Diagram>
-  }
-
-  if (focus === 'cancer-genetic') return <Diagram title="Inherited gene variants and changes acquired during life can both affect cancer risk.">
-    <g transform="translate(95 32)" fill="none" strokeWidth="4">{Array.from({length:7},(_,i)=><g key={i}><line x1={Math.sin(i*.9)*24} y1={i*25} x2={70+Math.sin(i*.9+3.14)*24} y2={i*25} stroke={i===3?red:ink}/><circle cx={Math.sin(i*.9)*24} cy={i*25} r="5" fill={blue} stroke={blue}/><circle cx={70+Math.sin(i*.9+3.14)*24} cy={i*25} r="5" fill={purple} stroke={purple}/></g>)}</g><Arrow x1={205} y1={118} x2={285} y2={118}/><g transform="translate(386 118)" fill={red} stroke={ink}>{Array.from({length:9},(_,i)=><circle key={i} cx={Math.cos(i*.95)*(15+(i%3)*17)} cy={Math.sin(i*.95)*(15+(i%3)*16)} r="18"/>)}</g><g fill={ink} fontSize="13" fontWeight="700" textAnchor="middle"><text x="130" y="229">inherited variant can raise chance</text><text x="386" y="229">risk, not certainty</text></g>
-  </Diagram>
-
-  if (focus === 'cancer-prevention') return <Diagram title="Avoiding tobacco, limiting ultraviolet exposure and screening can reduce some cancer risks or find changes earlier.">
-    <path d="M270 35L328 58V121Q328 173 270 207Q212 173 212 121V58Z" fill="#dff2ea" stroke={green} strokeWidth="4"/><path d="M240 119L260 140L302 91" fill="none" stroke={ink} strokeWidth="7"/>
-    <g transform="translate(82 91)"><rect x="-42" y="-8" width="84" height="17" rx="8" fill="#eee" stroke={ink} strokeWidth="2"/><rect x="21" y="-8" width="21" height="17" fill={yellow}/><path d="M-55-38L55 38M55-38L-55 38" stroke={red} strokeWidth="7"/></g><g transform="translate(454 87)" stroke={yellow} strokeWidth="5">{Array.from({length:8},(_,i)=><line key={i} y1="-25" y2="-44" transform={`rotate(${i*45})`}/>) }<circle r="22" fill={yellow}/><path d="M-48 63Q0 27 48 63" fill="#eee5f8" stroke={purple}/></g><g fill={ink} fontSize="12" fontWeight="700" textAnchor="middle"><text x="82" y="176">avoid tobacco</text><text x="270" y="232">screening for some cancers</text><text x="454" y="176">limit UV exposure</text></g>
-  </Diagram>
-
-  return <Diagram title="Non-communicable disease can create linked costs for a person, a household and wider society.">
-    <circle cx="116" cy="122" r="69" fill="#dbeef8" stroke={blue} strokeWidth="3"/><circle cx="270" cy="122" r="69" fill="#eee5f8" stroke={purple} strokeWidth="3"/><circle cx="424" cy="122" r="69" fill="#dff2ea" stroke={green} strokeWidth="3"/><g fill={ink} fontSize="14" fontWeight="700" textAnchor="middle"><text x="116" y="101">person</text><text x="116" y="128" fontSize="11">health · activity</text><text x="116" y="145" fontSize="11">quality of life</text><text x="270" y="101">household</text><text x="270" y="128" fontSize="11">care · adaptations</text><text x="270" y="145" fontSize="11">income</text><text x="424" y="101">society</text><text x="424" y="128" fontSize="11">treatment · research</text><text x="424" y="145" fontSize="11">workforce</text></g><Arrow x1={184} y1={122} x2={201} y2={122}/><Arrow x1={338} y1={122} x2={355} y2={122}/>
-  </Diagram>
+  if (focus === 'risk-chance') return <ChanceGrid/>
+  if (focus === 'risk-types') return <RiskTypes/>
+  if (focus === 'risk-correlation') return <Correlation/>
+  if (focus === 'risk-causation') return <Causation/>
+  if (focus === 'risk-mechanism') return <Mechanism/>
+  if (focus === 'risk-smoking') return <Smoking/>
+  if (focus === 'risk-diet') return <Lifestyle hi="diet"/>
+  if (focus === 'risk-obesity') return <Lifestyle hi="obesity"/>
+  if (focus === 'risk-alcohol') return <Alcohol/>
+  if (focus === 'risk-pregnancy') return <Pregnancy/>
+  if (focus === 'risk-radiation') return <Carcinogen/>
+  if (focus === 'risk-costs') return <Costs/>
+  if (focus === 'risk-data-question' || focus === 'risk-evidence-question') return <RiskData/>
+  if (focus === 'cancer-formation') return <CancerFormation/>
+  if (focus === 'cancer-benign') return <Tumours hi="benign"/>
+  if (focus === 'cancer-malignant') return <Tumours hi="malignant"/>
+  if (focus === 'cancer-spread-question') return <Tumours hi="malignant" question assessment={assessment}/>
+  if (focus === 'cancer-genetic') return <ChanceGrid gene/>
+  if (focus === 'cancer-prevention') return <Prevention/>
+  return <Tumours hi="both"/>
 }
 
 export function HealthDiseaseVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
