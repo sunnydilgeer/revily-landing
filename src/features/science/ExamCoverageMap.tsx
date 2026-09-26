@@ -62,7 +62,7 @@ export default function ExamCoverageMap() {
     <main className="science-course exam-preparation">
       <span className="science-eyebrow">Teacher planning · AQA 8464 Foundation</span><h1>From lessons to exam practice</h1>
       <p>Our six lessons cover Cell Biology, not the whole Science GCSE or all of Biology Paper 1. Teaching coverage is not proof that a learner is ready.</p>
-      <nav className="exam-links" aria-label="Exam preparation resources"><Link href={'/preview/science/exam'}>Try Lesson 6 exam practice</Link><a href={assessmentResources} target="_blank" rel="noreferrer">Official AQA assessment resources</a></nav>
+      <nav className="exam-links" aria-label="Exam preparation resources"><Link href={'/preview/science/exam'}>Try the transport exam practice</Link><a href={assessmentResources} target="_blank" rel="noreferrer">Official AQA assessment resources</a></nav>
       <section className="exam-panel"><h2>1. Our teaching coverage</h2><p>18 topic areas, linked to the exact teaching screen. All lessons remain drafts awaiting qualified teacher review.</p>
         {scienceLessons.map(lesson => <details className="exam-lesson" key={lesson.number} open><summary>Lesson {lesson.number} · {lesson.title}</summary><ul>{coverageTopics.filter(t => t.lesson === lesson.number).map(topic => <li key={topic.id}><Link href={coverageLessonHref(topic)}>{topic.title}</Link><p>{topic.skills}</p><small>Specification: {topic.spec} · Screen {topic.activity}</small></li>)}</ul></details>)}
       </section>
@@ -85,7 +85,7 @@ export default function ExamCoverageMap() {
         </form>
         <p role="status">{notice}</p><p>{storage ? 'Mappings stay in this browser. Export metadata for a review handoff. A and B share this curriculum map; learner progress is unchanged.' : 'Browser storage is unavailable. Records can be viewed or edited for this visit, but may not survive reload. Export metadata to keep a copy.'}</p>
       </section>
-      <aside className="exam-panel"><h2>Source and permission boundaries</h2><p>These links do not grant permission to reproduce AQA content or put it into an AI workflow. Clear the planned use with AQA before importing official material into Revily. Do not use secure or unreleased papers. The Lesson 6 pilot uses original Revily questions and draft marking guidance, not official AQA questions or mark schemes.</p><a href={copyrightPolicy} target="_blank" rel="noreferrer">Read AQA’s copyright and AI policy</a></aside>
+      <aside className="exam-panel"><h2>Source and permission boundaries</h2><p>These links do not grant permission to reproduce AQA content or put it into an AI workflow. Clear the planned use with AQA before importing official material into Revily. Do not use secure or unreleased papers. The transport exam pilot uses original Revily questions and draft marking guidance, not official AQA questions or mark schemes.</p><a href={copyrightPolicy} target="_blank" rel="noreferrer">Read AQA’s copyright and AI policy</a></aside>
     </main>
   </div>
 }

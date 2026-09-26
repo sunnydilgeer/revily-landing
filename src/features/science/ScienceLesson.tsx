@@ -28,11 +28,11 @@ import './ScienceLessonFrame.css'
 // Same event Maths fires when a rung is finished: finishing a section keeps the shared streak going.
 const SECTION_COMPLETE_EVENT = 'revily:rung-complete'
 const PRAISE = ['Nice! That’s right.', 'Correct!', 'Spot on.', 'That’s it.']
-const PRACTICAL_NOTES: Partial<Record<LessonNumber, string>> = {
-  3: 'This lesson prepares you for required practical 1. You still need to do it for real with your teacher: look at real plant and animal cells, then draw and label them with their size.',
-  6: 'This lesson prepares you for required practical 2. You still need to do the real investigation with your teacher.',
-  8: 'This lesson prepares you for required practical 4. You still need to do the real investigation with your teacher.',
-  9: 'This lesson prepares you for required practical 3. You still need to do the real food tests with your teacher.',
+const PRACTICAL_NOTES: Record<string, string> = {
+  'B-CELL-003-B': 'This lesson prepares you for required practical 1. You still need to do it for real with your teacher: look at real plant and animal cells, then draw and label them with their size.',
+  'B-CELL-006B-B': 'This lesson prepares you for required practical 2. You still need to do the real investigation with your teacher.',
+  'B-ORG-008-B': 'This lesson prepares you for required practical 4. You still need to do the real investigation with your teacher.',
+  'B-ORG-009-B': 'This lesson prepares you for required practical 3. You still need to do the real food tests with your teacher.',
 }
 
 const engines = new Map(scienceLessons.map(item => [item.number, createPreviewSessionEngine(item.lesson)] as const))
@@ -191,7 +191,7 @@ export default function ScienceLesson({ lessonNumber, initialActivity }: { lesso
         <p className="rung-done__kicker">{remaining ? `${completion.total - completion.completed} screens still to do` : `All ${ranges.length} sections done`}</p>
         <h3 id="lesson-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{remaining ? 'Almost there' : `Lesson complete: ${entry.title}`}</h3>
         {!remaining && pendingWritten && <p className="rung-done__next">Your written answers are saved on this device.</p>}
-        {!remaining && PRACTICAL_NOTES[lessonNumber] && <p className="rung-done__next sl-practical-note">{PRACTICAL_NOTES[lessonNumber]}</p>}
+        {!remaining && PRACTICAL_NOTES[lesson.id] && <p className="rung-done__next sl-practical-note">{PRACTICAL_NOTES[lesson.id]}</p>}
         <div className="rung-done__actions">
           {remaining
             ? <Button size="lg" onClick={() => jump(remaining.id)}>Go to what’s left</Button>

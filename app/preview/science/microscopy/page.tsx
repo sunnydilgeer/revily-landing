@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
+import { scienceLessonHrefById } from '../../../../src/features/science/lessonNavigation'
 
 export default function MicroscopyPreviewPage() {
-  redirect('/preview/science?lesson=2')
+  redirect(scienceLessonHrefById('B-CELL-002-B'))
 }

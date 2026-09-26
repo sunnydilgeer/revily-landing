@@ -30,7 +30,7 @@ assert.ok(lesson.includes('PRACTICAL_NOTES') && lesson.includes('required practi
 assert.ok(drawer.includes('awaiting review by a qualified teacher'), 'Draft status must stay in Contents')
 assert.ok(lesson.includes("'revily:rung-complete'"), 'Finishing a section must count toward the shared streak')
 
-// Pilot: lessons 1–3 only until signed off
-assert.ok(page.includes('const RESKINNED = new Set<number>([1, 2, 3])'))
+// Pilot: the cells, microscopy and RP1 lessons only until signed off (keyed by lesson id)
+assert.ok(page.includes("const RESKINNED = new Set<string>(['B-CELL-001-B', 'B-CELL-001B-B', 'B-CELL-002-B', 'B-CELL-002B-B', 'B-CELL-003-B'])"))
 
 console.log('Science lesson frame verified: shared frame, teal theme, saved-for-review written answers, minimal UI, safety notes, pilot scope.')

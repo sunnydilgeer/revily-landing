@@ -127,6 +127,7 @@ Lessons 13–26: 15–19 screens, 4–7 sections. Lessons 1–6: 24–45 screens
 - Lessons 7–12: rewritten to the 13–26 shape (content version 0.3.0), each with a new STORYBOARD.md. `node scripts/check-science-lesson.cjs N` passes for all six.
 - Lessons 3 and 4: restructured to the same shape (content version 0.2.0); lesson 3 went from 30 screens to 20.
 - Lesson 16: fixed so each section is one walkthrough (content version 0.3.0).
+- Lessons 1, 2, 5 and 6: split into 1 + 1b, 2 + 2b, 5 + 5b and 6 + 6b + 6c (Science now has 31 lessons). Each has a STORYBOARD.md and passes `node scripts/check-science-lesson.cjs <folder>`. The coach experiment was retired at the same time.
 
 ## Plan
 1. Lessons 7–12: new storyboards in the 17/18 format, fixed in place.

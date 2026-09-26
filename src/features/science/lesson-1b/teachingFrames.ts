@@ -11,7 +11,7 @@ const compare = (label: string, summary: string, cue: string, text: string): Tea
 export const bacteriaFrames: Record<string, TeachingFrame[]> = {
   'B1-27': [
     bacterium('Meet a bacterial cell', 'Some living things are just one tiny cell.', 'one cell = one whole living thing',
-      'Some living things are made of just one cell. These cells are much smaller than animal or plant cells. One of these tiny living cells is called a bacterium. Many of them are called bacteria. Like your cells, a bacterium has a cell membrane. This drawing is enlarged; it is not the real size.', 'membrane'),
+      'Some living things are made of just one cell. These cells are much smaller than animal or plant cells. One of these tiny living cells is called a bacterium. More than one are called bacteria. Like your cells, a bacterium has a cell membrane. This drawing is enlarged; it is not the real size.', 'membrane'),
     bacterium('Cytoplasm and ribosomes', 'Bacteria have cytoplasm and ribosomes, like your cells.', 'same parts, same jobs',
       'Inside the membrane is cytoplasm, where many reactions happen. Ribosomes in the cytoplasm make proteins. These parts do the same jobs as in animal and plant cells. Bacteria have no mitochondria and no chloroplasts.', 'ribosomes'),
     bacterium('The cell wall', 'A wall outside the membrane supports the cell.', 'a wall, but not cellulose',
