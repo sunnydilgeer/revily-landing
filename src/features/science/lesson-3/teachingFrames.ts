@@ -1,261 +1,45 @@
-// Variant B: simpler teaching copy. Visual targets and step order match Variant A.
 import type { TeachingFrame } from '../teachingFrame'
 
+// One route through required practical 1: get ready safely → prepare an onion slide → use the
+// microscope → look and draw → add a scale. One new word per screen. Plain meaning first, then the term.
+// Visuals are the practical schematics in components/PracticalVisuals.tsx.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'practical', focus })
+
 export const practicalFrames: Record<string, TeachingFrame[]> = {
-  "B3-02": [
-    {
-      "label": "Get your equipment ready",
-      "summary": "The sample sits between a slide and coverslip.",
-      "cue": "Think: small sample, clear glass",
-      "text": "Use a teacher-prepared onion piece, tweezers, slide, coverslip, water, iodine and microscope. The slide holds the sample. A coverslip is thin glass placed over it. Your teacher may demonstrate a mounted needle.",
-      "diagram": "practical",
-      "focus": "equipment"
-    },
-    {
-      "label": "Protect eyes and handle glass carefully",
-      "summary": "Follow your teacher’s safety instructions.",
-      "cue": "Think: stain and glass need care",
-      "text": "Wear eye protection for iodine. Avoid skin and eye contact. Never taste lab materials. Handle glass and pointed tools carefully. Tell your teacher about broken glass; never pick it up by hand.",
-      "diagram": "practical",
-      "focus": "safety"
-    },
-    {
-      "label": "Practise with your teacher",
-      "summary": "Practise in school, with your teacher.",
-      "cue": "Think: online preparation, supervised practice",
-      "text": "Use prepared onion pieces; do not cut them here. Carry the microscope by its arm while supporting its base. This lesson prepares you for required practical 1. It does not replace doing it.",
-      "diagram": "practical",
-      "focus": "carry"
-    }
+  'B3-02': [
+    f('Your equipment', 'The onion sample sits on a glass slide, under a thin glass cover.', 'slide below, coverslip on top', 'You will use a teacher-prepared onion piece, tweezers, water, iodine stain and a light microscope. The sample sits on a glass slide. A thin square of glass placed over the sample is called a coverslip.', 'equipment'),
+    f('Stay safe', 'Iodine and glass both need care.', 'eyes protected, glass reported', 'Wear eye protection for iodine. Avoid skin and eye contact. Never taste lab materials. Handle glass and pointed tools carefully. Tell your teacher about broken glass; never pick it up by hand.', 'safety'),
+    f('Practise with your teacher', 'The real practical happens in school, with your teacher.', 'this lesson first, then the real practical', 'Your teacher prepares the onion pieces, so you do not cut anything. Carry a microscope by its arm, with your other hand under its base. This lesson prepares you for required practical 1. It does not replace doing it.', 'carry'),
   ],
-  "B3-04": [
-    {
-      "label": "Start with a clean slide",
-      "summary": "Put a small drop of water on the slide.",
-      "cue": "Think: a wet mount",
-      "text": "Use a clean slide so dirt does not hide cells. The sample will sit in water. This is called a wet mount.",
-      "diagram": "practical",
-      "focus": "slide-water"
-    },
-    {
-      "label": "Peel a very thin layer",
-      "summary": "Use a small piece of thin onion skin.",
-      "cue": "Think: one thin epidermal layer",
-      "text": "Use tweezers to lift the inner skin of a teacher-prepared onion layer. This skin is called the epidermis. It must be thin so light can pass through.",
-      "diagram": "practical",
-      "focus": "slide-peel"
-    },
-    {
-      "label": "Spread the tissue flat",
-      "summary": "Keep the skin flat in the water.",
-      "cue": "Think: no folds or overlaps",
-      "text": "Gently spread the skin with tweezers. Folds put cells on top of one another. Flat tissue makes individual cells easier to see.",
-      "diagram": "practical",
-      "focus": "slide-flat"
-    },
-    {
-      "label": "Add iodine stain",
-      "summary": "Makes some structures stand out.",
-      "cue": "Think: easier to distinguish structures",
-      "text": "Add iodine as your teacher directs. It increases contrast: some parts stand out from their surroundings. Stain helps you see them; it does not make them bigger.",
-      "diagram": "practical",
-      "focus": "slide-stain"
-    },
-    {
-      "label": "Lower the coverslip at an angle",
-      "summary": "Lower slowly, with one edge touching first.",
-      "cue": "Think: let air escape",
-      "text": "Slowly lowering the coverslip at an angle lets air escape. This reduces bubbles that could hide cells. Only use a mounted needle as demonstrated. Do not press hard.",
-      "diagram": "practical",
-      "focus": "slide-cover"
-    },
-    {
-      "label": "Check the finished slide",
-      "summary": "Check the tissue is flat under the coverslip.",
-      "cue": "Think: ready for the stage",
-      "text": "If needed, use filter paper at the edge to soak up extra liquid. Follow your teacher’s instructions for handling and disposal.",
-      "diagram": "practical",
-      "focus": "slide-ready"
-    }
+  'B3-04': [
+    f('Start with a clean slide', 'Put one drop of water in the middle of a clean slide.', 'clean glass, one drop of water', 'Dirt on the glass could hide cells, so start with a clean slide. Add one drop of water. A slide with the sample sitting in water is called a wet mount.', 'slide-water'),
+    f('Peel a thin layer', 'Lift the thin skin from the inside of an onion layer.', 'one thin layer → light gets through', 'Use tweezers to lift the thin skin from the inside of a teacher-prepared onion layer. This thin outer layer of cells is called the epidermis. It must be thin so light can pass through.', 'slide-peel'),
+    f('Spread it flat', 'Spread the skin flat in the drop of water.', 'no folds → one layer of cells', 'Gently spread the skin flat with the tweezers. A fold puts cells on top of one another. Then light has to pass through two layers, and single cells are hard to see.', 'slide-flat'),
+    f('Add iodine stain', 'A stain makes some parts stand out.', 'stain → parts stand out, not bigger', 'Add a drop of iodine as your teacher directs. It colours some parts, such as the nucleus, more than others. So those parts stand out from their surroundings. This is called increasing the contrast. Stain does not make anything bigger.', 'slide-stain'),
+    f('Lower the coverslip at an angle', 'Touch one edge down first, then lower it slowly.', 'let the air escape', 'Touch one edge of the coverslip to the water, then lower it slowly. This lets air escape, so fewer bubbles form. Bubbles look like circles with dark edges, and they can hide cells. Only use a mounted needle as your teacher demonstrates. Do not press hard.', 'slide-cover'),
+    f('Put the slide together', 'Water, thin flat skin, stain, then the coverslip.', 'water → skin → stain → coverslip', 'Check that the skin lies flat under the coverslip. Soak up extra liquid at the edge with filter paper. Follow your teacher’s instructions for clearing away. So the order is water, thin flat skin, stain, then coverslip.', 'slide-ready'),
   ],
-  "B3-08": [
-    {
-      "label": "Secure and illuminate the slide",
-      "summary": "Put the sample over the light.",
-      "cue": "Think: light through the specimen",
-      "text": "Place the microscope on a stable surface. Clip the slide onto the stage. Position the sample above the opening. Adjust the light as your teacher demonstrates.",
-      "diagram": "practical",
-      "focus": "scope-stage"
-    },
-    {
-      "label": "Start with the lowest-power objective",
-      "summary": "Start with low magnification to find the cells.",
-      "cue": "Think: find first, enlarge later",
-      "text": "Use the lowest-power objective, often ×4. It shows a wider area of the slide. Total magnification = eyepiece × objective: ×10 and ×4 give ×40.",
-      "diagram": "practical",
-      "focus": "scope-low"
-    },
-    {
-      "label": "Watch from the side when moving closer",
-      "summary": "Watch the gap directly from the side.",
-      "cue": "Think: protect the lens and glass",
-      "text": "At low power, use coarse focus as your teacher demonstrates. Bring the objective close while watching from the side. Stop before it touches the slide. Microscope designs differ.",
-      "diagram": "practical",
-      "focus": "scope-side"
-    },
-    {
-      "label": "Move away to find rough focus",
-      "summary": "Look through the eyepiece, then increase the gap.",
-      "cue": "Think: away from glass",
-      "text": "At low power, slowly increase the gap using coarse focus. Stop when cells are roughly in focus. Do not move the lens towards the glass while looking through the eyepiece.",
-      "diagram": "practical",
-      "focus": "scope-coarse"
-    },
-    {
-      "label": "Use fine focus for a sharp view",
-      "summary": "Use small adjustments to make the image sharp.",
-      "cue": "Think: sharp, not just larger",
-      "text": "Use fine focus once you can see cells. It makes small changes. Centre the cells before changing to a higher-power objective.",
-      "diagram": "practical",
-      "focus": "scope-fine"
-    },
-    {
-      "label": "Increase magnification carefully",
-      "summary": "At high power, use fine focus.",
-      "cue": "Think: fine focus at high power",
-      "text": "A higher-power objective gives a bigger image of a smaller area. Use small fine-focus movements. Large coarse movements could hit the slide. Follow your teacher’s instructions.",
-      "diagram": "practical",
-      "focus": "scope-high"
-    }
+  'B3-08': [
+    f('Put the slide on the stage', 'Clip the slide so the sample is over the hole in the stage.', 'light comes up through the sample', 'Stand the microscope on a steady bench. Clip the slide onto the stage, with the sample over the hole. Switch on the light as your teacher shows you.', 'scope-stage'),
+    f('Start on low power', 'The lens that magnifies least shows the widest view.', 'find first, enlarge later', 'Turn the objective lens that magnifies least over the slide. This is called the lowest-power objective, often ×4. With a ×10 eyepiece it gives ×40, as you met in Lesson 2. It shows a wider area, so cells are easier to find.', 'scope-low'),
+    f('Watch from the side', 'Watch the gap between the lens and the slide.', 'eyes on the gap, not the eyepiece', 'The big focusing knob moves the lens a long way. It is called the coarse focus. Turn it to bring the objective close to the slide, watching from the side. Stop before the lens touches the glass. On some microscopes the stage moves instead.', 'scope-side'),
+    f('Move away to focus', 'Look through the eyepiece, then slowly widen the gap.', 'focus by moving away from the glass', 'Now look through the eyepiece. Turn the coarse focus slowly to widen the gap, until the cells come roughly into focus. Do not move the lens towards the glass while looking through the eyepiece.', 'scope-coarse'),
+    f('Sharpen with fine focus', 'The small knob makes small changes.', 'blurred edges → fine focus', 'The small focusing knob makes tiny movements. It is called the fine focus. Use it to make the cell edges sharp. A bigger image of a blurred view is still blurred.', 'scope-fine'),
+    f('Change to higher power', 'Centre the cells, then switch to a bigger view of a smaller area.', 'centre → higher power → fine focus only', 'Move the cells to the centre of the view first. Then turn a higher-power objective over the slide. It shows a bigger image of a smaller area. Use small fine-focus movements. Large coarse movements could hit the slide. If you lose the cells, go back to low power and find them again.', 'scope-high'),
   ],
-  "B3-12": [
-    {
-      "label": "If the view is blank",
-      "summary": "Check the light and sample position.",
-      "cue": "Think: start with the simple checks",
-      "text": "Return to the lowest-power objective. Check the light is on and the sample is above the stage opening. A blank view does not prove there are no cells.",
-      "diagram": "practical",
-      "focus": "blank"
-    },
-    {
-      "label": "If cells are visible but blurred",
-      "summary": "Use small fine-focus adjustments.",
-      "cue": "Think: small fine-focus changes",
-      "text": "If you can see cells but their edges are blurred, adjust fine focus. Making the image bigger will not fix poor focus.",
-      "diagram": "practical",
-      "focus": "blur"
-    },
-    {
-      "label": "If circles or overlapping layers obscure cells",
-      "summary": "Bubbles or folds can hide cells.",
-      "cue": "Think: improve the slide",
-      "text": "Bubbles may look like circles with dark edges. Folds put cells on top of one another. Ask your teacher about remaking the slide with flat tissue and fewer bubbles.",
-      "diagram": "practical",
-      "focus": "bubbles"
-    }
+  'B3-12': [
+    f('Look at the onion cells', 'The cells sit side by side in a sheet.', 'box shapes = cell walls', 'Onion cells fit together like bricks in a wall. The box-shaped outlines are the cell walls. This picture is an illustration, not a microscope photograph. Your own view depends on your slide, stain and focus.', 'onion'),
+    f('Draw only what you can see', 'A practical drawing records your own view, not a textbook cell.', 'what you see, not what the book shows', 'You may see cell walls, cytoplasm and some stained nuclei. The skin cells of an onion bulb normally have no chloroplasts, so do not draw any. What you actually see is called an observation. Only draw a part if you can see it clearly.', 'onion-features'),
+    f('Now a prepared animal-cell slide', 'Your teacher gives you a ready-made slide of animal cells.', 'plant cells first, then animal cells', 'Required practical 1 includes animal cells as well as plant cells. Your teacher provides a prepared, stained animal-cell slide. It has already been made and stained, so you only need to focus on it. Do not collect cells from your own body.', 'animal'),
+    f('Look at the animal cells', 'Animal cells have no cell wall.', 'no wall → uneven outlines', 'Use the same focusing steps as before. You may see a stained nucleus and the cell outline. Animal cells have no cell wall, so their outlines are uneven. The thin membrane may be hard to see clearly.', 'animal-features'),
+    f('Draw clean outlines', 'Use a sharp pencil and one smooth line for each outline.', 'lines, not shading', 'Draw a few cells large enough to label, keeping their shapes and sizes in proportion. Use a sharp pencil and one smooth line for each outline. Do not shade or colour. A drawing like this is called a biological drawing.', 'drawing-clean'),
+    f('Add labels', 'Straight label lines reach each part.', 'ruler lines, never crossing', 'Use a ruler to draw a straight line from each label to its part. Do not let the lines cross. Write the labels to the side, where they are easy to read. So your drawing shows clearly what you saw.', 'drawing-labels'),
   ],
-  "B3-14": [
-    {
-      "label": "Look at the onion cells",
-      "summary": "Onion cells lie next to each other in a sheet.",
-      "cue": "Think: a tissue, not a single cartoon cell",
-      "text": "The box-like outlines show cell walls. This is an illustration, not a microscope photograph. Your actual view depends on the sample, stain and focus.",
-      "diagram": "practical",
-      "focus": "onion"
-    },
-    {
-      "label": "Identify features you can distinguish",
-      "summary": "Some structures are easier to see than others.",
-      "cue": "Think: visible evidence first",
-      "text": "Here you can see cell walls, some stained nuclei and cytoplasm. You may not see every part in every cell. Onion-bulb epidermal cells normally have no chloroplasts.",
-      "diagram": "practical",
-      "focus": "onion-features"
-    },
-    {
-      "label": "Do not add invisible textbook structures",
-      "summary": "Draw what you can actually see.",
-      "cue": "Think: observations, not guesses",
-      "text": "A textbook model shows cell structures for learning. A practical drawing records your observations. Only add a structure if you can see it clearly in your sample.",
-      "diagram": "practical",
-      "focus": "onion-observe"
-    }
+  'B3-15': [
+    f('Record the magnification', 'Write a title and the microscope magnification you used.', 'what it is, and how magnified', 'Give your drawing a title that names the sample, such as “Onion epidermis cells”. Write the microscope magnification you used, such as ×100. A reader then knows what you looked at, and how.', 'drawing-record'),
+    f('Estimate a real size', 'Divide the width of the view by the number of cells across it.', 'view width ÷ number of cells', 'The circle you see through the eyepiece is called the field of view. Your teacher can tell you its real width, such as 1.2 mm. If four similar cells fit across it, one cell is about 1.2 ÷ 4 = 0.3 mm, or 300 µm. This is an estimate.', 'measure-field'),
+    f('Draw a scale bar', 'A short line on the drawing stands for a real length.', 'bar = a known real length', 'Draw a short line beside your cells and write a real length under it, such as 100 µm. A line like this is called a scale bar. A 300 µm cell would be three scale bars long. So a reader can see how big the real cells are.', 'measure-scale'),
+    f('Drawing magnification', 'Drawing length ÷ real length.', 'drawing size ÷ real size', 'How many times bigger your drawing is than the real cell is called the drawing magnification. Work it out as drawing length ÷ real length, in the same units. The drawing can have a different magnification from the microscope. It depends on how big you draw.', 'measure-drawing'),
+    f('Put it together', 'Prepare, observe, draw, then add a scale.', 'prepare → observe → draw → scale', 'You made a thin, flat, stained slide. You focused safely, from low power to high power. You drew only what you saw, with clean lines and straight labels. Then you added a title, the magnification and a scale. Next, you will see how cells are shaped for the jobs they do.', 'drawing-record'),
   ],
-  "B3-15": [
-    {
-      "label": "Now observe a prepared animal-cell slide",
-      "summary": "Observe an animal-cell slide provided by your teacher.",
-      "cue": "Think: plant and animal observations",
-      "text": "Required practical 1 includes plant and animal cells. Your teacher provides a prepared, stained animal-cell slide. Do not collect cells from your body for this lesson.",
-      "diagram": "practical",
-      "focus": "animal"
-    },
-    {
-      "label": "Draw the visible animal-cell features",
-      "summary": "Label only the features you can see.",
-      "cue": "Think: no cell wall",
-      "text": "You may see a stained nucleus and cell outline. The membrane’s thickness may not be clear. Animal cells have no cell wall. Record your actual view.",
-      "diagram": "practical",
-      "focus": "animal-features"
-    }
-  ],
-  "B3-16": [
-    {
-      "label": "Make a clear biological drawing",
-      "summary": "Draw a few cells large enough to label.",
-      "cue": "Think: clear proportions",
-      "text": "Use a sharp pencil. Keep the cells’ relative sizes and shapes. Leave enough space to add clear labels.",
-      "diagram": "practical",
-      "focus": "drawing-outline"
-    },
-    {
-      "label": "Use clean, single outlines",
-      "summary": "Use single lines, without shading.",
-      "cue": "Think: lines, not decoration",
-      "text": "Draw smooth, thin outlines. Do not use repeated sketchy strokes, heavy shading or colour. Do not add structures you cannot see.",
-      "diagram": "practical",
-      "focus": "drawing-clean"
-    },
-    {
-      "label": "Add straight label lines",
-      "summary": "Use straight lines that reach each feature.",
-      "cue": "Think: each line reaches its feature",
-      "text": "Use a ruler for label lines. Keep the labels readable. Do not cross the lines. Each line must reach the feature it names.",
-      "diagram": "practical",
-      "focus": "drawing-labels"
-    },
-    {
-      "label": "Record the title, magnification and scale",
-      "summary": "Add a title and useful size information.",
-      "cue": "Think: a drawing records evidence",
-      "text": "Name the sample and record the microscope magnification. Use known real measurements for a scale bar or drawing magnification. The drawing can have a different magnification from the microscope.",
-      "diagram": "practical",
-      "focus": "drawing-record"
-    }
-  ],
-  "B3-19": [
-    {
-      "label": "Use a calibrated measurement",
-      "summary": "Known view width ÷ number of cells.",
-      "cue": "Think: known width ÷ number of cells",
-      "text": "The measured view is 1.2 mm wide. Four similar cells fit across it. One cell is about 1.2 ÷ 4 = 0.3 mm, or 300 µm. This assumes they span the full width.",
-      "diagram": "practical",
-      "focus": "measure-field"
-    },
-    {
-      "label": "A scale bar represents real size",
-      "summary": "A scale bar shows a known real length.",
-      "cue": "Think: 100 µm means actual length",
-      "text": "A 300 µm cell is three times a 100 µm scale bar’s length. Use a known real measurement to draw the bar. This screen alone cannot tell you real size.",
-      "diagram": "practical",
-      "focus": "measure-scale"
-    },
-    {
-      "label": "Drawing and microscope magnification differ",
-      "summary": "Microscope and drawing magnification are different.",
-      "cue": "Think: drawing size ÷ real size",
-      "text": "Microscope magnification = eyepiece × objective. Drawing magnification = drawing length ÷ real length. Match the units. Use a known real length, not a measurement of this screen.",
-      "diagram": "practical",
-      "focus": "measure-drawing"
-    }
-  ]
 }
