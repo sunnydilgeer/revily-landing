@@ -16,6 +16,7 @@ import TutorRoundingLesson from './features/rounding/tutor/RoundingLessonView'
 import TutorOrderingLesson from './features/ordering/tutor/OrderingLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import MathsCourseOverview from './features/maths/MathsCourseOverview'
+import { RevilyLogo } from './ui'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
 import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber } from './features/maths/courseRegistry'
 import {
@@ -109,10 +110,7 @@ function App() {
 
   return <div className={`app-shell ${view === 'lesson' ? 'app-shell--lesson app-shell--study' : 'app-shell--course'}`}>
     <header className="site-header">
-      <a className="brand" href="/" aria-label="Revily home">
-        <span className="brand-mark" aria-hidden="true">R</span>
-        {view === 'overview' && <span>Revily</span>}
-      </a>
+      <RevilyLogo wordmark={view === 'overview'} size={view === 'overview' ? 26 : 24} />
 
       {view === 'overview' ? <span className="prototype-label">GCSE Foundation Maths</span> : <>
         <nav className="maths-breadcrumbs" aria-label="Breadcrumb">

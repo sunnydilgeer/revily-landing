@@ -1,33 +1,33 @@
 .fr-worked { margin: 0; min-width: 0; }
 .fr-bars, .fr-mixed, .fr-area { display: grid; gap: 12px; margin: 16px 0; }
 .fr-bar-row { display: grid; grid-template-columns: minmax(70px, auto) minmax(0, 1fr); align-items: center; gap: 12px; }
-.fr-card { min-width: 68px; display: grid; justify-items: center; gap: 4px; padding: 10px 12px; border: 1px solid #cbdad0; border-radius: 12px; background: #fff; color: #263b30; }
+.fr-card { min-width: 68px; display: grid; justify-items: center; gap: 4px; padding: 10px 12px; border: 1px solid var(--rv-line); border-radius: 12px; background: #fff; color: var(--rv-ink); }
 .fr-card--equivalent { border-color: #8cb6d9; background: #f1f8ff; }
-.fr-card--result { border-color: #69a97f; background: #eef9f0; }
-.fr-card small { color: #607267; font-size: 11px; }
+.fr-card--result { border-color: var(--rv-line-strong); background: var(--rv-grid); }
+.fr-card small { color: var(--rv-muted); font-size: 11px; }
 .fr-card > div { display: flex; align-items: center; gap: 6px; font-size: 24px; }
 .fr-card b { font-size: 25px; }
 .fr-stack { display: inline-grid; grid-template-rows: 1fr 1fr; min-width: 1.4em; text-align: center; line-height: 1.05; }
 .fr-stack span:first-child { border-bottom: 2px solid currentColor; padding-bottom: 2px; }
 .fr-stack span:last-child { padding-top: 2px; }
-.fr-segments { grid-column: 2; display: grid; grid-template-columns: repeat(var(--parts), minmax(3px, 1fr)); min-height: 38px; border: 2px solid #779080; border-radius: 9px; overflow: hidden; background: white; }
-.fr-segments i { min-width: 0; border-left: 1px solid #b9cabc; background: #fff; }
+.fr-segments { grid-column: 2; display: grid; grid-template-columns: repeat(var(--parts), minmax(3px, 1fr)); min-height: 38px; border: 2px solid var(--rv-line-strong); border-radius: 9px; overflow: hidden; background: white; }
+.fr-segments i { min-width: 0; border-left: 1px solid var(--rv-line); background: #fff; }
 .fr-segments i:first-child { border-left: 0; }
-.fr-segments i.is-filled { background: #7bc897; }
-.fr-whole-count { grid-column: 2; min-height: 0; color: #53675a; font-size: 12px; }
+.fr-segments i.is-filled { background: var(--rv-biro-light); }
+.fr-whole-count { grid-column: 2; min-height: 0; color: var(--rv-muted); font-size: 12px; }
 .fr-reciprocal { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 18px 0; }
 .fr-reciprocal > div { display: flex; align-items: center; gap: 12px; }
-.fr-arrow { color: #2f6f4b; font-size: 25px; font-weight: 800; }
+.fr-arrow { color: var(--rv-biro); font-size: 25px; font-weight: 800; }
 .fr-amount { margin: 16px 0; }
-.fr-amount > p { margin: 0 0 9px; color: #53675a; font-size: 13px; }
+.fr-amount > p { margin: 0 0 9px; color: var(--rv-muted); font-size: 13px; }
 .fr-amount > div { display: grid; grid-template-columns: repeat(var(--parts), minmax(0, 1fr)); gap: 4px; }
-.fr-amount span { min-width: 0; padding: 12px 2px; border: 1px solid #b7c9bc; border-radius: 7px; background: #fff; color: #52645a; font-size: clamp(10px, 2.5vw, 14px); text-align: center; }
-.fr-amount span.is-selected { border-color: #5b9d72; background: #dff3e5; color: #205b38; font-weight: 750; }
+.fr-amount span { min-width: 0; padding: 12px 2px; border: 1px solid var(--rv-line); border-radius: 7px; background: #fff; color: var(--rv-muted); font-size: clamp(10px, 2.5vw, 14px); text-align: center; }
+.fr-amount span.is-selected { border-color: var(--rv-muted); background: var(--rv-grid); color: var(--rv-ink); font-weight: 750; }
 .fr-fraction-input { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
-.fr-fraction-input label { display: grid; gap: 4px; color: #53645b; font-size: 12px; text-align: center; }
-.fr-fraction-input input { width: 72px; min-height: 48px; padding: 8px; border: 1px solid #bac8bf; border-radius: 10px; background: white; color: #17251e; font: inherit; font-size: 20px; text-align: center; }
+.fr-fraction-input label { display: grid; gap: 4px; color: var(--rv-muted); font-size: 12px; text-align: center; }
+.fr-fraction-input input { width: 72px; min-height: 48px; padding: 8px; border: 1px solid var(--rv-line); border-radius: 10px; background: white; color: var(--rv-ink); font: inherit; font-size: 20px; text-align: center; }
 .fr-fraction-input__stack { display: grid; gap: 5px; position: relative; }
-.fr-fraction-input__stack::after { content: ''; position: absolute; left: 2px; right: 2px; top: 50%; height: 2px; background: #63766a; pointer-events: none; }
+.fr-fraction-input__stack::after { content: ''; position: absolute; left: 2px; right: 2px; top: 50%; height: 2px; background: var(--rv-muted); pointer-events: none; }
 .fr-fraction-input input:focus { outline: 3px solid #9cc7ef; outline-offset: 2px; border-color: #3978aa; }
 @media (max-width: 420px) {
   .fr-bar-row { grid-template-columns: 64px minmax(0, 1fr); gap: 7px; }

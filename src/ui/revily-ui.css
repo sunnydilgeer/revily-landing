@@ -1,0 +1,117 @@
+/* Revily shared components. Class names use the rv- prefix; tokens live in revily-tokens.css. */
+
+/* ---------- Logo ---------- */
+.rv-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--rv-ink); text-decoration: none; }
+.rv-logo--on-night { color: var(--rv-on-night); }
+.rv-logo__word { font-family: var(--rv-font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; line-height: 1; }
+.rv-logo svg { flex: none; }
+
+/* ---------- Step chip ---------- */
+.rv-step { --c: var(--rv-ink); --t: var(--rv-grid); }
+.rv-step--b { --c: var(--rv-step-b); --t: var(--rv-step-b-tint); }
+.rv-step--i { --c: var(--rv-step-i); --t: var(--rv-step-i-tint); }
+.rv-step--dm { --c: var(--rv-step-dm); --t: var(--rv-step-dm-tint); }
+.rv-step--as { --c: var(--rv-step-as); --t: var(--rv-step-as-tint); }
+.rv-step--biro { --c: var(--rv-biro); --t: var(--rv-biro-tint); }
+.rv-chip {
+  display: inline-grid; place-items: center; min-width: 1.9em; height: 1.6em; padding: 0 .4em;
+  border-radius: 8px; color: #fff; background: var(--c);
+  font-family: var(--rv-font-display); font-weight: 800; font-size: 1.05rem; line-height: 1;
+}
+
+/* ---------- "= ?" answer box ---------- */
+.rv-answer { display: inline-flex; align-items: center; gap: .35em; font-weight: 500; }
+.rv-answer__eq { color: var(--rv-ink); }
+.rv-answer__box {
+  min-width: 1.4em; min-height: 1.25em; padding: 0 .28em; display: inline-grid; place-items: center;
+  border: 3px dashed var(--rv-line-strong); border-radius: 12px; color: var(--rv-muted); line-height: 1.15;
+}
+.rv-answer--solved .rv-answer__box {
+  border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint);
+  font-weight: 700; animation: rv-pop .5s both;
+}
+.rv-final { display: inline-block; padding-bottom: 4px; border-bottom: 6px double var(--rv-ink); font-weight: 700; }
+
+/* ---------- Working lines (one job per line) ---------- */
+.rv-working { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.rv-line {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center; gap: 8px 18px;
+  min-height: 56px; animation: rv-rise .35s both;
+}
+.rv-line__expr { font-size: clamp(1.35rem, 3.6vw, 1.9rem); font-weight: 500; font-variant-numeric: tabular-nums; color: var(--rv-ink); }
+.rv-line__note {
+  display: inline-flex; align-items: center; gap: 10px; justify-self: start;
+  font-family: var(--rv-font-pen); font-weight: 700; font-size: clamp(1.45rem, 3.8vw, 1.9rem); color: var(--rv-biro); line-height: 1.1;
+}
+.rv-line--dim .rv-line__expr { color: var(--rv-muted); }
+.rv-mark { padding: 0 .12em; border: 3px solid var(--c, var(--rv-biro)); border-radius: 10px; background: var(--t, var(--rv-biro-tint)); }
+.rv-new { color: var(--c, var(--rv-biro)); font-weight: 700; }
+@media (max-width: 560px) {
+  .rv-line { grid-template-columns: 1fr; gap: 2px; }
+}
+
+/* ---------- Buttons ---------- */
+.rv-btn {
+  min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 0 22px; border: 2px solid transparent; border-radius: var(--rv-radius-pill);
+  font: 600 1rem/1 var(--rv-font-body); text-decoration: none; cursor: pointer;
+  transition: background-color .15s, border-color .15s, transform .08s;
+}
+.rv-btn svg { width: 1.1em; height: 1.1em; }
+.rv-btn--lg { min-height: 56px; padding: 0 30px; font-size: 1.1rem; }
+.rv-btn--block { width: 100%; }
+.rv-btn--primary { color: var(--rv-ink); background: var(--rv-yellow); border-color: var(--rv-ink); box-shadow: 0 3px 0 var(--rv-ink); }
+.rv-btn--primary:hover { background: #ffcb3d; }
+.rv-btn--primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--rv-ink); }
+.rv-btn--secondary { color: var(--rv-ink); background: var(--rv-surface); border-color: var(--rv-line); }
+.rv-btn--secondary:hover { border-color: var(--rv-ink); }
+.rv-btn--dark { color: var(--rv-on-night); background: var(--rv-ink); }
+.rv-btn--dark:hover { background: var(--rv-night-3); }
+.rv-btn--good { color: #fff; background: var(--rv-good); border-color: var(--rv-good-ink); box-shadow: 0 3px 0 var(--rv-good-ink); }
+.rv-btn--bad { color: #fff; background: var(--rv-redpen); border-color: #a51f1f; box-shadow: 0 3px 0 #a51f1f; }
+.rv-btn--ghost { color: var(--rv-ink); background: transparent; }
+.rv-btn--ghost:hover { background: var(--rv-grid); }
+.rv-btn:disabled { color: var(--rv-muted); background: var(--rv-grid); border-color: var(--rv-line); box-shadow: none; cursor: not-allowed; transform: none; }
+.rv-btn:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.rv-icon-btn { width: 48px; min-width: 48px; padding: 0; }
+
+/* ---------- Check bar (bottom of every question) ---------- */
+.rv-checkbar {
+  position: sticky; bottom: 0; z-index: 5; margin-top: 24px;
+  border-top: 2px solid var(--rv-line); background: var(--rv-surface);
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+}
+.rv-checkbar__inner { max-width: 760px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.rv-checkbar__status { flex: 1 1 280px; min-width: 0; display: flex; gap: 14px; align-items: flex-start; }
+.rv-checkbar__icon {
+  flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
+  color: #fff; font-size: 1.4rem; font-weight: 800; background: var(--rv-muted);
+}
+.rv-checkbar__title { margin: 0; font-family: var(--rv-font-display); font-weight: 800; font-size: 1.35rem; line-height: 1.2; }
+.rv-checkbar__message { margin: 4px 0 0; color: var(--rv-ink); font-size: 1rem; line-height: 1.5; }
+.rv-checkbar__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+.rv-checkbar--correct { border-top-color: var(--rv-good); background: var(--rv-good-tint); }
+.rv-checkbar--correct .rv-checkbar__icon { background: var(--rv-good); }
+.rv-checkbar--correct .rv-checkbar__title { color: var(--rv-good-ink); }
+.rv-checkbar--incorrect { border-top-color: var(--rv-redpen); background: var(--rv-redpen-tint); }
+.rv-checkbar--incorrect .rv-checkbar__icon { background: var(--rv-redpen); }
+.rv-checkbar--incorrect .rv-checkbar__title { color: #a51f1f; }
+@media (max-width: 560px) {
+  .rv-checkbar__actions { width: 100%; margin-left: 0; }
+  .rv-checkbar__actions .rv-btn { flex: 1 1 auto; }
+}
+
+/* ---------- Paper ---------- */
+.rv-paper {
+  background-color: var(--rv-paper);
+  background-image: var(--rv-paper-grid);
+  background-size: var(--rv-paper-grid-size);
+}
+
+/* ---------- Motion ---------- */
+@keyframes rv-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes rv-pop { 0% { transform: scale(1.4); } 60% { transform: scale(.94); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .rv-line, .rv-answer--solved .rv-answer__box { animation: none; }
+  .rv-btn { transition: none; }
+}

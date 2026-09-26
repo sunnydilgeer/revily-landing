@@ -49,9 +49,9 @@
   margin-bottom: 34px;
   padding: 24px 26px;
   border-radius: 20px;
-  color: #fff;
-  background: linear-gradient(130deg, var(--colour-primary-dark), var(--colour-primary));
-  box-shadow: 0 16px 38px rgb(32 62 155 / 18%);
+  color: var(--rv-on-night);
+  background: var(--rv-night);
+  box-shadow: none;
 }
 
 .continue-learning-copy h2 {
@@ -89,9 +89,9 @@
   min-height: 48px;
   padding: 0 18px;
   border: 0;
-  border-radius: 12px;
-  color: var(--colour-primary-dark);
-  background: #fff;
+  border-radius: var(--rv-radius-pill);
+  color: var(--rv-ink);
+  background: var(--rv-yellow);
   font: inherit;
   font-weight: 800;
   cursor: pointer;
@@ -168,8 +168,8 @@
 }
 
 .maths-lesson-marker.is-complete {
-  color: #087653;
-  border-color: #b8e6d4;
+  color: var(--rv-good-ink);
+  border-color: var(--rv-biro-light);
   background: var(--colour-accent-soft);
 }
 
@@ -488,7 +488,7 @@
 .maths-breadcrumbs button:focus-visible,
 .maths-course summary:focus-visible,
 .maths-lesson-options summary:focus-visible {
-  outline: 3px solid #347bd3;
+  outline: 3px solid var(--rv-biro);
   outline-offset: 2px;
 }
 
