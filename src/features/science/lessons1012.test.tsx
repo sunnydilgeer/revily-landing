@@ -22,7 +22,7 @@ const at = '2026-09-22T09:30:00.000Z'
 lessons.forEach((lesson, index) => {
   check(`${lesson.id}: metadata, official source and independent requirements`, () => {
     assert.equal(lesson.id, `B-ORG-0${index + 10}-B`)
-    assert.equal(lesson.contentVersion, '0.2.0')
+    assert.equal(lesson.contentVersion, '0.3.0')
     assert.equal(lesson.qualification, 'AQA-8464F')
     assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.retrieval.length, 0)
@@ -121,8 +121,14 @@ check('Lung, heart and vessel scientific boundaries are explicit', () => {
   assert.match(lungs, /carbon dioxide.*into the alveolus/i)
   assert.ok(!lesson10.states.some(state => state.id !== 'B10-02' && JSON.stringify(state).match(/bronchiole/i)), 'Bronchioles are supporting context, not assessed recall')
   assert.ok(!lesson10.states.some(state => JSON.stringify(state).match(/breathing rate/i)), 'Breathing-rate arithmetic is not presented as required 4.2.2.2 content')
-  assert.ok(lesson11.states.findIndex(state => state.id === 'B11-05') < lesson11.states.findIndex(state => state.id === 'B11-02'), 'The complete heart route is taught before double circulation is named')
-  assert.deepEqual(vesselsFrames['B12-02'].map(frame => frame.focus), ['vessel-artery', 'vessel-capillary', 'vessel-vein'])
+  // Big picture first: double circulation is taught before the detailed route through the chambers.
+  const heartOrder = lesson11.states.flatMap(state => heartFrames[state.id as keyof typeof heartFrames] ?? []).map(frame => `${frame.summary} ${frame.text}`)
+  assert.ok(heartOrder.findIndex(text => /double circulation|two loops/i.test(text)) < heartOrder.findIndex(text => /vena cava/i.test(text)), 'Double circulation is taught before the detailed heart route')
+  // Each vessel gets its own walkthrough, not one crowded three-vessel screen.
+  const vesselHome = (focus: string) => Object.entries(vesselsFrames).filter(([, frames]) => frames.some(frame => frame.focus === focus)).map(([id]) => id)
+  const homes = ['vessel-artery', 'vessel-capillary', 'vessel-vein'].map(vesselHome)
+  homes.forEach(ids => assert.ok(ids.length > 0))
+  assert.equal(new Set(homes.map(ids => ids[0])).size, 3, 'Artery, capillary and vein are taught in separate walkthroughs')
   frameSets.flatMap(frameSet => Object.values(frameSet).flat()).forEach(frame => assert.doesNotMatch(frame.cue, /→/))
   assert.match(heart, /right ventricle.*pulmonary artery/i)
   assert.match(heart, /left ventricle.*aorta/i)
@@ -155,7 +161,9 @@ check('Lessons 10–12 use separate storage identities', () => {
 })
 
 check('Every anatomy teaching frame has a labelled SVG and a separate enlarge view', () => {
-  const focuses = [...new Set(frameSets.flatMap(frames => Object.values(frames).flat().map(frame => frame.focus!)))]
+  // Anatomy frames only; the blood-flow formula card in lesson 12 is not a body diagram.
+  const focuses = [...new Set(frameSets.flatMap(frames => Object.values(frames).flat().map(frame => frame.focus!)))].filter(focus => /^(lung|heart|vessel)-/.test(focus))
+  assert.ok(focuses.length >= 10)
   focuses.forEach(focus => {
     const html = renderToStaticMarkup(<CellBiologyVisual focus={focus}/>)
     assert.match(html, /<figure class="science-anatomy"/)
