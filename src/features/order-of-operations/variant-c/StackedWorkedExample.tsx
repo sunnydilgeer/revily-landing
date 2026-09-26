@@ -18,7 +18,7 @@ export function StackedWorkedExample({ visual }: Props) {
   })
 
   return <figure className="opb-stage opc-stacked" data-revealed-steps={revealed}>
-    <p className="opb-step-label">{revealed ? `Step ${revealed} of ${steps.length}` : 'Worked example'}</p>
+    {revealed > 0 && <p className="opb-step-label">{`Step ${revealed} of ${steps.length}`}</p>}
     {working.map(({ example, count }, exampleIndex) => exampleIndex > 0 && count === 0 ? null : <div className="opc-working-example" key={exampleIndex}>
       {examples.length > 1 && <p className="opc-example-label">Example {exampleIndex + 1}</p>}
       <ol className="opc-working-lines" aria-label={examples.length > 1 ? `Example ${exampleIndex + 1} calculation working` : 'Calculation working'}>
@@ -29,8 +29,8 @@ export function StackedWorkedExample({ visual }: Props) {
       </ol>
     </div>)}
     <div className="opc-step-description" aria-live="polite" aria-atomic="true">
-      <p className="opb-instruction">{active?.title ?? 'Follow one calculation at a time.'}</p>
-      <p className="opb-note">{active?.evidence ?? 'Select Next to reveal the first line of working.'}</p>
+      {active?.title && <p className="opb-instruction">{active.title}</p>}
+      {active?.evidence && <p className="opb-note">{active.evidence}</p>}
     </div>
     <div className="opb-toggles opc-step-controls">
       <button type="button" aria-label="Previous calculation step" disabled={revealed === 0} onClick={() => setRevealed(value => value - 1)}>← Back</button>

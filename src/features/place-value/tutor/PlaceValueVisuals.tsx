@@ -79,9 +79,9 @@ function Worked({ visual }: { visual: Extract<PlaceLessonVisual, { kind: 'worked
   const current = visual.steps[step]
   return <>
     <div aria-live="polite" aria-atomic="true">
-      <p className="pvb-step-label">{current ? `Step ${step + 1} of ${visual.steps.length}` : 'Worked example'}</p>
+      {current && <p className="pvb-step-label">{`Step ${step + 1} of ${visual.steps.length}`}</p>}
       <PlaceVisualBody visual={current?.visual ?? visual.initial} />
-      <p className="pvb-instruction">{current?.instruction ?? 'Follow one step at a time.'}</p>
+      {current?.instruction && <p className="pvb-instruction">{current.instruction}</p>}
       {current?.equation && <p className="pvb-equation">{current.equation}</p>}
     </div>
     <div className="pvb-demo-controls">
