@@ -1,10 +1,12 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const { createRequire } = require('node:module')
 const ts = require('typescript')
 const katex = require('katex')
 
 const root = path.resolve(__dirname, '..')
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true }, fileName: filename }).outputText, filename)
 
 function loadTypeScriptModule(relativePath) {
   const filename = path.join(root, relativePath)
@@ -14,7 +16,7 @@ function loadTypeScriptModule(relativePath) {
     fileName: filename,
   }).outputText
   const module = { exports: {} }
-  Function('exports', 'module', 'require', '__filename', '__dirname', output)(module.exports, module, require, filename, path.dirname(filename))
+  Function('exports', 'module', 'require', '__filename', '__dirname', output)(module.exports, module, createRequire(filename), filename, path.dirname(filename))
   return module.exports
 }
 
@@ -140,5 +142,9 @@ for (const source of ['N2.1 Q2', 'N2.1 Q5c', 'N2.2 Q2', 'N2.2 Q5c', 'N2.3 Q2', '
   assert.ok(states.some(state => state.sourceRef.includes(source)), `Source coverage missing: ${source}`)
 }
 assert.equal(states.filter(state => state.sourceRef.startsWith('Video')).length, 3, 'All three tutor videos need a replayable screen')
+
+// The right answer is not always in the same place
+const lesson2AnswerPositions = states.filter(state => state.interaction.type === 'select' && !state.interaction.acceptanceRule).map(state => state.interaction.options.findIndex(option => option.id === state.interaction.correctAnswer))
+assert.ok([0, 1, 2, 3].every(position => lesson2AnswerPositions.filter(at => at === position).length <= lesson2AnswerPositions.length / 2), 'Lesson 2: no position may hold more than half the right answers')
 
 console.log('Verified Lesson 2: ' + states.length + ' screens, ' + questions.length + ' questions, ' + calculations + ' stacked calculations, ' + transitions + ' underlined transitions, sole tutor-backed route.')

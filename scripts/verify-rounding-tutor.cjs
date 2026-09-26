@@ -60,4 +60,7 @@ assert.ok(app.includes('case 10:') && app.includes('return <TutorRoundingLesson 
 const registry = read('src/features/maths/courseRegistry.ts')
 assert.ok(registry.includes("entry(10, tutorRoundingLesson, 'Rounding numbers'"), 'Lesson 10 must be appended to the canonical course order')
 
+// The right answer is written first, so choose() moves it to a different position on each question
+assert.ok(!/\], 0\)/.test(lesson), 'Lesson 10: use choose() so the right answer is not always first')
+
 console.log('Lesson 10 verified: 33 screens, 32 source-aligned examples and practice parts, 4 source-identical videos, exact half-up rounding and canonical course route.')

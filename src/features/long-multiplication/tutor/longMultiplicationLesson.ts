@@ -1,7 +1,9 @@
-import { numeric, select, working, type Diagram } from '../../written-methods/model'
+import { chooser, numeric, working, type Diagram } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
 import { columnWorking, gridWorking, methodWorking } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
+
+const choose = chooser()
 
 const { add, finish } = author(4)
 const grid = 'long-multiplication-layout', columnTopic = 'long-multiplication-ones', carry = 'long-multiplication-carrying', apply = 'long-multiplication-application'
@@ -32,11 +34,11 @@ tickets.answerLabel = 'Total raised (£)'
 add(apply, 'Work out 347 × 4 using the column method.', 'N5.1 Q5a', diagram(column('347', '4')), numeric(1388), columnAnswer(347, 4), columnHint)
 add(apply, 'In your column working for 347 × 4, what number was carried from the tens column into the hundreds column?', 'N5.1 Q5b', diagram(column('347', '4')), numeric(1), working('1', ['Multiply, then add the number carried over.', columnWorking(347, 4).steps[1].instruction], ['Identify the number carried over.', 'The number carried over is 1.']), 'Follow the calculation until you carry over 1.')
 add(apply, 'The same multiplication, using the column method', 'N5.1 Q5c preparation (source counterexample 34 × 26)', methodWorking(columnWorking(34, 26)))
-add(apply, 'Jake says: “The grid method and the column method always give different answers for the same multiplication.” Is Jake correct? Give a reason using an example.', 'N5.1 Q5c (reason and example choices)', text('Compare the same calculation: 34 × 26'), select([
+add(apply, 'Jake says: “The grid method and the column method always give different answers for the same multiplication.” Is Jake correct? Give a reason using an example.', 'N5.1 Q5c (reason and example choices)', text('Compare the same calculation: 34 × 26'), choose([
   'No. For 34 × 26, the grid gives 600 + 180 + 80 + 24 = 884 and columns give 204 + 680 = 884.',
   'Yes. The video’s grid answer is 884 and its column answer is 10,578, so the methods disagree.',
   'No. Both methods add the two original numbers, so 34 × 26 is 60.',
-], 0), working('No. Both methods give 884 for 34 × 26.', ['Use the same factors for both methods.', 'The video’s 884 and 10,578 come from different questions: 34 × 26 and 246 × 43.'], ['Use the grid method.', '600 + 180 + 80 + 24 = 884.'], ['Use the column method.', '34 × 6 = 204; 34 × 20 = 680; 204 + 680 = 884.'], ['Explain why the methods agree.', 'Both split the same multiplication into smaller products and add them, so correct working gives the same result.']), 'Compare identical factors. Use 34 × 26 in both methods and include a numerical example in your reason.')
+]), working('No. Both methods give 884 for 34 × 26.', ['Use the same factors for both methods.', 'The video’s 884 and 10,578 come from different questions: 34 × 26 and 246 × 43.'], ['Use the grid method.', '600 + 180 + 80 + 24 = 884.'], ['Use the column method.', '34 × 6 = 204; 34 × 20 = 680; 204 + 680 = 884.'], ['Explain why the methods agree.', 'Both split the same multiplication into smaller products and add them, so correct working gives the same result.']), 'Compare identical factors. Use 34 × 26 in both methods and include a numerical example in your reason.')
 add('mixed', 'Split, multiply, carry and combine', 'N5.1 consolidation', text('Grid: multiply every pair, then add', 'Columns: multiply, then add each carry', 'Compare methods using the same factors'), undefined, undefined, undefined, 'Keep place values aligned. A carry belongs to the next column. Different methods agree when they calculate the same multiplication correctly.')
 const states = finish({ videoFirst: true })
 const answerWorking = {

@@ -1,8 +1,10 @@
-import { select, working } from '../../written-methods/model'
+import { chooser, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
 import { numberSenseWorking } from '../../written-methods/tutor/numberSenseWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
+
+const choose = chooser()
 
 const { add, finish } = author(10)
 const decimalPlaces = 'rounding-decimal-places'
@@ -107,11 +109,11 @@ practice(decimalPlaces, 'A parcel has a mass of 3.2748 kg. Write it correct to 2
 practice(decimalPlaces, 'Write 3.2748 correct to 1 decimal place.', 'N10.1 Q4b', number(3.3, '3.3 kg'), '3.3 kg', 'Return to the original number and inspect the hundredths digit.', { original: '3.2748', target: '1 decimal place', split: '3.2 | 748', keptDigit: '2 in the tenths column', cutDigit: 7, answer: '3.3', suffix: 'kg' })
 practice(decimalPlaces, 'A stopwatch shows 12.2451 seconds. Write the time correct to 2 decimal places.', 'N10.1 Q5a', number(12.25, '12.25 s'), '12.25 s', 'The third decimal digit is 5, so round the hundredths digit up.', { original: '12.2451', target: '2 decimal places', split: '12.24 | 51', keptDigit: '4 in the hundredths column', cutDigit: 5, answer: '12.25', suffix: 's' })
 practice(decimalPlaces, 'Write 12.2451 correct to 3 decimal places.', 'N10.1 Q5b', number(12.245, '12.245 s'), '12.245 s', 'Keep three decimal digits, then inspect the fourth.', { original: '12.2451', target: '3 decimal places', split: '12.245 | 1', keptDigit: '5 in the thousandths column', cutDigit: 1, answer: '12.245', suffix: 's' })
-practice(decimalPlaces, 'Zane rounds 12.25 to 1 decimal place and gets 12.3 s. Is this the correct rounding of the original 12.2451 s?', 'N10.1 Q5c', select([
+practice(decimalPlaces, 'Zane rounds 12.25 to 1 decimal place and gets 12.3 s. Is this the correct rounding of the original 12.2451 s?', 'N10.1 Q5c', choose([
   'No. Round the original number: 12.2 | 451 has cut-off digit 4, so the answer is 12.2 s.',
   'Yes. Rounding 12.25 again is always equivalent to rounding the original number.',
   'No. The original number rounds to 12.4 s because it contains a 5.',
-], 0), 'No - the original value rounds to 12.2 s.', 'Always round from the original measurement, not from an already rounded answer.', { original: '12.2451', target: '1 decimal place', split: '12.2 | 451', keptDigit: '2 in the tenths column', cutDigit: 4, answer: '12.2', suffix: 's' }, [
+]), 'No - the original value rounds to 12.2 s.', 'Always round from the original measurement, not from an already rounded answer.', { original: '12.2451', target: '1 decimal place', split: '12.2 | 451', keptDigit: '2 in the tenths column', cutDigit: 4, answer: '12.2', suffix: 's' }, [
   ['Return to the original value.', 'Use 12.2451, not the intermediate rounded value 12.25.'],
   ['Find the cut-off digit.', 'For 1 decimal place, write 12.2 | 451. The cut-off digit is 4.'],
   ['Conclude.', '4 is below 5, so 12.2451 rounds to 12.2 s. Zane is not correct.'],
@@ -130,11 +132,11 @@ practice(significantFigures, 'A spider’s thread is 0.0004062 cm wide. Write it
 practice(significantFigures, 'Write 0.0004062 correct to 1 significant figure.', 'N10.2 Q4b', number(0.0004, '0.0004 cm'), '0.0004 cm', 'Leading zeroes do not count; keep the 4 and inspect the next digit.', { original: '0.0004062', target: '1 significant figure', split: '0.0004 | 062', keptDigit: '4, the first significant digit', cutDigit: 0, answer: '0.0004', suffix: 'cm' })
 practice(significantFigures, 'A town has a population of 25 749. Write it correct to 3 significant figures.', 'N10.2 Q5a', number(25700, '25 700'), '25 700', 'Keep 2, 5 and 7, then inspect the 4.', { original: '25 749', expression: '25\\,749', target: '3 significant figures', split: '257 | 49', keptDigit: '7, the third significant digit', cutDigit: 4, answer: '25 700', finalNote: 'Replace the remaining whole-number digits with zeroes.' })
 practice(significantFigures, 'Write 25 749 correct to 1 significant figure.', 'N10.2 Q5b', number(30000, '30 000'), '30 000', 'Keep the first non-zero digit and inspect the next digit.', { original: '25 749', expression: '25\\,749', target: '1 significant figure', split: '2 | 5749', keptDigit: '2, the first significant digit', cutDigit: 5, answer: '30 000', finalNote: 'Round 2 up to 3 and replace the remaining digits with zeroes.' })
-practice(significantFigures, 'Dev says 25 749 correct to 2 significant figures is 25 000. Is Dev correct?', 'N10.2 Q5c', select([
+practice(significantFigures, 'Dev says 25 749 correct to 2 significant figures is 25 000. Is Dev correct?', 'N10.2 Q5c', choose([
   'No. In 25 | 749 the cut-off digit is 7, so the 5 rounds up and the answer is 26 000.',
   'Yes. Keeping the first two digits always means every following digit can be ignored.',
   'No. The answer is 25 700 because three significant figures are needed.',
-], 0), 'No - the answer is 26 000.', 'After keeping two digits, you must use the third digit to decide whether to round.', { original: '25 749', expression: '25\\,749', target: '2 significant figures', split: '25 | 749', keptDigit: '5, the second significant digit', cutDigit: 7, answer: '26 000', finalNote: 'Round the 5 up to 6, then replace later digits with zeroes.' })
+]), 'No - the answer is 26 000.', 'After keeping two digits, you must use the third digit to decide whether to round.', { original: '25 749', expression: '25\\,749', target: '2 significant figures', split: '25 | 749', keptDigit: '5, the second significant digit', cutDigit: 7, answer: '26 000', finalNote: 'Round the 5 up to 6, then replace later digits with zeroes.' })
 
 const powersVideo = worked(powersOfTen, 'Write 348 correct to the nearest 10.', 'N10.3 Q1; video N10.3', {
   original: '348', target: 'nearest 10', split: '34 | 8', keptDigit: '4 in the tens column', cutDigit: 8, answer: '350', suffix: 'pupils', finalNote: 'Round the tens digit up and replace the units digit with zero.'
@@ -149,11 +151,11 @@ practice(powersOfTen, 'A stadium has 47 380 seats. Write this correct to the nea
 practice(powersOfTen, 'Write 47 380 correct to the nearest 10 000.', 'N10.3 Q4b', number(50000, '50 000 seats'), '50 000 seats', 'Now keep the ten-thousands digit and inspect the thousands digit.', { original: '47 380', expression: '47\\,380', target: 'nearest 10 000', split: '4 | 7380', keptDigit: '4 in the ten-thousands column', cutDigit: 7, answer: '50 000', suffix: 'seats', finalNote: 'Round the ten-thousands digit up and replace all later digits with zeroes.' })
 practice(powersOfTen, 'A shop takes £6472 in one day. Write this correct to the nearest £100.', 'N10.3 Q5a', number(6500, '£6500'), '£6500', 'Keep the hundreds digit and inspect the tens digit.', { original: '6472', target: 'nearest 100', split: '64 | 72', keptDigit: '4 in the hundreds column', cutDigit: 7, answer: '6500', suffix: 'pounds', finalNote: 'Round the hundreds digit up and replace tens and units with zeroes.' })
 practice(powersOfTen, 'Write £6472 correct to the nearest £1000.', 'N10.3 Q5b', number(6000, '£6000'), '£6000', 'Keep the thousands digit and inspect the hundreds digit.', { original: '6472', target: 'nearest 1000', split: '6 | 472', keptDigit: '6 in the thousands column', cutDigit: 4, answer: '6000', suffix: 'pounds', finalNote: 'Keep the thousands digit and replace the final three digits with zeroes.' })
-practice(powersOfTen, 'Sam says a number that rounds to 6500 to the nearest 100 must be bigger than 6500. Is Sam correct?', 'N10.3 Q5c', select([
+practice(powersOfTen, 'Sam says a number that rounds to 6500 to the nearest 100 must be bigger than 6500. Is Sam correct?', 'N10.3 Q5c', choose([
   'No. 6472 is smaller than 6500, but its tens digit is 7 so it rounds up to 6500.',
   'Yes. A rounded value is always smaller than the original number.',
   'No. Every number below 6500 rounds to 6400.',
-], 0), 'No - 6472 is a counterexample.', 'Use the value from part (a) as a counterexample.', { original: '6472', target: 'nearest 100', split: '64 | 72', keptDigit: '4 in the hundreds column', cutDigit: 7, answer: '6500', finalNote: '6472 rounds up to 6500 even though 6472 is smaller than 6500.' }, [
+]), 'No - 6472 is a counterexample.', 'Use the value from part (a) as a counterexample.', { original: '6472', target: 'nearest 100', split: '64 | 72', keptDigit: '4 in the hundreds column', cutDigit: 7, answer: '6500', finalNote: '6472 rounds up to 6500 even though 6472 is smaller than 6500.' }, [
   ['Use the earlier value.', '6472 has 4 hundreds and a cut-off digit of 7.'],
   ['Round it.', 'The 7 makes the 4 round up, so 6472 rounds to 6500.'],
   ['Compare.', '6472 < 6500, so Sam’s claim is false.'],
@@ -172,11 +174,11 @@ practice(carrying, 'A capsule contains 0.09962 g. Write it correct to 2 signific
 practice(carrying, 'Write 0.09962 correct to 1 significant figure.', 'N10.4 Q4b', number(0.1, '0.1 g'), '0.1 g', 'Keep the first 9 and use the next 9 as the cut-off digit.', { original: '0.09962', target: '1 significant figure', split: '0.09 | 962', keptDigit: 'the first 9', cutDigit: 9, answer: '0.1', suffix: 'g', carry: 'The 9 rounds to 10, so write 0 and carry 1 into the tenths place.', finalNote: 'For 1 significant figure, 0.10 is written as 0.1.' })
 practice(carrying, 'A stadium holds 89 650 people. Write this correct to the nearest 1000.', 'N10.4 Q5a', number(90000, '90 000 people'), '90 000 people', 'The thousands digit is 9 and the hundreds digit makes it round up.', { original: '89 650', expression: '89\\,650', target: 'nearest 1000', split: '89 | 650', keptDigit: '9 in the thousands column', cutDigit: 6, answer: '90 000', suffix: 'people', carry: '9 + 1 = 10: write 0 and carry 1 to the 8, making 9.', finalNote: 'Replace the final three digits with zeroes.' })
 practice(carrying, 'Write 89 650 correct to the nearest 100.', 'N10.4 Q5b', number(89700, '89 700 people'), '89 700 people', 'Keep the hundreds digit; this time the 6 rounds to 7 without a carry.', { original: '89 650', expression: '89\\,650', target: 'nearest 100', split: '896 | 50', keptDigit: '6 in the hundreds column', cutDigit: 5, answer: '89 700', suffix: 'people', finalNote: 'Round 6 up to 7, then replace tens and units with zeroes.' })
-practice(carrying, 'Ali says 5.996 correct to 2 decimal places is 5.90. Is Ali correct?', 'N10.4 Q5c', select([
+practice(carrying, 'Ali says 5.996 correct to 2 decimal places is 5.90. Is Ali correct?', 'N10.4 Q5c', choose([
   'No. The carry passes through both 9s and into the units, so the answer is 6.00.',
   'Yes. The final 9 becomes 0 and no other digit changes.',
   'No. The answer is 6 because trailing zeroes must always be removed.',
-], 0), 'No - the answer is 6.00.', 'Carry through every consecutive 9, then retain two decimal places.', { original: '5.996', target: '2 decimal places', split: '5.99 | 6', keptDigit: 'the second 9', cutDigit: 6, answer: '6.00', carry: 'The final 9 becomes 10 and carries to the first 9, which also becomes 10 and carries to the 5.', finalNote: 'Keep both zeroes because the answer must show 2 decimal places.' })
+]), 'No - the answer is 6.00.', 'Carry through every consecutive 9, then retain two decimal places.', { original: '5.996', target: '2 decimal places', split: '5.99 | 6', keptDigit: 'the second 9', cutDigit: 6, answer: '6.00', carry: 'The final 9 becomes 10 and carries to the first 9, which also becomes 10 and carries to the 5.', finalNote: 'Keep both zeroes because the answer must show 2 decimal places.' })
 
 add('mixed', 'Choose the rounding place before you use the cut-off digit', 'N10.1-N10.4 consolidation', text(
   'Decimal places: count from the decimal point.',

@@ -8,11 +8,13 @@ require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileMo
 const { tutorLongMultiplicationLesson: multiplication } = require('../src/features/long-multiplication/tutor/longMultiplicationLesson.ts')
 const { tutorLongDivisionLesson: division } = require('../src/features/long-division/tutor/longDivisionLesson.ts')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
+// A multiple-choice answer is checked by its label, because the right option moves between positions
+const choice = label => ({ choice: label })
 const expected = {
   'N5.1 Q2': 213 * 3, 'N5.1 Q3': 246 * 3, 'N5.1 Q4a': 42 * 18, 'N5.1 Q4b': 42 * 18,
-  'N5.1 Q5a': 347 * 4, 'N5.1 Q5b': Math.floor((4 * 4 + Math.floor(7 * 4 / 10)) / 10), 'N5.1 Q5c': '0',
+  'N5.1 Q5a': 347 * 4, 'N5.1 Q5b': Math.floor((4 * 4 + Math.floor(7 * 4 / 10)) / 10), 'N5.1 Q5c': choice('No. For 34 × 26, the grid gives 600 + 180 + 80 + 24 = 884 and columns give 204 + 680 = 884.'),
   'N4.1 Q2': 84 / 4, 'N4.1 Q3': 138 / 6, 'N4.1 Q4a': { quotient: Math.floor(250 / 8), remainder: 250 % 8 },
-  'N4.1 Q4b': Math.ceil(250 / 8), 'N4.1 Q5a': 624 / 8, 'N4.1 Q5b': 624 % 8, 'N4.1 Q5c': '0',
+  'N4.1 Q4b': Math.ceil(250 / 8), 'N4.1 Q5a': 624 / 8, 'N4.1 Q5b': 624 % 8, 'N4.1 Q5c': choice('No. In 624 ÷ 8, a remainder of 6 hundreds and later 6 tens were carried, but the final remainder was 0.'),
 }
 function calculation(math) {
   assert.match(math, /^\d+(?:(?:\\times|\\div|\+|-)\d+)*$/)
@@ -86,10 +88,14 @@ for (const lesson of [multiplication, division]) {
   }
   const questions = lesson.states.filter(s => s.interaction.type !== 'continue')
   assert.equal(questions.length, 7)
-  for (const [source, answer] of Object.entries(expected).filter(([source]) => source.startsWith(lesson.number === 4 ? 'N5.1' : 'N4.1'))) {
+  for (let [source, answer] of Object.entries(expected).filter(([source]) => source.startsWith(lesson.number === 4 ? 'N5.1' : 'N4.1'))) {
     const matches = questions.filter(s => s.sourceRef === source || s.sourceRef.startsWith(source + ' ('))
     assert.equal(matches.length, 1, source + ': exact coverage')
     const s = matches[0], rule = s.interaction
+    if (answer.choice) {
+      assert.equal(rule.options.find(o => o.id === rule.correctAnswer)?.label, answer.choice, source)
+      answer = rule.correctAnswer
+    }
     assert.deepEqual(rule.correctAnswer, answer, source)
     assert(checkAnswer(rule, answer), source + ': correct answer rejected')
     const wrong = rule.type === 'select' ? rule.options.find(o => o.id !== answer).id : rule.type === 'quotientRemainderInput' ? { quotient: answer.quotient, remainder: rule.divisor } : answer + 1

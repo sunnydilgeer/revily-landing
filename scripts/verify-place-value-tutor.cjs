@@ -1,14 +1,16 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const { createRequire } = require('node:module')
 const ts = require('typescript')
 const katex = require('katex')
 const root = path.resolve(__dirname, '..')
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }, fileName: filename }).outputText, filename)
 function load(relative) {
   const filename = path.join(root, relative)
   const output = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }, fileName: filename }).outputText
   const module = { exports: {} }
-  Function('exports', 'module', 'require', output)(module.exports, module, require)
+  Function('exports', 'module', 'require', output)(module.exports, module, createRequire(filename))
   return module.exports
 }
 const { checkAnswer } = load('src/features/number-types/lessonMath.ts')
@@ -21,18 +23,24 @@ for (const [i, s] of states.entries()) {
   assert.equal(s.transition.onComplete, states[i + 1]?.id)
   assert.ok(s.sourceRef)
 }
+// A multiple-choice answer is checked by its label, because the right option moves between positions
+const choice = label => ({ choice: label })
 const expected = {
-  'N3.1 Q2': 300, 'N3.1 Q3': '0', 'N3.1 Q4a': 40602, 'N3.1 Q4b': 600,
-  'N3.1 Q5a': 800030, 'N3.1 Q5b': 800000, 'N3.1 Q5c': '0',
-  'N3.2 Q2': .07, 'N3.2 Q3': .005, 'N3.2 Q4a': .0007, 'N3.2 Q4b': '0',
-  'N3.2 Q5a': .0069, 'N3.2 Q5b': .0009, 'N3.2 Q5c': '0',
+  'N3.1 Q2': 300, 'N3.1 Q3': choice('800,000; 20,000 times as large'), 'N3.1 Q4a': 40602, 'N3.1 Q4b': 600,
+  'N3.1 Q5a': 800030, 'N3.1 Q5b': 800000, 'N3.1 Q5c': choice('No. The 5 is worth 5,000 in 5,000, but 500 in 500.'),
+  'N3.2 Q2': .07, 'N3.2 Q3': .005, 'N3.2 Q4a': .0007, 'N3.2 Q4b': choice('No. 0.0007 ÷ 0.00004 = 17.5, so it is 17.5 times as large.'),
+  'N3.2 Q5a': .0069, 'N3.2 Q5b': .0009, 'N3.2 Q5c': choice('No. In 0.08, the rightmost 8 is worth 0.08, more than the 0 in tenths.'),
 }
 const questions = states.filter(s => s.interaction.type !== 'continue')
 assert.equal(questions.length, 14)
-for (const [source, answer] of Object.entries(expected)) {
+for (let [source, answer] of Object.entries(expected)) {
   const matches = questions.filter(s => s.sourceRef.startsWith(source))
   assert.equal(matches.length, 1, source + ' must appear once as practice')
   const s = matches[0], rule = s.interaction
+  if (answer.choice) {
+    assert.equal(rule.options.find(o => o.id === rule.correctAnswer)?.label, answer.choice, source + ' authored answer')
+    answer = rule.correctAnswer
+  }
   assert.equal(rule.correctAnswer, answer, source + ' authored answer')
   assert.ok(s.hints?.length)
   assert.ok(s.feedback.correct.workedExplanation.steps.length >= 2)
@@ -90,4 +98,8 @@ for (const s of states.filter(s => s.visual.kind === 'cumulative')) {
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(!app.includes('placeValueVariant'))
 assert.ok(app.includes('case 3:') && app.includes('return <TutorPlaceValueLesson />'))
+// The right answer is not always in the same place
+const lesson3AnswerPositions = states.filter(state => state.interaction.type === 'select' && !state.interaction.acceptanceRule).map(state => state.interaction.options.findIndex(option => option.id === state.interaction.correctAnswer))
+assert.ok([0, 1, 2, 3].every(position => lesson3AnswerPositions.filter(at => at === position).length <= lesson3AnswerPositions.length / 2), 'Lesson 3: no position may hold more than half the right answers')
+
 console.log(`Verified Lesson 3: ${states.length} reachable screens, ${questions.length} source practice parts, ${videos.length} matching videos, ${calculations} cumulative calculations, ${transitions} underlined transitions.`)

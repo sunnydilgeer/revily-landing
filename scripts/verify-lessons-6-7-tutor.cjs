@@ -14,16 +14,18 @@ const {
   factorTreeWorking, listingWorking, multiplesWorking, vennWorking, methodProgress, primeFactors,
 } = require('../src/features/written-methods/tutor/methodWorking.ts')
 
+// A multiple-choice answer is checked by its label, because the right option moves between positions
+const choice = label => ({ choice: label })
 const expected6 = {
-  'N6.1 Q2': 7.7, 'N6.1 Q3': 17.98, 'N6.1 Q4a': 30.158, 'N6.1 Q4b': 30.16, 'N6.1 Q5a': 26.431, 'N6.1 Q5b': 0.4, 'N6.1 Q5c': '0',
-  'N6.2 Q2': 3.5, 'N6.2 Q3': 8.45, 'N6.2 Q4a': 22.15, 'N6.2 Q4b': 22.15, 'N6.2 Q5a': 9.05, 'N6.2 Q5b': 0.05, 'N6.2 Q5c': '0',
-  'N6.3 Q2': 7.5, 'N6.3 Q3': 2.3, 'N6.3 Q4a': 17.68, 'N6.3 Q4b': 17.68, 'N6.3 Q5a': 10, 'N6.3 Q5b': 3, 'N6.3 Q5c': '0',
-  'N6.4 Q2': 4.2, 'N6.4 Q3': 7.8, 'N6.4 Q4a': 42, 'N6.4 Q4b': 42, 'N6.4 Q5a': 6.3, 'N6.4 Q5b': 157.5, 'N6.4 Q5c': '0',
+  'N6.1 Q2': 7.7, 'N6.1 Q3': 17.98, 'N6.1 Q4a': 30.158, 'N6.1 Q4b': 30.16, 'N6.1 Q5a': 26.431, 'N6.1 Q5b': 0.4, 'N6.1 Q5c': choice('No. Lining up 5.6 and 2.75 by their last digits puts tenths under hundredths; equal place values must align.'),
+  'N6.2 Q2': 3.5, 'N6.2 Q3': 8.45, 'N6.2 Q4a': 22.15, 'N6.2 Q4b': 22.15, 'N6.2 Q5a': 9.05, 'N6.2 Q5b': 0.05, 'N6.2 Q5c': choice('No. 21.40 - 8.75 needs regrouping even though 21.4 was originally written with fewer decimal places.'),
+  'N6.3 Q2': 7.5, 'N6.3 Q3': 2.3, 'N6.3 Q4a': 17.68, 'N6.3 Q4b': 17.68, 'N6.3 Q5a': 10, 'N6.3 Q5b': 3, 'N6.3 Q5c': choice('No. 6.25 × 1.6 = 10, whose trailing decimal zeroes are unnecessary.'),
+  'N6.4 Q2': 4.2, 'N6.4 Q3': 7.8, 'N6.4 Q4a': 42, 'N6.4 Q4b': 42, 'N6.4 Q5a': 6.3, 'N6.4 Q5b': 157.5, 'N6.4 Q5c': choice('No. Both numbers must be scaled equally; 15.75 ÷ 25 = 0.63, but the original quotient is 6.3.'),
 }
 const expected7 = {
-  'N7.1 Q2': '0', 'N7.1 Q3': '0', 'N7.1 Q4a': '0', 'N7.1 Q4b': '0', 'N7.1 Q5a': '0', 'N7.1 Q5b': '0', 'N7.1 Q5c': 6,
-  'N7.2 Q2': 4, 'N7.2 Q3': '0', 'N7.2 Q4a': '0', 'N7.2 Q4b': 42, 'N7.2 Q5a': 12, 'N7.2 Q5b': '0', 'N7.2 Q5c': '0',
-  'N7.3 Q2': '0', 'N7.3 Q3': '0', 'N7.3 Q4a': '0', 'N7.3 Q4b': 630, 'N7.3 Q5a': 60, 'N7.3 Q5b': 5400, 'N7.3 Q5c': '0',
+  'N7.1 Q2': choice('2² × 5'), 'N7.1 Q3': choice('2 × 3 × 5²'), 'N7.1 Q4a': choice('2² × 3 × 5'), 'N7.1 Q4b': choice('2⁴ × 3² × 5²'), 'N7.1 Q5a': choice('2⁵ × 3'), 'N7.1 Q5b': choice('No. In 96 = 2⁵ × 3¹, both exponents are odd; a square number needs every exponent to be even.'), 'N7.1 Q5c': 6,
+  'N7.2 Q2': 4, 'N7.2 Q3': choice('HCF = 5 and LCM = 60'), 'N7.2 Q4a': choice('14, 28, 42, 56, 70'), 'N7.2 Q4b': 42, 'N7.2 Q5a': 12, 'N7.2 Q5b': choice('The HCF must divide the smaller number, and no positive factor of a number can be larger than that number.'), 'N7.2 Q5c': choice('42 cm each; 5 pieces altogether'),
+  'N7.3 Q2': choice('2³ × 5'), 'N7.3 Q3': choice('HCF = 14 and LCM = 84'), 'N7.3 Q4a': choice('2 × 3² × 5'), 'N7.3 Q4b': 630, 'N7.3 Q5a': 60, 'N7.3 Q5b': 5400, 'N7.3 Q5c': choice('It is true here: 60 × 5,400 = 324,000 and 600 × 540 = 324,000.'),
 }
 const compactLessons = new Set([6, 7])
 const conceptQuestions = new Set(['N6.1 Q5c', 'N6.2 Q5c', 'N6.3 Q5c', 'N6.4 Q5c', 'N7.1 Q5b', 'N7.2 Q5b', 'N7.3 Q5c'])
@@ -73,10 +75,14 @@ function verifyLesson(lesson, expected, screenCount, questionCount, videoCount) 
     }
     if (state.visual.kind === 'method-worked') verifyWorking(state.visual)
   }
-  for (const [sourceRef, answer] of Object.entries(expected)) {
+  for (let [sourceRef, answer] of Object.entries(expected)) {
     const matches = questions.filter(state => state.sourceRef === sourceRef || state.sourceRef.startsWith(sourceRef + ' ('))
     assert.equal(matches.length, 1, `${sourceRef}: exact practice coverage`)
     const state = matches[0]
+    if (answer.choice) {
+      assert.equal(state.interaction.options.find(option => option.id === state.interaction.correctAnswer)?.label, answer.choice, `${sourceRef}: authored answer`)
+      answer = state.interaction.correctAnswer
+    }
     assert.deepEqual(state.interaction.correctAnswer, answer, `${sourceRef}: authored answer`)
     assert(checkAnswer(state.interaction, answer), `${sourceRef}: correct answer rejected`)
     const wrong = state.interaction.type === 'select' ? state.interaction.options.find(option => option.id !== answer).id : Number(answer) + 1
@@ -144,6 +150,12 @@ assert(app.includes('case 6:') && app.includes('return <TutorDecimalsLesson />')
 assert(app.includes('case 7:') && app.includes('return <TutorFactorsLesson />'))
 const registry = fs.readFileSync(path.join(__dirname, '..', 'src/features/maths/courseRegistry.ts'), 'utf8')
 for (const lessonNumber of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) assert(registry.includes(`entry(${lessonNumber},`))
+
+// The right answer is not always in the same place
+const decimalsAnswerPositions = decimals.states.filter(state => state.interaction.type === 'select' && !state.interaction.acceptanceRule).map(state => state.interaction.options.findIndex(option => option.id === state.interaction.correctAnswer))
+assert.ok([0, 1, 2, 3].every(position => decimalsAnswerPositions.filter(at => at === position).length <= decimalsAnswerPositions.length / 2), 'Lesson 6: no position may hold more than half the right answers')
+const factorsAnswerPositions = factors.states.filter(state => state.interaction.type === 'select' && !state.interaction.acceptanceRule).map(state => state.interaction.options.findIndex(option => option.id === state.interaction.correctAnswer))
+assert.ok([0, 1, 2, 3].every(position => factorsAnswerPositions.filter(at => at === position).length <= factorsAnswerPositions.length / 2), 'Lesson 7: no position may hold more than half the right answers')
 
 console.log(`Lesson 6: ${decimals.states.length} screens, all 28 source practice parts and 4 source videos verified.`)
 console.log(`Lesson 7: ${factors.states.length} screens, all 21 source practice parts and 3 source videos verified.`)

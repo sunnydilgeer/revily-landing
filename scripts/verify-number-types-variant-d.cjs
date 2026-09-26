@@ -240,4 +240,8 @@ assert(checkAnswer(pairState.interaction, '12 and 18'), 'Corrected HCF task must
 assert(checkAnswer(pairState.interaction, '18 and 24'), 'Corrected HCF task must accept 18 and 24')
 assert(!checkAnswer(pairState.interaction, '12 and 24'), 'Corrected HCF task must reject 12 and 24')
 
+// The right answer is not always in the same place
+const lesson1AnswerPositions = states.filter(state => state.interaction.type === 'select' && !state.interaction.acceptanceRule).map(state => state.interaction.options.findIndex(option => option.id === state.interaction.correctAnswer))
+assert([0, 1, 2, 3].every(position => lesson1AnswerPositions.filter(at => at === position).length <= lesson1AnswerPositions.length / 2), 'Lesson 1: no position may hold more than half the right answers')
+
 console.log(`Lesson 1 verification passed: ${states.length} states, ${sourceExercises.length} source exercises, all routes reachable.`)

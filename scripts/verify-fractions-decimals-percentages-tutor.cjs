@@ -89,4 +89,7 @@ assert.ok(registry.includes("entry(9, tutorFractionsDecimalsPercentagesLesson, '
 const model = read('src/features/written-methods/tutor/model.ts')
 assert.ok(model.includes('| ConversionWorking'), 'Lesson 9 must use the shared tutor working pipeline')
 
+// The right answer is written first, so choose() moves it to a different position on each question
+assert.ok(!/\], 0\)/.test(lesson), 'Lesson 9: use choose() so the right answer is not always first')
+
 console.log('Lesson 9 verified: 49 screens, 48 source-aligned examples and practice parts, 6 source-identical videos, exact conversions and canonical course route.')

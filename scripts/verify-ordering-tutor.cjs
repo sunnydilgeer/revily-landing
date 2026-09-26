@@ -57,4 +57,7 @@ assert.ok(app.includes('case 11:') && app.includes('return <TutorOrderingLesson 
 const registry = read('src/features/maths/courseRegistry.ts')
 assert.ok(registry.includes("entry(11, tutorOrderingLesson, 'Ordering numbers'"), 'Lesson 11 must be appended to the canonical course order')
 
+// The right answer is written first, so choose() moves it to a different position on each question. The days stay in week order.
+assert.ok(!/\], 0\)/.test(lesson.replace("select(['Monday', 'Tuesday', 'Wednesday'], 0)", '')), 'Lesson 11: use choose() so the right answer is not always first')
+
 console.log('Lesson 11 verified: 33 screens, 32 source-aligned examples and practice parts, 4 source-identical videos, open-range grading and canonical course route.')

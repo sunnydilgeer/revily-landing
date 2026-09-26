@@ -1,4 +1,4 @@
-import { numeric, select, working } from '../../written-methods/model'
+import { chooser, numeric, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
 import {
   decimalAdditionWorking,
@@ -10,6 +10,8 @@ import {
 } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
+
+const choose = chooser()
 
 const { add, finish } = author(6)
 const addition = 'decimal-addition', subtraction = 'decimal-subtraction', multiplication = 'decimal-multiplication', division = 'decimal-division'
@@ -38,11 +40,11 @@ const addMoney = practice(addition, 'The total is £30.158. Round this amount to
 addMoney.answerLabel = 'Amount (£)'
 practice(addition, 'Work out 14.6 + 8.75 + 3.081.', 'N6.1 Q5a', numeric(26.431), '26.431', explain('26.431', 'Write 14.600, 8.750 and 3.081.', 'Add all three numbers by aligned columns.'), 'Give all three numbers three decimal places before adding.', methodWorking(decimalAdditionWorking([14.6, 8.75, 3.081])))
 practice(addition, 'The total is 26.431. What is the value of the digit 4?', 'N6.1 Q5b', numeric(0.4), '0.4', explain('0.4', 'The total is 26.431.', 'The 4 is in the tenths column, so its value is 0.4.'), 'Read the first digit after the decimal point.', methodWorking(decimalAdditionWorking([14.6, 8.75, 3.081])), ['Total: 26.431', 'Value of the digit 4'])
-practice(addition, 'Ravi says: “When adding decimals, you should line up the numbers by their last digit, not by the decimal point.” Is Ravi correct?', 'N6.1 Q5c', select([
+practice(addition, 'Ravi says: “When adding decimals, you should line up the numbers by their last digit, not by the decimal point.” Is Ravi correct?', 'N6.1 Q5c', choose([
   'No. Lining up 5.6 and 2.75 by their last digits puts tenths under hundredths; equal place values must align.',
   'Yes. The final digits always have the same place value.',
   'Yes. Decimal points may move during addition without changing the values.',
-], 0), 'No - line up decimal points.', explain('No - line up decimal points.', 'Last-digit alignment can put tenths under hundredths.', 'Decimal-point alignment keeps equal place values in the same column.'), 'Test Ravi’s method on 5.6 + 2.75. Identify the place value of each final digit.', undefined, ['Compare 5.6 and 2.75', 'Which columns represent equal place values?'])
+]), 'No - line up decimal points.', explain('No - line up decimal points.', 'Last-digit alignment can put tenths under hundredths.', 'Decimal-point alignment keeps equal place values in the same column.'), 'Test Ravi’s method on 5.6 + 2.75. Identify the place value of each final digit.', undefined, ['Compare 5.6 and 2.75', 'Which columns represent equal place values?'])
 
 const subQ1 = methodWorking(decimalSubtractionWorking(8.35, 2.6))
 const subVideo = add(subtraction, 'Work out 8.35 - 2.6.', 'N6.2 Q1; video 19.44.03', subQ1)
@@ -59,11 +61,11 @@ change.answerLabel = 'Change (£)'
 const chainedSubtraction = methodWorking(decimalSubtractionWorking(21.4, 8.75), decimalSubtractionWorking(12.65, 3.6))
 practice(subtraction, 'Work out 21.4 - 8.75 - 3.6.', 'N6.2 Q5a', numeric(9.05), '9.05', explain('9.05', 'Work left to right: 21.40 - 8.75 = 12.65.', 'Then 12.65 - 3.60 = 9.05.'), 'Subtractions of equal priority are completed from left to right.', chainedSubtraction)
 practice(subtraction, 'The result is 9.05. What is the value of the digit 5?', 'N6.2 Q5b', numeric(0.05), '0.05', explain('0.05', 'The result is 9.05.', 'The 5 is in the hundredths column, so its value is 0.05.'), 'Read the second digit after the decimal point.', chainedSubtraction, ['Result: 9.05', 'Value of the digit 5'])
-practice(subtraction, 'Meera says: “Subtracting decimals never needs regrouping if the first number has fewer decimal places.” Is Meera correct?', 'N6.2 Q5c', select([
+practice(subtraction, 'Meera says: “Subtracting decimals never needs regrouping if the first number has fewer decimal places.” Is Meera correct?', 'N6.2 Q5c', choose([
   'No. 21.40 - 8.75 needs regrouping even though 21.4 was originally written with fewer decimal places.',
   'Yes. Fewer written decimal places guarantee that every top digit is larger.',
   'No. Decimal subtraction never uses regrouping.',
-], 0), 'No - the digits determine whether regrouping is needed.', explain('No - the digits determine whether regrouping is needed.', 'Trailing zeroes do not change 21.4.', 'In 21.40 - 8.75, 0 hundredths cannot subtract 5 without regrouping.'), 'Rewrite 21.4 as 21.40 and inspect the hundredths column.', undefined, ['Test the claim with 21.4 - 8.75'])
+]), 'No - the digits determine whether regrouping is needed.', explain('No - the digits determine whether regrouping is needed.', 'Trailing zeroes do not change 21.4.', 'In 21.40 - 8.75, 0 hundredths cannot subtract 5 without regrouping.'), 'Rewrite 21.4 as 21.40 and inspect the hundredths column.', undefined, ['Test the claim with 21.4 - 8.75'])
 
 const mulQ1 = decimalMultiplicationWorking(3.4, 1.2)
 const mulVideo = add(multiplication, 'Work out 3.4 × 1.2.', 'N6.3 Q1; video 19.19.17', mulQ1)
@@ -79,11 +81,11 @@ const ribbonCost = practice(multiplication, 'Ribbon costs £5.20 per metre. What
 ribbonCost.answerLabel = 'Cost (£)'
 practice(multiplication, 'Work out 6.25 × 1.6.', 'N6.3 Q5a', numeric(10), '10', explain('10', 'Calculate 625 × 16 = 10,000.', 'Restore three decimal places: 10.000 = 10.'), 'The factors have three decimal places altogether.', decimalMultiplicationWorking(6.25, 1.6))
 practice(multiplication, 'For 6.25 × 1.6, how many decimal places are there altogether in the two factors?', 'N6.3 Q5b', numeric(3), '3', explain('3', '6.25 has two decimal places.', '1.6 has one, so 2 + 1 = 3.'), 'Count places in both factors, not in the simplified answer.', decimalMultiplicationWorking(6.25, 1.6), ['6.25 → 2 decimal places', '1.6 → 1 decimal place'])
-practice(multiplication, 'Tom says: “Multiplying two decimals together always gives an answer with more decimal places than either original number.” Is Tom correct?', 'N6.3 Q5c', select([
+practice(multiplication, 'Tom says: “Multiplying two decimals together always gives an answer with more decimal places than either original number.” Is Tom correct?', 'N6.3 Q5c', choose([
   'No. 6.25 × 1.6 = 10, whose trailing decimal zeroes are unnecessary.',
   'Yes. The answer must display every decimal place counted in the factors.',
   'No. Multiplying decimals always produces a whole number.',
-], 0), 'No - trailing zeroes may be removed.', explain('No - trailing zeroes may be removed.', 'The placement process gives 10.000.', '10.000 has the same value as 10, so the final answer can show fewer decimal places.'), 'Use 6.25 × 1.6 as a counterexample.', undefined, ['Test the claim with 6.25 × 1.6'])
+]), 'No - trailing zeroes may be removed.', explain('No - trailing zeroes may be removed.', 'The placement process gives 10.000.', '10.000 has the same value as 10, so the final answer can show fewer decimal places.'), 'Use 6.25 × 1.6 as a counterexample.', undefined, ['Test the claim with 6.25 × 1.6'])
 
 const divQ1 = methodWorking(decimalDivisionWorking(5.46, 0.6))
 const divVideo = add(division, 'Work out 5.46 ÷ 0.6.', 'N6.4 Q1; video 19.19.40', divQ1)
@@ -98,11 +100,11 @@ practice(division, 'Work out 12.6 ÷ 0.3.', 'N6.4 Q4a', numeric(42), '42', expla
 practice(division, 'A 12.6 m ribbon is cut into pieces 0.3 m long. How many pieces are there?', 'N6.4 Q4b', numeric(42), '42 pieces', explain('42 pieces', 'The number of equal pieces is 12.6 ÷ 0.3.', 'Scale both by 10: 126 ÷ 3 = 42 pieces.'), 'Divide the total length, 12.6 m, by the length of each piece, 0.3 m.', methodWorking(decimalDivisionWorking(12.6, 0.3)), ['12.6 m altogether', '0.3 m per piece'])
 practice(division, 'Work out 15.75 ÷ 2.5.', 'N6.4 Q5a', numeric(6.3), '6.3', explain('6.3', 'Multiply both by 10: 157.5 ÷ 25.', '157.5 ÷ 25 = 6.3.'), 'Scale both numbers by 10 before dividing.', methodWorking(decimalDivisionWorking(15.75, 2.5)))
 practice(division, 'In 15.75 ÷ 2.5, the divisor is multiplied by 10 to become 25. What does the dividend become?', 'N6.4 Q5b', numeric(157.5), '157.5', explain('157.5', 'The divisor 2.5 is multiplied by 10 to become 25.', 'Apply the same ×10 to 15.75: it becomes 157.5.'), 'Use exactly the same scale factor on both numbers.', methodWorking(decimalDivisionWorking(15.75, 2.5)), ['15.75 ÷ 2.5', 'Scale both numbers by 10'])
-practice(division, 'Zara says: “To divide by a decimal, only move the divisor’s decimal point; the dividend can stay the same.” Is Zara correct?', 'N6.4 Q5c', select([
+practice(division, 'Zara says: “To divide by a decimal, only move the divisor’s decimal point; the dividend can stay the same.” Is Zara correct?', 'N6.4 Q5c', choose([
   'No. Both numbers must be scaled equally; 15.75 ÷ 25 = 0.63, but the original quotient is 6.3.',
   'Yes. Changing only the divisor keeps the division equivalent.',
   'No. Only the dividend should be multiplied by 10.',
-], 0), 'No - scale the dividend and divisor by the same amount.', explain('No - scale both numbers equally.', 'Changing 2.5 to 25 alone makes the divisor ten times larger.', 'Multiply both by 10: 15.75 ÷ 2.5 = 157.5 ÷ 25 = 6.3.'), 'Compare scaling only 2.5 with scaling both numbers.', undefined, ['Compare 15.75 ÷ 2.5 with 15.75 ÷ 25'])
+]), 'No - scale the dividend and divisor by the same amount.', explain('No - scale both numbers equally.', 'Changing 2.5 to 25 alone makes the divisor ten times larger.', 'Multiply both by 10: 15.75 ÷ 2.5 = 157.5 ÷ 25 = 6.3.'), 'Compare scaling only 2.5 with scaling both numbers.', undefined, ['Compare 15.75 ÷ 2.5 with 15.75 ÷ 25'])
 
 add('mixed', 'Line up, regroup, count and scale', 'N6.1-N6.4 consolidation', text('Add and subtract: align decimal points', 'Multiply: calculate whole-number digits, then restore the places', 'Divide: make the divisor whole and scale both numbers equally'), undefined, undefined, undefined, 'Choose the rule that matches the operation, keep every place value visible, and check that the answer is sensible.')
 

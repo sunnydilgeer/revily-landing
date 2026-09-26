@@ -86,4 +86,7 @@ assert.ok(app.includes('case 8:') && app.includes('return <TutorFractionsLesson 
 const registry = fs.readFileSync(path.join(root, 'src/features/maths/courseRegistry.ts'), 'utf8')
 assert.ok(registry.includes("entry(8, tutorFractionsLesson, 'Fractions'"), 'Lesson 8 must remain in the canonical course order')
 
+// The right answer is written first, so choose() moves it to a different position on each question
+assert.ok(!/\], 0\)/.test(lesson), 'Lesson 8: use choose() so the right answer is not always first')
+
 console.log('Lesson 8 verified: 72 screens, 56 source practice parts, 15 worked/video screens, 8 source-identical videos, exact arithmetic and canonical course route.')
