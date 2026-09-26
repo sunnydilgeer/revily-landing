@@ -2,7 +2,7 @@
  * Revily shared UI.
  * Small, stateless building blocks for every surface. Styles: ./revily-ui.css, tokens: ./revily-tokens.css.
  */
-import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode, Ref } from 'react'
 
 /* ---------- Ladder mark and wordmark ---------- */
 
@@ -83,6 +83,7 @@ export function NewValue({ children, tone = 'biro' }: { children: ReactNode; ton
 /* ---------- Buttons ---------- */
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  ref?: Ref<HTMLButtonElement>
   variant?: 'primary' | 'secondary' | 'dark' | 'ghost' | 'good' | 'bad'
   size?: 'md' | 'lg'
   block?: boolean
