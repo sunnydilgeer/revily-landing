@@ -20,7 +20,7 @@ const sections = [specialisationSections, divisionSections, transportSections]
 const at = '2026-09-17T11:00:00.000Z'
 lessons.forEach((lesson, index) => {
   check(`${lesson.id}: stable IDs, draft boundaries and source/chapter references`, () => {
-    assert.equal(lesson.contentVersion, '0.1.0'); assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
+    assert.equal(lesson.contentVersion, index === 0 ? '0.2.0' : '0.1.0'); assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.qualification, 'AQA-8464F'); assert.equal(lesson.retrieval.length, 0)
     assert.equal(new Set(lesson.states.map(s=>s.id)).size, lesson.states.length)
     const sourceIds = lesson.sources.map(s=>s.id)

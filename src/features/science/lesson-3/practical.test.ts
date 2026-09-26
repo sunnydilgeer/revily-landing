@@ -12,9 +12,9 @@ const check = (name: string, fn: () => void) => { fn(); checks++; console.log(`P
 const engine = createPreviewSessionEngine(lesson3)
 const at = '2026-09-14T07:00:00.000Z'
 const find = (id: string) => lesson3.states.find(s => s.id === id)!
-check('30 unique screens with resolvable menu and source references', () => {
-  assert.equal(lesson3.states.length, 30)
-  assert.equal(new Set(lesson3.states.map(s => s.id)).size, 30)
+check('20 unique screens with resolvable menu and source references', () => {
+  assert.equal(lesson3.states.length, 20)
+  assert.equal(new Set(lesson3.states.map(s => s.id)).size, 20)
   for (const section of practicalSections) assert.ok(find(section.id))
   for (const state of lesson3.states) {
     assert.ok(state.specRefs.includes('10.2.1'))
@@ -25,11 +25,12 @@ check('30 unique screens with resolvable menu and source references', () => {
     assert.ok(state.kind !== 'teaching' && state.evidenceRole === 'independent')
   }
 })
-check('slide, microscope, separate plant/animal observations, drawing and scale are sequenced', () => {
+check('one route: safety, slide, microscope, look and draw, then scale, with a check after each', () => {
   const order = (id: string) => lesson3.states.findIndex(s => s.id === id)
-  assert.ok(order('B3-04') < order('B3-08'))
-  assert.ok(order('B3-14') < order('B3-15') && order('B3-15') < order('B3-16'))
-  assert.ok(order('B3-16') < order('B3-19') && order('B3-19') < order('B3-22'))
+  const route = ['B3-02', 'B3-04', 'B3-08', 'B3-12', 'B3-15', 'B3-18']
+  assert.deepEqual(practicalSections.map(section => section.id).slice(1), route)
+  route.forEach((id, i) => { if (i) assert.ok(order(route[i - 1]) < order(id)) })
+  for (const [i, id] of route.slice(0, -1).entries()) assert.ok(lesson3.states.slice(order(id), order(route[i + 1])).some(s => s.kind !== 'teaching'), `${id} section has a check`)
   for (const state of lesson3.states) if (state.kind === 'teaching' && state.media) {
     assert.ok(practicalFrames[state.id].length)
     for (const frame of practicalFrames[state.id]) assert.ok(state.media.script.includes(frame.summary) && state.media.script.includes(frame.text))
@@ -52,16 +53,16 @@ check('all options grade canonically with explanations, not guessed written mark
     assert.ok(state.hint && state.explanation.steps.length && state.explanation.answer)
     for (const option of state.options) assert.equal(gradeResponse(state, option.id).result, option.id === state.answerId ? 'correct' : 'incorrect')
   }
-  assert.equal(gradeResponse(find('B3-30'), 'A method').result, 'pendingTeacherReview')
+  assert.equal(gradeResponse(find('B3-20'), 'A method').result, 'pendingTeacherReview')
 })
 check('measurements agree independently with multiplication, division and conversion', () => {
-  const numerical: Record<string, number> = { 'B3-21': 10 * 40, 'B3-28': 30 / .25, 'B3-29': 1.5 / 5 * 1000 }
+  const numerical: Record<string, number> = { 'B3-18': 30 / .25 }
   for (const [id, result] of Object.entries(numerical)) {
     const state = find(id) as ChoiceState
     assert.equal(Number(state.options.find(o => o.id === state.answerId)!.label.replace(/[^0-9.]/g, '')), result)
   }
   assert.equal(24 / .3, 80); assert.equal(1.2 / 4 * 1000, 300)
-  const steps = (find('B3-20') as { steps: string[] }).steps
+  const steps = (find('B3-16') as { steps: string[] }).steps
   assert.ok(steps[steps.length - 1].includes('×80'))
 })
 check('three lesson engines reject each other and cannot navigate to foreign states', () => {
@@ -81,21 +82,22 @@ check('complete flow has distinct evidence, pending written work and next topic 
   assert.equal(session.currentId, null); assert.equal(progress(lesson3, session.completedIds).fraction, 1)
   assert.deepEqual(engine.restorePreviewSession(JSON.parse(JSON.stringify(session))), session)
   const profile = evidenceProfile(lesson3, Object.values(session.answers))
-  for (const d of ['recall', 'practicalReasoning', 'application', 'calculation', 'dataInterpretation'] as const) assert.equal(profile.dimensions[d], 'secureInSession')
-  assert.equal(profile.dimensions.understanding, 'developing') // guided items, not required independent evidence
-  assert.equal(profile.dimensions.explanation, 'developing'); assert.deepEqual(profile.pendingReview, ['B3-30'])
+  const required = Object.keys(lesson3.requirements).filter(d => d !== 'explanation') as (keyof typeof profile.dimensions)[]
+  assert.ok(required.includes('calculation') && required.includes('practicalReasoning'))
+  for (const d of required) assert.equal(profile.dimensions[d], 'secureInSession')
+  assert.equal(profile.dimensions.explanation, 'developing'); assert.deepEqual(profile.pendingReview, ['B3-20'])
   assert.equal(recommendedNext(profile, false, lesson3).lessonId, 'B-CELL-004-B')
 })
 check('hint evidence, locked responses, draft restoration and skipped completion remain honest', () => {
-  let session = engine.previewReducer(engine.createPreviewSession('support'), { type: 'jump', id: 'B3-28' })
+  let session = engine.previewReducer(engine.createPreviewSession('support'), { type: 'jump', id: 'B3-18' })
   session = engine.previewReducer(session, { type: 'hint' })
   session = engine.previewReducer(session, { type: 'answer', at, response: '120' })
-  assert.ok(session.answers['B3-28'].usedHint)
+  assert.ok(session.answers['B3-18'].usedHint)
   assert.equal(engine.previewReducer(session, { type: 'answer', at, response: '7.5' }), session)
   assert.equal(evidenceProfile(lesson3, Object.values(session.answers)).dimensions.calculation, 'developing')
-  session = engine.previewReducer(session, { type: 'jump', id: 'B3-30' })
+  session = engine.previewReducer(session, { type: 'jump', id: 'B3-20' })
   session = engine.previewReducer(session, { type: 'draft', response: 'My ordered method.' })
-  assert.equal(engine.restorePreviewSession(JSON.parse(JSON.stringify(session)))?.drafts['B3-30'], 'My ordered method.')
+  assert.equal(engine.restorePreviewSession(JSON.parse(JSON.stringify(session)))?.drafts['B3-20'], 'My ordered method.')
   assert.equal(progress(lesson3, session.completedIds).completed, 0)
 })
 console.log(`${checks} practical checks passed.`)

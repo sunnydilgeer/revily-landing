@@ -18,14 +18,15 @@ import { transportFrames } from './lesson-6/teachingFrames'
 
 const lessons = [lesson1, lesson2, lesson3, lesson4, lesson5, lesson6]
 const frameSets = [teachingFrames, microscopyFrames, practicalFrames, specialisationFrames, divisionFrames, transportFrames]
-// Captured from the easier-wording lessons when the original wording (Variant A) was retired. Their
+// Captured from the easier-wording lessons when the original wording (Variant A) was retired, and
+// re-captured for lessons 3 and 4 after their content-flow rewrite (26 September 2026). Their
 // question and marking contracts had been checked identical to A's. Wording is deliberately
 // excluded; grading, evidence and snapshot identity are not.
 const contracts = [
   '8a79d71b5c49f723262e3bdacc59f7d37aa253385e658b9b5c886fce48b99b92',
   '1a48fc43869907c6706754f38a190b3703e7439b19a3a592f153796abb47573d',
-  'e4878578ea29439fff7a1a9ebd97b46a4c5cf71049d369aa3380da8b8069d0a9',
-  '33d219a2450eabe55ece6d3d912d1796dd1c51969a8278e977e3fb92d863e747',
+  '3bda1a8cf02888095572a6fa9f2e829c606ee6baeac4467010f8efcf51710f79',
+  '2c8cb04be0121dfb78b511304504eb5ed9eb9e2f2e56d6e1593a14088b4fc421',
   '8fb61a08da6fbebdd08003e17028b526e61bfe0230b415dffeaba08be3405c0b',
   'cf4ed5b9205ae0f5b979c2867081f1551f5af76252a98fd47ad88dd19cced111',
 ]

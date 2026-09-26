@@ -1,34 +1,29 @@
-# Lesson 3 — microscopy practical skills
+# Lesson 3 storyboard — Practical skills: prepare, observe and draw
 
-Original Revily draft inspired by the supplied CGP scope, not copied text/artwork. Friendly Lesson 1/2 shell, DM Sans, visual-first teaching, collapsed hints, optional steps, separate independent evidence, isolated local storage. No deployment.
+Big idea: a good microscope drawing is the end of one careful method. You prepare a thin, stained slide, focus safely, draw only what you see, then add a scale so a reader knows the real size.
 
-## Alignment and safety
+Anchor and route: one onion slide, followed through required practical 1 from start to finish: get ready safely → prepare an onion slide → use the microscope → look and draw (onion, then a prepared animal-cell slide) → add a scale. Every step has its own check before the next step starts.
 
-- AQA 8464 required practical 1: observe, draw and label plant AND animal cells, including a magnification scale. https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/practical-assessment (10.2.1, AT1/AT7).
-- Microscopy and scale calculations: 4.1.1.2/4.1.1.5. Current handbook https://filestore.aqa.org.uk/resources/science/AQA-8464-8465-PRACTICALS-HB.PDF (microscope technique, student microscopy activity).
-- Historical onion wet-mount example: https://filestore.aqa.org.uk/resources/science/AQA-8464-8465-PRACTICALS.PDF pp3–8. This is an old draft, not authority for current requirements; use the current specification/handbook first.
-- School risk assessment and teacher demonstration govern real equipment. Prepared onion pieces; no learner knife/scalpel instruction. Iodine: eye protection, avoid contact/ingestion. Glass/sharps: handle carefully, report breakage, never collect shards by hand. Animal example is a teacher-provided prepared slide, not a self-sampling protocol.
-- Focus instructions use increasing/decreasing lens–slide separation, not a universal stage direction. Side view when approaching at low power; never contact glass. Move away while viewing, fine focus at high power.
-- Schematics/illustrated observations are explicitly not micrographs or physical simulations. Digital completion verifies no manipulative competence or practical completion.
+Why this order: safety and equipment come first, because every later step handles glass and iodine. The slide is made before the microscope is used, and "thin so light can pass through" links straight back to Lesson 2's light microscope (Start here). Focusing comes before looking, so "fine focus, not a bigger image" is taught before the observation screens need a sharp view. Onion cells come before the animal slide, which gets its own introduction ("Your teacher provides a prepared, stained animal-cell slide") rather than a sudden switch. "Draw only what you can see" is taught once, on the onion view (B3-12 f2), and is then used by B3-13, B3-17 and the written task. Scale bars, the field of view and drawing magnification are all taught (B3-15) before any question uses them. Total magnification is recalled in one clause from Lesson 2 (B3-08 f2), not re-taught.
 
-## Sequence (30 screens)
+| Section | Screens | Walkthrough frames | Questions testing them |
+|---|---|---|---|
+| Start here | B3-01 | — | Which onion sample gives the clearest view (thin layer; Lesson 2: light passes up through the sample). Shows the illustrated onion view. |
+| Get ready safely | B3-02–03 | T3: equipment (coverslip) → stay safe (eye protection, avoid contact, never taste, "never pick it up by hand") → practise with your teacher (carry by arm and base; "prepares you for required practical 1. It does not replace doing it") | B3-03 broken coverslip |
+| Prepare an onion slide | B3-04–07 | T6: clean slide + water (wet mount) → peel a thin layer (epidermis; "thin so light can pass through") → spread it flat → iodine (contrast, not bigger) → coverslip at an angle (bubbles; mounted needle only as demonstrated) → put the slide together (filter paper; order) | B3-05 why iodine; B3-06 why lower at an angle; B3-07 preparation order |
+| Use the microscope | B3-08–11 | T6: slide on the stage → start on low power (lowest-power objective; ×10 × ×4 = ×40 "as you met in Lesson 2") → watch from the side (coarse focus; "watching from the side") → move away to focus ("Do not move the lens towards the glass") → fine focus (blur is not fixed by a bigger image) → higher power ("Use small fine-focus movements. Large coarse movements could hit the slide"; lost cells → back to low power) | B3-09 where to look when lowering; B3-10 blurred edges; B3-11 lost cells at high power |
+| Look and draw | B3-12–14 | T6: onion cells ("not a microscope photograph") → draw only what you can see (observation; "normally have no chloroplasts") → prepared animal-cell slide ("Your teacher provides…"; do not collect your own cells) → animal cells (no cell wall) → clean outlines (biological drawing) → straight, uncrossed labels | B3-13 onion view without chloroplasts; B3-14 which label does not belong on an animal-cell drawing |
+| Add a scale | B3-15–17 | T5: title and microscope magnification → estimate a real size (field of view; 1.2 mm ÷ 4 = 0.3 mm = 300 µm) → scale bar → drawing magnification ("The drawing can have a different magnification from the microscope") → put it together (prepare → observe → draw → scale; hand-off to Lesson 4). Then W4: 24 mm ÷ 0.3 mm = ×80. | B3-17 Drawing A vs Drawing B: which is the complete record (outlines, labels, title, magnification, scale bar) |
+| On your own | B3-18–20 | — | B3-18 new-number drawing magnification (30 ÷ 0.25 = ×120; the ×400 microscope trap); B3-19 spot the error in Jo's high-power coarse-focus plan; B3-20 written: the whole method, prepare → observe → draw → scale (5 marks, teacher-reviewed) |
 
-01 diagnostic thin specimen; 02 equipment/safety (3 frames); 03 glass handling check;
-04 onion slide (6 frames: clean slide/water, peel inner epidermis, spread flat, iodine, angled coverslip, tidy edges);
-05 stain reason; 06 bubbles; 07 preparation order;
-08 microscope method (6 frames: clip/illuminate, low objective, approach from side, move away to rough focus, fine focus, centre then higher objective/fine);
-09 low-power purpose; 10 side-view safety; 11 high-power focus;
-12 troubleshooting (3 frames: blank, blurry, bubbles/folds); 13 focus problem;
-14 onion observations (3 frames: tissue, wall/nucleus, draw visible not textbook; no chloroplast assumption);
-15 separate prepared animal-cell observations (2 frames);
-16 biological drawing (4 frames: size/pencil, outlines no shading, straight uncrossed labels, title/observed magnification/calibrated scale);
-17 compare drawings A/B (neutral accessible descriptions, no pre-answer verdict); 18 label lines;
-19 measurement (3 frames: calibrated field width and equal-size estimate; real-size scale bar; drawing versus microscope magnification);
-20 drawing magnification worked 24mm/0.3mm = ×80 (3 optional reasoning steps);
-21 lens multiplication practice ×10 × ×40 = ×400;
-22–29 independent: stain, thin/flat, coverslip, low power, focus safety, observable features, drawing magnification 30/0.25 = ×120, field width1.5mm/5 =300µm;
-30 written transfer: prepare and focus safely (4-mark draft teacher-only rubric).
+Hand-offs:
+- Back to Lesson 2: Start here asks which sample works in a light microscope that shines light up through the sample. B3-08 f2 recalls total magnification "as you met in Lesson 2".
+- On to Lesson 4: B3-15 f5 ends "Next, you will see how cells are shaped for the jobs they do."
 
-## QA plan
+Practical boundary: "This lesson prepares you for required practical 1. It does not replace doing it." Teacher-prepared onion pieces only; no cutting instructions. Iodine: eye protection, avoid skin and eye contact, never taste. Glass: report breakage and never pick it up by hand. The animal slide is a prepared, stained slide provided by the teacher, not a self-sampling method. Focusing describes widening and narrowing the lens–slide gap, with the note that on some microscopes the stage moves instead. Illustrations are labelled as not microscope photographs. Completing the lesson online does not show that a learner has done the practical.
 
-Check every option, requirements and source references; all screens to summary; hinted answers not independent, written pending; drafts/reload/menu preservation; all teaching frames and optional reasoning; all illustrations and expanded feedback at actual 320px; lesson navigation/record isolation; no answer leaks; repeat existing Science tests. Teacher review, learner testing and full accessibility audit remain publication requirements.
+Out of this lesson: troubleshooting a completely blank view (removed; "go back to low power" covers finding lost cells), and the separate "improve the view" section (bubbles now sit on the coverslip frame, blur on the fine-focus frame). Magnification = image size ÷ real size and unit conversion stay in Lesson 2.
+
+Linked ids kept for other features: B3-04 and B3-16 are teaching screens and B3-05–07, B3-17 and B3-18 are choice questions (Science coach topics). B3-01 and B3-17 have fixed pictures in LessonVisual (onion view; Drawing A/B pair). The worked example is B3-16, so it shows no measurement card (the old card is keyed to B3-20); its numbers are in the body text.
+
+Source boundary: AQA 8464 required practical 1 (10.2.1, AT1/AT7); microscopy and scale 4.1.1.2 and 4.1.1.5; AQA practical handbook. Original wording and schematics. Draft pending teacher review.

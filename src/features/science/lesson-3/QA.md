@@ -1,5 +1,7 @@
 # Lesson 3 QA — 14 September 2026
 
+> Historical: this QA record covers v0.1.0 (30 screens). v0.2.0 (20 screens, see STORYBOARD.md) has not had browser QA yet.
+
 Local draft: B-CELL-003 v0.1.0, `/preview/science/practical`, 30 screens. No deployment or account/production writes.
 
 ## Verified
