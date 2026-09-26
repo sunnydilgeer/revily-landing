@@ -84,7 +84,6 @@
 .rung-lesson .pvb-hint__content p { margin: 4px 0 0; padding: 12px 16px; border-radius: 12px; background: var(--rv-yellow-tint); color: var(--rv-ink); }
 .rung-explain { margin-top: 18px; }
 .rung-working-panel { margin-top: 18px; }
-.rung-tap { color: var(--rv-muted); font-size: .95rem; }
 
 /* ---------- Rung complete ---------- */
 .rung-done {
@@ -101,6 +100,8 @@
 .rung-done__saved { margin: 12px 0 0; color: var(--rv-muted); font-size: .9rem; }
 
 @media (max-width: 560px) {
+  .rung-lesson .rung-card { padding: 16px 12px; border-radius: var(--rv-radius-md); }
+  .rung-lesson .rung-card .pvb-stage { padding: 16px 10px; }
   .rung-answer { font-size: 1.6rem; gap: 10px; }
   .rung-lesson .rung-answer__input { width: 4.6em; }
   .rung-done__actions { width: 100%; }

@@ -75,6 +75,9 @@ function explainMistake(state: TutorMethodState, response: string) {
 /** Engine defaults that say nothing about this question; the hint is more useful in their place. */
 const GENERIC = new Set(['Here’s the working.', 'Here’s the answer.', 'Correct.'])
 
+/** The engine words answers as "Correct answer: 2/3."; the check bar only needs "2/3". */
+const answerText = (text: string) => text.replace(/^Correct answer:\s*/i, '').replace(/\.$/, '')
+
 const praise = ['Nice! That’s right.', 'Correct!', 'Spot on.', 'That’s it.']
 
 function goToOverview() {
@@ -236,16 +239,15 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       ? <CheckBar
           status={feedback.correct ? 'correct' : 'incorrect'}
           title={feedback.correct ? praise[engine.stateIndex % praise.length] : 'Not quite'}
-          message={feedback.correct ? undefined : <>{mistake ?? (GENERIC.has(feedback.message) ? state.hint : feedback.message)}{feedback.correctAnswer && <> The answer is <strong>{feedback.correctAnswer}</strong>.</>}</>}
+          message={feedback.correct ? undefined : <>{mistake ?? (GENERIC.has(feedback.message) ? state.hint : feedback.message)}{feedback.correctAnswer && <> The answer is <strong>{answerText(feedback.correctAnswer)}</strong>.</>}</>}
         >
           {state.working && <Button variant="secondary" aria-expanded={showWorking} onClick={() => setShowWorking(!showWorking)}>{showWorking ? 'Hide the working' : 'See the working'}</Button>}
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
-      : <CheckBar>
+      : <CheckBar message={choices ? 'Tap the answer you think is right.' : undefined}>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}
-          {choices && <span className="rung-tap">Tap an answer</span>}
         </CheckBar>}
   </section>
 }
