@@ -63,6 +63,10 @@ export function diagnoseFraction(input: FractionDiagnosisInput): string | null {
     if (answer.mixed && !expected.mixed && /improper/i.test(question)) {
       return `Right value, but the question wants an improper fraction. ${answer.whole} × ${answer.d} + ${answer.n - (answer.whole ?? 0) * answer.d} = ${answer.n}, so write ${answer.n}/${answer.d}.`
     }
+    const start = question.match(/simplify (\d+)\/(\d+)/i)
+    if (start && !answer.mixed && answer.n === +start[1] && answer.d === +start[2]) {
+      return `That's the fraction you started with. Find a number that divides both ${start[1]} and ${start[2]}.`
+    }
     const fracPart = answer.mixed ? { n: answer.n - (answer.whole ?? 0) * answer.d, d: answer.d } : answer
     const g = gcd(fracPart.n, fracPart.d)
     if (input.requireSimplest && g > 1) {
@@ -87,13 +91,10 @@ export function diagnoseFraction(input: FractionDiagnosisInput): string | null {
     return `You've got it upside down. Check which number goes on top.`
   }
 
-  // "Simplify n/d": unchanged, or top and bottom divided by different numbers.
+  // "Simplify n/d": top and bottom divided by different numbers.
   const simplify = question.match(/simplify (\d+)\/(\d+)/i)
   if (simplify) {
     const start = { n: +simplify[1], d: +simplify[2] }
-    if (answer.n === start.n && answer.d === start.d) {
-      return `That's the fraction you started with. Find a number that divides both ${start.n} and ${start.d}.`
-    }
     if (!same(answer, start)) {
       return `${fmt(answer)} isn't equal to ${start.n}/${start.d}. Whatever you divide the top by, divide the bottom by the same number.`
     }
