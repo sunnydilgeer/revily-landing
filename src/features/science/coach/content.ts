@@ -44,19 +44,19 @@ export const coachTopics: CoachTopic[] = [
       ['During a supervised practical, why lower the coverslip at an angle?', ['To make cells bigger', 'To reduce trapped air bubbles', 'To change the DNA'], 1, 'Angled lowering helps push air out rather than trap it beneath the coverslip.'],
       ['A specimen is too thick to see clearly using transmitted light. Why could a thinner specimen help?', ['More light can pass through it', 'It will grow a nucleus', 'It removes the need for lenses'], 0, 'A thinner specimen allows light through more easily.'],
     ]),
-  topic('drawing', 3, 'I can choose a useful scientific drawing.', ['B3-16'], ['B3-17', 'B3-18'],
+  topic('drawing', 3, 'I can choose a useful scientific drawing.', ['B3-12'], ['B3-13', 'B3-17'],
     'Draw what you actually observe. Use clear, single outlines and straight label lines. Do not add parts just because a textbook shows them.', [
       ['A nucleus is not visible in your microscope view. What should your observation drawing show?', ['An invented nucleus', 'Only the structures you can actually see', 'Every textbook structure'], 1, 'An observation drawing records evidence from your view, not an ideal textbook cell.'],
       ['Which drawing style is best for recording cell outlines?', ['Heavy shading everywhere', 'Several sketchy overlapping lines', 'Clear single outlines'], 2, 'Clear single lines make the observed boundaries easier to read.'],
       ['Why use straight label lines that do not cross?', ['They make it clear which structure each label identifies', 'They increase microscope resolution', 'They prove every cell is identical'], 0, 'Clear label lines connect each name to the intended structure.'],
     ]),
-  topic('root-area', 4, 'I can explain how a root hair helps absorption.', ['B4-08'], ['B4-09', 'B4-22'],
+  topic('root-area', 4, 'I can explain how a root hair helps absorption.', ['B4-08'], ['B4-09', 'B4-15'],
     'A root hair is a long extension. It increases surface area, giving more surface through which water and mineral ions can enter.', [
       ['How does a root hair’s long extension help the plant?', ['It carries nerve signals', 'It makes the root swim', 'It increases surface area for absorption'], 2, 'The extension gives more surface for substances to enter from the soil.'],
       ['Which explanation links the root hair’s shape to its job?', ['Long extension → more surface → more area for uptake', 'Long extension → no membrane → no uptake', 'Long extension → photosynthesis underground'], 0, 'A large surface area provides more area for water and mineral-ion uptake.'],
       ['Two root cells have the same volume. One has a longer hair-like extension. What advantage could it have?', ['No need for water', 'More surface area for absorption', 'It can carry electrical impulses'], 1, 'The extension increases surface relative to volume, helping absorption.'],
     ]),
-  topic('differentiation', 4, 'I can explain how a cell becomes specialised.', ['B4-14', 'B4-16'], ['B4-17', 'B4-18', 'B4-21'],
+  topic('differentiation', 4, 'I can explain how a cell becomes specialised.', ['B4-12'], ['B4-13', 'B4-14'],
     'Differentiation is when a cell develops structures for a particular job. Most animal cell types differentiate early; many plant cells can differentiate throughout life.', [
       ['A cell develops structures suited to carrying signals. What is this process called?', ['Diffusion', 'Differentiation', 'Osmosis'], 1, 'Differentiation makes a cell specialised for a particular function.'],
       ['Which example shows differentiation?', ['A cell only gets warmer', 'A cell only gets larger', 'A cell develops structures for a particular job'], 2, 'A specialised job and suitable structures are the important change.'],
