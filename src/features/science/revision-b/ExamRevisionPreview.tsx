@@ -7,7 +7,7 @@ import { CellModel } from '../components/CellModel'
 import { AreaModel, BacterialCellModel, PlantCellModel } from '../components/OtherCellModels'
 import { alignmentRows, cardGroups, practiceTasks, revisionCards, sourceReview, specificationUrl, type CardGroup } from './content'
 import { newRevisionSession, restoreRevisionSession, revisionReducer, REVISION_STORAGE_KEY, type RevisionAction, type RevisionSession } from './engine'
-import '../coach/ScienceCoach.css'
+import './RevisionShell.css'
 import './ExamRevision.css'
 
 type View = 'home' | 'cards' | 'practice' | 'alignment'

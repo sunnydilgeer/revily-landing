@@ -1,7 +1,6 @@
 import { strict as assert } from 'node:assert'
 import { alignmentRows, cardGroups, practiceTasks, revisionCards, sourceReview } from './content'
 import { gradePractice, newRevisionSession, restoreRevisionSession, revisionReducer, REVISION_STORAGE_KEY } from './engine'
-import { coachLessonEngines, COACH_STORAGE_KEY } from '../coach/engine'
 import { scienceLessons } from '../lessonNavigation'
 import { createPreviewSessionEngine } from '../previewSession'
 let tests = 0
@@ -26,9 +25,8 @@ test('paper and mark-scheme references stay pending, without invented verified m
   assert.ok(sourceReview.note.includes('not been reverified'))
   assert.ok(!('verifiedQuestionIds' in sourceReview))
 })
-test('revision storage cannot overwrite any lesson or Coach record', () => {
+test('revision storage cannot overwrite any lesson record', () => {
   const keys = scienceLessons.map(item => createPreviewSessionEngine(item.lesson).storageKey)
-  keys.push(...coachLessonEngines.map(e => e.storageKey), COACH_STORAGE_KEY)
   assert.ok(!keys.includes(REVISION_STORAGE_KEY))
 })
 test('unrevealed cards cannot be self-checked; self-checks never create assessed answers', () => {

@@ -11,7 +11,7 @@ import { LessonVisual } from './components/LessonVisual'
 import { lessonFrames as frames } from './lessonFrames'
 import type { LessonNumber } from './lessonNavigation'
 import { scienceLessonSections } from './lessonSections'
-import { createCoachPreviewSessionEngine, createPreviewSessionEngine } from './previewSession'
+import { createPreviewSessionEngine } from './previewSession'
 import type { PreviewSession, SessionAction } from './previewSession'
 import { CellModel } from './components/CellModel'
 import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
@@ -30,7 +30,6 @@ const dimensionLabels: Record<EvidenceDimension, string> = {
 }
 function newSessionId() { return window.crypto.randomUUID() }
 const sessionEngines = Object.fromEntries(scienceLessons.map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
-const coachEngines = Object.fromEntries(scienceLessons.map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
 const transportStory = [
   { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
   { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
@@ -38,10 +37,9 @@ const transportStory = [
   { lesson: 12, title: 'Vessels deliver and exchange', route: 'Blood reaches body cells and returns' },
 ] as const
 
-export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity, experience = 'lessons' }: { lessonNumber?: LessonNumber; initialActivity?: string; experience?: 'lessons' | 'coach' }) {
-  const isCoach = experience === 'coach'
-  const hubHref = isCoach ? '/preview/scienceB' : scienceHubHref()
-  const lessonHref = (number: LessonNumber) => isCoach ? `/preview/scienceB?lesson=${number}` : scienceLessonHref(number)
+export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity }: { lessonNumber?: LessonNumber; initialActivity?: string }) {
+  const hubHref = scienceHubHref()
+  const lessonHref = (number: LessonNumber) => scienceLessonHref(number)
   const lesson = scienceLessons.find(item => item.number === lessonNumber)!.lesson
   const currentLessonItem = scienceLessons.find(item => item.number === lessonNumber)!
   const currentChapter = scienceChapters.find(chapter => (chapter.lessonNumbers as readonly number[]).includes(lessonNumber))!
@@ -49,7 +47,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity
   const practicalLesson = [3, 6, 8, 9].includes(lessonNumber)
   const sections = scienceLessonSections[lessonNumber]
   const customFrames = frames[lessonNumber]
-  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : sessionEngines)[lessonNumber]
+  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = sessionEngines[lessonNumber]
   function reducer(session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) {
     return action.type === 'restore' ? action.session : previewReducer(session, action)
   }
@@ -146,7 +144,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity
   }}>
     <header className="science-header">
       <a className="science-brand" href="/" aria-label="Revily home"><span aria-hidden="true">R</span><strong>Revily</strong></a>
-      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href={hubHref}>{isCoach ? 'Science Coach' : 'Science'}</Link><ChevronRight size={14} aria-hidden="true" /><span>Biology</span><ChevronRight size={14} aria-hidden="true" /><strong>{currentChapter.title}</strong></nav>
+      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href={hubHref}>Science</Link><ChevronRight size={14} aria-hidden="true" /><span>Biology</span><ChevronRight size={14} aria-hidden="true" /><strong>{currentChapter.title}</strong></nav>
       <button ref={menuButton} className="science-menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="science-lesson-menu" onClick={() => menuOpen ? closeMenu() : setMenuOpen(true)}><ListTree size={17} aria-hidden="true" /> Contents</button>
     </header>
     {menuOpen && <><button className="science-menu-backdrop" type="button" aria-label="Close course contents" onClick={closeMenu} /><aside className="science-menu" id="science-lesson-menu" ref={menuPanel} role="dialog" aria-modal="true" aria-label="Course contents">
@@ -158,7 +156,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity
           {item.number === lessonNumber && <ol className="science-course-outline__sections">{sections.map((section, index) => <li key={section.id}><button type="button" className={index === currentSectionIndex ? 'is-current' : undefined} aria-current={index === currentSectionIndex ? 'step' : undefined} onClick={() => jump(section.id)}><span>{section.label}</span></button></li>)}</ol>}
         </li>)}</ol>
       </section>)}</nav>
-      <Link className="science-menu__all-lessons" href={hubHref}><ArrowLeft size={15} aria-hidden="true" /> {isCoach ? 'Science Coach home' : 'All science lessons'}</Link>
+      <Link className="science-menu__all-lessons" href={hubHref}><ArrowLeft size={15} aria-hidden="true" /> All science lessons</Link>
     </aside></>}
     <main className="science-main" aria-busy={!ready} inert={menuOpen || undefined}>
       <div className="science-topic"><div><span className="science-eyebrow">{currentChapter.code} {currentChapter.title} · Lesson {lessonNumber}</span><h1>{lesson.title}</h1></div><span className="science-topic__count">{state ? `${stateIndex + 1} / ${lesson.states.length}` : `${completion.completed} / ${completion.total}`}</span></div>
@@ -202,15 +200,6 @@ export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity
           {submitted.result === 'incorrect' && misconception && <div className="science-repair"><button type="button" className="science-text-button" aria-expanded={repairOpen} onClick={() => setRepairOpen(open => !open)}>{repairOpen ? 'Hide' : 'Take a closer look'} {repairOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button>{repairOpen && <p>{misconception.correction}</p>}</div>}
         </section>}
         <div className="science-actions">{stateIndex > 0 && <button type="button" className="science-text-button" onClick={() => dispatch({ type: 'jump', id: lesson.states[stateIndex - 1].id })}><ArrowLeft size={16} /> Back</button>}{(state.kind === 'teaching' || submitted) && <button type="button" className="science-primary" onClick={() => dispatch({ type: 'continue', at: now() })}>{stateIndex === lesson.states.length - 1 ? 'See lesson summary' : 'Continue'} <ArrowRight size={17} /></button>}</div>
-      </article> : isCoach ? <article className="science-activity science-summary">
-        <div className="science-summary__icon"><Check size={28} aria-hidden="true" /></div>
-        <span className="science-eyebrow">Science Coach · One step at a time</span>
-        <h2 className="science-question" ref={heading} tabIndex={-1}>{completion.fraction === 1 ? 'You’ve finished this lesson’s activities.' : 'You’ve reached the end of the preview.'}</h2>
-        <p className="science-body">{completion.fraction === 1 ? 'Now give the ideas time to settle. Your Coach home will help you practise tricky ideas and check remembering later.' : `You finished ${completion.completed} of ${completion.total} activities. You can go back to the parts you skipped.`}</p>
-        <p className="science-body">Finishing activities is not the same as remembering. Review questions check a small sample of ideas, not the whole lesson.</p>
-        {profile.pendingReview.length > 0 && <p className="science-body">Your written answers are saved on this browser. They still need teacher review; no teacher-marking queue is connected.</p>}
-        {practicalLesson && <p className="science-body">This online lesson prepares you for practical work. You still need to do the real investigation with your teacher.</p>}
-        <div className="science-actions">{completion.fraction !== 1 && <button className="science-secondary" type="button" onClick={() => jump(lesson.states.find(s => !session.completedIds.includes(s.id))!.id)}>Return to unfinished activities</button>}<Link className="science-primary" href={hubHref}>Back to Science Coach <ArrowRight size={17} /></Link></div>
       </article> : <article className="science-activity science-summary">
         <div className="science-summary__icon"><Check size={28} aria-hidden="true" /></div>
         <span className="science-eyebrow">Your learning, dimension by dimension</span>
@@ -228,7 +217,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity
       </article>}
       <details className="science-lesson-options">
         <summary>Lesson information and options</summary>
-        <nav className="science-lesson-options__links" aria-label="Lesson resources">{isCoach ? <Link href="/preview/scienceB?view=review">Your short review</Link> : <><Link href={'/preview/science/coverage'}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={'/preview/science/exam'}>Lesson 6 exam practice</Link>}</>}</nav>
+        <nav className="science-lesson-options__links" aria-label="Lesson resources"><Link href={'/preview/science/coverage'}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={'/preview/science/exam'}>Lesson 6 exam practice</Link>}</nav>
         <details className="science-curriculum"><summary>Where this lesson fits</summary><p>AQA Combined Science: Trilogy · Foundation. {scienceLessons.length} lessons are built in this wording route, awaiting qualified teacher review.</p><ol>{(lessonNumber <= 6 ? cellBiologySequence : lessonNumber <= 18 ? organisationSequence : lessonNumber <= 25 ? infectionSequence : bioenergeticsSequence).map(item => <li key={item.title}><strong>{item.title}</strong><span>{item.status} · {item.spec}</span></li>)}</ol>{scienceCurriculum.map(strand => <section key={strand.strand}><h3>{strand.strand}</h3>{strand.papers.map(paper => <p key={paper.paper}>Paper {paper.paper}: {paper.topics.map(([code, title]) => `${code} ${title}`).join(' · ')}</p>)}</section>)}<p>Working scientifically, maths and practical skills run across all three subjects. Digital lessons prepare learners for practical work but never certify hands-on completion.</p></details>
         <details className="science-curriculum"><summary>Lesson sources</summary><ul>{lesson.sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.locator}</span></li>)}</ul></details>
         <button type="button" className="science-text-button" onClick={() => setResetConfirm(true)}><RotateCcw size={14} /> Restart local preview</button>
