@@ -40,7 +40,7 @@ export default function OperationsVariantCLessonView() {
     {header}
     <article className={`opb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <p className="rung-card__eyebrow">{ladder ? 'Animated lesson · about 6 minutes' : teaching ? state.video ? 'Worked example' : 'Learn' : `Question ${questionNumber} of ${rungQuestions.length}`}</p>
-      <h3 ref={heading} tabIndex={-1}>{state.content.title}</h3>
+      <h3 ref={heading} tabIndex={-1} className={state.content.title === flow.title ? 'sr-only' : undefined}>{state.content.title}</h3>
       {teaching && !state.video && state.content.body && <p className="opb-body">{state.content.body}</p>}
       <TutorTeachingMedia visual={state.visual} video={state.video} onConsultRule={feedback ? undefined : engine.markHintUsed} />
 
