@@ -141,8 +141,8 @@ check('32 separate records; A/B answers and drafts cannot leak or cross-restore'
 check('variant parsing, same-activity switch and hub/menu links preserve variant',()=>{
   assert.equal(parseScienceVariant('b'),'b')
   for(const v of [undefined,'a','B','bad',['b']]) assert.equal(parseScienceVariant(v),'a')
-  assert.equal(scienceHubHref('a'),'/preview/science')
-  assert.equal(scienceHubHref('b'),'/preview/science?variant=b')
+  assert.equal(scienceHubHref('a'),'/preview?subject=science')
+  assert.equal(scienceHubHref('b'),'/preview?subject=science')
   assert.equal(scienceLessonHref(1,'a'),'/preview/science?lesson=1')
   assert.equal(scienceLessonHref(1,'b','B1-02'),'/preview/science?lesson=1&variant=b&activity=B1-02')
   const html=renderToStaticMarkup(createElement(ScienceVariantSwitch,{variant:'b',lessonNumber:1,activity:'B1-02'}))

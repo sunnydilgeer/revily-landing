@@ -13,6 +13,7 @@
   --color-ink: var(--rv-ink);
   --color-muted: var(--rv-muted);
   --color-yellow: var(--rv-yellow);
+  --color-accent: var(--rv-accent);
   --color-good: var(--rv-good);
   --color-redpen: var(--rv-redpen);
   --color-alarm: var(--rv-alarm);

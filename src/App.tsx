@@ -18,10 +18,12 @@ import TutorEstimatingLesson from './features/estimating/tutor/EstimatingLessonV
 import TutorBoundsLesson from './features/bounds/tutor/BoundsLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
-import AppShell, { type AppSection } from './features/maths/AppShell'
+import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
 import ComingSoon from './features/maths/ComingSoon'
 import RevisionCards from './features/cards/RevisionCards'
 import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
+import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from './features/maths/subject'
+import dynamic from 'next/dynamic'
 import { RevilyLogo } from './ui'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
 import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber } from './features/maths/courseRegistry'
@@ -32,6 +34,9 @@ import {
   type LessonProgressMap,
   type LessonProgressSnapshot,
 } from './features/maths/lessonProgress'
+
+// Science carries its whole lesson catalogue, so Maths students don't download it until they switch.
+const ScienceCurriculum = dynamic(() => import('./features/science/ScienceCurriculum'), { ssr: false })
 
 type MathsView = 'overview' | 'lesson' | 'cards' | 'practice'
 
@@ -48,6 +53,7 @@ function lessonFromUrl() {
 function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice') {
   const url = new URL(window.location.href)
   url.searchParams.delete('view')
+  url.searchParams.delete('subject')
   if (lesson) url.searchParams.set('lesson', String(lesson))
   else url.searchParams.delete('lesson')
   if (section) url.searchParams.set('view', section)
@@ -60,17 +66,34 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [progress, setProgress] = useState<LessonProgressMap>({})
   const [lastLesson, setLastLesson] = useState<MathsLessonNumber>(1)
+  const [subject, setSubject] = useState<Subject>('maths')
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   const currentLesson = getMathsLesson(lesson)
   const study = useStudySummary()
-  useStudyTimer(view === 'lesson' || view === 'cards')
+  useStudyTimer(subject === 'maths' && (view === 'lesson' || view === 'cards'), subject)
 
   useEffect(() => {
     setProgress(readMathsProgress())
     const storedLastLesson = Number(window.localStorage.getItem(MATHS_LAST_LESSON_STORAGE_KEY))
     if (isMathsLessonNumber(storedLastLesson)) setLastLesson(storedLastLesson)
 
-    function syncFromUrl() {
+    // Memory only picks the subject on first load. Science addresses always say subject=science,
+    // so on Back/Forward an address without it is Maths.
+    function syncFromUrl(firstLoad = false) {
+      const urlSubject = subjectFromUrl(window.location.search, firstLoad ? readLastSubject() : 'maths')
+      setSubject(urlSubject)
+      saveLastSubject(urlSubject)
+      if (urlSubject === 'science') {
+        // Reopening on Science from a bare /preview: make the address say so, without a new history entry.
+        const url = new URL(window.location.href)
+        if (url.searchParams.get('subject') !== 'science') {
+          url.searchParams.set('subject', 'science')
+          window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+        }
+        setView(sectionFromUrl())
+        setDrawerOpen(false)
+        return
+      }
       const selectedLesson = lessonFromUrl()
       if (selectedLesson) {
         setLesson(selectedLesson)
@@ -89,11 +112,12 @@ function App() {
       setProgress(current => ({ ...current, [snapshot.lessonId]: snapshot }))
     }
 
-    syncFromUrl()
-    window.addEventListener('popstate', syncFromUrl)
+    syncFromUrl(true)
+    const onPopState = () => syncFromUrl()
+    window.addEventListener('popstate', onPopState)
     window.addEventListener(MATHS_PROGRESS_EVENT, updateProgress)
     return () => {
-      window.removeEventListener('popstate', syncFromUrl)
+      window.removeEventListener('popstate', onPopState)
       window.removeEventListener(MATHS_PROGRESS_EVENT, updateProgress)
     }
   }, [])
@@ -120,13 +144,17 @@ function App() {
 
   const navigate = useCallback((section: AppSection) => {
     setDrawerOpen(false)
-    if (section === 'curriculum') {
-      setView('overview')
-      pushLessonQuery()
-    } else {
-      setView(section)
-      pushLessonQuery(undefined, section)
-    }
+    setView(section === 'curriculum' ? 'overview' : section)
+    window.history.pushState({}, '', sectionHref(subject, section))
+    window.scrollTo({ top: 0 })
+  }, [subject])
+
+  const switchSubject = useCallback((next: Subject) => {
+    setSubject(next)
+    saveLastSubject(next)
+    setView('overview')
+    setDrawerOpen(false)
+    window.history.pushState({}, '', sectionHref(next, 'curriculum'))
     window.scrollTo({ top: 0 })
   }, [])
 
@@ -135,15 +163,19 @@ function App() {
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [openLesson])
 
-  if (view !== 'lesson') {
-    const active: AppSection = view === 'overview' ? 'curriculum' : view
+  if (subject === 'science' || view !== 'lesson') {
+    const active: AppSection = view === 'overview' || view === 'lesson' ? 'curriculum' : view
     return <div className="app-shell app-shell--course">
-      <AppShell active={active} onNavigate={navigate} study={study}>
-        {view === 'overview'
-          ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
-          : view === 'cards'
-            ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
-            : <ComingSoon section={view} onBack={() => navigate('curriculum')} />}
+      <AppShell active={active} onNavigate={navigate} study={study} subject={subject} onSwitchSubject={switchSubject}>
+        {subject === 'science'
+          ? active === 'curriculum'
+            ? <ScienceCurriculum study={study} />
+            : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
+          : view === 'overview'
+            ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
+            : view === 'cards'
+              ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
+              : <ComingSoon section={active as 'practice'} onBack={() => navigate('curriculum')} />}
       </AppShell>
     </div>
   }

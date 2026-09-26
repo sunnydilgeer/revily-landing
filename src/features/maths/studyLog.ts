@@ -5,9 +5,12 @@
  * - Streak: a day counts once the student finishes a rung or studies for 5 minutes.
  * - Daily goal: 10, 20, 30 or 45 minutes; separate from the streak so long sessions are rewarded
  *   without making a streak impossible to keep.
+ * - One streak and one goal across subjects: minutes in Maths or Science both count. Each day also
+ *   keeps a per-subject split so the Today card can show where the time went.
  */
 
-export type StudyDay = { seconds: number; rungs: number }
+export type Subject = 'maths' | 'science'
+export type StudyDay = { seconds: number; rungs: number; subjects?: Partial<Record<Subject, number>> }
 export type StudyLog = Record<string, StudyDay>
 
 export const STUDY_LOG_KEY = 'revily:study-log:v1'
@@ -74,11 +77,12 @@ function writeStudyLog(log: StudyLog) {
   window.dispatchEvent(new CustomEvent(STUDY_LOG_EVENT))
 }
 
-export function addStudySeconds(seconds: number) {
+export function addStudySeconds(seconds: number, subject: Subject = 'maths') {
   if (typeof window === 'undefined' || seconds <= 0) return
   const log = readStudyLog(), key = dayKey()
   const day = log[key] ?? { seconds: 0, rungs: 0 }
-  log[key] = { ...day, seconds: day.seconds + seconds }
+  const subjects = { ...day.subjects, [subject]: (day.subjects?.[subject] ?? 0) + seconds }
+  log[key] = { ...day, seconds: day.seconds + seconds, subjects }
   writeStudyLog(log)
 }
 

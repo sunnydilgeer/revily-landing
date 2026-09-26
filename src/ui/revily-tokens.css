@@ -54,6 +54,14 @@
   --rv-cards: var(--rv-step-dm);
   --rv-practice: var(--rv-step-as);
 
+  /* Subject accent. Maths is yellow; [data-subject="science"] below swaps in teal.
+     Text on the accent is always ink, so both subjects pass AA the same way. */
+  --rv-accent: var(--rv-yellow);
+  --rv-accent-hover: #ffcb3d;
+  --rv-accent-tint: var(--rv-yellow-tint);
+  --rv-accent-ink: #8a6400; /* accent as text on white */
+  --rv-accent-on: var(--rv-ink);
+
   /* Type */
   --rv-font-display: 'Bricolage Grotesque Variable', 'Arial Rounded MT Bold', system-ui, sans-serif;
   --rv-font-body: 'Lexend Variable', 'Segoe UI', system-ui, sans-serif;
@@ -73,4 +81,15 @@
     linear-gradient(var(--rv-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--rv-grid) 1px, transparent 1px);
   --rv-paper-grid-size: 32px 32px;
+}
+
+/* Science: only the accent changes. Ink on #2dd4bf is 8.6:1; #0f766e on white is 5.5:1. */
+[data-subject="science"] {
+  --rv-teal: #2dd4bf;
+  --rv-teal-tint: #ccfbf1;
+  --rv-teal-ink: #0f766e;
+  --rv-accent: var(--rv-teal);
+  --rv-accent-hover: #22c3ae;
+  --rv-accent-tint: var(--rv-teal-tint);
+  --rv-accent-ink: var(--rv-teal-ink);
 }

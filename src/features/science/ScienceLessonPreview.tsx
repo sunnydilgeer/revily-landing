@@ -34,38 +34,19 @@ import { photosynthesisFrames as photosynthesisFramesB } from './variants/b/less
 import { ExplanationSteps } from '../number-types/components/ExplanationSteps'
 import { evidenceProfile, progress, recommendedNext, retrievalDueAt } from './engine'
 import { lesson1 } from './lesson-1/lesson'
-import { lesson2, microscopySections } from './lesson-2/lesson'
+import { lesson2 } from './lesson-2/lesson'
 import { microscopyFrames } from './lesson-2/teachingFrames'
-import { lesson3, practicalSections } from './lesson-3/lesson'
+import { lesson3 } from './lesson-3/lesson'
 import { practicalFrames } from './lesson-3/teachingFrames'
-import { lesson4, specialisationSections } from './lesson-4/lesson'
+import { lesson4 } from './lesson-4/lesson'
 import { specialisationFrames } from './lesson-4/teachingFrames'
-import { lesson5, divisionSections } from './lesson-5/lesson'
+import { lesson5 } from './lesson-5/lesson'
 import { divisionFrames } from './lesson-5/teachingFrames'
-import { lesson6, transportSections } from './lesson-6/lesson'
+import { lesson6 } from './lesson-6/lesson'
 import { transportFrames } from './lesson-6/teachingFrames'
-import { organisationSections } from './variants/b/lesson-7/lesson'
-import { enzymeSections } from './variants/b/lesson-8/lesson'
-import { digestionSections } from './variants/b/lesson-9/lesson'
-import { lungsSections } from './variants/b/lesson-10/lesson'
-import { heartSections } from './variants/b/lesson-11/lesson'
-import { vesselsSections } from './variants/b/lesson-12/lesson'
-import { bloodSections } from './variants/b/lesson-13/lesson'
-import { cardiovascularSections } from './variants/b/lesson-14/lesson'
-import { healthSections } from './variants/b/lesson-15/lesson'
-import { riskCancerSections } from './variants/b/lesson-16/lesson'
-import { plantTissueSections } from './variants/b/lesson-17/lesson'
-import { plantTransportSections } from './variants/b/lesson-18/lesson'
-import { pathogenSections } from './variants/b/lesson-19/lesson'
-import { humanDiseaseSections } from './variants/b/lesson-20/lesson'
-import { plantMalariaSections } from './variants/b/lesson-21/lesson'
-import { defenceSections } from './variants/b/lesson-22/lesson'
-import { vaccinationSections } from './variants/b/lesson-23/lesson'
-import { medicineSections } from './variants/b/lesson-24/lesson'
-import { drugTestingSections } from './variants/b/lesson-25/lesson'
-import { photosynthesisSections } from './variants/b/lesson-26/lesson'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import type { LessonNumber } from './lessonNavigation'
+import { scienceLessonSections } from './lessonSections'
 import { createCoachPreviewSessionEngine, createPreviewSessionEngine } from './previewSession'
 import type { PreviewSession, SessionAction } from './previewSession'
 import { CellModel } from './components/CellModel'
@@ -79,22 +60,6 @@ import './ScienceLesson.css'
 import './FriendlyLesson.css'
 import './AnatomyVisuals.css'
 
-const cellsSections = [
-  { id: 'B1-01', label: 'Start here', detail: 'Your starting knowledge' },
-  { id: 'B1-02', label: 'Animal cells', detail: 'Meet the cell and explore its parts' },
-  { id: 'B1-05', label: 'Animal cells: energy and proteins', detail: 'Mitochondria and ribosomes' },
-  { id: 'B1-10', label: 'Models and observations', detail: 'A first practical connection' },
-  { id: 'B1-24', label: 'Plant cells', detail: 'Meet the cell and explore its parts' },
-  { id: 'B1-42', label: 'Plant cells: more jobs', detail: 'Energy, proteins, support and food' },
-  { id: 'B1-41', label: 'Compare animal and plant cells', detail: 'Observe similarities and differences' },
-  { id: 'B1-27', label: 'Bacterial cells', detail: 'Meet the cell, DNA loop and plasmids' },
-  { id: 'B1-22', label: 'Names for the cells', detail: 'Eukaryotic and prokaryotic' },
-  { id: 'B1-29', label: 'Cell sizes and area', detail: 'Units, standard form and estimates' },
-  { id: 'B1-12', label: 'Try it yourself', detail: 'Independent checks' },
-  { id: 'B1-19', label: 'Exam-style transfer', detail: 'Apply and explain' },
-  { id: 'B1-32', label: 'Plant, bacterial and maths checks', detail: 'Independent checks across the new scope' },
-  { id: 'B1-21', label: 'Compare two cells', detail: 'Final written task' },
-]
 const dimensionLabels: Record<EvidenceDimension, string> = {
   recall: 'Recall', understanding: 'Understanding', application: 'Application', explanation: 'Written explanation',
   practicalReasoning: 'Practical reasoning', dataInterpretation: 'Evidence interpretation', calculation: 'Calculation',
@@ -121,7 +86,7 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
   const currentChapter = scienceChapters.find(chapter => (chapter.lessonNumbers as readonly number[]).includes(lessonNumber))!
   const nextLessonItem = scienceLessons.find(item => item.number === lessonNumber + 1)
   const practicalLesson = [3, 6, 8, 9].includes(lessonNumber)
-  const sections = { 1: cellsSections, 2: microscopySections, 3: practicalSections, 4: specialisationSections, 5: divisionSections, 6: transportSections, 7: organisationSections, 8: enzymeSections, 9: digestionSections, 10: lungsSections, 11: heartSections, 12: vesselsSections, 13: bloodSections, 14: cardiovascularSections, 15: healthSections, 16: riskCancerSections, 17: plantTissueSections, 18: plantTransportSections, 19: pathogenSections, 20: humanDiseaseSections, 21: plantMalariaSections, 22: defenceSections, 23: vaccinationSections, 24: medicineSections, 25: drugTestingSections, 26: photosynthesisSections }[lessonNumber]
+  const sections = scienceLessonSections[lessonNumber]
   const customFrames = variant === 'b' ? framesB[lessonNumber] : { 1: undefined, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames }[lessonNumber]
   const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : variant === 'b' ? sessionEnginesB : sessionEngines)[lessonNumber]
   function reducer(session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) {
