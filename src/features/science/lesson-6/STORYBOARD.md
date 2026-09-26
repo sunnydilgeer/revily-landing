@@ -1,25 +1,29 @@
-# Lesson 6 storyboard — 17 September 2026
+# Lesson 6 storyboard — Diffusion and osmosis
 
-Implementation note: 45 activities. B6-45 adds a guided unusual-repeat check (+4, +5, +24) before independent work: check the method and repeat rather than delete a result solely because it differs. The original practical setup now shows the concentration range, matching tissue, blotting and a balance; all preparation remains teacher-supervised. IDs are stable; array order defines progression.
+Big idea: particles spread out overall from where there are more of them to where there are fewer. Osmosis is the same idea for water crossing a membrane that stops the solute.
 
-B-CELL-006 v0.1.0 · Transport and exchange · draftNeedsTeacherReview.
-Written before implementation; [alignment](../LESSONS-4-6-ALIGNMENT.md).
+Anchor and route: strong and weak squash. Concentration (how strong) → particles move randomly, so more leave a crowded region than return (diffusion) → diffusion in your body → what speeds it up → water across a partially permeable membrane (osmosis) → plant cells gaining or losing water, ready for the osmosis practical.
 
-## Chapters and scripts
+Why this order: concentration comes first, because every later idea compares two concentrations. Random movement comes before "net movement", so "more leave than return" makes sense and "no net movement" never means "stopped". The concentration gradient is named at the start of the body section, before the rate section calls a big difference "steep". The fair-test frame (B6-06 f4) is taught here because the osmosis practical depends on it. Solute, dilute and concentrated each get their own frame before osmosis is named. Osmosis is then applied to plant cells last, because it needs both "compare outside with inside" and "no net movement".
 
-1. Diffusion: particles move randomly in both directions; net movement is higher → lower concentration. Separate random mini-arrows from the labelled net arrow. Oxygen into cells, carbon dioxide out and urea from cells into plasma are examples. Larger gradient, higher temperature and larger membrane area increase rate with other conditions fixed. Guided direction/factor checks, independent oxygen context.
-2. Osmosis: blue water circles and amber solute squares separated by a partially permeable membrane. Water can cross; this solute cannot. Dilute solution has lower solute concentration; net water moves to the more concentrated solution. Both-direction movement continues even at no net change. Separate plant-cell gain/loss examples; never particles “wanting” water. Guided water/direction check, independent plant-tissue prediction.
-3. Active transport: mineral ions move soil → root against a gradient using energy from respiration. Separate gut example moves sugar from lower gut concentration into higher blood concentration. Teach separately before a three-process comparison. Guided energy and independent process choice.
-4. Exchange: original cube values (1 cm side: 6 cm²/1 cm³ = 6:1; 2 cm side: 24 cm²/8 cm³ = 3:1). Units retained; ratios numerical when using the same length units. Larger multicellular organisms cannot meet needs using outer surface diffusion alone; specialised surfaces and transport systems serve internal cells. Separate lung/alveoli, intestine/villi, fish/gills, roots/root hairs and leaves/stomata-air spaces. Large area, short path, animal blood supply and gas ventilation where appropriate; no claim all surfaces have blood. Optional worked ratio, independent new cube and supplied thin-surface context.
-5. Required practical 2 digital preparation/data: teacher-prepared plant tissue, balance, labelled concentration range including water; before/after mass, equal time/temperature/solution volume/similar tissue dimensions and type, consistent blotting, repeats/mean/anomaly reasoning. School risk assessment and teacher control of sharp tools; no blade/chemical home task. Original illustrative values, never presented as measurements. Optional worked 2.00→2.20 g = +10%, independent 2.50→2.25 g = −10%, water-uptake rate. Axes: concentration (mol/dm³) horizontal, percentage mass change (%) vertical with positive/negative values. Inspect plotted points and estimate zero crossing; no-net osmosis is not no water movement. A keyboard/click point-plot mini-task will allow plotting one point without dragging or claiming practical certification. Independent fair-test/repeat/graph/data checks; written plant-tissue explanation with rubric after save.
+| Section | Screens | Walkthrough frames | Questions testing them |
+|---|---|---|---|
+| Start here | B6-01 | — | Which glass of squash is stronger (more squash in the same amount of drink); everyday, not diffusion |
+| How do particles spread out? | B6-02–03, B6-46 | T6: concentration ("Concentration means how much of a substance is in a given volume"; stem-cell hand-back) → random movement → net movement ("More leave a higher-concentration region than return") → diffusion (no energy supplied by the cell) → equal concentrations: "no net movement" → put it together | B6-03 net direction (particle diagram, net arrow hidden until feedback); B6-46 equal concentrations: still moving, no net movement |
+| What diffuses in your body? | B6-04–05 | T6: concentration gradient → oxygen into cells → carbon dioxide out → urea (made in liver cells) → plasma, carried to the kidneys → put it together (each substance follows its own gradient) | B6-05 which waste goes into plasma and on to the kidneys |
+| What speeds up diffusion? | B6-06–07, B6-47 | T5: steep gradient → temperature → surface area → fair test ("change only that factor") → put it together | B6-07 which change speeds diffusion; B6-47 why keep temperature the same |
+| What is osmosis? | B6-08–10 | T6: "partially permeable membrane" → solute → dilute and concentrated → water moves dilute → concentrated (osmosis) → water keeps moving both ways, no net movement → put it together | B6-09 what moves; B6-10 direction (osmosis diagram, arrow hidden until feedback) |
+| What happens to plant cells? | B6-11–12 | T5: compare outside with inside → dilute outside: water in, mass up → concentrated outside: water out, mass down → the same: no net movement, mass unchanged → put it together (hand-off to the osmosis practical) | B6-12 potato in a more concentrated solution |
+| On your own | B6-35, B6-36, B6-48, B6-49 | — | B6-35 new scenario: oxygen into a working muscle cell; B6-36 new scenario: cucumber in salty water; B6-48 spot the error: "water molecules stop moving"; B6-49 written: why raisins swell in water (4 marks, teacher-reviewed) |
 
-## Visual briefs
+Hand-offs:
+- Back to stem cells: B6-02 f1 "Every cell, including the stem cells you just met, needs substances to move in and out."
+- On to the osmosis practical: B6-11 f5 ends "Next, you will measure this yourself in the osmosis practical."
 
-- Consistent particle key in HTML and equal-size compartments. One dot means a representative particle, not a fixed scientific count. Concentration comparison only over equal volumes. Diffusion diagram uses one substance; osmosis uses water/solute distinction and solid membrane with small pores; active transport uses explicit energy input and carrier schematic, no solute passage mislabelled osmosis.
-- Cubes dimension-labelled with area/volume calculation cards; not scale-measurable on screen. Exchange cards are separate concrete surfaces before their shared adaptations are summarised.
-- Plant tissue in labelled solution containers, before/after mass cards, accessible original table and responsive SVG graph with readable axes. Graph table provides equivalent data. Generated schematics and illustrative data have explicit provenance.
-- Assessment mode omits net arrows/teaching answers unless supplied as question information. Neutral alt text describes compartments, membrane/key and data; feedback can reveal the arrow afterwards.
+Scientific caveats kept: particles move both ways; net movement is the overall result; at equal concentrations movement continues with no net movement; in osmosis only water crosses in the model and water keeps moving at no net change; a fair test changes one factor. Diagrams are original schematics with representative particles, not to scale.
 
-## Boundaries
+Moved out of this lesson: the osmosis practical and its data (B6-25…B6-34, B6-40…B6-45, practical data file) to the osmosis practical lesson (`lesson-6b`). Active transport, comparing processes, SA:V and exchange surfaces (B6-13…B6-24, independent items B6-37…B6-39) go to the active transport and exchange surfaces lesson. Out of scope: water potential, turgor and plasmolysis terms, isotonic/hypertonic terms.
 
-Keep one Lesson 6 with five readable internal chapters and existing saved activity resume. Optional plot/model demonstrations never gate Continue. No equipment simulator, mixed-review bank, scheduler or subject-navigation expansion. Digital preparation/completion is not hands-on RPA2 completion.
+Linked ids kept for other features: B6-02 (diffusion) and B6-08 (osmosis) stay teaching screens for the exam-coverage map. New ids: B6-46…B6-49.
+
+Source boundary: AQA 8464 sections 4.1.3.1 and 4.1.3.2. Original wording and schematics. Draft pending teacher review.
