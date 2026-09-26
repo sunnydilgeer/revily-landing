@@ -9,6 +9,7 @@ import { ConversionWorkedExample } from '../../fractions-decimals-percentages/tu
 import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fractionDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import { Button, CheckBar } from '../../../ui'
+import { RUNG_COMPLETE_EVENT } from '../../maths/studyLog'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from './model'
 
 import '../../number-types/RationalNumbersLesson.css'
@@ -129,6 +130,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   useEffect(() => { if (feedback) continueButton.current?.focus({ preventScroll: true }) }, [feedback])
 
   function next() {
+    if (!engine.completed && lastInRung) window.dispatchEvent(new CustomEvent(RUNG_COMPLETE_EVENT))
     if (!engine.completed && lastInRung && !last && rungIndex < rungs.length - 1) {
       setRungDone({
         title: labels[state.microSkillId] ?? 'This rung',

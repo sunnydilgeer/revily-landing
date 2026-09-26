@@ -15,7 +15,10 @@ import TutorFractionsDecimalsPercentagesLesson from './features/fractions-decima
 import TutorRoundingLesson from './features/rounding/tutor/RoundingLessonView'
 import TutorOrderingLesson from './features/ordering/tutor/OrderingLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
-import MathsCourseOverview from './features/maths/MathsCourseOverview'
+import Curriculum from './features/maths/Curriculum'
+import AppShell, { type AppSection } from './features/maths/AppShell'
+import ComingSoon from './features/maths/ComingSoon'
+import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
 import { RevilyLogo } from './ui'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
 import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber } from './features/maths/courseRegistry'
@@ -27,17 +30,24 @@ import {
   type LessonProgressSnapshot,
 } from './features/maths/lessonProgress'
 
-type MathsView = 'overview' | 'lesson'
+type MathsView = 'overview' | 'lesson' | 'cards' | 'practice'
+
+function sectionFromUrl(): MathsView {
+  const value = new URLSearchParams(window.location.search).get('view')
+  return value === 'cards' || value === 'practice' ? value : 'overview'
+}
 
 function lessonFromUrl() {
   const value = Number(new URLSearchParams(window.location.search).get('lesson'))
   return isMathsLessonNumber(value) ? value : null
 }
 
-function pushLessonQuery(lesson?: MathsLessonNumber) {
+function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice') {
   const url = new URL(window.location.href)
+  url.searchParams.delete('view')
   if (lesson) url.searchParams.set('lesson', String(lesson))
   else url.searchParams.delete('lesson')
+  if (section) url.searchParams.set('view', section)
   window.history.pushState({}, '', `${url.pathname}${url.search}${url.hash}`)
 }
 
@@ -49,6 +59,8 @@ function App() {
   const [lastLesson, setLastLesson] = useState<MathsLessonNumber>(1)
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   const currentLesson = getMathsLesson(lesson)
+  const study = useStudySummary()
+  useStudyTimer(view === 'lesson')
 
   useEffect(() => {
     setProgress(readMathsProgress())
@@ -63,7 +75,7 @@ function App() {
         window.localStorage.setItem(MATHS_LAST_LESSON_STORAGE_KEY, String(selectedLesson))
         setView('lesson')
       } else {
-        setView('overview')
+        setView(sectionFromUrl())
       }
       setDrawerOpen(false)
     }
@@ -103,40 +115,58 @@ function App() {
     pushLessonQuery()
   }, [])
 
+  const navigate = useCallback((section: AppSection) => {
+    setDrawerOpen(false)
+    if (section === 'curriculum') {
+      setView('overview')
+      pushLessonQuery()
+    } else {
+      setView(section)
+      pushLessonQuery(undefined, section)
+    }
+    window.scrollTo({ top: 0 })
+  }, [])
+
   const selectLessonFromDrawer = useCallback((number: MathsLessonNumber) => {
     openLesson(number)
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [openLesson])
 
-  return <div className={`app-shell ${view === 'lesson' ? 'app-shell--lesson app-shell--study' : 'app-shell--course'}`}>
-    <header className="site-header">
-      <RevilyLogo wordmark={view === 'overview'} size={view === 'overview' ? 26 : 24} />
+  if (view !== 'lesson') {
+    const active: AppSection = view === 'overview' ? 'curriculum' : view
+    return <div className="app-shell app-shell--course">
+      <AppShell active={active} onNavigate={navigate} study={study}>
+        {view === 'overview'
+          ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
+          : <ComingSoon section={view} onBack={() => navigate('curriculum')} />}
+      </AppShell>
+    </div>
+  }
 
-      {view === 'overview' ? <span className="prototype-label">GCSE Foundation Maths</span> : <>
-        <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
-          <button type="button" onClick={showOverview}>Maths</button>
-          <span aria-hidden="true">/</span>
-          <span>Number</span>
-          <span aria-hidden="true">/</span>
-          <span className="maths-breadcrumb-number" aria-current="page">{currentLesson.title}</span>
-        </nav>
-        <button
-          ref={contentsButtonRef}
-          className="maths-contents-button"
-          type="button"
-          aria-expanded={drawerOpen}
-          aria-controls="maths-contents"
-          onClick={() => setDrawerOpen(true)}
-        >Contents</button>
-      </>}
+  return <div className="app-shell app-shell--lesson app-shell--study">
+    <header className="site-header">
+      <RevilyLogo wordmark={false} size={24} href="/preview" />
+      <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
+        <button type="button" onClick={showOverview}>Curriculum</button>
+        <span aria-hidden="true">/</span>
+        <span>Number</span>
+        <span aria-hidden="true">/</span>
+        <span className="maths-breadcrumb-number" aria-current="page">{currentLesson.title}</span>
+      </nav>
+      <button
+        ref={contentsButtonRef}
+        className="maths-contents-button"
+        type="button"
+        aria-expanded={drawerOpen}
+        aria-controls="maths-contents"
+        onClick={() => setDrawerOpen(true)}
+      >Contents</button>
     </header>
 
-    {view === 'overview'
-      ? <MathsCourseOverview progress={progress} lastLesson={lastLesson} onOpenLesson={openLesson} />
-      : <main className="lesson-preview" id="main-content">{renderLesson(lesson)}</main>}
+    <main className="lesson-preview" id="main-content">{renderLesson(lesson)}</main>
 
     <MathsContentsDrawer
-      open={view === 'lesson' && drawerOpen}
+      open={drawerOpen}
       currentLesson={currentLesson}
       progress={progress}
       onClose={closeDrawer}
