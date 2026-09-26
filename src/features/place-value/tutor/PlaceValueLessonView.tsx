@@ -17,7 +17,7 @@ import './PlaceValueLesson.css'
 export default function TutorPlaceValueLessonView() {
   const engine = useLessonEngine(lesson)
   const flow = useRungFlow(lesson, engine, labels, 'lesson-3')
-  const { teaching, last, heading, continueButton, rungQuestions, questionNumber, next } = flow
+  const { teaching, last, heading, continueButton, next } = flow
   const state = flow.state as TutorPlaceState
   const { feedback, selection } = engine
   const numeric = state.interaction.type === 'numericInput'
@@ -34,7 +34,6 @@ export default function TutorPlaceValueLessonView() {
   return <section className="numbers-lesson pvb-lesson pvt-lesson rung-lesson" id="lesson-3" aria-labelledby="pvt-topic">
     {header}
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
-      <p className="rung-card__eyebrow">{teaching ? state.video ? 'Worked example' : 'Learn' : `Question ${questionNumber} of ${rungQuestions.length}`}</p>
       <h3 ref={heading} tabIndex={-1}>{state.content.title}</h3>
       {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
       <PlaceValueTeachingMedia state={state} />
@@ -51,7 +50,7 @@ export default function TutorPlaceValueLessonView() {
         return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : ''}</span></button>
       })}</div>}
       {!teaching && !feedback && state.hints && <InlinePlaceHint hints={state.hints} onConsult={engine.markHintUsed} />}
-      {feedback?.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} /></div>}
+      {feedback?.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
     </article>
 
     {feedback
@@ -62,7 +61,7 @@ export default function TutorPlaceValueLessonView() {
         >
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
-      : <CheckBar message={!teaching && !numeric ? 'Tap the answer you think is right.' : undefined}>
+      : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
           {numeric && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!engine.inputValue.trim()}>Check</Button>}

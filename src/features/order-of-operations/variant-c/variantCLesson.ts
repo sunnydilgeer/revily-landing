@@ -65,7 +65,7 @@ const equal = 'equal-priority'
 const fraction = 'fraction-grouping'
 const algebraTopic = 'mixed'
 
-add(priority, 'See the multiplication as one quantity', 'Variant B screen 01', { kind: 'groups' }, undefined, undefined, 'Change the group size. Count the three equal groups by multiplying, then add the two loose counters.')
+add(priority, 'See the multiplication as one quantity', 'Variant B screen 01', { kind: 'groups' }, undefined, undefined, 'Change the group size and watch the total.')
 add(priority, 'Brackets first, then the power', 'N2.1 Q1; video 09.47.34 00:00-00:29', {
   kind: 'stacked-worked', math: '5\\times(2^3-3)+6', steps: [
     step('Work inside the bracket. Calculate the power first.', '5\\times(8-3)+6', '2³ = 8', '5\\times(\\underline{2^3}-3)+6'),
@@ -89,28 +89,28 @@ add(priority, 'Priya says brackets always change the answer. Is she correct?', '
 add(equal, 'Division and multiplication: start on the left', 'Variant B screen 13', worked('24\\div6\\times2', [
   step('Start with the operation furthest left.', '4\\times2', '24 ÷ 6 = 4', '\\underline{24\\div6}\\times2'),
   step('Continue to the right.', '8', '4 × 2 = 8', '\\underline{4\\times2}'),
-]), undefined, undefined, 'Division and multiplication share priority. The D and M letters do not override left-to-right order.')
+]), undefined, undefined, '× and ÷ share a step. Work from left to right.')
 add(equal, 'Work out: 18 ÷ 3 × 2', 'Variant B screen 15', expression('18\\div3\\times2'), numeric(12), working('12', ['Start on the left with division.', '18 ÷ 3 = 6'], ['Continue to the right with multiplication.', '6 × 2 = 12']), undefined, 'independent')
 add(equal, 'Addition and subtraction: start on the left', 'Variant B screen 16', worked('10-6+2', [
   step('Start with the operation furthest left.', '4+2', '10 - 6 = 4', '\\underline{10-6}+2'),
   step('Continue to the right.', '6', '4 + 2 = 6', '\\underline{4+2}'),
-]), undefined, undefined, 'Addition and subtraction share priority too.')
+]), undefined, undefined, '+ and − share a step too.')
 add(equal, '“Addition always comes before subtraction.” Is that true?', 'Variant B screen 18', expression('10-6+2'), select(['Yes - add 6 and 2 first.', 'No - subtract 6 first because it is furthest left.'], 1), working('No. Equal-priority operations are evaluated left to right.', ['Use the expression as a counterexample.', '10 - 6 + 2 = 4 + 2 = 6'], ['Adding 6 and 2 first inserts brackets that are not there.', '10 - (6 + 2) = 2 is a different calculation.']), undefined, 'transfer')
 
-add(fraction, 'A fraction bar makes two complete groups', 'Variant B screen 19', { kind: 'fraction' }, undefined, undefined, 'Explore the numerator and denominator. Either group can be calculated first; divide only after both groups are complete.')
+add(fraction, 'A fraction bar makes two complete groups', 'Variant B screen 19', { kind: 'fraction' }, undefined, undefined, 'Work out the whole top and the whole bottom, then divide.')
 add(fraction, 'Work out the top, the bottom, then divide', 'Video 09.48.11', worked('\\frac{2+2\\times3}{2\\times2}', [
   step('Multiply before adding in the numerator.', '\\frac{2+6}{2\\times2}', '2 × 3 = 6', '\\frac{2+\\underline{2\\times3}}{2\\times2}'),
   step('Finish the numerator.', '\\frac{8}{2\\times2}', '2 + 6 = 8', '\\frac{\\underline{2+6}}{2\\times2}'),
   step('Work out the denominator.', '\\frac{8}{4}', '2 × 2 = 4', '\\frac{8}{\\underline{2\\times2}}'),
   step('Divide the completed top by the completed bottom.', '2', '8 ÷ 4 = 2', '\\underline{\\frac{8}{4}}'),
-]), undefined, undefined, 'Top first is a helpful workflow, not a new priority rule.')
+]), undefined, undefined, 'Top first is a habit, not a rule.')
 add(fraction, 'Simplify the fraction', 'N2.2 Q1', worked('\\frac{3^2+3}{2\\times4+2}', [
   step('Calculate the power before adding in the numerator.', '\\frac{9+3}{2\\times4+2}', '3² = 9', '\\frac{\\underline{3^2}+3}{2\\times4+2}'),
   step('Finish the numerator.', '\\frac{12}{2\\times4+2}', '9 + 3 = 12', '\\frac{\\underline{9+3}}{2\\times4+2}'),
   step('Multiply before adding in the denominator.', '\\frac{12}{8+2}', '2 × 4 = 8', '\\frac{12}{\\underline{2\\times4}+2}'),
   step('Finish the denominator.', '\\frac{12}{10}', '8 + 2 = 10', '\\frac{12}{\\underline{8+2}}'),
   step('Simplify the fraction.', '\\frac65', 'Divide top and bottom by 2.', '\\underline{\\frac{12}{10}}'),
-]), undefined, undefined, 'Use Next and Back to build the working, or Replay to start again.')
+]), undefined, undefined, undefined)
 add(fraction, 'Work out the value of the fraction', 'N2.2 Q2', expression('\\frac{5+3}{2\\times2}'), numeric(2), working('2', ['Work out the numerator.', '5 + 3 = 8'], ['Work out the denominator.', '2 × 2 = 4'], ['Divide the results.', '8/4 = 2']))
 add(fraction, 'Simplify the fraction', 'N2.2 Q3', expression('\\frac{4^2-6}{3+2\\times1}'), numeric(2), working('2', ['Calculate the power, then subtract in the numerator.', '4² - 6 = 16 - 6 = 10'], ['Multiply before adding in the denominator.', '3 + 2 × 1 = 3 + 2 = 5'], ['Divide the results.', '10/5 = 2']))
 add(fraction, 'Work out the value of the fraction', 'N2.2 Q4a', expression('\\frac{2\\times(1+4)}{3^2-4}'), numeric(2), working('2', ['Complete the bracket, then multiply in the numerator.', '2 × (1 + 4) = 2 × 5 = 10'], ['Calculate the power, then subtract in the denominator.', '3² - 4 = 9 - 4 = 5'], ['Divide the results.', '10/5 = 2']))
@@ -139,7 +139,7 @@ add(algebraTopic, 'Why is 6x × 2x not the same as 6x + 2x?', 'N2.3 Q4b', expres
 add(algebraTopic, 'Write the expression in its simplest form', 'N2.3 Q5a', expression('7c\\times3cd-4\\times c^2d'), algebra('17c^2d', '17c²d'), working('17c²d', ['Form the first product.', '7c × 3cd = 21c²d'], ['Form the second product.', '4 × c²d = 4c²d'], ['Subtract the like terms.', '21c²d - 4c²d = 17c²d']), undefined, 'independent')
 add(algebraTopic, 'Ravi says 3xy × 2x simplifies to 5x²y. Show that he is wrong.', 'N2.3 Q5b', expression('3xy\\times2x'), select(['3 × 2 = 6 and x × x = x², so the answer is 6x²y.', '3 + 2 = 5 and x × x = x², so Ravi is correct.', '3 × 2 = 6 and x + x = 2x, so the answer is 12xy.'], 0), working('6x²y, not 5x²y', ['Multiply the numerical coefficients.', '3 × 2 = 6'], ['Combine the variable factors.', 'xy × x = x²y'], ['Put the product together.', '3xy × 2x = 6x²y']), undefined, 'transfer')
 add(algebraTopic, 'Sana says add or subtract before multiplying. Is she correct?', 'N2.3 Q5c', expression('2a\\times3a+a^2'), select(['No - multiply first to get 6a², then add a² to get 7a².', 'Yes - add 3a + a² first, then multiply by 2a.', 'No - add the coefficients first to get 5a².'], 0), working('No - 2a × 3a + a² = 7a².', ['Form the product first.', '2a × 3a = 6a²'], ['Now add the like term.', '6a² + a² = 7a²']), undefined, 'transfer')
-add(algebraTopic, 'Four priority levels, one careful habit', 'All tutor sources; Variant B recap', { kind: 'tutor-summary' }, undefined, undefined, 'Read the structure, complete one operation, then check what remains. In algebra, form products before collecting like terms.')
+add(algebraTopic, 'Four priority levels, one careful habit', 'All tutor sources; Variant B recap', { kind: 'tutor-summary' }, undefined, undefined, 'One job per line. In algebra, multiply before collecting like terms.')
 
 export const lesson2Videos: Array<LessonVideoDefinition & { stateId: string }> = [
   {
@@ -199,7 +199,7 @@ states.unshift({
   phase: 'teach',
   teachingIntent: 'Meet BIDMAS as a four-step ladder: brackets, indices, divide = multiply, add = subtract.',
   sourceRef: 'Revily BIDMAS ladder prototype',
-  content: { title: 'The BIDMAS ladder', body: 'Watch the animated lesson, answer the four questions in it, then try your own sum. Carry on whenever you are ready.' },
+  content: { title: 'The BIDMAS ladder' },
   visual: { kind: 'ladder-player' },
   component: { type: 'expressionSteps', props: { expression: '', steps: [] } },
   interaction: { type: 'continue' },

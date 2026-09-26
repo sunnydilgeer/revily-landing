@@ -41,7 +41,7 @@ export function IntegerValueVisual(props: Props) {
     {props.kind === 'explorer' && <>
       <div className="d-readout" aria-live="polite"><strong>{signed(position)}</strong><span>{Number.isInteger(position) ? 'Integer · on a tick' : 'Non-integer · between ticks'}</span></div>
       <Line min={-3} max={3} point={position} />
-      <label className="d-slider-label" htmlFor="d-point">Move the point</label><input id="d-point" className="d-slider" type="range" min={-3} max={3} step={0.5} value={position} aria-valuetext={`${signed(position)}, ${Number.isInteger(position) ? 'integer' : 'non-integer'}`} onChange={event => setPosition(Number(event.target.value))} />
+      <label className="sr-only" htmlFor="d-point">Move the point</label><input id="d-point" className="d-slider" type="range" min={-3} max={3} step={0.5} value={position} aria-valuetext={`${signed(position)}, ${Number.isInteger(position) ? 'integer' : 'non-integer'}`} onChange={event => setPosition(Number(event.target.value))} />
       <div className="d-presets" role="group" aria-label="Try these values">{[2, 2.5, 0, -2].map(value => <button type="button" key={value} aria-pressed={position === value} onClick={() => setPosition(value)}>{signed(value)}</button>)}</div>
     </>}
     {props.kind === 'classify' && <>{props.resolution && <p className="d-equation">{props.resolution}</p>}<Line min={props.min} max={props.max} point={props.value} label={props.expression.includes('/') ? String(props.value) : props.expression} /></>}

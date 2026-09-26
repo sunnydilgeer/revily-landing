@@ -19,8 +19,8 @@ export function VariantDActivity({ engine, headingRef, hideActions = false }: Pr
     <h3 ref={headingRef} tabIndex={-1}>{state.content.title}</h3>
     {teaching && state.content.body && <p className="d-body">{state.content.body}</p>}
     {numeric && <div className="d-numeric">
-      <label className="d-slider-label" htmlFor={`response-${state.id}`}>{state.interaction.acceptanceRule === 'openInterval' ? 'Your answer · decimal or fraction' : 'Your answer'}</label>
-      <input id={`response-${state.id}`} type="text" value={engine.inputValue} disabled={Boolean(feedback)} placeholder={state.interaction.placeholder} autoComplete="off" spellCheck={false} onChange={event => engine.setInputValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !feedback && engine.inputValue.trim()) engine.submit() }} />
+      <label className="sr-only" htmlFor={`response-${state.id}`}>{state.interaction.acceptanceRule === 'openInterval' ? 'Your answer · decimal or fraction' : 'Your answer'}</label>
+      <input id={`response-${state.id}`} type="text" value={engine.inputValue} disabled={Boolean(feedback)} placeholder={state.interaction.acceptanceRule === 'openInterval' ? 'decimal or fraction' : state.interaction.placeholder} autoComplete="off" spellCheck={false} onChange={event => engine.setInputValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !feedback && engine.inputValue.trim()) engine.submit() }} />
     </div>}
     {!teaching && !numeric && <div className={`d-choices${(state.interaction.options?.length ?? 0) > 3 ? ' d-choices--grid' : reasons ? ' d-choices--reasons' : ''}`} role="group" aria-label={multiple ? 'Select all that apply' : 'Choose one answer'}>
       {state.interaction.options?.map(option => {
@@ -32,7 +32,7 @@ export function VariantDActivity({ engine, headingRef, hideActions = false }: Pr
         </button>
       })}
     </div>}
-    {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status">{feedback.workedExplanation ? <ExplanationSteps explanation={feedback.workedExplanation} /> : <><strong>Explanation</strong><p>{feedback.evidence}</p></>}</div>}
+    {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status">{feedback.workedExplanation ? <ExplanationSteps explanation={feedback.workedExplanation} showAnswer={!hideActions} /> : <><strong>Explanation</strong><p>{feedback.evidence}</p></>}</div>}
     {!hideActions && <div className="d-actions">
       {engine.canGoBack && !feedback && <button className="lesson-secondary-action" type="button" onClick={engine.back}>← Back</button>}
       {(multiple || numeric) && !feedback && <button className="lesson-primary-action" type="button" disabled={numeric ? !engine.inputValue.trim() : selection.length === 0} onClick={engine.submit}>Check answer</button>}

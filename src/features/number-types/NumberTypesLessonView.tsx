@@ -27,7 +27,7 @@ export default function NumberTypesLessonView({
 }) {
   const engine = useLessonEngine(lesson)
   const flow = useRungFlow(lesson, engine, labels, 'lesson')
-  const { state, teaching, last, heading, continueButton, rungQuestions, questionNumber, next } = flow
+  const { state, teaching, last, heading, continueButton, next } = flow
   const { feedback } = engine
   const video = state.component.type === 'lessonVideo'
   const variantD = state.component.type === 'integerValues'
@@ -45,7 +45,6 @@ export default function NumberTypesLessonView({
   return <section className="numbers-lesson numbers-lesson--focused rung-lesson" id="lesson" aria-labelledby="numbers-lesson-title">
     {header}
     <article className={`lesson-state rung-card${variantD ? ' lesson-state--variant-d' : ''}`} key={state.id}>
-      {!video && !variantD && <p className="rung-card__eyebrow">{teaching ? 'Learn' : `Question ${questionNumber} of ${rungQuestions.length}`}</p>}
       {state.component.type === 'lessonVideo' ? <LessonVideoActivity clip={state.component.props} headingRef={heading} canGoBack={engine.canGoBack} onBack={engine.back} onContinue={next} hideActions />
         : variantD ? <VariantDActivity engine={engine} headingRef={heading} hideActions />
         : <>
@@ -77,7 +76,7 @@ export default function NumberTypesLessonView({
         >
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
-      : <CheckBar message={!teaching && !video && !numeric && !multiple && variantD ? 'Tap the answer you think is right.' : multiple ? 'Select all that apply, then check.' : undefined}>
+      : <CheckBar message={multiple ? 'Select all that apply.' : undefined}>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
           {(teaching || video) && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
           {!teaching && !video && (numeric || multiple || !variantD) && <Button size="lg" disabled={!canSubmit} onClick={engine.submit}>Check</Button>}
