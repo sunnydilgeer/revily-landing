@@ -10,8 +10,9 @@ export const riskCancerSections = [
   { id: 'B16-01', label: 'Start here', detail: 'Risk means chance' },
   { id: 'B16-02', label: 'Risk means chance', detail: 'More likely, not certain' },
   { id: 'B16-04', label: 'Link or cause?', detail: 'Correlation and cause' },
-  { id: 'B16-06', label: 'The main risk factors', detail: 'Smoking, diet, obesity, alcohol and carcinogens' },
-  { id: 'B16-10', label: 'How cancer starts and spreads', detail: 'Tumours, benign and malignant' },
+  { id: 'B16-06', label: 'What raises the risk?', detail: 'Smoking, diet and obesity' },
+  { id: 'B16-08', label: 'What else can harm?', detail: 'Alcohol, pregnancy and carcinogens' },
+  { id: 'B16-10', label: 'How does cancer start and spread?', detail: 'Tumours, benign and malignant' },
   { id: 'B16-14', label: 'Lowering risk and cost', detail: 'Prevention and the cost of disease' },
   { id: 'B16-16', label: 'On your own', detail: 'Data, tumours and risk' },
 ]
@@ -26,9 +27,8 @@ const states: ScienceState[] = [
   a.choice('B16-07', 'Which risk factor and disease are correctly matched?', ['Alcohol – lung cancer', 'Ionising radiation – Type 2 diabetes', 'Smoking – broken bones', 'Obesity – Type 2 diabetes'], 3, 'Which factor is about extra body fat?', ['Smoking is linked to lung disease, and alcohol to liver and brain damage.', 'Obesity is a risk factor for Type 2 diabetes.']),
   t('B16-08', 'Alcohol, pregnancy and carcinogens'),
   a.choice('B16-09', 'Which of these is a carcinogen?', ['Ionising radiation', 'Type 2 diabetes', 'Regular exercise'], 0, 'A carcinogen is something that can cause cancer.', ['Type 2 diabetes is a disease, and exercise lowers some risks.', 'Ionising radiation can damage cells and cause cancer.']),
-  t('B16-10', 'How cancer starts'),
+  t('B16-10', 'How cancer starts and spreads'),
   a.choice('B16-11', 'How does a tumour start?', ['Cells stop dividing', 'Pathogens join together', 'Changed cells divide out of control'], 2, 'Think about what normally controls cell division.', ['Normally, cell division is controlled.', 'When a cell changes, it can divide again and again, forming a tumour.']),
-  t('B16-12', 'Benign and malignant tumours'),
   a.choice('B16-13', 'What makes a tumour malignant?', ['It stays in one place', 'It is held inside a membrane', 'Its cells can spread and form secondary tumours'], 2, 'Think about whether the cells stay put.', ['Staying in one place inside a membrane describes a benign tumour.', 'Malignant tumour cells invade and spread.']),
   t('B16-14', 'Lowering risk and the cost of disease'),
   a.choice('B16-15', 'Which is a financial cost of a non-communicable disease?', ['Pain', 'Money spent on treatment', 'A shorter life'], 1, 'Financial means to do with money.', ['Pain and a shorter life are human costs.', 'Money spent on treatment is a financial cost.']),
@@ -39,7 +39,7 @@ const states: ScienceState[] = [
 ]
 
 export const lesson16: ScienceLesson = {
-  id: 'B-ORG-016-B', contentVersion: '0.2.0', qualification: 'AQA-8464F', strand: 'biology',
+  id: 'B-ORG-016-B', contentVersion: '0.3.0', qualification: 'AQA-8464F', strand: 'biology',
   title: 'Risk factors and cancer', prerequisites: ['B-HEALTH'], reviewStatus: 'draftNeedsTeacherReview',
   sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
 }

@@ -28,8 +28,6 @@ export const riskCancerFrames: Record<string, TeachingFrame[]> = {
   'B16-10': [
     f('Normal division', 'Normally, cells divide only when needed.', 'controlled division', 'Normally, cells divide only when the body needs new cells. Each division makes two cells. (You met the cell cycle in Lesson 5.)', 'cycle-daughters'),
     f('Out of control', 'A tumour is a lump of cells dividing out of control.', 'no stop signal', 'Sometimes changes in a cell stop this control. The cell divides again and again. A lump of these cells is called a tumour.', 'cancer-formation'),
-  ],
-  'B16-12': [
     f('Benign tumours', 'A benign tumour stays in one place.', 'stays put', 'A benign tumour stays in one place. It is usually held inside a membrane. It does not invade other parts of the body.', 'cancer-benign'),
     f('Malignant tumours', 'A malignant tumour can spread and form a secondary tumour.', 'invades and spreads', 'A malignant tumour is a cancer. Its cells invade nearby tissue. They can travel in the blood and form a secondary tumour somewhere else.', 'cancer-malignant'),
     f('Genes and lifestyle', 'Some cancers have lifestyle and genetic risk factors.', 'raises the chance, not certain', 'Scientists have found lifestyle and genetic risk factors for some cancers. Some people inherit genes that raise their risk. This does not mean every person with the gene gets cancer.', 'cancer-genetic'),
