@@ -30,7 +30,9 @@ assert.ok(lesson.includes('PRACTICAL_NOTES') && lesson.includes('required practi
 assert.ok(drawer.includes('awaiting review by a qualified teacher'), 'Draft status must stay in Contents')
 assert.ok(lesson.includes("'revily:rung-complete'"), 'Finishing a section must count toward the shared streak')
 
-// Pilot: the cells, microscopy and RP1 lessons only until signed off (keyed by lesson id)
-assert.ok(page.includes("const RESKINNED = new Set<string>(['B-CELL-001-B', 'B-CELL-001B-B', 'B-CELL-002-B', 'B-CELL-002B-B', 'B-CELL-003-B'])"))
+// Every lesson uses the frame; lesson extras kept (refreshers on the card, the transport story in Contents)
+assert.ok(page.includes('<ScienceLesson ') && !page.includes('ScienceLessonPreview'), 'All Science lessons must use the lesson frame')
+assert.ok(lesson.includes("'B4-01'") && lesson.includes("'B5-01'"), 'Specialisation and mitosis keep their refreshers')
+assert.ok(drawer.includes('How the transport lessons connect') && drawer.includes("'B-ORG-009-B'") && drawer.includes("'B-ORG-012-B'"), 'The four transport lessons keep their story, keyed by lesson id')
 
-console.log('Science lesson frame verified: shared frame, teal theme, saved-for-review written answers, minimal UI, safety notes, pilot scope.')
+console.log('Science lesson frame verified: shared frame, teal theme, saved-for-review written answers, minimal UI, safety notes, all lessons.')
