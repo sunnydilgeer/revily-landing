@@ -1,0 +1,39 @@
+import type { ScienceLesson, ScienceState } from '../../../types'
+import { author, sampledRequirements } from '../../../lessonAuthoring'
+import { vaccinationFrames as frames } from './teachingFrames'
+
+const source = { id: 'aqa-biology', title: 'AQA 8464 Biology subject content', url: 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/biology-subject-content', locator: '4.3.1.7 Vaccination: dead or inactive pathogens, antibody production, fast response to the same pathogen and protecting a population' }
+const a = author('B-VACCINATION', ['4.3.1.7'])
+const t = (id: keyof typeof frames, title: string) => a.teach(id, title, frames[id])
+
+export const vaccinationSections = [
+  { id: 'B23-01', label: 'Start here', detail: 'What do antibodies lock onto?' },
+  { id: 'B23-02', label: 'Why Sam does not catch it twice', detail: 'First and second responses' },
+  { id: 'B23-05', label: 'A safe practice run', detail: 'How a vaccine works' },
+  { id: 'B23-08', label: 'Protecting everyone', detail: 'Whole schools, epidemics and limits' },
+  { id: 'B23-11', label: 'On your own', detail: 'Populations, antigens and data' },
+]
+
+const states: ScienceState[] = [
+  { ...a.choice('B23-01', 'What do antibodies lock onto?', ['Red blood cells', 'Antigens', 'Toxins', 'Mucus'], 1, 'You met antibodies in Lesson 22.', ['Antibodies are made by white blood cells.', 'They lock onto antigens, the molecules on a pathogen’s surface.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  t('B23-02', 'Why Sam does not catch it twice'),
+  a.choice('B23-03', 'Why did Sam stay well when chickenpox spread round his class again?', ['His white blood cells quickly made the right antibodies', 'The virus had lost its antigens', 'The virus cannot get into the same person twice'], 0, 'Compare his white blood cells the first time and the second time.', ['The first time, his white blood cells took days to make the right antibodies.', 'The second time, they made them quickly, so the virus was destroyed before he felt ill.']),
+  a.choice('B23-04', 'Look at the graph. Which numbered point shows the fast response to the same pathogen?', ['Point 1', 'Point 2', 'Point 3', 'Point 4'], 2, 'Which infection did the white blood cells already know?', ['Points 1 and 2 are during the first infection, when antibodies are made slowly.', 'Point 3 is after the second infection, when antibodies are made fast and high.'], 'understanding', false, 'vaccine-response-question'),
+  t('B23-05', 'A safe practice run'),
+  a.choice('B23-06', 'What does a vaccine put into the body?', ['Antibodies against the pathogen', 'Lots of live pathogens', 'Small amounts of dead or inactive pathogen', 'Antitoxins'], 2, 'It must be safe, but still look like the pathogen to white blood cells.', ['A vaccine does not contain antibodies; your own white blood cells make those.', 'It contains small amounts of dead or inactive pathogen.']),
+  a.choice('B23-07', 'Which stage shows white blood cells first making antibodies against the vaccine?', ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4'], 1, 'The vaccine has to go in before anything can react to it.', ['Stage 1 is the injection, and stages 3 and 4 happen when the real pathogen arrives later.', 'Stage 2 shows the first antibodies made against the vaccine’s antigens.'], 'understanding', false, 'vaccine-jab-question'),
+  t('B23-08', 'Protecting everyone'),
+  a.choice('B23-09', 'Person 1 is not vaccinated, but everyone around them is. Why is person 1 unlikely to catch measles?', ['Person 1 is already immune', 'Measles cannot infect people who are not vaccinated', 'The vaccinated people make antibodies for person 1', 'Few people near them can catch measles and pass it on'], 3, 'Follow the path the virus would need to take to reach person 1.', ['The people around person 1 are immune, so they do not catch measles.', 'So there are few people who could pass the virus on to person 1.'], 'understanding', false, 'vaccine-school-question'),
+  a.choice('B23-10', 'Which of these is a disadvantage of vaccination?', ['A vaccine does not always make a person immune', 'A vaccine makes the pathogen multiply', 'A vaccine gives you the full disease'], 0, 'Think about what happens in a small number of people.', ['Vaccines contain dead or inactive pathogens, so they cannot multiply or cause the disease.', 'But vaccines do not always work, so a few people do not become immune.']),
+  a.choice('B23-11', 'In one town, far fewer children are now vaccinated against measles. What is most likely to happen?', ['Vaccinated children lose their immunity', 'The measles virus loses its antigens', 'Measles disappears from the town', 'Measles spreads more easily, and outbreaks become more likely'], 3, 'How many people could now catch the virus and pass it on?', ['With fewer immune people, more people can catch measles and pass it on.', 'So the virus spreads more easily, and an outbreak is more likely.'], 'application', true),
+  a.choice('B23-12', 'A vaccine contains inactive pathogens. Why do white blood cells still make antibodies against them?', ['The pathogens still carry their antigens', 'The pathogens multiply quickly', 'The pathogens make toxins'], 0, 'What do antibodies lock onto?', ['Inactive pathogens cannot multiply or cause disease.', 'They still carry their antigens, so white blood cells make antibodies against them.'], 'understanding', true),
+  a.choice('B23-13', 'A measles vaccine does not protect against chickenpox. Why not?', ['Chickenpox is caused by bacteria', 'Measles antibodies do not fit chickenpox antigens', 'The measles vaccine only lasts a week'], 1, 'Think about how an antibody fits an antigen.', ['Measles and chickenpox are different viruses with different antigens.', 'Each antibody fits only one type of antigen, so measles antibodies do not fit chickenpox antigens.'], 'understanding', true),
+  a.choice('B23-14', 'The graph shows one person’s antibody level. Which conclusion fits it?', ['The vaccine caused more antibodies than the real pathogen did', 'The vaccine will protect everyone who has it', 'After the pathogen entered, antibodies rose faster and higher than after the vaccine', 'The antibody level stayed the same all year'], 2, 'Compare the two rises on the graph.', ['After the vaccine at week 0, the level rose slowly and stayed low.', 'After the pathogen at week 12, it rose faster and higher. One person’s graph cannot show that the vaccine works for everyone.'], 'dataInterpretation', true, 'vaccine-response-data'),
+  a.written('B23-15', 'Explain how a measles vaccine stops a person becoming ill if measles later gets into their body.', 'Start with what is in the vaccine, then say what white blood cells do each time.', 'The vaccine contains small amounts of dead or inactive measles virus. These carry antigens, so white blood cells make antibodies against them. If the real virus gets in later, white blood cells recognise its antigens and quickly make lots of antibodies. The virus is destroyed before the person becomes ill.', ['The vaccine contains dead or inactive pathogen.', 'Its antigens cause white blood cells to make antibodies.', 'Later, the right antibodies are made quickly and in large amounts.', 'The pathogen is destroyed before the person becomes ill.'], ['Saying the vaccine contains antibodies.', 'Mixing up antigens and antibodies.', 'Saying the vaccine contains live pathogens or gives a mild version of the disease.', 'Saying the person can never catch any disease.']),
+]
+
+export const lesson23: ScienceLesson = {
+  id: 'B-INF-023-B', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'biology',
+  title: 'Vaccination', prerequisites: ['B-BODY-DEFENCES'], reviewStatus: 'draftNeedsTeacherReview',
+  sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
+}

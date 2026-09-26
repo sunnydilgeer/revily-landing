@@ -224,3 +224,7 @@ export function DefenceVisual({ focus, assessment = false }: { focus: string; as
   if (focus === 'defence-infection-data') return <InfectionData />
   return <BodyScene focus="defence-body-overview" assessment={false} />
 }
+
+// Shared with VaccineVisuals.tsx (Lesson 23) so white blood cells and antibodies look the same in both lessons.
+export const defenceColours = { wbcFill, wbcLine, wbcNucleus }
+export { WhiteCell, RedCell, Antibody }

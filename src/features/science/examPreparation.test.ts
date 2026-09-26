@@ -79,6 +79,6 @@ check('Pilot restore: malformed, unlocked or prematurely completed snapshots rej
 })
 check('Exam storage: map and A/B pilot records cannot overwrite any lesson progress key', () => {
   const keys=[mappingStorageKey,pilotStorageKey('a'),pilotStorageKey('b'),...(['a','b'] as const).flatMap(v=>getScienceLessons(v).map(l=>createPreviewSessionEngine(l.lesson).storageKey))]
-  assert.equal(new Set(keys).size,31)
+  assert.equal(new Set(keys).size,32)
 })
 console.log(`${checks} exam-preparation grouped checks passed`)
