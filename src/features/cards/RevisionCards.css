@@ -1,0 +1,71 @@
+/* Revision cards: deck list, big flip card with heavy ink border, Still learning / Got it. */
+
+.rc { max-width: 1040px; margin: 0 auto; color: var(--rv-ink); }
+.rc h1, .rc h2 { margin: 0; }
+.rc-head { margin-bottom: 24px; }
+.rc-head h1 { font-size: clamp(2.2rem, 6vw, 2.9rem); line-height: 1; letter-spacing: -0.015em; }
+.rc-head p { margin: 8px 0 0; color: var(--rv-muted); font-size: 1.05rem; }
+.rc-kicker { margin: 0 0 8px; color: var(--rv-muted); font-family: var(--rv-font-body); font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+
+.rc-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+
+/* Decks */
+.rc-decks { display: grid; gap: 12px; }
+.rc-today { padding: 18px; border-radius: var(--rv-radius-lg); background: var(--rv-night); color: var(--rv-on-night); }
+.rc-today .rc-kicker { color: var(--rv-on-night-muted); }
+.rc-today__count { margin: 0 0 12px; font-size: 1.05rem; }
+.rc-today__count strong { font-family: var(--rv-font-display); font-size: 2rem; margin-right: 4px; }
+.rc-today__none { margin: 0; color: var(--rv-on-night); opacity: .85; }
+.rc-deck-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.rc-deck {
+  width: 100%; display: grid; gap: 2px; padding: 12px 16px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md);
+  background: var(--rv-surface); color: var(--rv-ink); font: inherit; text-align: left; cursor: pointer;
+}
+button.rc-deck:hover { border-color: var(--rv-ink); }
+button.rc-deck:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
+.rc-deck.is-active { border: 3px solid var(--rv-ink); }
+.rc-deck__title { display: block; font-weight: 700; }
+.rc-deck__meta { display: block; color: var(--rv-good-ink); font-size: .85rem; font-weight: 600; }
+.rc-deck--locked { display: flex; align-items: center; gap: 12px; border-style: dashed; color: var(--rv-muted); cursor: default; }
+.rc-deck--locked .rc-deck__title { color: var(--rv-ink-2); font-weight: 600; }
+.rc-deck--locked .rc-deck__meta { color: var(--rv-muted); font-weight: 500; }
+.rc-note { margin: 4px 0 0; color: var(--rv-muted); font-size: .8rem; }
+
+/* Study */
+.rc-study { display: grid; gap: 16px; max-width: 640px; }
+.rc-empty { padding: 36px 24px; border: 2px dashed var(--rv-line); border-radius: var(--rv-radius-lg); background: var(--rv-surface); text-align: center; display: grid; gap: 14px; justify-items: center; }
+.rc-empty p { margin: 0; color: var(--rv-ink-2); }
+.rc-progress { display: flex; align-items: center; gap: 12px; color: var(--rv-muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+.rc-progress__bar { flex: 1; height: 10px; border-radius: 5px; background: var(--rv-grid); overflow: hidden; }
+.rc-progress__bar span { display: block; height: 100%; background: var(--rv-cards); transition: width .3s ease; }
+
+.rc-card {
+  min-height: 330px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; padding: 32px;
+  border: 3px solid var(--rv-ink); border-radius: 28px; box-shadow: 0 10px 0 var(--rv-ink);
+  background: var(--rv-surface); color: var(--rv-ink); font: inherit; text-align: left; cursor: pointer;
+  transition: background-color .2s, color .2s, transform .08s;
+}
+.rc-card:active { transform: translateY(3px); box-shadow: 0 7px 0 var(--rv-ink); }
+.rc-card:focus-visible { outline: 4px solid var(--rv-biro); outline-offset: 4px; }
+.rc-card.is-back { background: var(--rv-ink); color: #fff; }
+.rc-card__side { font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.rc-card__text { font-family: var(--rv-font-display); font-weight: 800; font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.25; }
+.rc-card__note { font-family: var(--rv-font-pen); font-weight: 700; font-size: 1.45rem; line-height: 1.2; color: var(--rv-yellow); }
+.rc-card__hint { font-size: .95rem; opacity: .75; }
+.rc-answer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rc-end { justify-self: center; min-height: 44px; border: 0; background: none; color: var(--rv-muted); font: 600 .95rem var(--rv-font-body); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+
+.rc-done { display: grid; gap: 10px; justify-items: center; padding: 40px 24px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-lg); background: var(--rv-surface); text-align: center; }
+.rc-done h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); }
+.rc-done p { margin: 0; color: var(--rv-ink-2); }
+
+@media (max-width: 899px) {
+  .rc-layout { grid-template-columns: 1fr; }
+  .rc-study { max-width: none; }
+  .rc-layout.is-studying .rc-study { order: -1; }
+  .rc-card { min-height: 280px; padding: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rc-card, .rc-progress__bar span { transition: none; }
+}
+.rc-card__math { font-size: 1.6rem; color: var(--rv-ink); }

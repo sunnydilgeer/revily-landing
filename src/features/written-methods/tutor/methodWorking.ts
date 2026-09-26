@@ -50,7 +50,7 @@ export type MethodExample = {
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`
-const value = (n: number) => n.toLocaleString('en-GB')
+const value = (n: number) => n.toLocaleString('en-GB', { maximumFractionDigits: 10 })
 
 export function columnWorking(first: number, second: number): MethodExample {
   const steps: MethodStep[] = []

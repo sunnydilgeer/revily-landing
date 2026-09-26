@@ -10,7 +10,7 @@ const column = (top: string, bottom: string, ones?: string, tens?: string, total
 const diagram = (d: Diagram) => ({ kind: 'diagram' as const, diagram: d })
 const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
 const columnHint = 'Work from right to left. Multiply the digits. Now add the number you carried over. Write the last digit of the result and carry over the rest.'
-const columnAnswer = (first: number, second: number) => working((first * second).toLocaleString('en-GB'), ...columnWorking(first, second).steps.map(step => [step.title, step.instruction] as [string, string]))
+const columnAnswer = (first: number, second: number) => working((first * second).toLocaleString('en-GB', { maximumFractionDigits: 10 }), ...columnWorking(first, second).steps.map(step => [step.title, step.instruction] as [string, string]))
 
 add(grid, 'Split both numbers into tens and units', 'N5.1 Q1 preparation', methodWorking(gridWorking(34, 26)), undefined, undefined, undefined, 'Units means ones. For 34 × 26, split 34 into 30 + 4 and 26 into 20 + 6. Multiply every row value by every column value, then add the four products.')
 const gridExample = methodWorking(gridWorking(34, 26), columnWorking(246, 43))

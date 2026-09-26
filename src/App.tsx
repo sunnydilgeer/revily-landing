@@ -18,6 +18,7 @@ import { variantDLesson, variantDMicroSkillLabels } from './features/number-type
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { type AppSection } from './features/maths/AppShell'
 import ComingSoon from './features/maths/ComingSoon'
+import RevisionCards from './features/cards/RevisionCards'
 import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
 import { RevilyLogo } from './ui'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
@@ -60,7 +61,7 @@ function App() {
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   const currentLesson = getMathsLesson(lesson)
   const study = useStudySummary()
-  useStudyTimer(view === 'lesson')
+  useStudyTimer(view === 'lesson' || view === 'cards')
 
   useEffect(() => {
     setProgress(readMathsProgress())
@@ -138,7 +139,9 @@ function App() {
       <AppShell active={active} onNavigate={navigate} study={study}>
         {view === 'overview'
           ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
-          : <ComingSoon section={view} onBack={() => navigate('curriculum')} />}
+          : view === 'cards'
+            ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
+            : <ComingSoon section={view} onBack={() => navigate('curriculum')} />}
       </AppShell>
     </div>
   }

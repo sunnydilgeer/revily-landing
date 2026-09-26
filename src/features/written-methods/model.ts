@@ -10,7 +10,7 @@ export type MethodVisual = Diagram
 export type MethodState = LearningState & { visual: MethodVisual; hint?: string }
 export type MethodLesson = Omit<LessonDefinition, 'states'> & { states: MethodState[] }
 export const select = (labels: string[], correct: number): InteractionDefinition => ({ type: 'select', options: labels.map((label, i) => ({ id: String(i), label })), correctAnswer: String(correct) })
-export const numeric = (answer: number): InteractionDefinition => ({ type: 'numericInput', correctAnswer: answer, displayAnswer: answer.toLocaleString('en-GB'), acceptanceRule: 'normalisedNumber' })
+export const numeric = (answer: number): InteractionDefinition => ({ type: 'numericInput', correctAnswer: answer, displayAnswer: answer.toLocaleString('en-GB', { maximumFractionDigits: 10 }), acceptanceRule: 'normalisedNumber' })
 export const remainder = (dividend: number, divisor: number): InteractionDefinition => ({ type: 'quotientRemainderInput', dividend, divisor, correctAnswer: { quotient: Math.floor(dividend / divisor), remainder: dividend % divisor } })
 export const working = (answer: string, ...steps: Array<[string, string]>): NonNullable<FeedbackDefinition['workedExplanation']> => ({ answer, steps: steps.map(([title, line]) => ({ title, lines: [line] })) })
 export function storyboard(prefix: string) {
