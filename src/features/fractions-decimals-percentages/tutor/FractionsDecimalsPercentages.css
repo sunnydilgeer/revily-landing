@@ -1,11 +1,11 @@
 .fdp-worked { margin: 0; min-width: 0; }
 .fdp-forms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; margin: 18px 0; }
 .fdp-form-slot { position: relative; min-width: 0; }
-.fdp-form-card { min-height: 94px; display: grid; place-content: center; justify-items: center; gap: 7px; padding: 14px 8px; border: 1px dashed #b8c9bd; border-radius: 14px; background: #f8faf8; color: #7a887f; }
-.fdp-form-card.is-known { border-style: solid; border-color: #73a987; background: #edf8f0; color: #173f28; }
-.fdp-form-card small { color: #607267; font-size: 11px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+.fdp-form-card { min-height: 94px; display: grid; place-content: center; justify-items: center; gap: 7px; padding: 14px 8px; border: 1px dashed var(--rv-line); border-radius: 14px; background: var(--rv-paper); color: var(--rv-line-strong); }
+.fdp-form-card.is-known { border-style: solid; border-color: var(--rv-line-strong); background: var(--rv-grid); color: var(--rv-ink); }
+.fdp-form-card small { color: var(--rv-muted); font-size: 11px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
 .fdp-form-card > div { font-size: clamp(20px, 3vw, 28px); font-weight: 750; }
-.fdp-equivalent { position: absolute; z-index: 1; left: -16px; top: 50%; translate: -50% -50%; color: #52665a; font-size: 24px; font-weight: 800; }
+.fdp-equivalent { position: absolute; z-index: 1; left: -16px; top: 50%; translate: -50% -50%; color: var(--rv-muted); font-size: 24px; font-weight: 800; }
 @media (max-width: 560px) {
   .fdp-forms { grid-template-columns: 1fr; gap: 24px; }
   .fdp-form-card { min-height: 78px; }

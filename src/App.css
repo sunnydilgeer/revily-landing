@@ -189,7 +189,7 @@ h3 {
 
 .status-pill {
   padding: 6px 10px;
-  color: #087653;
+  color: var(--rv-good-ink);
   background: var(--colour-accent-soft);
 }
 
@@ -232,8 +232,8 @@ h3 {
 }
 
 .math-tile-answer {
-  color: #087653;
-  border-color: #9de1c8;
+  color: var(--rv-good-ink);
+  border-color: var(--rv-biro-light);
   background: var(--colour-accent-soft);
 }
 

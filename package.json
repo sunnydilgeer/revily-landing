@@ -19,6 +19,9 @@
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs"
     },
     "dependencies": {
+        "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+        "@fontsource-variable/lexend": "^5.3.0",
+        "@fontsource/caveat": "^5.3.0",
         "@supabase/ssr": "^0.10.3",
         "@supabase/supabase-js": "^2.107.0",
         "katex": "^0.17.0",

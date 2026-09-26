@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+/* Revily tokens for Tailwind utilities (bg-night, text-ink, font-display, ...). Values live in src/ui/revily-tokens.css. */
+@theme inline {
+  --color-night: var(--rv-night);
+  --color-night-2: var(--rv-night-2);
+  --color-night-3: var(--rv-night-3);
+  --color-on-night: var(--rv-on-night);
+  --color-on-night-muted: var(--rv-on-night-muted);
+  --color-paper: var(--rv-paper);
+  --color-grid: var(--rv-grid);
+  --color-line: var(--rv-line);
+  --color-ink: var(--rv-ink);
+  --color-muted: var(--rv-muted);
+  --color-yellow: var(--rv-yellow);
+  --color-good: var(--rv-good);
+  --color-redpen: var(--rv-redpen);
+  --color-alarm: var(--rv-alarm);
+  --color-biro: var(--rv-biro);
+  --color-step-b: var(--rv-step-b);
+  --color-step-i: var(--rv-step-i);
+  --color-step-dm: var(--rv-step-dm);
+  --color-step-as: var(--rv-step-as);
+  --font-display: var(--rv-font-display);
+  --font-body: var(--rv-font-body);
+  --font-pen: var(--rv-font-pen);
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-6px); }

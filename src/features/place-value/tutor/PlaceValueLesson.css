@@ -1,15 +1,15 @@
 .pvt-lesson .lesson-progress-nav { margin: 0; }
 .pvt-working .opb-stage { border: 0; padding: 0; margin: 0; background: transparent; }
-.pvt-working .opb-step-label { color: #617065; font-size: 13px; }
+.pvt-working .opb-step-label { color: var(--rv-muted); font-size: 13px; }
 .pvt-working .opb-instruction { margin: 10px 0; font-size: 16px; line-height: 1.5; }
-.pvt-working .opb-note { margin: 10px 0; color: #617065; font-size: 14px; line-height: 1.6; }
+.pvt-working .opb-note { margin: 10px 0; color: var(--rv-muted); font-size: 14px; line-height: 1.6; }
 .pvt-working .opb-toggles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.pvt-working .opb-toggles button { min-height: 44px; padding: 10px 12px; border: 1px solid #b7ccbe; border-radius: 10px; background: white; color: #225a3d; font: inherit; font-size: 14px; cursor: pointer; }
-.pvt-answer-label { display: block; margin: 0 0 8px; color: #52645c; font-size: 14px; font-weight: 600; }
+.pvt-working .opb-toggles button { min-height: 44px; padding: 10px 12px; border: 1px solid var(--rv-line); border-radius: 10px; background: white; color: var(--rv-ink); font: inherit; font-size: 14px; cursor: pointer; }
+.pvt-answer-label { display: block; margin: 0 0 8px; color: var(--rv-muted); font-size: 14px; font-weight: 600; }
 .pvt-lesson .pvb-hint { text-align: center; }
 .pvt-lesson .pvb-columns th { overflow-wrap: anywhere; }
 .pvt-lesson .pvb-activity { min-width: 0; }
-.pvt-lesson button:focus-visible, .pvt-lesson select:focus-visible { outline: 3px solid #347bd3; outline-offset: 3px; }
+.pvt-lesson button:focus-visible, .pvt-lesson select:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 3px; }
 @media (max-width: 360px) {
   .pvt-working .opc-working-math { font-size: 17px; }
   .pvt-working .opb-toggles button { padding: 8px; font-size: 13px; }

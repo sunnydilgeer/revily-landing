@@ -200,7 +200,7 @@ function Hero({ display, mono }: { display: React.CSSProperties; mono: React.CSS
   return (
     <section id="top" className="relative overflow-hidden">
       <div aria-hidden className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{ backgroundImage: "linear-gradient(#0B1015 1px, transpa rent 1px), linear-gradient(90deg, #0B1015 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+        style={{ backgroundImage: "linear-gradient(#0B1015 1px, transparent 1px), linear-gradient(90deg, #0B1015 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
       <div aria-hidden className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full pointer-events-none"
         style={{ background: "radial-gradient(circle, #C2F751 0%, transparent 65%)", opacity: 0.35 }} />
       <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-16 sm:pb-20">
