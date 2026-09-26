@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { WorkedLines } from './WorkedLines'
+import { WorkedLines, finalValue } from './WorkedLines'
 import { MathSpan } from '../../../../components/MathText'
 import type { MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
-  return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering')
+  return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate')
 }
 
 function RoundingVisual({ frame }: { frame: RoundingFrame }) {
@@ -16,6 +16,7 @@ function RoundingVisual({ frame }: { frame: RoundingFrame }) {
       <div className="ns-rounding-digits" aria-hidden="true">
         <span className="ns-kept">{frame.kept.slice(0, -1)}<b>{frame.kept.slice(-1)}</b></span>
         <span className="ns-cut" />
+        {frame.pointAfterKept && <span className="ns-point">.</span>}
         <b className="ns-decision">{frame.decisionDigit}</b>
         <span className="ns-remaining">{frame.remaining}</span>
       </div>
@@ -45,6 +46,7 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
   const current = revealed ? steps[revealed - 1] : undefined
   const example = visual.examples[0]
   const rounded = steps.map(step => step.frame.rounding).find(frame => frame?.stage === 'result')?.answer
+    ?? (example.method === 'estimate' ? finalValue(steps.at(-1)?.equation) : undefined)
   return <WorkedLines
     question={example.expression}
     answer={rounded ? `${rounded}` : undefined}

@@ -76,6 +76,9 @@ function diagnoseRounding(question: string, response: string, value: number, exp
     if (near(value, tidy(roundTo(original, 10 ** -rule.amount))) && !near(value, expected)) {
       return `That's ${rule.amount} decimal places. Significant figures start from the first digit that isn't zero.`
     }
+    if (Math.abs(original) >= 10 && near(value, Math.round(original)) && !near(value, expected)) {
+      return `That's the nearest whole number. For ${rule.amount} significant figure${rule.amount === 1 ? '' : 's'}, start at the first digit that isn't zero and keep ${rule.amount === 1 ? 'only that digit' : `${rule.amount} digits`}.`
+    }
   }
   return null
 }
