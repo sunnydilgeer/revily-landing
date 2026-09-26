@@ -65,6 +65,11 @@ export type MicroSkillId =
   | 'estimating-calculations'
   | 'estimating-formulas'
   | 'estimating-checking'
+  | 'bounds-half-unit'
+  | 'bounds-lower-upper'
+  | 'bounds-error-interval'
+  | 'truncation'
+  | 'truncation-error-interval'
   | 'mixed'
 
 export type LessonPhase =
