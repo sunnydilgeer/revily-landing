@@ -18,6 +18,7 @@
         "verify:lesson10:tutor": "node scripts/verify-rounding-tutor.cjs",
         "verify:lesson11:tutor": "node scripts/verify-ordering-tutor.cjs",
         "verify:lesson12:tutor": "node scripts/verify-estimating-tutor.cjs",
+        "verify:lesson13:tutor": "node scripts/verify-bounds-tutor.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",
         "verify:study-log": "node scripts/verify-study-log.cjs",

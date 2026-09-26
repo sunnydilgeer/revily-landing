@@ -22,6 +22,17 @@ export type RoundingFrame = {
   /** The decimal point sits between the kept digit and the decision digit, e.g. 3 | .12 */
   pointAfterKept?: boolean
   answer?: string
+  /** Truncation: the digits after the cut are thrown away, not used to decide. */
+  chop?: boolean
+}
+/** A number line for bounds: the stated value, its bounds, and the shaded error interval. */
+export type IntervalFrame = {
+  lower: string
+  upper: string
+  value: string
+  stage: 'value' | 'bounds' | 'interval'
+  /** A value to test against the interval, e.g. "Could it be 2450?" */
+  test?: string
 }
 export type OrderingFrame = {
   values?: string[]
@@ -39,6 +50,7 @@ export type MethodFrame = {
   venn?: VennFrame
   rounding?: RoundingFrame
   ordering?: OrderingFrame
+  interval?: IntervalFrame
 }
 export type MethodStep = {
   title: string; operation: string; equation: string; instruction: string; frame: MethodFrame

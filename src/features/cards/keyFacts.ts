@@ -173,4 +173,11 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'estimating-formulas': [['Estimate the speed: 296 km in 3.1 hours.', '300 ÷ 3 = 100 km/h. Round the values, then put them into speed = distance ÷ time.']],
     'estimating-checking': [['Every number was rounded up. Is the estimate too big or too small?', 'Too big. Rounding every number down would make it too small.']],
   },
+  13: {
+    'bounds-half-unit': [['8.4 is correct to 1 decimal place. How far could the real value be from 8.4?', 'Up to 0.05 either side: half of the unit, 0.1.']],
+    'bounds-lower-upper': [['250 to the nearest 10: lower and upper bounds?', 'Lower 245, upper 255. Take off and add on half of 10.']],
+    'bounds-error-interval': [['Error interval for 2400 to the nearest 100?', '2350 ≤ n < 2450. The upper bound is not included, because 2450 rounds up to 2500.']],
+    'truncation': [['Truncate 7.396 to 2 decimal places.', '7.39. Chop off everything after the cut-off. Don’t round up.']],
+    'truncation-error-interval': [['Error interval for 3.7, truncated to 1 decimal place?', '3.7 ≤ m < 3.8. The value itself is the lower bound; add one whole unit for the upper bound.']],
+  },
 }

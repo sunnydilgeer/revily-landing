@@ -53,6 +53,22 @@
 .ns-comparison { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 10px; font-size: clamp(20px, 3vw, 27px); }
 .ns-comparison-pair { display: inline-flex; align-items: baseline; gap: 10px; }
 .ns-comparison-sign { color: var(--rv-line-strong); }
+.ns-line { display: block; width: 100%; max-width: 440px; margin: 0 auto; overflow: visible; color: var(--rv-ink); }
+.ns-line text { fill: currentColor; font-size: 13px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.ns-line__axis { stroke: var(--rv-line-strong); stroke-width: 2; }
+.ns-line__band { fill: var(--rv-biro-tint); stroke: var(--rv-biro); stroke-width: 1; }
+.ns-line__value { color: var(--rv-muted); }
+.ns-line__value line { stroke: var(--rv-muted); stroke-width: 2; }
+.ns-line__bound { color: var(--rv-biro); }
+.ns-line__bound text { font-weight: 600; }
+.ns-line__bound line { stroke: var(--rv-biro); stroke-width: 2; }
+.ns-line__bound circle { stroke: var(--rv-biro); stroke-width: 2.5; }
+.ns-line__bound .is-closed { fill: var(--rv-biro); }
+.ns-line__bound .is-open { fill: var(--rv-surface); }
+.ns-line__test { color: var(--rv-redpen); }
+.ns-line__test.is-inside { color: var(--rv-good-ink); }
+.ns-line__test path { fill: currentColor; }
+.ns-line__test text { font-weight: 600; }
 .ns-order-answer { margin: 0; text-align: center; color: var(--rv-biro); font-size: clamp(20px, 3vw, 27px); font-weight: 500; line-height: 1.65; overflow-wrap: anywhere; }
 @media (max-width: 520px) {
   .ns-lesson .pvb-activity { padding: 22px 18px; }
