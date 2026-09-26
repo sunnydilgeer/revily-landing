@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { MethodWorkedExample } from './MethodWorkedExample'
@@ -10,7 +10,7 @@ import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fraction
 import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import { Button, CheckBar } from '../../../ui'
-import { RUNG_COMPLETE_EVENT } from '../../maths/studyLog'
+import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from './model'
 
 import '../../number-types/RationalNumbersLesson.css'
@@ -21,7 +21,6 @@ import './TutorMethod.css'
 import './NumberSenseLesson.css'
 import '../../fractions/tutor/FractionsLesson.css'
 import '../../fractions-decimals-percentages/tutor/FractionsDecimalsPercentages.css'
-import './RungLesson.css'
 
 function Hint({ text, onConsult }: { text: string; onConsult: () => void }) {
   const [open, setOpen] = useState(false), id = useId()
@@ -77,132 +76,24 @@ function explainMistake(state: TutorMethodState, response: string) {
   return null
 }
 
-/** Engine defaults that say nothing about this question; the hint is more useful in their place. */
-const GENERIC = new Set(['Here’s the working.', 'Here’s the answer.', 'Correct.'])
-
-/** The engine words answers as "Correct answer: 2/3."; the check bar only needs "2/3". */
-const answerText = (text: string) => text.replace(/^Correct answer:\s*/i, '').replace(/\.$/, '')
-
-const praise = ['Nice! That’s right.', 'Correct!', 'Spot on.', 'That’s it.']
-
-function goToOverview() {
-  window.history.pushState({}, '', '/preview')
-  window.dispatchEvent(new PopStateEvent('popstate'))
-}
-
-type RungSummary = { title: string; nextTitle: string; questions: number; firstTry: number }
-
 export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodLesson }) {
-  const labels = lesson.labels
   const numberSense = lesson.number === 10 || lesson.number === 11
   const engine = useLessonEngine(lesson)
-  const state = lesson.states[engine.stateIndex]
+  const flow = useRungFlow(lesson, engine, lesson.labels, `lesson-${lesson.number}`)
+  const { state: baseState, teaching, last, heading, continueButton, rungQuestions, questionNumber, next } = flow
+  const state = baseState as TutorMethodState
   const { feedback, selection } = engine
-  const heading = useRef<HTMLHeadingElement>(null)
-  const continueButton = useRef<HTMLButtonElement>(null)
-  const previousId = useRef(state.id)
   const [showWorking, setShowWorking] = useState(false)
-  const [rungDone, setRungDone] = useState<RungSummary | null>(null)
-  const [leaving, setLeaving] = useState(false)
+  useEffect(() => setShowWorking(false), [state.id])
 
-  const teaching = state.interaction.type === 'continue'
   const numeric = state.interaction.type === 'numericInput'
   const fraction = state.interaction.type === 'fractionInput'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
-  const last = engine.stateIndex === lesson.states.length - 1
+  const header = <RungHeader flow={flow} lessonTitle={lesson.title} headingId={`wmt-topic-${lesson.number}`} />
 
-  // Rungs: each micro-skill in the lesson is one rung of the ladder.
-  const rungs = [...new Set(lesson.states.map(candidate => candidate.microSkillId))]
-  const rungIndex = rungs.indexOf(state.microSkillId)
-  const rungStates = lesson.states.flatMap((candidate, i) => candidate.microSkillId === state.microSkillId ? [i] : [])
-  const positionInRung = rungStates.indexOf(engine.stateIndex)
-  const lastInRung = positionInRung === rungStates.length - 1
-  const rungQuestions = rungStates.filter(i => lesson.states[i].interaction.type !== 'continue')
-  const questionNumber = rungQuestions.indexOf(engine.stateIndex) + 1
-  const rungProgress = Math.round(((positionInRung + (feedback || teaching ? 1 : 0)) / rungStates.length) * 100)
-
-  useEffect(() => {
-    if (previousId.current === state.id) return
-    previousId.current = state.id
-    setShowWorking(false)
-    heading.current?.focus({ preventScroll: true })
-    document.getElementById(`lesson-${lesson.number}`)?.scrollIntoView({ block: 'start', behavior: 'instant' })
-    if (leaving) goToOverview()
-  }, [state.id, lesson.number, leaving])
-
-  useEffect(() => { if (feedback) continueButton.current?.focus({ preventScroll: true }) }, [feedback])
-
-  function next() {
-    if (!engine.completed && lastInRung) window.dispatchEvent(new CustomEvent(RUNG_COMPLETE_EVENT))
-    if (!engine.completed && lastInRung && !last && rungIndex < rungs.length - 1) {
-      setRungDone({
-        title: labels[state.microSkillId] ?? 'This rung',
-        nextTitle: labels[rungs[rungIndex + 1]] ?? 'the next rung',
-        questions: rungQuestions.length,
-        firstTry: rungQuestions.filter(i => engine.attempts[lesson.states[i].id]?.correctFirstTry).length,
-      })
-      return
-    }
-    engine.continueLesson()
-  }
-
-  function keepGoing() {
-    setRungDone(null)
-    engine.continueLesson()
-  }
-
-  function takeABreak() {
-    setRungDone(null)
-    setLeaving(true)
-    engine.continueLesson() // move past the finished rung first, so "Continue" later starts the next one
-  }
-
-  const title = labels[state.microSkillId] ?? lesson.title
-  const header = <header className="rung-head">
-    <div className="rung-head__meta">
-      <span className="rung-head__kicker">{lesson.title} · Rung {rungIndex + 1} of {rungs.length}</span>
-      <h2 id={`wmt-topic-${lesson.number}`}>{title}</h2>
-    </div>
-    <div className="rung-head__progress">
-      <div className="rung-head__bar" role="progressbar" aria-label={`Progress through ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rungProgress}>
-        <span style={{ width: `${Math.max(4, rungProgress)}%` }} />
-      </div>
-      <span className="rung-head__count" aria-hidden="true">{Math.min(positionInRung + 1, rungStates.length)} / {rungStates.length}</span>
-    </div>
-  </header>
-
-  if (rungDone) {
-    return <section className="rung-lesson" id={`lesson-${lesson.number}`} aria-labelledby="rung-done-title">
-      {header}
-      <div className="rung-done rv-paper" role="status">
-        <div className="rung-done__badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
-        <p className="rung-done__kicker">Rung {rungIndex + 1} of {rungs.length} complete</p>
-        <h3 id="rung-done-title" ref={heading} tabIndex={-1}>{rungDone.title}</h3>
-        {rungDone.questions > 0 && <p className="rung-done__score"><strong>{rungDone.firstTry} of {rungDone.questions}</strong> right first time</p>}
-        <p className="rung-done__next">Next rung: <strong>{rungDone.nextTitle}</strong></p>
-        <div className="rung-done__actions">
-          <Button size="lg" onClick={keepGoing} autoFocus>Keep going</Button>
-          <Button variant="secondary" size="lg" onClick={takeABreak}>Take a break</Button>
-        </div>
-        <p className="rung-done__saved">Your progress is saved on this device.</p>
-      </div>
-    </section>
-  }
-
-  if (engine.completed) {
-    return <section className="rung-lesson" id={`lesson-${lesson.number}`} aria-labelledby="lesson-done-title">
-      <div className="rung-done rv-paper" role="status">
-        <div className="rung-done__badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
-        <p className="rung-done__kicker">All {rungs.length} rungs climbed</p>
-        <h3 id="lesson-done-title" ref={heading} tabIndex={-1}>Lesson complete: {lesson.title}</h3>
-        <div className="rung-done__actions">
-          <Button size="lg" onClick={goToOverview}>Back to lessons</Button>
-          <Button variant="secondary" size="lg" onClick={engine.continueLesson}>Start again</Button>
-        </div>
-      </div>
-    </section>
-  }
+  if (flow.rungDone) return <section className="rung-lesson" id={`lesson-${lesson.number}`} aria-labelledby="rung-done-title">{header}<RungDoneCard flow={flow} /></section>
+  if (engine.completed) return <section className="rung-lesson" id={`lesson-${lesson.number}`} aria-labelledby="lesson-done-title"><LessonDoneCard flow={flow} lessonTitle={lesson.title} onRestart={engine.continueLesson} /></section>
 
   const response = pair ? `${engine.quotientValue} r ${engine.remainderValue}` : engine.inputValue
   const mistake = feedback && !feedback.correct ? explainMistake(state, response) : null
@@ -244,8 +135,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     {feedback
       ? <CheckBar
           status={feedback.correct ? 'correct' : 'incorrect'}
-          title={feedback.correct ? praise[engine.stateIndex % praise.length] : 'Not quite'}
-          message={feedback.correct ? undefined : <>{mistake ?? (GENERIC.has(feedback.message) ? state.hint : feedback.message)}{feedback.correctAnswer && <> The answer is <strong>{answerText(feedback.correctAnswer)}</strong>.</>}</>}
+          title={feedback.correct ? PRAISE[engine.stateIndex % PRAISE.length] : 'Not quite'}
+          message={feedback.correct ? undefined : <>{mistake ?? (GENERIC_FEEDBACK.has(feedback.message) ? state.hint : feedback.message)}{feedback.correctAnswer && <> The answer is <strong>{answerText(feedback.correctAnswer)}</strong>.</>}</>}
         >
           {state.working && <Button variant="secondary" aria-expanded={showWorking} onClick={() => setShowWorking(!showWorking)}>{showWorking ? 'Hide the working' : 'See the working'}</Button>}
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>

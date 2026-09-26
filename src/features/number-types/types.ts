@@ -8,6 +8,7 @@ export type MicroSkillId =
   | 'rational-numbers'
   | 'irrational-numbers'
   | 'multiples-factors'
+  | 'bidmas-ladder'
   | 'operation-priority'
   | 'brackets-indices'
   | 'equal-priority'
