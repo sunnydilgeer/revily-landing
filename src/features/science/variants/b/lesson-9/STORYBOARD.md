@@ -4,6 +4,8 @@ Variant B only · 24 states · AQA 4.2.2.1 and required practical 3.
 
 ## Learning journey
 
+The interface presents two explicit parts: **Part 1 — Digestion** and **Part 2 — Food tests**. This keeps the 24-state lesson in one numbered lesson while making the conceptual-to-practical transition visible.
+
 1. Separate chemical digestion from absorption.
 2. Match carbohydrases, proteases and lipases to substrates and products.
 3. Locate where digestive enzymes are made and where they work.

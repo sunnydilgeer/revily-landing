@@ -160,33 +160,47 @@
   .science-preview--revision .science-practical-measure { padding: 16px; }
   .science-preview--revision .science-practical-quantities { grid-template-columns: 1fr; }
 }
-.science-preview--revision .science-course { max-width: 740px; margin: 28px auto 0; }
-.science-preview--revision .science-course__path ol { list-style: none; padding: 0; margin: 30px 0; display: grid; gap: 16px; }
-.science-preview--revision .science-course__lesson { display: flex; align-items: center; gap: 20px; padding: 24px; background: white; border: 1px solid #d6e5ef; border-radius: 20px; box-shadow: 0 4px 0 #dce8f1; color: #26354a; text-decoration: none; transition: border-color .15s, transform .15s; }
-.science-preview--revision .science-course__lesson:hover { border-color: #67afd3; transform: translateY(-2px); }
-.science-preview--revision .science-course__number { display: grid; place-items: center; width: 56px; height: 56px; flex-shrink: 0; border-radius: 18px; color: #137659; background: #dcf4e6; font-size: 23px; font-weight: 600; }
-.science-preview--revision .science-course__lesson--2 .science-course__number { color: #086b9d; background: #dff3ff; }
-.science-preview--revision .science-course__lesson--3 .science-course__number { color: #7150a2; background: #ede3fa; }
-.science-preview--revision .science-course__description { flex: 1; min-width: 0; }
-.science-preview--revision .science-course__description h2 { margin: 4px 0; font-size: 23px; }
-.science-preview--revision .science-course__description p { margin: 0 0 10px; color: #526d81; font-size: 14px; line-height: 1.5; }
-.science-preview--revision .science-course__status { font-size: 12px; color: #60798b; }
-.science-preview--revision .science-course__action { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #096c9d; }
-.science-preview--revision .science-lesson-picker { display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; }
-.science-preview--revision .science-lesson-picker a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid #d7e6ef; border-radius: 12px; color: #466079; text-decoration: none; font-size: 14px; }
-.science-preview--revision .science-lesson-picker a[aria-current="page"] { color: #096c9d; border-color: #73b7d7; background: #e7f5ff; }
-.science-preview--revision .science-lesson-picker a span { font-weight: 600; }
+.science-preview--revision .science-course { max-width: 820px; margin: 38px auto 0; }
+.science-preview--revision .science-course__heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
+.science-preview--revision .science-course__heading h1 { margin: 5px 0 0; color: #223750; font-size: clamp(27px, 4vw, 38px); line-height: 1.12; letter-spacing: -.035em; }
+.science-preview--revision .science-course__heading nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px 18px; }
+.science-preview--revision .science-course__heading nav a { color: #315d79; font-size: 13px; text-underline-offset: 3px; }
+.science-preview--revision .science-course__continue { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 22px; margin-bottom: 28px; padding: 21px 22px; border-radius: 16px; color: white; background: linear-gradient(115deg, #087caf, #19a1b5); text-decoration: none; box-shadow: 0 8px 25px #086e981c; }
+.science-preview--revision .science-course__continue .science-eyebrow { color: #d9f5ff; }
+.science-preview--revision .science-course__continue strong { display: block; margin-top: 4px; font-size: 19px; }
+.science-preview--revision .science-course__continue small { display: block; margin-top: 3px; color: #e6f6f8; font-size: 12px; }
+.science-preview--revision .science-course__continue-action { display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px; border-radius: 9px; color: #08688f; background: white; font-size: 13px; font-weight: 650; }
+.science-preview--revision .science-course__path { display: grid; gap: 17px; }
+.science-preview--revision .science-course__chapter { overflow: hidden; border: 1px solid #d6e5ef; border-radius: 15px; background: #fff; box-shadow: 0 3px 0 #dce8f1; }
+.science-preview--revision .science-course__chapter > header { display: flex; align-items: center; gap: 11px; min-height: 55px; padding: 12px 17px; border-bottom: 1px solid #e1eaf0; }
+.science-preview--revision .science-course__chapter-code { color: #0876a5; font-size: 11px; font-weight: 750; letter-spacing: .08em; }
+.science-preview--revision .science-course__chapter h2 { margin: 0; color: #263a51; font-size: 16px; }
+.science-preview--revision .science-course__chapter > header > span:last-child { margin-left: auto; color: #687d8e; font-size: 11px; }
+.science-preview--revision .science-course__chapter ol { margin: 0; padding: 0; list-style: none; }
+.science-preview--revision .science-course__lesson { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 13px; min-height: 69px; padding: 9px 17px; border-bottom: 1px solid #edf2f5; color: #26354a; text-decoration: none; transition: background .15s; }
+.science-preview--revision .science-course__chapter li:last-child .science-course__lesson { border-bottom: 0; }
+.science-preview--revision .science-course__lesson:hover { background: #f5fbfd; }
+.science-preview--revision .science-course__number { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: #526b7d; background: #eef4f7; font-size: 12px; font-weight: 700; }
+.science-preview--revision .science-course__number.is-complete { color: #137659; background: #dcf4e6; }
+.science-preview--revision .science-course__description { min-width: 0; }
+.science-preview--revision .science-course__description h3 { margin: 0; color: #26354a; font-size: 14px; }
+.science-preview--revision .science-course__description p { overflow: hidden; margin: 2px 0 0; color: #60778a; font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.science-preview--revision .science-course__status { color: #096c9d; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .science-preview--revision .science-all-lessons { text-decoration: none; }
 .science-preview--revision .science-all-lessons:hover { color: #096c9d; }
 .science-preview--revision .science-course__lesson:focus-visible,
-.science-preview--revision .science-lesson-picker a:focus-visible,
+.science-preview--revision .science-course__continue:focus-visible,
 .science-preview--revision .science-all-lessons:focus-visible { outline: 3px solid #906ec2; outline-offset: 4px; }
 @media (max-width: 600px) {
-  .science-preview--revision .science-course__lesson { gap: 12px; padding: 18px 14px; flex-wrap: wrap; }
-  .science-preview--revision .science-course__number { width: 44px; height: 44px; border-radius: 14px; }
-  .science-preview--revision .science-course__description { flex-basis: calc(100% - 60px); }
-  .science-preview--revision .science-course__description h2 { font-size: 20px; }
-  .science-preview--revision .science-course__action { margin-left: 56px; }
+  .science-preview--revision .science-course { margin-top: 26px; }
+  .science-preview--revision .science-course__heading { align-items: flex-start; flex-direction: column; }
+  .science-preview--revision .science-course__heading nav { justify-content: flex-start; }
+  .science-preview--revision .science-course__continue { grid-template-columns: minmax(0, 1fr); }
+  .science-preview--revision .science-course__continue-action { justify-self: start; }
+  .science-preview--revision .science-course__chapter > header { align-items: flex-start; flex-wrap: wrap; }
+  .science-preview--revision .science-course__chapter > header > span:last-child { flex-basis: 100%; margin-left: 0; }
+  .science-preview--revision .science-course__lesson { grid-template-columns: 32px minmax(0, 1fr); padding: 11px 13px; }
+  .science-preview--revision .science-course__status { grid-column: 2; }
 }
 .science-preview .science-variant-bar { margin-bottom: 1.25rem; }
 .science-preview .science-variant-switch { display: flex; flex-wrap: wrap; gap: .5rem; }

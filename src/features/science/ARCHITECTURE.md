@@ -1,8 +1,18 @@
 # Science scaffold architecture
 
+## Blood, health and cancer extension — 22 September 2026
+
+Variant B continues from the existing lung, heart and vessel sequence into Lessons 13–16. Blood components remain separate from Lesson 12, so no vessel content is duplicated. The fixed lesson flow, section navigation, teacher-only writing, versioned local records and evidence rules are unchanged. `HealthDiseaseVisuals.tsx` supplies original code-native blood, cardiovascular, health, risk and tumour models; assessment views hide answer-bearing names where a visual is part of the prompt.
+
+## Lungs and circulation extension — 22 September 2026
+
+Variant B now contains Lessons 10–12 with IDs `B-ORG-010-B` through `B-ORG-012-B`. Routing, menu sections, recommendations and local-storage engines extend the existing easier-only sequence without creating absent Variant A records. Lung, heart and vessel visuals are original code-native schematics routed through `OrganisationVisuals.tsx`; assessment renders suppress answer-bearing labels and feedback restores the teaching key.
+
+Lesson 10 covers the airway route, alveolar gas exchange and adaptations plus an illustrative breathing-rate calculation. Lesson 11 covers double circulation, four chambers, the five specified associated vessels, valves, coronary supply and pacemakers. Lesson 12 covers artery, vein and capillary structure–function relationships and blood-flow rate. Blood components remain outside Lesson 12 because they are the next source page and AQA subsection. Existing completion/evidence rules, locked choices, teacher-only writing and browser-local progress remain unchanged.
+
 ## Variant-B organisation extension — 21 September 2026
 
-The catalogue is intentionally asymmetric: Variant A has Lessons 1–6; Variant B has Lessons 1–9. `scienceLessonHref` treats lesson numbers 7–9 as easier-only and adds `variant=b`. The page resolves a lesson only from the selected variant catalogue, so an unsupported A record is never invented. `ScienceLessonPreview` uses the B-only organisation sequence and new original code-native visuals, while the existing six-lesson Coach pilot remains explicitly sliced to its original scope.
+The catalogue is intentionally asymmetric: Variant A has Lessons 1–6; Variant B has Lessons 1–16. `scienceLessonHref` treats lesson numbers 7–16 as easier-only and adds `variant=b`. The page resolves a lesson only from the selected variant catalogue, so an unsupported A record is never invented. `ScienceLessonPreview` uses the B-only organisation sequence and original code-native visuals, while the existing six-lesson Coach pilot remains explicitly sliced to its original scope.
 
 `OrganisationVisuals.tsx` covers hierarchy, epithelial tissue, digestive organs, enzyme models and curves, required-practical preparation, digestive enzyme products, bile and food-test evidence. Assessment views hide answer-bearing labels where a diagram is part of the prompt. The content keeps the existing engine contracts: explicit choice keys, locked submissions, isolated session storage, `teacherOnly` writing and pending review. Required-practical screens teach method knowledge and interpretation but do not award hands-on completion.
 
@@ -20,7 +30,7 @@ The TypeScript package is a small reference implementation, not a production eng
 
 ## Runtime flow
 
-`/preview/science` is a read-only course picker over the three existing local lesson records. Valid single `?lesson=1|2|3` values mount the corresponding preview with a lesson-specific React key; absent/invalid/repeated values show the picker. Next links handle reload/history/deep links. Old subject routes redirect to these canonical query URLs. The header returns to the picker and the section menu can switch lessons. Record IDs, versions, storage keys and grading remain unchanged.
+`/preview/science` is a read-only course picker over the built lesson records. Valid single `?lesson=1` through `16` values mount a lesson when that record exists in the selected wording catalogue; absent, invalid or repeated values show the picker. Easier-only lessons normalise their links to Variant B. Next links handle reload/history/deep links. Old subject routes redirect to canonical query URLs. The header returns to the picker and the section menu can switch lessons. Record IDs, versions, storage keys and grading remain isolated.
 
 `teaching / draft response → submit → feedback with retained response → Continue → next state`
 

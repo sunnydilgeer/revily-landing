@@ -10,13 +10,13 @@ const p = author('B-FOOD-TESTS', ['4.2.2.1', '10.2.3'], ['aqa-biology', 'aqa-pra
 const t = (id: keyof typeof frames, title: string) => (Number(id.slice(3)) >= 13 ? p : a).teach(id, title, frames[id])
 
 export const digestionSections = [
-  { id: 'B9-01', label: 'Start here', detail: 'Why large food molecules must change' },
-  { id: 'B9-02', label: 'Digestion and absorption', detail: 'Large molecules become small and soluble' },
-  { id: 'B9-04', label: 'Digestive enzymes', detail: 'Carbohydrases, proteases and lipases' },
-  { id: 'B9-07', label: 'Where enzymes work', detail: 'Production and action sites' },
-  { id: 'B9-10', label: 'Bile', detail: 'Neutralising acid and emulsifying fat' },
-  { id: 'B9-13', label: 'Required practical 3', detail: 'Prepare and test food safely' },
-  { id: 'B9-15', label: 'Four food tests', detail: 'Reagents and positive results' },
+  { id: 'B9-01', label: 'Part 1 · Start here', detail: 'Why large food molecules must change' },
+  { id: 'B9-02', label: 'Part 1 · Digestion and absorption', detail: 'Large molecules become small and soluble' },
+  { id: 'B9-04', label: 'Part 1 · Digestive enzymes', detail: 'Carbohydrases, proteases and lipases' },
+  { id: 'B9-07', label: 'Part 1 · Where enzymes work', detail: 'Production and action sites' },
+  { id: 'B9-10', label: 'Part 1 · Bile', detail: 'Neutralising acid and emulsifying fat' },
+  { id: 'B9-13', label: 'Part 2 · Required practical 3', detail: 'Prepare and test food safely' },
+  { id: 'B9-15', label: 'Part 2 · Four food tests', detail: 'Reagents and positive results' },
   { id: 'B9-21', label: 'Apply it independently', detail: 'Interpret evidence and explain digestion' },
 ]
 
@@ -48,7 +48,7 @@ const states: ScienceState[] = [
 ]
 
 export const lesson9: ScienceLesson = {
-  id: 'B-ORG-009-B', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'biology',
+  id: 'B-ORG-009-B', contentVersion: '0.2.0', qualification: 'AQA-8464F', strand: 'biology',
   title: 'Digestion and food tests', prerequisites: ['B-ENZYMES'], reviewStatus: 'draftNeedsTeacherReview',
   sources: [biology, practical, handbook], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
 }

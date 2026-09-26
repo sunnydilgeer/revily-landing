@@ -20,7 +20,7 @@ const at = '2026-09-21T16:45:00.000Z'
 
 lessons.forEach((lesson, index) => {
   check(`${lesson.id}: easier-only metadata, source links and assessment requirements`, () => {
-    assert.equal(lesson.contentVersion, '0.1.0')
+    assert.equal(lesson.contentVersion, index === 2 ? '0.2.0' : '0.1.0')
     assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.qualification, 'AQA-8464F')
     assert.equal(lesson.id, `B-ORG-00${index + 7}-B`)
@@ -113,8 +113,8 @@ lessons.forEach((lesson, index) => {
     const profile = evidenceProfile(lesson, Object.values(session.answers))
     assert.equal(profile.pendingReview.length, 1)
     const next = recommendedNext(profile, false, lesson)
-    assert.equal(next.kind, index < 2 ? 'lesson' : 'practical')
-    if (next.kind === 'lesson') assert.equal(next.lessonId, lessons[index + 1].id)
+    assert.equal(next.kind, 'lesson')
+    if (next.kind === 'lesson') assert.equal(next.lessonId, index < 2 ? lessons[index + 1].id : 'B-ORG-010-B')
   })
 })
 

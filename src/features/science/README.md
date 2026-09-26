@@ -1,20 +1,34 @@
 # Revily Science: local lesson preview
 
+## Easier-wording Lessons 13–16 — 22 September 2026
+
+[Variant B](http://localhost:3000/preview/science?variant=b) now continues with Lesson 13 **Blood**, Lesson 14 **Cardiovascular disease and treatments**, Lesson 15 **Health and disease**, and Lesson 16 **Risk factors and cancer**. These easier-wording-only drafts add independent local progress, original code-native diagrams, independent checks and teacher-only written responses while preserving the established lesson engine.
+
+The supplied page-26 revision checklist was not imported because it repeats material already covered in Lessons 7–12. New scope begins with page 25’s blood components, then continues through the new material on pages 27–31. The screenshots were treated as scope references rather than instructions or copy. See [alignment](./LESSONS-13-16-ALIGNMENT.md), [QA](./LESSONS-13-16-QA.md), and each new lesson’s `STORYBOARD.md`.
+
+## Easier-wording Lessons 10–12 — 22 September 2026
+
+[Variant B](http://localhost:3000/preview/science?variant=b) now continues with Lesson 10 **The lungs**, Lesson 11 **Circulatory system: the heart**, and Lesson 12 **Circulatory system: blood vessels**. These are easier-wording-only drafts with independent local progress records, concise walkthroughs, original code-native schematics, independent checks and a teacher-only written response. The sequence now continues 9→10→11→12.
+
+The supplied scans of pages 22–24 were used only to identify scope and sequence. Printed instructions, QR prompts, questions, prose and artwork were not treated as user instructions or copied. Current AQA 8464 section 4.2.2.2 was checked as the curriculum authority. Page 24’s facing material on blood components belongs to page 25 and is intentionally left for a later lesson rather than expanding Lesson 12.
+
+See [alignment and originality boundaries](./LESSONS-10-12-ALIGNMENT.md), [current QA](./LESSONS-10-12-QA.md), and the storyboards under `variants/b/lesson-10` through `lesson-12`.
+
 ## Easier-wording Lessons 7–9 — 21 September 2026
 
 [Variant B](http://localhost:3000/preview/science?variant=b) now continues into Topic B2a with three easier-wording-only drafts: Lesson 7 **Cells, tissues and organs**, Lesson 8 **Enzymes and reaction rates**, and Lesson 9 **Digestion and food tests**. There is intentionally no current-wording/A copy for these lessons. Their original diagrams, questions and datasets follow the supplied pages 17–21 without copying the book’s prose or artwork. See [alignment and safety boundaries](./LESSONS-7-9-ALIGNMENT.md), [current QA](./LESSONS-7-9-QA.md), and each lesson’s `STORYBOARD.md` under `variants/b/lesson-7` through `lesson-9`.
 
-Lessons 1–6 keep both independent A and B records. The B sequence now continues 6→7→8→9; Lesson 9 finishes with supervised practical work as the next step. The current AQA handbook’s ethanol-emulsion method is primary for lipids, while Sudan III is clearly identified as an alternative school method. All extended responses remain pending teacher review, and online work never certifies hands-on practical completion.
+Lessons 1–6 keep both independent A and B records. The current B sequence continues 6→7→8→9→10→11→12→13→14→15→16. The current AQA handbook’s ethanol-emulsion method is primary for lipids, while Sudan III is clearly identified as an alternative school method. All extended responses remain pending teacher review, and online work never certifies hands-on practical completion.
 
 ## Curriculum map and Lesson 6 exam bridge
 
-Open the [six-lesson teaching coverage and paper register](http://localhost:3000/preview/science/coverage?variant=b) or [Lesson 6 exam-practice pilot](http://localhost:3000/preview/science/exam?variant=b). The map has 18 exact teaching-section links and a local teacher-review register for paper sub-questions. Official question matches are not pre-verified; inherited references are visibly pending. The pilot uses four original worked/supported/independent practice screens, saved separately from lesson progress, with written answers pending teacher review and no automatic score. Source/permission limits and QA: [EXAM-PREPARATION.md](./EXAM-PREPARATION.md). The current full suite has 117 grouped checks.
+Open the [six-lesson teaching coverage and paper register](http://localhost:3000/preview/science/coverage?variant=b) or [Lesson 6 exam-practice pilot](http://localhost:3000/preview/science/exam?variant=b). The map has 18 exact teaching-section links and a local teacher-review register for paper sub-questions. Official question matches are not pre-verified; inherited references are visibly pending. The pilot uses four original worked/supported/independent practice screens, saved separately from lesson progress, with written answers pending teacher review and no automatic score. Source/permission limits and QA: [EXAM-PREPARATION.md](./EXAM-PREPARATION.md). The current full suite has 185 grouped checks.
 
 ## A/B wording variants
 
-Variant A retains the current six lessons and their existing progress. [Variant B](http://localhost:3000/preview/science?variant=b) contains independent simpler-wording copies of Lessons 1–6 plus the easier-only Lessons 7–9. Both share the interface, diagrams and assessment engine. Use **A · Current wording / B · Easier wording** on the hub or in Lessons 1–6. Lessons 7–9 display an easier-only badge instead of offering a missing comparison. Hub, lesson-menu and next-lesson links preserve the selected variant.
+Variant A retains the current six lessons and their existing progress. [Variant B](http://localhost:3000/preview/science?variant=b) contains independent simpler-wording copies of Lessons 1–6 plus the easier-only Lessons 7–16. Both share the interface, diagrams and assessment engine. Use **A · Current wording / B · Easier wording** on the hub or in Lessons 1–6. Lessons 7–16 display an easier-only badge instead of offering a missing comparison. Hub, lesson-menu and next-lesson links preserve the selected variant.
 
-B's content lives under `variants/b/lesson-1` through `lesson-9`, with its own `lesson.ts` and `teachingFrames.ts`. B lesson IDs end in `-B`; the new drafts use v0.1.0. A IDs, versions, legacy storage and content remain unchanged. There are fifteen separate local progress records. Run `npm run test:science` for the complete regression suite. See [variant design and QA](./VARIANTS.md).
+B's content lives under `variants/b/lesson-1` through `lesson-16`, with its own `lesson.ts` and `teachingFrames.ts`. B lesson IDs end in `-B`; the easier-only drafts are separately versioned. A IDs, versions, legacy storage and content remain unchanged. There are twenty-two separate local progress records. Run `npm run test:science` for the complete regression suite. See [variant design and QA](./VARIANTS.md).
 
 ## Teaching-copy pass — all six lessons
 

@@ -5,7 +5,7 @@ import { getScienceLessons, parseScienceLesson, parseScienceVariant } from '../.
 
 export const metadata: Metadata = {
   title: 'Science lessons | Revily',
-  description: 'Explore six Cell Biology lessons: cells, microscopy, specialisation, division, transport and practical data skills.',
+  description: 'Explore interactive Cell Biology and Organisation lessons, from cells and enzymes to circulation, health and cancer.',
 }
 
 export default async function SciencePreviewPage({ searchParams }: { searchParams: Promise<{ lesson?: string | string[]; variant?: string | string[]; activity?: string | string[] }> }) {
