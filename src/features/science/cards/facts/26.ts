@@ -18,5 +18,5 @@ export const facts: ScienceFactSet = {
       ['Why do plants store glucose as starch?', 'Starch is insoluble. It does not draw water into cells by osmosis, so cells do not swell.', 'Glucose dissolves. A cell full of glucose would draw in lots of water.'],
     ],
   },
-  recall: ['B26-03', 'B26-06', 'B26-07', 'B26-13'],
+  recall: ['B26-03', 'B26-06', 'B26-07'],
 }

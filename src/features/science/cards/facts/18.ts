@@ -27,5 +27,5 @@ export const facts: ScienceFactSet = {
       ['How are xylem and phloem different?', 'Xylem carries water and mineral ions, only upwards. Phloem carries dissolved sugar, both up and down.', 'Transpiration uses xylem. Translocation uses phloem.'],
     ],
   },
-  recall: ['B18-04', 'B18-06', 'B18-07', 'B18-10'],
+  recall: ['B18-06', 'B18-10'],
 }

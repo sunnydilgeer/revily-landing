@@ -28,5 +28,5 @@ export const facts: ScienceFactSet = {
       ['Why is each disease stopped in a different way?', 'Each disease spreads in its own way. So the way to stop it must match how it spreads.'],
     ],
   },
-  recall: ['B20-03', 'B20-06', 'B20-09', 'B20-12'],
+  recall: ['B20-03', 'B20-09'],
 }

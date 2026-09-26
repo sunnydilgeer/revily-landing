@@ -24,5 +24,5 @@ export const facts: ScienceFactSet = {
       ['What four features make gas exchange fast?', 'A large surface area, thin walls, a good blood supply and ventilation.'],
     ],
   },
-  recall: ['B10-04', 'B10-07', 'B10-09', 'B10-12'],
+  recall: ['B10-04', 'B10-07'],
 }

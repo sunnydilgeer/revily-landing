@@ -29,5 +29,5 @@ export const facts: ScienceFactSet = {
       ['How do you turn a time into a rate?', 'Use rate = 1000 ÷ time. If the starch is gone in 125 seconds, the rate is 1000 ÷ 125 = 8.'],
     ],
   },
-  recall: ['B8-03', 'B8-05', 'B8-08', 'B8-12'],
+  recall: ['B8-03', 'B8-05', 'B8-08'],
 }

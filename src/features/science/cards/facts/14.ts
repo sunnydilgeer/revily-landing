@@ -29,5 +29,5 @@ export const facts: ScienceFactSet = {
       ['What does an artificial heart do?', 'It is a machine that pumps blood while a patient waits for a donor. It is less likely to be rejected, but clots can form.'],
     ],
   },
-  recall: ['B14-06', 'B14-09', 'B14-12', 'B14-14'],
+  recall: ['B14-06', 'B14-14'],
 }

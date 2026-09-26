@@ -29,5 +29,5 @@ export const facts: ScienceFactSet = {
       ['How do you find the mean of +6%, +7% and +8%?', 'Add them, then divide by how many: (6 + 7 + 8) ÷ 3 = 21 ÷ 3 = +7%.'],
     ],
   },
-  recall: ['B6-26', 'B6-27', 'B6-29', 'B6-52'],
+  recall: ['B6-26', 'B6-29', 'B6-52'],
 }

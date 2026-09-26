@@ -6,16 +6,15 @@ export const facts: ScienceFactSet = {
     'B13-02': [
       ['What is the liquid part of blood called?', 'Plasma. It is a pale yellow liquid. Most of blood is plasma.', 'Blood looks red, but most of it is not red cells.'],
       ['What three things float in plasma?', 'Red blood cells, white blood cells and platelets.'],
-      ['Why is blood called a tissue?', 'Its parts work together, and each part has its own job.'],
+      ['Why is blood called a tissue?', 'It is made of red blood cells, white blood cells and platelets in plasma. Together they carry substances and help defend the body.'],
     ],
     'B13-04': [
       ['What do red blood cells carry?', 'Oxygen. They carry it from the lungs to body cells, using a red protein called haemoglobin.'],
       ['How does a biconcave shape help a red blood cell?', 'Biconcave means dished in on both sides. It gives a large surface area, so oxygen moves in and out quickly.', 'The shape helps the outside surface, not the space inside.'],
-      ['Why does a red blood cell have no nucleus?', 'It leaves more room for haemoglobin. More haemoglobin means more oxygen can be carried.'],
     ],
     'B13-08': [
       ['What is a pathogen?', 'A microorganism that causes disease.'],
-      ['What are the two ways white blood cells defend the body?', 'Some engulf pathogens: they surround, swallow and digest them. Others make antibodies, which stick to pathogens.'],
+      ['Name three ways white blood cells defend the body.', 'Some engulf pathogens and digest them. Some make antibodies, which stick to pathogens. Some make antitoxins, which stop toxins working.'],
       ['Which blood cells have a nucleus?', 'White blood cells. Red blood cells and platelets have no nucleus.'],
     ],
     'B13-10': [
@@ -28,5 +27,5 @@ export const facts: ScienceFactSet = {
       ['Where does plasma carry carbon dioxide?', 'From body cells to the lungs, where we breathe it out.', 'Oxygen travels on red blood cells, not in plasma.'],
     ],
   },
-  recall: ['B13-06', 'B13-07', 'B13-13', 'B13-14'],
+  recall: ['B13-07', 'B13-13'],
 }

@@ -20,7 +20,7 @@ export const facts: ScienceFactSet = {
     ],
     'B16-08': [
       ['What can drinking a lot of alcohol damage?', 'The liver. It can also affect how the brain works.'],
-      ['Why can smoking and alcohol in pregnancy harm the baby?', 'The unborn baby shares the mother’s blood supply through the placenta.'],
+      ['Why can smoking and alcohol in pregnancy harm the baby?', 'Harmful substances pass from the mother’s blood, across the placenta, into the unborn baby’s blood.'],
       ['What is a carcinogen?', 'Something that can cause cancer. Ionising radiation, such as from X-rays, is one. So are some chemicals in tobacco smoke.'],
     ],
     'B16-10': [

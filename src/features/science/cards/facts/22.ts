@@ -18,5 +18,5 @@ export const facts: ScienceFactSet = {
       ['What do antitoxins do?', 'They stop toxins made by bacteria from working. White blood cells make them.'],
     ],
   },
-  recall: ['B22-05', 'B22-07', 'B22-10', 'B22-12'],
+  recall: ['B22-05', 'B22-10', 'B22-12'],
 }

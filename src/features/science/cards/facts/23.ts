@@ -19,5 +19,5 @@ export const facts: ScienceFactSet = {
       ['What are the drawbacks of vaccines?', 'Vaccines do not always work, so a person may not become immune. Some people have a reaction, such as a sore arm. This is usually mild.'],
     ],
   },
-  recall: ['B23-06', 'B23-12', 'B23-13'],
+  recall: ['B23-12', 'B23-13'],
 }

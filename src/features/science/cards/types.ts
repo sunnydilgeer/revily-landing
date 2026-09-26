@@ -13,4 +13,6 @@ export type ScienceFactSet = {
   sections: Record<string, ScienceKeyFact[]>
   /** Ids of 2–4 choice questions in this lesson that still make sense as a stand-alone flashcard. */
   recall: string[]
+  /** Optional replacement notes for quick questions whose explanation only makes sense on the lesson screen. */
+  recallNotes?: Record<string, string>
 }

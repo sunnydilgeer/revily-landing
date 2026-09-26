@@ -35,7 +35,7 @@ export function buildScienceDecks(): ScienceDeck[] {
     const recall = (set?.recall ?? []).map((id): ScienceCard => {
       const state = states.find(item => item.id === id) as ChoiceState
       const section = sectionOf(id)
-      return { id: `sq-${id}`, lessonId: entry.lesson.id, section: section.id, sectionTitle: section.label, kind: 'recall', front: state.title, back: state.explanation.answer, note: state.explanation.steps.join(' ') }
+      return { id: `sq-${id}`, lessonId: entry.lesson.id, section: section.id, sectionTitle: section.label, kind: 'recall', front: state.title, back: state.explanation.answer, note: set?.recallNotes?.[id] ?? state.explanation.steps.join(' ') }
     })
     return { lessonId: entry.lesson.id, number: entry.number, title: entry.title, cards: [...facts, ...recall] }
   })

@@ -29,5 +29,5 @@ export const facts: ScienceFactSet = {
       ['What can a small trial show?', 'Only what happened in this test. It cannot prove a cure for everyone. Improvement numbers do not show a treatment is safe.'],
     ],
   },
-  recall: ['B5-17', 'B5-27', 'B5-19', 'B5-22'],
+  recall: ['B5-17', 'B5-27', 'B5-22'],
 }

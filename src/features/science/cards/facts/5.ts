@@ -23,5 +23,5 @@ export const facts: ScienceFactSet = {
       ['How is a cut in the skin repaired?', 'Cells near the cut divide by mitosis. The new cells fill the gap. They are genetically identical, so they do the same job.', 'A damaged cell does not mend itself. New cells repair the tissue.'],
     ],
   },
-  recall: ['B5-06', 'B5-08', 'B5-13', 'B5-33'],
+  recall: ['B5-06', 'B5-13', 'B5-33'],
 }

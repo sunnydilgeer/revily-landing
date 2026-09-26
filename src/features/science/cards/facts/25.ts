@@ -14,10 +14,13 @@ export const facts: ScienceFactSet = {
       ['What is the optimum dose?', 'The dose that is most effective and has few side effects. It is found by testing on patients.'],
     ],
     'B25-08': [
-      ['What is a placebo?', 'A substance that looks like the drug but does not do anything. Groups are compared to see if the drug makes a real difference.'],
+      ['What is a placebo?', 'A substance that looks like the drug but contains no drug. Groups are compared to see if the drug makes a real difference.'],
       ['What is a double-blind trial?', 'Neither patients nor doctors know who got the drug until all results are gathered. So nobody’s expectations affect the results.', 'In a blind trial only the patients do not know.'],
       ['What is peer review?', 'Other scientists check the work before the results are published. It helps to prevent false claims.'],
     ],
   },
-  recall: ['B25-06', 'B25-09', 'B25-12', 'B25-13'],
+  recall: ['B25-12', 'B25-13'],
+  recallNotes: {
+    'B25-13': 'If patients or doctors know who got the new drug, their expectations could change the results. In a double-blind trial nobody knows until the end.',
+  },
 }

@@ -23,5 +23,5 @@ export const facts: ScienceFactSet = {
       ['Which diseases are caused by a fungus and by a protist?', 'Fungus: rose black spot. Protist: malaria.'],
     ],
   },
-  recall: ['B21-03', 'B21-06', 'B21-10', 'B21-13'],
+  recall: ['B21-06', 'B21-10', 'B21-13'],
 }

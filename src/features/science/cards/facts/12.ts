@@ -24,5 +24,5 @@ export const facts: ScienceFactSet = {
       ['What unit does rate of blood flow have?', 'Volume in cm³ divided by time in minutes gives cm³ per minute.', 'Do not forget to write the unit.'],
     ],
   },
-  recall: ['B12-04', 'B12-06', 'B12-07', 'B12-10'],
+  recall: ['B12-06', 'B12-07'],
 }

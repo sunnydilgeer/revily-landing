@@ -108,6 +108,7 @@ for (const entry of scienceLessons) {
     assert.ok((set.sections[section.id] ?? []).length >= 2, `${entry.lesson.id} "${section.label}" needs at least 2 key facts`)
   }
   assert.ok(set.recall.length >= 2 && set.recall.length <= 4, `${entry.lesson.id} needs 2–4 quick questions`)
+  for (const id of Object.keys(set.recallNotes ?? {})) assert.ok(set.recall.includes(id), `${entry.lesson.id} has a note for ${id}, which is not a quick question`)
   for (const id of set.recall) {
     const state = entry.lesson.states.find(item => item.id === id)
     assert.ok(state && state.kind === 'choice', `${entry.lesson.id} quick question ${id} must be a choice question`)

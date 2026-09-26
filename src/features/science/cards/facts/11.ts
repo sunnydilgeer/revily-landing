@@ -6,7 +6,7 @@ export const facts: ScienceFactSet = {
     'B11-02': [
       ['What are the two loops of the circulation?', 'One loop goes from the heart to the lungs and back. The other goes from the heart to the body and back.'],
       ['Why is it called a double circulatory system?', 'Blood passes through the heart twice in one full trip.', 'It does not mean humans have two hearts.'],
-      ['What is oxygenated and deoxygenated blood?', 'Oxygenated blood carries lots of oxygen. Deoxygenated blood has given up its oxygen to body cells.'],
+      ['What is oxygenated and deoxygenated blood?', 'Oxygenated blood carries lots of oxygen. Deoxygenated blood has given up some of its oxygen to body cells, so it carries less.'],
     ],
     'B11-05': [
       ['What do the atria and ventricles do?', 'The atria are the upper chambers. They take blood in. The ventricles are the lower chambers. They pump blood out.'],
@@ -28,5 +28,5 @@ export const facts: ScienceFactSet = {
       ['What is the difference between an artery and a vein?', 'Arteries carry blood away from the heart. Veins bring blood back to it.', 'The pulmonary artery carries deoxygenated blood, but it is still an artery.'],
     ],
   },
-  recall: ['B11-03', 'B11-07', 'B11-09', 'B11-12'],
+  recall: ['B11-09', 'B11-12'],
 }

@@ -13,7 +13,7 @@ export const facts: ScienceFactSet = {
       ['Why do antibiotics not help flu or colds?', 'Antibiotics do not kill viruses. Viruses reproduce inside your own cells, so drugs that kill them could damage your cells.', 'Antibiotics kill bacteria only, not viruses.'],
     ],
     'B24-07': [
-      ['How do bacteria become resistant to an antibiotic?', 'Bacteria multiply quickly and can mutate, or change. Some changes make them resistant, so the antibiotic no longer kills them.'],
+      ['How do bacteria become resistant to an antibiotic?', 'Bacteria can mutate, or change, at random. Some mutations make them resistant. The antibiotic kills the others, so resistant bacteria survive and multiply.'],
       ['What is MRSA?', 'A resistant strain of bacteria. Resistant strains have become more common and are hard to treat.', 'Resistant bacteria can still cause disease. The antibiotic just no longer kills them.'],
     ],
     'B24-09': [
@@ -22,5 +22,5 @@ export const facts: ScienceFactSet = {
       ['Who makes new drugs today?', 'Chemists in labs in the pharmaceutical industry. A new drug may still start with a chemical from a plant.'],
     ],
   },
-  recall: ['B24-06', 'B24-08', 'B24-13', 'B24-15'],
+  recall: ['B24-08', 'B24-13'],
 }

@@ -23,5 +23,5 @@ export const facts: ScienceFactSet = {
       ['What else can affect health?', 'Diet, stress and life situation. Life situation means things like money, housing and access to healthcare.', 'Life situation is not always a person’s own choice.'],
     ],
   },
-  recall: ['B15-03', 'B15-06', 'B15-08', 'B15-11'],
+  recall: ['B15-03', 'B15-06', 'B15-08'],
 }

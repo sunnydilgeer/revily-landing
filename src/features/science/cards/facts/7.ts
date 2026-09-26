@@ -24,5 +24,5 @@ export const facts: ScienceFactSet = {
       ['What are the levels of organisation, smallest first?', 'Cell, tissue, organ, organ system, organism. Each level is built from the one before.'],
     ],
   },
-  recall: ['B7-06', 'B7-09', 'B7-12'],
+  recall: ['B7-09', 'B7-12'],
 }
