@@ -21,6 +21,14 @@ type Props = {
   onRestart: (clearPracticeHistory: boolean) => void
 }
 
+// Lessons 9–12 follow one story: how the body gets food and oxygen to its cells.
+const TRANSPORT_STORY = [
+  { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
+  { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
+  { lesson: 11, title: 'The heart pumps blood', route: 'Blood completes two linked circuits' },
+  { lesson: 12, title: 'Vessels deliver and exchange', route: 'Blood reaches body cells and returns' },
+] as const
+
 const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
 
 export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle, session, storageAvailable, onClose, onJump, onRestart }: Props) {
@@ -95,6 +103,13 @@ export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle
             })}
           </ol>
         </section>)}
+
+        {lessonNumber >= 9 && lessonNumber <= 12 && <section className="sl-drawer-story" aria-labelledby="transport-story-title">
+          <h3 id="transport-story-title">How lessons 9–12 connect</h3>
+          <ol>{TRANSPORT_STORY.map(step => <li key={step.lesson} className={step.lesson === lessonNumber ? 'is-current' : ''}>
+            <strong>{step.lesson} · {step.title}</strong><span>{step.route}</span>
+          </li>)}</ol>
+        </section>}
 
         <a className="maths-all-lessons" href={scienceHubHref()}>All Science lessons</a>
 

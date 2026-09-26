@@ -35,6 +35,12 @@ const PRACTICAL_NOTES: Partial<Record<LessonNumber, string>> = {
   9: 'This lesson prepares you for required practical 3. You still need to do the real food tests with your teacher.',
 }
 
+// Short optional reminders on a lesson's first screen, for students coming back to the topic.
+const REFRESHERS: Record<string, { title: string; text: string }> = {
+  'B4-01': { title: 'Quick cells refresher', text: 'A membrane controls entry and exit. A nucleus contains genetic information. Mitochondria release energy through aerobic respiration. Plant cell walls support cells. Specialised cells adapt these structures to a job.' },
+  'B5-01': { title: 'Quick nucleus refresher', text: 'The nucleus contains genetic information. Chromosomes in the nucleus consist of DNA; a gene is a small section of DNA. This lesson connects that model to cell division.' },
+}
+
 const engines = new Map(scienceLessons.map(item => [item.number, createPreviewSessionEngine(item.lesson)] as const))
 const newSessionId = () => window.crypto.randomUUID()
 const now = () => new Date().toISOString()
@@ -283,6 +289,7 @@ export default function ScienceLesson({ lessonNumber, initialActivity }: { lesso
           {written && <WrittenAnswer state={written} draft={submitted?.response ?? draft} locked={Boolean(submitted)} onDraft={response => dispatch({ type: 'draft', response })} onSave={() => { if (!submitted && draft.trim()) dispatch({ type: 'answer', response: draft, at: now() }) }} />}
         </>}
 
+        {REFRESHERS[state.id] && <details className="sl-markscheme"><summary>{REFRESHERS[state.id].title}</summary><p className="sl-text">{REFRESHERS[state.id].text}</p></details>}
         {state.kind !== 'teaching' && !submitted && <Hint open={session.hintsOpen.includes(state.id)} text={state.hint} id={state.id} onToggle={() => dispatch({ type: 'hint' })} />}
         {choice && submitted?.result === 'incorrect' && <ol className="sl-steps sl-steps--working" aria-label="Working">{choice.explanation.steps.map((step, i) => <li key={step}><span aria-hidden="true">{i + 1}</span><p>{step}</p></li>)}</ol>}
         {written && submitted && <details className="sl-markscheme"><summary>How the {written.rubric.marks} marks are given</summary><ul>{written.rubric.points.map(point => <li key={point}>{point}</li>)}</ul></details>}

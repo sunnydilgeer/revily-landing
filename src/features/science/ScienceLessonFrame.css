@@ -107,3 +107,10 @@ a.maths-all-lessons { display: block; text-align: center; text-decoration: none;
   .sl-choice { min-height: 54px; padding: 12px 14px; font-size: 1rem; }
   .sl-text { font-size: 1rem; }
 }
+.sl-drawer-story { margin: 4px 0 12px; padding: 14px; border-radius: 12px; background: var(--rv-grid); }
+.sl-drawer-story h3 { margin: 0 0 8px; font-size: .9rem; }
+.sl-drawer-story ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.sl-drawer-story li { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: var(--rv-surface); font-size: .85rem; }
+.sl-drawer-story li.is-current { box-shadow: inset 0 0 0 2px var(--rv-accent-ink); }
+.sl-drawer-story span { color: var(--rv-muted); }
+.sl-markscheme .sl-text { margin-top: 6px; }
