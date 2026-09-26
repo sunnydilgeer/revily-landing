@@ -60,8 +60,8 @@
 .rv-btn svg { width: 1.1em; height: 1.1em; }
 .rv-btn--lg { min-height: 56px; padding: 0 30px; font-size: 1.1rem; }
 .rv-btn--block { width: 100%; }
-.rv-btn--primary { color: var(--rv-ink); background: var(--rv-yellow); border-color: var(--rv-ink); box-shadow: 0 3px 0 var(--rv-ink); }
-.rv-btn--primary:hover { background: #ffcb3d; }
+.rv-btn--primary { color: var(--rv-accent-on); background: var(--rv-accent); border-color: var(--rv-ink); box-shadow: 0 3px 0 var(--rv-ink); }
+.rv-btn--primary:hover { background: var(--rv-accent-hover); }
 .rv-btn--primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--rv-ink); }
 .rv-btn--secondary { color: var(--rv-ink); background: var(--rv-surface); border-color: var(--rv-line); }
 .rv-btn--secondary:hover { border-color: var(--rv-ink); }

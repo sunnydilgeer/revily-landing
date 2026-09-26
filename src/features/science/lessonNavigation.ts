@@ -83,7 +83,8 @@ export function getScienceLessons(variant: ScienceVariant = 'a') { return varian
 export function getScienceHubLessons(variant: ScienceVariant = 'a') {
   return variant === 'b' ? scienceLessonsB : [...scienceLessons, ...scienceLessonsB.slice(6)]
 }
-export function scienceHubHref(variant: ScienceVariant = 'a') { return variant === 'b' ? '/preview/science?variant=b' : '/preview/science' }
+// The Science curriculum lives in the app now, for both wording variants.
+export function scienceHubHref(_variant: ScienceVariant = 'a') { return '/preview?subject=science' }
 export function scienceLessonHref(number: LessonNumber, variant: ScienceVariant = 'a', activity?: string | null) {
   const effectiveVariant = number >= 7 ? 'b' : variant
   return `/preview/science?lesson=${number}${effectiveVariant === 'b' ? '&variant=b' : ''}${activity ? '&activity=' + encodeURIComponent(activity) : ''}`

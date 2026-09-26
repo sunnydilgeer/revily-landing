@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react'
 import { RevilyLogo } from '../../ui'
 import type { StudySummary } from './useStudy'
+import { SUBJECTS, type Subject } from './subject'
 import './AppShell.css'
 
 export type AppSection = 'curriculum' | 'cards' | 'practice'
@@ -25,16 +26,39 @@ export function streakLabel(streak: number) {
   return streak === 0 ? 'No streak yet' : `${streak} day${streak === 1 ? '' : 's'} in a row`
 }
 
-export default function AppShell({ active, onNavigate, study, children }: {
+/** Link for a section in a subject. Maths keeps its original URLs. */
+export function sectionHref(subject: Subject, section: AppSection) {
+  const params = new URLSearchParams()
+  if (subject !== 'maths') params.set('subject', subject)
+  if (section !== 'curriculum') params.set('view', section)
+  const query = params.toString()
+  return query ? `/preview?${query}` : '/preview'
+}
+
+/** Maths | Science: one tap, in the sidebar on desktop and the top bar on phones. */
+function SubjectSwitch({ subject, onSwitch, placement }: { subject: Subject; onSwitch: (subject: Subject) => void; placement: 'side' | 'top' }) {
+  return <div className={`subject-switch subject-switch--${placement}`} role="group" aria-label="Subject">
+    {SUBJECTS.map(option => <button
+      key={option.id}
+      type="button"
+      aria-pressed={subject === option.id}
+      onClick={() => { if (subject !== option.id) onSwitch(option.id) }}
+    >{option.label}</button>)}
+  </div>
+}
+
+export default function AppShell({ active, onNavigate, study, subject = 'maths', onSwitchSubject, children }: {
   active: AppSection
   onNavigate: (section: AppSection) => void
   study: StudySummary
+  subject?: Subject
+  onSwitchSubject?: (subject: Subject) => void
   children: ReactNode
 }) {
   const nav = (placement: 'side' | 'bottom') => <nav className={`shell-nav shell-nav--${placement}`} aria-label="Main">
     {SECTIONS.map(section => <a
       key={section.id}
-      href={section.id === 'curriculum' ? '/preview' : `/preview?view=${section.id}`}
+      href={sectionHref(subject, section.id)}
       className={`shell-nav__item shell-nav__item--${section.id}${active === section.id ? ' is-active' : ''}`}
       aria-current={active === section.id ? 'page' : undefined}
       onClick={event => { event.preventDefault(); onNavigate(section.id) }}
@@ -44,16 +68,17 @@ export default function AppShell({ active, onNavigate, study, children }: {
     </a>)}
   </nav>
 
-  return <div className="shell">
+  return <div className="shell" data-subject={subject}>
     <aside className="shell-side">
       <RevilyLogo onNight href="/" size={26} />
+      {onSwitchSubject && <SubjectSwitch subject={subject} onSwitch={onSwitchSubject} placement="side" />}
       {nav('side')}
       <div className="shell-side__foot">
         <div className="shell-streak">
           <span className={`shell-streak__bolt${study.streak ? ' is-lit' : ''}`}><Bolt /></span>
           <div>
             <strong>{streakLabel(study.streak)}</strong>
-            <span>{study.rungsToday || study.minutesToday >= 5 ? 'Today counts. Nice work.' : 'Finish one rung today to keep it going'}</span>
+            <span>{study.rungsToday || study.minutesToday >= 5 ? 'Today counts. Nice work.' : subject === 'science' ? 'Study for 5 minutes today to keep it going' : 'Finish one rung today to keep it going'}</span>
           </div>
         </div>
         <p className="shell-side__note">Preview · progress is saved on this device</p>
@@ -62,6 +87,7 @@ export default function AppShell({ active, onNavigate, study, children }: {
 
     <header className="shell-top">
       <RevilyLogo href="/" size={24} />
+      {onSwitchSubject && <SubjectSwitch subject={subject} onSwitch={onSwitchSubject} placement="top" />}
       <span className={`shell-top__streak${study.streak ? ' is-lit' : ''}`} aria-label={streakLabel(study.streak)}><Bolt size={18} />{study.streak}</span>
     </header>
 

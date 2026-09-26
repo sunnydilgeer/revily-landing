@@ -2,8 +2,11 @@
 
 import { Button } from '../../ui'
 import { SECTION_ICONS, type AppSection } from './AppShell'
+import type { Subject } from './subject'
 
-const COPY: Record<Exclude<AppSection, 'curriculum'>, { title: string; lines: string[]; unlock: string }> = {
+type Copy = Record<Exclude<AppSection, 'curriculum'>, { title: string; lines: string[]; unlock: string }>
+
+const MATHS: Copy = {
   cards: {
     title: 'Revision cards',
     lines: [
@@ -22,8 +25,27 @@ const COPY: Record<Exclude<AppSection, 'curriculum'>, { title: string; lines: st
   },
 }
 
-export default function ComingSoon({ section, onBack }: { section: Exclude<AppSection, 'curriculum'>; onBack: () => void }) {
-  const copy = COPY[section]
+const SCIENCE: Copy = {
+  cards: {
+    title: 'Revision cards',
+    lines: [
+      'Quick flip cards for the key facts and words from each Science lesson. Cards you find hard come back sooner.',
+      'Science cards stay separate from Maths, so a session is one subject at a time.',
+    ],
+    unlock: 'Not built yet. Finishing a lesson will unlock its deck.',
+  },
+  practice: {
+    title: 'Practice',
+    lines: [
+      'Exam-style Science questions with marks. For written answers you’ll tick off the mark-scheme points you hit.',
+      'You’ll also see which parts of the exam you’ve covered and how ready you are.',
+    ],
+    unlock: 'Not built yet.',
+  },
+}
+
+export default function ComingSoon({ section, subject = 'maths', onBack }: { section: Exclude<AppSection, 'curriculum'>; subject?: Subject; onBack: () => void }) {
+  const copy = (subject === 'science' ? SCIENCE : MATHS)[section]
   return <div className={`soon soon--${section}`}>
     <span className="soon__icon" aria-hidden="true">{SECTION_ICONS[section]}</span>
     <h1>{copy.title}</h1>

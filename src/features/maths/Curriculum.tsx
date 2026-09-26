@@ -3,9 +3,8 @@
 import { Button } from '../../ui'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
-import { GOAL_OPTIONS, saveDailyGoal } from './studyLog'
 import type { StudySummary } from './useStudy'
-import { Bolt, streakLabel } from './AppShell'
+import TodayCard from './TodayCard'
 import { rungStatus } from './rungProgress'
 import './Curriculum.css'
 
@@ -17,7 +16,6 @@ type Props = {
 }
 
 const LATER_CHAPTERS = ['Algebra', 'Ratio and proportion', 'Geometry and measures', 'Probability', 'Statistics']
-const WEEKDAY = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 /** Rung status for one lesson (done = finished, current = where the student is now). */
 export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnapshot) {
@@ -34,8 +32,6 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
   const currentRung = upNextRungs.findIndex(rung => rung.current)
   const upNextRungIndex = currentRung >= 0 ? currentRung : Math.max(0, upNextRungs.findIndex(rung => !rung.done))
   const doneLessons = mathsLessons.filter(entry => progress[entry.lessonId]?.completed).length
-  const goalPercent = Math.min(100, Math.round(study.minutesToday / study.goal * 100))
-  const goalMet = study.minutesToday >= study.goal
 
   return <div className="cur">
     <header className="cur-head">
@@ -65,28 +61,7 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
         </ol>
       </section>
 
-      <section className="cur-today" aria-labelledby="today-title">
-        <div className="cur-today__row">
-          <h2 id="today-title" className="cur-kicker">Today</h2>
-          <span className={`cur-streak${study.streak ? ' is-lit' : ''}`}><Bolt size={16} />{streakLabel(study.streak)}</span>
-        </div>
-        <p className="cur-today__minutes"><strong>{study.minutesToday}</strong> of {study.goal} min</p>
-        <div className="cur-today__bar" role="progressbar" aria-label="Daily goal" aria-valuemin={0} aria-valuemax={study.goal} aria-valuenow={Math.min(study.minutesToday, study.goal)}>
-          <span style={{ width: `${Math.max(goalPercent, 3)}%` }} className={goalMet ? 'is-met' : ''} />
-        </div>
-        <p className="cur-today__note">{goalMet ? 'Goal met. Anything more is a bonus.' : study.minutesToday ? 'Keep going. Rungs flow straight into each other.' : 'Minutes count while a lesson is open and you’re working.'}</p>
-        {study.week.length > 0 && <ol className="cur-week" aria-label="Last seven days">
-          {study.week.map(day => {
-            const [y, m, d] = day.key.split('-').map(Number)
-            const letter = WEEKDAY[new Date(y, m - 1, d).getDay()]
-            return <li key={day.key} className={day.counted ? 'is-counted' : ''} aria-label={`${day.key}: ${day.counted ? `counted, ${day.minutes} minutes` : 'not counted'}`}><span aria-hidden="true">{letter}</span></li>
-          })}
-        </ol>}
-        <fieldset className="cur-goal">
-          <legend>Daily goal</legend>
-          <div>{GOAL_OPTIONS.map(minutes => <button key={minutes} type="button" aria-pressed={study.goal === minutes} onClick={() => saveDailyGoal(minutes)}>{minutes} min</button>)}</div>
-        </fieldset>
-      </section>
+      <TodayCard study={study} />
     </div>
 
     {mathsChapters.map((chapter, chapterIndex) => <section className="cur-chapter" key={chapter.id} aria-labelledby={`chapter-${chapter.id}`}>

@@ -18,3 +18,11 @@
 .kit-eq { margin: 0; font-size: 2rem; font-weight: 500; }
 .kit-bars { display: grid; gap: 12px; }
 .kit-bars .rv-checkbar { margin: 0; border-radius: var(--rv-radius-md); border: 2px solid var(--rv-line); }
+.kit-subjects { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+.kit-subject { display: grid; gap: 14px; padding: 18px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); background: var(--rv-paper); }
+.kit-subject h3 { margin: 0; font-size: 1.2rem; }
+.kit-subject .kit-swatches { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+.kit-subject .kit-row { margin: 0; }
+.kit-accent-bar { height: 12px; border-radius: 12px; background: var(--rv-grid); overflow: hidden; }
+.kit-accent-bar span { display: block; width: 60%; height: 100%; border-radius: inherit; background: var(--rv-accent); }
+.kit-accent-ink { margin: 0; color: var(--rv-accent-ink); font-weight: 600; }

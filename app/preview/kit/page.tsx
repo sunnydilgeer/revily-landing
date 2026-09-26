@@ -16,6 +16,10 @@ const colours: [string, string][] = [
   ['Step B', '--rv-step-b'], ['Step I', '--rv-step-i'], ['Step D=M', '--rv-step-dm'], ['Step A=S', '--rv-step-as'],
 ]
 
+const accents: [string, string][] = [
+  ['Accent', '--rv-accent'], ['Accent tint', '--rv-accent-tint'], ['Accent ink', '--rv-accent-ink'],
+]
+
 export default function KitPage() {
   return <main className="kit">
     <header className="kit-head">
@@ -40,6 +44,22 @@ export default function KitPage() {
       <ul className="kit-swatches">
         {colours.map(([name, token]) => <li key={token}><span style={{ background: `var(${token})` }} /><b>{name}</b><code>{token}</code></li>)}
       </ul>
+    </section>
+
+    <section className="kit-section">
+      <h2>Subject accent</h2>
+      <p className="kit-caption">Set <code>data-subject</code> on the shell. Only the accent changes; everything else is shared.</p>
+      <div className="kit-subjects">
+        {(['maths', 'science'] as const).map(subject => <div key={subject} className="kit-subject" data-subject={subject}>
+          <h3>{subject === 'maths' ? 'Maths' : 'Science'}</h3>
+          <ul className="kit-swatches">
+            {accents.map(([name, token]) => <li key={token}><span style={{ background: `var(${token})` }} /><b>{name}</b><code>{token}</code></li>)}
+          </ul>
+          <div className="kit-row"><Button>Check</Button><Button variant="secondary">Review</Button></div>
+          <div className="kit-accent-bar" aria-hidden="true"><span /></div>
+          <p className="kit-accent-ink">Accent as text on white</p>
+        </div>)}
+      </div>
     </section>
 
     <section className="kit-section">
