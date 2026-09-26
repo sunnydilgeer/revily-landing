@@ -8,7 +8,8 @@ const root = path.join(__dirname, '..')
 const { mathsLessons } = require(path.join(root, 'src/features/maths/courseRegistry.ts'))
 const { buildDecks } = require(path.join(root, 'src/features/cards/decks.ts'))
 const { KEY_FACTS } = require(path.join(root, 'src/features/cards/keyFacts.ts'))
-const { review, todaysQueue, addDays, NEW_PER_DAY, SESSION_MAX } = require(path.join(root, 'src/features/cards/schedule.ts'))
+const { review, todaysQueue, deckQueue, addDays, NEW_PER_DAY, SESSION_MAX } = require(path.join(root, 'src/features/cards/schedule.ts'))
+const { rungStatus, legacyCompleted } = require(path.join(root, 'src/features/maths/rungProgress.ts'))
 
 // ---------- Decks ----------
 const decks = buildDecks(mathsLessons)
@@ -72,5 +73,17 @@ assert.ok(!queue.some(c => c.id === 'c2'), 'Cards not yet due stay out')
 assert.equal(queue.length, Math.min(SESSION_MAX, 2 + NEW_PER_DAY), 'New cards are capped per day and sessions are capped')
 const introducedToday = Object.fromEntries(Array.from({ length: NEW_PER_DAY }, (_, i) => [`n${i}`, { box: 1, due: '2026-09-27', reviews: 1, introduced: today }]))
 assert.equal(todaysQueue(cards, introducedToday, today).length, 0, 'No more new cards once today\'s allowance is used')
+
+const ordered = deckQueue([{ id: 'late' }, { id: 'new' }, { id: 'due' }], { late: { box: 3, due: '2026-10-10', reviews: 3, introduced: '2026-09-01' }, due: { box: 1, due: '2026-09-26', reviews: 1, introduced: '2026-09-25' } }, today)
+assert.deepEqual(ordered.map(c => c.id), ['due', 'new', 'late'], 'A deck studies due cards, then new ones, then the rest')
+
+// ---------- Finished rungs (rungs are open, so jumping ahead must not count as finishing) ----------
+const sections = [{ id: 'a', title: 'A', startIndex: 0 }, { id: 'b', title: 'B', startIndex: 3 }, { id: 'c', title: 'C', startIndex: 6 }]
+const snap = (extra) => ({ lessonId: 'L', currentStateId: 'x', currentStateIndex: 7, furthestStateIndex: 7, totalStates: 9, currentSectionId: 'c', completed: false, ...extra })
+assert.deepEqual(rungStatus(sections, 9, snap({ completedSections: ['a'] })).map(r => r.done), [true, false, false], 'Only rungs actually finished count once they are recorded')
+assert.deepEqual(rungStatus(sections, 9, snap({})).map(r => r.done), [true, true, false], 'Older saved progress falls back to "moved past the rung"')
+assert.deepEqual(rungStatus(sections, 9, snap({ completed: true })).map(r => r.done), [true, true, true])
+assert.deepEqual(rungStatus(sections, 9, snap({ completedSections: [] })).map(r => r.current), [false, false, true])
+assert.deepEqual(legacyCompleted(sections, 9, 3), ['a'])
 
 console.log(`Revision cards verified: ${decks.length} decks, ${facts} key facts, ${recall} quick questions, ${checkedAnswers} shown answers, schedule rules.`)

@@ -43,6 +43,14 @@ export function todaysQueue<T extends { id: string }>(unlocked: T[], states: Car
   return [...due, ...fresh].slice(0, SESSION_MAX)
 }
 
+/** Studying one deck: cards due first (weakest first), then ones never seen, then the rest by due date. */
+export function deckQueue<T extends { id: string }>(cards: T[], states: CardStates, today = dayKey()): T[] {
+  const due = cards.filter(card => states[card.id] && states[card.id].due <= today).sort((a, b) => states[a.id].box - states[b.id].box)
+  const unseen = cards.filter(card => !states[card.id])
+  const later = cards.filter(card => states[card.id] && states[card.id].due > today).sort((a, b) => states[a.id].due.localeCompare(states[b.id].due))
+  return [...due, ...unseen, ...later].slice(0, SESSION_MAX)
+}
+
 export function readCardStates(): CardStates {
   if (typeof window === 'undefined') return {}
   try {

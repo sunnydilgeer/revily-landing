@@ -71,7 +71,7 @@ assert(viewSource.includes('useRungFlow(lesson, engine, labels'), 'Lesson 1 must
 assert(viewSource.includes('<RungHeader') && viewSource.includes('<RungDoneCard'), 'Lesson 1 must show rung progress and the rung-complete card')
 assert(viewSource.includes('<CheckBar'), 'Lesson 1 answers must use the bottom check bar')
 const engineSource = fs.readFileSync(path.join(root, 'src/features/number-types/useLessonEngine.ts'), 'utf8')
-assert(engineSource.includes('targetIndex > furthestStateIndex'), 'Progress navigation must reject unreached targets')
+assert(!engineSource.includes('targetIndex > furthestStateIndex'), 'Rungs are open: navigation must allow any screen')
 assert(engineSource.includes('Math.max(current, targetIndex)'), 'Normal lesson progress must advance the furthest-reached boundary')
 assert(!engineSource.includes('setFurthestStateIndex(0)'), 'Starting the lesson again must preserve reached progress sections')
 

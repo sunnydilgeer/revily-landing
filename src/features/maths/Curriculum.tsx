@@ -6,6 +6,7 @@ import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress
 import { GOAL_OPTIONS, saveDailyGoal } from './studyLog'
 import type { StudySummary } from './useStudy'
 import { Bolt, streakLabel } from './AppShell'
+import { rungStatus } from './rungProgress'
 import './Curriculum.css'
 
 type Props = {
@@ -18,14 +19,9 @@ type Props = {
 const LATER_CHAPTERS = ['Algebra', 'Ratio and proportion', 'Geometry and measures', 'Probability', 'Statistics']
 const WEEKDAY = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-/** Rung status for one lesson, from the saved position. A rung is done once the student has moved past it. */
+/** Rung status for one lesson (done = finished, current = where the student is now). */
 export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnapshot) {
-  return entry.sections.map((section, index) => {
-    const end = (entry.sections[index + 1]?.startIndex ?? entry.stateCount) - 1
-    const done = Boolean(snapshot?.completed) || (snapshot ? snapshot.furthestStateIndex > end : false)
-    const current = !snapshot?.completed && snapshot ? snapshot.currentStateIndex >= section.startIndex && snapshot.currentStateIndex <= end : false
-    return { ...section, done, current }
-  })
+  return rungStatus(entry.sections, entry.stateCount, snapshot)
 }
 
 export default function Curriculum({ progress, lastLesson, study, onOpenLesson }: Props) {

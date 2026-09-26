@@ -69,3 +69,4 @@ button.rc-deck:focus-visible { outline: 3px solid var(--rv-biro); outline-offset
   .rc-card, .rc-progress__bar span { transition: none; }
 }
 .rc-card__math { font-size: 1.6rem; color: var(--rv-ink); }
+.rc-deck--new .rc-deck__meta { color: var(--rv-muted); font-weight: 500; }

@@ -7,7 +7,7 @@ import { mathsLessons } from '../maths/courseRegistry'
 import type { LessonProgressMap } from '../maths/lessonProgress'
 import { rungsFor } from '../maths/Curriculum'
 import { buildDecks, type RevisionCard } from './decks'
-import { CARDS_EVENT, readCardStates, review, saveCardStates, todaysQueue, type CardStates } from './schedule'
+import { CARDS_EVENT, deckQueue, readCardStates, review, saveCardStates, todaysQueue, type CardStates } from './schedule'
 import './RevisionCards.css'
 
 const DECKS = buildDecks(mathsLessons)
@@ -31,15 +31,16 @@ export default function RevisionCards({ progress, onOpenCurriculum }: { progress
   const [session, setSession] = useState<Session | null>(null)
   const cardRef = useRef<HTMLButtonElement>(null)
 
-  // A rung's cards unlock once the student has finished that rung.
+  // Every deck is open. Today's cards start with what the student has studied (finished rungs)
+  // plus anything they've reviewed before; any deck can be studied at any time.
   const decks = useMemo(() => DECKS.map(deck => {
     const entry = mathsLessons.find(lesson => lesson.number === deck.lesson)!
-    const done = new Set<string>(rungsFor(entry, progress[entry.lessonId]).filter(rung => rung.done).map(rung => rung.id))
-    const unlocked = deck.cards.filter(card => done.has(card.rung))
-    return { ...deck, unlocked, due: todaysQueue(unlocked, states).length }
-  }).sort((a, b) => Number(b.unlocked.length > 0) - Number(a.unlocked.length > 0) || a.lesson - b.lesson), [progress, states])
-  const allUnlocked = decks.flatMap(deck => deck.unlocked)
-  const today = todaysQueue(allUnlocked, states)
+    const finished = new Set<string>(rungsFor(entry, progress[entry.lessonId]).filter(rung => rung.done).map(rung => rung.id))
+    const studied = deck.cards.filter(card => finished.has(card.rung) || states[card.id])
+    return { ...deck, started: Boolean(progress[entry.lessonId]), studied, due: todaysQueue(studied, states).length }
+  }).sort((a, b) => Number(b.started) - Number(a.started) || a.lesson - b.lesson), [progress, states])
+  const studied = decks.flatMap(deck => deck.studied)
+  const today = todaysQueue(studied, states)
 
   function start(title: string, queue: RevisionCard[]) {
     if (!queue.length) return
@@ -77,7 +78,7 @@ export default function RevisionCards({ progress, onOpenCurriculum }: { progress
   return <div className="rc">
     <header className="rc-head">
       <h1>Revision cards</h1>
-      <p>Cards unlock as you finish rungs. The ones you find hard come back sooner.</p>
+      <p>Pick any deck. Today’s cards start with what you’ve studied, and the ones you find hard come back sooner.</p>
     </header>
 
     <div className={`rc-layout${session ? ' is-studying' : ''}`}>
@@ -87,30 +88,25 @@ export default function RevisionCards({ progress, onOpenCurriculum }: { progress
           {today.length
             ? <><p className="rc-today__count"><strong>{today.length}</strong> card{today.length === 1 ? '' : 's'} to review</p>
               <Button size="lg" block onClick={() => start('Today’s cards', today)}>Start today’s cards</Button></>
-            : <p className="rc-today__none">{allUnlocked.length ? 'All done for today. Come back tomorrow.' : 'Finish your first rung to unlock your first cards.'}</p>}
+            : <p className="rc-today__none">{studied.length ? 'All done for today. Come back tomorrow, or pick any deck below.' : 'Finish a rung in any lesson and its cards join Today. Or pick any deck below.'}</p>}
         </section>
 
         <h2 className="rc-kicker">Your decks</h2>
         <ul className="rc-deck-list">
-          {decks.map(deck => deck.unlocked.length
-            ? <li key={deck.lesson}>
-                <button type="button" className={`rc-deck${session?.title === deck.title ? ' is-active' : ''}`} onClick={() => start(deck.title, deck.unlocked)}>
-                  <span className="rc-deck__title">{deck.title}</span>
-                  <span className="rc-deck__meta">{deck.unlocked.length} of {deck.cards.length} cards{deck.due ? ` · ${deck.due} to review` : ''}</span>
-                </button>
-              </li>
-            : <li key={deck.lesson} className="rc-deck rc-deck--locked">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
-                <span><span className="rc-deck__title">{deck.title}</span><span className="rc-deck__meta">Finish a rung to unlock</span></span>
-              </li>)}
+          {decks.map(deck => <li key={deck.lesson}>
+            <button type="button" className={`rc-deck${session?.title === deck.title ? ' is-active' : ''}${deck.started ? '' : ' rc-deck--new'}`} onClick={() => start(deck.title, deckQueue(deck.cards, states))}>
+              <span className="rc-deck__title">{deck.title}</span>
+              <span className="rc-deck__meta">{deck.cards.length} cards{deck.due ? ` · ${deck.due} to review` : ''}{deck.started ? '' : ' · lesson not started yet'}</span>
+            </button>
+          </li>)}
         </ul>
         <p className="rc-note">Key-fact cards are a draft, waiting for a maths teacher to check them.</p>
       </aside>
 
       <section className="rc-study" aria-label="Study">
         {!session && <div className="rc-empty">
-          <p>{allUnlocked.length ? 'Pick today’s cards or a deck to start.' : 'No cards yet. Each rung you finish in a lesson adds its cards here.'}</p>
-          {!allUnlocked.length && <Button onClick={onOpenCurriculum}>Go to Curriculum</Button>}
+          <p>Pick today’s cards or any deck to start.</p>
+          {!studied.length && <Button variant="secondary" onClick={onOpenCurriculum}>Or start a lesson</Button>}
         </div>}
 
         {card && session && <>

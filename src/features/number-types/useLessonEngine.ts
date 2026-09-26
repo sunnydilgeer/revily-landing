@@ -68,7 +68,8 @@ export function useLessonEngine(lesson: LessonDefinition) {
 
   function navigateToReached(targetId: string) {
     const targetIndex = lesson.states.findIndex((candidate) => candidate.id === targetId)
-    if (targetIndex < 0 || targetIndex > furthestStateIndex || targetId === currentId) return
+    // Rungs are open: any screen can be reached. Jumping doesn't move the furthest-reached marker.
+    if (targetIndex < 0 || targetId === currentId) return
     setHistory((items) => [...items, currentId])
     setCurrentId(targetId)
     setCompleted(false)
@@ -80,7 +81,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
       const detail = (event as CustomEvent<{ lessonId: string; stateId: string }>).detail
       if (detail?.lessonId !== lesson.id) return
       const targetIndex = lesson.states.findIndex(candidate => candidate.id === detail.stateId)
-      if (targetIndex < 0 || targetIndex > furthestStateIndex || detail.stateId === currentId) return
+      if (targetIndex < 0 || detail.stateId === currentId) return
       setHistory(items => [...items, currentId])
       setCurrentId(detail.stateId)
       setCompleted(false)
