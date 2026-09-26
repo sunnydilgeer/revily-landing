@@ -28,6 +28,8 @@ export type MathsLessonEntry = {
   description: string
   stateCount: number
   sections: MathsSection[]
+  /** The lesson itself, for features built from its content (revision cards). */
+  definition: LessonDefinition
 }
 
 export type MathsChapter = {
@@ -64,6 +66,7 @@ function entry(
     description,
     stateCount: lesson.states.length,
     sections: sectionsFor(lesson, labels),
+    definition: lesson,
   }
 }
 

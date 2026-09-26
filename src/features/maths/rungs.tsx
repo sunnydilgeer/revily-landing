@@ -10,6 +10,8 @@ import { Button } from '../../ui'
 import type { useLessonEngine } from '../number-types/useLessonEngine'
 import type { LessonDefinition, MicroSkillId } from '../number-types/types'
 import { RUNG_COMPLETE_EVENT } from './studyLog'
+import { markSectionComplete, readMathsProgress } from './lessonProgress'
+import { legacyCompleted, sectionsOf } from './rungProgress'
 import '../written-methods/tutor/RungLesson.css'
 
 type Engine = ReturnType<typeof useLessonEngine>
@@ -60,7 +62,10 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
   useEffect(() => { if (engine.feedback) continueButton.current?.focus({ preventScroll: true }) }, [engine.feedback])
 
   function next() {
-    if (!engine.completed && lastInRung) window.dispatchEvent(new CustomEvent(RUNG_COMPLETE_EVENT))
+    if (!engine.completed && lastInRung) {
+      window.dispatchEvent(new CustomEvent(RUNG_COMPLETE_EVENT))
+      markSectionComplete(lesson.id, state.microSkillId, legacyCompleted(sectionsOf(lesson), lesson.states.length, readMathsProgress()[lesson.id]?.furthestStateIndex))
+    }
     if (!engine.completed && lastInRung && !last && rungIndex < rungs.length - 1) {
       setRungDone({
         title,

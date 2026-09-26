@@ -27,7 +27,7 @@ assert.ok(overview.includes('Coming later'), 'Unbuilt chapters must be labelled 
 for (const label of ['Curriculum', 'Revision cards', 'Practice']) assert.ok(shell.includes(`label: '${label}'`), `${label} must be in the main navigation`)
 assert.ok(shell.includes("nav('side')") && shell.includes("nav('bottom')"), 'Navigation must render as a sidebar and a bottom bar')
 assert.ok(shell.includes("aria-current={active === section.id ? 'page' : undefined}"))
-assert.ok(app.includes('useStudyTimer(view === \'lesson\')'), 'Study minutes must only count while a lesson is open')
+assert.ok(app.includes('useStudyTimer(view === \'lesson\' || view === \'cards\')'), 'Study minutes must only count while a lesson or revision cards are open')
 
 assert.ok(app.includes('aria-label="Breadcrumb"'))
 assert.ok(app.includes('aria-controls="maths-contents"'))

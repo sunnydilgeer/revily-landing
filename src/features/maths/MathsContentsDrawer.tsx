@@ -100,18 +100,17 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
                 {isCurrent && <ol className="maths-section-list" aria-label={`${entry.title} sections`}>
                   {entry.sections.map(section => {
                     const isCurrentSection = currentSnapshot?.currentSectionId === section.id
-                    const isReached = section.startIndex <= (currentSnapshot?.furthestStateIndex ?? 0)
+                    const isDone = Boolean(currentSnapshot?.completed || currentSnapshot?.completedSections?.includes(section.id))
                     return <li key={section.id}>
                       <button
                         type="button"
                         aria-current={isCurrentSection ? 'step' : undefined}
-                        disabled={!isReached}
                         onClick={() => {
                           requestMathsState(entry.lessonId, section.startStateId)
                           onClose()
                         }}
                       >
-                        <span aria-hidden="true">{isReached ? '•' : '○'}</span>
+                        <span aria-hidden="true">{isDone ? '✓' : '○'}</span>
                         {section.title}
                       </button>
                     </li>

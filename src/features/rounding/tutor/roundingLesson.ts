@@ -11,7 +11,7 @@ const powersOfTen = 'rounding-powers-of-ten'
 const carrying = 'rounding-carrying'
 const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
 
-const number = (answer: number, displayAnswer = answer.toLocaleString('en-GB')): InteractionDefinition => ({
+const number = (answer: number, displayAnswer = answer.toLocaleString('en-GB', { maximumFractionDigits: 10 })): InteractionDefinition => ({
   type: 'numericInput', correctAnswer: answer, displayAnswer, acceptanceRule: 'normalisedNumber',
 })
 const fixed = (answer: string, places: number): InteractionDefinition => ({
