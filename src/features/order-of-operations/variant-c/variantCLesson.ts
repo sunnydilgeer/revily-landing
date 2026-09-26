@@ -4,7 +4,7 @@ import type { OperationsVisualDefinition } from './visualTypes'
 
 type Step = { title: string; math: string; evidence: string; previousMath: string }
 type WorkedCalculation = { math: string; steps: Step[] }
-export type TutorOperationsVisualDefinition = Exclude<OperationsVisualDefinition, { kind: 'worked' }> | { kind: 'tutor-summary' } | {
+export type TutorOperationsVisualDefinition = Exclude<OperationsVisualDefinition, { kind: 'worked' }> | { kind: 'tutor-summary' } | { kind: 'ladder-player' } | {
   kind: 'stacked-worked'
   math: string
   steps: Step[]
@@ -191,6 +191,22 @@ lesson2Videos.forEach(video => {
   state.video = video
 })
 
+// Rung 1: the animated BIDMAS ladder (ported from the Revily lesson prototype). It gets its own ID so every
+// storyboard screen keeps L2C-01 to L2C-34 and saved progress still points at the right place.
+states.unshift({
+  id: 'L2C-LADDER',
+  microSkillId: 'bidmas-ladder',
+  phase: 'teach',
+  teachingIntent: 'Meet BIDMAS as a four-step ladder: brackets, indices, divide = multiply, add = subtract.',
+  sourceRef: 'Revily BIDMAS ladder prototype',
+  content: { title: 'The BIDMAS ladder', body: 'Watch the animated lesson, answer the four questions in it, then try your own sum. Carry on whenever you are ready.' },
+  visual: { kind: 'ladder-player' },
+  component: { type: 'expressionSteps', props: { expression: '', steps: [] } },
+  interaction: { type: 'continue' },
+  transition: {},
+  completionCondition: 'Continue whenever ready.',
+})
+
 states.forEach((state, index) => {
   state.transition = index < states.length - 1 ? { onComplete: states[index + 1].id } : {}
 })
@@ -204,6 +220,7 @@ export const operationsVariantCLesson: LessonDefinition & { states: TutorOperati
 }
 
 export const operationsVariantCLabels: Partial<Record<MicroSkillId, string>> = {
+  'bidmas-ladder': 'The BIDMAS ladder',
   'operation-priority': 'Using BIDMAS',
   'equal-priority': 'Equal priority',
   'fraction-grouping': 'BIDMAS & fractions',

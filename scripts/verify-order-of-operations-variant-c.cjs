@@ -20,7 +20,13 @@ function loadTypeScriptModule(relativePath) {
 
 const { checkAnswer } = loadTypeScriptModule('src/features/number-types/lessonMath.ts')
 const { operationsVariantCLesson } = loadTypeScriptModule('src/features/order-of-operations/variant-c/variantCLesson.ts')
-const states = operationsVariantCLesson.states
+// Rung 1 is the animated BIDMAS ladder; the tutor storyboard (L2C-01 to L2C-34) follows unchanged.
+const [ladder, ...states] = operationsVariantCLesson.states
+assert.equal(ladder.id, 'L2C-LADDER', 'Lesson 2 must open with the BIDMAS ladder player')
+assert.equal(ladder.visual.kind, 'ladder-player')
+assert.equal(ladder.microSkillId, 'bidmas-ladder')
+assert.equal(ladder.interaction.type, 'continue', 'The ladder must never block the lesson')
+assert.equal(ladder.transition.onComplete, 'L2C-01', 'The ladder must lead into the tutor storyboard')
 const videoStates = states.filter(state => state.video)
 const videoView = fs.readFileSync(path.join(root, 'src/features/order-of-operations/variant-c/TutorTeachingMedia.tsx'), 'utf8')
 assert.ok(!videoView.includes('On-screen captions') && !videoView.includes('<details') && !videoView.includes('aria-describedby'), 'Video panels must omit the removed caption note and walkthrough UI')

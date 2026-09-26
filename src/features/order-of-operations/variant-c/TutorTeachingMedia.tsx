@@ -8,26 +8,17 @@ export function TutorTeachingMedia({ visual, video, onConsultRule }: {
   video?: LessonVideoDefinition
   onConsultRule?: () => void
 }) {
-  const [mode, setMode] = useState<'video' | 'working'>('video')
+  const [watching, setWatching] = useState(false)
   if (!video) return <TutorOperationsVisual visual={visual} onConsultRule={onConsultRule} />
-  const prefix = `lesson-video-${video.id}`
-  return <div className="opc-teaching-media">
-    <div className="opc-media-tabs" role="tablist" aria-label="Choose how to learn this example" onKeyDown={event => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
-      event.preventDefault()
-      const next = event.key === 'Home' ? 'video' : event.key === 'End' ? 'working' : mode === 'video' ? 'working' : 'video'
-      setMode(next)
-      event.currentTarget.querySelector<HTMLButtonElement>(`#${prefix}-${next}-tab`)?.focus()
-    }}>
-      <button type="button" role="tab" id={`${prefix}-video-tab`} tabIndex={mode === 'video' ? 0 : -1} aria-selected={mode === 'video'} aria-controls={`${prefix}-video-panel`} onClick={() => setMode('video')}>Watch video</button>
-      <button type="button" role="tab" id={`${prefix}-working-tab`} tabIndex={mode === 'working' ? 0 : -1} aria-selected={mode === 'working'} aria-controls={`${prefix}-working-panel`} onClick={() => setMode('working')}>Step by step</button>
-    </div>
-    <div role="tabpanel" id={`${prefix}-video-panel`} aria-labelledby={`${prefix}-video-tab`} hidden={mode !== 'video'}>
-      <LessonVideo video={video} active={mode === 'video'} onShowWorking={() => setMode('working')} />
-    </div>
-    <div role="tabpanel" id={`${prefix}-working-panel`} aria-labelledby={`${prefix}-working-tab`} hidden={mode !== 'working'}>
-      <TutorOperationsVisual visual={visual} onConsultRule={onConsultRule} />
-    </div>
+  const panel = `lesson-video-${video.id}-panel`
+  // The working comes first; the video is one tap away (same pattern as lessons 4 to 11).
+  return <div className="opc-teaching-media rung-media">
+    {watching
+      ? <div id={panel}><LessonVideo video={video} active onShowWorking={() => setWatching(false)} /></div>
+      : <TutorOperationsVisual visual={visual} onConsultRule={onConsultRule} />}
+    <button type="button" className="rung-media__toggle" aria-expanded={watching} aria-controls={watching ? panel : undefined} onClick={() => setWatching(!watching)}>
+      {watching ? <>Back to the step-by-step working</> : <><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>Watch the video ({Math.round(video.durationSeconds)} sec)</>}
+    </button>
   </div>
 }
 
