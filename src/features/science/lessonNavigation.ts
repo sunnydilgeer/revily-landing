@@ -119,6 +119,6 @@ export function scienceLessonHref(number: LessonNumber, activity?: string | null
   return `/preview/science?lesson=${number}${activity ? '&activity=' + encodeURIComponent(activity) : ''}`
 }
 export function parseScienceLesson(value: string | string[] | undefined): LessonNumber | null {
-  const number = typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : 0
+  const number = typeof value === 'string' && /^[1-9]\d*$/.test(value) ? Number(value) : 0
   return number >= 1 && number <= scienceLessons.length ? number as LessonNumber : null
 }
