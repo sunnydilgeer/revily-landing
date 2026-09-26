@@ -1,11 +1,11 @@
-import { getScienceLessons, type LessonNumber } from '../lessonNavigation'
+import { scienceLessons, type LessonNumber } from '../lessonNavigation'
 import { createCoachPreviewSessionEngine, type PreviewSession } from '../previewSession'
 import { coachTopics, type CoachTopic } from './content'
 
 export const COACH_STORAGE_KEY = 'revily:science-coach:review:v1'
 export const DAY = 24 * 60 * 60 * 1000
 // The existing Coach pilot remains deliberately bounded to its original six Cell Biology lessons.
-export const coachLessons = getScienceLessons('b').slice(0, 6)
+export const coachLessons = scienceLessons.slice(0, 6)
 export const coachLessonEngines = coachLessons.map(item => createCoachPreviewSessionEngine(item.lesson))
 export type CoachSessions = Partial<Record<LessonNumber, PreviewSession>>
 export type ReviewMode = 'review' | 'repair'

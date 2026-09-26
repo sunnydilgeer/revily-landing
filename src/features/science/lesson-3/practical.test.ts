@@ -37,13 +37,13 @@ check('slide, microscope, separate plant/animal observations, drawing and scale 
 })
 check('safety, observation limitations and magnification distinction are explicit', () => {
   const text = Object.values(practicalFrames).flat().map(f => f.text).join(' ')
-  assert.ok(text.includes('eye protection') && text.includes('never pick up shards by hand'))
-  assert.ok(text.includes('Watch') || text.includes('watching the gap'))
-  assert.ok(text.includes('fine adjustment at high power'))
-  assert.ok(text.includes('does not complete required practical 1'))
+  assert.ok(text.includes('eye protection') && text.includes('never pick it up by hand'))
+  assert.ok(text.includes('watching from the side'))
+  assert.ok(text.includes('Use small fine-focus movements') && text.includes('could hit the slide'))
+  assert.ok(text.includes('prepares you for required practical 1. It does not replace doing it'))
   assert.ok(text.includes('not a microscope photograph') && text.includes('normally have no chloroplasts'))
-  assert.ok(text.includes('drawing can be enlarged by a different amount from the microscope image'))
-  assert.ok(text.includes('provided by your teacher'))
+  assert.ok(text.includes('The drawing can have a different magnification from the microscope'))
+  assert.ok(text.includes('Your teacher provides'))
 })
 check('all options grade canonically with explanations, not guessed written marking', () => {
   for (const state of lesson3.states) if (state.kind === 'choice') {
@@ -84,7 +84,7 @@ check('complete flow has distinct evidence, pending written work and next topic 
   for (const d of ['recall', 'practicalReasoning', 'application', 'calculation', 'dataInterpretation'] as const) assert.equal(profile.dimensions[d], 'secureInSession')
   assert.equal(profile.dimensions.understanding, 'developing') // guided items, not required independent evidence
   assert.equal(profile.dimensions.explanation, 'developing'); assert.deepEqual(profile.pendingReview, ['B3-30'])
-  assert.equal(recommendedNext(profile, false, lesson3).lessonId, 'B-CELL-004')
+  assert.equal(recommendedNext(profile, false, lesson3).lessonId, 'B-CELL-004-B')
 })
 check('hint evidence, locked responses, draft restoration and skipped completion remain honest', () => {
   let session = engine.previewReducer(engine.createPreviewSession('support'), { type: 'jump', id: 'B3-28' })

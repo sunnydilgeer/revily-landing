@@ -18,20 +18,21 @@ import { transportFrames } from './lesson-6/teachingFrames'
 
 const lessons = [lesson1, lesson2, lesson3, lesson4, lesson5, lesson6]
 const frameSets = [teachingFrames, microscopyFrames, practicalFrames, specialisationFrames, divisionFrames, transportFrames]
-// Captured from the six-lesson implementation BEFORE the editorial pass.
-// Wording is deliberately excluded; grading, evidence and snapshot identity are not.
+// Captured from the easier-wording lessons when the original wording (Variant A) was retired. Their
+// question and marking contracts had been checked identical to A's. Wording is deliberately
+// excluded; grading, evidence and snapshot identity are not.
 const contracts = [
-  'e849967e8fae79837a69b6a8eb33e39f2965b5fcfe512f0873a1340bb4d6e39a',
-  'b630efecca41487f7ac097b7db69162c929fa1d345b518fe01136411272f0c6e',
-  '3e405df7755505026c5f4747ebcfc6cd6da7bede2dc420afd09c7dba9a1e5e19',
-  '2ff0ebbc99afb126757a207cc968433f501656fa04989937270fdf40e3949c12',
-  '13a12940929de86d18d976bc40a06e3a8e37bcec416088c18e5dc6a3327d70d0',
-  'd60da0e646dbb3cddcd3e7b04fe7b134dc2fc9de4a4e0b3d6266c37742967484',
+  '8a79d71b5c49f723262e3bdacc59f7d37aa253385e658b9b5c886fce48b99b92',
+  '1a48fc43869907c6706754f38a190b3703e7439b19a3a592f153796abb47573d',
+  'e4878578ea29439fff7a1a9ebd97b46a4c5cf71049d369aa3380da8b8069d0a9',
+  '33d219a2450eabe55ece6d3d912d1796dd1c51969a8278e977e3fb92d863e747',
+  '8fb61a08da6fbebdd08003e17028b526e61bfe0230b415dffeaba08be3405c0b',
+  'cf4ed5b9205ae0f5b979c2867081f1551f5af76252a98fd47ad88dd19cced111',
 ]
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
 lessons.forEach((l, i) => {
-  check(`${l.id}: editorial pass preserves the pre-edit assessment contract`, () => {
+  check(`${l.id}: assessment contract is unchanged`, () => {
     const contract = {
       id: l.id, version: l.contentVersion, prerequisites: l.prerequisites, requirements: l.requirements,
       states: [...l.states, ...l.retrieval].map(s => ({
@@ -48,7 +49,8 @@ lessons.forEach((l, i) => {
         media: s.kind === 'teaching' ? s.media?.kind : undefined,
       })),
     }
-    assert.equal(createHash('sha256').update(JSON.stringify(contract)).digest('hex'), contracts[i])
+    const hash = createHash('sha256').update(JSON.stringify(contract)).digest('hex')
+    assert.equal(hash, contracts[i])
   })
   check(`${l.id}: every walkthrough has complete copy and a matching teaching script`, () => {
     for (const [id, frames] of Object.entries(frameSets[i])) {
@@ -80,10 +82,10 @@ check('key concepts include plain-language meanings and causal links across all 
   assert.match(text[0], /function.*job/i)
   assert.match(text[1], /one blurred patch/)
   assert.match(text[2], /thin so light can pass through/)
-  assert.match(text[3], /increases.*surface area.*allowing more water/)
+  assert.match(text[3], /more surface area\. More water/)
   assert.match(text[4], /copying is called replication/)
-  assert.match(text[5], /Concentration tells you.*given volume/)
-  assert.match(text[5], /more particles leave it than return/)
+  assert.match(text[5], /Concentration means.*given volume/)
+  assert.match(text[5], /More leave a higher-concentration region than return/)
   assert.match(text[5], /dependent variable|final mass − initial mass/)
 })
 console.log(`${checks} teaching-copy checks passed.`)

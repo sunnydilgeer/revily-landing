@@ -1,49 +1,225 @@
-export type MicroscopyFrame = { label: string; summary: string; cue: string; text: string; diagram: 'microscopy'; focus: string }
-const frame = (label: string, summary: string, cue: string, text: string, focus: string): MicroscopyFrame => ({ label, summary, cue: 'Think: ' + cue, text, diagram: 'microscopy', focus })
-export const microscopyFrames: Record<string, MicroscopyFrame[]> = {
-  'B2-02': [
-    frame('Meet a light microscope', 'Light microscopes let us see cells that are too small to see clearly by eye.', 'look at a tiny specimen', 'The material you examine is called the specimen. A light microscope uses light and lenses to produce an enlarged image of it. It can show whole cells and some structures inside them.', 'light'),
-    frame('The light source', 'Light passes through the specimen on the slide.', 'light → specimen → lenses', 'A slide is a thin piece of glass that holds the specimen. The light source below the slide shines through it, allowing you to see the specimen through the lenses.', 'light-source'),
-    frame('The objective and eyepiece', 'Two lenses enlarge the image.', 'multiply the two magnifications', 'The objective lens is near the specimen. The eyepiece is the lens you look through. Their magnifications multiply: a ×10 objective and a ×10 eyepiece give ×100 overall, not ×20.', 'light-lenses'),
-    frame('The stage', 'A platform holds the slide beneath the objective.', 'hold the slide in place', 'The stage supports the slide, and a clip holds it still. The specimen sits over an opening so light can pass through it. Keeping it in place makes it easier to study the cells.', 'light-stage'),
-    frame('The focusing controls', 'Focus changes how sharp the image looks.', 'sharp image, not just a big image', 'Focusing controls adjust the distance between the lens and specimen. At the correct distance, features look sharp instead of blurred. Changing focus is different from increasing magnification.', 'light-focus'),
+// Variant B: simpler teaching copy. Visual targets and step order match Variant A.
+import type { TeachingFrame } from '../teachingFrame'
+
+export const microscopyFrames: Record<string, TeachingFrame[]> = {
+  "B2-02": [
+    {
+      "label": "Meet a light microscope",
+      "summary": "Makes a bigger image of a small sample.",
+      "cue": "Think: look at a tiny specimen",
+      "text": "The sample you look at is called a specimen. A light microscope uses light and lenses to make its image bigger. It shows cells and some parts inside them.",
+      "diagram": "microscopy",
+      "focus": "light"
+    },
+    {
+      "label": "The light source",
+      "summary": "Shines light through the sample.",
+      "cue": "Think: light → specimen → lenses",
+      "text": "The sample sits on a glass slide. Light from below passes through it. The lenses let you see an enlarged image.",
+      "diagram": "microscopy",
+      "focus": "light-source"
+    },
+    {
+      "label": "The objective and eyepiece",
+      "summary": "Two lenses make the image bigger.",
+      "cue": "Think: multiply the two magnifications",
+      "text": "The objective lens is near the sample. You look through the eyepiece. Multiply their magnifications: ×10 and ×10 give ×100, not ×20.",
+      "diagram": "microscopy",
+      "focus": "light-lenses"
+    },
+    {
+      "label": "The stage",
+      "summary": "Holds the slide in place.",
+      "cue": "Think: hold the slide in place",
+      "text": "The stage is the platform under the objective lens. A clip holds the slide still. An opening lets light pass through the sample.",
+      "diagram": "microscopy",
+      "focus": "light-stage"
+    },
+    {
+      "label": "The focusing controls",
+      "summary": "Makes a blurred image sharp.",
+      "cue": "Think: sharp image, not just a big image",
+      "text": "Focus controls change the gap between the lens and sample. At the right gap, the image looks sharp. Focusing is not the same as making it bigger.",
+      "diagram": "microscopy",
+      "focus": "light-focus"
+    }
   ],
-  'B2-04': [
-    frame('What does magnification mean?', 'Magnification tells you how many times larger the image is than the specimen.', 'image size compared with real size', 'At ×100 magnification, a cell’s image is 100 times its real size along the same dimension. The image is enlarged so you can inspect the cell; the real cell does not grow.', 'magnification'),
-    frame('A bigger image, the same cell', 'Enlarging a picture changes the image size, not the actual size.', 'the specimen stays the same', 'Compare these two images of the same cell. The larger image takes up more space, but represents the same cell and the same structures. Magnification describes the enlargement of the image.', 'magnification-large'),
+  "B2-04": [
+    {
+      "label": "What does magnification mean?",
+      "summary": "How many times bigger is the image?",
+      "cue": "Think: image size compared with real size",
+      "text": "Magnification compares image size with real size. At ×100, the image is 100 times wider than the real cell. The cell itself stays the same size.",
+      "diagram": "microscopy",
+      "focus": "magnification"
+    },
+    {
+      "label": "A bigger image, the same cell",
+      "summary": "The picture changes, not the cell.",
+      "cue": "Think: the specimen stays the same",
+      "text": "Both images show the same cell. One image is bigger. The real cell and its parts have not changed.",
+      "diagram": "microscopy",
+      "focus": "magnification-large"
+    }
   ],
-  'B2-06': [
-    frame('What does resolution mean?', 'Resolution is the ability to tell two close points apart.', 'two points or one patch?', 'Imagine two small features very close together. If the microscope cannot resolve them, they look like one blurred patch. A microscope with better resolution can show them as two separate features.', 'resolution-low'),
-    frame('Higher resolution shows more detail', 'Features that merged into one patch can now be seen separately.', 'closer points can be told apart', 'Look at the two distinct features in this illustration. Better resolution lets scientists distinguish structures that are close together. This is about separating detail, not just making the image larger.', 'resolution-high'),
-    frame('Magnification is not resolution', 'Making a blur bigger does not reveal the missing detail.', 'bigger ≠ more detailed', 'Enlarging a blurred image gives you a larger blur. Magnification changes image size; resolution determines whether nearby features can be seen separately. A useful microscope needs both enlargement and detail.', 'resolution-zoom'),
+  "B2-06": [
+    {
+      "label": "What does resolution mean?",
+      "summary": "Can you see two close points separately?",
+      "cue": "Think: two points or one patch?",
+      "text": "Two close features may look like one blurred patch. Resolution is the ability to tell them apart. Better resolution shows them as two separate features.",
+      "diagram": "microscopy",
+      "focus": "resolution-low"
+    },
+    {
+      "label": "Higher resolution shows more detail",
+      "summary": "Better resolution shows finer detail.",
+      "cue": "Think: closer points can be told apart",
+      "text": "These two features are now separate. Scientists can tell them apart even though they are close together. This is better resolution.",
+      "diagram": "microscopy",
+      "focus": "resolution-high"
+    },
+    {
+      "label": "Magnification is not resolution",
+      "summary": "A bigger blur is still a blur.",
+      "cue": "Think: bigger ≠ more detailed",
+      "text": "Magnification makes an image bigger. Resolution lets you tell close features apart. Enlarging the same blurred picture does not add detail.",
+      "diagram": "microscopy",
+      "focus": "resolution-zoom"
+    }
   ],
-  'B2-08': [
-    frame('Meet an electron microscope', 'It uses a beam of electrons instead of light.', 'a different way to form an image', 'Electron microscopes are scientific instruments used to investigate very small structures. Like a light microscope, they produce images of specimens, but they use electrons rather than visible light.', 'electron'),
-    frame('See smaller cell structures', 'Electron microscopes have greater magnification and resolution.', 'more enlargement and finer detail', 'Their greater resolving power means they can tell more closely spaced features apart. Combined with higher magnification, this lets scientists study smaller sub-cellular structures in greater detail.', 'electron-detail'),
-    frame('Better images, better understanding', 'Improved microscopes revealed structures that earlier tools could not show clearly.', 'extra detail → better understanding', 'Scientists could investigate more of the structures inside cells as microscope technology improved. The structures were already there: better tools made them easier to distinguish and study.', 'electron-history'),
+  "B2-08": [
+    {
+      "label": "Meet an electron microscope",
+      "summary": "Uses electrons instead of light.",
+      "cue": "Think: a different way to form an image",
+      "text": "An electron microscope makes images using a beam of electrons. Scientists use it to study very small structures. A light microscope uses light instead.",
+      "diagram": "microscopy",
+      "focus": "electron"
+    },
+    {
+      "label": "See smaller cell structures",
+      "summary": "Can show smaller cell parts.",
+      "cue": "Think: more enlargement and finer detail",
+      "text": "Electron microscopes have greater magnification and resolution. They make larger images and show closer features separately. This reveals finer detail inside cells.",
+      "diagram": "microscopy",
+      "focus": "electron-detail"
+    },
+    {
+      "label": "Better images, better understanding",
+      "summary": "Better tools revealed more detail.",
+      "cue": "Think: extra detail → better understanding",
+      "text": "Improved microscopes let scientists see smaller cell parts. Scientists could study them and learn more about cells. The microscopes revealed these parts; they did not create them.",
+      "diagram": "microscopy",
+      "focus": "electron-history"
+    }
   ],
-  'B2-09': [
-    frame('Compare the two instruments', 'Both microscopes produce enlarged images of specimens.', 'light versus electrons', 'A light microscope uses light and lenses. An electron microscope uses a beam of electrons. Both help scientists study specimens that are too small to see clearly by eye.', 'microscope-comparison'),
-    frame('Which shows finer detail?', 'Electron microscopes have greater magnification and resolving power.', 'magnification = size; resolution = detail', 'A school light microscope can show some structures, such as a stained nucleus. An electron microscope can distinguish much smaller structures. Increasing the size of a light-microscope image alone does not supply that extra detail.', 'microscope-comparison-detail'),
+  "B2-09": [
+    {
+      "label": "Compare the two instruments",
+      "summary": "Both make images bigger.",
+      "cue": "Think: light versus electrons",
+      "text": "A light microscope uses light. An electron microscope uses electrons. Both produce enlarged images of small samples.",
+      "diagram": "microscopy",
+      "focus": "microscope-comparison"
+    },
+    {
+      "label": "Which shows finer detail?",
+      "summary": "Electron microscopes show finer detail.",
+      "cue": "Think: magnification = size; resolution = detail",
+      "text": "A light microscope can show some cell parts, such as a stained nucleus. Electron microscopes have higher magnification and resolution. They can show smaller parts more clearly.",
+      "diagram": "microscopy",
+      "focus": "microscope-comparison-detail"
+    }
   ],
-  'B2-12': [
-    frame('Image size and real size', 'Image size measures the picture; real size measures the specimen.', 'picture versus actual cell', 'A picture of a cell might be 12 mm wide even though the cell itself is only 0.03 mm wide. The image is much larger than the real cell. Use the sizes given in a question, not a ruler held against this screen.', 'sizes'),
-    frame('Calculate magnification', 'Magnification = image size ÷ real size.', 'match the units, then divide', 'The two sizes must have the same units. For example, 12 mm ÷ 0.03 mm = 400, so the image is ×400. Magnification is a comparison of sizes, not a length, so it has no mm or µm unit.', 'formula'),
+  "B2-12": [
+    {
+      "label": "Image size and real size",
+      "summary": "Image size is not real size.",
+      "cue": "Think: picture versus actual cell",
+      "text": "An image is the picture of the cell. A picture might be 12 mm wide while the cell is only 0.03 mm wide. Use the given measurements, not this screen.",
+      "diagram": "microscopy",
+      "focus": "sizes"
+    },
+    {
+      "label": "Calculate magnification",
+      "summary": "Magnification = image size ÷ real size.",
+      "cue": "Think: match the units, then divide",
+      "text": "First match the units. Then calculate 12 ÷ 0.03 = 400. Magnification is ×400. It has no mm or µm unit because it compares two sizes.",
+      "diagram": "microscopy",
+      "focus": "formula"
+    }
   ],
-  'B2-15': [
-    frame('Why do the units need to match?', '1 millimetre = 1000 micrometres.', 'compare like with like', 'A micrometre (µm) is one thousandth of a millimetre. You cannot directly compare a number of mm with a number of µm: they count different-sized units. Convert one measurement before dividing.', 'units'),
-    frame('Convert before calculating', '30 µm ÷ 1000 = 0.03 mm.', 'µm ÷ 1000 → mm', 'You can put both sizes in mm, or both in µm. Either method gives the same magnification. For example, 18 mm ÷ 0.03 mm and 18 000 µm ÷ 30 µm both give ×600.', 'units-convert'),
+  "B2-15": [
+    {
+      "label": "Why do the units need to match?",
+      "summary": "Convert so both measurements use the same unit.",
+      "cue": "Think: compare like with like",
+      "text": "1 mm = 1000 µm. You cannot directly divide a size in mm by a size in µm. Convert one so both are in mm or both in µm.",
+      "diagram": "microscopy",
+      "focus": "units"
+    },
+    {
+      "label": "Convert before calculating",
+      "summary": "30 µm = 0.03 mm.",
+      "cue": "Think: µm ÷ 1000 → mm",
+      "text": "To convert µm to mm, divide by 1000. Calculate 30 ÷ 1000 = 0.03 mm. Then 18 mm ÷ 0.03 mm gives ×600.",
+      "diagram": "microscopy",
+      "focus": "units-convert"
+    }
   ],
-  'B2-18': [
-    frame('Find the real size', 'Real size = image size ÷ magnification.', 'undo the enlargement', 'If an image is 500 times the real size, divide its size by 500 to find the specimen’s size. For example, an image 15 mm wide at ×500 represents a cell 0.03 mm wide.', 'real-size'),
-    frame('Check the answer’s size and unit', 'A magnified image should be larger than the specimen it represents.', 'calculate, then convert if needed', 'Dividing an image size in mm gives a real size in mm. If the question asks for µm, convert afterwards: 0.03 mm × 1000 = 30 µm. Check both the number and the requested unit.', 'real-size-check'),
+  "B2-18": [
+    {
+      "label": "Find the real size",
+      "summary": "Real size = image size ÷ magnification.",
+      "cue": "Think: undo the enlargement",
+      "text": "An image at ×500 is enlarged 500 times. Divide its width by 500 to undo this. Calculate 15 mm ÷ 500 = 0.03 mm.",
+      "diagram": "microscopy",
+      "focus": "real-size"
+    },
+    {
+      "label": "Check the answer’s size and unit",
+      "summary": "Check the unit the question asks for.",
+      "cue": "Think: calculate, then convert if needed",
+      "text": "The real width is 0.03 mm. To give it in µm, multiply by 1000: 0.03 × 1000 = 30 µm. The real cell is smaller than its enlarged image.",
+      "diagram": "microscopy",
+      "focus": "real-size-check"
+    }
   ],
-  'B2-20': [
-    frame('Find the image size', 'Image size = real size × magnification.', 'apply the enlargement', 'To make an image 250 times the real width, multiply the real width by 250. A cell 0.04 mm wide has an image 10 mm wide at ×250: 0.04 × 250 = 10.', 'image-size'),
-    frame('Keep track of the units', 'The calculated image size starts in the same unit as the real size.', 'multiply, then check the unit', 'If you multiply a size in µm by the magnification, the answer is in µm. Divide by 1000 to convert that answer to mm if the question asks for mm. Magnification itself has no length unit.', 'image-size-check'),
+  "B2-20": [
+    {
+      "label": "Find the image size",
+      "summary": "Image size = real size × magnification.",
+      "cue": "Think: apply the enlargement",
+      "text": "The real width is 0.04 mm. At ×250, multiply it by 250. Calculate 0.04 × 250 = 10 mm.",
+      "diagram": "microscopy",
+      "focus": "image-size"
+    },
+    {
+      "label": "Keep track of the units",
+      "summary": "Keep the unit until you convert it.",
+      "cue": "Think: multiply, then check the unit",
+      "text": "A size in µm multiplied by magnification gives a size in µm. If the question asks for mm, divide that result by 1000.",
+      "diagram": "microscopy",
+      "focus": "image-size-check"
+    }
   ],
-  'B2-23': [
-    frame('What is standard form?', 'A number from 1 to less than 10 is multiplied by a power of ten.', 'a × 10ⁿ', 'Standard form is a compact way to write very large or small numbers. For a measurement, keep its unit too. For example, 0.003 mm can be written as 3 × 10⁻³ mm.', 'standard'),
-    frame('A negative power means a small decimal', '10⁻³ = 0.001, or one thousandth.', '3 × 0.001 = 0.003', 'The negative power tells you to divide by a power of ten. Here 3 × 10⁻³ means 3 ÷ 1000 = 0.003. It does not mean the measurement is negative.', 'standard-negative'),
-  ],
+  "B2-23": [
+    {
+      "label": "What is standard form?",
+      "summary": "A short way to write large or small numbers.",
+      "cue": "Think: a × 10ⁿ",
+      "text": "Standard form is a × 10ⁿ. The first number is at least 1 but less than 10. For example, 0.003 mm = 3 × 10⁻³ mm. Keep the unit.",
+      "diagram": "microscopy",
+      "focus": "standard"
+    },
+    {
+      "label": "A negative power means a small decimal",
+      "summary": "10⁻³ means one thousandth.",
+      "cue": "Think: 3 × 0.001 = 0.003",
+      "text": "10⁻³ = 0.001. So 3 × 10⁻³ = 3 × 0.001 = 0.003. The negative power does not mean a negative length.",
+      "diagram": "microscopy",
+      "focus": "standard-negative"
+    }
+  ]
 }

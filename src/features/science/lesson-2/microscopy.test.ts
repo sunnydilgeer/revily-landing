@@ -50,13 +50,13 @@ check('numerical answers independently agree with formulas and unit conversions'
   assert.equal((find('B2-24') as ChoiceState).answerId, '6')
   assert.equal((find('B2-33') as ChoiceState).answerId, '7')
 })
-check('lesson storage and restored identities are isolated; legacy cells progress remains compatible', () => {
+check('lesson storage and restored identities are isolated; records without a lesson ID are rejected', () => {
   assert.notEqual(engine.storageKey, cellsEngine.storageKey)
   assert.equal(engine.restorePreviewSession(cellsEngine.createPreviewSession('cells')), null)
   assert.equal(cellsEngine.restorePreviewSession(engine.createPreviewSession('micro')), null)
   const cells = cellsEngine.createPreviewSession('legacy')
   const { lessonId, ...legacy } = cells
-  assert.deepEqual(cellsEngine.restorePreviewSession(legacy), cells)
+  assert.equal(cellsEngine.restorePreviewSession(legacy), null)
   let micro = engine.createPreviewSession('test')
   assert.equal(engine.previewReducer(micro, { type: 'jump', id: 'B1-02' }), micro)
   assert.deepEqual(cellsEngine.createPreviewSession('cells').completedIds, [])
@@ -74,7 +74,7 @@ check('all 34 screens flow to summary; written work remains pending and saved', 
   for (const dimension of ['recall', 'understanding', 'application', 'calculation'] as const) assert.equal(profile.dimensions[dimension], 'secureInSession')
   assert.equal(profile.dimensions.explanation, 'developing'); assert.deepEqual(profile.pendingReview, ['B2-34'])
   assert.equal(profile.dimensions.practicalReasoning, 'notAssessed')
-  assert.equal(recommendedNext(profile, false, lesson2).lessonId, 'B-CELL-003')
+  assert.equal(recommendedNext(profile, false, lesson2).lessonId, 'B-CELL-003-B')
 })
 check('hints, submission locks and reloads retain their evidence rules', () => {
   let session = engine.previewReducer(engine.createPreviewSession('support'), { type: 'jump', id: 'B2-29' })

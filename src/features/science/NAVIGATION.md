@@ -1,5 +1,15 @@
 # Unified Science preview — 14 September 2026
 
+## Current state — 26 September 2026 (read this first)
+
+- **One Science catalogue.** The original wording (Variant A, Lessons 1–6) has been deleted, along with the A/B switch and the `?variant=` parameter. The easier wording (formerly Variant B) is now the only Science content: 26 Biology lessons in `lesson-1/` to `lesson-26/`, listed in `lessonNavigation.ts` as `scienceLessons`.
+- **Saved progress is unchanged.** Lesson IDs keep their `-B` suffix (e.g. `B-CELL-001-B`), so storage keys such as `revily:science:B-CELL-001-B:0.1.0:preview` still load for testers. The exam pilot key keeps its `:b` suffix for the same reason.
+- **Routes.** The Science home is in the app at `/preview?subject=science`. `/preview/science?lesson=N` plays a lesson; an old `&variant=` is ignored. `/preview/science` with no lesson redirects to the app.
+- **Shared pieces** that used to live in A's folders: `teachingFrame.ts` (the `TeachingFrame` type and plant part IDs) and `lesson-6/practicalData.ts`.
+- **All content is still a draft** awaiting qualified teacher review.
+
+Notes below this section are a dated history. Mentions of Variant A, Variant B, `variants/b/` or `?variant=b` describe how things were then.
+
 ## Easier-only organisation extension — 21 September 2026
 
 The strict lesson parser now accepts `?lesson=1` through `26`. Variant A still contains Lessons 1–6 only. Variant B adds Lessons 7–26, and every canonical link to those lesson numbers includes `variant=b`; requesting one without a variant is normalised to the easier-only lesson rather than implying an absent A copy. The main hub exposes all twenty-six built lessons and switches to Variant B for easier-only lesson links. All thirty-two A/B lesson records keep separate versioned local-storage identities.

@@ -1,4 +1,4 @@
-import type { TeachingFrame } from './lesson-1/teachingFrames'
+import type { TeachingFrame } from './teachingFrame'
 import type { ChoiceState, EvidenceDimension, ScienceLesson, TeachingState, WrittenState } from './types'
 
 // Authoring helpers only: learner/session policies remain in the established engine.

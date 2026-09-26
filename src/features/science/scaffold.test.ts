@@ -3,7 +3,8 @@ import { evidenceProfile, gradeResponse, misconceptionSignal, nextStateId, progr
 import { lesson1 } from './lesson-1/lesson'
 import type { AttemptEvent, ChoiceState } from './types'
 import { scienceCurriculum } from './curriculum'
-import { teachingFrames, plantPartIds } from './lesson-1/teachingFrames'
+import { teachingFrames } from './lesson-1/teachingFrames'
+import { plantPartIds } from './teachingFrame'
 
 const all = [...lesson1.states, ...lesson1.retrieval]
 const find = (id: string) => all.find(state => state.id === id)!
@@ -94,7 +95,7 @@ check('curriculum expansion includes taught structures, numerical units and pair
   assert.ok(lesson1.states.some(s => s.id === 'B1-27' && s.kind === 'teaching'))
   assert.equal((find('B1-35') as ChoiceState).explanation.answer, '12 µm²')
   assert.equal((find('B1-39') as ChoiceState).explanation.answer, '3 µm')
-  assert.ok(find('B1-21').title.includes('two structural differences'))
+  assert.ok(find('B1-21').title.includes('two differences'))
 })
 check('whole cells are taught separately before comparison and classification', () => {
   const order = (id: string) => lesson1.states.findIndex(state => state.id === id)

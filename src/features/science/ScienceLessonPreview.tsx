@@ -3,47 +3,35 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronRight, ChevronUp, Lightbulb, ListTree, RotateCcw, X } from 'lucide-react'
-import { getScienceHubLessons, getScienceLessons, scienceChapters, scienceHubHref, scienceLessonHref, type ScienceVariant } from './lessonNavigation'
-import { ScienceVariantSwitch } from './components/ScienceVariantSwitch'
-import { teachingFrames as cellsFramesB } from './variants/b/lesson-1/teachingFrames'
-import { microscopyFrames as microscopyFramesB } from './variants/b/lesson-2/teachingFrames'
-import { practicalFrames as practicalFramesB } from './variants/b/lesson-3/teachingFrames'
-import { specialisationFrames as specialisationFramesB } from './variants/b/lesson-4/teachingFrames'
-import { divisionFrames as divisionFramesB } from './variants/b/lesson-5/teachingFrames'
-import { transportFrames as transportFramesB } from './variants/b/lesson-6/teachingFrames'
-import { enzymeFrames as enzymeFramesB } from './variants/b/lesson-8/teachingFrames'
-import { digestionFrames as digestionFramesB } from './variants/b/lesson-9/teachingFrames'
-import { organisationFrames as organisationFramesB } from './variants/b/lesson-7/teachingFrames'
-import { lungsFrames as lungsFramesB } from './variants/b/lesson-10/teachingFrames'
-import { heartFrames as heartFramesB } from './variants/b/lesson-11/teachingFrames'
-import { vesselsFrames as vesselsFramesB } from './variants/b/lesson-12/teachingFrames'
-import { bloodFrames as bloodFramesB } from './variants/b/lesson-13/teachingFrames'
-import { cardiovascularFrames as cardiovascularFramesB } from './variants/b/lesson-14/teachingFrames'
-import { healthFrames as healthFramesB } from './variants/b/lesson-15/teachingFrames'
-import { riskCancerFrames as riskCancerFramesB } from './variants/b/lesson-16/teachingFrames'
-import { plantTissueFrames as plantTissueFramesB } from './variants/b/lesson-17/teachingFrames'
-import { plantTransportFrames as plantTransportFramesB } from './variants/b/lesson-18/teachingFrames'
-import { pathogenFrames as pathogenFramesB } from './variants/b/lesson-19/teachingFrames'
-import { humanDiseaseFrames as humanDiseaseFramesB } from './variants/b/lesson-20/teachingFrames'
-import { plantMalariaFrames as plantMalariaFramesB } from './variants/b/lesson-21/teachingFrames'
-import { defenceFrames as defenceFramesB } from './variants/b/lesson-22/teachingFrames'
-import { vaccinationFrames as vaccinationFramesB } from './variants/b/lesson-23/teachingFrames'
-import { medicineFrames as medicineFramesB } from './variants/b/lesson-24/teachingFrames'
-import { drugTestingFrames as drugTestingFramesB } from './variants/b/lesson-25/teachingFrames'
-import { photosynthesisFrames as photosynthesisFramesB } from './variants/b/lesson-26/teachingFrames'
+import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessons } from './lessonNavigation'
+import { teachingFrames as cellsFrames } from './lesson-1/teachingFrames'
+import { microscopyFrames } from './lesson-2/teachingFrames'
+import { practicalFrames } from './lesson-3/teachingFrames'
+import { specialisationFrames } from './lesson-4/teachingFrames'
+import { divisionFrames } from './lesson-5/teachingFrames'
+import { transportFrames } from './lesson-6/teachingFrames'
+import { enzymeFrames } from './lesson-8/teachingFrames'
+import { digestionFrames } from './lesson-9/teachingFrames'
+import { organisationFrames } from './lesson-7/teachingFrames'
+import { lungsFrames } from './lesson-10/teachingFrames'
+import { heartFrames } from './lesson-11/teachingFrames'
+import { vesselsFrames } from './lesson-12/teachingFrames'
+import { bloodFrames } from './lesson-13/teachingFrames'
+import { cardiovascularFrames } from './lesson-14/teachingFrames'
+import { healthFrames } from './lesson-15/teachingFrames'
+import { riskCancerFrames } from './lesson-16/teachingFrames'
+import { plantTissueFrames } from './lesson-17/teachingFrames'
+import { plantTransportFrames } from './lesson-18/teachingFrames'
+import { pathogenFrames } from './lesson-19/teachingFrames'
+import { humanDiseaseFrames } from './lesson-20/teachingFrames'
+import { plantMalariaFrames } from './lesson-21/teachingFrames'
+import { defenceFrames } from './lesson-22/teachingFrames'
+import { vaccinationFrames } from './lesson-23/teachingFrames'
+import { medicineFrames } from './lesson-24/teachingFrames'
+import { drugTestingFrames } from './lesson-25/teachingFrames'
+import { photosynthesisFrames } from './lesson-26/teachingFrames'
 import { ExplanationSteps } from '../number-types/components/ExplanationSteps'
 import { evidenceProfile, progress, recommendedNext, retrievalDueAt } from './engine'
-import { lesson1 } from './lesson-1/lesson'
-import { lesson2 } from './lesson-2/lesson'
-import { microscopyFrames } from './lesson-2/teachingFrames'
-import { lesson3 } from './lesson-3/lesson'
-import { practicalFrames } from './lesson-3/teachingFrames'
-import { lesson4 } from './lesson-4/lesson'
-import { specialisationFrames } from './lesson-4/teachingFrames'
-import { lesson5 } from './lesson-5/lesson'
-import { divisionFrames } from './lesson-5/teachingFrames'
-import { lesson6 } from './lesson-6/lesson'
-import { transportFrames } from './lesson-6/teachingFrames'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import type { LessonNumber } from './lessonNavigation'
 import { scienceLessonSections } from './lessonSections'
@@ -65,10 +53,9 @@ const dimensionLabels: Record<EvidenceDimension, string> = {
   practicalReasoning: 'Practical reasoning', dataInterpretation: 'Evidence interpretation', calculation: 'Calculation',
 }
 function newSessionId() { return window.crypto.randomUUID() }
-const sessionEngines: Record<number, ReturnType<typeof createPreviewSessionEngine>> = { 1: createPreviewSessionEngine(lesson1), 2: createPreviewSessionEngine(lesson2), 3: createPreviewSessionEngine(lesson3), 4: createPreviewSessionEngine(lesson4), 5: createPreviewSessionEngine(lesson5), 6: createPreviewSessionEngine(lesson6) }
-const sessionEnginesB = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
-const coachEngines = Object.fromEntries(getScienceLessons('b').map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
-const framesB = { 1: cellsFramesB, 2: microscopyFramesB, 3: practicalFramesB, 4: specialisationFramesB, 5: divisionFramesB, 6: transportFramesB, 7: organisationFramesB, 8: enzymeFramesB, 9: digestionFramesB, 10: lungsFramesB, 11: heartFramesB, 12: vesselsFramesB, 13: bloodFramesB, 14: cardiovascularFramesB, 15: healthFramesB, 16: riskCancerFramesB, 17: plantTissueFramesB, 18: plantTransportFramesB, 19: pathogenFramesB, 20: humanDiseaseFramesB, 21: plantMalariaFramesB, 22: defenceFramesB, 23: vaccinationFramesB, 24: medicineFramesB, 25: drugTestingFramesB, 26: photosynthesisFramesB }
+const sessionEngines = Object.fromEntries(scienceLessons.map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
+const coachEngines = Object.fromEntries(scienceLessons.map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
+const frames = { 1: cellsFrames, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames, 7: organisationFrames, 8: enzymeFrames, 9: digestionFrames, 10: lungsFrames, 11: heartFrames, 12: vesselsFrames, 13: bloodFrames, 14: cardiovascularFrames, 15: healthFrames, 16: riskCancerFrames, 17: plantTissueFrames, 18: plantTransportFrames, 19: pathogenFrames, 20: humanDiseaseFrames, 21: plantMalariaFrames, 22: defenceFrames, 23: vaccinationFrames, 24: medicineFrames, 25: drugTestingFrames, 26: photosynthesisFrames }
 const transportStory = [
   { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
   { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
@@ -76,19 +63,18 @@ const transportStory = [
   { lesson: 12, title: 'Vessels deliver and exchange', route: 'Blood reaches body cells and returns' },
 ] as const
 
-export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', initialActivity, experience = 'lessons' }: { lessonNumber?: LessonNumber; variant?: ScienceVariant; initialActivity?: string; experience?: 'lessons' | 'coach' }) {
+export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity, experience = 'lessons' }: { lessonNumber?: LessonNumber; initialActivity?: string; experience?: 'lessons' | 'coach' }) {
   const isCoach = experience === 'coach'
-  const hubHref = isCoach ? '/preview/scienceB' : scienceHubHref(variant)
-  const lessonHref = (number: LessonNumber) => isCoach ? `/preview/scienceB?lesson=${number}` : scienceLessonHref(number, variant)
-  const scienceLessons = getScienceHubLessons(variant)
+  const hubHref = isCoach ? '/preview/scienceB' : scienceHubHref()
+  const lessonHref = (number: LessonNumber) => isCoach ? `/preview/scienceB?lesson=${number}` : scienceLessonHref(number)
   const lesson = scienceLessons.find(item => item.number === lessonNumber)!.lesson
   const currentLessonItem = scienceLessons.find(item => item.number === lessonNumber)!
   const currentChapter = scienceChapters.find(chapter => (chapter.lessonNumbers as readonly number[]).includes(lessonNumber))!
   const nextLessonItem = scienceLessons.find(item => item.number === lessonNumber + 1)
   const practicalLesson = [3, 6, 8, 9].includes(lessonNumber)
   const sections = scienceLessonSections[lessonNumber]
-  const customFrames = variant === 'b' ? framesB[lessonNumber] : { 1: undefined, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames }[lessonNumber]
-  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : variant === 'b' ? sessionEnginesB : sessionEngines)[lessonNumber]
+  const customFrames = frames[lessonNumber]
+  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = (isCoach ? coachEngines : sessionEngines)[lessonNumber]
   function reducer(session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) {
     return action.type === 'restore' ? action.session : previewReducer(session, action)
   }
@@ -261,14 +247,13 @@ export default function ScienceLessonPreview({ lessonNumber = 1, variant = 'a', 
           const label = pending ? 'Awaiting review' : status === 'secureInSession' ? 'Secure this session' : status === 'retained' ? 'Sampled retention' : status === 'developing' ? (dimension === 'practicalReasoning' || dimension === 'dataInterpretation' ? 'Introduced · practice only' : 'Developing') : 'Not assessed'
           return <div key={dimension}><span>{dimensionLabels[dimension]}</span><strong className={`science-evidence__status science-evidence__status--${pending ? 'pending' : status}`}>{label}</strong></div>
         })}</div>
-        <div className="science-next"><span className="science-eyebrow">Suggested next step</span><h3>{completion.fraction !== 1 ? 'Finish the remaining activities' : next.kind === 'repair' ? `Revisit ${currentLessonItem.title.toLowerCase()}` : nextLessonItem ? `Next: ${nextLessonItem.title.toLowerCase()}` : practicalLesson ? 'Next: complete the supervised practical' : 'Next topic not built yet'}</h3><p>{completion.fraction !== 1 ? 'The preview menu lets you inspect any screen. For a full lesson, return to the first unfinished activity.' : next.kind === 'repair' ? 'Replay the relevant teaching and worked examples as practice. Fresh repair questions are not built yet.' : nextLessonItem ? `Lesson ${nextLessonItem.number} is ready: ${nextLessonItem.detail.toLowerCase()}.` : practicalLesson ? 'Use this preparation with your teacher in a risk-assessed laboratory. Digital completion does not complete the required practical.' : 'Return to the lesson hub to review what is currently available.'}</p>{lessonNumber === 3 && completion.fraction === 1 && <p>Also practise microscopy with your teacher: observe real plant and animal cells, draw and label them and include calibrated size information. Online completion does not complete required practical 1.</p>}{completion.fraction === 1 && nextLessonItem && <Link className="science-text-button" href={scienceLessonHref(nextLessonItem.number, variant)}>Open Lesson {nextLessonItem.number} <ArrowRight size={15} /></Link>}</div>
+        <div className="science-next"><span className="science-eyebrow">Suggested next step</span><h3>{completion.fraction !== 1 ? 'Finish the remaining activities' : next.kind === 'repair' ? `Revisit ${currentLessonItem.title.toLowerCase()}` : nextLessonItem ? `Next: ${nextLessonItem.title.toLowerCase()}` : practicalLesson ? 'Next: complete the supervised practical' : 'Next topic not built yet'}</h3><p>{completion.fraction !== 1 ? 'The preview menu lets you inspect any screen. For a full lesson, return to the first unfinished activity.' : next.kind === 'repair' ? 'Replay the relevant teaching and worked examples as practice. Fresh repair questions are not built yet.' : nextLessonItem ? `Lesson ${nextLessonItem.number} is ready: ${nextLessonItem.detail.toLowerCase()}.` : practicalLesson ? 'Use this preparation with your teacher in a risk-assessed laboratory. Digital completion does not complete the required practical.' : 'Return to the lesson hub to review what is currently available.'}</p>{lessonNumber === 3 && completion.fraction === 1 && <p>Also practise microscopy with your teacher: observe real plant and animal cells, draw and label them and include calibrated size information. Online completion does not complete required practical 1.</p>}{completion.fraction === 1 && nextLessonItem && <Link className="science-text-button" href={scienceLessonHref(nextLessonItem.number)}>Open Lesson {nextLessonItem.number} <ArrowRight size={15} /></Link>}</div>
         {session.lastExposureAt && <p className="science-summary__retrieval">Delayed retrieval is not assessed yet. Earliest eligible check: <time dateTime={retrievalDueAt(session.lastExposureAt)}>{new Date(retrievalDueAt(session.lastExposureAt)).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</time>. Retrieval scheduling is not live in this preview.</p>}
         <div className="science-actions">{completion.fraction !== 1 ? <button className="science-primary" type="button" onClick={() => jump(lesson.states.find(s => !session.completedIds.includes(s.id))!.id)}>Return to unfinished activity <ArrowRight size={16} /></button> : <button className="science-secondary" type="button" onClick={() => jump(lesson.states.find(s => s.kind === 'teaching')!.id)}><RotateCcw size={16} /> Review the teaching</button>}</div>
       </article>}
       <details className="science-lesson-options">
         <summary>Lesson information and options</summary>
-        {!isCoach && <ScienceVariantSwitch variant={variant} lessonNumber={lessonNumber} activity={state?.id} />}
-        <nav className="science-lesson-options__links" aria-label="Lesson resources">{isCoach ? <Link href="/preview/scienceB?view=review">Your short review</Link> : <><Link href={`/preview/science/coverage?variant=${variant}`}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={`/preview/science/exam?variant=${variant}`}>Lesson 6 exam practice</Link>}</>}</nav>
+        <nav className="science-lesson-options__links" aria-label="Lesson resources">{isCoach ? <Link href="/preview/scienceB?view=review">Your short review</Link> : <><Link href={'/preview/science/coverage'}>Curriculum and exam map</Link>{lessonNumber === 6 && <Link href={'/preview/science/exam'}>Lesson 6 exam practice</Link>}</>}</nav>
         <details className="science-curriculum"><summary>Where this lesson fits</summary><p>AQA Combined Science: Trilogy · Foundation. {scienceLessons.length} lessons are built in this wording route, awaiting qualified teacher review.</p><ol>{(lessonNumber <= 6 ? cellBiologySequence : lessonNumber <= 18 ? organisationSequence : lessonNumber <= 25 ? infectionSequence : bioenergeticsSequence).map(item => <li key={item.title}><strong>{item.title}</strong><span>{item.status} · {item.spec}</span></li>)}</ol>{scienceCurriculum.map(strand => <section key={strand.strand}><h3>{strand.strand}</h3>{strand.papers.map(paper => <p key={paper.paper}>Paper {paper.paper}: {paper.topics.map(([code, title]) => `${code} ${title}`).join(' · ')}</p>)}</section>)}<p>Working scientifically, maths and practical skills run across all three subjects. Digital lessons prepare learners for practical work but never certify hands-on completion.</p></details>
         <details className="science-curriculum"><summary>Lesson sources</summary><ul>{lesson.sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.locator}</span></li>)}</ul></details>
         <button type="button" className="science-text-button" onClick={() => setResetConfirm(true)}><RotateCcw size={14} /> Restart local preview</button>

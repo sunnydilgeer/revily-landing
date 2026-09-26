@@ -1,37 +1,165 @@
-import { frame as f } from '../lessonAuthoring'
-export const specialisationFrames = {
-  'B4-02': [
-    f('Meet a sperm cell', 'Its job is to reach and fertilise an egg.', 'A sperm cell carries male genetic information to an egg. Its head contains the nucleus, which holds that information. Its midpiece and tail help it reach the egg.', 'sperm'),
-    f('A tail for movement', 'The tail helps the cell swim.', 'Tail movement propels the sperm towards the egg. Many mitochondria in the midpiece release energy through respiration for this movement.', 'sperm'),
-    f('Help at the egg', 'Enzymes in the head help entry into the egg.', 'The head contains enzymes that help break down the egg’s outer layers. This helps the sperm enter the egg so fertilisation can take place.', 'sperm'),
+// Variant B: simpler teaching copy. Visual targets and step order match Variant A.
+import type { TeachingFrame } from '../teachingFrame'
+
+export const specialisationFrames: Record<string, TeachingFrame[]> = {
+  "B4-02": [
+    {
+      "label": "Meet a sperm cell",
+      "summary": "Its job is to reach and fertilise an egg.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "A sperm carries male genetic information to an egg. The nucleus in its head holds this information. The tail helps it reach the egg.",
+      "diagram": "cellBiology",
+      "focus": "sperm"
+    },
+    {
+      "label": "A tail for movement",
+      "summary": "The tail moves the sperm through liquid.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "The tail moves to push the sperm forwards. Many mitochondria release energy through respiration. This energy is used for swimming.",
+      "diagram": "cellBiology",
+      "focus": "sperm"
+    },
+    {
+      "label": "Help at the egg",
+      "summary": "Enzymes help the sperm enter the egg.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Enzymes in the head help break down the egg’s outer layers. This helps the sperm enter so fertilisation can happen.",
+      "diagram": "cellBiology",
+      "focus": "sperm"
+    }
   ],
-  'B4-04': [
-    f('Meet a nerve cell', 'Its job is to carry electrical signals around the body.', 'A nerve cell carries information as electrical impulses. An impulse is an electrical signal. The long part of the cell, called an axon, carries that signal between parts of the body.', 'nerve'),
-    f('Long fibres and branches', 'A long axon carries signals over a long distance.', 'The long axon allows an impulse to travel a long distance. Branches at the ends allow the nerve cell to connect with other cells. Together, these features help signals pass through the body.', 'nerve'),
+  "B4-04": [
+    {
+      "label": "Meet a nerve cell",
+      "summary": "Its job is to carry electrical signals.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "A nerve cell carries information around the body. These electrical signals are called impulses. The long fibre carrying them is called an axon.",
+      "diagram": "cellBiology",
+      "focus": "nerve"
+    },
+    {
+      "label": "Long fibres and branches",
+      "summary": "Length helps signals travel; branches help connections.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "A long axon carries impulses over a long distance. Branched ends connect with other cells. This helps signals pass between cells.",
+      "diagram": "cellBiology",
+      "focus": "nerve"
+    }
   ],
-  'B4-06': [
-    f('Meet a muscle cell', 'Its job is to shorten and produce movement.', 'To contract means to shorten. Muscle fibres contain structures that can shorten. When groups of fibres contract together, they move a body part.', 'muscle'),
-    f('Energy for contraction', 'Contraction needs energy released by respiration.', 'Muscle cells have many mitochondria. Aerobic respiration in the mitochondria releases energy, which the cell uses for contraction. The contracting structures do the shortening; mitochondria supply energy for that work.', 'muscle'),
+  "B4-06": [
+    {
+      "label": "Meet a muscle cell",
+      "summary": "Its job is to shorten and produce movement.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Contract means shorten. Muscle fibres contain parts that can contract. Groups of fibres working together move a body part.",
+      "diagram": "cellBiology",
+      "focus": "muscle"
+    },
+    {
+      "label": "Energy for contraction",
+      "summary": "Contraction needs energy.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Muscle cells have many mitochondria. Aerobic respiration there releases energy for contraction. Other parts of the cell do the shortening.",
+      "diagram": "cellBiology",
+      "focus": "muscle"
+    }
   ],
-  'B4-08': [
-    f('Meet a root hair cell', 'Takes up water and mineral ions from soil.', 'The hair-like extension reaches between soil particles. It is part of a single cell. The cell absorbs water and mineral ions from the soil to supply the plant.', 'root'),
-    f('More surface for uptake', 'The extension increases surface area.', 'The extension gives the cell a larger surface area in contact with the soil. More water and mineral ions can be taken up across this surface. Underground root hair cells normally have no chloroplasts because their job is uptake, not photosynthesis.', 'root'),
+  "B4-08": [
+    {
+      "label": "Meet a root hair cell",
+      "summary": "Its job is to absorb water and mineral ions.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "The hair-like extension reaches between soil particles. It is part of one cell. The cell absorbs water and mineral ions to supply the plant.",
+      "diagram": "cellBiology",
+      "focus": "root"
+    },
+    {
+      "label": "More surface for uptake",
+      "summary": "The extension gives a larger surface area.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "More surface touches the soil solution. More water and mineral ions can enter. Underground root hair cells usually have no chloroplasts because their job is uptake, not photosynthesis.",
+      "diagram": "cellBiology",
+      "focus": "root"
+    }
   ],
-  'B4-10': [
-    f('Meet xylem vessel elements', 'Carry water and mineral ions from roots.', 'Xylem vessel elements join end to end. When mature, they have lost their living contents and their end walls, leaving a continuous hollow tube. Water and mineral ions can flow through this tube from the roots.', 'xylem'),
-    f('A strong, open route', 'Lignin strengthens the walls.', 'Lignin is a substance that strengthens the walls. Strong walls help support the plant, while the hollow centre provides a route for water. Remember the two links: hollow centre → flow; strengthened walls → support.', 'xylem'),
+  "B4-10": [
+    {
+      "label": "Meet xylem vessel elements",
+      "summary": "Its job is to carry water and mineral ions.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Mature xylem cells join end to end. They lose their living contents and end walls. This leaves a hollow tube for water and mineral ions to flow through.",
+      "diagram": "cellBiology",
+      "focus": "xylem"
+    },
+    {
+      "label": "A strong, open route",
+      "summary": "Strong walls support the plant.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Xylem walls contain lignin, which strengthens them. The strong walls support the plant. The hollow centre lets water flow.",
+      "diagram": "cellBiology",
+      "focus": "xylem"
+    }
   ],
-  'B4-12': [
-    f('Meet phloem cells', 'Carry dissolved sugars around a plant.', 'Phloem carries dissolved sugars made in the leaves to parts of the plant that use or store them. Its long, living cells join end to end to form tubes.', 'phloem'),
-    f('Pores between cells', 'Pores let dissolved sugars pass from cell to cell.', 'A pore is a small opening. Phloem end walls contain pores through which cell sap can pass, carrying dissolved sugars along the tube. Unlike mature xylem, phloem cells retain porous end walls.', 'phloem'),
+  "B4-12": [
+    {
+      "label": "Meet phloem cells",
+      "summary": "Its job is to carry dissolved sugars.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Phloem transports sugars from leaves to parts that use or store them. Its long, living cells join to form tubes.",
+      "diagram": "cellBiology",
+      "focus": "phloem"
+    },
+    {
+      "label": "Pores between cells",
+      "summary": "Openings let sap pass between cells.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Pores are small openings in the end walls. Cell sap carrying dissolved sugars passes through them. Phloem retains these end walls; mature xylem does not.",
+      "diagram": "cellBiology",
+      "focus": "phloem"
+    }
   ],
-  'B4-14': [
-    f('Different structures, different jobs', 'A specialised cell has structures suited to a particular job.', 'A function is a job. Specialisation means that a cell’s shape and structures help it carry out a particular function. To explain an adaptation, name the feature and show how it helps the cell do its job.', 'specialisation'),
-    f('Build a causal link', 'Structure → effect → function.', 'For example: a root hair cell has a long extension. This increases its surface area, allowing more water and mineral ions to be taken up from the soil. The explanation links a feature to its effect and then to the cell’s function.', 'specialisation'),
+  "B4-14": [
+    {
+      "label": "Different structures, different jobs",
+      "summary": "A specialised cell is suited to a particular job.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Function means job. A specialised cell has a shape and parts that help it do that job. Explain a feature by saying how it helps.",
+      "diagram": "cellBiology",
+      "focus": "specialisation"
+    },
+    {
+      "label": "Build a causal link",
+      "summary": "Name the feature, then explain how it helps.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "A root hair cell has a long extension. This gives it more surface area. More water and mineral ions can enter from the soil.",
+      "diagram": "cellBiology",
+      "focus": "specialisation"
+    }
   ],
-  'B4-16': [
-    f('Becoming specialised', 'Differentiation is the process of becoming specialised.', 'An unspecialised cell does not yet have a particular specialised job. During differentiation, it develops structures suited to a function and becomes a specialised cell. This happens as an organism grows and develops.', 'differentiate'),
-    f('Animals and plants', 'The timing is different.', 'Most types of animal cell differentiate early in the animal’s development. Many plant cells can still differentiate throughout the plant’s life. This difference helps plants keep producing new specialised cells as they grow.', 'differentiate'),
-    f('Repair and replacement', 'New cells replace worn-out cells and help repair tissues.', 'In mature animals, cell division mainly produces cells for repair and replacement. Some adult stem cells can then differentiate into certain specialised cell types. This does not mean every mature animal cell can become any type of cell.', 'differentiate'),
-  ],
+  "B4-16": [
+    {
+      "label": "Becoming specialised",
+      "summary": "Differentiation means becoming specialised.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "An unspecialised cell develops parts suited to a particular job. It becomes specialised. This change is called differentiation. It happens as an organism develops.",
+      "diagram": "cellBiology",
+      "focus": "differentiate"
+    },
+    {
+      "label": "Animals and plants",
+      "summary": "Animals and plants differ in when cells specialise.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "Most types of animal cell differentiate early in development. Many plant cells can still differentiate throughout the plant’s life.",
+      "diagram": "cellBiology",
+      "focus": "differentiate"
+    },
+    {
+      "label": "Repair and replacement",
+      "summary": "New cells repair tissues and replace old cells.",
+      "cue": "Think: feature → how it helps → job",
+      "text": "In mature animals, cell division mainly supplies cells for repair and replacement. Some adult stem cells can specialise into certain cell types. Not every adult cell can become any type.",
+      "diagram": "cellBiology",
+      "focus": "differentiate"
+    }
+  ]
 }

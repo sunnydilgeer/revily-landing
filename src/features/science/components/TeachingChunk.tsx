@@ -1,7 +1,7 @@
 import { useState, type RefObject } from 'react'
 import { RotateCcw } from 'lucide-react'
 import type { TeachingState } from '../types'
-import { teachingFrames, plantPartIds, type TeachingFrame } from '../lesson-1/teachingFrames'
+import { plantPartIds, type TeachingFrame } from '../teachingFrame'
 import { CellModel, cellParts } from './CellModel'
 import { AreaModel, BacterialCellModel, PlantCellModel, SizeReference } from './OtherCellModels'
 import { MicroscopyVisual } from './MicroscopyVisuals'
@@ -18,7 +18,7 @@ export function CellComparison({ differences = false }: { differences?: boolean 
 }
 
 export function TeachingChunk({ state, onExposure, headingRef, customFrames }: { state: TeachingState; onExposure: () => void; headingRef?: RefObject<HTMLHeadingElement | null>; customFrames?: TeachingFrame[] }) {
-  const steps = customFrames || teachingFrames[state.id] || []
+  const steps = customFrames || []
   const [index, setIndex] = useState(0)
   const current = steps[index]
   if (!current) return null

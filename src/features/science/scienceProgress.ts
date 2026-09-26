@@ -3,14 +3,14 @@
  * Sections play the part Maths rungs do: a section is done when every screen in it is complete.
  */
 import { progress } from './engine'
-import { getScienceLessons, scienceChapters, type LessonNumber } from './lessonNavigation'
+import { scienceChapters, scienceLessons, type LessonNumber } from './lessonNavigation'
 import { scienceLessonSections } from './lessonSections'
 import { createPreviewSessionEngine, type PreviewSession } from './previewSession'
 import type { ScienceLesson } from './types'
 
 export const SCIENCE_LAST_LESSON_KEY = 'revily:science-last-lesson:v1'
 
-export const scienceCatalogue = getScienceLessons('b')
+export const scienceCatalogue = scienceLessons
 const engines = new Map(scienceCatalogue.map(item => [item.number, createPreviewSessionEngine(item.lesson)] as const))
 
 export type ScienceSectionStatus = { id: string; title: string; done: boolean; current: boolean }

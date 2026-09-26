@@ -1,4 +1,4 @@
-import type { LessonNumber, ScienceVariant } from './lessonNavigation'
+import type { LessonNumber } from './lessonNavigation'
 import { scienceLessonHref } from './lessonNavigation'
 
 export const assessmentResources = 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/assessment-resources'
@@ -25,7 +25,7 @@ export const coverageTopics: CoverageTopic[] = [
   { id: 'osmosis-method', lesson: 6, title: 'Osmosis practical and fair tests', activity: 'B6-25', spec: '4.1.3.2; required practical 2', skills: 'Identify variables; describe a safe fair test; evaluate repeats and unusual results.' },
   { id: 'osmosis-data', lesson: 6, title: 'Osmosis calculations and graphs', activity: 'B6-28', spec: '4.1.3.2; maths skills', skills: 'Calculate percentage mass change; interpret and plot graphs; calculate rates.' },
 ]
-export function coverageLessonHref(topic: CoverageTopic, variant: ScienceVariant) { return scienceLessonHref(topic.lesson, variant, topic.activity) }
+export function coverageLessonHref(topic: CoverageTopic) { return scienceLessonHref(topic.lesson, topic.activity) }
 export type Readiness = 'ready' | 'partial' | 'notTaught'
 export const readinessLabels: Record<Readiness, string> = { ready: 'Ready after linked teaching', partial: 'Partly covered', notTaught: 'Not taught yet' }
 export interface PaperMapping {
@@ -93,7 +93,8 @@ export const transportPilot: PilotTask[] = [
     model: 'Oxygen crosses the cell membrane by diffusion. Its net movement is from the higher concentration in blood to the lower concentration in the cell.',
     commonSlip: 'Osmosis moves water, not oxygen. Diffusion does not require energy from respiration.' },
 ]
-export const pilotStorageKey = (variant: ScienceVariant) => `revily:science:transport-exam-pilot:v1:${variant}`
+// Keeps the ':b' suffix from the A/B wording trial so saved attempts still load.
+export const pilotStorageKey = 'revily:science:transport-exam-pilot:v1:b'
 export interface PilotSession { version: 1; current: number; drafts: Record<string, string>; submitted: Record<string, string>; modelSeen: string[] }
 export function newPilotSession(): PilotSession { return { version: 1, current: 0, drafts: {}, submitted: {}, modelSeen: [] } }
 export function restorePilotSession(value: unknown): PilotSession | null {

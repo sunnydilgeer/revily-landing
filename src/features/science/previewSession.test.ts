@@ -1,7 +1,9 @@
 import { strict as assert } from 'node:assert'
 import { lesson1 } from './lesson-1/lesson'
 import { evidenceProfile } from './engine'
-import { createPreviewSession, previewReducer, restorePreviewSession } from './previewSession'
+import { createPreviewSessionEngine } from './previewSession'
+
+const { createPreviewSession, previewReducer, restorePreviewSession } = createPreviewSessionEngine(lesson1)
 
 let tests = 0
 const at = '2026-09-13T15:00:00.000Z'
@@ -99,8 +101,10 @@ test('all lesson screens flow to summary with independent evidence separate from
   assert.equal(profile.dimensions.explanation, 'developing')
   assert.equal(profile.dimensions.calculation, 'secureInSession')
 })
-test('expanded content cannot reuse an old-version learner record', () => {
-  assert.equal(restorePreviewSession({ ...createPreviewSession('old'), version: '0.1.0' }), null)
+test('a record saved for a different content version is not reused', () => {
+  assert.equal(lesson1.contentVersion, '0.1.0')
+  assert.ok(restorePreviewSession(createPreviewSession('current')))
+  assert.equal(restorePreviewSession({ ...createPreviewSession('old'), version: '0.0.1' }), null)
   assert.equal(restorePreviewSession({ ...createPreviewSession('old'), version: '0.2.0' }), null)
 })
 console.log(`${tests} preview-session checks passed.`)

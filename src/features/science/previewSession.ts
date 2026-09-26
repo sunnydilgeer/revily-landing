@@ -1,9 +1,8 @@
 import { gradeResponse, nextStateId } from './engine'
-import { lesson1 } from './lesson-1/lesson'
 import type { AttemptEvent, ScienceLesson } from './types'
 
 export interface PreviewSession {
-  lessonId?: string // Legacy Lesson 1 snapshots predate this field.
+  lessonId?: string
   version: string
   sessionId: string
   currentId: string | null
@@ -85,7 +84,7 @@ function createNamespacedSessionEngine(lesson: ScienceLesson, namespace: 'scienc
   function restorePreviewSession(value: unknown): PreviewSession | null {
     if (!value || typeof value !== 'object') return null
     const saved = value as PreviewSession
-    if (saved.lessonId !== lesson.id && !(lesson.id === 'B-CELL-001' && saved.lessonId === undefined)) return null
+    if (saved.lessonId !== lesson.id) return null
     if (saved.version !== lesson.contentVersion || typeof saved.sessionId !== 'string'
       || !(saved.currentId === null || ids.has(saved.currentId))) return null
     const arrays = [saved.completedIds, saved.hintsUsed, saved.hintsOpen, saved.seenAnswers]
@@ -115,5 +114,3 @@ function createNamespacedSessionEngine(lesson: ScienceLesson, namespace: 'scienc
   }
   return { storageKey, createPreviewSession, previewReducer, restorePreviewSession }
 }
-
-export const { storageKey, createPreviewSession, previewReducer, restorePreviewSession } = createPreviewSessionEngine(lesson1)

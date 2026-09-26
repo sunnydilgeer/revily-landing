@@ -89,8 +89,9 @@ lessons.forEach((lesson, index) => {
     assert.equal(engine.restorePreviewSession(session)!.currentId,null)
     const profile=evidenceProfile(lesson,Object.values(session.answers))
     assert.equal(profile.pendingReview.length,1);assert.notEqual(profile.dimensions.explanation,'secureInSession')
-    assert.equal(recommendedNext(profile,false,lesson).kind,index===2?'practical':'lesson')
-    if(index<2)assert.equal(recommendedNext(profile,false,lesson).lessonId,lessons[index+1].id)
+    // Lesson 6 leads on to Lesson 7 (Organisation); the supervised practical is still flagged in the lesson itself.
+    assert.equal(recommendedNext(profile,false,lesson).kind,'lesson')
+    assert.equal(recommendedNext(profile,false,lesson).lessonId,index<2?lessons[index+1].id:'B-ORG-007-B')
     session=reduce(session,{type:'restart',sessionId:'replay',clearPracticeHistory:false})
     assert.ok(session.seenAnswers.length)
   })
