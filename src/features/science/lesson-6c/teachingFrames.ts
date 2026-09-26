@@ -1,0 +1,35 @@
+import type { TeachingFrame } from '../teachingFrame'
+
+// Downhill first, then uphill; then why big bodies need special surfaces.
+// One new word per screen. Plain meaning first, then the GCSE term.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const exchangeFrames: Record<string, TeachingFrame[]> = {
+  'B6-13': [
+    f('Downhill so far', 'Diffusion and osmosis move things from more to less.', 'higher → lower, no energy needed', 'In the osmosis practical, water moved into or out of the potato by itself. Diffusion and osmosis both go from a higher to a lower concentration overall. The difference in concentration between two places is called a concentration gradient.', 'diffusion'),
+    f('A root hair’s problem', 'The soil often has fewer mineral ions than the root hair cell.', 'less outside, more inside', 'Plants need minerals for healthy growth. The minerals are dissolved in soil water as tiny particles called mineral ions. Often there are fewer ions in the soil than inside the root hair cell. So diffusion alone would not bring them in.', 'root'),
+    f('Moving uphill', 'The cell moves ions from lower to higher concentration.', 'lower → higher = against the gradient', 'The root hair cell pulls ions in from the soil anyway. They move from a lower to a higher concentration. That is against the concentration gradient. Moving substances this way is called active transport.', 'active'),
+    f('It costs energy', 'Active transport needs energy from respiration.', 'uphill needs energy', 'Moving substances uphill needs energy. The cell gets this energy from respiration in its mitochondria. So root hair cells have lots of mitochondria. Diffusion and osmosis do not need energy from respiration.', 'root'),
+    f('Sugar in the gut', 'Active transport also moves sugar from the gut into the blood.', 'the same idea in your body', 'After a meal, sugar passes from your gut into your blood. When there is less sugar in the gut than in the blood, active transport still moves it in. The blood then carries the sugar to cells for respiration.', 'gut-active'),
+    f('Put it together', 'Active transport moves substances uphill, using energy.', 'root hair ions, gut sugar', 'Root hair cells take in mineral ions by active transport. The gut takes in sugar the same way. Both move substances from a lower to a higher concentration. Both use energy from respiration.', 'active'),
+  ],
+  'B6-15': [
+    f('Diffusion', 'Particles spread from a higher to a lower concentration.', 'any particles, downhill', 'In diffusion, particles spread out by moving randomly. Overall, they go from a higher to a lower concentration. Oxygen entering a cell is an example. It needs no energy from respiration.', 'diffusion'),
+    f('Osmosis', 'Water moves across a partially permeable membrane.', 'only water, dilute → concentrated', 'Osmosis is the special case for water. Water moves from a dilute solution to a more concentrated one. It crosses a partially permeable membrane. It needs no energy from respiration.', 'osmosis'),
+    f('Active transport', 'Substances move from a lower to a higher concentration.', 'uphill, using energy', 'Active transport moves substances against the concentration gradient. It goes from a lower to a higher concentration. It is the only one of the three that needs energy from respiration.', 'active'),
+    f('Ask three questions', 'What moves, which way, and is energy used?', 'what → which way → energy?', 'To name a process, ask three questions. What moves: any particles, or only water? Which way: down or up the gradient? Is energy from respiration used? The answers tell you which process it is.', 'transport-compare'),
+  ],
+  'B6-18': [
+    f('One cell, one surface', 'A tiny organism takes in what it needs through its outside.', 'tiny → nothing is far from the surface', 'A single-celled organism takes in oxygen and food across its outer surface. It is tiny, so nothing inside is far from that surface. Diffusion across it is fast enough.', 'ratio'),
+    f('Surface compared with inside', 'Compare the outside area with the space inside.', 'surface area : volume', 'Surface area is the area of the outside. Volume is the space inside. Comparing the two is called the surface area to volume ratio, or SA:V. A 1 cm cube has 6 cm² of surface and 1 cm³ of volume, so its SA:V is 6:1.', 'ratio'),
+    f('Bigger means less surface for each cm³', 'As an object gets bigger, its SA:V gets smaller.', 'volume grows faster than surface', 'When a cube gets bigger, its volume grows faster than its surface area. Look at the 2 cm cube in the picture. It has a smaller SA:V than the 1 cm cube. So each cm³ inside has less surface to supply it.', 'ratio'),
+    f('Big organisms need help', 'Large organisms need special surfaces and transport systems.', 'small SA:V → special surfaces', 'A large organism is made of many cells and has a small SA:V. Its inner cells are far from the outside. So it has special surfaces for taking in and giving out substances. These are called exchange surfaces. Transport systems, like blood, then carry substances to every cell.', 'ratio'),
+  ],
+  'B6-21': [
+    f('A large surface', 'More surface lets more particles cross at once.', 'more area → faster exchange', 'The small intestine is lined with millions of tiny finger-like folds. These folds are called villi. They give a huge surface area, so digested food is absorbed quickly.', 'exchange-intestine'),
+    f('A short distance', 'A thin surface gives particles only a short way to go.', 'thin → short path → fast', 'The wall of each fold is only one cell thick. Fish gills are covered in many thin plates too. The distance a substance must cross is called the diffusion distance. A thin surface keeps it short.', 'exchange-gill'),
+    f('Keep it flowing', 'Flowing blood and fresh air or water keep the gradient steep.', 'carry away → difference stays big', 'In animals, blood flows past the surface and carries substances away. So the concentration gradient stays steep. Gas surfaces also have fresh air or water moved over them. This is called ventilation. For a fish, water flowing over the gills brings fresh oxygen.', 'exchange-gill'),
+    f('Plants exchange too', 'Root hairs and leaves are plant exchange surfaces.', 'large area, no blood', 'Plants have no blood. Root hairs give a large area for taking in water and mineral ions. Leaves have tiny pores that let gases in and out. These pores are called stomata. Inside, air spaces reach thin, moist cell surfaces.', 'exchange-leaf'),
+    f('Put it together', 'A good exchange surface is large and thin, with a good supply.', 'large, thin, well supplied', 'A good exchange surface has a large area and a short diffusion distance. In animals, a good blood supply keeps the gradient steep. Gas surfaces are also ventilated. The alveoli in your lungs use the same features. Next, you will see how cells build up into tissues, organs and organ systems.', 'exchange-intestine'),
+  ],
+}
