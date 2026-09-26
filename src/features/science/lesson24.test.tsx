@@ -144,7 +144,7 @@ lessons.forEach((lesson, index) => {
     assert.equal(profile.pendingReview.length, 1)
     assert.equal(profile.dimensions.explanation === 'secureInSession', false)
     const next = recommendedNext(profile, false, lesson)
-    assert.equal(next.kind, 'practical')
+    assert.equal(next.kind, 'lesson'); if (next.kind === 'lesson') assert.equal(next.lessonId, 'B-INF-025-B')
   })
 
   check(`${lesson.id}: a wrong independent answer keeps the learner on a repair route`, () => {
@@ -183,8 +183,8 @@ check('Lesson 24 has its own storage record, separate from Lesson 23', () => {
   assert.equal(mine.restorePreviewSession(previous.createPreviewSession('isolation')), null)
 })
 
-check('Hub, chapter, parser and links include Lesson 24; Lesson 23 now leads here', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24])
+check('Hub, chapter, parser and links include Lesson 24; Lesson 23 leads here and Lesson 24 leads to Lesson 25', () => {
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
   assert.ok(getScienceHubLessons('b').some(item => item.number === 24) && getScienceHubLessons('a').some(item => item.number === 24))
   assert.equal(parseScienceLesson('24'), 24)
   assert.equal(scienceLessonHref(24, 'a'), '/preview/science?lesson=24&variant=b')

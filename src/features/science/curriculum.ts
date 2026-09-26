@@ -59,4 +59,5 @@ export const infectionSequence = [
   { title: 'How your body defends itself', status: 'Built · easier-wording draft', spec: '4.3.1.6' },
   { title: 'Vaccination', status: 'Built · easier-wording draft', spec: '4.3.1.7' },
   { title: 'Medicines and where they come from', status: 'Built · easier-wording draft', spec: '4.3.1.8; 4.3.1.9 (part)' },
+  { title: 'Testing new drugs', status: 'Built · easier-wording draft', spec: '4.3.1.9' },
 ] as const

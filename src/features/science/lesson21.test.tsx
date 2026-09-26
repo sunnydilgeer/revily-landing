@@ -184,7 +184,7 @@ check('Lesson 21 has its own storage record, separate from Lesson 20', () => {
 })
 
 check('Hub, chapter, parser and links include Lesson 21; Lesson 20 now leads here', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24])
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
   assert.ok(getScienceHubLessons('b').some(item => item.number === 21) && getScienceHubLessons('a').some(item => item.number === 21))
   assert.equal(parseScienceLesson('21'), 21)
   assert.equal(scienceLessonHref(21, 'a'), '/preview/science?lesson=21&variant=b')

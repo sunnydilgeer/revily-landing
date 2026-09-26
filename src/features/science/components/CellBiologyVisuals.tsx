@@ -154,7 +154,7 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (/^disease-(?:salmonella|gonorrhoea|measles|hiv)-/.test(focus)) return <HumanDiseaseVisual focus={focus} />
   if (focus.startsWith('defence-')) return <DefenceVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('vaccine-')) return <VaccineVisual focus={focus} assessment={assessment} />
-  if (focus.startsWith('drug-')) return <MedicineVisual focus={focus} assessment={assessment} />
+  if (/^(?:drug|trial)-/.test(focus)) return <MedicineVisual focus={focus} assessment={assessment} />
   if (/^(?:pathogen|disease|plantdisease|malaria)-/.test(focus)) return <InfectionVisual focus={focus} assessment={assessment} />
   if (/^(?:lung|heart|vessel)-/.test(focus)) return <CirculationVisual focus={focus} assessment={assessment}/>
   if (/^(?:blood|cardio|health|risk|cancer)-/.test(focus)) return <HealthDiseaseVisual focus={focus} assessment={assessment}/>

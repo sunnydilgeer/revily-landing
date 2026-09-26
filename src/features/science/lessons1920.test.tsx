@@ -192,7 +192,7 @@ check('Both new lessons have isolated storage records', () => {
 check('Hub, chapter, parser and links include Lessons 19 and 20', () => {
   const hubLessonNumbers: number[] = getScienceHubLessons('b').map(item => item.number)
   const hubA: number[] = getScienceHubLessons('a').map(item => item.number)
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24])
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
   for (const number of [19, 20] as const) {
     assert.ok(hubLessonNumbers.includes(number) && hubA.includes(number))
     assert.equal(parseScienceLesson(String(number)), number)
