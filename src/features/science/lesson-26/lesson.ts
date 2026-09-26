@@ -15,7 +15,7 @@ export const photosynthesisSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B26-01', 'Which gas gets into a leaf through the stomata for photosynthesis?', ['Oxygen', 'Carbon dioxide', 'Nitrogen', 'Water vapour'], 1, 'You met stomata in Lesson 18.', ['Oxygen and water vapour leave through the stomata.', 'Carbon dioxide gets in through them, for photosynthesis.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B26-01', 'Which gas gets into a leaf through the stomata for photosynthesis?', ['Oxygen', 'Carbon dioxide', 'Nitrogen', 'Water vapour'], 1, 'You met stomata when you learned how water moves through a plant.', ['Oxygen and water vapour leave through the stomata.', 'Carbon dioxide gets in through them, for photosynthesis.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B26-02', 'Making glucose'),
   a.choice('B26-03', 'What are the products of photosynthesis?', ['Carbon dioxide and water', 'Oxygen and water', 'Glucose and oxygen', 'Glucose and carbon dioxide'], 2, 'The products are what is made, on the right of the arrow.', ['Carbon dioxide and water go in; they are the reactants.', 'Glucose and oxygen are made; they are the products.']),
   a.choice('B26-04', 'Look at the numbered arrows. Which one shows oxygen?', ['Arrow 1', 'Arrow 2', 'Arrow 3', 'Arrow 4'], 2, 'Oxygen is a product, and it is a gas.', ['Arrows 1 and 2 bring in carbon dioxide and water, and arrow 4 carries glucose to the rest of the plant.', 'Arrow 3 shows oxygen leaving the leaf into the air.'], 'understanding', false, 'photo-arrows-question'),

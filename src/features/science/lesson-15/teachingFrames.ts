@@ -12,7 +12,7 @@ export const healthFrames: Record<string, TeachingFrame[]> = {
   ],
   'B15-04': [
     f('Diseases that spread', 'Communicable diseases can spread between people.', 'pathogen → spreads', 'Some diseases can spread from one person to another. These are communicable diseases. They are caused by pathogens, such as viruses and bacteria. Sam’s cold is one.', 'health-communicable'),
-    f('Diseases that do not spread', 'Non-communicable diseases cannot be caught.', 'cannot be caught', 'Other diseases cannot be caught from someone else. These are non-communicable diseases. Coronary heart disease is one. (You met it in Lesson 14.)', 'health-noncommunicable'),
+    f('Diseases that do not spread', 'Non-communicable diseases cannot be caught.', 'cannot be caught', 'Other diseases cannot be caught from someone else. These are non-communicable diseases. Coronary heart disease is one. (You met it when you learned about cardiovascular disease.)', 'health-noncommunicable'),
   ],
   'B15-07': [
     f('A weaker defence', 'A weak immune system makes infections more likely.', 'weaker defence → more infections', 'The immune system is the body’s defence against pathogens. If it does not work properly, a person is more likely to catch communicable diseases.', 'health-immune'),

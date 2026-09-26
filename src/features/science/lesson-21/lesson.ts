@@ -16,7 +16,7 @@ export const plantMalariaSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B21-01', 'Leaves use light to make the plant’s food. What is this process called?', ['Respiration', 'Photosynthesis', 'Transpiration'], 1, 'You met the leaf’s main job in Lesson 17.', ['Transpiration is water loss from leaves, and respiration releases energy.', 'Making food using light is photosynthesis.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B21-01', 'Leaves use light to make the plant’s food. What is this process called?', ['Respiration', 'Photosynthesis', 'Transpiration'], 1, 'You met the leaf’s main job when you learned about plant tissues.', ['Transpiration is water loss from leaves, and respiration releases energy.', 'Making food using light is photosynthesis.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B21-02', 'A patchy tomato plant'),
   a.choice('B21-03', 'Why does a tomato plant with TMV grow poorly?', ['The virus eats the plant’s roots', 'Its leaves have less chlorophyll, so less photosynthesis happens', 'It loses too much water through its leaves'], 1, 'Follow the chain from pale leaves to growth.', ['TMV makes pale patches with less chlorophyll, so less light is absorbed.', 'Less photosynthesis means less food for growth.']),
   a.choice('B21-04', 'Look at the chain. What belongs in the empty step 3?', ['More chlorophyll', 'Faster transpiration', 'Less photosynthesis', 'More food is made'], 2, 'What does the plant use chlorophyll for?', ['Less chlorophyll means less light is absorbed.', 'So less photosynthesis happens, and less food is made.'], 'understanding', false, 'plantdisease-chain-question'),

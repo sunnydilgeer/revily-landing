@@ -10,7 +10,7 @@ export const plantTissueFrames: Record<string, TeachingFrame[]> = {
     f('Organs work together', 'Roots, stem and leaves together form an organ system.', 'organs → organ system', 'Roots, stem and leaves work together to move water and food around the plant. Organs working together like this make an organ system.', 'plant-ladder-system'),
   ],
   'B17-04': [
-    f('Where a plant grows', 'Plants grow at the tips of their shoots and roots.', 'new cells at the tips', 'The tips of shoots and roots contain meristem tissue. Its cells divide to make new cells, so the plant grows longer there. You met meristem in Lesson 5.', 'plant-meristem'),
+    f('Where a plant grows', 'Plants grow at the tips of their shoots and roots.', 'new cells at the tips', 'The tips of shoots and roots contain meristem tissue. Its cells divide to make new cells, so the plant grows longer there. You met meristems when you learned about stem cells.', 'plant-meristem'),
   ],
   'B17-06': [
     f('Slice a leaf open', 'Inside a leaf there are layers of tissue.', 'layers, each with a job', 'If you cut across a leaf, you can see layers. Each layer is a tissue with its own job. The leaf’s main job is photosynthesis: making food using light.', 'plant-leaf-overview'),
@@ -21,7 +21,7 @@ export const plantTissueFrames: Record<string, TeachingFrame[]> = {
     f('Put the leaf together', 'Light comes in from the top. Carbon dioxide comes in from the bottom.', 'both meet in the middle', 'Light passes through the clear top layer. Carbon dioxide enters through the stomata and moves through the air gaps. Both reach the middle layers, where the leaf makes food.', 'plant-leaf-together'),
   ],
   'B17-11': [
-    f('Veins link the leaf to the plant', 'Each vein contains xylem and phloem.', 'water in, food out', 'Xylem brings water and mineral ions up from the roots into the leaf. Mineral ions are minerals the plant needs, dissolved in the water. Phloem carries sugar made in the leaf out to the rest of the plant. You met xylem and phloem cells in Lesson 4.', 'plant-leaf-vein'),
+    f('Veins link the leaf to the plant', 'Each vein contains xylem and phloem.', 'water in, food out', 'Xylem brings water and mineral ions up from the roots into the leaf. Mineral ions are minerals the plant needs, dissolved in the water. Phloem carries sugar made in the leaf out to the rest of the plant. You met xylem and phloem cells when you learned about specialisation.', 'plant-leaf-vein'),
     f('Zoom back out', 'Xylem and phloem run through the whole plant.', 'roots, stem and leaves are linked', 'Xylem and phloem run from the roots, up the stem and into every leaf. Water travels up in the xylem. Food travels in the phloem to the parts of the plant that need it.', 'plant-transport-map'),
   ],
 }

@@ -164,7 +164,7 @@ lessons.forEach((lesson, index) => {
 
 check('Scope: key distinctions are taught and overlap with Lessons 4–6 stays a brief link', () => {
   const [l17, l18] = frameSets.map(set => Object.values(set).flat().map(frame => `${frame.summary} ${frame.text}`).join(' '))
-  assert.match(l17, /Lesson 4/); assert.match(l17, /Lesson 5/)
+  assert.match(l17, /when you learned about specialisation/); assert.match(l17, /when you learned about stem cells/)
   assert.match(l17, /upper epidermis/); assert.match(l17, /palisade mesophyll/i); assert.match(l17, /spongy mesophyll/i); assert.match(l17, /stomata/)
   assert.match(l18, /water vapour/); assert.match(l18, /transpiration stream/); assert.match(l18, /translocation/)
   assert.match(l18, /Humidity means/); assert.match(l18, /only upwards/); assert.match(l18, /up or down|up and down/)
@@ -190,8 +190,10 @@ check('Both new lessons have isolated storage records', () => {
 
 check('Hub, chapter, parser and links include Lessons 17 and 18', () => {
   const hubLessonNumbers: number[] = scienceLessons.map(item => item.number)
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B2c')?.lessonNumbers, [17, 18])
-  for (const number of [17, 18] as const) {
+  assert.deepEqual(lessons.map(lesson => scienceLessons.find(item => item.lesson.id === lesson.id)?.number), [22, 23])
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B2c')?.lessonNumbers, [22, 23])
+  // Folders lesson-17 and lesson-18 are catalogue lessons 22 and 23 after the cell-biology split.
+  for (const number of [22, 23] as const) {
     assert.ok(hubLessonNumbers.includes(number))
     assert.equal(parseScienceLesson(String(number)), number)
     assert.equal(scienceLessonHref(number), `/preview/science?lesson=${number}`)

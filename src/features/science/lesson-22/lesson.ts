@@ -15,7 +15,7 @@ export const defenceSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B22-01', 'Which part of the blood helps to fight pathogens?', ['Red blood cells', 'Platelets', 'White blood cells', 'Plasma'], 2, 'You met the parts of the blood in Lesson 13.', ['Red blood cells carry oxygen, platelets help clotting and plasma carries substances.', 'White blood cells help to fight pathogens.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B22-01', 'Which part of the blood helps to fight pathogens?', ['Red blood cells', 'Platelets', 'White blood cells', 'Plasma'], 2, 'You met the parts of the blood when you learned about blood.', ['Red blood cells carry oxygen, platelets help clotting and plasma carries substances.', 'White blood cells help to fight pathogens.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B22-02', 'Keeping pathogens out'),
   a.choice('B22-03', 'Look at the numbered defences. Which one kills pathogens with acid?', ['Defence 1', 'Defence 2', 'Defence 3', 'Defence 4'], 3, 'Where does swallowed food end up?', ['Defences 1 to 3 are the nose, the skin and the airways.', 'Defence 4 is the stomach, which makes hydrochloric acid.'], 'understanding', false, 'defence-body-question'),
   a.choice('B22-04', 'You swallow mucus with trapped pathogens in it. Why does this not usually make you ill?', ['Mucus is a medicine', 'Stomach acid kills most of the pathogens', 'Cilia digest the pathogens'], 1, 'Follow the mucus after it is swallowed.', ['Swallowed mucus goes to the stomach.', 'Hydrochloric acid in the stomach kills most pathogens.']),

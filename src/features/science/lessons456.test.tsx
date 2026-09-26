@@ -3,24 +3,32 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import { lesson4, specialisationSections } from './lesson-4/lesson'
 import { lesson5, divisionSections } from './lesson-5/lesson'
+import { lesson5b, stemCellSections } from './lesson-5b/lesson'
 import { lesson6, transportSections } from './lesson-6/lesson'
+import { lesson6b, osmosisPracticalSections } from './lesson-6b/lesson'
+import { lesson6c, exchangeSections } from './lesson-6c/lesson'
 import { specialisationFrames } from './lesson-4/teachingFrames'
 import { divisionFrames } from './lesson-5/teachingFrames'
+import { stemCellFrames } from './lesson-5b/teachingFrames'
 import { transportFrames } from './lesson-6/teachingFrames'
-import { transportData } from './lesson-6/practicalData'
+import { osmosisPracticalFrames } from './lesson-6b/teachingFrames'
+import { exchangeFrames } from './lesson-6c/teachingFrames'
+import { transportData } from './lesson-6b/practicalData'
 import { gradeResponse, progress, evidenceProfile, recommendedNext } from './engine'
 import { createPreviewSessionEngine } from './previewSession'
 import type { EvidenceDimension } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
-const lessons = [lesson4, lesson5, lesson6]
-const frameSets = [specialisationFrames, divisionFrames, transportFrames]
-const sections = [specialisationSections, divisionSections, transportSections]
+// Old lessons 4–6 are now six lessons: 4, 5, 5b (stem cells), 6, 6b (osmosis practical) and 6c (active transport and exchange).
+const lessons = [lesson4, lesson5, lesson5b, lesson6, lesson6b, lesson6c]
+const frameSets = [specialisationFrames, divisionFrames, stemCellFrames, transportFrames, osmosisPracticalFrames, exchangeFrames]
+const sections = [specialisationSections, divisionSections, stemCellSections, transportSections, osmosisPracticalSections, exchangeSections]
+const versions = ['0.2.0', '0.2.0', '0.1.0', '0.2.0', '0.1.0', '0.1.0']
 const at = '2026-09-17T11:00:00.000Z'
 lessons.forEach((lesson, index) => {
   check(`${lesson.id}: stable IDs, draft boundaries and source/chapter references`, () => {
-    assert.equal(lesson.contentVersion, index === 0 ? '0.2.0' : '0.1.0'); assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
+    assert.equal(lesson.contentVersion, versions[index]); assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.qualification, 'AQA-8464F'); assert.equal(lesson.retrieval.length, 0)
     assert.equal(new Set(lesson.states.map(s=>s.id)).size, lesson.states.length)
     const sourceIds = lesson.sources.map(s=>s.id)
@@ -89,16 +97,16 @@ lessons.forEach((lesson, index) => {
     assert.equal(engine.restorePreviewSession(session)!.currentId,null)
     const profile=evidenceProfile(lesson,Object.values(session.answers))
     assert.equal(profile.pendingReview.length,1);assert.notEqual(profile.dimensions.explanation,'secureInSession')
-    // Lesson 6 leads on to Lesson 7 (Organisation); the supervised practical is still flagged in the lesson itself.
+    // The last cell-biology lesson (6c) leads on to Organisation; the supervised practical is still flagged in the lesson itself.
     assert.equal(recommendedNext(profile,false,lesson).kind,'lesson')
-    assert.equal(recommendedNext(profile,false,lesson).lessonId,index<2?lessons[index+1].id:'B-ORG-007-B')
+    assert.equal(recommendedNext(profile,false,lesson).lessonId,index<lessons.length-1?lessons[index+1].id:'B-ORG-007-B')
     session=reduce(session,{type:'restart',sessionId:'replay',clearPracticeHistory:false})
     assert.ok(session.seenAnswers.length)
   })
 })
 check('Independent storage isolation and unchanged Lessons 1–3 record contracts',()=>{
   const engines=lessons.map(createPreviewSessionEngine)
-  assert.equal(new Set(engines.map(e=>e.storageKey)).size,3)
+  assert.equal(new Set(engines.map(e=>e.storageKey)).size,lessons.length)
   engines.forEach(e=>engines.forEach(other=>{if(e!==other)assert.equal(other.restorePreviewSession(e.createPreviewSession('test')),null)}))
 })
 check('Numerical examples, signed percentages, five-point illustrative graph and interpolation',()=>{

@@ -166,10 +166,10 @@ lessons.forEach((lesson, index) => {
 
 check('Scope: key distinctions are taught and earlier lessons stay brief links', () => {
   const [l19, l20] = frameSets.map(set => Object.values(set).flat().map(frame => `${frame.summary} ${frame.text}`).join(' '))
-  assert.match(l19, /Lesson 15/); assert.match(l19, /Lesson 1\b/); assert.match(l19, /Lesson 23/)
+  assert.match(l19, /when you learned about health and disease/); assert.match(l19, /when you compared cells/); assert.match(l19, /when you learn about vaccination/)
   assert.match(l19, /pathogen is a microorganism/); assert.match(l19, /not a cell/); assert.match(l19, /toxin/); assert.match(l19, /cell damage/)
   assert.match(l19, /Hygiene means/); assert.match(l19, /isolation/); assert.match(l19, /A vector is/)
-  assert.match(l20, /Lesson 19/); assert.match(l20, /Lesson 22/); assert.match(l20, /Lesson 24/)
+  assert.match(l20, /when you learned about pathogens/); assert.match(l20, /when you learn how your body defends itself/); assert.match(l20, /when you learn about medicines/)
   assert.match(l20, /resistant/); assert.match(l20, /Antiretroviral/); assert.match(l20, /AIDS/); assert.match(l20, /poultry are vaccinated/)
   assert.doesNotMatch(l19 + l20, /virus[^.]*toxin|toxin[^.]*virus/i, 'toxins belong to bacteria in these lessons')
 })
@@ -191,8 +191,10 @@ check('Both new lessons have isolated storage records', () => {
 
 check('Hub, chapter, parser and links include Lessons 19 and 20', () => {
   const hubLessonNumbers: number[] = scienceLessons.map(item => item.number)
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
-  for (const number of [19, 20] as const) {
+  assert.deepEqual(lessons.map(lesson => scienceLessons.find(item => item.lesson.id === lesson.id)?.number), [24, 25])
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [24, 25, 26, 27, 28, 29, 30])
+  // Folders lesson-19 and lesson-20 are catalogue lessons 24 and 25 after the cell-biology split.
+  for (const number of [24, 25] as const) {
     assert.ok(hubLessonNumbers.includes(number))
     assert.equal(parseScienceLesson(String(number)), number)
     assert.equal(scienceLessonHref(number), `/preview/science?lesson=${number}`)

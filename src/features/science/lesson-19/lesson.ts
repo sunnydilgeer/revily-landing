@@ -16,7 +16,7 @@ export const pathogenSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B19-01', 'Which of these is a communicable disease?', ['Coronary heart disease', 'A cold', 'Lung cancer caused by smoking'], 1, 'Communicable means it can pass from person to person. You met this in Lesson 15.', ['Heart disease and smoking-related cancer cannot be caught from someone else.', 'A cold can pass from person to person, so it is communicable.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B19-01', 'Which of these is a communicable disease?', ['Coronary heart disease', 'A cold', 'Lung cancer caused by smoking'], 1, 'Communicable means it can pass from person to person. You met this when you learned about health and disease.', ['Heart disease and smoking-related cancer cannot be caught from someone else.', 'A cold can pass from person to person, so it is communicable.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B19-02', 'Follow the cold'),
   a.choice('B19-03', 'How does a cold virus get from one person to the next?', ['In droplets from coughs and sneezes', 'Through the soil', 'It forms on its own inside each person'], 0, 'Think about what a sneeze sends out.', ['A sneeze sprays droplets that carry viruses through the air.', 'Someone nearby breathes the droplets in.']),
   a.choice('B19-04', 'Why does a cold virus make you feel ill?', ['Cold weather damages your nose', 'The virus makes toxins', 'Your cells are damaged when new viruses burst out'], 2, 'Zoom in on what happens inside the cell.', ['The virus makes copies of itself inside your cells.', 'The cells burst, and this cell damage makes you feel ill.']),

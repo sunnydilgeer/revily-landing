@@ -15,7 +15,7 @@ export const specialisationSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B4-01', 'In Lesson 1 you met the parts of a cell. Which part releases energy by aerobic respiration?', ['The nucleus', 'The mitochondria', 'The cell wall'], 1, 'Which part is the site of aerobic respiration?', ['Aerobic respiration happens in the mitochondria.', 'So the mitochondria release energy for the cell’s work.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B4-01', 'When you learned about animal and plant cells, you met their parts. Which part releases energy by aerobic respiration?', ['The nucleus', 'The mitochondria', 'The cell wall'], 1, 'Which part is the site of aerobic respiration?', ['Aerobic respiration happens in the mitochondria.', 'So the mitochondria release energy for the cell’s work.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B4-02', 'Why do cells look different?'),
   a.choice('B4-03', 'What is a specialised cell?', ['A cell with a shape and parts suited to one job', 'Any cell that is very large', 'A cell that can do every job in the body'], 0, 'What do its shape and parts help it do?', ['A specialised cell has a shape and parts that fit one job.', 'So size alone does not make a cell specialised.']),
   t('B4-04', 'Meet an animal team'),

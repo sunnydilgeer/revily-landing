@@ -135,7 +135,7 @@ function MiniLeafSection() {
       <rect x={20} y={46} width={380} height={195} fill="#f4fbf6" /><Epidermis top={46} height={16} seed={3} /><Palisade top={63} height={70} seed={5} />
       <Spongy top={135} height={88} seed={7} avoid={[[322, 178, 44]]} /><Vein cx={322} cy={178} /><Epidermis top={225} height={16} seed={9} gapX={150} /></g>
     <rect x={80} y={84} width={16} height={40} rx="5" fill="none" stroke={ink} strokeWidth="1.8" />
-    <text x={119} y={44} textAnchor="middle" fill={ink} fontSize="12">a leaf, cut across (Lesson 17)</text></g>
+    <text x={119} y={44} textAnchor="middle" fill={ink} fontSize="12">a leaf, cut across (plant tissues)</text></g>
 }
 function Chloroplast({ x, y, a = 0, k = 1 }: { x: number; y: number; a?: number; k?: number }) {
   return <g transform={`rotate(${a} ${x} ${y})`}><ellipse cx={x} cy={y} rx={13 * k} ry={7 * k} fill="#86c476" stroke="#3f7f4c" strokeWidth={1.4} />
@@ -249,7 +249,7 @@ function UseScene({ focus }: { focus: string }) {
         <Arrow x1={466} y1={166} x2={490} y2={144} colour={sugar} width={2} /><Glucose x={494} y={132} s={.8} /><Glucose x={482} y={200} s={.8} /></>}
     </Zoom>
     <Caption text={step === 'respiration' ? 'a cell, zoomed in' : step === 'cellulose' ? 'stem cells, zoomed in' : step === 'protein' ? 'making proteins' : step === 'oil' ? 'one seed, cut open' : 'a cell at night'} dark={nightTime} />
-    {step === 'respiration' && <Label x={530} y={284} anchor="end" to={[450, 130]} lines={['respiration in mitochondria (Lesson 1)']} colour={ink} />}
+    {step === 'respiration' && <Label x={530} y={284} anchor="end" to={[450, 130]} lines={['respiration in mitochondria (cell biology)']} colour={ink} />}
     {step === 'respiration' && <Label x={20} y={140} lines={['energy for', 'living and', 'growing']} strong colour={lightInk} />}
     {step === 'cellulose' && <><Label x={530} y={284} anchor="end" to={[420, 230]} lines={['cellulose: glucose joined in long chains']} colour={sugar} /><Label x={20} y={140} lines={['strong walls:', 'a tall stem']} strong colour={P.deepGreen} /></>}
     {step === 'protein' && <Label x={20} y={140} lines={['nitrate ions', 'from the soil']} strong colour="#8a6d45" />}

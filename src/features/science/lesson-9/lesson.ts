@@ -20,7 +20,7 @@ export const digestionSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B9-01', 'Chew a piece of bread for a long time and it starts to taste sweet. Why?', ['Chewing adds sugar to the bread', 'An enzyme in saliva breaks starch down into sugar', 'The bread melts in your warm mouth'], 1, 'Think back to Lesson 8: what does amylase do to starch?', ['Saliva contains amylase, an enzyme.', 'Amylase speeds up breaking starch into sugar, so the bread starts to taste sweet.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B9-01', 'Chew a piece of bread for a long time and it starts to taste sweet. Why?', ['Chewing adds sugar to the bread', 'An enzyme in saliva breaks starch down into sugar', 'The bread melts in your warm mouth'], 1, 'Think back to enzymes: what does amylase do to starch?', ['Saliva contains amylase, an enzyme.', 'Amylase speeds up breaking starch into sugar, so the bread starts to taste sweet.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B9-02', 'Break the meal down'),
   a.choice('B9-03', 'Bread is mostly starch. Which group of enzymes breaks starch down?', ['Proteases', 'Carbohydrases', 'Lipases'], 1, 'Starch is a carbohydrate.', ['Starch is a carbohydrate.', 'Carbohydrases, such as amylase, break carbohydrates into sugars.']),
   a.choice('B9-04', 'Lipase breaks down the fat in the cheese. What does it make?', ['Amino acids', 'Simple sugars', 'Glycerol and fatty acids', 'Starch'], 2, 'Which products did the fat screen show?', ['Lipases break down lipids, which are fats and oils.', 'So the products are glycerol and fatty acids.']),

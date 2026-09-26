@@ -9,7 +9,7 @@ export const medicineFrames: Record<string, TeachingFrame[]> = {
     f('Flu', 'Mia has flu, which is caused by a virus.', 'what can help?', 'Mia has flu. Flu is caused by a virus. She has a headache, a sore throat and a high temperature.', 'drug-flu-mia'),
     f('Symptoms', 'A symptom is a sign of illness that you notice.', 'symptom = a sign you notice', 'A symptom is a sign of illness that you notice, such as pain or a high temperature. Mia’s headache is a symptom of flu.', 'drug-flu-symptoms'),
     f('Painkillers', 'Painkillers ease symptoms but do not kill pathogens.', 'eases symptoms only', 'Mia takes a painkiller, and her headache eases. Painkillers help to get rid of symptoms, such as pain. But they do not kill the pathogen.', 'drug-flu-painkiller'),
-    f('Her body clears it', 'Her white blood cells destroy the virus.', 'the body does the killing', 'The painkiller did not touch the flu virus. Mia’s white blood cells destroyed it, as you saw in Lesson 22. After a few days, she feels better.', 'drug-flu-wbc'),
+    f('Her body clears it', 'Her white blood cells destroy the virus.', 'the body does the killing', 'The painkiller did not touch the flu virus. Mia’s white blood cells destroyed it, as you saw when you learned how your body defends itself. After a few days, she feels better.', 'drug-flu-wbc'),
   ],
   'B24-04': [
     f('An ear infection', 'Mia’s ear infection is caused by bacteria.', 'bacteria this time', 'A month later, Mia gets an ear infection caused by bacteria. A painkiller eases the earache. But the bacteria keep multiplying.', 'drug-ear-infection'),
@@ -20,7 +20,7 @@ export const medicineFrames: Record<string, TeachingFrame[]> = {
   ],
   'B24-07': [
     f('Bacteria change', 'Bacteria can mutate as they multiply.', 'mutate = change', 'Bacteria multiply very quickly. As they do, they can mutate. Mutate means change.', 'drug-resist-mutate'),
-    f('Resistant', 'Resistant bacteria are not killed by an antibiotic.', 'resistant = not killed by it', 'Some changes make bacteria resistant to an antibiotic. Resistant means the antibiotic no longer kills them. You met resistant gonorrhoea in Lesson 20.', 'drug-resist-resistant'),
+    f('Resistant', 'Resistant bacteria are not killed by an antibiotic.', 'resistant = not killed by it', 'Some changes make bacteria resistant to an antibiotic. Resistant means the antibiotic no longer kills them. You met resistant gonorrhoea when you learned about diseases people pass on.', 'drug-resist-resistant'),
     f('Resistant strains', 'MRSA is a resistant strain of bacteria.', 'strain = one type', 'A strain is one type of a bacterium. Resistant strains have become more common, and they are hard to treat. MRSA is one example. A later lesson explains why they spread.', 'drug-resist-mrsa'),
   ],
   'B24-09': [

@@ -165,10 +165,12 @@ check('All four new lessons have isolated storage records', () => {
 check('The shared hub and contents catalogue includes all four new lessons', () => {
   const hubLessonNumbers = scienceLessons.map(item => item.number)
   const chapterLessonNumbers: readonly number[] = scienceChapters.flatMap(chapter => [...chapter.lessonNumbers])
-  for (let number = 13; number <= 16; number++) {
-    assert.ok(hubLessonNumbers.includes(number as 13 | 14 | 15 | 16))
+  // Folders lesson-13 … lesson-16 are catalogue lessons 18 … 21 after the cell-biology split.
+  assert.deepEqual(lessons.map(lesson => scienceLessons.find(item => item.lesson.id === lesson.id)?.number), [18, 19, 20, 21])
+  for (let number = 18; number <= 21; number++) {
+    assert.ok(hubLessonNumbers.includes(number as 18 | 19 | 20 | 21))
     assert.ok(chapterLessonNumbers.includes(number))
-    assert.equal(scienceLessonHref(number as 13 | 14 | 15 | 16), `/preview/science?lesson=${number}`)
+    assert.equal(scienceLessonHref(number as 18 | 19 | 20 | 21), `/preview/science?lesson=${number}`)
   }
 })
 
