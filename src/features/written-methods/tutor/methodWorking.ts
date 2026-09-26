@@ -19,6 +19,8 @@ export type RoundingFrame = {
   remaining: string
   stage: 'identify' | 'decide' | 'result'
   roundsUp: boolean
+  /** The decimal point sits between the kept digit and the decision digit, e.g. 3 | .12 */
+  pointAfterKept?: boolean
   answer?: string
 }
 export type OrderingFrame = {
@@ -43,7 +45,7 @@ export type MethodStep = {
   focus?: { topPlace?: number; factorPlace: number } | { dividendIndex: number; dividendStart?: number } | { cell: string }
 }
 export type MethodExample = {
-  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'factor-tree' | 'number-lists' | 'venn'
+  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'estimate' | 'factor-tree' | 'number-lists' | 'venn'
   expression: string; label: string; first: number; second: number
   grid?: { first: number[]; second: number[] }
   steps: MethodStep[]

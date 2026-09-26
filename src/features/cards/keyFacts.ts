@@ -167,4 +167,10 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'ordering-negative-numbers': [['Which is bigger: −68 or −86?', '−68. It is closer to zero, so it is higher.']],
     'ordering-fractions-decimals-percentages': [['Put in order, smallest first: 0.7, 71%, 18/25', '0.7, 71%, 18/25. Change them all to decimals: 0.7, 0.71, 0.72.']],
   },
+  12: {
+    'estimating-significant-figures': [['Where does the 1st significant figure start in 0.00398?', 'At the 3, the first digit that isn’t zero. 0.00398 ≈ 0.004 to 1 s.f.']],
+    'estimating-calculations': [['How do you estimate 48 × 3.12?', 'Round each number to 1 s.f. first: 50 × 3 = 150. Don’t round the exact answer at the end.']],
+    'estimating-formulas': [['Estimate the speed: 296 km in 3.1 hours.', '300 ÷ 3 = 100 km/h. Round the values, then put them into speed = distance ÷ time.']],
+    'estimating-checking': [['Every number was rounded up. Is the estimate too big or too small?', 'Too big. Rounding every number down would make it too small.']],
+  },
 }

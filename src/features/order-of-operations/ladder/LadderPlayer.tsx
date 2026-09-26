@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { mountLadderPlayer } from './ladderPlayer'
+import { mountLadderPlayer } from './ladderEngine'
 import './ladderPlayer.css'
 
 /** The animated BIDMAS ladder lesson. The player manages its own DOM inside this container. */

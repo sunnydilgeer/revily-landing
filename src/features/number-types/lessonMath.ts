@@ -242,7 +242,8 @@ function parseNonNegativeInteger(value: unknown): number | null {
 }
 
 function parseFormattedNumber(value: unknown): number | null {
-  const text = String(value ?? '').trim()
+  // A leading £ is harmless: students often type the unit shown beside the box.
+  const text = String(value ?? '').trim().replace(/^£\s?/, '')
   const plain = /^[+-]?\d+(?:\.\d+)?$/
   const commaGrouped = /^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/
   const spaceGrouped = /^[+-]?\d{1,3}(?: \d{3})+(?:\.\d+)?$/

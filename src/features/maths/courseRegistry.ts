@@ -10,8 +10,9 @@ import { tutorFractionsLesson } from '../fractions/tutor/fractionsLesson'
 import { tutorFractionsDecimalsPercentagesLesson } from '../fractions-decimals-percentages/tutor/fractionsDecimalsPercentagesLesson'
 import { tutorRoundingLesson } from '../rounding/tutor/roundingLesson'
 import { tutorOrderingLesson } from '../ordering/tutor/orderingLesson'
+import { tutorEstimatingLesson } from '../estimating/tutor/estimatingLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 
 export type MathsSection = {
   id: MicroSkillId
@@ -82,6 +83,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(9, tutorFractionsDecimalsPercentagesLesson, 'Fractions, decimals and percentages', 'Convert between equivalent fractions, decimals and percentages.', tutorFractionsDecimalsPercentagesLesson.labels),
   entry(10, tutorRoundingLesson, 'Rounding numbers', 'Round to decimal places, significant figures and powers of ten.', tutorRoundingLesson.labels),
   entry(11, tutorOrderingLesson, 'Ordering numbers', 'Compare and order decimals, large numbers, negatives and mixed forms.', tutorOrderingLesson.labels),
+  entry(12, tutorEstimatingLesson, 'Estimating', 'Round to 1 significant figure and estimate calculations and formulas.', tutorEstimatingLesson.labels),
 ]
 
 export const mathsChapters: MathsChapter[] = [{

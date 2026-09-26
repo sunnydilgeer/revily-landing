@@ -34,6 +34,7 @@
 .ns-kept { white-space: nowrap; }
 .ns-kept b { border-bottom: 3px solid var(--rv-biro); padding: 0 .04em; font-weight: 600; }
 .ns-cut { height: 1.25em; border-left: 1px dashed var(--rv-line-strong); margin: 0 .10em; }
+.ns-point { margin-right: .04em; }
 .ns-decision { padding: 0 .15em; border-radius: 6px; background: #fff0ce; color: #78500f; font-weight: 600; }
 .ns-remaining { color: var(--rv-line-strong); }
 .ns-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; margin-top: 17px; color: var(--rv-muted); font-size: 11px; }

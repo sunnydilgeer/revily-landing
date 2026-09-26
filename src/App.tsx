@@ -14,6 +14,7 @@ import TutorFractionsLesson from './features/fractions/tutor/FractionsLessonView
 import TutorFractionsDecimalsPercentagesLesson from './features/fractions-decimals-percentages/tutor/FractionsDecimalsPercentagesLessonView'
 import TutorRoundingLesson from './features/rounding/tutor/RoundingLessonView'
 import TutorOrderingLesson from './features/ordering/tutor/OrderingLessonView'
+import TutorEstimatingLesson from './features/estimating/tutor/EstimatingLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { type AppSection } from './features/maths/AppShell'
@@ -201,6 +202,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorRoundingLesson />
     case 11:
       return <TutorOrderingLesson />
+    case 12:
+      return <TutorEstimatingLesson />
   }
 }
 

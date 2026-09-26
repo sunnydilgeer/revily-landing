@@ -61,6 +61,10 @@ export type MicroSkillId =
   | 'ordering-large-numbers'
   | 'ordering-negative-numbers'
   | 'ordering-fractions-decimals-percentages'
+  | 'estimating-significant-figures'
+  | 'estimating-calculations'
+  | 'estimating-formulas'
+  | 'estimating-checking'
   | 'mixed'
 
 export type LessonPhase =
