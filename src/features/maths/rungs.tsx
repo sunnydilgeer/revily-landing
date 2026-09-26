@@ -15,7 +15,7 @@ import '../written-methods/tutor/RungLesson.css'
 type Engine = ReturnType<typeof useLessonEngine>
 
 /** Engine defaults that say nothing about the question; the hint is more useful in their place. */
-export const GENERIC_FEEDBACK = new Set(['Here’s the working.', 'Here’s the answer.', 'Here is the complete working.', 'Correct.'])
+export const GENERIC_FEEDBACK = new Set(['Here’s the working.', 'Here’s the answer.', 'Here is the complete working.', 'Correct.', 'Explanation'])
 
 /** The engine words answers as "Correct answer: 2/3."; the check bar only needs "2/3". */
 export const answerText = (text: string) => text.replace(/^Correct answer:\s*/i, '').replace(/\.$/, '')

@@ -126,12 +126,22 @@ function diagnoseFactors(question: string, value: number, expected: number) {
   return null
 }
 
+const COLUMNS: [number, string][] = [[1000000, 'millions'], [100000, 'hundred thousands'], [10000, 'ten thousands'], [1000, 'thousands'], [100, 'hundreds'], [10, 'tens'], [0.1, 'tenths'], [0.01, 'hundredths'], [0.001, 'thousandths']]
+
+/** "What is the value of the digit 3 in 7,364?" answered with the digit itself (3 instead of 300). */
+function diagnosePlaceValue(question: string, value: number, expected: number) {
+  if (!/value of (the )?digit/i.test(question) || !Number.isInteger(value) || value < 1 || value > 9) return null
+  const column = COLUMNS.find(([size]) => near(value * size, expected))
+  return column ? `That's the digit itself. Its value depends on its column: it's in the ${column[1]} column, so it's worth ${show(expected)}.` : null
+}
+
 export function diagnoseNumber(question: string, response: string, expectedText: string): string | null {
   const value = toNumber(response), expected = toNumber(expectedText)
   if (value === null || expected === null) return null
   if (near(value, expected) && !(expectedText.includes('.') && !response.includes('.'))) return null
 
-  return diagnoseRounding(question, response.trim(), value, expected, expectedText)
+  return diagnosePlaceValue(question, value, expected)
+    ?? diagnoseRounding(question, response.trim(), value, expected, expectedText)
     ?? diagnosePercent(question, value, expected)
     ?? diagnoseFactors(question, value, expected)
     ?? diagnoseMultiplication(question, value, expected)

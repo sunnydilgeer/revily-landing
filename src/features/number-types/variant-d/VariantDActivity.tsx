@@ -4,8 +4,9 @@ import { parseDecimalOrFraction } from '../lessonMath'
 import type { useLessonEngine } from '../useLessonEngine'
 import { IntegerValueVisual, MathValue } from './IntegerValueVisual'
 
-type Props = { engine: ReturnType<typeof useLessonEngine>; headingRef: Ref<HTMLHeadingElement> }
-export function VariantDActivity({ engine, headingRef }: Props) {
+/** hideActions: the rung frame's check bar provides Back / Check / Continue instead. */
+type Props = { engine: ReturnType<typeof useLessonEngine>; headingRef: Ref<HTMLHeadingElement>; hideActions?: boolean }
+export function VariantDActivity({ engine, headingRef, hideActions = false }: Props) {
   const { state, feedback, selection } = engine
   if (state.component.type !== 'integerValues') return null
   const teaching = state.interaction.type === 'continue'
@@ -32,10 +33,10 @@ export function VariantDActivity({ engine, headingRef }: Props) {
       })}
     </div>}
     {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status">{feedback.workedExplanation ? <ExplanationSteps explanation={feedback.workedExplanation} /> : <><strong>Explanation</strong><p>{feedback.evidence}</p></>}</div>}
-    <div className="d-actions">
+    {!hideActions && <div className="d-actions">
       {engine.canGoBack && !feedback && <button className="lesson-secondary-action" type="button" onClick={engine.back}>← Back</button>}
       {(multiple || numeric) && !feedback && <button className="lesson-primary-action" type="button" disabled={numeric ? !engine.inputValue.trim() : selection.length === 0} onClick={engine.submit}>Check answer</button>}
       {(teaching || feedback) && <button className="lesson-primary-action" type="button" onClick={engine.continueLesson}>{engine.completed ? 'Start lesson again' : 'Continue'} <span aria-hidden="true">→</span></button>}
-    </div>
+    </div>}
   </div>
 }
