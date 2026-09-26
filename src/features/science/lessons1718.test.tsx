@@ -4,12 +4,12 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
-import { getScienceHubLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
+import { scienceLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson17, plantTissueSections } from './variants/b/lesson-17/lesson'
-import { plantTissueFrames } from './variants/b/lesson-17/teachingFrames'
-import { lesson18, plantTransportSections } from './variants/b/lesson-18/lesson'
-import { plantTransportFrames } from './variants/b/lesson-18/teachingFrames'
+import { lesson17, plantTissueSections } from './lesson-17/lesson'
+import { plantTissueFrames } from './lesson-17/teachingFrames'
+import { lesson18, plantTransportSections } from './lesson-18/lesson'
+import { plantTransportFrames } from './lesson-18/teachingFrames'
 import type { EvidenceDimension, ScienceState } from './types'
 
 let checks = 0
@@ -189,13 +189,12 @@ check('Both new lessons have isolated storage records', () => {
 })
 
 check('Hub, chapter, parser and links include Lessons 17 and 18', () => {
-  const hubLessonNumbers: number[] = getScienceHubLessons('b').map(item => item.number)
-  const hubA: number[] = getScienceHubLessons('a').map(item => item.number)
+  const hubLessonNumbers: number[] = scienceLessons.map(item => item.number)
   assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B2c')?.lessonNumbers, [17, 18])
   for (const number of [17, 18] as const) {
-    assert.ok(hubLessonNumbers.includes(number) && hubA.includes(number))
+    assert.ok(hubLessonNumbers.includes(number))
     assert.equal(parseScienceLesson(String(number)), number)
-    assert.equal(scienceLessonHref(number, 'a'), `/preview/science?lesson=${number}&variant=b`)
+    assert.equal(scienceLessonHref(number), `/preview/science?lesson=${number}`)
   }
   const sixteen = recommendedNext({ dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }, false, { ...lesson17, id: 'B-ORG-016-B', requirements: {} })
   assert.deepEqual(sixteen, { kind: 'lesson', lessonId: 'B-ORG-017-B' })

@@ -2,16 +2,16 @@ import assert from 'node:assert/strict'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
-import { getScienceHubLessons, scienceChapters, scienceLessonHref } from './lessonNavigation'
+import { scienceLessons, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson13, bloodSections } from './variants/b/lesson-13/lesson'
-import { bloodFrames } from './variants/b/lesson-13/teachingFrames'
-import { lesson14, cardiovascularSections } from './variants/b/lesson-14/lesson'
-import { cardiovascularFrames } from './variants/b/lesson-14/teachingFrames'
-import { lesson15, healthSections } from './variants/b/lesson-15/lesson'
-import { healthFrames } from './variants/b/lesson-15/teachingFrames'
-import { lesson16, riskCancerSections } from './variants/b/lesson-16/lesson'
-import { riskCancerFrames } from './variants/b/lesson-16/teachingFrames'
+import { lesson13, bloodSections } from './lesson-13/lesson'
+import { bloodFrames } from './lesson-13/teachingFrames'
+import { lesson14, cardiovascularSections } from './lesson-14/lesson'
+import { cardiovascularFrames } from './lesson-14/teachingFrames'
+import { lesson15, healthSections } from './lesson-15/lesson'
+import { healthFrames } from './lesson-15/teachingFrames'
+import { lesson16, riskCancerSections } from './lesson-16/lesson'
+import { riskCancerFrames } from './lesson-16/teachingFrames'
 import type { EvidenceDimension, ScienceState } from './types'
 
 let checks = 0
@@ -163,12 +163,12 @@ check('All four new lessons have isolated storage records', () => {
 })
 
 check('The shared hub and contents catalogue includes all four new lessons', () => {
-  const hubLessonNumbers = getScienceHubLessons('b').map(item => item.number)
+  const hubLessonNumbers = scienceLessons.map(item => item.number)
   const chapterLessonNumbers: readonly number[] = scienceChapters.flatMap(chapter => [...chapter.lessonNumbers])
   for (let number = 13; number <= 16; number++) {
     assert.ok(hubLessonNumbers.includes(number as 13 | 14 | 15 | 16))
     assert.ok(chapterLessonNumbers.includes(number))
-    assert.equal(scienceLessonHref(number as 13 | 14 | 15 | 16, 'b'), `/preview/science?lesson=${number}&variant=b`)
+    assert.equal(scienceLessonHref(number as 13 | 14 | 15 | 16), `/preview/science?lesson=${number}`)
   }
 })
 

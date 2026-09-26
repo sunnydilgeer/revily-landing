@@ -4,35 +4,28 @@ import { lesson3 } from './lesson-3/lesson'
 import { lesson4 } from './lesson-4/lesson'
 import { lesson5 } from './lesson-5/lesson'
 import { lesson6 } from './lesson-6/lesson'
-import { lesson1 as lesson1B } from './variants/b/lesson-1/lesson'
-import { lesson2 as lesson2B } from './variants/b/lesson-2/lesson'
-import { lesson3 as lesson3B } from './variants/b/lesson-3/lesson'
-import { lesson4 as lesson4B } from './variants/b/lesson-4/lesson'
-import { lesson5 as lesson5B } from './variants/b/lesson-5/lesson'
-import { lesson6 as lesson6B } from './variants/b/lesson-6/lesson'
-import { lesson7 as lesson7B } from './variants/b/lesson-7/lesson'
-import { lesson8 as lesson8B } from './variants/b/lesson-8/lesson'
-import { lesson9 as lesson9B } from './variants/b/lesson-9/lesson'
-import { lesson10 as lesson10B } from './variants/b/lesson-10/lesson'
-import { lesson11 as lesson11B } from './variants/b/lesson-11/lesson'
-import { lesson12 as lesson12B } from './variants/b/lesson-12/lesson'
-import { lesson13 as lesson13B } from './variants/b/lesson-13/lesson'
-import { lesson14 as lesson14B } from './variants/b/lesson-14/lesson'
-import { lesson15 as lesson15B } from './variants/b/lesson-15/lesson'
-import { lesson16 as lesson16B } from './variants/b/lesson-16/lesson'
-import { lesson17 as lesson17B } from './variants/b/lesson-17/lesson'
-import { lesson18 as lesson18B } from './variants/b/lesson-18/lesson'
-import { lesson19 as lesson19B } from './variants/b/lesson-19/lesson'
-import { lesson20 as lesson20B } from './variants/b/lesson-20/lesson'
-import { lesson21 as lesson21B } from './variants/b/lesson-21/lesson'
-import { lesson22 as lesson22B } from './variants/b/lesson-22/lesson'
-import { lesson23 as lesson23B } from './variants/b/lesson-23/lesson'
-import { lesson24 as lesson24B } from './variants/b/lesson-24/lesson'
-import { lesson25 as lesson25B } from './variants/b/lesson-25/lesson'
-import { lesson26 as lesson26B } from './variants/b/lesson-26/lesson'
+import { lesson7 } from './lesson-7/lesson'
+import { lesson8 } from './lesson-8/lesson'
+import { lesson9 } from './lesson-9/lesson'
+import { lesson10 } from './lesson-10/lesson'
+import { lesson11 } from './lesson-11/lesson'
+import { lesson12 } from './lesson-12/lesson'
+import { lesson13 } from './lesson-13/lesson'
+import { lesson14 } from './lesson-14/lesson'
+import { lesson15 } from './lesson-15/lesson'
+import { lesson16 } from './lesson-16/lesson'
+import { lesson17 } from './lesson-17/lesson'
+import { lesson18 } from './lesson-18/lesson'
+import { lesson19 } from './lesson-19/lesson'
+import { lesson20 } from './lesson-20/lesson'
+import { lesson21 } from './lesson-21/lesson'
+import { lesson22 } from './lesson-22/lesson'
+import { lesson23 } from './lesson-23/lesson'
+import { lesson24 } from './lesson-24/lesson'
+import { lesson25 } from './lesson-25/lesson'
+import { lesson26 } from './lesson-26/lesson'
 
 export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26
-export type ScienceVariant = 'a' | 'b'
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [7, 8, 9, 10, 11, 12] },
@@ -41,6 +34,8 @@ export const scienceChapters = [
   { code: 'B3', title: 'Infection and response', lessonNumbers: [19, 20, 21, 22, 23, 24, 25] },
   { code: 'B4', title: 'Bioenergetics', lessonNumbers: [26] },
 ] as const
+// The Science catalogue: 26 Biology lessons in the easier wording (formerly "Variant B").
+// Lesson IDs keep their -B suffix so progress saved on testers' devices still loads.
 export const scienceLessons = [
   { number: 1, title: 'Cells', detail: 'Animal, plant and bacterial cells', lesson: lesson1 },
   { number: 2, title: 'Microscopy', detail: 'Magnification, resolution and measurements', lesson: lesson2 },
@@ -48,48 +43,31 @@ export const scienceLessons = [
   { number: 4, title: 'Specialisation', detail: 'Different cells, different jobs', lesson: lesson4 },
   { number: 5, title: 'Cell division', detail: 'Chromosomes, mitosis and stem cells', lesson: lesson5 },
   { number: 6, title: 'Transport and exchange', detail: 'Diffusion, osmosis and active transport', lesson: lesson6 },
+  { number: 7, title: 'Organisation', detail: 'Cells, tissues, organs and organ systems', lesson: lesson7 },
+  { number: 8, title: 'Enzymes', detail: 'Catalysts, active sites, pH and reaction rates', lesson: lesson8 },
+  { number: 9, title: 'Digestion and food tests', detail: 'Digestive enzymes, bile and practical tests', lesson: lesson9 },
+  { number: 10, title: 'The lungs', detail: 'Airways, alveoli and gas exchange', lesson: lesson10 },
+  { number: 11, title: 'Circulatory system: the heart', detail: 'Double circulation, chambers and major vessels', lesson: lesson11 },
+  { number: 12, title: 'Circulatory system: blood vessels', detail: 'Arteries, veins, capillaries and flow rate', lesson: lesson12 },
+  { number: 13, title: 'Blood', detail: 'Red cells, white cells, platelets and plasma', lesson: lesson13 },
+  { number: 14, title: 'Cardiovascular disease', detail: 'Coronary disease and treatment choices', lesson: lesson14 },
+  { number: 15, title: 'Health and disease', detail: 'Well-being, disease types and interactions', lesson: lesson15 },
+  { number: 16, title: 'Risk factors and cancer', detail: 'Evidence, tumour types and non-communicable disease', lesson: lesson16 },
+  { number: 17, title: 'Plant tissues and the leaf', detail: 'Plant organs, leaf layers, xylem and phloem', lesson: lesson17 },
+  { number: 18, title: 'Water and food on the move', detail: 'Transpiration, stomata and translocation', lesson: lesson18 },
+  { number: 19, title: 'Pathogens and how disease spreads', detail: 'Four pathogens, three routes and how to stop them', lesson: lesson19 },
+  { number: 20, title: 'Diseases people pass on', detail: 'Salmonella, gonorrhoea, measles and HIV', lesson: lesson20 },
+  { number: 21, title: 'Plant diseases and malaria', detail: 'TMV, rose black spot and malaria', lesson: lesson21 },
+  { number: 22, title: 'How your body defends itself', detail: 'Barriers, white blood cells, antibodies and antitoxins', lesson: lesson22 },
+  { number: 23, title: 'Vaccination', detail: 'Immunity, vaccines and protecting everyone', lesson: lesson23 },
+  { number: 24, title: 'Medicines and where they come from', detail: 'Painkillers, antibiotics, resistance and drugs from plants', lesson: lesson24 },
+  { number: 25, title: 'Testing new drugs', detail: 'Preclinical tests, clinical trials, placebos and peer review', lesson: lesson25 },
+  { number: 26, title: 'Photosynthesis and what plants do with glucose', detail: 'The word equation, chloroplasts and five uses of glucose', lesson: lesson26 },
 ] as const
-export const scienceLessonsB = [
-  { ...scienceLessons[0], lesson: lesson1B },
-  { ...scienceLessons[1], lesson: lesson2B },
-  { ...scienceLessons[2], lesson: lesson3B },
-  { ...scienceLessons[3], lesson: lesson4B },
-  { ...scienceLessons[4], lesson: lesson5B },
-  { ...scienceLessons[5], lesson: lesson6B },
-  { number: 7, title: 'Organisation', detail: 'Cells, tissues, organs and organ systems', lesson: lesson7B },
-  { number: 8, title: 'Enzymes', detail: 'Catalysts, active sites, pH and reaction rates', lesson: lesson8B },
-  { number: 9, title: 'Digestion and food tests', detail: 'Digestive enzymes, bile and practical tests', lesson: lesson9B },
-  { number: 10, title: 'The lungs', detail: 'Airways, alveoli and gas exchange', lesson: lesson10B },
-  { number: 11, title: 'Circulatory system: the heart', detail: 'Double circulation, chambers and major vessels', lesson: lesson11B },
-  { number: 12, title: 'Circulatory system: blood vessels', detail: 'Arteries, veins, capillaries and flow rate', lesson: lesson12B },
-  { number: 13, title: 'Blood', detail: 'Red cells, white cells, platelets and plasma', lesson: lesson13B },
-  { number: 14, title: 'Cardiovascular disease', detail: 'Coronary disease and treatment choices', lesson: lesson14B },
-  { number: 15, title: 'Health and disease', detail: 'Well-being, disease types and interactions', lesson: lesson15B },
-  { number: 16, title: 'Risk factors and cancer', detail: 'Evidence, tumour types and non-communicable disease', lesson: lesson16B },
-  { number: 17, title: 'Plant tissues and the leaf', detail: 'Plant organs, leaf layers, xylem and phloem', lesson: lesson17B },
-  { number: 18, title: 'Water and food on the move', detail: 'Transpiration, stomata and translocation', lesson: lesson18B },
-  { number: 19, title: 'Pathogens and how disease spreads', detail: 'Four pathogens, three routes and how to stop them', lesson: lesson19B },
-  { number: 20, title: 'Diseases people pass on', detail: 'Salmonella, gonorrhoea, measles and HIV', lesson: lesson20B },
-  { number: 21, title: 'Plant diseases and malaria', detail: 'TMV, rose black spot and malaria', lesson: lesson21B },
-  { number: 22, title: 'How your body defends itself', detail: 'Barriers, white blood cells, antibodies and antitoxins', lesson: lesson22B },
-  { number: 23, title: 'Vaccination', detail: 'Immunity, vaccines and protecting everyone', lesson: lesson23B },
-  { number: 24, title: 'Medicines and where they come from', detail: 'Painkillers, antibiotics, resistance and drugs from plants', lesson: lesson24B },
-  { number: 25, title: 'Testing new drugs', detail: 'Preclinical tests, clinical trials, placebos and peer review', lesson: lesson25B },
-  { number: 26, title: 'Photosynthesis and what plants do with glucose', detail: 'The word equation, chloroplasts and five uses of glucose', lesson: lesson26B },
-] as const
-export function getScienceLessons(variant: ScienceVariant = 'a') { return variant === 'b' ? scienceLessonsB : scienceLessons }
-// The main catalogue exposes easier-only new lessons even while A is selected.
-// Their canonical links switch to B, while Lessons 1–6 keep their A records.
-export function getScienceHubLessons(variant: ScienceVariant = 'a') {
-  return variant === 'b' ? scienceLessonsB : [...scienceLessons, ...scienceLessonsB.slice(6)]
+export function scienceHubHref() { return '/preview?subject=science' }
+export function scienceLessonHref(number: LessonNumber, activity?: string | null) {
+  return `/preview/science?lesson=${number}${activity ? '&activity=' + encodeURIComponent(activity) : ''}`
 }
-// The Science curriculum lives in the app now, for both wording variants.
-export function scienceHubHref(_variant: ScienceVariant = 'a') { return '/preview?subject=science' }
-export function scienceLessonHref(number: LessonNumber, variant: ScienceVariant = 'a', activity?: string | null) {
-  const effectiveVariant = number >= 7 ? 'b' : variant
-  return `/preview/science?lesson=${number}${effectiveVariant === 'b' ? '&variant=b' : ''}${activity ? '&activity=' + encodeURIComponent(activity) : ''}`
-}
-export function parseScienceVariant(value: string | string[] | undefined): ScienceVariant { return value === 'b' ? 'b' : 'a' }
 export function parseScienceLesson(value: string | string[] | undefined): LessonNumber | null {
   return ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26'].includes(typeof value === 'string' ? value : '') ? Number(value) as LessonNumber : null
 }

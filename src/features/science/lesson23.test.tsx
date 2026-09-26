@@ -4,11 +4,11 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
-import { getScienceHubLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
+import { scienceLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson23, vaccinationSections } from './variants/b/lesson-23/lesson'
-import { vaccinationFrames } from './variants/b/lesson-23/teachingFrames'
-import { lesson22 } from './variants/b/lesson-22/lesson'
+import { lesson23, vaccinationSections } from './lesson-23/lesson'
+import { vaccinationFrames } from './lesson-23/teachingFrames'
+import { lesson22 } from './lesson-22/lesson'
 import type { EvidenceDimension, Profile, ScienceState } from './types'
 
 let checks = 0
@@ -186,9 +186,9 @@ check('Lesson 23 has its own storage record, separate from Lesson 22', () => {
 
 check('Hub, chapter, parser and links include Lesson 23; Lesson 22 leads here and Lesson 23 leads to Lesson 24', () => {
   assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
-  assert.ok(getScienceHubLessons('b').some(item => item.number === 23) && getScienceHubLessons('a').some(item => item.number === 23))
+  assert.ok(scienceLessons.some(item => item.number === 23))
   assert.equal(parseScienceLesson('23'), 23)
-  assert.equal(scienceLessonHref(23, 'a'), '/preview/science?lesson=23&variant=b')
+  assert.equal(scienceLessonHref(23), '/preview/science?lesson=23')
   const secure: Profile = { dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }
   assert.deepEqual(recommendedNext(secure, false, { ...lesson23, id: 'B-INF-022-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-INF-023-B' })
 })

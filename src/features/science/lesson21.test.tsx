@@ -4,11 +4,11 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
 import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
-import { getScienceHubLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
+import { scienceLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson21, plantMalariaSections } from './variants/b/lesson-21/lesson'
-import { plantMalariaFrames } from './variants/b/lesson-21/teachingFrames'
-import { lesson20 } from './variants/b/lesson-20/lesson'
+import { lesson21, plantMalariaSections } from './lesson-21/lesson'
+import { plantMalariaFrames } from './lesson-21/teachingFrames'
+import { lesson20 } from './lesson-20/lesson'
 import type { EvidenceDimension, ScienceState } from './types'
 
 let checks = 0
@@ -185,9 +185,9 @@ check('Lesson 21 has its own storage record, separate from Lesson 20', () => {
 
 check('Hub, chapter, parser and links include Lesson 21; Lesson 20 now leads here', () => {
   assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
-  assert.ok(getScienceHubLessons('b').some(item => item.number === 21) && getScienceHubLessons('a').some(item => item.number === 21))
+  assert.ok(scienceLessons.some(item => item.number === 21))
   assert.equal(parseScienceLesson('21'), 21)
-  assert.equal(scienceLessonHref(21, 'a'), '/preview/science?lesson=21&variant=b')
+  assert.equal(scienceLessonHref(21), '/preview/science?lesson=21')
   assert.deepEqual(recommendedNext({ dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }, false, { ...lesson21, id: 'B-INF-020-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-INF-021-B' })
 })
 

@@ -16,7 +16,7 @@ import './ScienceCurriculum.css'
 // Science lessons still open in the Science lesson player for now.
 function onOpenLesson(number: LessonNumber) {
   saveScienceLastLesson(number)
-  window.location.assign(scienceLessonHref(number, 'b'))
+  window.location.assign(scienceLessonHref(number))
 }
 
 const LATER = [{ code: 'C', title: 'Chemistry' }, { code: 'P', title: 'Physics' }]

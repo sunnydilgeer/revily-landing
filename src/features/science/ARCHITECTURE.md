@@ -1,5 +1,15 @@
 # Science scaffold architecture
 
+## Current state — 26 September 2026 (read this first)
+
+- **One Science catalogue.** The original wording (Variant A, Lessons 1–6) has been deleted, along with the A/B switch and the `?variant=` parameter. The easier wording (formerly Variant B) is now the only Science content: 26 Biology lessons in `lesson-1/` to `lesson-26/`, listed in `lessonNavigation.ts` as `scienceLessons`.
+- **Saved progress is unchanged.** Lesson IDs keep their `-B` suffix (e.g. `B-CELL-001-B`), so storage keys such as `revily:science:B-CELL-001-B:0.1.0:preview` still load for testers. The exam pilot key keeps its `:b` suffix for the same reason.
+- **Routes.** The Science home is in the app at `/preview?subject=science`. `/preview/science?lesson=N` plays a lesson; an old `&variant=` is ignored. `/preview/science` with no lesson redirects to the app.
+- **Shared pieces** that used to live in A's folders: `teachingFrame.ts` (the `TeachingFrame` type and plant part IDs) and `lesson-6/practicalData.ts`.
+- **All content is still a draft** awaiting qualified teacher review.
+
+Notes below this section are a dated history. Mentions of Variant A, Variant B, `variants/b/` or `?variant=b` describe how things were then.
+
 ## Blood, health and cancer extension — 22 September 2026
 
 Variant B continues from the existing lung, heart and vessel sequence into Lessons 13–16. Blood components remain separate from Lesson 12, so no vessel content is duplicated. The fixed lesson flow, section navigation, teacher-only writing, versioned local records and evidence rules are unchanged. `HealthDiseaseVisuals.tsx` supplies original code-native blood, cardiovascular, health, risk and tumour models; assessment views hide answer-bearing names where a visual is part of the prompt.

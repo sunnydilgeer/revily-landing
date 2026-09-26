@@ -1,57 +1,251 @@
-export type TeachingFrame = {
-  label: string; summary: string; cue: string; text: string;
-  part?: 'membrane' | 'cytoplasm' | 'nucleus' | 'mitochondria' | 'ribosomes'; diagram?: 'plant' | 'bacterium' | 'scale' | 'comparison' | 'microscopy' | 'practical' | 'cellBiology'; focus?: string
-}
+// Variant B: simpler teaching copy. Visual targets and step order match Variant A.
+import type { TeachingFrame } from '../teachingFrame'
 
-// Introduce each whole cell before comparing cells or naming their categories.
 export const teachingFrames: Record<string, TeachingFrame[]> = {
-  'B1-02': [
-    { label: 'Meet an animal cell', summary: 'Cells are the tiny living units that make up animals.', cue: 'Think: parts with different jobs', text: 'Your body is made of cells. Inside a cell are smaller parts called sub-cellular structures. Each structure has a function: a job that helps the cell work. Start with the whole cell, then look at three of its parts.' },
-    { label: 'The cell membrane', part: 'membrane', summary: 'Controls which substances enter and leave the cell.', cue: 'Think: the cell boundary', text: 'The membrane is the thin boundary around the cell. Substances must cross this boundary to get in or out. For example, a cell needs to take in useful substances and release waste products.' },
-    { label: 'The cytoplasm', part: 'cytoplasm', summary: 'Most of the cell’s chemical reactions happen here.', cue: 'Think: reactions inside the cell', text: 'Cytoplasm is the jelly-like material inside the membrane. It surrounds the other cell structures. Chemical reactions change substances into other substances and help keep the cell alive.' },
-    { label: 'The nucleus', part: 'nucleus', summary: 'Contains genetic material and controls the cell’s activities.', cue: 'Think: genetic instructions', text: 'The nucleus contains DNA, the cell’s genetic material. DNA carries instructions that help control how the cell works. The nucleus controls cell activities; the membrane controls movement into and out of the cell.' },
+  "B1-02": [
+    {
+      "label": "Meet an animal cell",
+      "summary": "Animals are made of tiny living units called cells.",
+      "cue": "Think: parts with different jobs",
+      "text": "Your body is made of cells. Each cell has smaller parts called sub-cellular structures. Each part has a job. We call this its function."
+    },
+    {
+      "label": "The cell membrane",
+      "part": "membrane",
+      "summary": "Controls what enters and leaves the cell.",
+      "cue": "Think: the cell boundary",
+      "text": "The membrane is the thin boundary around a cell. Useful substances enter through it. Waste substances leave through it."
+    },
+    {
+      "label": "The cytoplasm",
+      "part": "cytoplasm",
+      "summary": "Many chemical reactions happen here.",
+      "cue": "Think: reactions inside the cell",
+      "text": "Cytoplasm is the jelly-like material inside a cell. Chemical reactions happen here. These reactions change substances and help the cell stay alive."
+    },
+    {
+      "label": "The nucleus",
+      "part": "nucleus",
+      "summary": "Holds the cell’s genetic instructions.",
+      "cue": "Think: genetic instructions",
+      "text": "The nucleus contains DNA. DNA is genetic material: it carries instructions for how the cell works. These instructions help control the cell’s activities."
+    }
   ],
-  'B1-05': [
-    { label: 'Mitochondria release energy', part: 'mitochondria', summary: 'Aerobic respiration takes place in mitochondria.', cue: 'Think: respiration → released energy', text: 'Cells need energy for processes such as movement. Aerobic respiration uses oxygen and releases energy from food molecules. Much of this process happens in mitochondria. Energy is released, not made from nothing.' },
-    { label: 'Ribosomes make proteins', part: 'ribosomes', summary: 'Protein synthesis means making proteins.', cue: 'Think: ribosomes → proteins', text: 'Cells need proteins to build structures and carry out their work. Ribosomes are the small structures where proteins are made. The dots in this drawing represent ribosomes.' },
-    { label: 'Put the animal cell together', summary: 'Each cell structure has a different function.', cue: 'Think: name the part and its job', text: 'The membrane controls entry and exit. Reactions happen in cytoplasm. The nucleus holds genetic instructions. Mitochondria release energy through respiration, and ribosomes make proteins. These are typical features; some specialised animal cells differ.' },
+  "B1-05": [
+    {
+      "label": "Mitochondria release energy",
+      "part": "mitochondria",
+      "summary": "Releases energy from food.",
+      "cue": "Think: respiration → released energy",
+      "text": "Cells need energy to work. Much of this energy is released from food in mitochondria. The process uses oxygen. It is called aerobic respiration. Energy is released, not created."
+    },
+    {
+      "label": "Ribosomes make proteins",
+      "part": "ribosomes",
+      "summary": "Makes proteins for the cell.",
+      "cue": "Think: ribosomes → proteins",
+      "text": "Cells need proteins to build parts and do their work. Ribosomes make these proteins. Making proteins is called protein synthesis. The dots represent ribosomes."
+    },
+    {
+      "label": "Put the animal cell together",
+      "summary": "Five cell parts, five jobs.",
+      "cue": "Think: name the part and its job",
+      "text": "Membrane: controls entry and exit. Cytoplasm: chemical reactions. Nucleus: genetic instructions. Mitochondria: aerobic respiration. Ribosomes: protein synthesis. These are typical animal-cell parts. Some specialised cells differ."
+    }
   ],
-  'B1-24': [
-    { label: 'Meet a plant cell', summary: 'Plant cells have some of the same structures as animal cells.', cue: 'Think: familiar parts, new jobs', text: 'Plants are made of cells too. First find the membrane, cytoplasm and nucleus. Then meet the extra structures in this example: a cell wall, a permanent vacuole and chloroplasts. This example is a plant cell that carries out photosynthesis.' , diagram: 'plant' },
-    { label: 'The plant-cell membrane', summary: 'Controls which substances enter and leave the cell.', cue: 'Think: membrane inside the wall', text: 'The membrane is just inside the cell wall. Substances cross the membrane to enter or leave the cell. The membrane controls this movement; the wall supports the cell.', diagram: 'plant', focus: 'membrane' },
-    { label: 'The plant-cell cytoplasm', summary: 'Most chemical reactions happen in the cytoplasm.', cue: 'Think: material around the structures', text: 'The cytoplasm surrounds the structures inside the cell. In this plant cell, the large vacuole takes up much of the centre, so much of the cytoplasm lies nearer the edges.', diagram: 'plant', focus: 'cytoplasm' },
-    { label: 'The plant-cell nucleus', summary: 'Contains genetic material and controls cell activities.', cue: 'Think: the same job as in animals', text: 'The nucleus contains DNA with instructions for how the plant cell works. It has the same function as an animal-cell nucleus. In this example, it sits beside the large vacuole.', diagram: 'plant', focus: 'nucleus' },
+  "B1-24": [
+    {
+      "label": "Meet a plant cell",
+      "summary": "Plant cells have familiar parts too.",
+      "cue": "Think: familiar parts, new jobs",
+      "text": "Find the membrane, cytoplasm and nucleus. This plant cell also has a wall, a large vacuole and chloroplasts. It is an example of a cell that photosynthesises.",
+      "diagram": "plant"
+    },
+    {
+      "label": "The plant-cell membrane",
+      "summary": "Controls what enters and leaves.",
+      "cue": "Think: membrane inside the wall",
+      "text": "The membrane sits just inside the wall. It controls which substances cross into or out of the cell. The wall has a different job: support.",
+      "diagram": "plant",
+      "focus": "membrane"
+    },
+    {
+      "label": "The plant-cell cytoplasm",
+      "summary": "Chemical reactions happen here.",
+      "cue": "Think: material around the structures",
+      "text": "Cytoplasm surrounds the parts inside the cell. The large vacuole fills much of the centre. Much of the cytoplasm is nearer the edges.",
+      "diagram": "plant",
+      "focus": "cytoplasm"
+    },
+    {
+      "label": "The plant-cell nucleus",
+      "summary": "Holds genetic instructions.",
+      "cue": "Think: the same job as in animals",
+      "text": "The plant-cell nucleus contains DNA. It helps control the cell’s activities, just as an animal-cell nucleus does. Here it sits beside the vacuole.",
+      "diagram": "plant",
+      "focus": "nucleus"
+    }
   ],
-  'B1-42': [
-    { label: 'Plant cells need mitochondria', summary: 'Plant cells release energy by aerobic respiration too.', cue: 'Think: plants respire', text: 'Plants make food by photosynthesis, but their cells still need to release energy from food. Aerobic respiration in mitochondria releases energy for cell processes. Photosynthesis and respiration are different processes.', diagram: 'plant', focus: 'mitochondria' },
-    { label: 'Plant cells need ribosomes', summary: 'Ribosomes make the proteins that plant cells need.', cue: 'Think: protein synthesis', text: 'Plant cells use proteins to build structures and carry out reactions. Their ribosomes make these proteins, just as ribosomes do in animal cells.', diagram: 'plant', focus: 'ribosomes' },
-    { label: 'The cell wall supports the cell', summary: 'Plant cell walls contain a strong material called cellulose.', cue: 'Think: wall → strength and support', text: 'The cell wall lies outside the membrane. Cellulose strengthens the wall, helping it support the cell. Plant and algal cells have cellulose walls; animal cells do not have cell walls.', diagram: 'plant', focus: 'wall' },
-    { label: 'The permanent vacuole', summary: 'A large space containing cell sap.', cue: 'Think: vacuole → cell sap', text: 'Cell sap is a watery solution containing dissolved substances. The permanent vacuole holds this solution. It is a separate compartment, not the cytoplasm surrounding it.', diagram: 'plant', focus: 'vacuole' },
-    { label: 'Chloroplasts absorb light', summary: 'Photosynthesis takes place in chloroplasts.', cue: 'Think: light → photosynthesis', text: 'Chloroplasts contain the green pigment chlorophyll. Chlorophyll absorbs light needed for photosynthesis, which makes food for the plant. Root cells normally have no chloroplasts because photosynthesis is not their job.', diagram: 'plant', focus: 'chloroplast' },
-    { label: 'Put the plant cell together', summary: 'This plant cell has eight structures with different jobs.', cue: 'Think: structure → function', text: 'Five structures are shared with typical animal cells. The wall supports this cell, the vacuole contains cell sap, and chloroplasts carry out photosynthesis. This is a photosynthesising example: not every plant cell has chloroplasts.', diagram: 'plant' },
+  "B1-42": [
+    {
+      "label": "Plant cells need mitochondria",
+      "summary": "Plant cells release energy from food too.",
+      "cue": "Think: plants respire",
+      "text": "Photosynthesis makes food. Plant cells still need to release energy from that food. Aerobic respiration in mitochondria releases energy for the cell’s work.",
+      "diagram": "plant",
+      "focus": "mitochondria"
+    },
+    {
+      "label": "Plant cells need ribosomes",
+      "summary": "Plant cells need proteins too.",
+      "cue": "Think: protein synthesis",
+      "text": "Ribosomes make proteins. Plant cells use these proteins to build parts and carry out reactions. Making proteins is called protein synthesis.",
+      "diagram": "plant",
+      "focus": "ribosomes"
+    },
+    {
+      "label": "The cell wall supports the cell",
+      "summary": "Strengthens and supports the cell.",
+      "cue": "Think: wall → strength and support",
+      "text": "The cell wall is outside the membrane. Plant and algal walls contain cellulose, a strong material. Animal cells have no cell wall.",
+      "diagram": "plant",
+      "focus": "wall"
+    },
+    {
+      "label": "The permanent vacuole",
+      "summary": "Holds a watery liquid called cell sap.",
+      "cue": "Think: vacuole → cell sap",
+      "text": "The permanent vacuole is a space inside a plant cell. It holds cell sap: water with dissolved substances. Cytoplasm surrounds this separate space.",
+      "diagram": "plant",
+      "focus": "vacuole"
+    },
+    {
+      "label": "Chloroplasts absorb light",
+      "summary": "Uses light to make food.",
+      "cue": "Think: light → photosynthesis",
+      "text": "Photosynthesis happens in chloroplasts. They contain chlorophyll, a green pigment that absorbs light. Root cells usually have no chloroplasts.",
+      "diagram": "plant",
+      "focus": "chloroplast"
+    },
+    {
+      "label": "Put the plant cell together",
+      "summary": "Five familiar parts and three extra parts.",
+      "cue": "Think: structure → function",
+      "text": "This cell shares five parts with typical animal cells. Its wall supports it. Its vacuole holds cell sap. Its chloroplasts carry out photosynthesis. Not every plant cell has chloroplasts.",
+      "diagram": "plant"
+    }
   ],
-  'B1-41': [
-    { label: 'What do both cells have?', summary: 'Typical animal and plant cells share five structures.', cue: 'Think: shared parts, shared jobs', text: 'Both have a membrane, cytoplasm, nucleus, mitochondria and ribosomes. Each structure has the same function in the two cells. Compare the labelled parts, not just the outlines of the drawings.', diagram: 'comparison' },
-    { label: 'What is different?', summary: 'This plant cell also has a wall, large vacuole and chloroplasts.', cue: 'Think: a paired comparison', text: 'A typical animal cell has no cell wall or chloroplasts. This plant cell has both, plus a large permanent vacuole containing cell sap. When comparing cells, say what one has and what the other has or lacks. Some plant cells, such as root cells, have no chloroplasts.', diagram: 'comparison', focus: 'differences' },
+  "B1-41": [
+    {
+      "label": "What do both cells have?",
+      "summary": "Typical animal and plant cells share five parts.",
+      "cue": "Think: shared parts, shared jobs",
+      "text": "Both have a membrane, cytoplasm, nucleus, mitochondria and ribosomes. These parts do the same jobs in both cells. Compare the parts, not just the cell’s shape.",
+      "diagram": "comparison"
+    },
+    {
+      "label": "What is different?",
+      "summary": "This plant cell has extra parts.",
+      "cue": "Think: a paired comparison",
+      "text": "This plant cell has a wall, permanent vacuole and chloroplasts. Typical animal cells have no wall or chloroplasts. Some plant cells, such as root cells, also have no chloroplasts.",
+      "diagram": "comparison",
+      "focus": "differences"
+    }
   ],
-  'B1-27': [
-    { label: 'Meet a bacterial cell', summary: 'Bacteria are living cells, usually much smaller than animal or plant cells.', cue: 'Think: a different cell layout', text: 'A bacterium has some familiar structures: a membrane, cytoplasm and ribosomes. Its genetic material is arranged differently because it has no nucleus. This drawing is enlarged so you can see the parts; it does not show the bacterium’s actual size.', diagram: 'bacterium' },
-    { label: 'The bacterial cell wall', summary: 'Supports the cell and lies outside its membrane.', cue: 'Think: support outside the membrane', text: 'Bacteria have a supporting cell wall. Unlike a plant cell wall, it is not made of cellulose. The wall and the membrane just inside it are separate structures.', diagram: 'bacterium', focus: 'wall' },
-    { label: 'The bacterial cell membrane', summary: 'Controls movement into and out of the bacterial cell.', cue: 'Think: the same membrane function', text: 'The membrane lies inside the wall. Substances cross it to enter or leave the cell. It has the same entry-and-exit function as the membrane in animal and plant cells.', diagram: 'bacterium', focus: 'membrane' },
-    { label: 'Cytoplasm and ribosomes', summary: 'Reactions happen in cytoplasm; ribosomes make proteins.', cue: 'Think: two familiar functions', text: 'Bacterial cells have cytoplasm and ribosomes, but no mitochondria or chloroplasts. Remember the two jobs: cytoplasm is where reactions happen, and ribosomes are where proteins are made.', diagram: 'bacterium', focus: 'ribosomes' },
-    { label: 'The bacterial DNA loop', summary: 'The main genetic material is a single loop of DNA.', cue: 'Think: DNA without a nucleus', text: 'This DNA loop lies in the cytoplasm rather than inside a nucleus. It carries genetic instructions. A bacterium has no nucleus, but it still has DNA.', diagram: 'bacterium', focus: 'dna' },
-    { label: 'Some bacteria also have plasmids', summary: 'Plasmids are small extra rings of DNA.', cue: 'Think: extra DNA rings', text: 'Plasmids carry additional genes: extra genetic instructions. They are separate from the main DNA loop. Some bacteria have plasmids and others do not.', diagram: 'bacterium', focus: 'plasmids' },
+  "B1-27": [
+    {
+      "label": "Meet a bacterial cell",
+      "summary": "Bacteria are usually much smaller cells.",
+      "cue": "Think: a different cell layout",
+      "text": "A bacterium has a membrane, cytoplasm and ribosomes. It has DNA but no nucleus. This drawing is enlarged to show its parts, not its real size.",
+      "diagram": "bacterium"
+    },
+    {
+      "label": "The bacterial cell wall",
+      "summary": "Supports the cell.",
+      "cue": "Think: support outside the membrane",
+      "text": "The bacterial wall is outside the membrane. It supports the cell. Unlike a plant cell wall, it is not made of cellulose.",
+      "diagram": "bacterium",
+      "focus": "wall"
+    },
+    {
+      "label": "The bacterial cell membrane",
+      "summary": "Controls what enters and leaves.",
+      "cue": "Think: the same membrane function",
+      "text": "The membrane sits inside the wall. It controls movement into and out of the cell. This is the same job as in animal and plant cells.",
+      "diagram": "bacterium",
+      "focus": "membrane"
+    },
+    {
+      "label": "Cytoplasm and ribosomes",
+      "summary": "Cytoplasm: reactions. Ribosomes: proteins.",
+      "cue": "Think: two familiar functions",
+      "text": "Bacteria have cytoplasm where reactions happen. Their ribosomes make proteins. Bacteria have no mitochondria or chloroplasts.",
+      "diagram": "bacterium",
+      "focus": "ribosomes"
+    },
+    {
+      "label": "The bacterial DNA loop",
+      "summary": "A loop of DNA carries genetic instructions.",
+      "cue": "Think: DNA without a nucleus",
+      "text": "The main DNA forms a loop in the cytoplasm. It is not inside a nucleus. Bacteria have DNA even though they have no nucleus.",
+      "diagram": "bacterium",
+      "focus": "dna"
+    },
+    {
+      "label": "Some bacteria also have plasmids",
+      "summary": "Small extra rings of DNA.",
+      "cue": "Think: extra DNA rings",
+      "text": "Plasmids are separate from the main DNA loop. They carry extra genes, or genetic instructions. Some bacteria have plasmids; others do not.",
+      "diagram": "bacterium",
+      "focus": "plasmids"
+    }
   ],
-  'B1-22': [
-    { label: 'Cells with a nucleus: eukaryotic', summary: 'Animal and plant cells are eukaryotic cells.', cue: 'Think: genetic material in a nucleus', text: 'Eukaryotic is a name for the cell type, not another structure. Typical animal and plant cells belong to this type because their genetic material is enclosed in a nucleus.', diagram: 'comparison' },
-    { label: 'Bacterial cells: prokaryotic', summary: 'Bacteria are prokaryotic cells.', cue: 'Think: genetic material without a nucleus', text: 'Prokaryotic cells do not enclose their genetic material in a nucleus. Their main DNA loop lies in the cytoplasm. The key difference between these cell types is where the genetic material is held.', diagram: 'bacterium', focus: 'dna' },
+  "B1-22": [
+    {
+      "label": "Cells with a nucleus: eukaryotic",
+      "summary": "Eukaryotic cells have genetic material inside a nucleus.",
+      "cue": "Think: genetic material in a nucleus",
+      "text": "Typical animal and plant cells have a nucleus around their genetic material. We call these cells eukaryotic. This names a type of cell, not a cell part.",
+      "diagram": "comparison"
+    },
+    {
+      "label": "Bacterial cells: prokaryotic",
+      "summary": "Bacterial DNA is not inside a nucleus.",
+      "cue": "Think: genetic material without a nucleus",
+      "text": "Bacteria are prokaryotic cells. Their main DNA loop is in the cytoplasm, not a nucleus. Where the DNA is held is the key difference.",
+      "diagram": "bacterium",
+      "focus": "dna"
+    }
   ],
-  'B1-29': [
-    { label: 'Measuring tiny cells', summary: '1 millimetre contains 1000 micrometres.', cue: 'Think: mm × 1000 → µm', text: 'A micrometre is one thousandth of a millimetre, written µm. Cells are small, so µm is a useful unit. Multiply mm by 1000 to get µm; divide µm by 1000 to get mm.', diagram: 'scale' },
-    { label: 'Compare sizes in the same unit', summary: '20 µm ÷ 2 µm = 10.', cue: 'Think: larger diameter ÷ smaller diameter', text: 'Suppose an animal cell is 20 µm across and a bacterium is 2 µm across. Their units match, so divide 20 by 2. The animal cell’s diameter is 10 times the bacterium’s diameter. These are example sizes, not fixed sizes for all cells.', diagram: 'scale' },
-    { label: 'What is an order of magnitude?', summary: 'One order of magnitude means a tenfold difference.', cue: 'Think: ×10, then ×10 again', text: 'A diameter 10 times larger differs by one order of magnitude. A diameter 100 times larger differs by two: 10 × 10 = 100. Compare the same measurement in the same units, such as diameter with diameter.', diagram: 'scale' },
-    { label: 'Writing small sizes in standard form', summary: 'Standard form writes a number as a × 10ⁿ.', cue: 'Think: a is at least 1 but less than 10', text: 'For example, 20 = 2 × 10¹. For a small decimal, use a negative power: 0.002 mm = 2 × 10⁻³ mm. Here 10⁻³ means 0.001, and 2 × 0.001 = 0.002. Keep the measurement unit with the number.', diagram: 'scale' },
-  ],
+  "B1-29": [
+    {
+      "label": "Measuring tiny cells",
+      "summary": "1 mm = 1000 µm.",
+      "cue": "Think: mm × 1000 → µm",
+      "text": "A micrometre is one thousandth of a millimetre. We write it as µm. Convert mm to µm: multiply by 1000. Convert µm to mm: divide by 1000.",
+      "diagram": "scale"
+    },
+    {
+      "label": "Compare sizes in the same unit",
+      "summary": "Use the same units, then divide.",
+      "cue": "Think: larger diameter ÷ smaller diameter",
+      "text": "Example diameters: animal cell 20 µm; bacterium 2 µm. Calculate 20 ÷ 2 = 10. The animal cell’s diameter is 10 times larger. Actual cell sizes vary.",
+      "diagram": "scale"
+    },
+    {
+      "label": "What is an order of magnitude?",
+      "summary": "Each order of magnitude is a factor of 10.",
+      "cue": "Think: ×10, then ×10 again",
+      "text": "A diameter 10 times larger differs by one order of magnitude. A diameter 100 times larger differs by two: 10 × 10. Compare diameters in the same units.",
+      "diagram": "scale"
+    },
+    {
+      "label": "Writing small sizes in standard form",
+      "summary": "Standard form is a short way to write numbers.",
+      "cue": "Think: a is at least 1 but less than 10",
+      "text": "Write a number as a × 10ⁿ. The first number must be at least 1 but less than 10. Example: 0.002 mm = 2 × 10⁻³ mm. Here, 10⁻³ means 0.001.",
+      "diagram": "scale"
+    }
+  ]
 }
-
-export const plantPartIds = ['membrane', 'cytoplasm', 'nucleus', 'mitochondria', 'ribosomes', 'wall', 'vacuole', 'chloroplast']

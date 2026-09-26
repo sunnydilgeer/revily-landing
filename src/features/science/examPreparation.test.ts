@@ -1,18 +1,18 @@
 import assert from 'node:assert/strict'
-import { getScienceLessons } from './lessonNavigation'
+import { scienceLessons } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { coverageTopics, coverageLessonHref, initialPaperMappings, mappingStorageKey, paperLink, pilotStorageKey, newPilotSession, pilotReducer, restorePilotSession, restoreMappings, transportPilot, validMapping, type PaperMapping } from './examPreparation'
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log('PASS ' + name) }
-check('Coverage: 18 unique topics cover all six lessons with valid exact A/B targets', () => {
+check('Coverage: 18 unique topics cover all six lessons with valid exact targets', () => {
   assert.equal(coverageTopics.length, 18); assert.equal(new Set(coverageTopics.map(t => t.id)).size, 18)
   assert.deepEqual([...new Set(coverageTopics.map(t => t.lesson))], [1,2,3,4,5,6])
-  for (const variant of ['a', 'b'] as const) for (const topic of coverageTopics) {
-    const lesson = getScienceLessons(variant).find(l => l.number === topic.lesson)!.lesson
+  for (const topic of coverageTopics) {
+    const lesson = scienceLessons.find(l => l.number === topic.lesson)!.lesson
     assert.ok(lesson.states.some(s => s.id === topic.activity))
     assert.ok(topic.spec && topic.skills)
-    assert.match(coverageLessonHref(topic, variant), new RegExp(`lesson=${topic.lesson}.*activity=${topic.activity}`))
-    assert.equal(coverageLessonHref(topic, variant).includes('variant=b'), variant === 'b')
+    assert.match(coverageLessonHref(topic), new RegExp(`lesson=${topic.lesson}.*activity=${topic.activity}`))
+    assert.ok(!coverageLessonHref(topic).includes('variant='))
   }
 })
 check('Paper references: inherited candidates are pending, with no fabricated marks or matches', () => {
@@ -77,8 +77,9 @@ check('Pilot restore: malformed, unlocked or prematurely completed snapshots rej
   assert.ok(restorePilotSession(empty))
   assert.equal(pilotReducer(empty,{type:'back'}).current,0)
 })
-check('Exam storage: map and A/B pilot records cannot overwrite any lesson progress key', () => {
-  const keys=[mappingStorageKey,pilotStorageKey('a'),pilotStorageKey('b'),...(['a','b'] as const).flatMap(v=>getScienceLessons(v).map(l=>createPreviewSessionEngine(l.lesson).storageKey))]
-  assert.equal(new Set(keys).size,35)
+check('Exam storage: map and pilot records cannot overwrite any lesson progress key', () => {
+  const keys=[mappingStorageKey,pilotStorageKey,...scienceLessons.map(l=>createPreviewSessionEngine(l.lesson).storageKey)]
+  assert.equal(new Set(keys).size,28)
+  assert.equal(pilotStorageKey,'revily:science:transport-exam-pilot:v1:b','Testers\' saved pilot attempts must still load')
 })
 console.log(`${checks} exam-preparation grouped checks passed`)
