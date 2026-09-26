@@ -143,8 +143,10 @@ assert(primeCard.component.props.expression === '21, 22, 23, 24, 25, 26, 27, 28,
 
 const legacyPrimeExplorer = states.find(state => state.id === 'D-SI-03A')
 assert(legacyPrimeExplorer.content.title === 'Explore prime numbers to 50', 'Legacy prime explorer title changed')
-assert(legacyPrimeExplorer.content.body === 'There is no repeating pattern or magic shortcut for finding prime numbers. A prime number can only be divided exactly by 1 and itself—not by 2, 3 or another whole number, unless that number is the prime itself.', 'Legacy prime explorer body changed')
-assert(legacyPrimeExplorer.content.prompt === 'Hover over or focus any number to see its factors. Prime numbers are highlighted.', 'Legacy prime explorer prompt changed')
+// Wording shortened on purpose in the minimal-UI pass (September 2026); keep guarding against accidental edits.
+assert(legacyPrimeExplorer.content.body === 'A prime number has exactly two factors: 1 and itself.', 'Legacy prime explorer body changed')
+assert(legacyPrimeExplorer.content.prompt === 'Tap a number to see its factors.', 'Legacy prime explorer prompt changed')
+assert(!states.some(state => state.content.eyebrow || state.component.props?.caption?.includes('source')), 'Author notes must not appear on student screens')
 assert(legacyPrimeExplorer.component.type === 'primeGrid', 'Legacy prime explorer must use the original prime grid')
 assert(legacyPrimeExplorer.component.props.max === 50, 'Legacy prime explorer must display 1–50')
 assert(JSON.stringify(legacyPrimeExplorer.component.props.highlightedPrimes) === JSON.stringify([2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]), 'Legacy highlighted-prime set changed')
