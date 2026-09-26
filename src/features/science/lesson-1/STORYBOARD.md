@@ -1,84 +1,32 @@
-# B-CELL-001: Cells — animal, plant and bacterial
+# Lesson 1 storyboard — Animal and plant cells
 
-**Beta scaffold / not teacher-reviewed.** Version 0.3.0 has 42 screens; duration must be measured with learners. Animal cells, plant cells and bacterial cells are the organising subjects. Comparison and classification are subsequent observations. This covers the supplied “Cells” page scope, not the whole Cell Biology topic or microscopy practical. [Realignment brief](./REALIGNMENT.md) records the earlier scope/design decisions.
+Big idea: a cell is built from small parts, and each part has one job. A plant cell has every part an animal cell has, plus three more.
 
-Outcome: identify common animal/plant/bacterial structures and their functions, distinguish eukaryotes/prokaryotes, compare cells, convert mm/µm, use simple standard form and ratios, and estimate sub-cellular area. The observation connection introduces limits; magnification calculations and full practical technique come later.
+Anchor and route: build one animal cell part by part, from the outside in (membrane → cytoplasm → nucleus → mitochondria → ribosomes). Then turn it into a leaf cell by adding only what is new (wall → vacuole → chloroplasts). Then set the two side by side and compare them one part at a time.
 
-## Screen-by-screen storyboard
+Why this order: the membrane comes first because it is the outline of the cell, and every later part sits inside it. The cytoplasm comes before mitochondria and ribosomes, because both sit in the cytoplasm. "Releasing energy from food using oxygen" (aerobic respiration) is taught before mitochondria, so "mitochondria are where respiration happens" makes sense. The plant cell is taught only after all five animal parts, so its walkthrough recalls them in one sentence and spends its frames on what is new. Photosynthesis is named in the plant cell's first frame, before chloroplasts need it. "Not every plant cell has chloroplasts" follows the chloroplast frame straight away. The paired-comparison method (B1-41 f3) is taught before B1-44 and the written task use it.
 
-The exact prompts, answer options, hints, accepted answers and numbered reasoning are in `lesson.ts` and `expandedContent.ts`. `teachingFrames.ts` is the authoritative teaching text; script fallbacks are generated from those frames. All questions and illustrations are original Revily drafts.
+| Section | Screens | Walkthrough frames | Questions testing them |
+|---|---|---|---|
+| Start here | B1-01 | — | A brick wall is built from bricks; what is your body built from? (cells; everyday, KS3). Shows the unlabelled animal-cell model. |
+| What is inside an animal cell? | B1-02–04, B1-12 | T4: meet an animal cell (sub-cellular structures; "colours … are not the real colours") → cell membrane (in and out) → cytoplasm (reactions) → nucleus (genetic material; put the three together) | B1-03 pointer on the outer layer, labels hidden; B1-04 oxygen enters (nucleus "controls" trap); B1-12 which part holds genetic material |
+| How does a cell get energy and proteins? | B1-05–06, B1-08 | T4: cells need energy (aerobic respiration; "Energy is released, not created") → mitochondria → ribosomes (protein synthesis) → put the animal cell together (five parts, five jobs; "some specialised cells are different") | B1-06 released vs created vs ribosomes respire; B1-08 ribosomes make proteins |
+| What is new in a plant cell? | B1-42, B1-25, B1-32, B1-26 | T6: meet a plant cell (same five parts; photosynthesis) → cell wall (cellulose; animal cells have none) → permanent vacuole (cell sap) → chloroplasts → "Not every plant cell has chloroplasts" (root cells) → put the plant cell together | B1-25 what supports the cell (membrane trap); B1-32 where photosynthesis happens; B1-26 root cell without chloroplasts is still a plant cell |
+| How are animal and plant cells different? | B1-41, B1-43–44 | T3: what both have (five parts; plants need energy too) → what only plant cells have (wall, vacuole, chloroplasts; root cells) → put it together: one part at a time (paired comparison; hand-off to bacteria) | B1-43 which part both have (mitochondria); B1-44 which sentence is a good paired comparison |
+| On your own | B1-20, B1-19, B1-45, B1-46 | — | B1-20 new animal-cell drawing, labels hidden: job of the part at the pointer; B1-19 new scenario: stomach cell making digestive proteins; B1-45 spot the error: Sam gives the wall the membrane's job; B1-46 written: two leaf-cell vs animal-cell differences with the job of each plant part (4 marks, teacher-reviewed) |
 
-| Screen | Learner action | Science purpose / evidence |
-| --- | --- | --- |
-| B1-01 | Choose what a cell is | Prior-knowledge signal, not a gate or mastery item |
-| B1-02 | Meet a complete animal cell, then explore three parts | Animal membrane, cytoplasm and nucleus; gradual numbered keys |
-| B1-03 | Name the boundary indicated by a pointer | Guided model reading, labels hidden |
-| B1-04 | Choose the structure controlling entry | Guided function application |
-| B1-05 | Explore animal-cell energy/protein structures, then the whole cell | Mitochondria, ribosomes and all-five overview |
-| B1-06 | Choose the scientifically correct claim | Explicit misconception contrast, not a diagnosis |
-| B1-07 | Read/replay three optional worked reasoning steps | Model a structure → process → useful consequence chain |
-| B1-08 | Choose the linked protein-making statement | Guided understanding, not written-explanation evidence |
-| B1-09 | Decide what a schematic colour establishes | Representation versus reality |
-| B1-10 | Read illustrative microscope observation record | Bridge to practical 1; not a laboratory method |
-| B1-11 | Select a justified conclusion from the record | Non-visibility is not absence; practice evidence only |
-| B1-24 | Meet a complete plant cell, then explore three parts | Plant membrane, cytoplasm and nucleus taught directly |
-| B1-42 | Explore the remaining plant structures and whole-cell overview | Mitochondria, ribosomes, wall, permanent vacuole and chloroplasts |
-| B1-25–26 | Two plant-cell checks | Support and exceptions; missing chloroplasts does not mean animal |
-| B1-41 | Compare separate animal and plant diagrams | Similarities/differences after both cells are familiar |
-| B1-27–28 | Meet a bacterium; explore wall, membrane, cytoplasm/ribosomes, DNA and optional plasmids | No nucleus does not mean no DNA/ribosomes |
-| B1-22–23 | Give names to the categories already encountered | Eukaryotic/prokaryotic are supporting terminology, not the starting point |
-| B1-29–31 | Explore sizes/units/standard form, replay area estimate, justify approximation | Example sizes only; actual supplied dimensions and square area units |
-| B1-12–16 | Five individual function-to-part choices | Independent recall coverage of all five taught parts |
-| B1-17 | Distinguish nucleus from membrane functions | Independent understanding |
-| B1-18 | Distinguish mitochondria from ribosomes | Independent understanding |
-| B1-19 | Apply protein synthesis to a gland-cell scenario | Independent application; necessary context supplied |
-| B1-20 | Apply boundary function to a changed cell model | Transfer away from a memorised picture |
-| B1-32–40 | Independent plant/bacterial/classification and four numerical checks | Expanded recall and sampled calculation coverage |
-| B1-21 | Write two paired animal/bacterial structural differences | Two-mark-style Revily rubric; pending teacher review |
-| Summary | Continue to the automatically chosen next action | Show completion and dimension evidence separately |
+Hand-offs:
+- Back: this lesson opens the course, so Start here uses an everyday idea (a brick wall) and KS3 knowledge that living things are made of cells.
+- On: B1-41 f3 ends "Next, you will meet a very different kind of cell: a bacterium." The bacteria lesson's Start here asks where animal and plant cells keep their genetic material.
 
-## Separate cell teaching
+Caveats kept: "Energy is released, not created" (B1-05 f1, B1-06). The colour key: "The colours in this drawing help you tell the parts apart. They are not the real colours" (B1-02 f1; model caption unchanged). "Not every plant cell has chloroplasts" (B1-42 f5, B1-26). "These are the parts of a typical animal cell, but some specialised cells are different" (B1-05 f4). Diagrams are simplified models, not to scale.
 
-Animal teaching starts “Meet an animal cell” before introducing membrane, cytoplasm and nucleus. Its next chunk teaches mitochondria and ribosomes, then revisits the complete five-part cell. Short guided checks sit between these chunks.
+Moved out of this lesson:
+- Bacteria (B1-27, B1-28, B1-34), eukaryotic/prokaryotic (B1-22, B1-23, B1-36), cell walls (B1-37) and the animal-vs-bacterial written task (B1-21) → lesson-1b, "Bacteria and comparing cells".
+- Models and observations (B1-09, B1-10, B1-11: "draw only what you see", "not seeing a part does not prove it is missing") → the microscopy practical lesson, which teaches them.
+- Units, ratio, order of magnitude, standard form and area (B1-29, B1-30, B1-31, B1-35, B1-38, B1-39, B1-40) → the magnification maths lesson.
+- Dropped as repeats: B1-24 (plant cell re-teaching membrane, cytoplasm and nucleus), B1-07 (worked "how mitochondria help"), B1-13–B1-18 (a run of recall checks), B1-33 (vacuole recall).
 
-Plant teaching starts “Meet a plant cell” with a separate photosynthesising example. All eight structures and functions are explicitly taught in two chunks: membrane/cytoplasm/nucleus, then mitochondria/ribosomes/wall/vacuole/chloroplasts and an overview. It is not introduced as an animal cell with extras. Qualifiers about specialised cells and missing chloroplasts remain.
+Out of scope: chlorophyll by name, turgor, algal cells, how substances cross the membrane (diffusion is taught later in the course).
 
-Comparison follows the complete animal and plant introductions. Separate diagrams appear side by side on desktop and stack on narrow phones. Shared structures are an observation with shared functions. Plant differences are taught with exceptions, not a shape-only identification rule.
-
-Bacterial teaching starts with a complete bacterium, then covers its wall, membrane, cytoplasm/ribosomes, main DNA loop and optional plasmids. Only afterwards are eukaryotic and prokaryotic introduced as names for the familiar categories.
-
-No respiration equation, ATP terminology or protein-assembly animation. These would broaden the first micro-lesson unnecessarily. The later curriculum teaches respiration in depth.
-
-## Worked reasoning and transfer example
-
-Worked screen: “A cell needs energy for its work. How do mitochondria help?” Reveal three optional steps: structure → aerobic respiration → energy released for work.
-
-Final independent prompt: “Give two structural differences between a typical animal cell and a bacterial cell.”
-
-Draft answer: “A typical animal cell has a nucleus; a bacterial cell does not. A typical animal cell has mitochondria; a bacterial cell does not.” Credit any two distinct valid paired structural comparisons, including bacterial wall present / animal wall absent. Do not count no nucleus and DNA not enclosed in a nucleus as two differences. Do not keyword-mark. Save, reveal the model/rubric and allow Continue with awaiting-review status.
-
-## Visual production briefs
-
-**Animal cell:** original SVG with an organic outline, mint cytoplasm, purple nucleus, folded peach mitochondria and tiny dark ribosomes. One outer membrane, no wall/chloroplasts. Numbered pointers connect structures to readable keys; only the current structure is annotated during focused frames. Keys grow as structures are introduced. Model/scale limitations remain in accessible descriptions, not the removed decorative captions.
-
-**Plant cell:** separate rectangular SVG with a thick cellulose wall, a distinct thin membrane, peripheral cytoplasm/nucleus, matching mitochondria/ribosomes, green chloroplasts and a large pale-blue permanent vacuole. Teach all eight directly. Number conventions for the five common structures match the animal model. Retain the photosynthesising-example qualifier.
-
-**Bacterial cell:** separate capsule SVG with wall, membrane, cytoplasm/ribosomes, a closed DNA loop and optional extra plasmid rings. No nucleus, mitochondria or chloroplasts. The enlarged illustration is not a scale comparison. Pointers end on the intended structures; descriptions and keys provide non-colour identification.
-
-**CellModel B:** different orientation, elongated outline and repositioned structures, same biological conventions. The question explicitly identifies it as an animal-cell model. Do not imply an unfamiliar cell's kingdom can be inferred from its outline. The transfer task asks for a function, not an ungrounded classification.
-
-**ObservationRecord:** a schematic beside a text-only illustrative record. “In this prepared stained animal-cell view, a nucleus and cell outline were visible; tiny internal structures were not distinguished.” Label it as illustrative, not experimental data or a real micrograph. No photo is invented. It establishes an observation/model contrast without prematurely teaching focus controls, stains or resolution theory.
-
-**Assessment accessibility:** switch from teaching description to assessment description when hiding labels. A screen-reader description must not name the answer hidden visually. Give an equivalent target description, such as “pointer ends at the outer boundary”, and preserve the intended function question. Actual blind/low-vision diagram tasks need accessibility review; a generic alt description is not enough.
-
-## Hint and feedback example
-
-B1-19 starts with Hint collapsed. If opened: “Use the given task: making proteins. No prior knowledge of glands is needed.” After either submission: retain the selected answer; show (1) the supplied task is protein synthesis, (2) ribosomes perform it, then explicit answer “Ribosomes”. Continue is enabled after feedback. Hint can still be opened, but opening it never changes the submitted evidence flags retroactively.
-
-Opening a hint before submission records support. Watching a model solution or replaying an already answered assessment records prior exposure for subsequent attempts. Correctness is not enough to earn independent evidence.
-
-## Summary and later retrieval
-
-Show “Lesson complete”, followed by separate recall / understanding / application / calculation evidence and “explanation awaiting review” where appropriate. Practical/data connection says “introduced — practice only”. No full-topic mastery percentage. Next planned lesson is microscopy; it is not built yet.
-
-The six delayed prompts in `lesson.ts` sample animal/plant/bacterial recall, understanding, application and written comparison. They are a future bank, not a live activity. Same-day replay is practice, not retention. Spacing is a beta policy needing validation. Passing these samples does not prove retention of every cell fact; calculation retention is not sampled.
+Source boundary: AQA 8464 section 4.1.1.2. Original wording and schematics. Draft pending teacher review.
