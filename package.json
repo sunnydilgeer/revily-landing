@@ -8,6 +8,7 @@
         "start": "next start",
         "lint": "next lint",
         "test:science": "node scripts/test-science.cjs",
+        "verify:lesson1": "node scripts/verify-number-types-variant-d.cjs",
         "verify:lesson2:tutor": "node scripts/verify-order-of-operations-variant-c.cjs",
         "verify:lesson3:tutor": "node scripts/verify-place-value-tutor.cjs",
         "verify:arithmetic:tutor": "node scripts/verify-arithmetic-tutor.cjs",

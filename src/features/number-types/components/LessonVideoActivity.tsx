@@ -3,7 +3,9 @@
 import { useRef, useState, type Ref } from 'react'
 import type { LessonVideoDefinition } from '../types'
 
-export function LessonVideoActivity({ clip, headingRef, canGoBack, onBack, onContinue }: {
+export function LessonVideoActivity({ clip, headingRef, canGoBack, onBack, onContinue, hideActions = false }: {
+  /** The rung frame's check bar provides Back / Continue instead. */
+  hideActions?: boolean
   clip: LessonVideoDefinition['props']
   headingRef: Ref<HTMLHeadingElement>
   canGoBack: boolean
@@ -56,9 +58,9 @@ export function LessonVideoActivity({ clip, headingRef, canGoBack, onBack, onCon
     </div>
     {failed && <p className="lesson-video-error" role="status">The video couldn’t load. Continue to the activity.</p>}
     <div className="lesson-state__actions">
-      {canGoBack && <button className="lesson-secondary-action" type="button" onClick={onBack}>← Back</button>}
+      {canGoBack && !hideActions && <button className="lesson-secondary-action" type="button" onClick={onBack}>← Back</button>}
       {ended && <button className="lesson-secondary-action" type="button" onClick={replay}>Replay</button>}
-      <button className="lesson-primary-action" type="button" onClick={onContinue}>Continue <span aria-hidden="true">→</span></button>
+      {!hideActions && <button className="lesson-primary-action" type="button" onClick={onContinue}>Continue <span aria-hidden="true">→</span></button>}
     </div>
   </div>
 }
