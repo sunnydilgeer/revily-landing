@@ -1,0 +1,108 @@
+/* Rung lesson screen: one micro-skill ("rung") at a time, answer in the "= ?" box, bottom check bar. */
+
+.rung-lesson { max-width: 760px; margin: 0 auto; }
+
+/* ---------- Header: which rung, and progress through this rung only ---------- */
+.rung-head { display: grid; gap: 10px; padding: 6px 0 16px; }
+.rung-head__kicker { display: block; color: var(--rv-muted); font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.rung-head h2 { margin: 2px 0 0; font-family: var(--rv-font-display); font-size: clamp(1.6rem, 4.5vw, 2.1rem); line-height: 1.1; letter-spacing: -0.015em; color: var(--rv-ink); }
+.rung-head__progress { display: flex; align-items: center; gap: 12px; }
+.rung-head__bar { flex: 1; height: 14px; border-radius: 999px; background: var(--rv-grid); overflow: hidden; }
+.rung-head__bar span { display: block; height: 100%; border-radius: inherit; background: var(--rv-yellow); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 10%); transition: width .35s ease; }
+.rung-head__count { min-width: 3.5em; text-align: right; color: var(--rv-muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+
+/* ---------- Card ---------- */
+.rung-lesson .rung-card {
+  padding: clamp(18px, 4vw, 30px); border: 2px solid var(--rv-line); border-radius: var(--rv-radius-lg);
+  background-color: var(--rv-paper); background-image: var(--rv-paper-grid); background-size: var(--rv-paper-grid-size);
+}
+.rung-card__eyebrow { margin: 0 0 6px; color: var(--rv-muted); font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.rung-lesson .rung-card h3 { margin: 0 0 18px; font-family: var(--rv-font-body); font-weight: 600; font-size: clamp(1.35rem, 3.6vw, 1.75rem); line-height: 1.35; color: var(--rv-ink); }
+.rung-lesson .pvb-stage { background: var(--rv-surface); border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); }
+.rung-card__tip { margin: 16px 0 0; color: var(--rv-ink-2); }
+.rung-given { margin: 0 0 18px; padding: 14px 18px; border-left: 4px solid var(--rv-biro); border-radius: 8px; background: var(--rv-surface); font-size: 1.15rem; }
+.rung-given p { margin: 0; line-height: 1.6; }
+
+/* Teaching media: working first, video one tap away */
+.rung-media { display: grid; gap: 12px; }
+.rung-media__toggle {
+  justify-self: start; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px;
+  border: 2px solid var(--rv-line); border-radius: 999px; color: var(--rv-ink); background: var(--rv-surface);
+  font: 600 .95rem var(--rv-font-body); cursor: pointer;
+}
+.rung-media__toggle:hover { border-color: var(--rv-ink); }
+.rung-media__toggle:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
+
+/* ---------- Worked example as working lines ---------- */
+.rung-worked { margin: 0; text-align: left; }
+.rung-worked__question { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-size: clamp(1.5rem, 4.5vw, 2rem); }
+.rung-worked__question .katex { font-size: 1.15em; }
+.rung-worked__lines { margin: 16px 0 6px; padding-top: 12px; border-top: 2px dashed var(--rv-line); }
+.rung-worked__lines .rv-line { min-height: 52px; }
+.rung-worked__lines .rv-line:not(.is-current) .rv-line__expr { color: var(--rv-ink-2); }
+.rung-worked__lines .rv-line.is-current .rv-line__expr { padding: 2px 10px; border: 3px solid var(--rv-biro); border-radius: 12px; background: var(--rv-biro-tint); justify-self: start; }
+.rung-worked__lines .rv-line__note { font-size: clamp(1.3rem, 3.4vw, 1.6rem); }
+.rung-worked__say { margin: 10px 0 14px; color: var(--rv-ink-2); font-size: 1rem; line-height: 1.55; text-align: center; }
+.rung-worked__controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+/* ---------- "= ?" answer box ---------- */
+.rung-answer-form { margin: 8px 0 4px; }
+.rung-answer { display: inline-flex; align-items: center; gap: 14px; font-size: 2rem; }
+.rung-answer__eq { color: var(--rv-ink); font-weight: 500; }
+.rung-answer__unit { color: var(--rv-muted); font-size: 1.1rem; }
+.rung-lesson .rung-answer__input,
+.rung-fraction input {
+  width: 5.2em; height: 64px; padding: 0 12px; border: 3px dashed var(--rv-line-strong); border-radius: 14px;
+  color: var(--rv-ink); background: var(--rv-surface); font: 600 1.6rem var(--rv-font-body); text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.rung-answer__input::placeholder { color: var(--rv-muted); }
+.rung-lesson .rung-answer__input:focus,
+.rung-fraction input:focus { outline: none; border-style: solid; border-color: var(--rv-biro); box-shadow: 0 0 0 4px var(--rv-biro-tint); }
+.rung-answer.is-correct input { border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.rung-answer.is-incorrect input { border-style: solid; border-color: var(--rv-redpen); color: #a51f1f; background: var(--rv-redpen-tint); text-decoration: line-through; text-decoration-thickness: 2px; }
+.rung-fraction { display: inline-flex; align-items: center; gap: 12px; }
+.rung-fraction label { display: block; margin: 0; }
+.rung-fraction input { width: 3.4em; height: 58px; }
+.rung-fraction__stack { display: grid; justify-items: center; gap: 6px; }
+.rung-fraction__bar { width: 100%; height: 4px; border-radius: 2px; background: var(--rv-ink); }
+.rung-fraction__whole input { height: 72px; font-size: 1.9rem; }
+
+/* ---------- Choices ---------- */
+.rung-lesson .pvb-choices { gap: 12px; }
+.rung-lesson .pvb-choice {
+  min-height: 60px; padding: 14px 18px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md);
+  background: var(--rv-surface); box-shadow: 0 3px 0 var(--rv-line); font-size: 1.05rem; text-align: left;
+}
+.rung-lesson .pvb-choice:hover:not(:disabled) { border-color: var(--rv-biro); box-shadow: 0 3px 0 var(--rv-biro); background: var(--rv-surface); }
+.rung-lesson .pvb-choice--correct { border-color: var(--rv-good); box-shadow: 0 3px 0 var(--rv-good); background: var(--rv-good-tint); }
+.rung-lesson .pvb-choice--incorrect { border-color: var(--rv-redpen); box-shadow: 0 3px 0 var(--rv-redpen); background: var(--rv-redpen-tint); }
+
+/* ---------- Hint, explanation, working panel ---------- */
+.rung-hint { margin-top: 16px; }
+.rung-lesson .pvb-hint-toggle { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--rv-biro); font: 600 1rem var(--rv-font-body); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.rung-lesson .pvb-hint__content p { margin: 4px 0 0; padding: 12px 16px; border-radius: 12px; background: var(--rv-yellow-tint); color: var(--rv-ink); }
+.rung-explain { margin-top: 18px; }
+.rung-working-panel { margin-top: 18px; }
+.rung-tap { color: var(--rv-muted); font-size: .95rem; }
+
+/* ---------- Rung complete ---------- */
+.rung-done {
+  display: grid; justify-items: center; gap: 6px; padding: clamp(28px, 6vw, 48px) 20px; text-align: center;
+  border: 2px solid var(--rv-line); border-radius: var(--rv-radius-lg);
+}
+.rung-done__badge { width: 76px; height: 76px; display: grid; place-items: center; margin-bottom: 8px; border-radius: 50%; color: #fff; background: var(--rv-good); box-shadow: 0 0 0 8px var(--rv-good-tint); animation: rv-pop .5s both; }
+.rung-done__kicker { margin: 0; color: var(--rv-muted); font-size: .85rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.rung-done h3 { margin: 0; font-family: var(--rv-font-display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1.1; color: var(--rv-ink); outline: none; }
+.rung-done__score { margin: 8px 0 0; font-size: 1.15rem; color: var(--rv-ink); }
+.rung-done__score strong { color: var(--rv-good-ink); }
+.rung-done__next { margin: 4px 0 0; color: var(--rv-ink-2); }
+.rung-done__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px; }
+.rung-done__saved { margin: 12px 0 0; color: var(--rv-muted); font-size: .9rem; }
+
+@media (max-width: 560px) {
+  .rung-answer { font-size: 1.6rem; gap: 10px; }
+  .rung-lesson .rung-answer__input { width: 4.6em; }
+  .rung-done__actions { width: 100%; }
+  .rung-done__actions .rv-btn { flex: 1 1 100%; }
+}

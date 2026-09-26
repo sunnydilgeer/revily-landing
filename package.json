@@ -16,7 +16,8 @@
         "verify:lesson9:tutor": "node scripts/verify-fractions-decimals-percentages-tutor.cjs",
         "verify:lesson10:tutor": "node scripts/verify-rounding-tutor.cjs",
         "verify:lesson11:tutor": "node scripts/verify-ordering-tutor.cjs",
-        "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs"
+        "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
+        "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs"
     },
     "dependencies": {
         "@fontsource-variable/bricolage-grotesque": "^5.3.0",
