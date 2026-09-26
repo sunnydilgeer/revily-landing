@@ -1,6 +1,7 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useState } from 'react'
+import { WorkedLines } from './WorkedLines'
 import { MathSpan } from '../../../../components/MathText'
 import type { MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
 
@@ -40,24 +41,22 @@ function OrderingVisual({ frame }: { frame: OrderingFrame }) {
 
 export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) {
   const steps = visual.examples.flatMap(example => example.steps)
-  const [index, setIndex] = useState(0)
-  const current = steps[index]
-  const id = useId()
-  if (!current) return null
-  const last = index === steps.length - 1
-  return <section className="ns-working" aria-label="Worked explanation" data-step-index={index + 1}>
-    <header className="ns-step-heading"><h4 id={id}>{current.title}</h4><span>{index + 1} / {steps.length}</span></header>
-    <div className="ns-step" role="group" aria-labelledby={id}>
-      <div className="ns-visual">
-        {current.frame.rounding && <RoundingVisual frame={current.frame.rounding} />}
-        {current.frame.ordering && <OrderingVisual frame={current.frame.ordering} />}
-      </div>
-      <p className="ns-instruction">{current.instruction}</p>
-    </div>
-    <nav className="ns-step-controls" aria-label="Explanation steps">
-      <button type="button" disabled={index === 0} onClick={() => setIndex(value => value - 1)}>← Previous step</button>
-      <button type="button" onClick={() => setIndex(value => last ? 0 : value + 1)}>{last ? 'Start again' : 'Next step →'}</button>
-    </nav>
-    <span className="sr-only" aria-live="polite" aria-atomic="true">Step {index + 1} of {steps.length}: {current.title}. {current.instruction}</span>
-  </section>
+  const [revealed, setRevealed] = useState(0)
+  const current = revealed ? steps[revealed - 1] : undefined
+  const example = visual.examples[0]
+  const rounded = steps.map(step => step.frame.rounding).find(frame => frame?.stage === 'result')?.answer
+  return <WorkedLines
+    question={example.expression}
+    answer={rounded ? `${rounded}` : undefined}
+    sign="≈"
+    visual={current && <div className="ns-visual rung-worked__visual">
+      {current.frame.rounding && <RoundingVisual frame={current.frame.rounding} />}
+      {current.frame.ordering && <OrderingVisual frame={current.frame.ordering} />}
+    </div>}
+    lines={steps.slice(0, revealed).map((step, index) => ({ key: `${index}`, math: step.equation, note: step.title }))}
+    say={current?.instruction}
+    revealed={revealed}
+    total={steps.length}
+    onReveal={setRevealed}
+  />
 }

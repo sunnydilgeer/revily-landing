@@ -4,12 +4,8 @@ import { useId, useState, type CSSProperties } from 'react'
 import { MathSpan } from '../../../../components/MathText'
 import { methodProgress, type MethodExample, type MethodFrame, type MethodStep, type MethodWorking } from './methodWorking'
 import { isNumberSenseWorking, NumberSenseWorkedExample } from './NumberSenseWorkedExample'
+import { WorkedLines } from './WorkedLines'
 
-function Equation({ math, operation }: { math: string; operation?: string }) {
-  if (operation && math.startsWith(operation)) math = `\\underline{${operation}}${math.slice(operation.length)}`
-  const parts = math.split('=')
-  return parts.length === 2 ? <div className="wms-equation"><MathSpan latex={parts[0]} /><span>= <MathSpan latex={parts[1]} /></span></div> : <MathSpan latex={math} />
-}
 
 function Column({ example, frame, step }: { example: MethodExample; frame: MethodFrame; step?: MethodStep }) {
   const width = String(example.first * example.second).length
@@ -149,39 +145,37 @@ export function MethodWorkedExample({ visual }: { visual: MethodWorking }) {
   return isNumberSenseWorking(visual) ? <NumberSenseWorkedExample visual={visual} /> : <ArithmeticWorkedExample visual={visual} />
 }
 
+/** The answer to show in the "= ?" box, only where it is certain from the example itself. */
+function exampleAnswer(example: MethodExample) {
+  if (example.method === 'column' || example.method === 'grid') return `${example.first * example.second}`
+  if ((example.method === 'division' || example.method === 'long-division') && example.second) {
+    const quotient = Math.floor(example.first / example.second), remainder = example.first % example.second
+    return remainder ? `${quotient}\text{ r }${remainder}` : `${quotient}`
+  }
+  return undefined
+}
+
 function ArithmeticWorkedExample({ visual }: { visual: MethodWorking }) {
   const [revealed, setRevealed] = useState(0)
   const { total, working, active, current, completed } = methodProgress(visual, revealed)
-  const controls = <div className="wm-controls wms-controls">
-    <button type="button" className="wms-control--back" aria-label="Previous calculation step" disabled={!revealed} onClick={() => setRevealed(n => n - 1)}>← Back</button>
-    <button type="button" className="wms-control--replay" aria-label="Replay calculation" disabled={!revealed} onClick={() => setRevealed(0)}>Replay</button>
-    <button type="button" className="wms-control--next" aria-label="Next calculation step" disabled={revealed === total} onClick={() => setRevealed(n => n + 1)}>Next <span aria-hidden="true">→</span></button>
-  </div>
-  return <figure className="wms-worked" data-revealed-steps={revealed}>
-    <p className="wm-step-label">{revealed ? `Step ${revealed} of ${total}` : 'Ready to start'}</p>
-    {working.map(({ example, count }, index) => index > active ? null : <div className="wms-example" key={index}>
-      {working.length > 1 && <p className="wm-step-label">Example {index + 1}: {example.label}</p>}
-      <div className="wmt-original" aria-label="Original calculation"><MathSpan latex={example.expression} display /></div>
-      <WorkingDiagram example={example} frame={example.steps[count - 1]?.frame ?? {}} step={index === active ? current : undefined} />
-      {index === active && <>
-        {current ? <div className="wms-current" role="group" aria-label="Current calculation step" data-step-index={revealed}>
-          <p className="wms-current-title">{current.title}</p>
-          <div className="wmt-math"><Equation math={current.equation} operation={current.operation} /></div>
-          <p>{current.instruction}</p>
-        </div> : <p className="wms-start">Click Next to begin the working.</p>}
-        {controls}
-      </>}
-    </div>)}
-    {completed.length > 1 && <p className="wms-history-title">Earlier working</p>}
-    <ol className="wms-history" aria-label="Earlier calculation working">{completed.slice(0, -1).map(({ step, example, index, number }) => <li key={`${index}-${number}`}>
-      <span className="wms-history-number" aria-hidden="true">{number}</span><div>
-        {working.length > 1 && number === 1 && <span className="wmt-line-label">Example {index + 1}: {example.label}</span>}
-        <div className="wmt-math"><Equation math={step.equation} /></div>
-        <p>{step.instruction}</p>
-      </div>
-    </li>)}</ol>
-    <p className="sr-only" aria-live="polite">{working.flatMap(w => w.example.steps.slice(0, w.count)).at(-1)?.instruction ?? 'No calculation steps revealed.'}</p>
-  </figure>
+  const { example, count } = working[active]
+  const multiple = working.length > 1
+  return <WorkedLines
+    question={example.expression}
+    answer={exampleAnswer(example)}
+    solved={count === example.steps.length}
+    visual={<div className="rung-worked__visual"><WorkingDiagram example={example} frame={example.steps[count - 1]?.frame ?? {}} step={current} /></div>}
+    lines={completed.map(({ step, example: ex, index, number }) => ({
+      key: `${index}-${number}`,
+      math: step.equation,
+      note: step.title,
+      group: multiple ? `Example ${index + 1}: ${ex.label}` : undefined,
+    }))}
+    say={current?.instruction}
+    revealed={revealed}
+    total={total}
+    onReveal={setRevealed}
+  />
 }
 
 export function AnswerMethodWorking({ visual }: { visual: MethodWorking }) {

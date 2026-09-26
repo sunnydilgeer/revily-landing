@@ -107,3 +107,8 @@
   .rung-done__actions { width: 100%; }
   .rung-done__actions .rv-btn { flex: 1 1 100%; }
 }
+
+/* Shared worked-example parts (all lessons) */
+.rung-worked__visual { display: grid; justify-items: center; margin: 4px 0 8px; overflow-x: auto; }
+.rung-worked__group { margin: 8px 0 -2px; color: var(--rv-muted); font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; list-style: none; }
+.rung-worked .ns-visual { width: 100%; }

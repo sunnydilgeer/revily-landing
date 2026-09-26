@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react'
 import { MathSpan } from '../../../../components/MathText'
+import { WorkedLines } from '../../written-methods/tutor/WorkedLines'
 import type { ConversionForm, ConversionForms, ConversionWorking } from './conversionWorking'
 
 const labels: Array<[keyof ConversionForms, string]> = [
@@ -28,28 +29,16 @@ function FormsDiagram({ forms }: { forms: ConversionForms }) {
 
 export function ConversionWorkedExample({ visual }: { visual: ConversionWorking }) {
   const [revealed, setRevealed] = useState(0)
-  const total = visual.steps.length
   const current = revealed ? visual.steps[revealed - 1] : undefined
-  const completed = visual.steps.slice(0, revealed)
-  return <figure className="fdp-worked" data-revealed-steps={revealed}>
-    <p className="wm-step-label">{revealed ? `Step ${revealed} of ${total}` : 'Ready to start'}</p>
-    <div className="wmt-original" aria-label={`Original value: ${visual.label}`}><MathSpan latex={visual.expression} display /></div>
-    {current ? <>
-      <FormsDiagram forms={current.forms} />
-      <div className="wms-current" role="group" aria-label="Current conversion step">
-        <p className="wms-current-title">{current.title}</p>
-        <div className="wmt-math"><MathSpan latex={current.equation} display /></div>
-        <p>{current.instruction}</p>
-      </div>
-    </> : <p className="wms-start">Click Next to begin the conversion.</p>}
-    <div className="wm-controls wms-controls">
-      <button type="button" aria-label="Previous conversion step" disabled={!revealed} onClick={() => setRevealed(value => value - 1)}>← Back</button>
-      <button type="button" aria-label="Next conversion step" disabled={revealed === total} onClick={() => setRevealed(value => value + 1)}>Next →</button>
-      <button type="button" aria-label="Replay conversion working" disabled={!revealed} onClick={() => setRevealed(0)}>Replay</button>
-    </div>
-    {completed.length > 1 && <><p className="wms-history-title">Earlier working</p><ol className="wms-history" aria-label="Earlier conversion working">{completed.slice(0, -1).map((step, index) => <li key={`${step.title}-${index}`}><span className="wms-history-number" aria-hidden="true">{index + 1}</span><div><div className="wmt-math"><MathSpan latex={step.equation} /></div><p>{step.instruction}</p></div></li>)}</ol></>}
-    <p className="sr-only" aria-live="polite">{current?.instruction ?? 'No conversion steps revealed.'}</p>
-  </figure>
+  return <WorkedLines
+    question={visual.expression}
+    visual={current && <div className="rung-worked__visual"><FormsDiagram forms={current.forms} /></div>}
+    lines={visual.steps.slice(0, revealed).map((step, index) => ({ key: `${step.title}-${index}`, math: step.equation, note: step.title }))}
+    say={current?.instruction}
+    revealed={revealed}
+    total={visual.steps.length}
+    onReveal={setRevealed}
+  />
 }
 
 export function AnswerConversionWorking({ visual }: { visual: ConversionWorking }) {
