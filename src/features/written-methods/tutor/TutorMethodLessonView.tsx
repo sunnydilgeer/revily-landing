@@ -7,6 +7,7 @@ import { MethodWorkedExample } from './MethodWorkedExample'
 import { FractionWorkedExample } from '../../fractions/tutor/FractionWorkedExample'
 import { ConversionWorkedExample } from '../../fractions-decimals-percentages/tutor/ConversionWorkedExample'
 import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fractionDiagnosis'
+import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import { Button, CheckBar } from '../../../ui'
 import { RUNG_COMPLETE_EVENT } from '../../maths/studyLog'
@@ -69,7 +70,10 @@ function explainMistake(state: TutorMethodState, response: string) {
       requiredDenominator: interaction.requiredDenominator,
     })
   }
-  if (interaction.type === 'numericInput') return diagnoseAmount(state.content.title, response)
+  if (interaction.type === 'numericInput') {
+    const expected = typeof interaction.correctAnswer === 'number' || typeof interaction.correctAnswer === 'string' ? String(interaction.correctAnswer) : ''
+    return diagnoseAmount(state.content.title, response) ?? (expected ? diagnoseNumber(state.content.title, response, expected) : null)
+  }
   return null
 }
 

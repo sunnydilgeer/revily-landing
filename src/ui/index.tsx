@@ -40,9 +40,9 @@ export function StepChip({ children, tone = 'ink', label }: { children: ReactNod
 
 /* ---------- "= ?" answer box ---------- */
 
-export function AnswerBox({ value, solved = false, label = 'Answer' }: { value?: ReactNode; solved?: boolean; label?: string }) {
+export function AnswerBox({ value, solved = false, label = 'Answer', sign = '=' }: { value?: ReactNode; solved?: boolean; label?: string; sign?: '=' | '≈' }) {
   return <span className={`rv-answer${solved ? ' rv-answer--solved' : ''}`}>
-    <span className="rv-answer__eq" aria-hidden="true">=</span>
+    <span className="rv-answer__eq" aria-hidden="true">{sign}</span>
     <span className="rv-answer__box" aria-label={solved ? `${label}: ` : `${label} not worked out yet`}>{solved ? value : '?'}</span>
   </span>
 }
