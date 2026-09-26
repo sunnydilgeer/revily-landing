@@ -37,6 +37,7 @@ import {
 
 // Science carries its whole lesson catalogue, so Maths students don't download it until they switch.
 const ScienceCurriculum = dynamic(() => import('./features/science/ScienceCurriculum'), { ssr: false })
+const ScienceCards = dynamic(() => import('./features/science/cards/ScienceCards'), { ssr: false })
 
 type MathsView = 'overview' | 'lesson' | 'cards' | 'practice'
 
@@ -70,7 +71,7 @@ function App() {
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   const currentLesson = getMathsLesson(lesson)
   const study = useStudySummary()
-  useStudyTimer(subject === 'maths' && (view === 'lesson' || view === 'cards'), subject)
+  useStudyTimer(view === 'cards' || (subject === 'maths' && view === 'lesson'), subject)
 
   useEffect(() => {
     setProgress(readMathsProgress())
@@ -170,7 +171,9 @@ function App() {
         {subject === 'science'
           ? active === 'curriculum'
             ? <ScienceCurriculum study={study} />
-            : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
+            : active === 'cards'
+              ? <ScienceCards onOpenCurriculum={() => navigate('curriculum')} />
+              : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
           : view === 'overview'
             ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
             : view === 'cards'

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function ScienceRevisionPreviewPage() {
-  redirect('/preview/science?lesson=1')
+  redirect('/preview?subject=science&view=cards')
 }
