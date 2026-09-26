@@ -99,17 +99,13 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
 type Flow = ReturnType<typeof useRungFlow>
 
 export function RungHeader({ flow, lessonTitle, headingId }: { flow: Flow; lessonTitle: string; headingId: string }) {
-  const { title, rungIndex, rungs, rungProgress, positionInRung, rungStates } = flow
+  const { title, rungIndex, rungs, rungProgress } = flow
   return <header className="rung-head">
-    <div className="rung-head__meta">
-      <span className="rung-head__kicker">{lessonTitle} · Rung {rungIndex + 1} of {rungs.length}</span>
-      <h2 id={headingId}>{title}</h2>
-    </div>
+    <h2 id={headingId}>{title}</h2>
     <div className="rung-head__progress">
-      <div className="rung-head__bar" role="progressbar" aria-label={`Progress through ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rungProgress}>
+      <div className="rung-head__bar" role="progressbar" aria-label={`${lessonTitle}, rung ${rungIndex + 1} of ${rungs.length}: progress through ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rungProgress}>
         <span style={{ width: `${Math.max(4, rungProgress)}%` }} />
       </div>
-      <span className="rung-head__count" aria-hidden="true">{Math.min(positionInRung + 1, rungStates.length)} / {rungStates.length}</span>
     </div>
   </header>
 }

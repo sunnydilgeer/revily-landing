@@ -24,7 +24,6 @@ export function PrimeHundredGrid({ max, highlightedPrimes }: PrimeGridVisual['pr
     <figure className="prime-hundred-grid">
       <div className="prime-hundred-grid__legend">
         <span><i aria-hidden="true" /> Prime number</span>
-        <small>Hover or focus any number to see its factors</small>
       </div>
       <div className="prime-hundred-grid__cells" aria-label={`Number grid from 1 to ${max}`}>
         {Array.from({ length: max }, (_, index) => index + 1).map((number) => (
@@ -39,7 +38,6 @@ export function PrimeHundredGrid({ max, highlightedPrimes }: PrimeGridVisual['pr
           </button>
         ))}
       </div>
-      <p className="prime-hundred-grid__note">Prime numbers are highlighted. Every number reveals its complete factor list.</p>
       <figcaption className="sr-only">The numbers 1 to {max}. The prime numbers are {highlightedPrimes.join(', ')}.</figcaption>
     </figure>
   )

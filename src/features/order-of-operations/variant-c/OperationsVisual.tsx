@@ -45,10 +45,10 @@ function Worked({ visual }: { visual: Extract<OperationsVisualDefinition, { kind
   const active = visual.steps[index]
   return <figure className="opb-stage opb-worked">
     <div aria-live="polite" aria-atomic="true">
-      <p className="opb-step-label">{active ? `Step ${index + 1} of ${visual.steps.length}` : 'Worked example'}</p>
+      {active && <p className="opb-step-label">{`Step ${index + 1} of ${visual.steps.length}`}</p>}
       <div className="opb-math"><MathSpan latex={active?.math ?? visual.math} display /></div>
-      <p className="opb-instruction">{active?.title ?? 'Follow one calculation at a time.'}</p>
-      <p className="opb-note">{active?.evidence ?? 'Use Show first step to begin.'}</p>
+      {active?.title && <p className="opb-instruction">{active.title}</p>}
+      {active?.evidence && <p className="opb-note">{active.evidence}</p>}
     </div>
     <div className="opb-toggles">
       {index < visual.steps.length - 1 && <button type="button" onClick={() => setIndex(i => i + 1)}>{index === -1 ? 'Show first step' : 'Show next step'}</button>}

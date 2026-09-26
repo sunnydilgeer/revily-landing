@@ -152,8 +152,6 @@ function App() {
       <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
         <button type="button" onClick={showOverview}>Curriculum</button>
         <span aria-hidden="true">/</span>
-        <span>Number</span>
-        <span aria-hidden="true">/</span>
         <span className="maths-breadcrumb-number" aria-current="page">{currentLesson.title}</span>
       </nav>
       <button

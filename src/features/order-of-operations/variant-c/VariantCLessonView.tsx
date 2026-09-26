@@ -19,10 +19,16 @@ function explainMistake(state: TutorOperationsState, response: string) {
   return diagnoseBidmas(state.visual.math, response, state.interaction.correctAnswer)
 }
 
+/** "Calculate: 4 + 6 × 3" shown above a large 4 + 6 × 3: keep just "Calculate". */
+function shortTitle(state: TutorOperationsState) {
+  const match = state.visual.kind === 'expression' ? /^([A-Z][a-z ]+):\s*\S/.exec(state.content.title) : null
+  return match ? match[1] : state.content.title
+}
+
 export default function OperationsVariantCLessonView() {
   const engine = useLessonEngine(lesson)
   const flow = useRungFlow(lesson, engine, operationsVariantCLabels, 'lesson-2-c')
-  const { teaching, last, heading, continueButton, rungQuestions, questionNumber, next } = flow
+  const { teaching, last, heading, continueButton, next } = flow
   const state = flow.state as TutorOperationsState
   const { feedback, selection } = engine
   const textInput = state.interaction.type === 'numericInput'
@@ -39,8 +45,7 @@ export default function OperationsVariantCLessonView() {
   return <section className={`numbers-lesson opb-lesson opc-lesson rung-lesson${ladder ? ' rung-lesson--wide' : ''}`} id="lesson-2-c" aria-labelledby="opc-topic">
     {header}
     <article className={`opb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
-      <p className="rung-card__eyebrow">{ladder ? 'Animated lesson · about 6 minutes' : teaching ? state.video ? 'Worked example' : 'Learn' : `Question ${questionNumber} of ${rungQuestions.length}`}</p>
-      <h3 ref={heading} tabIndex={-1} className={state.content.title === flow.title ? 'sr-only' : undefined}>{state.content.title}</h3>
+      <h3 ref={heading} tabIndex={-1} className={state.content.title === flow.title ? 'sr-only' : undefined}>{shortTitle(state)}</h3>
       {teaching && !state.video && state.content.body && <p className="opb-body">{state.content.body}</p>}
       <TutorTeachingMedia visual={state.visual} video={state.video} onConsultRule={feedback ? undefined : engine.markHintUsed} />
 
@@ -61,7 +66,7 @@ export default function OperationsVariantCLessonView() {
         </button>
       })}</div>}
 
-      {feedback?.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} /></div>}
+      {feedback?.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
     </article>
 
     {feedback
@@ -72,7 +77,7 @@ export default function OperationsVariantCLessonView() {
         >
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
-      : <CheckBar message={ladder ? 'Carry on whenever you’re ready. You can come back to the ladder any time.' : !teaching && !textInput ? 'Tap the answer you think is right.' : undefined}>
+      : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
           {textInput && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!engine.inputValue.trim()}>Check</Button>}

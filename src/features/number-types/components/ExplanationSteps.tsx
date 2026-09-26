@@ -9,13 +9,14 @@ function WorkedText({ text }: { text: string }) {
   })}</>
 }
 
-export function ExplanationSteps({ explanation }: { explanation: NonNullable<FeedbackDefinition['workedExplanation']> }) {
+/** showAnswer: false when the check bar already states the answer (rung lessons). */
+export function ExplanationSteps({ explanation, showAnswer = true }: { explanation: NonNullable<FeedbackDefinition['workedExplanation']>; showAnswer?: boolean }) {
   return <div className="lesson-explanation">
-    <strong className="lesson-explanation__heading">Explanation</strong>
+    <strong className="lesson-explanation__heading">{showAnswer ? 'Explanation' : 'Working'}</strong>
     <ol>{explanation.steps.map((step, index) => <li key={index}>
       <strong>{step.title}</strong>
       {step.lines.map((line, lineIndex) => <p key={lineIndex}><WorkedText text={line} /></p>)}
     </li>)}</ol>
-    <p className="lesson-explanation__answer"><strong>{explanation.answerLabel ?? 'Answer'}:</strong> <WorkedText text={explanation.answer} /></p>
+    {showAnswer && <p className="lesson-explanation__answer"><strong>{explanation.answerLabel ?? 'Answer'}:</strong> <WorkedText text={explanation.answer} /></p>}
   </div>
 }

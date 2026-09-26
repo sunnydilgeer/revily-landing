@@ -25,7 +25,7 @@ export type Deck = { lesson: number; title: string; cards: RevisionCard[] }
 const RECALL_PER_RUNG = 3
 
 /** Questions that only make sense next to their lesson screen are left out. */
-const NEEDS_CONTEXT = /your (column )?working|part \(?[a-z]\)?(?![a-z])|your answer to|the (result|total) is|to check the answer|above|below|this amount|the baker|in 15\.75 ÷ 2\.5, the divisor|for 6\.25 × 1\.6|write down a|possible/i
+const NEEDS_CONTEXT = /your (column )?working|part \(?[a-z]\)?(?![a-z])|your answer to|you just wrote|the (result|total) is|to check the answer|above|below|this amount|the baker|in 15\.75 ÷ 2\.5, the divisor|for 6\.25 × 1\.6|write down a|possible/i
 
 function answerFor(interaction: InteractionDefinition): string | null {
   if (interaction.type !== 'numericInput' && interaction.type !== 'fractionInput') return null
