@@ -20,7 +20,7 @@ const at = '2026-09-21T16:45:00.000Z'
 
 lessons.forEach((lesson, index) => {
   check(`${lesson.id}: easier-only metadata, source links and assessment requirements`, () => {
-    assert.equal(lesson.contentVersion, index === 2 ? '0.2.0' : '0.1.0')
+    assert.equal(lesson.contentVersion, '0.3.0')
     assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.qualification, 'AQA-8464F')
     assert.equal(lesson.id, `B-ORG-00${index + 7}-B`)

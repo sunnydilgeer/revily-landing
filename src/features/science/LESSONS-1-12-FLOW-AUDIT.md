@@ -123,6 +123,10 @@ Lessons 13–26: 15–19 screens, 4–7 sections. Lessons 1–6: 24–45 screens
 5. Frames with 2–3 new terms or several ideas; author notes in learner text (7, 10, 11).
 6. Maths and practicals as separate blocks after the biology.
 
+## Progress
+- Lessons 7–12: rewritten to the 13–26 shape (content version 0.3.0), each with a new STORYBOARD.md. `node scripts/check-science-lesson.cjs N` passes for all six.
+- Found while checking: lesson 16 has two sections that teach again after their questions ("The main risk factors", "How cancer starts and spreads"). Small fix, not yet done.
+
 ## Plan
 1. Lessons 7–12: new storyboards in the 17/18 format, fixed in place.
 2. Lessons 3 and 4: restructure.

@@ -68,6 +68,10 @@ for (const [dimension, rule] of Object.entries(lesson.requirements || {})) for (
   const state = states.find(s => s.id === id)
   if (!state || state.kind === 'teaching' || state.evidenceRole !== 'independent' || !state.dimensions.includes(dimension)) fail('requirements', `${dimension} requirement ${id} must be an independent question of that dimension`)
 }
+// The engine sends a learner back to revise if they practised a calculation but never did one on their own.
+if (states.some(s => s.kind !== 'teaching' && s.evidenceRole !== 'independent' && s.dimensions.includes('calculation'))
+  && !states.some(s => s.kind !== 'teaching' && s.evidenceRole === 'independent' && s.dimensions.includes('calculation')))
+  fail('requirements', 'A calculation is practised but never done on your own; add an independent calculation item')
 for (const section of sections) if (!index.has(section.id)) fail('sections', `Section ${section.label} starts at unknown state ${section.id}`)
 
 // Diagrams: every frame focus and question visual must render (original Science visuals).
