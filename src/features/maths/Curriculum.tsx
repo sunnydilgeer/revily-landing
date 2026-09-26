@@ -30,7 +30,9 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
   const upNext = progress[lastEntry.lessonId] && !progress[lastEntry.lessonId].completed ? lastEntry : nextIncomplete ?? lastEntry
   const upNextSnapshot = progress[upNext.lessonId]
   const upNextRungs = rungsFor(upNext, upNextSnapshot)
-  const upNextRungIndex = Math.max(0, upNextRungs.findIndex(rung => rung.current || !rung.done))
+  // Continue resumes where the student is; with no position yet, suggest the first unfinished rung.
+  const currentRung = upNextRungs.findIndex(rung => rung.current)
+  const upNextRungIndex = currentRung >= 0 ? currentRung : Math.max(0, upNextRungs.findIndex(rung => !rung.done))
   const doneLessons = mathsLessons.filter(entry => progress[entry.lessonId]?.completed).length
   const goalPercent = Math.min(100, Math.round(study.minutesToday / study.goal * 100))
   const goalMet = study.minutesToday >= study.goal
