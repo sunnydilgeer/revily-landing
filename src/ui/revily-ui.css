@@ -96,6 +96,9 @@
 .rv-checkbar--incorrect { border-top-color: var(--rv-redpen); background: var(--rv-redpen-tint); }
 .rv-checkbar--incorrect .rv-checkbar__icon { background: var(--rv-redpen); }
 .rv-checkbar--incorrect .rv-checkbar__title { color: #a51f1f; }
+.rv-checkbar--saved { border-top-color: var(--rv-accent-ink); background: var(--rv-accent-tint); }
+.rv-checkbar--saved .rv-checkbar__icon { background: var(--rv-accent-ink); }
+.rv-checkbar--saved .rv-checkbar__title { color: var(--rv-accent-ink); }
 @media (max-width: 560px) {
   .rv-checkbar__actions { width: 100%; margin-left: 0; }
   .rv-checkbar__actions .rv-btn { flex: 1 1 auto; }

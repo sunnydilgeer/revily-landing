@@ -97,7 +97,8 @@ export function Button({ variant = 'primary', size = 'md', block = false, icon =
 
 /* ---------- Check bar ---------- */
 
-export type CheckStatus = 'idle' | 'correct' | 'incorrect'
+/** 'saved' is for answers nobody can auto-mark (Science written answers): no tick, no cross. */
+export type CheckStatus = 'idle' | 'correct' | 'incorrect' | 'saved'
 
 export function CheckBar({ status = 'idle', title, message, children, style }: {
   status?: CheckStatus
@@ -106,7 +107,7 @@ export function CheckBar({ status = 'idle', title, message, children, style }: {
   children: ReactNode
   style?: CSSProperties
 }) {
-  const icon = status === 'correct' ? '✓' : status === 'incorrect' ? '✗' : null
+  const icon = status === 'correct' ? '✓' : status === 'incorrect' ? '✗' : status === 'saved' ? '✎' : null
   return <div className={`rv-checkbar rv-checkbar--${status}`} style={style}>
     <div className="rv-checkbar__inner">
       {(title || message) && <div className="rv-checkbar__status" role={status === 'idle' ? undefined : 'status'}>
