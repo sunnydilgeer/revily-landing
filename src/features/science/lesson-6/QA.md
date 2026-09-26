@@ -1,3 +1,3 @@
 # Lesson 6 QA
 
-45-activity draft verified end to end; see [current shared QA and limitations](../LESSONS-4-6-QA.md). B6-45 adds guided unusual-repeat handling before independent checks. Five concentration points, signed percentage changes, zero crossing and gain-per-minute use original illustrative numbers. Optional plotting is nongating teaching, not evidence. Digital preparation never certifies RPA2. Qualified teacher review is pending.
+Rewritten 26 September 2026 to the lesson 17/18 flow as "Diffusion and osmosis" (v0.2.0, 18 screens, 7 sections); see STORYBOARD.md. `node scripts/check-science-lesson.cjs 6` passes. The osmosis practical moved to `lesson-6b`; active transport and exchange surfaces moved to their own lesson. Qualified teacher review is pending.

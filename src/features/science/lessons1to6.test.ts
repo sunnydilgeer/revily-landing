@@ -1,23 +1,21 @@
 import assert from 'node:assert/strict'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { scienceLessons } from './lessonNavigation'
+import { scienceChapters, scienceLessons } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { gradeResponse, evidenceProfile, recommendedNext } from './engine'
 import { TeachingChunk } from './components/TeachingChunk'
-import { teachingFrames as f1 } from './lesson-1/teachingFrames'
-import { microscopyFrames as f2 } from './lesson-2/teachingFrames'
-import { practicalFrames as f3 } from './lesson-3/teachingFrames'
-import { specialisationFrames as f4 } from './lesson-4/teachingFrames'
-import { divisionFrames as f5 } from './lesson-5/teachingFrames'
-import { transportFrames as f6 } from './lesson-6/teachingFrames'
-// Lessons 1–6: teaching copy, grading, the full flow and saved records.
+import type { TeachingFrame } from './teachingFrame'
+// Cell biology (chapter B1, lessons 1–11, folders 1 to 6c): teaching copy, grading, the full flow and saved records.
 const lessons = scienceLessons
-const lessonFrames = [f1,f2,f3,f4,f5,f6]
+const cellBiology = scienceChapters[0].lessonNumbers.length
+const lessonFrames: Array<Record<string, TeachingFrame[]>> = lessons.slice(0, cellBiology).map(item => item.frames)
+const framesIn = (folder: string) => lessonFrames[lessons.findIndex(item => item.folder === folder)]
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log('PASS '+name) }
 const at = '2026-09-17T16:00:00.000Z'
-for(let i=0;i<6;i++) {
+assert.equal(scienceChapters[0].code,'B1'); assert.equal(cellBiology,11)
+for(let i=0;i<cellBiology;i++) {
   const b=lessons[i].lesson
   check('Lesson '+(i+1)+': every teaching frame renders, with a matching visual target and script',()=>{
     for(const [id,frames] of Object.entries(lessonFrames[i])) {
@@ -75,10 +73,10 @@ for(let i=0;i<6;i++) {
     assert.equal(e.restorePreviewSession({...opening,lessonId:lessons[i+1].lesson.id}),null)
   })
 }
-check('Lessons 1–6 keep separate records; answers and drafts cannot leak or cross-restore',()=>{
-  const items=lessons.slice(0,6)
+check('Cell-biology lessons keep separate records; answers and drafts cannot leak or cross-restore',()=>{
+  const items=lessons.slice(0,cellBiology)
   const engines=items.map(x=>createPreviewSessionEngine(x.lesson))
-  assert.equal(new Set(engines.map(e=>e.storageKey)).size,6)
+  assert.equal(new Set(engines.map(e=>e.storageKey)).size,cellBiology)
   engines.forEach((e,i)=>{
     const original=e.createPreviewSession('isolation')
     for(const other of engines) if(e!==other)assert.equal(other.restorePreviewSession(original),null)
@@ -92,19 +90,19 @@ check('Lessons 1–6 keep separate records; answers and drafts cannot leak or cr
   assert.equal(e.previewReducer(session,{type:'jump',id:'unknown'}),session)
 })
 check('Teaching keeps scientific qualifications and practical safety rather than hiding them',()=>{
-  const texts=lessonFrames.map(fs=>Object.values(fs).flat().map(f=>f.summary+' '+f.text).join(' '))
-  assert.match(texts[0],/aerobic respiration/)
-  assert.match(texts[0],/Some bacteria have plasmids; others do not/)
-  assert.match(texts[0],/Not every plant cell has chloroplasts/)
-  assert.match(texts[2],/eye protection/)
-  assert.match(texts[2],/never pick it up by hand/)
-  assert.match(texts[2],/Do not move the lens towards the glass/)
-  assert.match(texts[2],/does not replace doing it/)
-  assert.match(texts[4],/most human cell types/)
-  assert.match(texts[4],/not guaranteed cures/)
-  assert.match(texts[5],/no net movement/)
-  assert.match(texts[5],/partially permeable membrane/)
-  assert.match(texts[5],/risk-assessed method/)
-  assert.match(texts[5],/does not replace doing it/)
+  const text=(folder:string)=>Object.values(framesIn(folder)).flat().map(f=>f.summary+' '+f.text).join(' ')
+  assert.match(text('1'),/aerobic respiration/)
+  assert.match(text('1b'),/Some bacteria have plasmids; others do not/)
+  assert.match(text('1'),/Not every plant cell has chloroplasts/)
+  assert.match(text('3'),/eye protection/)
+  assert.match(text('3'),/never pick it up by hand/)
+  assert.match(text('3'),/Do not move the lens towards the glass/)
+  assert.match(text('3'),/does not replace doing it/)
+  assert.match(text('5b'),/most human cell types/)
+  assert.match(text('5b'),/not guaranteed cures/)
+  assert.match(text('6'),/no net movement/)
+  assert.match(text('6'),/partially permeable membrane/)
+  assert.match(text('6b'),/risk-assessed method/)
+  assert.match(text('6b'),/does not replace doing it/)
 })
-console.log(checks+' Lessons 1–6 checks passed.')
+console.log(checks+' cell-biology lesson checks passed.')

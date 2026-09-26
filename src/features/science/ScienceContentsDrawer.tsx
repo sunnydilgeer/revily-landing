@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { progress } from './engine'
-import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessons, type LessonNumber } from './lessonNavigation'
+import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessons, TRANSPORT_EXAM_LESSON_ID, type LessonNumber } from './lessonNavigation'
 import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
 
@@ -109,7 +109,7 @@ export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle
           <div className="sl-drawer-extra">
             <h4>Sources</h4>
             <ul>{lesson.sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> <span>{source.locator}</span></li>)}</ul>
-            {lessonNumber <= 6 && <p><a href="/preview/science/coverage">Curriculum and exam map</a>{lessonNumber === 6 && <> · <a href="/preview/science/exam">Lesson 6 exam practice</a></>}</p>}
+            {entry.lesson.id.startsWith('B-CELL-') && <p><a href="/preview/science/coverage">Curriculum and exam map</a>{entry.lesson.id === TRANSPORT_EXAM_LESSON_ID && <> · <a href="/preview/science/exam">Transport exam practice</a></>}</p>}
             {!confirmRestart
               ? <button type="button" className="sl-drawer-restart" onClick={() => setConfirmRestart(true)}>Restart this lesson</button>
               : <div className="sl-drawer-confirm" role="group" aria-label="Restart this lesson">

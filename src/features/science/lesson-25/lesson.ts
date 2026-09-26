@@ -15,7 +15,7 @@ export const drugTestingSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B25-01', 'Aspirin was first made from a chemical found in which plant?', ['Foxglove', 'Willow', 'Rose'], 1, 'You met aspirin in Lesson 24.', ['Digitalis came from foxgloves.', 'Aspirin, a painkiller, was first made from a chemical found in willow.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B25-01', 'Aspirin was first made from a chemical found in which plant?', ['Foxglove', 'Willow', 'Rose'], 1, 'You met aspirin when you learned where medicines come from.', ['Digitalis came from foxgloves.', 'Aspirin, a painkiller, was first made from a chemical found in willow.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B25-02', 'Testing in the lab'),
   a.choice('B25-03', 'In preclinical testing, what is drug M tested on first?', ['Live animals', 'Healthy volunteers', 'Patients with migraines', 'Human cells and tissues in the lab'], 3, 'Start with the smallest living parts.', ['Preclinical testing happens before any people take the drug.', 'It starts with human cells and tissues in the lab, then moves on to live animals.']),
   a.choice('B25-04', 'A test shows that high doses of drug M harm the kidneys. Which property does this tell us about?', ['Efficacy', 'Toxicity', 'Dosage'], 1, 'Is this about whether it works, how harmful it is, or how much to give?', ['Efficacy is whether the drug works, and dosage is how much to give.', 'Harm to the body is about toxicity.']),

@@ -1,30 +1,30 @@
 import type { LessonNumber } from './lessonNavigation'
-import { scienceLessonHref } from './lessonNavigation'
+import { scienceLessonHref, scienceLessonNumberById } from './lessonNavigation'
 
 export const assessmentResources = 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/assessment-resources'
 export const copyrightPolicy = 'https://www.aqa.org.uk/about-us/who-we-are/our-standards/copyright-and-intellectual-property-policy/copyright-policy-for-centres'
-export interface CoverageTopic { id: string; lesson: LessonNumber; title: string; activity: string; spec: string; skills: string }
+export interface CoverageTopic { id: string; lessonId: string; lesson: LessonNumber; title: string; activity: string; spec: string; skills: string }
 // This is an audit of our own teaching, not a claim about any unreviewed exam question.
-export const coverageTopics: CoverageTopic[] = [
-  { id: 'cell-parts', lesson: 1, title: 'Animal-cell structures and functions', activity: 'B1-02', spec: '4.1.1.2', skills: 'Identify structures; link structures to functions.' },
-  { id: 'cell-comparison', lesson: 1, title: 'Plant, animal and bacterial cells', activity: 'B1-24', spec: '4.1.1.1–4.1.1.2', skills: 'Compare structures; distinguish eukaryotic and prokaryotic cells.' },
-  { id: 'cell-scale', lesson: 1, title: 'Cell size and scale', activity: 'B1-29', spec: '4.1.1.1–4.1.1.2; maths skills', skills: 'Compare sizes; convert units; estimate area.' },
-  { id: 'microscope-detail', lesson: 2, title: 'Magnification and resolution', activity: 'B2-06', spec: '4.1.1.5', skills: 'Distinguish enlargement from resolving detail; compare microscopes.' },
-  { id: 'microscope-calculation', lesson: 2, title: 'Microscopy calculations', activity: 'B2-12', spec: '4.1.1.5; maths skills', skills: 'Calculate magnification, image size or real size; match units.' },
-  { id: 'slide-method', lesson: 3, title: 'Slide preparation and safe focusing', activity: 'B3-04', spec: '4.1.1.2; required practical 1', skills: 'Describe a method; explain stain, thin specimens and safe focusing.' },
-  { id: 'observations', lesson: 3, title: 'Observations and biological drawings', activity: 'B3-12', spec: '4.1.1.2; required practical 1; working scientifically', skills: 'Record visible evidence; draw and label; calculate drawing magnification.' },
-  { id: 'animal-adaptations', lesson: 4, title: 'Specialised animal cells', activity: 'B4-04', spec: '4.1.1.3', skills: 'Link a sperm, nerve or muscle cell feature to its function.' },
-  { id: 'plant-adaptations', lesson: 4, title: 'Specialised plant cells', activity: 'B4-08', spec: '4.1.1.3', skills: 'Link root-hair, xylem and phloem features to their jobs.' },
-  { id: 'differentiation', lesson: 4, title: 'Differentiation', activity: 'B4-12', spec: '4.1.1.4', skills: 'Explain becoming specialised; distinguish plant and animal patterns.' },
-  { id: 'cell-cycle', lesson: 5, title: 'Chromosomes and the cell cycle', activity: 'B5-05', spec: '4.1.2.1–4.1.2.2', skills: 'Describe DNA copying, mitosis and division; explain identical daughter cells.' },
-  { id: 'stem-cells', lesson: 5, title: 'Stem cells', activity: 'B5-14', spec: '4.1.2.3', skills: 'Compare sources; explain uses; evaluate benefits, risks and ethical arguments.' },
-  { id: 'diffusion', lesson: 6, title: 'Diffusion and its rate', activity: 'B6-02', spec: '4.1.3.1', skills: 'Predict net direction; explain concentration gradients, temperature and surface area.' },
-  { id: 'osmosis', lesson: 6, title: 'Osmosis in cells and tissue', activity: 'B6-08', spec: '4.1.3.2', skills: 'Identify water and membrane; predict direction and mass changes.' },
-  { id: 'active-transport', lesson: 6, title: 'Active transport', activity: 'B6-13', spec: '4.1.3.3', skills: 'Explain lower-to-higher movement and energy; apply to root hairs and gut uptake.' },
-  { id: 'exchange-surfaces', lesson: 6, title: 'Exchange surfaces and SA:V', activity: 'B6-18', spec: '4.1.3.1', skills: 'Calculate ratios; explain area, thin barriers, blood supply and ventilation.' },
-  { id: 'osmosis-method', lesson: 6, title: 'Osmosis practical and fair tests', activity: 'B6-25', spec: '4.1.3.2; required practical 2', skills: 'Identify variables; describe a safe fair test; evaluate repeats and unusual results.' },
-  { id: 'osmosis-data', lesson: 6, title: 'Osmosis calculations and graphs', activity: 'B6-28', spec: '4.1.3.2; maths skills', skills: 'Calculate percentage mass change; interpret and plot graphs; calculate rates.' },
-]
+export const coverageTopics: CoverageTopic[] = ([
+  { id: 'cell-parts', lessonId: 'B-CELL-001-B', title: 'Animal-cell structures and functions', activity: 'B1-02', spec: '4.1.1.2', skills: 'Identify structures; link structures to functions.' },
+  { id: 'cell-comparison', lessonId: 'B-CELL-001B-B', title: 'Plant, animal and bacterial cells', activity: 'B1-22', spec: '4.1.1.1–4.1.1.2', skills: 'Compare structures; distinguish eukaryotic and prokaryotic cells.' },
+  { id: 'cell-scale', lessonId: 'B-CELL-002B-B', title: 'Cell size and scale', activity: 'B1-29', spec: '4.1.1.1–4.1.1.2; maths skills', skills: 'Compare sizes; convert units; estimate area.' },
+  { id: 'microscope-detail', lessonId: 'B-CELL-002-B', title: 'Magnification and resolution', activity: 'B2-06', spec: '4.1.1.5', skills: 'Distinguish enlargement from resolving detail; compare microscopes.' },
+  { id: 'microscope-calculation', lessonId: 'B-CELL-002B-B', title: 'Microscopy calculations', activity: 'B2-12', spec: '4.1.1.5; maths skills', skills: 'Calculate magnification, image size or real size; match units.' },
+  { id: 'slide-method', lessonId: 'B-CELL-003-B', title: 'Slide preparation and safe focusing', activity: 'B3-04', spec: '4.1.1.2; required practical 1', skills: 'Describe a method; explain stain, thin specimens and safe focusing.' },
+  { id: 'observations', lessonId: 'B-CELL-003-B', title: 'Observations and biological drawings', activity: 'B3-12', spec: '4.1.1.2; required practical 1; working scientifically', skills: 'Record visible evidence; draw and label; calculate drawing magnification.' },
+  { id: 'animal-adaptations', lessonId: 'B-CELL-004-B', title: 'Specialised animal cells', activity: 'B4-04', spec: '4.1.1.3', skills: 'Link a sperm, nerve or muscle cell feature to its function.' },
+  { id: 'plant-adaptations', lessonId: 'B-CELL-004-B', title: 'Specialised plant cells', activity: 'B4-08', spec: '4.1.1.3', skills: 'Link root-hair, xylem and phloem features to their jobs.' },
+  { id: 'differentiation', lessonId: 'B-CELL-004-B', title: 'Differentiation', activity: 'B4-12', spec: '4.1.1.4', skills: 'Explain becoming specialised; distinguish plant and animal patterns.' },
+  { id: 'cell-cycle', lessonId: 'B-CELL-005-B', title: 'Chromosomes and the cell cycle', activity: 'B5-05', spec: '4.1.2.1–4.1.2.2', skills: 'Describe DNA copying, mitosis and division; explain identical daughter cells.' },
+  { id: 'stem-cells', lessonId: 'B-CELL-005B-B', title: 'Stem cells', activity: 'B5-14', spec: '4.1.2.3', skills: 'Compare sources; explain uses; evaluate benefits, risks and ethical arguments.' },
+  { id: 'diffusion', lessonId: 'B-CELL-006-B', title: 'Diffusion and its rate', activity: 'B6-02', spec: '4.1.3.1', skills: 'Predict net direction; explain concentration gradients, temperature and surface area.' },
+  { id: 'osmosis', lessonId: 'B-CELL-006-B', title: 'Osmosis in cells and tissue', activity: 'B6-08', spec: '4.1.3.2', skills: 'Identify water and membrane; predict direction and mass changes.' },
+  { id: 'active-transport', lessonId: 'B-CELL-006C-B', title: 'Active transport', activity: 'B6-13', spec: '4.1.3.3', skills: 'Explain lower-to-higher movement and energy; apply to root hairs and gut uptake.' },
+  { id: 'exchange-surfaces', lessonId: 'B-CELL-006C-B', title: 'Exchange surfaces and SA:V', activity: 'B6-18', spec: '4.1.3.1', skills: 'Calculate ratios; explain area, thin barriers, blood supply and ventilation.' },
+  { id: 'osmosis-method', lessonId: 'B-CELL-006B-B', title: 'Osmosis practical and fair tests', activity: 'B6-25', spec: '4.1.3.2; required practical 2', skills: 'Identify variables; describe a safe fair test; evaluate repeats and unusual results.' },
+  { id: 'osmosis-data', lessonId: 'B-CELL-006B-B', title: 'Osmosis calculations and graphs', activity: 'B6-28', spec: '4.1.3.2; maths skills', skills: 'Calculate percentage mass change; interpret and plot graphs; calculate rates.' },
+] as Omit<CoverageTopic, 'lesson'>[]).map(topic => ({ ...topic, lesson: scienceLessonNumberById(topic.lessonId)! }))
 export function coverageLessonHref(topic: CoverageTopic) { return scienceLessonHref(topic.lesson, topic.activity) }
 export type Readiness = 'ready' | 'partial' | 'notTaught'
 export const readinessLabels: Record<Readiness, string> = { ready: 'Ready after linked teaching', partial: 'Partly covered', notTaught: 'Not taught yet' }

@@ -40,7 +40,7 @@ export const practicalSections = [
 
 const states: ScienceState[] = [
   // Start here (B3-01 shows the illustrated onion view in LessonVisual).
-  q('B3-01', 'In Lesson 2 you saw that a light microscope shines light up through the sample. Which onion sample would give the clearest view of single cells?', [['chunk', 'A thick chunk of onion'], ['thin', 'A very thin layer of onion skin'], ['slice', 'A whole slice with many layers']], 'thin', 'Light has to get through the sample to reach your eye. Which sample lets it through?', ['A light microscope needs light to pass through the sample.', 'So a very thin layer works best: light gets through, and single cells can be seen.'], 'understanding'),
+  q('B3-01', 'Think back to microscopes: light shines up through the sample. Which onion sample would give the clearest view of single cells?', [['chunk', 'A thick chunk of onion'], ['thin', 'A very thin layer of onion skin'], ['slice', 'A whole slice with many layers']], 'thin', 'Light has to get through the sample to reach your eye. Which sample lets it through?', ['A light microscope needs light to pass through the sample.', 'So a very thin layer works best: light gets through, and single cells can be seen.'], 'understanding'),
 
   // Get ready safely
   teach('B3-02', 'Get ready safely'),

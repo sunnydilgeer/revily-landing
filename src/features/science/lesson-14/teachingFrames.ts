@@ -21,7 +21,7 @@ export const cardiovascularFrames: Record<string, TeachingFrame[]> = {
     f('Slow but steady', 'Statins work slowly and must be taken regularly.', 'benefit over years', 'Statins do not clear a narrowed artery. They work slowly, over months and years. They must be taken regularly and can cause side effects.', 'cardio-statin-balance'),
   ],
   'B14-10': [
-    f('Faulty valves', 'A valve can be stiff or leaky.', 'open fully, close tightly', 'Valves are flaps that stop blood flowing backwards. (You met them in Lesson 11.) A faulty valve may be stiff, so it does not open fully. Or it may leak, so some blood flows backwards.', 'cardio-valve'),
+    f('Faulty valves', 'A valve can be stiff or leaky.', 'open fully, close tightly', 'Valves are flaps that stop blood flowing backwards. (You met them when you learned about the heart.) A faulty valve may be stiff, so it does not open fully. Or it may leak, so some blood flows backwards.', 'cardio-valve'),
     f('New valves', 'Biological and mechanical valves each have a drawback.', 'tissue or man-made', 'A faulty valve can be replaced. Biological valves come from animals or humans. Mechanical valves are man-made. They last longer, but the patient needs drugs to stop blood clots.', 'cardio-valve-types'),
   ],
   'B14-13': [

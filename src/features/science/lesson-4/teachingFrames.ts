@@ -6,8 +6,8 @@ const f = (label: string, summary: string, cue: string, text: string, focus: str
 
 export const specialisationFrames: Record<string, TeachingFrame[]> = {
   'B4-02': [
-    f('Cells look different', 'Not every cell looks like the simple cells you drew.', 'different shapes → different cells', 'In Lesson 3 you looked at real cells under a microscope. Your body has many other kinds of cell too. Some look very different, like this long, branched nerve cell.', 'nerve'),
-    f('Each cell has a job', 'A cell’s job is called its function.', 'every cell → a job to do', 'Each kind of cell has a job to do in the body or the plant. In Lesson 1 you met the word for a job: function. A muscle cell’s function is to help you move.', 'muscle'),
+    f('Cells look different', 'Not every cell looks like the simple cells you drew.', 'different shapes → different cells', 'In the practical skills lesson, you looked at real cells under a microscope. Your body has many other kinds of cell too. Some look very different, like this long, branched nerve cell.', 'nerve'),
+    f('Each cell has a job', 'A cell’s job is called its function.', 'every cell → a job to do', 'Each kind of cell has a job to do in the body or the plant. When you learned about animal and plant cells, each part had a job. The word for a job is function. A muscle cell’s function is to help you move.', 'muscle'),
     f('Shape fits the job', 'A cell’s shape and parts help it do its job.', 'shape + parts → fit the job', 'Many cells have a special shape or extra parts. These help them do their job well. A cell with a shape and parts suited to one job is called a specialised cell.', 'sperm'),
     f('Explain a feature', 'Name the feature, say what it does, then link it to the job.', 'feature → how it helps → job', 'To explain a specialised cell, name one feature. Say what that feature does. Then link it to the cell’s job. Next, you will use this on three animal cells and three plant cells.', 'sperm'),
   ],

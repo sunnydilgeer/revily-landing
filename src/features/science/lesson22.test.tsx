@@ -162,7 +162,7 @@ lessons.forEach((lesson, index) => {
 
 check('Scope: barriers first, then three white blood cell actions; earlier lessons stay brief links', () => {
   const l22 = Object.values(defenceFrames).flat().map(frame => `${frame.summary} ${frame.text}`).join(' ')
-  assert.match(l22, /Lesson 10/); assert.match(l22, /Lesson 13/); assert.match(l22, /Lesson 19/)
+  assert.match(l22, /when you learned about the lungs/); assert.match(l22, /when you learned about blood/); assert.match(l22, /when you learned about pathogens/)
   for (const term of [/Mucus is/, /Cilia are/, /hydrochloric acid/, /immune system is/, /phagocytosis/, /called antigens/, /make antibodies/, /antitoxins/]) assert.match(l22, term)
   assert.doesNotMatch(l22, /antibod[^.]*kill|antigens? (?:are|is) made by white/i, 'antigens belong to the pathogen; antibodies do not kill by themselves')
 })
@@ -182,10 +182,10 @@ check('Lesson 22 has its own storage record, separate from Lesson 21', () => {
 })
 
 check('Hub, chapter, parser and links include Lesson 22; Lesson 21 leads here and Lesson 22 leads to Lesson 23', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
-  assert.ok(scienceLessons.some(item => item.number === 22))
-  assert.equal(parseScienceLesson('22'), 22)
-  assert.equal(scienceLessonHref(22), '/preview/science?lesson=22')
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [24, 25, 26, 27, 28, 29, 30])
+  assert.ok(scienceLessons.some(item => item.number === 27 && item.lesson.id === lesson22.id))
+  assert.equal(parseScienceLesson('27'), 27)
+  assert.equal(scienceLessonHref(27), '/preview/science?lesson=27')
   assert.deepEqual(recommendedNext({ dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }, false, { ...lesson22, id: 'B-INF-021-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-INF-022-B' })
 })
 

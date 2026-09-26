@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import ScienceLessonPreview from '../../../src/features/science/ScienceLessonPreview'
 import ScienceLesson from '../../../src/features/science/ScienceLesson'
 import StudyTimer from '../../../src/features/maths/StudyTimer'
-import { parseScienceLesson } from '../../../src/features/science/lessonNavigation'
+import { parseScienceLesson, scienceLessons } from '../../../src/features/science/lessonNavigation'
 
 export const metadata: Metadata = {
   title: 'Science lessons | Revily',
@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 }
 
 // Pilot: these lessons use the new lesson frame; the rest keep the original player until signed off.
-const RESKINNED = new Set<number>([1, 2, 3])
+// Cells, microscopes, magnification maths and the microscopy practical (keyed by lesson id).
+const RESKINNED = new Set<string>(['B-CELL-001-B', 'B-CELL-001B-B', 'B-CELL-002-B', 'B-CELL-002B-B', 'B-CELL-003-B'])
 
 // The Science home lives in the app (/preview?subject=science); this route only plays lessons.
 // Old links with ?variant= still work: the parameter is ignored.
@@ -22,7 +23,7 @@ export default async function SciencePreviewPage({ searchParams }: { searchParam
   if (!number) redirect('/preview?subject=science')
   return <>
     <StudyTimer subject="science" />
-    {RESKINNED.has(number)
+    {RESKINNED.has(scienceLessons[number - 1].lesson.id)
       ? <ScienceLesson lessonNumber={number} initialActivity={activity} key={`science-lesson-${number}-${activity || ''}`} />
       : <ScienceLessonPreview lessonNumber={number} initialActivity={activity} key={`science-lesson-${number}-${activity || ''}`} />}
   </>

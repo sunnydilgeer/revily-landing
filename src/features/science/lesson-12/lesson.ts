@@ -18,7 +18,7 @@ export const vesselsSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B12-01', 'In Lesson 11, blood leaves the left ventricle in the aorta. Where does the aorta take it?', ['Back to the lungs', 'Out to the body', 'Into the right atrium'], 1, 'Which side of the heart pumps blood to the body?', ['The left ventricle pumps blood into the aorta.', 'So the aorta carries blood out to the body.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B12-01', 'You learned that blood leaves the left ventricle in the aorta. Where does the aorta take it?', ['Back to the lungs', 'Out to the body', 'Into the right atrium'], 1, 'Which side of the heart pumps blood to the body?', ['The left ventricle pumps blood into the aorta.', 'So the aorta carries blood out to the body.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
 
   t('B12-02', 'Away from the heart'),
   visual(a.choice('B12-03', 'Vessel A has a thick wall of muscle and elastic fibres. What is it?', ['A vein', 'A capillary', 'An artery'], 2, 'Which vessel takes blood at high pressure?', ['Arteries carry blood away from the heart at high pressure.', 'So they need thick walls of muscle and elastic fibres.']), 'Cross-sections of three vessels marked A, B and C. A has the thickest wall.'),

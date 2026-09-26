@@ -162,7 +162,7 @@ lessons.forEach((lesson, index) => {
 
 check('Scope: equation, then chloroplasts, then five uses of glucose; earlier lessons stay brief links', () => {
   const l26 = Object.values(photosynthesisFrames).flat().map(frame => `${frame.summary} ${frame.text}`).join(' ')
-  for (const n of [6, 17, 18]) assert.match(l26, new RegExp(`Lesson ${n}\\b`))
+  for (const link of [/how water moves into and out of cells/, /when you learned about the leaf/, /when you learned about transpiration/, /when you learned how water moves through a plant/]) assert.match(l26, link)
   for (const term of [/Photosynthesis uses energy from light/, /Glucose is a sugar/, /stomata/, /xylem/, /chloroplasts/, /Chlorophyll is/, /endothermic/, /CO₂/, /H₂O/, /C₆H₁₂O₆/, /O₂/, /respiration/, /cellulose/, /nitrate ions/, /amino acids/, /lipids/, /starch/, /insoluble/, /osmosis/]) assert.match(l26, term)
   assert.doesNotMatch(l26, /photosynthesis (?:gives out|releases) energy|light is a reactant|takes in oxygen/i, 'photosynthesis takes energy in; light is not a reactant')
 })
@@ -184,11 +184,11 @@ check('Lesson 26 has its own storage record, separate from Lesson 25', () => {
 })
 
 check('New B4 chapter; hub, parser and links include Lesson 26; Lesson 25 leads here', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B4')?.lessonNumbers, [26])
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [19, 20, 21, 22, 23, 24, 25])
-  assert.ok(scienceLessons.some(item => item.number === 26))
-  assert.equal(parseScienceLesson('26'), 26)
-  assert.equal(scienceLessonHref(26), '/preview/science?lesson=26')
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B4')?.lessonNumbers, [31])
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [24, 25, 26, 27, 28, 29, 30])
+  assert.ok(scienceLessons.some(item => item.number === 31 && item.lesson.id === lesson26.id))
+  assert.equal(parseScienceLesson('31'), 31)
+  assert.equal(scienceLessonHref(31), '/preview/science?lesson=31')
   const secure: Profile = { dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }
   assert.deepEqual(recommendedNext(secure, false, { ...lesson26, id: 'B-INF-025-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-BIO-026-B' })
 })

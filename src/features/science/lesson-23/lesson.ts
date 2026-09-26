@@ -15,7 +15,7 @@ export const vaccinationSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B23-01', 'What do antibodies lock onto?', ['Red blood cells', 'Antigens', 'Toxins', 'Mucus'], 1, 'You met antibodies in Lesson 22.', ['Antibodies are made by white blood cells.', 'They lock onto antigens, the molecules on a pathogen’s surface.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B23-01', 'What do antibodies lock onto?', ['Red blood cells', 'Antigens', 'Toxins', 'Mucus'], 1, 'You met antibodies when you learned how your body defends itself.', ['Antibodies are made by white blood cells.', 'They lock onto antigens, the molecules on a pathogen’s surface.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B23-02', 'Why Sam does not catch it twice'),
   a.choice('B23-03', 'Why did Sam stay well when chickenpox spread round his class again?', ['His white blood cells quickly made the right antibodies', 'The virus had lost its antigens', 'The virus cannot get into the same person twice'], 0, 'Compare his white blood cells the first time and the second time.', ['The first time, his white blood cells took days to make the right antibodies.', 'The second time, they made them quickly, so the virus was destroyed before he felt ill.']),
   a.choice('B23-04', 'Look at the graph. Which numbered point shows the fast response to the same pathogen?', ['Point 1', 'Point 2', 'Point 3', 'Point 4'], 2, 'Which infection did the white blood cells already know?', ['Points 1 and 2 are during the first infection, when antibodies are made slowly.', 'Point 3 is after the second infection, when antibodies are made fast and high.'], 'understanding', false, 'vaccine-response-question'),

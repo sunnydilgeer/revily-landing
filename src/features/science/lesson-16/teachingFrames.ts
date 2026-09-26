@@ -17,7 +17,7 @@ export const riskCancerFrames: Record<string, TeachingFrame[]> = {
   ],
   'B16-06': [
     f('Smoking', 'Smoking raises the risk of lung and heart disease.', 'lungs and heart', 'Smoking damages the lungs. It is a risk factor for lung disease and lung cancer. It also raises the risk of cardiovascular disease.', 'risk-smoking'),
-    f('Diet and exercise', 'Diet and exercise affect cardiovascular disease.', 'fat in, activity out', 'A diet high in fat and taking little exercise both raise the risk of cardiovascular disease. (You met this in Lesson 14.)', 'risk-diet'),
+    f('Diet and exercise', 'Diet and exercise affect cardiovascular disease.', 'fat in, activity out', 'A diet high in fat and taking little exercise both raise the risk of cardiovascular disease. (You met this when you learned about cardiovascular disease.)', 'risk-diet'),
     f('Obesity', 'Obesity is a risk factor for Type 2 diabetes.', 'extra body fat', 'Obesity means carrying a lot of extra body fat. It is a risk factor for Type 2 diabetes.', 'risk-obesity'),
   ],
   'B16-08': [
@@ -26,7 +26,7 @@ export const riskCancerFrames: Record<string, TeachingFrame[]> = {
     f('Carcinogens', 'A carcinogen is something that can cause cancer.', 'causes cancer', 'Something that can cause cancer is called a carcinogen. Ionising radiation, such as from X-rays, is one. Some chemicals in tobacco smoke are too.', 'risk-radiation'),
   ],
   'B16-10': [
-    f('Normal division', 'Normally, cells divide only when needed.', 'controlled division', 'Normally, cells divide only when the body needs new cells. Each division makes two cells. (You met the cell cycle in Lesson 5.)', 'cycle-daughters'),
+    f('Normal division', 'Normally, cells divide only when needed.', 'controlled division', 'Normally, cells divide only when the body needs new cells. Each division makes two cells. (You met the cell cycle when you learned about mitosis.)', 'cycle-daughters'),
     f('Out of control', 'A tumour is a lump of cells dividing out of control.', 'no stop signal', 'Sometimes changes in a cell stop this control. The cell divides again and again. A lump of these cells is called a tumour.', 'cancer-formation'),
     f('Benign tumours', 'A benign tumour stays in one place.', 'stays put', 'A benign tumour stays in one place. It is usually held inside a membrane. It does not invade other parts of the body.', 'cancer-benign'),
     f('Malignant tumours', 'A malignant tumour can spread and form a secondary tumour.', 'invades and spreads', 'A malignant tumour is a cancer. Its cells invade nearby tissue. They can travel in the blood and form a secondary tumour somewhere else.', 'cancer-malignant'),

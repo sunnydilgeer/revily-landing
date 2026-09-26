@@ -16,7 +16,7 @@ export const organisationSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('B7-01', 'Muscle cells are long and can contract. What does this let them do?', ['Move parts of the body', 'Carry water up a plant', 'Swim to an egg'], 0, 'Think back to Lesson 4. What happens when a muscle cell gets shorter?', ['Muscle cells contract, which means they get shorter.', 'So they pull on parts of the body and make them move.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('B7-01', 'Muscle cells are long and can contract. What does this let them do?', ['Move parts of the body', 'Carry water up a plant', 'Swim to an egg'], 0, 'Think back to specialised cells. What happens when a muscle cell gets shorter?', ['Muscle cells contract, which means they get shorter.', 'So they pull on parts of the body and make them move.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('B7-02', 'Zoom in on the stomach'),
   a.choice('B7-03', 'Muscle cells in the stomach wall work together to churn food. What do they make?', ['An organ', 'One cell', 'A tissue'], 2, 'What is a group of similar cells doing one job called?', ['The muscle cells are similar, and they do one job together.', 'So together they make a tissue: muscle tissue.']),
   a.choice('B7-04', 'What is the difference between one epithelial cell and epithelial tissue?', ['They are two names for the stomach', 'The tissue is many similar cells joined in a layer; the cell is just one', 'One epithelial cell is bigger than the tissue'], 1, 'Is the tissue one cell or many?', ['Epithelial tissue is a layer of many similar epithelial cells.', 'So one epithelial cell is only a small part of the tissue.']),

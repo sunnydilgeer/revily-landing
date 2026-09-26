@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react'
-import { transportData } from '../lesson-6/practicalData'
+import { transportData } from '../lesson-6b/practicalData'
 
 const ink = '#37627b', blue = '#52aed0', amber = '#e5b442', green = '#67ab8b'
 function ParticleModel({ focus, assessment }: { focus: string; assessment: boolean }) {

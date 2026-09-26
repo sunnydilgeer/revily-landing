@@ -3,33 +3,31 @@ import { createHash } from 'node:crypto'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { TeachingChunk } from './components/TeachingChunk'
-import { lesson1 } from './lesson-1/lesson'
-import { lesson2 } from './lesson-2/lesson'
-import { lesson3 } from './lesson-3/lesson'
-import { lesson4 } from './lesson-4/lesson'
-import { lesson5 } from './lesson-5/lesson'
-import { lesson6 } from './lesson-6/lesson'
-import { teachingFrames } from './lesson-1/teachingFrames'
-import { microscopyFrames } from './lesson-2/teachingFrames'
-import { practicalFrames } from './lesson-3/teachingFrames'
-import { specialisationFrames } from './lesson-4/teachingFrames'
-import { divisionFrames } from './lesson-5/teachingFrames'
-import { transportFrames } from './lesson-6/teachingFrames'
+import { scienceChapters, scienceLessons } from './lessonNavigation'
+import type { TeachingFrame } from './teachingFrame'
 
-const lessons = [lesson1, lesson2, lesson3, lesson4, lesson5, lesson6]
-const frameSets = [teachingFrames, microscopyFrames, practicalFrames, specialisationFrames, divisionFrames, transportFrames]
+// The eleven cell-biology lessons (chapter B1), in catalogue order.
+const cellBiology = scienceLessons.filter(item => (scienceChapters[0].lessonNumbers as readonly number[]).includes(item.number))
+const lessons = cellBiology.map(item => item.lesson)
+const frameSets: Array<Record<string, TeachingFrame[]>> = cellBiology.map(item => item.frames)
 // Captured from the easier-wording lessons when the original wording (Variant A) was retired, and
-// re-captured for lessons 3 and 4 after their content-flow rewrite (26 September 2026). Their
-// question and marking contracts had been checked identical to A's. Wording is deliberately
-// excluded; grading, evidence and snapshot identity are not.
-const contracts = [
-  '8a79d71b5c49f723262e3bdacc59f7d37aa253385e658b9b5c886fce48b99b92',
-  '1a48fc43869907c6706754f38a190b3703e7439b19a3a592f153796abb47573d',
-  '3bda1a8cf02888095572a6fa9f2e829c606ee6baeac4467010f8efcf51710f79',
-  '2c8cb04be0121dfb78b511304504eb5ed9eb9e2f2e56d6e1593a14088b4fc421',
-  '8fb61a08da6fbebdd08003e17028b526e61bfe0230b415dffeaba08be3405c0b',
-  'cf4ed5b9205ae0f5b979c2867081f1551f5af76252a98fd47ad88dd19cced111',
-]
+// re-captured for lessons 3 and 4 after their content-flow rewrite (26 September 2026). Re-captured
+// again for the cell-biology split (26 September 2026): folders 1, 2, 5 and 6 were rewritten
+// (content version 0.2.0) and 1b, 2b, 5b, 6b and 6c are new (0.1.0); folders 3 and 4 are unchanged.
+// Wording is deliberately excluded; grading, evidence and snapshot identity are not.
+const contracts: Record<string, string> = {
+  'B-CELL-001-B': '1beb904c9a87676da933b6da0b705348396b805412a5b680967a6b53f18591ba',
+  'B-CELL-001B-B': '69f3b5a466ee6f16cfde4585fd817c799219d0e20509ba883ad40ed1c3329460',
+  'B-CELL-002-B': '4134bffb2532302e1d42327e2a393fb3617f38a8ada24ff0a67e6fbe067afecc',
+  'B-CELL-002B-B': '6360286ec22723420bac698c5652796645863013f44f2b10a2b70fa1308a0c1f',
+  'B-CELL-003-B': '3bda1a8cf02888095572a6fa9f2e829c606ee6baeac4467010f8efcf51710f79',
+  'B-CELL-004-B': '2c8cb04be0121dfb78b511304504eb5ed9eb9e2f2e56d6e1593a14088b4fc421',
+  'B-CELL-005-B': '26e00294181082bd1118aa3d58079f9da1fe388f76d64a31e5ad268ee846e3e5',
+  'B-CELL-005B-B': '8bb66cc0b5c43b47741ed8bd065c3dd30a9e8ecf75b87a3741a5d8328e7722a7',
+  'B-CELL-006-B': '325538788c2930a902e89f0eb96a7b8e3e65e23e49b42c41bf3a995797e51ee5',
+  'B-CELL-006B-B': '217f28c9f62f4f4664957570fd1abd8180e407b576e123fc0138387a7a8cc1fa',
+  'B-CELL-006C-B': '216ed01c19f3a6c1abf3af6c4fb922c28247a99e0232634e658017f47fd65e44',
+}
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
 lessons.forEach((l, i) => {
@@ -51,7 +49,7 @@ lessons.forEach((l, i) => {
       })),
     }
     const hash = createHash('sha256').update(JSON.stringify(contract)).digest('hex')
-    assert.equal(hash, contracts[i])
+    assert.equal(hash, contracts[l.id])
   })
   check(`${l.id}: every walkthrough has complete copy and a matching teaching script`, () => {
     for (const [id, frames] of Object.entries(frameSets[i])) {
@@ -78,15 +76,18 @@ lessons.forEach((l, i) => {
     }
   })
 })
-check('key concepts include plain-language meanings and causal links across all six lessons', () => {
-  const text = frameSets.map(fs => Object.values(fs).flat().map(f => f.text).join(' '))
-  assert.match(text[0], /function.*job/i)
-  assert.match(text[1], /one blurred patch/)
-  assert.match(text[2], /thin so light can pass through/)
-  assert.match(text[3], /more surface area\. More water/)
-  assert.match(text[4], /copying is called replication/)
-  assert.match(text[5], /Concentration means.*given volume/)
-  assert.match(text[5], /More leave a higher-concentration region than return/)
-  assert.match(text[5], /dependent variable|final mass − initial mass/)
+check('key concepts include plain-language meanings and causal links across the cell-biology lessons', () => {
+  const text = (folder: string) => Object.values(frameSets[cellBiology.findIndex(item => item.folder === folder)]).flat().map(f => f.text).join(' ')
+  // Lesson 1 no longer uses the word "function"; its plain meaning ("each part has a job") is now taught there.
+  assert.match(text('1'), /each part has a job/)
+  assert.match(text('4'), /function.*job/i)
+  assert.match(text('2'), /one blurred patch/)
+  assert.match(text('3'), /thin so light can pass through/)
+  assert.match(text('4'), /more surface area\. More water/)
+  assert.match(text('5'), /copying is called replication/)
+  assert.match(text('6'), /Concentration means.*given volume/)
+  assert.match(text('6'), /More leave a higher-concentration region than return/)
+  // The osmosis practical moved from lesson 6 to lesson 6b.
+  assert.match(text('6b'), /dependent variable|final mass − initial mass/)
 })
 console.log(`${checks} teaching-copy checks passed.`)

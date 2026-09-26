@@ -1,15 +1,17 @@
 import assert from 'node:assert/strict'
-import { scienceLessons } from './lessonNavigation'
+import { scienceChapters, scienceLessonNumberById, scienceLessons } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { coverageTopics, coverageLessonHref, initialPaperMappings, mappingStorageKey, paperLink, pilotStorageKey, newPilotSession, pilotReducer, restorePilotSession, restoreMappings, transportPilot, validMapping, type PaperMapping } from './examPreparation'
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log('PASS ' + name) }
-check('Coverage: 18 unique topics cover all six lessons with valid exact targets', () => {
+check('Coverage: 18 unique topics cover all eleven cell-biology lessons with valid exact targets', () => {
   assert.equal(coverageTopics.length, 18); assert.equal(new Set(coverageTopics.map(t => t.id)).size, 18)
-  assert.deepEqual([...new Set(coverageTopics.map(t => t.lesson))], [1,2,3,4,5,6])
+  assert.deepEqual([...new Set(coverageTopics.map(t => t.lesson))].sort((a, b) => a - b), [...scienceChapters[0].lessonNumbers])
   for (const topic of coverageTopics) {
+    assert.equal(topic.lesson, scienceLessonNumberById(topic.lessonId))
     const lesson = scienceLessons.find(l => l.number === topic.lesson)!.lesson
-    assert.ok(lesson.states.some(s => s.id === topic.activity))
+    assert.equal(lesson.id, topic.lessonId)
+    assert.ok(lesson.states.some(s => s.id === topic.activity), `${topic.id}: ${topic.activity} must be in ${topic.lessonId}`)
     assert.ok(topic.spec && topic.skills)
     assert.match(coverageLessonHref(topic), new RegExp(`lesson=${topic.lesson}.*activity=${topic.activity}`))
     assert.ok(!coverageLessonHref(topic).includes('variant='))
@@ -39,7 +41,8 @@ check('Pilot: original worked/supported/independent sequence and marking-point c
   for (const task of transportPilot) {
     assert.equal(task.points.length,task.marks)
     assert.ok(task.model && task.commonSlip && task.prompt.includes(`[${task.marks} marks]`))
-    assert.ok(task.topicIds.every(id=>coverageTopics.some(t=>t.id===id && t.lesson===6)))
+    // The transport pilot draws on the three lessons split from the old lesson 6 (diffusion/osmosis, the osmosis practical, active transport).
+    assert.ok(task.topicIds.every(id=>coverageTopics.some(t=>t.id===id && ['B-CELL-006-B','B-CELL-006B-B','B-CELL-006C-B'].includes(t.lessonId))))
     assert.equal(Boolean(task.scaffold),task.stage==='supported')
   }
   assert.match(transportPilot[2].model, /−10%/); assert.match(transportPilot[2].model, /−0.40 ÷ 4.00/)
@@ -79,7 +82,7 @@ check('Pilot restore: malformed, unlocked or prematurely completed snapshots rej
 })
 check('Exam storage: map and pilot records cannot overwrite any lesson progress key', () => {
   const keys=[mappingStorageKey,pilotStorageKey,...scienceLessons.map(l=>createPreviewSessionEngine(l.lesson).storageKey)]
-  assert.equal(new Set(keys).size,28)
+  assert.equal(new Set(keys).size,scienceLessons.length+2)
   assert.equal(pilotStorageKey,'revily:science:transport-exam-pilot:v1:b','Testers\' saved pilot attempts must still load')
 })
 console.log(`${checks} exam-preparation grouped checks passed`)

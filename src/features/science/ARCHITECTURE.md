@@ -1,6 +1,18 @@
 # Science scaffold architecture
 
-## Current state — 26 September 2026 (read this first)
+## Current state — 26 September 2026, after the cell-biology split (read this first)
+
+- **31 Biology lessons.** Lessons 1, 2, 5 and 6 were split, so Science went from 26 to 31 lessons. The catalogue (`scienceLessons` in `lessonNavigation.ts`) is the single source of truth for order, titles, sections and frames. `lessonSections.ts` and `lessonFrames.ts` are derived from it.
+- **Folders are not lesson numbers.** Cell biology (chapter B1) is lessons 1–11: `lesson-1` animal and plant cells, `lesson-1b` bacteria and comparing cells, `lesson-2` light and electron microscopes, `lesson-2b` magnification maths, `lesson-3` practical skills (RP1), `lesson-4` specialisation, `lesson-5` chromosomes and mitosis, `lesson-5b` stem cells, `lesson-6` diffusion and osmosis, `lesson-6b` osmosis practical (RP2), `lesson-6c` active transport and exchange surfaces. Folders `lesson-7` … `lesson-26` are now lessons 12 … 31.
+- **Key on lesson ids, not numbers.** Anything about a particular lesson (practical notes, the transport story, the exam pilot link, the new-screen pilot in `app/preview/science/page.tsx`, the coverage map) uses `lesson.id`. Use `scienceLessonNumberById` / `scienceLessonHrefById` to get a number or a link.
+- **State ids were not renumbered.** Screens that moved to a split lesson keep their ids (e.g. B1-21 is in `lesson-1b`, B1-35 and B2-12… are in `lesson-2b`). New screens continue each family: B1-43+, B2-35+, B5-32+, B6-46+.
+- **The coach experiment is retired.** `coach/` was deleted; `/preview/scienceB` still shows the Lesson 1 revision cards (`revision-b/`), which keep the coach's styles as `revision-b/RevisionShell.css`.
+- **Saved progress** for the rewritten lessons resets (new content versions). There is no database yet.
+- **All content is still a draft** awaiting qualified teacher review.
+
+Notes below this section are a dated history; lesson numbers in them are the old numbers.
+
+## Earlier state — 26 September 2026 (before the split)
 
 - **One Science catalogue.** The original wording (Variant A, Lessons 1–6) has been deleted, along with the A/B switch and the `?variant=` parameter. The easier wording (formerly Variant B) is now the only Science content: 26 Biology lessons in `lesson-1/` to `lesson-26/`, listed in `lessonNavigation.ts` as `scienceLessons`.
 - **Saved progress is unchanged.** Lesson IDs keep their `-B` suffix (e.g. `B-CELL-001-B`), so storage keys such as `revily:science:B-CELL-001-B:0.1.0:preview` still load for testers. The exam pilot key keeps its `:b` suffix for the same reason.

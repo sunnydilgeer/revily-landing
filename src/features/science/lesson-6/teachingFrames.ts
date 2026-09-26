@@ -1,279 +1,47 @@
-// Variant B: simpler teaching copy. Visual targets and step order match Variant A.
 import type { TeachingFrame } from '../teachingFrame'
 
+// One route: particles spread out (diffusion) → where it happens in the body → what speeds it up →
+// the same idea for water across a membrane (osmosis) → plant cells in solutions. See STORYBOARD.md.
+// One new word per screen. Plain meaning first, then the GCSE term.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
 export const transportFrames: Record<string, TeachingFrame[]> = {
-  "B6-02": [
-    {
-      "label": "Meet diffusion",
-      "summary": "Particles spread from higher to lower concentration overall.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Concentration means how much of a substance is in a given volume. Particles move randomly. More leave a higher-concentration region than return. This overall movement is diffusion.",
-      "diagram": "cellBiology",
-      "focus": "diffusion"
-    },
-    {
-      "label": "Net does not mean one-way",
-      "summary": "Net means overall, not one-way.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Particles move both ways. Net movement is higher to lower concentration. At equal concentrations, particles still move, but the movements balance. There is no net movement.",
-      "diagram": "cellBiology",
-      "focus": "diffusion"
-    }
+  'B6-02': [
+    f('How much is in a space', 'Concentration compares amounts in the same volume.', 'more particles in the same space → higher concentration', 'Every cell, including the stem cells you just met, needs substances to move in and out. Think of strong and weak squash. Concentration means how much of a substance is in a given volume. More particles in the same volume means a higher concentration.', 'diffusion'),
+    f('Particles never stop', 'Particles in a gas or liquid move about all the time.', 'any direction, no pattern', 'Particles in a gas or a liquid are always moving. They bump into each other and change direction. Moving with no set pattern is called random movement. So some particles go left while others go right.', 'diffusion'),
+    f('More leave than return', 'More particles leave a crowded region than come back.', 'crowded → less crowded, overall', 'Look at two regions side by side. The left one has a higher concentration. More leave a higher-concentration region than return. The overall movement, once you count both ways, is called net movement.', 'diffusion'),
+    f('Meet diffusion', 'Particles spread out overall from higher to lower concentration.', 'higher → lower, overall', 'This net spreading of particles from a higher to a lower concentration is called diffusion. It happens in gases and in liquids. The particles’ own movement does the work, so the cell does not supply energy.', 'diffusion'),
+    f('Even spread, still moving', 'At equal concentrations there is no net movement.', 'still moving, but balanced', 'When both regions reach the same concentration, the particles still move. Just as many move each way. So the movements balance, and there is no net movement.', 'diffusion'),
+    f('Put it together', 'Random movement gives net movement from higher to lower concentration.', 'random moves → net spread → balance', 'Particles move randomly all the time. More leave a crowded region than return, so there is net movement from higher to lower concentration. This is diffusion. It carries on until the concentrations are equal.', 'diffusion'),
   ],
-  "B6-04": [
-    {
-      "label": "Diffusion in living things",
-      "summary": "Gases move where their concentration is lower.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "A concentration gradient is a difference in concentration. Cells use oxygen, keeping its concentration low. Oxygen can diffuse in from blood. Cells produce carbon dioxide. Where its concentration is higher inside cells, it can diffuse out into blood.",
-      "diagram": "cellBiology",
-      "focus": "diffusion-examples"
-    },
-    {
-      "label": "Waste leaves cells too",
-      "summary": "Dissolved waste can diffuse too.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Urea is a dissolved waste substance. It can diffuse into blood plasma, the liquid part of blood. Blood carries it to the kidneys for excretion, or removal from the body.",
-      "diagram": "cellBiology",
-      "focus": "diffusion-examples"
-    }
+  'B6-04': [
+    f('A difference in concentration', 'Diffusion needs a difference between two places.', 'difference → diffusion can happen', 'Diffusion needs a difference in concentration between two places. This difference is called a concentration gradient. Particles diffuse down the gradient, from higher to lower concentration.', 'diffusion'),
+    f('Oxygen gets into cells', 'Oxygen diffuses from the blood into cells.', 'blood high, cell low → oxygen in', 'Cells use oxygen all the time, so the oxygen concentration inside them stays low. Blood arriving at the cells has more oxygen. So oxygen diffuses from the blood into the cells.', 'diffusion-examples'),
+    f('Carbon dioxide gets out', 'Carbon dioxide diffuses from cells into the blood.', 'cell high, blood low → carbon dioxide out', 'Cells make carbon dioxide as a waste gas. So its concentration is higher inside the cells than in the blood. Carbon dioxide diffuses out of the cells and into the blood.', 'diffusion-examples'),
+    f('Another waste', 'Liver cells make a dissolved waste.', 'made in cells → builds up inside', 'Liver cells make a waste substance that dissolves in water. This waste is called urea. It builds up inside the cells, so its concentration there is higher than in the blood.', 'diffusion-examples'),
+    f('Into the plasma', 'Urea diffuses into the liquid part of the blood.', 'cells → plasma → kidneys', 'The liquid part of the blood is called plasma. Urea diffuses from the cells into the plasma. The blood carries it to the kidneys, which remove it from the body.', 'diffusion-examples'),
+    f('Put it together', 'Each substance diffuses down its own gradient.', 'check the gradient for each substance', 'Oxygen diffuses into cells. Carbon dioxide and urea diffuse out of cells. Each one moves from where its concentration is higher to where it is lower. So the direction depends on the gradient for that substance.', 'diffusion-examples'),
   ],
-  "B6-06": [
-    {
-      "label": "A steeper concentration gradient",
-      "summary": "A bigger concentration difference makes diffusion faster.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "A bigger concentration difference is a steeper gradient. More particles move overall each second. Diffusion is faster. Keep temperature and surface area the same when comparing gradients.",
-      "diagram": "cellBiology",
-      "focus": "diffusion-rate"
-    },
-    {
-      "label": "Temperature and area",
-      "summary": "Warmer particles move faster; more area allows more crossing.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Higher temperature gives particles more energy, so they move faster. A larger membrane area lets more particles cross at once. For a fair test, change only one factor.",
-      "diagram": "cellBiology",
-      "focus": "diffusion-rate"
-    }
+  'B6-06': [
+    f('A bigger difference', 'A steeper gradient makes diffusion faster.', 'bigger difference → faster', 'A big difference in concentration is called a steep gradient. More particles move across overall each second. So diffusion is faster when the gradient is steeper.', 'diffusion-rate'),
+    f('Warmer', 'A higher temperature makes diffusion faster.', 'more energy → faster particles', 'When it is warmer, particles have more energy. They move faster, so they spread out faster. So diffusion is faster at a higher temperature.', 'diffusion-rate'),
+    f('More surface', 'A bigger surface lets more particles cross at once.', 'bigger surface → more crossing', 'Particles often diffuse across a surface, such as a cell membrane. The size of that surface is called its surface area. A larger surface area lets more particles cross at the same time.', 'diffusion-rate'),
+    f('Change one thing at a time', 'Compare one factor and keep the others the same.', 'one change, everything else fixed', 'To see what one factor does, change only that factor. Keep the others the same. A test like this is called a fair test. Otherwise you cannot tell which change made diffusion faster.', 'diffusion-rate'),
+    f('Put it together', 'Steeper, warmer or bigger surface: diffusion is faster.', 'gradient, temperature, surface area', 'Diffusion is faster when the gradient is steeper. It is faster when it is warmer. It is faster across a larger surface area. To compare them, test one factor at a time.', 'diffusion-rate'),
   ],
-  "B6-08": [
-    {
-      "label": "Meet osmosis",
-      "summary": "Water can cross a partially permeable membrane.",
-      "cue": "Think: water, membrane, overall direction",
-      "text": "Partially permeable means some substances can pass through, but others cannot. Here, water can pass but the dissolved substance cannot. That dissolved substance is called a solute.",
-      "diagram": "cellBiology",
-      "focus": "osmosis"
-    },
-    {
-      "label": "Dilute to concentrated",
-      "summary": "Water moves overall from dilute to concentrated solution.",
-      "cue": "Think: water, membrane, overall direction",
-      "text": "Dilute means less dissolved solute in a given volume. Water moves overall from a more dilute to a more concentrated solution. It crosses a partially permeable membrane. This is osmosis.",
-      "diagram": "cellBiology",
-      "focus": "osmosis"
-    },
-    {
-      "label": "Water keeps moving",
-      "summary": "Water keeps moving in both directions.",
-      "cue": "Think: water, membrane, overall direction",
-      "text": "Equal amounts of water crossing each way give no net movement. The water molecules have not stopped. Their overall movements balance.",
-      "diagram": "cellBiology",
-      "focus": "osmosis"
-    }
+  'B6-08': [
+    f('Some things through, some not', 'A cell membrane lets some substances through but not others.', 'small water through, some solutes blocked', 'A cell membrane lets some substances pass through, but not others. Small water molecules can pass. Some larger dissolved particles cannot. A membrane like this is called a partially permeable membrane.', 'osmosis'),
+    f('Dissolved particles', 'A substance dissolved in water is called a solute.', 'sugar dissolved in water', 'When sugar dissolves in water, it makes a solution. The dissolved substance is called a solute. In squash, the sugar is a solute.', 'osmosis'),
+    f('Dilute and concentrated', 'A dilute solution has little solute and lots of water.', 'less solute → more water', 'A solution with little solute in a given volume is called dilute. It has lots of water. A concentrated solution has more solute and less water.', 'osmosis'),
+    f('Water moves across', 'Water moves from a dilute to a more concentrated solution.', 'more water → less water', 'Put a dilute and a concentrated solution on either side of a partially permeable membrane. Water can cross, but the solute cannot. The dilute side has more water, so water moves overall into the concentrated side. This is called osmosis.', 'osmosis'),
+    f('Water keeps moving', 'Water crosses the membrane both ways all the time.', 'still moving, but balanced', 'Water molecules cross the membrane in both directions. When equal amounts cross each way, there is no net movement. The water has not stopped. Its movements balance.', 'osmosis'),
+    f('Put it together', 'Osmosis is the diffusion of water across a partially permeable membrane.', 'water only, across a membrane, dilute → concentrated', 'Osmosis is a type of diffusion. Only water moves. It crosses a partially permeable membrane. Net movement is from a dilute solution to a more concentrated one.', 'osmosis'),
   ],
-  "B6-11": [
-    {
-      "label": "Plant tissue gains water",
-      "summary": "A more dilute outside solution can make tissue gain mass.",
-      "cue": "Think: water, membrane, overall direction",
-      "text": "Compare outside with inside. If the outside solution is more dilute, water enters cells by osmosis. The extra water increases the tissue’s mass.",
-      "diagram": "cellBiology",
-      "focus": "tissue-gain"
-    },
-    {
-      "label": "Plant tissue loses water",
-      "summary": "A more concentrated outside solution can make tissue lose mass.",
-      "cue": "Think: water, membrane, overall direction",
-      "text": "If the outside solution is more concentrated, water leaves cells by osmosis. The tissue loses water, so its mass decreases. Direction depends on outside compared with inside.",
-      "diagram": "cellBiology",
-      "focus": "tissue-loss"
-    }
+  'B6-11': [
+    f('Compare outside and inside', 'Water can cross a plant cell’s membrane by osmosis.', 'outside compared with inside', 'A plant cell contains a solution of sugars and other solutes. Its membrane is partially permeable. So water moves in or out by osmosis. The direction depends on the solution outside compared with inside.', 'osmosis'),
+    f('Outside more dilute', 'Water moves in, so the tissue gains mass.', 'dilute outside → water in → mass up', 'Put a piece of potato in pure water. The water outside is more dilute than the cell contents. So water moves into the cells by osmosis. The potato gains water, so its mass goes up.', 'tissue-gain'),
+    f('Outside more concentrated', 'Water moves out, so the tissue loses mass.', 'concentrated outside → water out → mass down', 'Now put a piece in a very sugary solution. The outside is more concentrated than the cell contents. So water moves out of the cells by osmosis. The potato loses water, so its mass goes down.', 'tissue-loss'),
+    f('The same inside and out', 'With no net movement, the mass stays the same.', 'equal → balanced → no change', 'If the outside solution matches the cell contents, water moves in and out equally. There is no net movement of water. So the mass of the potato stays the same.', 'osmosis'),
+    f('Put it together', 'Compare outside with inside to predict the change.', 'dilute outside: up; concentrated outside: down', 'Compare the solution outside with the cell contents. More dilute outside: water in, mass up. More concentrated outside: water out, mass down. Next, you will measure this yourself in the osmosis practical.', 'tissue-loss'),
   ],
-  "B6-13": [
-    {
-      "label": "Meet active transport",
-      "summary": "Moves substances from lower to higher concentration.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Root hairs need mineral ions for growth. Ion concentration may be lower in soil than inside the cell. Active transport can move ions into the cell against this gradient.",
-      "diagram": "cellBiology",
-      "focus": "active"
-    },
-    {
-      "label": "Energy from respiration",
-      "summary": "Active transport needs energy from respiration.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "The cell uses energy to move substances against their gradient, from lower to higher concentration. Respiration releases this energy. Diffusion and osmosis do not need energy from respiration.",
-      "diagram": "cellBiology",
-      "focus": "active"
-    }
-  ],
-  "B6-15": [
-    {
-      "label": "Sugar uptake in the gut",
-      "summary": "Active transport helps absorb sugar into the blood.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Sugar can move from a lower concentration in the gut to a higher concentration in blood. Active transport allows this. Blood then carries the sugar to cells for respiration.",
-      "diagram": "cellBiology",
-      "focus": "gut-active"
-    },
-    {
-      "label": "Now compare three processes",
-      "summary": "Compare what moves, its direction and its energy needs.",
-      "cue": "Think: how concentrated, which direction, energy",
-      "text": "Diffusion: particles move overall from higher to lower concentration. Osmosis: water moves from dilute to concentrated through a partially permeable membrane. Active transport: lower to higher concentration, using energy from respiration.",
-      "diagram": "cellBiology",
-      "focus": "transport-compare"
-    }
-  ],
-  "B6-18": [
-    {
-      "label": "Small bodies exchange easily",
-      "summary": "A small cell has lots of surface compared with its volume.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "A single-celled organism exchanges materials across its outer surface. That surface is large compared with its volume. It can supply enough material for the cell’s needs.",
-      "diagram": "cellBiology",
-      "focus": "ratio"
-    },
-    {
-      "label": "Scaling up changes the ratio",
-      "summary": "Larger bodies have less surface for each unit of volume.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "A 1 cm cube has area 6 cm² and volume 1 cm³: 6:1. A 2 cm cube has 24 cm² and 8 cm³: 3:1. Volume grows faster than surface area.",
-      "diagram": "cellBiology",
-      "focus": "ratio"
-    },
-    {
-      "label": "Larger organisms need help",
-      "summary": "Large organisms need exchange surfaces and transport systems.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "Multicellular means made of many cells. Large organisms have less outer surface per unit of volume. Internal cells are farther away. Exchange surfaces take in supplies. Transport systems carry them to cells.",
-      "diagram": "cellBiology",
-      "focus": "ratio"
-    }
-  ],
-  "B6-21": [
-    {
-      "label": "Lungs: many alveoli",
-      "summary": "Many tiny air sacs give the lungs a large area.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "Alveoli are tiny air sacs. Their large total area and thin walls help gases diffuse quickly. Breathing replaces air. Blood flow carries gases. Both maintain concentration differences.",
-      "diagram": "cellBiology",
-      "focus": "exchange-lung"
-    },
-    {
-      "label": "Intestine: many villi",
-      "summary": "Small projections give the intestine more area.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "Villi are small projections in the intestine. They increase surface area for absorption. Their thin surface gives a short crossing distance. Blood carries substances away, maintaining gradients for diffusion.",
-      "diagram": "cellBiology",
-      "focus": "exchange-intestine"
-    }
-  ],
-  "B6-23": [
-    {
-      "label": "Fish: gills",
-      "summary": "Thin gill surfaces help gases cross.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "Many surfaces give gills a large area. Their thinness gives a short diffusion path. Flowing water supplies oxygen. Blood carries it away, maintaining the concentration gradient.",
-      "diagram": "cellBiology",
-      "focus": "exchange-gill"
-    },
-    {
-      "label": "Plants: roots",
-      "summary": "Root hairs give more surface for uptake.",
-      "cue": "Think: feature → how it helps → job",
-      "text": "The long extension touches more soil solution. Water enters by osmosis. Mineral ions can enter by active transport, using energy from respiration.",
-      "diagram": "cellBiology",
-      "focus": "root"
-    },
-    {
-      "label": "Plants: leaves",
-      "summary": "Leaf pores let gases pass through.",
-      "cue": "Think: surface area, distance, supply",
-      "text": "Stomata are small pores in leaves. Carbon dioxide diffuses through them and internal air spaces to photosynthesising cells. Thin, moist cell surfaces give a large area and short diffusion paths.",
-      "diagram": "cellBiology",
-      "focus": "exchange-leaf"
-    }
-  ],
-  "B6-25": [
-    {
-      "label": "Required practical 2: prepare digitally",
-      "summary": "Test how solution concentration affects plant-tissue mass.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "Use different salt or sugar concentrations and measure tissue mass changes. Do the real practical in school with your teacher and a risk-assessed method. Use prepared tissue. Cutting and lab solutions are not home tasks.",
-      "diagram": "cellBiology",
-      "focus": "practical-setup"
-    },
-    {
-      "label": "Measure before and after",
-      "summary": "Weigh before soaking and after blotting.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "Record the initial mass. Soak for a set time. Gently blot surface liquid away, then record the final mass. Blotting removes droplets that would add extra mass.",
-      "diagram": "cellBiology",
-      "focus": "practical-setup"
-    },
-    {
-      "label": "Make it a fair comparison",
-      "summary": "Change concentration; keep other conditions the same.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "Keep tissue type, dimensions, solution volume, time and temperature the same. Repeat and calculate a mean, or average. This lesson prepares you for required practical 2; it does not replace doing it.",
-      "diagram": "cellBiology",
-      "focus": "practical-setup"
-    }
-  ],
-  "B6-30": [
-    {
-      "label": "From measurements to percentages",
-      "summary": "Express the mass change as a percentage.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "Change = final mass − initial mass. Divide by initial mass, then multiply by 100. Positive means gain; negative means loss. Percentages compare different starting masses. These are example data, not real measurements.",
-      "diagram": "cellBiology",
-      "focus": "practical-data"
-    },
-    {
-      "label": "Concentration on the horizontal axis",
-      "summary": "Put concentration across and percentage change up the graph.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "Label both axes with units. Use evenly spaced scales. Include gains and losses. Plot the points. Draw a suitable trend line to show the overall pattern.",
-      "diagram": "cellBiology",
-      "focus": "practical-graph"
-    },
-    {
-      "label": "A zero crossing",
-      "summary": "At 0% change, water gain and loss balance overall.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "Where the trend crosses 0%, there is no net water gain or loss. Water still moves both ways. Use repeats and a mean to make the estimated concentration more reliable.",
-      "diagram": "cellBiology",
-      "focus": "practical-graph"
-    }
-  ],
-  "B6-33": [
-    {
-      "label": "Try plotting one point",
-      "summary": "Use the table to choose a point.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "At 0.2 mol/dm³, mass change is +5%. Select +5% and plot. The point uses these two values. This optional practice does not submit an assessed answer.",
-      "diagram": "cellBiology",
-      "focus": "plot"
-    },
-    {
-      "label": "Rates need time",
-      "summary": "Rate means change per unit of time.",
-      "cue": "Think: what changes, units, evidence",
-      "text": "A sample gains 0.20 g in 40 minutes. Divide gain by time: 0.20 ÷ 40 = 0.005 g/min. Use the gain, not the final mass.",
-      "diagram": "cellBiology",
-      "focus": "uptake-rate"
-    }
-  ]
 }

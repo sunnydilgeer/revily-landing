@@ -7,7 +7,7 @@ export const plantTransportFrames: Record<string, TeachingFrame[]> = {
   'B18-02': [
     f('Leaves lose water', 'Water leaves the leaf as water vapour.', 'water vapour is water as a gas', 'Inside the leaf, water evaporates from the cells into the air gaps. The water vapour then escapes through the stomata. This loss of water from the leaves is called transpiration.', 'plant-stream-leaf'),
     f('Water is pulled up', 'The leaf replaces the water it lost.', 'lost at the top → pulled up', 'When the leaf loses water, more water moves in from the xylem to replace it. So water moves up the xylem in the stem, towards the leaves.', 'plant-stream-xylem'),
-    f('Roots take in more', 'Root hair cells take in water from the soil.', 'more water in at the bottom', 'As water moves up, the roots take in more water from the soil. Root hair cells give a large surface for taking in water. You met them in Lesson 4.', 'plant-stream-roots'),
+    f('Roots take in more', 'Root hair cells take in water from the soil.', 'more water in at the bottom', 'As water moves up, the roots take in more water from the soil. Root hair cells give a large surface for taking in water. You met them when you learned about specialised cells.', 'plant-stream-roots'),
     f('A non-stop stream', 'Water flows from the roots to the leaves and out into the air.', 'roots → stem → leaves → air', 'This steady flow of water through the plant is called the transpiration stream. It also carries mineral ions from the soil up to the leaves.', 'plant-stream-all'),
   ],
   'B18-05': [
