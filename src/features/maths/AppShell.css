@@ -1,0 +1,66 @@
+/* App shell: navy sidebar on desktop, top bar + bottom nav on phones. */
+
+.app-shell--course { width: 100%; max-width: none; margin: 0; }
+
+.shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); background: var(--rv-paper); }
+.shell-side {
+  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 30px;
+  padding: 26px 18px; background: var(--rv-night); color: var(--rv-on-night);
+}
+.shell-side .rv-logo { padding: 0 8px; }
+.shell-main {
+  min-width: 0; padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 48px) 64px;
+  background-color: var(--rv-paper); background-image: var(--rv-paper-grid); background-size: 28px 28px;
+}
+
+/* ---------- Nav ---------- */
+.shell-nav { display: flex; }
+.shell-nav--side { flex-direction: column; gap: 8px; }
+.shell-nav__item {
+  display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 16px;
+  color: var(--rv-on-night); text-decoration: none; font-weight: 600; font-size: 1rem;
+}
+.shell-nav__item:hover { background: var(--rv-night-2); }
+.shell-nav__item.is-active { background: var(--rv-yellow); color: var(--rv-ink); font-weight: 700; }
+.shell-nav__item:focus-visible { outline: 3px solid var(--rv-yellow); outline-offset: 2px; }
+.shell-nav__icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 12px; color: #fff; }
+.shell-nav__icon svg { width: 24px; height: 24px; }
+.shell-nav__item--curriculum .shell-nav__icon { background: var(--rv-curriculum); }
+.shell-nav__item--cards .shell-nav__icon { background: var(--rv-cards); }
+.shell-nav__item--practice .shell-nav__icon { background: var(--rv-practice); }
+
+/* ---------- Streak ---------- */
+.shell-side__foot { margin-top: auto; display: grid; gap: 12px; }
+.shell-streak { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--rv-night-3); border-radius: 14px; background: var(--rv-night-2); }
+.shell-streak strong { display: block; font-size: .95rem; }
+.shell-streak span { display: block; margin-top: 2px; color: var(--rv-on-night-muted); font-size: .8rem; line-height: 1.35; }
+.shell-streak__bolt { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--rv-on-night-muted); background: var(--rv-night-3); }
+.shell-streak__bolt.is-lit { color: var(--rv-ink); background: var(--rv-yellow); }
+.shell-side__note { margin: 0; padding: 0 6px; color: var(--rv-on-night-muted); font-size: .75rem; }
+
+/* ---------- Phone ---------- */
+.shell-top { display: none; }
+@media (max-width: 899px) {
+  .shell { display: block; padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .shell-side { display: none; }
+  .shell-top {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; background: var(--rv-surface); border-bottom: 2px solid var(--rv-grid);
+  }
+  .shell-top__streak {
+    display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 999px;
+    color: var(--rv-muted); background: var(--rv-grid); font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .shell-top__streak.is-lit { color: var(--rv-ink); background: var(--rv-yellow); }
+  .shell-main { padding: 20px 16px 32px; }
+  .shell-nav--bottom {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; justify-content: space-around; gap: 4px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--rv-night);
+  }
+  .shell-nav--bottom .shell-nav__item { flex: 1; flex-direction: column; gap: 4px; padding: 6px 4px; border-radius: 14px; font-size: .75rem; text-align: center; }
+  .shell-nav--bottom .shell-nav__icon { width: 36px; height: 36px; border-radius: 10px; }
+  .shell-nav--bottom .shell-nav__icon svg { width: 20px; height: 20px; }
+}
+@media (min-width: 900px) {
+  .shell-nav--bottom { display: none; }
+}
