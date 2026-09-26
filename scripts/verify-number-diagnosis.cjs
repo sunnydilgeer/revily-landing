@@ -40,6 +40,10 @@ const cases = [
   ['Bell A rings every 14 minutes and bell B every 21 minutes. After how many minutes will they next ring together?', '294', '42', 'not the lowest'],
   ['Bell A rings every 14 minutes and bell B every 21 minutes. After how many minutes will they next ring together?', '7', '42', 'That’s the HCF'],
   ['Bell A rings every 14 minutes and bell B every 21 minutes. After how many minutes will they next ring together?', '41', '42', null],
+  // Place value
+  ['In 7,364, what is the value of the digit 3?', '3', '300', 'hundreds column'],
+  ['The total is 26.431. What is the value of the digit 4?', '4', '0.4', 'tenths column'],
+  ['The result is 9.05. What is the value of the digit 5?', '5', '0.05', 'hundredths column'],
   // Rounding up for "none left over"
   ['The baker wants to pack every bun into a box, with none left over. How many boxes does she need?', '31', '32', 'round up to 32'],
   // Not a number, or no recognisable mistake
