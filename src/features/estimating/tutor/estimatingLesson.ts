@@ -12,6 +12,15 @@ const formulas = 'estimating-formulas'
 const checking = 'estimating-checking'
 const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
 
+/** The right answer is written first; this moves it to a different position on each question. */
+let turn = 0
+function choose(labels: string[]): InteractionDefinition {
+  const at = (turn++ * 2 + 1) % labels.length
+  const order = labels.slice(1)
+  order.splice(at, 0, labels[0])
+  return select(order, at)
+}
+
 const number = (answer: number, displayAnswer: string): InteractionDefinition => ({
   type: 'numericInput', correctAnswer: answer, displayAnswer, acceptanceRule: 'normalisedNumber',
 })
@@ -211,43 +220,43 @@ practice(formulas, 'A block of foam has a mass of 0.0812 kg and a volume of 0.00
 
 /* ---------- Rung 4: check the estimate ---------- */
 
-practice(checking, 'Priya’s estimate for 4 notebooks at £2.85 and 6 pens at 46p was £15. Is £15 bigger or smaller than the exact cost?', 'N12.1 Q4b', select([
+practice(checking, 'Priya’s estimate for 4 notebooks at £2.85 and 6 pens at 46p was £15. Is £15 bigger or smaller than the exact cost?', 'N12.1 Q4b', choose([
   'Bigger, because both prices were rounded up',
   'Smaller, because an estimate is always smaller',
   'The same, because the estimate used the same items',
-], 0), 'Bigger, because both prices were rounded up', 'Check which way each price moved when you rounded it.', lines('4\\times2.85+6\\times0.46', 'ordering',
+]), 'Bigger, because both prices were rounded up', 'Check which way each price moved when you rounded it.', lines('4\\times2.85+6\\times0.46', 'ordering',
   { title: 'Check each rounding', math: '2.85\\to3,\\;0.46\\to0.5', say: 'Both prices went up when they were rounded.', values: ['£2.85 → £3: up', '46p → 50p: up'] },
   { title: 'Decide', math: '15>14.16', say: 'Both prices were made bigger, so the total is bigger too. The exact cost is £14.16.', answer: 'Bigger, because both prices were rounded up' },
 ))
-practice(checking, 'Jo estimates 61 × 3.4 as 60 × 3 = 180. Is 180 bigger or smaller than the exact answer?', 'N12 extra practice', select([
+practice(checking, 'Jo estimates 61 × 3.4 as 60 × 3 = 180. Is 180 bigger or smaller than the exact answer?', 'N12 extra practice', choose([
   'Smaller, because both numbers were rounded down',
   'Bigger, because 180 is a round number',
   'The same, because the estimate is correct',
-], 0), 'Smaller, because both numbers were rounded down', 'Check which way 61 and 3.4 moved.', lines('61\\times3.4', 'ordering',
+]), 'Smaller, because both numbers were rounded down', 'Check which way 61 and 3.4 moved.', lines('61\\times3.4', 'ordering',
   { title: 'Check each rounding', math: '61\\to60,\\;3.4\\to3', say: 'Both numbers went down when they were rounded.', values: ['61 → 60: down', '3.4 → 3: down'] },
   { title: 'Decide', math: '180<207.4', say: 'Both numbers were made smaller, so the estimate is too small. The exact answer is 207.4.', answer: 'Smaller, because both numbers were rounded down' },
 ))
-practice(checking, 'Tom works out 48 × 3.12 = 149.76, then rounds it to 100. Why is 100 not a good estimate?', 'N12 extra practice', select([
+practice(checking, 'Tom works out 48 × 3.12 = 149.76, then rounds it to 100. Why is 100 not a good estimate?', 'N12 extra practice', choose([
   'He should round each number first: 50 × 3 = 150',
   'He should round 149.76 up to 200 instead',
   'It is a good estimate, because it is rounded to 1 significant figure',
-], 0), 'He should round each number first: 50 × 3 = 150', 'An estimate rounds the numbers in the question, not the answer.', lines('48\\times3.12', 'ordering',
+]), 'He should round each number first: 50 × 3 = 150', 'An estimate rounds the numbers in the question, not the answer.', lines('48\\times3.12', 'ordering',
   roundStep([['', '48', '50'], ['', '3.12', '3', '£']], 'Round the numbers in the question first.'),
   { title: 'Work it out', math: '50\\times3=150', say: '150 is much closer to the real answer than 100.', answer: 'He should round each number first: 50 × 3 = 150' },
 ))
-practice(checking, 'Tickets cost £3.49 at Shop A and £3.51 at Shop B. Amir says the estimate for 20 tickets must be the same at both shops. Is he correct?', 'N12.1 Q5c', select([
+practice(checking, 'Tickets cost £3.49 at Shop A and £3.51 at Shop B. Amir says the estimate for 20 tickets must be the same at both shops. Is he correct?', 'N12.1 Q5c', choose([
   'No. £3.49 ≈ £3 but £3.51 ≈ £4, so the estimates are £60 and £80',
   'Yes. The prices are almost the same, so the estimates are too',
   'No. Both prices round to £3.50, so both estimates are £70',
-], 0), 'No. The estimates are £60 and £80', 'Round each price to 1 significant figure.', lines('20\\times3.49,\\;20\\times3.51', 'ordering',
+]), 'No. The estimates are £60 and £80', 'Round each price to 1 significant figure.', lines('20\\times3.49,\\;20\\times3.51', 'ordering',
   roundStep([['Shop A', '3.49', '3', '£'], ['Shop B', '3.51', '4', '£']], 'The digit after the 3 is 4 for Shop A but 5 for Shop B.'),
   { title: 'Multiply by 20', math: '3\\times20=60,\\;4\\times20=80', say: 'The estimates are different.', answer: 'No. The estimates are £60 and £80' },
 ))
-practice(checking, 'Sara is estimating 0.0812 ÷ 0.00398. She rounds 0.00398 to 0 and says it can’t be estimated. What is her mistake?', 'N12.2 Q5c', select([
+practice(checking, 'Sara is estimating 0.0812 ÷ 0.00398. She rounds 0.00398 to 0 and says it can’t be estimated. What is her mistake?', 'N12.2 Q5c', choose([
   '0.00398 rounds to 0.004 to 1 significant figure, not to 0',
   '0.00398 rounds to 1 to 1 significant figure',
   'There is no mistake. You can’t estimate with small decimals',
-], 0), '0.00398 rounds to 0.004 to 1 significant figure, not to 0', 'Significant figures start at the first digit that isn’t zero.', lines('0.00398', 'ordering',
+]), '0.00398 rounds to 0.004 to 1 significant figure, not to 0', 'Significant figures start at the first digit that isn’t zero.', lines('0.00398', 'ordering',
   { title: 'Find the first significant figure', math: '0.003\\mid98', say: 'Zeros at the front don’t count. The first significant figure is the 3.', values: ['First significant figure: 3'] },
   { title: 'Round', math: '0.00398\\to0.004', say: 'The next digit is 9, so the 3 rounds up to 4.', answer: '0.00398 rounds to 0.004, not to 0' },
 ))

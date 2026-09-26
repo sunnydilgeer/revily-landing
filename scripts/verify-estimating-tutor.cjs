@@ -48,6 +48,10 @@ for (const state of states.filter(state => state.interaction.type === 'select'))
   assert.ok(options.some(option => option.id === state.interaction.correctAnswer), `${state.id} must have its answer among the choices`)
 }
 
+// The right answer is not always in the same place
+const positions = states.filter(state => state.interaction.type === 'select').map(state => state.interaction.correctAnswer)
+assert.ok(new Set(positions).size >= 3, 'Right answers must be spread across positions')
+
 // The maths behind each source answer
 const sf = [[412.5, 400], [48, 50], [3.12, 3], [0.0648, 0.06], [9.8, 10], [11.9, 10], [0.00398, 0.004], [296, 300], [3.1, 3], [5.85, 6], [19, 20], [2.85, 3], [0.46, 0.5], [61.2, 60], [29.8, 30], [40.3, 40], [39.2, 40], [0.0812, 0.08], [3.49, 3], [3.51, 4]]
 for (const [value, rounded] of sf) assert.equal(roundTo1sf(value), rounded, `${value} to 1 s.f.`)
