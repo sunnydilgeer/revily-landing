@@ -438,3 +438,7 @@ export function PlantOrganisationVisual({ focus, assessment = false }: { focus: 
   if (focus === 'plant-compare') return <Compare />
   return <WholePlant focus={focus} />
 }
+
+// Shared with EnergyVisuals.tsx (Lesson 26 onwards) so leaf sections and leaves look the same as in Lessons 17–18.
+export const plantPalette = { ink, blue, water, purple, yellow, amber, amberFill, leafGreen, deepGreen, chloro, cellFill, cellStroke, soil, root }
+export { Epidermis, Palisade, Spongy, Vein, SmallStoma, leafPath, LEAF_LEFT, LEAF_RIGHT }

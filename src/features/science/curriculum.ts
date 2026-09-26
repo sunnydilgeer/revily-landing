@@ -61,3 +61,7 @@ export const infectionSequence = [
   { title: 'Medicines and where they come from', status: 'Built · easier-wording draft', spec: '4.3.1.8; 4.3.1.9 (part)' },
   { title: 'Testing new drugs', status: 'Built · easier-wording draft', spec: '4.3.1.9' },
 ] as const
+
+export const bioenergeticsSequence = [
+  { title: 'Photosynthesis and what plants do with glucose', status: 'Built · easier-wording draft', spec: '4.4.1.1; 4.4.1.3' },
+] as const

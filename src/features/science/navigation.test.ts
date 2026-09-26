@@ -3,13 +3,13 @@ import { getScienceHubLessons, getScienceLessons, scienceLessons, scienceLessons
 import { createPreviewSessionEngine } from './previewSession'
 
 assert.deepEqual(scienceLessons.map(item => item.number), [1, 2, 3, 4, 5, 6])
-assert.deepEqual(scienceLessonsB.map(item => item.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+assert.deepEqual(scienceLessonsB.map(item => item.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
 assert.deepEqual(getScienceLessons('a'), scienceLessons)
 assert.deepEqual(getScienceLessons('b'), scienceLessonsB)
-assert.deepEqual(getScienceHubLessons('a').map(item => item.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+assert.deepEqual(getScienceHubLessons('a').map(item => item.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
 assert.deepEqual(getScienceHubLessons('b'), scienceLessonsB)
 assert.equal(new Set(scienceLessons.map(item => item.lesson.id)).size, 6)
-assert.equal(new Set(scienceLessonsB.map(item => item.lesson.id)).size, 25)
+assert.equal(new Set(scienceLessonsB.map(item => item.lesson.id)).size, 26)
 for (const item of scienceLessonsB) {
   const href = scienceLessonHref(item.number, item.number >= 7 ? 'b' : 'a')
   assert.equal(new URL(href, 'http://localhost:3000').pathname, '/preview/science')
@@ -17,9 +17,9 @@ for (const item of scienceLessonsB) {
   assert.equal(parseScienceLesson(String(item.number)), item.number)
   assert.ok(item.title && item.detail)
 }
-for (const invalid of [undefined, '', '0', '26', 'abc', '01', ['1'], ['1', '2']]) assert.equal(parseScienceLesson(invalid), null)
+for (const invalid of [undefined, '', '0', '27', 'abc', '01', ['1'], ['1', '2']]) assert.equal(parseScienceLesson(invalid), null)
 const engines = [...scienceLessons, ...scienceLessonsB].map(item => createPreviewSessionEngine(item.lesson))
-assert.equal(new Set(engines.map(engine => engine.storageKey)).size, 31)
+assert.equal(new Set(engines.map(engine => engine.storageKey)).size, 32)
 for (const engine of engines) {
   const record = engine.createPreviewSession('navigation-check')
   assert.deepEqual(engine.restorePreviewSession(record), record)
