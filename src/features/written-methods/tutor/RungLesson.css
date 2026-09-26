@@ -8,7 +8,7 @@
 .rung-head h2 { margin: 2px 0 0; font-family: var(--rv-font-display); font-size: clamp(1.6rem, 4.5vw, 2.1rem); line-height: 1.1; letter-spacing: -0.015em; color: var(--rv-ink); }
 .rung-head__progress { display: flex; align-items: center; gap: 12px; }
 .rung-head__bar { flex: 1; height: 14px; border-radius: 999px; background: var(--rv-grid); overflow: hidden; }
-.rung-head__bar span { display: block; height: 100%; border-radius: inherit; background: var(--rv-yellow); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 10%); transition: width .35s ease; }
+.rung-head__bar span { display: block; height: 100%; border-radius: inherit; background: var(--rv-accent); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 10%); transition: width .35s ease; }
 .rung-head__count { min-width: 3.5em; text-align: right; color: var(--rv-muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
 
 /* ---------- Card ---------- */

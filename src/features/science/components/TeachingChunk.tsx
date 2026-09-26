@@ -17,12 +17,11 @@ export function CellComparison({ differences = false }: { differences?: boolean 
   </div>
 }
 
-export function TeachingChunk({ state, onExposure, headingRef, customFrames }: { state: TeachingState; onExposure: () => void; headingRef?: RefObject<HTMLHeadingElement | null>; customFrames?: TeachingFrame[] }) {
-  const steps = customFrames || []
-  const [index, setIndex] = useState(0)
+/** The diagram for one walkthrough step. Tapping a part jumps to the step about it. */
+export function WalkthroughDiagram({ state, steps, index, onSelect }: { state: TeachingState; steps: TeachingFrame[]; index: number; onSelect: (index: number) => void }) {
   const current = steps[index]
   if (!current) return null
-  function move(to: number) { setIndex(to); onExposure() }
+  const move = onSelect
   const overview = index === steps.length - 1 && !current.part && !current.focus
   const animalParts = state.id === 'B1-05'
     ? cellParts.filter(part => ['membrane', 'cytoplasm', 'nucleus', ...steps.slice(0, index + 1).flatMap(frame => frame.part ? [frame.part] : [])].includes(part.id)).map(part => part.id)
@@ -31,11 +30,7 @@ export function TeachingChunk({ state, onExposure, headingRef, customFrames }: {
     ? plantPartIds.filter(part => ['membrane', 'cytoplasm', 'nucleus', ...steps.slice(0, index + 1).flatMap(frame => frame.focus ? [frame.focus] : [])].includes(part))
     : steps.slice(0, index + 1).filter(frame => frame.diagram === 'plant').flatMap(frame => frame.focus ? [frame.focus] : [])
   const bacterialParts = state.id === 'B1-22' ? ['dna'] : [...new Set(steps.slice(0, index + 1).flatMap(frame => frame.focus === 'ribosomes' ? ['cytoplasm', 'ribosomes'] : frame.focus ? [frame.focus] : []))]
-  return <div className="science-walkthrough">
-    <div className="science-walkthrough__step-label">Step {index + 1} of {steps.length}</div>
-    <div className="science-walkthrough__headline" aria-live="polite" aria-atomic="true">
-      <h2 ref={headingRef} tabIndex={-1}>{current.label}</h2><p>{current.summary}</p><span className="science-walkthrough__cue">{current.cue}</span>
-    </div>
+  return <>
     {current.diagram === 'cellBiology' ? <CellBiologyVisual focus={current.focus || ''} /> : current.diagram === 'practical' ? <PracticalVisual focus={current.focus || ''} /> : current.diagram === 'microscopy' ? <MicroscopyVisual focus={current.focus} visibleFocuses={steps.slice(0, index + 1).flatMap(frame => frame.focus ? [frame.focus] : [])} onSelect={focus => {
       const target = steps.findIndex(frame => frame.focus === focus)
       if (target >= 0) move(target)
@@ -54,6 +49,21 @@ export function TeachingChunk({ state, onExposure, headingRef, customFrames }: {
         const target = steps.findIndex(frame => frame.part === part)
         if (target >= 0) move(target)
       }} />}
+  </>
+}
+
+export function TeachingChunk({ state, onExposure, headingRef, customFrames }: { state: TeachingState; onExposure: () => void; headingRef?: RefObject<HTMLHeadingElement | null>; customFrames?: TeachingFrame[] }) {
+  const steps = customFrames || []
+  const [index, setIndex] = useState(0)
+  const current = steps[index]
+  if (!current) return null
+  function move(to: number) { setIndex(to); onExposure() }
+  return <div className="science-walkthrough">
+    <div className="science-walkthrough__step-label">Step {index + 1} of {steps.length}</div>
+    <div className="science-walkthrough__headline" aria-live="polite" aria-atomic="true">
+      <h2 ref={headingRef} tabIndex={-1}>{current.label}</h2><p>{current.summary}</p><span className="science-walkthrough__cue">{current.cue}</span>
+    </div>
+    <WalkthroughDiagram state={state} steps={steps} index={index} onSelect={move} />
     <div className="science-walkthrough__text"><p>{current.text}</p></div>
     <div className="science-walkthrough__controls">
       <div className="science-walkthrough__steps" role="group" aria-label="Explanation steps">{steps.map((frame, i) => <button type="button" key={frame.label} aria-label={`Step ${i + 1}: ${frame.label}`} aria-pressed={index === i} className={i === index ? 'is-current' : ''} onClick={() => move(i)}><span>{i + 1}</span>{frame.label}</button>)}</div>
@@ -64,11 +74,16 @@ export function TeachingChunk({ state, onExposure, headingRef, customFrames }: {
   </div>
 }
 
+/** The picture that goes with a worked-reasoning screen. */
+export function WorkedVisual({ state }: { state: TeachingState }) {
+  return /^B(?:[4-9]|1\d|2[0-6])-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />
+}
+
 export function WorkedReasoning({ state, onExposure }: { state: TeachingState; onExposure: () => void }) {
   const [revealed, setRevealed] = useState(0)
   const steps = state.steps || []
   return <div className="science-worked">
-    {/^B(?:[4-9]|1\d|2[0-6])-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />}
+    <WorkedVisual state={state} />
     <p className="science-worked__prompt">{state.body}</p>
     <ol className="science-worked__steps">{steps.slice(0, revealed).map((step, i) => <li key={step}><span>{i + 1}</span><p>{step}</p></li>)}</ol>
     <button type="button" className="science-secondary" onClick={() => { setRevealed(value => value === steps.length ? 0 : value + 1); onExposure() }}>{revealed === steps.length ? <><RotateCcw size={16} /> Replay steps</> : revealed === 0 ? 'Show the reasoning' : 'Show next step'}</button>

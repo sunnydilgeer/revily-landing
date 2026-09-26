@@ -1,0 +1,109 @@
+/*
+ * Science lessons in the app's lesson frame (rung header, card, check bar, done cards come from
+ * RungLesson.css and the UI kit). This file adds the Science-only parts: choices, written answers,
+ * worked steps, and a neutral wrapper for the original Science diagrams.
+ */
+
+.sl-shell { color: var(--rv-ink); font-family: var(--rv-font-body); }
+.sl-shell .maths-breadcrumbs a {
+  padding: 5px 2px; color: var(--rv-accent-ink); font-weight: 750; text-decoration: none;
+}
+.sl-shell .maths-breadcrumbs a:hover { text-decoration: underline; }
+.sl-shell .maths-breadcrumbs a:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; border-radius: 4px; }
+.sl-loading { color: var(--rv-muted); }
+
+/* ---------- Card ---------- */
+.sl-card { display: grid; gap: 16px; }
+.rung-lesson .sl-card h3 { margin: 0; }
+.sl-card h3:focus { outline: none; }
+.sl-lead { margin: -6px 0 0; color: var(--rv-ink); font-size: 1.1rem; font-weight: 600; line-height: 1.45; }
+.sl-text { margin: 0; color: var(--rv-ink-2); font-size: 1.05rem; line-height: 1.6; max-width: 62ch; }
+.sl-marks {
+  justify-self: start; padding: 4px 12px; border-radius: 999px; background: var(--rv-surface);
+  border: 2px solid var(--rv-line); color: var(--rv-ink-2); font-size: .8rem; font-weight: 700;
+}
+
+/* The original Science diagrams, without the old page look around them. */
+.sl-visual.science-preview.science-preview--revision {
+  min-height: 0; padding: 0; background: none; color: var(--rv-ink); font-family: var(--rv-font-body); line-height: 1.5;
+}
+.sl-visual.science-preview--revision svg text { font-family: var(--rv-font-body); }
+.sl-visual .science-visual-panel { border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); background: var(--rv-surface); }
+.sl-visual--optional:empty { display: none; }
+
+/* Walkthrough position: small dots, the progress bar above tracks the section. */
+.sl-dots { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sl-dots li { width: 8px; height: 8px; border-radius: 50%; background: var(--rv-line); }
+.sl-dots li.is-done { background: var(--rv-ink-2); }
+.sl-dots li.is-current { width: 22px; border-radius: 4px; background: var(--rv-accent-ink); }
+
+/* ---------- Choices ---------- */
+.sl-choices { display: grid; gap: 12px; }
+.sl-choice {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 60px; padding: 14px 18px;
+  border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); background: var(--rv-surface);
+  box-shadow: 0 3px 0 var(--rv-line); color: var(--rv-ink); font: 500 1.05rem/1.4 var(--rv-font-body); text-align: left; cursor: pointer;
+}
+.sl-choice:hover:not(:disabled) { border-color: var(--rv-biro); box-shadow: 0 3px 0 var(--rv-biro); }
+.sl-choice:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.sl-choice:disabled { cursor: default; }
+.sl-choice--correct { border-color: var(--rv-good); box-shadow: 0 3px 0 var(--rv-good); background: var(--rv-good-tint); }
+.sl-choice--incorrect { border-color: var(--rv-redpen); box-shadow: 0 3px 0 var(--rv-redpen); background: var(--rv-redpen-tint); }
+.sl-choice > span:last-child:not(:first-child) { flex: none; font-weight: 800; }
+.sl-choice--correct > span:last-child:not(:first-child) { color: var(--rv-good-ink); }
+.sl-choice--incorrect > span:last-child:not(:first-child) { color: #a51f1f; }
+
+/* ---------- Written answers ---------- */
+.sl-written textarea {
+  width: 100%; min-height: 140px; padding: 14px 16px; resize: vertical;
+  border: 3px dashed var(--rv-line-strong); border-radius: 14px; background: var(--rv-surface);
+  color: var(--rv-ink); font: 400 1.05rem/1.55 var(--rv-font-body);
+}
+.sl-written textarea:focus { outline: none; border-style: solid; border-color: var(--rv-biro); box-shadow: 0 0 0 4px var(--rv-biro-tint); }
+.sl-written textarea:disabled { border-style: solid; border-color: var(--rv-accent-ink); background: var(--rv-surface); color: var(--rv-ink); }
+.sl-markscheme { border-top: 2px dashed var(--rv-line); padding-top: 12px; }
+.sl-markscheme summary { min-height: 44px; display: flex; align-items: center; color: var(--rv-accent-ink); font-weight: 700; cursor: pointer; }
+.sl-markscheme ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 6px; color: var(--rv-ink-2); }
+
+/* ---------- Hint ---------- */
+.sl-hint__toggle {
+  min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--rv-biro);
+  font: 600 1rem var(--rv-font-body); text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
+}
+.sl-hint__toggle:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; border-radius: 4px; }
+.sl-hint p { margin: 4px 0 0; padding: 12px 16px; border-radius: 12px; background: var(--rv-accent-tint); color: var(--rv-ink); }
+
+/* ---------- Worked steps (also the working after a wrong answer) ---------- */
+.sl-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.sl-steps li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: var(--rv-surface); border: 2px solid var(--rv-line); }
+.sl-steps li > span {
+  flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--rv-biro-tint); color: var(--rv-biro); font-size: .85rem; font-weight: 700;
+}
+.sl-steps p { margin: 0; line-height: 1.55; }
+.sl-steps--working li { border-color: var(--rv-biro-light); }
+
+.sl-practical-note { max-width: 46ch; }
+
+/* ---------- Contents drawer extras ---------- */
+.sl-drawer-extra { display: grid; gap: 10px; padding: 0 14px 14px; font-size: .88rem; }
+.sl-drawer-extra h4 { margin: 4px 0 0; font-size: .9rem; }
+.sl-drawer-extra ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.sl-drawer-extra span { color: var(--rv-muted); }
+.sl-drawer-extra p { margin: 0; }
+.sl-drawer-extra a { color: var(--rv-biro); }
+.sl-drawer-restart {
+  justify-self: start; min-height: 40px; padding: 0 14px; border: 2px solid var(--rv-line); border-radius: 999px;
+  background: var(--rv-surface); color: var(--rv-ink); font: 600 .88rem var(--rv-font-body); cursor: pointer;
+}
+.sl-drawer-restart--go { border-color: var(--rv-redpen); color: #a51f1f; }
+.sl-drawer-confirm { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--rv-grid); }
+.sl-drawer-confirm label { display: flex; gap: 8px; align-items: center; }
+.sl-drawer-confirm div { display: flex; flex-wrap: wrap; gap: 8px; }
+a.maths-drawer-lesson { color: inherit; text-decoration: none; }
+a.maths-all-lessons { display: block; text-align: center; text-decoration: none; }
+
+@media (max-width: 560px) {
+  .sl-choice { min-height: 54px; padding: 12px 14px; font-size: 1rem; }
+  .sl-text { font-size: 1rem; }
+}

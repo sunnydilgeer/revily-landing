@@ -16,23 +16,33 @@ const engines = new Map(scienceCatalogue.map(item => [item.number, createPreview
 export type ScienceSectionStatus = { id: string; title: string; done: boolean; current: boolean }
 export type ScienceLessonStatus = { started: boolean; completed: boolean; sections: ScienceSectionStatus[] }
 
-/** Section status from a saved session (or none). Sections are ordered by where they start in the lesson. */
-export function sectionStatus(lesson: ScienceLesson, number: LessonNumber, session: PreviewSession | null): ScienceSectionStatus[] {
+export type SectionRange = { id: string; title: string; start: number; end: number }
+
+/** Each section's span of screens [start, end), ordered by where it starts in the lesson. */
+export function sectionRanges(lesson: ScienceLesson, number: LessonNumber): SectionRange[] {
   const index = new Map(lesson.states.map((state, i) => [state.id, i]))
   const ordered = [...scienceLessonSections[number]]
     .filter(section => index.has(section.id))
     .sort((a, b) => index.get(a.id)! - index.get(b.id)!)
+  return ordered.map((section, i) => ({
+    id: section.id,
+    title: section.label,
+    start: index.get(section.id)!,
+    end: i + 1 < ordered.length ? index.get(ordered[i + 1].id)! : lesson.states.length,
+  }))
+}
+
+/** Section status from a saved session (or none). */
+export function sectionStatus(lesson: ScienceLesson, number: LessonNumber, session: PreviewSession | null): ScienceSectionStatus[] {
   const done = new Set(session?.completedIds ?? [])
-  const currentIndex = session?.currentId ? index.get(session.currentId) ?? -1 : -1
-  return ordered.map((section, i) => {
-    const start = index.get(section.id)!
-    const end = i + 1 < ordered.length ? index.get(ordered[i + 1].id)! : lesson.states.length
-    const ids = lesson.states.slice(start, end).map(state => state.id)
+  const currentIndex = session?.currentId ? lesson.states.findIndex(state => state.id === session.currentId) : -1
+  return sectionRanges(lesson, number).map(range => {
+    const ids = lesson.states.slice(range.start, range.end).map(state => state.id)
     return {
-      id: section.id,
-      title: section.label,
+      id: range.id,
+      title: range.title,
       done: ids.length > 0 && ids.every(id => done.has(id)),
-      current: currentIndex >= start && currentIndex < end,
+      current: currentIndex >= range.start && currentIndex < range.end,
     }
   })
 }

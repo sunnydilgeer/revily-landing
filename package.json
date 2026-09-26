@@ -24,7 +24,8 @@
         "verify:study-log": "node scripts/verify-study-log.cjs",
         "verify:number:diagnosis": "node scripts/verify-number-diagnosis.cjs",
         "verify:bidmas:stepper": "node scripts/verify-bidmas-stepper.cjs",
-        "verify:revision-cards": "node scripts/verify-revision-cards.cjs"
+        "verify:revision-cards": "node scripts/verify-revision-cards.cjs",
+        "verify:science:lesson": "node scripts/verify-science-lesson.cjs"
     },
     "dependencies": {
         "@fontsource-variable/bricolage-grotesque": "^5.3.0",

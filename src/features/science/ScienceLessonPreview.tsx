@@ -4,35 +4,11 @@ import { useEffect, useReducer, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronRight, ChevronUp, Lightbulb, ListTree, RotateCcw, X } from 'lucide-react'
 import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessons } from './lessonNavigation'
-import { teachingFrames as cellsFrames } from './lesson-1/teachingFrames'
-import { microscopyFrames } from './lesson-2/teachingFrames'
-import { practicalFrames } from './lesson-3/teachingFrames'
-import { specialisationFrames } from './lesson-4/teachingFrames'
-import { divisionFrames } from './lesson-5/teachingFrames'
-import { transportFrames } from './lesson-6/teachingFrames'
-import { enzymeFrames } from './lesson-8/teachingFrames'
-import { digestionFrames } from './lesson-9/teachingFrames'
-import { organisationFrames } from './lesson-7/teachingFrames'
-import { lungsFrames } from './lesson-10/teachingFrames'
-import { heartFrames } from './lesson-11/teachingFrames'
-import { vesselsFrames } from './lesson-12/teachingFrames'
-import { bloodFrames } from './lesson-13/teachingFrames'
-import { cardiovascularFrames } from './lesson-14/teachingFrames'
-import { healthFrames } from './lesson-15/teachingFrames'
-import { riskCancerFrames } from './lesson-16/teachingFrames'
-import { plantTissueFrames } from './lesson-17/teachingFrames'
-import { plantTransportFrames } from './lesson-18/teachingFrames'
-import { pathogenFrames } from './lesson-19/teachingFrames'
-import { humanDiseaseFrames } from './lesson-20/teachingFrames'
-import { plantMalariaFrames } from './lesson-21/teachingFrames'
-import { defenceFrames } from './lesson-22/teachingFrames'
-import { vaccinationFrames } from './lesson-23/teachingFrames'
-import { medicineFrames } from './lesson-24/teachingFrames'
-import { drugTestingFrames } from './lesson-25/teachingFrames'
-import { photosynthesisFrames } from './lesson-26/teachingFrames'
 import { ExplanationSteps } from '../number-types/components/ExplanationSteps'
 import { evidenceProfile, progress, recommendedNext, retrievalDueAt } from './engine'
 import { CellBiologyVisual } from './components/CellBiologyVisuals'
+import { LessonVisual } from './components/LessonVisual'
+import { lessonFrames as frames } from './lessonFrames'
 import type { LessonNumber } from './lessonNavigation'
 import { scienceLessonSections } from './lessonSections'
 import { createCoachPreviewSessionEngine, createPreviewSessionEngine } from './previewSession'
@@ -55,7 +31,6 @@ const dimensionLabels: Record<EvidenceDimension, string> = {
 function newSessionId() { return window.crypto.randomUUID() }
 const sessionEngines = Object.fromEntries(scienceLessons.map(item => [item.number, createPreviewSessionEngine(item.lesson)]))
 const coachEngines = Object.fromEntries(scienceLessons.map(item => [item.number, createCoachPreviewSessionEngine(item.lesson)]))
-const frames = { 1: cellsFrames, 2: microscopyFrames, 3: practicalFrames, 4: specialisationFrames, 5: divisionFrames, 6: transportFrames, 7: organisationFrames, 8: enzymeFrames, 9: digestionFrames, 10: lungsFrames, 11: heartFrames, 12: vesselsFrames, 13: bloodFrames, 14: cardiovascularFrames, 15: healthFrames, 16: riskCancerFrames, 17: plantTissueFrames, 18: plantTransportFrames, 19: pathogenFrames, 20: humanDiseaseFrames, 21: plantMalariaFrames, 22: defenceFrames, 23: vaccinationFrames, 24: medicineFrames, 25: drugTestingFrames, 26: photosynthesisFrames }
 const transportStory = [
   { lesson: 9, title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
   { lesson: 10, title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
@@ -266,19 +241,3 @@ export default function ScienceLessonPreview({ lessonNumber = 1, initialActivity
   </div>
 }
 
-function LessonVisual({ state, feedbackVisible }: { state: ScienceState; feedbackVisible: boolean }) {
-  if (/^B(?:[4-9]|1\d|2[0-6])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
-  if (state.id === 'B3-01') return <PracticalVisual focus="onion" />
-  if (state.id === 'B3-17') return <PracticalVisual focus="drawing-choice" />
-  if (state.id === 'B2-01') return <MicroscopyVisual focus="light" />
-  if (state.id === 'B1-01') return <div className="science-visual-panel science-visual-panel--opening"><CellModel description="A simplified model of a typical animal cell, not to scale. Colours distinguish structures; this is not a photograph." /></div>
-  if (state.visual?.kind === 'cellModel') {
-    const target = state.id === 'B1-03' || state.id === 'B1-20'
-    return <div className="science-visual-panel"><CellModel pointer={target} alternate={state.visual.id === 'animal-cell-b'} labelled={!target || feedbackVisible} highlight={state.id === 'B1-09' ? 'nucleus' : undefined} description={target && !feedbackVisible ? state.visual.assessmentDescription : state.visual.accessibleDescription} /></div>
-  }
-  if (state.id === 'B1-10' || state.id === 'B1-11') return <div className="science-observation"><div className="science-observation__label"><BookOpen size={17} aria-hidden="true" /> An observation record</div><p>“In this prepared stained animal-cell view, a nucleus and cell outline were visible; tiny internal structures were not distinguished.”</p><span>Illustrative scenario · not a real micrograph</span></div>
-  if (state.id === 'B1-06') return <div className="science-function-visual"><span>Structure</span><ArrowRight size={18} aria-hidden="true" /><span>Process</span><ArrowRight size={18} aria-hidden="true" /><span>Function</span></div>
-  if (state.id === 'B1-35') return <AreaModel length={6} width={2} />
-  if (state.id === 'B1-21') return <div className="science-context"><span className="science-eyebrow">Compare two structures</span><p>Animal cell <ArrowRight size={16} aria-hidden="true" /> Bacterial cell</p></div>
-  return null
-}
