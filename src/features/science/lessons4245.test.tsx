@@ -6,43 +6,31 @@ import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
 import { scienceLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson27, photosynthesisRateSections } from './lesson-27/lesson'
-import { photosynthesisRateFrames } from './lesson-27/teachingFrames'
-import { lesson28, respirationSections } from './lesson-28/lesson'
-import { respirationFrames } from './lesson-28/teachingFrames'
-import { lesson29, exerciseSections } from './lesson-29/lesson'
-import { exerciseFrames } from './lesson-29/teachingFrames'
-import { lesson30, homeostasisSections } from './lesson-30/lesson'
-import { homeostasisFrames } from './lesson-30/teachingFrames'
-import { lesson31, nervousSystemSections } from './lesson-31/lesson'
-import { nervousSystemFrames } from './lesson-31/teachingFrames'
-import { lesson32, reactionTimeSections } from './lesson-32/lesson'
-import { reactionTimeFrames } from './lesson-32/teachingFrames'
-import { lesson33, hormonesSections } from './lesson-33/lesson'
-import { hormonesFrames } from './lesson-33/teachingFrames'
-import { lesson34, bloodGlucoseSections } from './lesson-34/lesson'
-import { bloodGlucoseFrames } from './lesson-34/teachingFrames'
-import { lesson35, menstrualCycleSections } from './lesson-35/lesson'
-import { menstrualCycleFrames } from './lesson-35/teachingFrames'
-import { lesson36, contraceptionSections } from './lesson-36/lesson'
-import { contraceptionFrames } from './lesson-36/teachingFrames'
+import { lesson37, dnaGenomeSections } from './lesson-37/lesson'
+import { dnaGenomeFrames } from './lesson-37/teachingFrames'
+import { lesson38, meiosisSections } from './lesson-38/lesson'
+import { meiosisFrames } from './lesson-38/teachingFrames'
+import { lesson39, geneticDiagramSections } from './lesson-39/lesson'
+import { geneticDiagramFrames } from './lesson-39/teachingFrames'
+import { lesson40, inheritedDisorderSections } from './lesson-40/lesson'
+import { inheritedDisorderFrames } from './lesson-40/teachingFrames'
 import type { EvidenceDimension, Profile, ScienceState } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
-const lessons = [lesson27, lesson28, lesson29, lesson30, lesson31, lesson32, lesson33, lesson34, lesson35, lesson36]
-const frameSets = [photosynthesisRateFrames, respirationFrames, exerciseFrames, homeostasisFrames, nervousSystemFrames, reactionTimeFrames, hormonesFrames, bloodGlucoseFrames, menstrualCycleFrames, contraceptionFrames]
-const sections = [photosynthesisRateSections, respirationSections, exerciseSections, homeostasisSections, nervousSystemSections, reactionTimeSections, hormonesSections, bloodGlucoseSections, menstrualCycleSections, contraceptionSections]
-const specs = ['4.4', '4.4', '4.4', '4.5', '4.5', '4.5', '4.5', '4.5', '4.5', '4.5']
-const families = ['B-BIO', 'B-BIO', 'B-BIO', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM']
-const prefixes = ['energy-', 'energy-', 'energy-', 'nerve-', 'nerve-', 'nerve-', 'hormone-', 'hormone-', 'hormone-', 'hormone-']
+const lessons = [lesson37, lesson38, lesson39, lesson40]
+const frameSets = [dnaGenomeFrames, meiosisFrames, geneticDiagramFrames, inheritedDisorderFrames]
+const sections = [dnaGenomeSections, meiosisSections, geneticDiagramSections, inheritedDisorderSections]
+const specs = ['4.6', '4.6', '4.6', '4.6']
+const families = ['B-GEN', 'B-GEN', 'B-GEN', 'B-GEN']
+const prefixes = ['inherit-', 'inherit-', 'inherit-', 'inherit-']
 const at = '2026-09-26T18:00:00.000Z'
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
 lessons.forEach((lesson, index) => {
-  const number = index + 27
+  const number = index + 37
   check(`${lesson.id}: metadata, source links, sections and sampled requirements`, () => {
     assert.equal(lesson.id, `${families[index]}-0${number}-B`)
     assert.equal(lesson.contentVersion, '0.1.0')
@@ -166,7 +154,7 @@ lessons.forEach((lesson, index) => {
     assert.equal(profile.dimensions.explanation === 'secureInSession', false)
     const next = recommendedNext(profile, false, lesson)
     if (index < lessons.length - 1) assert.deepEqual(next, { kind: 'lesson', lessonId: lessons[index + 1].id })
-    else assert.deepEqual(next, { kind: 'lesson', lessonId: 'B-GEN-037-B' })
+    else assert.equal(next.kind, 'practical')
   })
 
   check(`${lesson.id}: a wrong independent answer keeps the learner on a repair route`, () => {
@@ -182,18 +170,17 @@ lessons.forEach((lesson, index) => {
   })
 })
 
-check('B4 and B5 chapters list Lessons 31–41; the catalogue, parser and links include them; Lesson 31 leads on', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B4')?.lessonNumbers, [31, 32, 33, 34])
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B5')?.lessonNumbers, [35, 36, 37, 38, 39, 40, 41])
+check('B6 chapter lists Lessons 42–45; the catalogue, parser and links include them; Lesson 41 leads on', () => {
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B6')?.lessonNumbers, [42, 43, 44, 45])
   lessons.forEach((lesson, index) => {
-    assert.ok(scienceLessons.some(item => item.number === index + 32 && item.lesson.id === lesson.id && item.folder === String(index + 27)))
-    assert.equal(parseScienceLesson(String(index + 32)), index + 32)
-    assert.equal(scienceLessonHref((index + 32) as never), `/preview/science?lesson=${index + 32}`)
+    assert.ok(scienceLessons.some(item => item.number === index + 42 && item.lesson.id === lesson.id && item.folder === String(index + 37)))
+    assert.equal(parseScienceLesson(String(index + 42)), index + 42)
+    assert.equal(scienceLessonHref((index + 42) as never), `/preview/science?lesson=${index + 42}`)
   })
   const engines = lessons.map(createPreviewSessionEngine)
   assert.equal(new Set(engines.map(engine => engine.storageKey)).size, lessons.length)
   const secure: Profile = { dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }
-  assert.deepEqual(recommendedNext(secure, false, { ...lesson27, id: 'B-BIO-026-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-BIO-027-B' })
+  assert.deepEqual(recommendedNext(secure, false, { ...lesson37, id: 'B-HOM-036-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-GEN-037-B' })
 })
 
-console.log(`${checks} Lessons 32–41 checks passed`)
+console.log(`${checks} Lessons 42–45 checks passed`)

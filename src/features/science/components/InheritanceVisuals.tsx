@@ -137,7 +137,7 @@ function DnaScene({ step, numbered = false, assessment = false }: { step: string
 const AMINO = ['#e39a3b', '#6cb38f', '#d76f86', '#5b9fd0', '#a58ad0', '#e39a3b', '#d76f86', '#6cb38f']
 function GeneScene({ step, numbered = false, assessment = false }: { step: string; numbered?: boolean; assessment?: boolean }) {
   const all = step === 'all' || numbered
-  const lit = { chrom: all || step === 'section', helix: !numbered && (all || step === 'section' || step === 'code'), amino: all || step === 'code' || step === 'protein', protein: all || step === 'protein' }
+  const lit = { chrom: all || step === 'section', helix: !numbered, amino: all || step === 'code' || step === 'protein', protein: all || step === 'protein' }
   const fold: Pt[] = [[452, 196], [470, 186], [488, 196], [498, 214], [484, 230], [464, 226], [454, 244], [474, 252]]
   const title = assessment ? 'A long rod with bands along it, one band shaded; a chain of eight coloured beads in a row; and the same beads folded into a compact shape. Numbered pointers 1 to 4 mark parts of the drawing.'
     : 'A chromosome drawn as a long rod with bands. One small band is a gene. Zoomed in, the gene is a short section of DNA double helix. The gene codes for a chain of amino acids in a set order, shown as coloured beads, which folds up into a protein.'
@@ -367,12 +367,12 @@ function Karyotype() {
   return <Diagram title="The 46 chromosomes of a male body cell arranged as 23 pairs, largest first. In each pair one chromosome came from the mother (rose) and one from the father (blue). Pairs 1 to 22 match. Pair 23 is the sex chromosomes, an X and a smaller Y.">
     <Txt x={14} y={26} anchor="start" size={14} weight={700}>pairs 1 to 22 match: genes for characteristics</Txt>
     {Array.from({ length: 23 }, (_, i) => {
-      const row = i < 8 ? 0 : i < 16 ? 1 : 2, col = i - row * 8, x = 62 + col * 60, y = [78, 160, 240][row], len = 50 - i * 1.5
+      const row = i < 8 ? 0 : i < 16 ? 1 : 2, col = i - row * 8, x = 62 + col * 60, y = [72, 152, 226][row], len = 50 - i * 1.5
       if (i === 22) return <g key={i}>
         <rect x={x - 24} y={y - 32} width={48} height={60} rx="8" fill="#fdf6e6" stroke={geneLine} strokeWidth="1.6" strokeDasharray="5 4" />
         <Rod x={x - 7} y={y - 4} len={40} w={8} tone={mum} /><Rod x={x + 7} y={y + 4} len={20} w={8} tone={dad} />
         <Txt x={x - 7} y={y + 44} size={13} weight={700}>X</Txt><Txt x={x + 9} y={y + 44} size={13} weight={700}>Y</Txt>
-        <Txt x={x} y={y + 64} size={13} weight={700} fill={geneLine}>pair 23: sex chromosomes</Txt>
+        <Txt x={x - 20} y={y + 64} size={13} weight={700} fill={geneLine}>pair 23: sex chromosomes</Txt>
       </g>
       return <g key={i}><Rod x={x - 6} y={y} len={len} w={8} tone={mum} /><Rod x={x + 6} y={y} len={len} w={8} tone={dad} /><Txt x={x} y={y + len / 2 + 17} size={12} weight={500} fill={muted}>{i + 1}</Txt></g>
     })}
@@ -390,20 +390,20 @@ function SexScene({ step }: { step: string }) {
       <Txt x={24} y={176} anchor="start" size={14} weight={700}>male</Txt>
       <Rod x={50} y={218} len={46} w={10} tone={dad} /><Rod x={72} y={228} len={26} w={10} tone={dad} />
       <Txt x={50} y={262} size={14} weight={700} fill={dad.line}>X</Txt><Txt x={72} y={262} size={14} weight={700} fill={dad.line}>Y</Txt>
-      {step === 'xy' && <><Txt x={140} y={82} anchor="start" size={13} weight={500}>XX: female</Txt><Txt x={140} y={98} anchor="start" size={13} weight={500}>characteristics</Txt><Txt x={140} y={224} anchor="start" size={13} weight={500}>Y: male</Txt><Txt x={140} y={240} anchor="start" size={13} weight={500}>characteristics</Txt></>}
+      {step === 'xy' && <><Txt x={120} y={72} anchor="start" size={14} weight={700}>XX</Txt><Txt x={120} y={90} anchor="start" size={13} weight={500}>lets female characteristics develop</Txt><Txt x={120} y={214} anchor="start" size={14} weight={700}>XY</Txt><Txt x={120} y={232} anchor="start" size={13} weight={500}>the Y causes male characteristics</Txt><Txt x={270} y={288} size={13} weight={700} fill={geneLine}>the sex chromosomes: pair 23</Txt></>}
     </g>
-    <g opacity={O(at >= 1)}>
+    {at >= 1 && <g>
       <Arrow x1={96} y1={62} x2={272} y2={48} colour={mum.line} width={2} /><Arrow x1={96} y1={214} x2={200} y2={170} colour={dad.line} width={2} />
       <Egg x={300} y={48} letter="X" /><Egg x={380} y={48} letter="X" />
       <Sperm x={230} y={118} letter="X" scale={.9} /><Sperm x={230} y={198} letter="Y" scale={.9} />
       <Txt x={466} y={42} anchor="start" size={13}>eggs:</Txt><Txt x={466} y={58} anchor="start" size={13}>all X</Txt>
       <Txt x={218} y={248} size={13}>sperm:</Txt><Txt x={218} y={264} size={13}>X or Y</Txt>
-    </g>
-    <g opacity={O(at >= 2)}>
+    </g>}
+    {at >= 1 && <g opacity={O(at >= 2)}>
       {[0, 1].map(r => [0, 1].map(c => { const girl = r === 0
         return <g key={`${r}${c}`}><rect x={G0 + c * C} y={G1 + r * C} width={C} height={C} fill={at >= 3 ? (girl ? '#efe6f8' : '#e1f1ea') : 'white'} stroke={ink} strokeWidth="2" />
           {at >= 2 && <Geno x={G0 + c * C + C / 2} y={G1 + r * C + C / 2 + 8} a="X" b={r ? 'Y' : 'X'} size={24} />}</g> }))}
-    </g>
+    </g>}
     {step === 'punnett' && <Txt x={340} y={282} size={13} weight={700}>a Punnett square</Txt>}
     {at >= 3 && <><Txt x={430} y={116} anchor="start" size={13} weight={700}>XX: girl</Txt><Txt x={430} y={132} anchor="start" size={13} weight={500}>2 of 4</Txt>
       <Txt x={430} y={196} anchor="start" size={13} weight={700}>XY: boy</Txt><Txt x={430} y={212} anchor="start" size={13} weight={500}>2 of 4</Txt>
@@ -438,7 +438,7 @@ function AlleleScene({ step }: { step: string }) {
     <Txt x={140} y={206} size={14} weight={700}>fur colour in mice</Txt><Txt x={140} y={224} size={13} weight={500}>one gene</Txt>
     <path d="M272 40V260" stroke="#cfdde7" strokeWidth="2" />
     {[[350, 112, '#a9cbe0'], [410, 146, '#c6d9b4'], [470, 128, '#f2c9a4']].map(([x, h, c]) => { const X = Number(x), Hh = Number(h), top = 200 - Hh
-      return <g key={X}><circle cx={X} cy={top + 12} r={12} fill={skin} stroke={skinLine} strokeWidth="1.6" /><path d={`M${X - 16} 200V${top + 44}Q${X - 16} ${top + 28} ${X} ${top + 28}Q${X + 16} ${top + 28} ${X + 16} ${top + 44}V200Z`} fill={String(c)} stroke={ink} strokeWidth="1.6" /></g> })}
+      return <g key={X}><circle cx={X} cy={top + 11} r={12} fill={skin} stroke={skinLine} strokeWidth="1.6" /><path d={`M${X - 16} 200V${top + 40}Q${X - 16} ${top + 24} ${X} ${top + 24}Q${X + 16} ${top + 24} ${X + 16} ${top + 40}V200Z`} fill={String(c)} stroke={ink} strokeWidth="1.6" /></g> })}
     <path d="M320 200H500" stroke={ink} strokeWidth="1.6" />
     <Txt x={410} y={226} size={14} weight={700}>height in people</Txt><Txt x={410} y={244} size={13} weight={500}>several genes</Txt>
   </Diagram>
@@ -447,20 +447,20 @@ function AlleleScene({ step }: { step: string }) {
   return <Diagram title={'Three mice and their fur-colour alleles. Each mouse has a pair of chromosomes with the fur gene at the same place on both: BB gives black fur, Bb gives black fur, and bb gives brown fur. B, black, is dominant; b, brown, is recessive.'}>
     {COLS.map((c, i) => <g key={i} opacity={O(on(i))}>
       <g opacity={lettersOn ? 1 : .35}>
-        <Rod x={c.x - 14} y={92} len={100} w={14} tone={mum} band bandAt={-.12} bandColour={alleleColour(c.a)} /><Rod x={c.x + 14} y={92} len={100} w={14} tone={dad} band bandAt={-.12} bandColour={alleleColour(c.b)} />
-        <Txt x={c.x - 36} y={86} size={18} weight={700} fill={alleleColour(c.a)}>{c.a}</Txt><Txt x={c.x + 36} y={86} size={18} weight={700} fill={alleleColour(c.b)}>{c.b}</Txt>
-        <Txt x={c.x} y={172} size={22} weight={700}>{c.a + c.b}</Txt>
+        <Rod x={c.x - 14} y={104} len={100} w={14} tone={mum} band bandAt={-.12} bandColour={alleleColour(c.a)} /><Rod x={c.x + 14} y={104} len={100} w={14} tone={dad} band bandAt={-.12} bandColour={alleleColour(c.b)} />
+        <Txt x={c.x - 36} y={98} size={18} weight={700} fill={alleleColour(c.a)}>{c.a}</Txt><Txt x={c.x + 36} y={98} size={18} weight={700} fill={alleleColour(c.b)}>{c.b}</Txt>
+        <Txt x={c.x} y={184} size={22} weight={700}>{c.a + c.b}</Txt>
       </g>
-      <g opacity={miceOn ? 1 : .35}><Mouse x={c.x} y={222} fur={c.a === 'B' ? furBlack : furBrown} s={.9} /><Txt x={c.x} y={272} size={13} weight={500}>{c.a === 'B' ? 'black fur' : 'brown fur'}</Txt></g>
+      <g opacity={miceOn ? 1 : .35}><Mouse x={c.x} y={232} fur={c.a === 'B' ? furBlack : furBrown} s={.9} /><Txt x={c.x} y={284} size={13} weight={500}>{c.a === 'B' ? 'black fur' : 'brown fur'}</Txt></g>
     </g>)}
     {step === 'pair' && <><Txt x={530} y={26} anchor="end" size={14} weight={700}>B and b: two alleles of one gene</Txt>
       <g><rect x={14} y={20} width={14} height={10} rx="3" fill={mum.fill} stroke={mum.line} /><Txt x={34} y={30} anchor="start" size={12.5} weight={500}>from the mother</Txt><rect x={14} y={38} width={14} height={10} rx="3" fill={dad.fill} stroke={dad.line} /><Txt x={34} y={48} anchor="start" size={12.5} weight={500}>from the father</Txt></g></>}
     {step === 'homo' && [0, 2].map(i => <Txt key={i} x={COLS[i].x} y={28} size={14} weight={700}>same: homozygous</Txt>)}
     {step === 'hetero' && <Txt x={290} y={28} size={14} weight={700}>different: heterozygous</Txt>}
     {step === 'dominant' && <Txt x={210} y={28} size={14} weight={700}>B is dominant: one B gives black fur</Txt>}
-    {step === 'recessive' && <Txt x={450} y={28} size={14} weight={700}>b is recessive: needs bb</Txt>}
-    {step === 'genotype' && <><Txt x={12} y={146} anchor="start" size={14} weight={700} fill={geneLine}>genotype</Txt><rect x={70} y={150} width={440} height={32} rx="8" fill="none" stroke={geneLine} strokeWidth="2" /></>}
-    {step === 'phenotype' && <><Txt x={12} y={196} anchor="start" size={14} weight={700} fill={geneLine}>phenotype</Txt><rect x={70} y={200} width={440} height={80} rx="8" fill="none" stroke={geneLine} strokeWidth="2" /></>}
+    {step === 'recessive' && <Txt x={530} y={28} anchor="end" size={14} weight={700}>b is recessive: needs bb</Txt>}
+    {step === 'genotype' && <><Txt x={12} y={158} anchor="start" size={14} weight={700} fill={geneLine}>genotype</Txt><rect x={70} y={162} width={440} height={32} rx="8" fill="none" stroke={geneLine} strokeWidth="2" /></>}
+    {step === 'phenotype' && <><Txt x={12} y={206} anchor="start" size={14} weight={700} fill={geneLine}>phenotype</Txt><rect x={70} y={210} width={440} height={84} rx="8" fill="none" stroke={geneLine} strokeWidth="2" /></>}
   </Diagram>
 }
 function Punnett({ x, y, top, side, cell = 76, show = true, nums = false, tint, mark = [], mice = false, labels }: { x: number; y: number; top: string[]; side: string[]; cell?: number; show?: boolean; nums?: boolean; tint?: (g: string) => string | undefined; mark?: number[]; mice?: boolean; labels?: (g: string) => string }) {
@@ -484,7 +484,7 @@ function CrossScene({ step }: { step: string }) {
     <Txt x={210} y={22} size={13} weight={500}>parent 1: Bb (black)</Txt>
     <text transform="translate(70 170) rotate(-90)" textAnchor="middle" fontSize="13" fill={ink}>parent 2: Bb (black)</text>
     <Punnett x={130} y={70} top={['B', 'b']} side={['B', 'b']} cell={100} mice tint={ratio ? g => g.includes('B') ? '#e8e8ec' : '#f5e6d8' : undefined} mark={step === 'worked' ? [3] : []} />
-    {ratio && <><Txt x={346} y={120} anchor="start" size={14} weight={700}>black: 3 squares</Txt><Txt x={346} y={220} anchor="start" size={14} weight={700}>brown (bb): 1 square</Txt>
+    {ratio && <><Txt x={346} y={150} anchor="start" size={14} weight={700}>black: 3 of 4</Txt><Txt x={346} y={220} anchor="start" size={14} weight={700}>brown (bb): 1 of 4</Txt>
       <Txt x={346} y={262} anchor="start" size={14} weight={700} fill={geneLine}>{step === 'worked' ? '1 in 4 = 25% brown' : 'ratio 3 : 1'}</Txt></>}
   </Diagram>
 }
@@ -513,7 +513,7 @@ function Member({ x, y, male, shade, size = 30, ring = false, dim = false }: { x
 function TreeKey({ x, y, unknown = false, lit = true }: { x: number; y: number; unknown?: boolean; lit?: boolean }) {
   const rows: Array<[Shade, string]> = [['full', 'has cystic fibrosis'], ['half', 'carrier'], ['none', 'unaffected'], ...(unknown ? [['unknown', 'not known'] as [Shade, string]] : [])]
   return <g opacity={lit ? 1 : .55}>
-    <rect x={x} y={y} width={150} height={48 + rows.length * 34} rx="10" fill="#f7fafc" stroke="#cfdde7" strokeWidth="1.6" />
+    <rect x={x} y={y} width={166} height={48 + rows.length * 34} rx="10" fill="#f7fafc" stroke="#cfdde7" strokeWidth="1.6" />
     <Txt x={x + 12} y={y + 20} anchor="start" size={13} weight={700}>Key</Txt>
     <Member x={x + 22} y={y + 38} male shade="none" size={16} /><Txt x={x + 36} y={y + 43} anchor="start" size={12.5} weight={500}>male</Txt>
     <Member x={x + 90} y={y + 38} male={false} shade="none" size={16} /><Txt x={x + 104} y={y + 43} anchor="start" size={12.5} weight={500}>female</Txt>
@@ -583,7 +583,7 @@ function TreeScene({ step, numbered = false, assessment = false }: { step: strin
     <Member x={FAM.c[0]} y={FAM.c[1]} male shade="none" dim={dim('c')} /><Member x={FAM.d[0]} y={FAM.d[1]} male={false} shade="full" dim={dim('d')} />
     <Member x={FAM.e[0]} y={FAM.e[1]} male shade="half" ring={ring('e')} /><Member x={FAM.f[0]} y={FAM.f[1]} male={false} shade="half" ring={ring('f')} />
     <Member x={FAM.baby[0]} y={FAM.baby[1]} male={false} shade="unknown" />
-    <TreeKey x={380} y={14} lit={step === 'key' || numbered} />
+    <TreeKey x={364} y={14} lit={step === 'key' || numbered} />
     {!numbered && <Txt x={285} y={274} size={12.5} weight={500}>new baby</Txt>}
     {step === 'read' && <Txt x={200} y={290} size={13.5} weight={700}>carriers without the disorder: the allele is recessive</Txt>}
     {step === 'baby' && <><Txt x={120} y={228} size={13.5} weight={700}>Ff × Ff</Txt><Txt x={120} y={248} size={13} weight={500}>ff 25% · Ff 50% · FF 25%</Txt></>}
@@ -596,7 +596,7 @@ function TreeQuestion2() {
     <Member x={120} y={70} male shade="unknown" /><Member x={240} y={70} male={false} shade="half" />
     <Member x={110} y={180} male shade="full" /><Member x={250} y={180} male={false} shade="none" />
     <Badge n={1} x={84} y={70} /><Badge n={2} x={276} y={70} /><Badge n={3} x={74} y={180} /><Badge n={4} x={286} y={180} />
-    <TreeKey x={372} y={14} unknown />
+    <TreeKey x={364} y={14} unknown />
   </Diagram>
 }
 
@@ -624,7 +624,7 @@ function ScreenScene({ step }: { step: string }) {
   </Diagram>
   if (step === 'for' || step === 'against') {
     const cols = [{ key: 'for', x: 16, colour: '#3f6f93', fill: '#eaf2f8', head: 'Arguments for', items: [['could help stop people', 'suffering'], ['treating disorders', 'costs a lot of money'], ['laws stop it going', 'too far']] },
-      { key: 'against', x: 276, colour: '#86577a', fill: '#f6edf3', head: 'Arguments against', items: [['suggests people with disorders', 'are not wanted'], ['people may one day choose', 'features, like eye colour'], ['screening is', 'expensive']] }]
+      { key: 'against', x: 276, colour: '#86577a', fill: '#f6edf3', head: 'Arguments against', items: [['suggests people with', 'disorders are not wanted'], ['people may one day choose', 'features like eye colour'], ['screening is', 'expensive']] }]
     return <Diagram title="Two lists of arguments about embryo screening. For: it could help stop people suffering; treating disorders costs a lot of money; laws stop it going too far. Against: it suggests people with genetic disorders are not wanted and could lead to unfair treatment; people may one day choose features such as eye colour; screening is expensive.">
       {cols.map(c => <g key={c.key} opacity={step === c.key ? 1 : .35}>
         <rect x={c.x} y={16} width={248} height={268} rx="14" fill={c.fill} stroke={c.colour} strokeWidth="2" />
@@ -644,7 +644,7 @@ function ScreenScene({ step }: { step: string }) {
     <g opacity={O(step === 'womb')}>
       <path d="M88 186Q80 280 130 284Q180 280 172 186Q130 170 88 186Z" fill="#fbeee6" stroke="#c9a48c" strokeWidth="2" />
       <EmbryoCluster x={130} y={236} r={10} />
-      <Txt x={210} y={278} size={13} weight={700}>embryo in the womb</Txt>
+      <Txt x={184} y={276} anchor="start" size={13} weight={700}>embryo in the womb</Txt>
       <Arrow x1={176} y1={226} x2={330} y2={180} colour={ink} width={2.2} /><Txt x={262} y={226} size={12.5} weight={500}>DNA</Txt>
     </g>
     <TestCard x={340} y={104} />

@@ -139,7 +139,8 @@ export function recommendedNext(profile: Profile, retrievalDue: boolean, lesson?
     'B-ORG-016': 'B-ORG-017', 'B-ORG-017': 'B-ORG-018',
     'B-ORG-018': 'B-INF-019', 'B-INF-019': 'B-INF-020', 'B-INF-020': 'B-INF-021', 'B-INF-021': 'B-INF-022', 'B-INF-022': 'B-INF-023', 'B-INF-023': 'B-INF-024', 'B-INF-024': 'B-INF-025', 'B-INF-025': 'B-BIO-026',
     'B-BIO-026': 'B-BIO-027', 'B-BIO-027': 'B-BIO-028', 'B-BIO-028': 'B-BIO-029', 'B-BIO-029': 'B-HOM-030',
-    'B-HOM-030': 'B-HOM-031', 'B-HOM-031': 'B-HOM-032', 'B-HOM-032': 'B-HOM-033', 'B-HOM-033': 'B-HOM-034', 'B-HOM-034': 'B-HOM-035', 'B-HOM-035': 'B-HOM-036' }
+    'B-HOM-030': 'B-HOM-031', 'B-HOM-031': 'B-HOM-032', 'B-HOM-032': 'B-HOM-033', 'B-HOM-033': 'B-HOM-034', 'B-HOM-034': 'B-HOM-035', 'B-HOM-035': 'B-HOM-036',
+    'B-HOM-036': 'B-GEN-037', 'B-GEN-037': 'B-GEN-038', 'B-GEN-038': 'B-GEN-039', 'B-GEN-039': 'B-GEN-040' }
   const isVariantB = currentLessonId.endsWith('-B')
   const baseLessonId = isVariantB ? currentLessonId.slice(0, -2) : currentLessonId
   const baseNextLessonId = (isVariantB ? easierOnlyNextIds : nextLessonIds)[baseLessonId]

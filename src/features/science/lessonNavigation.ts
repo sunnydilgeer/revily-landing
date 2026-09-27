@@ -80,8 +80,16 @@ import { lesson35, menstrualCycleSections } from './lesson-35/lesson'
 import { menstrualCycleFrames } from './lesson-35/teachingFrames'
 import { lesson36, contraceptionSections } from './lesson-36/lesson'
 import { contraceptionFrames } from './lesson-36/teachingFrames'
+import { lesson37, dnaGenomeSections } from './lesson-37/lesson'
+import { dnaGenomeFrames } from './lesson-37/teachingFrames'
+import { lesson38, meiosisSections } from './lesson-38/lesson'
+import { meiosisFrames } from './lesson-38/teachingFrames'
+import { lesson39, geneticDiagramSections } from './lesson-39/lesson'
+import { geneticDiagramFrames } from './lesson-39/teachingFrames'
+import { lesson40, inheritedDisorderSections } from './lesson-40/lesson'
+import { inheritedDisorderFrames } from './lesson-40/teachingFrames'
 
-export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41
+export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [12, 13, 14, 15, 16, 17] },
@@ -90,6 +98,7 @@ export const scienceChapters = [
   { code: 'B3', title: 'Infection and response', lessonNumbers: [24, 25, 26, 27, 28, 29, 30] },
   { code: 'B4', title: 'Bioenergetics', lessonNumbers: [31, 32, 33, 34] },
   { code: 'B5', title: 'Homeostasis and response', lessonNumbers: [35, 36, 37, 38, 39, 40, 41] },
+  { code: 'B6', title: 'Inheritance', lessonNumbers: [42, 43, 44, 45] },
 ] as const
 // The Science catalogue: 41 Biology lessons in teaching order. `number` is the position students see;
 // `folder` is the source folder (e.g. lesson-1b). Code about one particular lesson should key on `lesson.id`.
@@ -135,6 +144,10 @@ export const scienceLessons = [
   { number: 39, folder: '34', title: 'Controlling blood glucose and diabetes', detail: 'Insulin, glycogen, Type 1 and Type 2', lesson: lesson34, sections: bloodGlucoseSections, frames: bloodGlucoseFrames },
   { number: 40, folder: '35', title: 'Puberty and the menstrual cycle', detail: 'Sex hormones, four stages and four hormones', lesson: lesson35, sections: menstrualCycleSections, frames: menstrualCycleFrames },
   { number: 41, folder: '36', title: 'Contraception', detail: 'Hormonal and non-hormonal methods', lesson: lesson36, sections: contraceptionSections, frames: contraceptionFrames },
+  { number: 42, folder: '37', title: 'DNA, genes and the genome', detail: 'DNA, chromosomes and what a genome is', lesson: lesson37, sections: dnaGenomeSections, frames: dnaGenomeFrames },
+  { number: 43, folder: '38', title: 'Reproduction and meiosis', detail: 'Sexual and asexual reproduction, gametes and meiosis', lesson: lesson38, sections: meiosisSections, frames: meiosisFrames },
+  { number: 44, folder: '39', title: 'Sex chromosomes and genetic diagrams', detail: 'X and Y, alleles and Punnett squares', lesson: lesson39, sections: geneticDiagramSections, frames: geneticDiagramFrames },
+  { number: 45, folder: '40', title: 'Inherited disorders and embryo screening', detail: 'Polydactyly, cystic fibrosis, family trees and screening', lesson: lesson40, sections: inheritedDisorderSections, frames: inheritedDisorderFrames },
 ] as const
 export function scienceLessonNumberById(id: string): LessonNumber | null {
   return (scienceLessons.find(item => item.lesson.id === id)?.number as LessonNumber | undefined) ?? null
