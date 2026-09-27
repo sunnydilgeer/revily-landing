@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useId, useState } from 'react'
-import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
+import { useEffect, useId, useRef, useState, type Ref } from 'react'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { MethodWorkedExample } from './MethodWorkedExample'
 import { FractionWorkedExample } from '../../fractions/tutor/FractionWorkedExample'
@@ -44,8 +43,8 @@ function FractionAnswerInput({ id, mixed, disabled, onChange }: { id: string; mi
   </div>
 }
 
-function WorkingPanel({ visual }: { visual: TutorWorking }) {
-  return <div className="pvb-stage rung-working-panel">
+function WorkingPanel({ visual, ref }: { visual: TutorWorking; ref?: Ref<HTMLDivElement> }) {
+  return <div className="pvb-stage rung-working-panel" ref={ref}>
     {visual.kind === 'fraction-worked' ? <FractionWorkedExample visual={visual} />
       : visual.kind === 'conversion-worked' ? <ConversionWorkedExample visual={visual} />
       : <MethodWorkedExample visual={visual} />}
@@ -87,6 +86,9 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const { feedback, selection } = engine
   const [showWorking, setShowWorking] = useState(false)
   useEffect(() => setShowWorking(false), [state.id])
+  // Opening the working brings it into view above the folded answer ribbon, so the ribbon never sits on top of it.
+  const workingPanel = useRef<HTMLDivElement>(null)
+  useEffect(() => { if (showWorking) workingPanel.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }, [showWorking])
 
   const numeric = state.interaction.type === 'numericInput'
   const fraction = state.interaction.type === 'fractionInput'
@@ -131,17 +133,17 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       })}</div>}
 
       {!teaching && !feedback && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
-      {feedback && !feedback.correct && !mistake && lesson.number < 6 && feedback.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} /></div>}
-      {feedback && showWorking && state.working && <WorkingPanel visual={state.working} />}
+      {feedback && showWorking && state.working && <WorkingPanel visual={state.working} ref={workingPanel} />}
     </article>
 
     {feedback
       ? <CheckBar
           status={feedback.correct ? 'correct' : 'incorrect'}
+          compact={showWorking}
           title={feedback.correct ? PRAISE[engine.stateIndex % PRAISE.length] : 'Not quite'}
           message={feedback.correct ? undefined : <>{mistake ?? (GENERIC_FEEDBACK.has(feedback.message) ? state.hint : feedback.message)}{feedback.correctAnswer && <> The answer is <strong>{answerText(feedback.correctAnswer)}</strong>.</>}</>}
         >
-          {state.working && <Button variant="secondary" aria-expanded={showWorking} onClick={() => setShowWorking(!showWorking)}>{showWorking ? 'Hide the working' : 'See the working'}</Button>}
+          {state.working && <Button variant="secondary" aria-expanded={showWorking} onClick={() => setShowWorking(!showWorking)}>{showWorking ? 'Hide working' : 'See the working'}</Button>}
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
       : <CheckBar>

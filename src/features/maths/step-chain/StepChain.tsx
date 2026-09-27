@@ -26,6 +26,8 @@ export type ChainStep = {
   why?: string
   /** A result key and the keys on the line above that combine into it. */
   merge?: Record<string, string[]>
+  /** The line is words, not LaTeX (a written explanation), so it is shown as text and wraps normally. */
+  plain?: boolean
 }
 
 /** Equations line up on "="; columns lay each line out in fixed place-value columns split by "|". */
@@ -239,7 +241,7 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
             </span>
             {why && <p className="sc-op__why">{step.why}</p>}
           </div>}
-          {columns ? <ColumnsLine line={step.line} columns={columns} marks={marks} /> : <EquationLine line={step.line} marks={marks} centred={expression} />}
+          {step.plain ? <span className="sc-cell sc-cell--wide sc-cell--text">{step.line}</span> : columns ? <ColumnsLine line={step.line} columns={columns} marks={marks} /> : <EquationLine line={step.line} marks={marks} centred={expression} />}
           {done && index === last && <span className="sc-tick" role="img" aria-label="Answer">✓</span>}
         </li>
       })}
