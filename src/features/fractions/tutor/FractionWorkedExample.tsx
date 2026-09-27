@@ -1,9 +1,9 @@
 'use client'
 
-import { useId, useState } from 'react'
-import { WorkedLines, finalValue } from '../../written-methods/tutor/WorkedLines'
+import { useId, useMemo, useState } from 'react'
+import { chainFromSteps } from '../../maths/step-chain/fromSteps'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
-import { fractionWorkingProgress, type FractionDisplay, type FractionFrame, type FractionWorking } from './fractionWorking'
+import { type FractionDisplay, type FractionFrame, type FractionWorking } from './fractionWorking'
 
 function FractionCard({ value }: { value: FractionDisplay }) {
   return <div className={`fr-card fr-card--${value.tone ?? 'source'}`}>
@@ -40,31 +40,13 @@ function FractionFrameView({ frame }: { frame: FractionFrame }) {
 }
 
 export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
-  if (visual.chain) {
-    const chain = visual.chain
-    // The picture for the latest step that has one, so it changes as the working moves on.
-    const picture = (revealed: number) => {
-      const frame = chain.slice(0, revealed).findLast(step => step.frame)?.frame
-      return frame && <FractionFrameView frame={frame} />
-    }
-    return <WorkedChain steps={chain} picture={picture} />
+  const chain = useMemo(() => visual.chain ?? chainFromSteps(visual.expression, visual.steps), [visual])
+  // The picture for the latest step that has one, so it changes as the working moves on.
+  const picture = (revealed: number) => {
+    const frame = visual.chain?.slice(0, revealed).findLast(step => step.frame)?.frame
+    return frame && <FractionFrameView frame={frame} />
   }
-  return <FractionWorkedLines visual={visual} />
-}
-
-function FractionWorkedLines({ visual }: { visual: FractionWorking }) {
-  const [revealed, setRevealed] = useState(0)
-  const { total, current, completed } = fractionWorkingProgress(visual, revealed)
-  return <WorkedLines
-    question={visual.expression}
-    answer={finalValue(visual.steps.at(-1)?.equation)}
-    visual={current && <div className="rung-worked__visual"><FractionFrameView frame={current.frame} /></div>}
-    lines={completed.map((step, index) => ({ key: `${index}`, math: step.equation, note: step.title }))}
-    say={current?.instruction}
-    revealed={revealed}
-    total={total}
-    onReveal={setRevealed}
-  />
+  return <WorkedChain steps={chain} picture={picture} />
 }
 
 export function AnswerFractionWorking({ visual }: { visual: FractionWorking }) {

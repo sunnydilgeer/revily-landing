@@ -129,7 +129,11 @@ for (const lesson of [multiplication, division]) {
   console.log(`Lesson ${lesson.number}: ${lesson.states.length} sequential screens, all 7 source practice parts, correct/wrong grading, retained-feedback definitions, hints and bundled media verified.`)
 }
 assert.equal(34 * 26, 884); assert.equal(246 * 43, 10578); assert.equal(375 / 5, 75)
-assert.equal(multiplication.states.find(s => s.video).visual.examples.length, 2)
+// The video's two examples are separate screens: the grid example with the video, then 246 × 43 in columns.
+assert.deepEqual(multiplication.states.find(s => s.video).visual.examples.map(e => [e.method, e.first, e.second]), [['grid', 34, 26]])
+const columnVideoExample = multiplication.states.find(s => s.sourceRef.includes('(column example)'))
+assert.deepEqual(columnVideoExample.visual.examples.map(e => [e.method, e.first, e.second]), [['column', 246, 43]])
+assert.equal(multiplication.states.filter(s => s.visual.kind === 'method-worked' && s.visual.examples.some(e => e.method === 'grid' && e.first === 34 && e.second === 26)).length, 1, '34 × 26 is taught once')
 const app = fs.readFileSync(path.join(__dirname, '..', 'src/App.tsx'), 'utf8')
 assert(app.includes('case 4:') && app.includes('return <TutorLongMultiplicationLesson />'))
 assert(app.includes('case 5:') && app.includes('return <TutorLongDivisionLesson />'))
@@ -137,18 +141,18 @@ for (const legacy of ['divisionVariant', 'multiplicationVariant', 'variantNaviga
 console.log(`${records} separately labelled calculations, ${results} independently recomputed complete calculation lines; canonical arithmetic routes verified.`)
 
 const { columnWorking, divisionWorking, methodProgress } = require('../src/features/written-methods/tutor/methodWorking.ts')
-const multiExample = multiplication.states[0].visual
-assert.equal(methodProgress(multiExample, 0).current, undefined)
-const gridEnd = methodProgress(multiExample, 6)
-assert.equal(gridEnd.active, 0, 'Completing one example must not switch to a blank next diagram')
+const gridExample = multiplication.states[0].visual
+assert.equal(methodProgress(gridExample, 0).current, undefined)
+const gridEnd = methodProgress(gridExample, 6)
+assert.equal(gridEnd.active, 0)
 assert.equal(gridEnd.current.equation, '600+180+80+24=884')
 assert.equal(gridEnd.working[0].count, 6)
-const columnStart = methodProgress(multiExample, 7)
-assert.equal(columnStart.active, 1)
+const columnExample = columnVideoExample.visual
+const columnStart = methodProgress(columnExample, 1)
 assert.equal(columnStart.current.equation, '3\\times6=18')
 assert.equal(columnStart.current.frame.ones, '8')
 assert.deepEqual(columnStart.current.focus, { topPlace: 0, factorPlace: 0 })
-assert.equal(methodProgress(multiExample, 17).current.frame.total, '10578')
+assert.equal(methodProgress(columnExample, columnExample.examples[0].steps.length).current.frame.total, '10578')
 for (const lesson of [multiplication, division]) {
   for (const state of lesson.states) {
     for (const visual of [state.visual, state.working].filter(v => v?.kind === 'method-worked')) {

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { WorkedLines, finalValue } from './WorkedLines'
+import { useMemo } from 'react'
+import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
 import type { IntervalFrame, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
 
@@ -64,25 +65,16 @@ function OrderingVisual({ frame }: { frame: OrderingFrame }) {
 }
 
 export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) {
-  const steps = visual.examples.flatMap(example => example.steps)
-  const [revealed, setRevealed] = useState(0)
-  const current = revealed ? steps[revealed - 1] : undefined
-  const example = visual.examples[0]
-  const rounded = steps.map(step => step.frame.rounding).find(frame => frame?.stage === 'result')?.answer
-    ?? (example.method === 'estimate' ? finalValue(steps.at(-1)?.equation) : undefined)
-  return <WorkedLines
-    question={example.expression}
-    answer={rounded ? `${rounded}` : undefined}
-    sign="≈"
-    visual={current && <div className="ns-visual rung-worked__visual">
-      {current.frame.rounding && <RoundingVisual frame={current.frame.rounding} />}
-      {current.frame.interval && <IntervalVisual frame={current.frame.interval} />}
-      {current.frame.ordering && <OrderingVisual frame={current.frame.ordering} />}
-    </div>}
-    lines={steps.slice(0, revealed).map((step, index) => ({ key: `${index}`, math: step.equation, note: step.title }))}
-    say={current?.instruction}
-    revealed={revealed}
-    total={steps.length}
-    onReveal={setRevealed}
-  />
+  const chain = useMemo(() => methodChain(visual), [visual])
+  const picture = (revealed: number) => {
+    const at = chain.slice(0, revealed).findLast(line => line.at)?.at
+    const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
+    if (!frame || !(frame.rounding || frame.interval || frame.ordering)) return null
+    return <div className="ns-visual rung-worked__visual">
+      {frame.rounding && <RoundingVisual frame={frame.rounding} />}
+      {frame.interval && <IntervalVisual frame={frame.interval} />}
+      {frame.ordering && <OrderingVisual frame={frame.ordering} />}
+    </div>
+  }
+  return <WorkedChain steps={chain} picture={picture} />
 }

@@ -1,3 +1,4 @@
+import type { MethodChainStep } from './methodChain'
 export type Carry = { place: number; value: number; row: 'ones' | 'tens' | 'sum' }
 export type LongDivisionRow = { number: string; end: number; kind: 'subtract' | 'remainder' | 'bring-down' }
 export type FactorSplit = { value: number; left: number; right: number }
@@ -61,6 +62,8 @@ export type MethodExample = {
   expression: string; label: string; first: number; second: number
   grid?: { first: number[]; second: number[] }
   steps: MethodStep[]
+  /** The working as a step chain with terms that move between lines; otherwise the steps become the lines. */
+  chain?: MethodChainStep[]
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`
@@ -120,7 +123,46 @@ export function gridWorking(first: number, second: number): MethodExample {
     steps.push({ title: `Fill the ${n} × ${m} cell`, operation, equation: `${operation}=${result}`, instruction: `Write ${result} where row ${n} meets column ${m}.`, frame: { cells }, focus: { cell: key } })
   }))
   steps.push({ title: 'Add the four products', operation: products.join('+'), equation: `${products.join('+')}=${first * second}`, instruction: `The four cells cover the whole multiplication. ${first} × ${second} = ${value(first * second)}.`, frame: { cells, total: String(first * second) } })
-  return { method: 'grid', expression: `${first}\\times${second}`, label: 'Grid method', first, second, grid: { first: a, second: b }, steps }
+  return { method: 'grid', expression: `${first}\\times${second}`, label: 'Grid method', first, second, grid: { first: a, second: b }, steps, chain: gridChain(first, second, a, b) }
+}
+
+/**
+ * 34 × 26 = (30 + 4) × (20 + 6) = 30 × 20 + 30 × 6 + 4 × 20 + 4 × 6 = 600 + 180 + 80 + 24 = 884, beside the grid.
+ * The grid stops at its filled boxes: the chain's last line is the answer, so the grid does not repeat it.
+ */
+function gridChain(first: number, second: number, a: number[], b: number[]): MethodChainStep[] {
+  const k = (key: string, latex: string | number) => `[[${key}:${latex}]]`
+  const pairs = a.flatMap((n, row) => b.map((m, col) => ({ n, m, row, col, i: row * b.length + col })))
+  const said = pairs.map(({ n, m }) => `${n} × ${m} = ${n * m}`)
+  return [
+    { line: `${k('a', first)} \\times ${k('b', second)}`, at: { step: -1 } },
+    {
+      line: `= (${k('a0', a[0])} + ${k('a1', a[1])}) \\times (${k('b0', b[0])} + ${k('b1', b[1])})`,
+      op: 'Split into tens and units',
+      why: `Big multiplications are easier in small pieces. ${first} is ${a[0]} + ${a[1]} and ${second} is ${b[0]} + ${b[1]}. These are the grid's headings.`,
+      merge: { a0: ['a'], a1: ['a'], b0: ['b'], b1: ['b'] },
+      at: { step: 0 },
+    },
+    {
+      line: `= ${pairs.map(({ n, m, i }) => k(`p${i}`, `${n} \\times ${m}`)).join(' + ')}`,
+      op: 'Multiply every part by every part',
+      why: `Each part of ${first} has to be multiplied by each part of ${second}, and each of those is one box of the grid: ${pairs.length} boxes, ${pairs.length} multiplications.`,
+      merge: Object.fromEntries(pairs.map(({ row, col, i }) => [`p${i}`, [`a${row}`, `b${col}`]])),
+    },
+    {
+      line: `= ${pairs.map(({ n, m, i }) => k(`q${i}`, n * m)).join(' + ')}`,
+      op: 'Work out each box',
+      why: `${said.join(', ')}.`,
+      merge: Object.fromEntries(pairs.map(({ i }) => [`q${i}`, [`p${i}`]])),
+      at: { step: pairs.length },
+    },
+    {
+      line: `= ${k('r', first * second)}`,
+      op: 'Add the boxes',
+      why: `Together the boxes make the whole of ${first} × ${second}, so add them: ${pairs.map(({ n, m }) => n * m).join(' + ')} = ${value(first * second)}.`,
+      merge: { r: pairs.map(({ i }) => `q${i}`) },
+    },
+  ]
 }
 
 export function divisionWorking(first: number, second: number): MethodExample {
