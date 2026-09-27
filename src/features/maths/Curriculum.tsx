@@ -50,7 +50,7 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
         <div className="cur-next__copy">
           <span className="cur-kicker cur-kicker--night">{upNextSnapshot ? 'Up next' : 'Start here'}</span>
           <h2 id="up-next-title">{upNext.title}</h2>
-          <p>Rung {upNextRungIndex + 1} of {upNextRungs.length} · {upNextRungs[upNextRungIndex]?.title}</p>
+          <p>{upNextRungIndex + 1} of {upNextRungs.length} · {upNextRungs[upNextRungIndex]?.title}</p>
           <Button size="lg" className="cur-next__go" onClick={() => onOpenLesson(upNext.number)}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>
             {upNextSnapshot ? 'Continue' : 'Start lesson'}
@@ -69,7 +69,7 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
         <span className="cur-chapter__num" aria-hidden="true">{chapterIndex + 1}</span>
         <div>
           <h2 id={`chapter-${chapter.id}`}>Chapter {chapterIndex + 1} · {chapter.title}</h2>
-          <p>{chapter.lessons.length} lessons · {chapter.lessons.reduce((sum, entry) => sum + entry.sections.length, 0)} rungs</p>
+          <p>{chapter.lessons.length} lessons · {chapter.lessons.reduce((sum, entry) => sum + entry.sections.length, 0)} sections</p>
         </div>
       </header>
       <ol className="cur-path">
@@ -83,9 +83,9 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
             <div className="cur-lesson__body">
               <h3>{entry.title}</h3>
               <p>{entry.description}</p>
-              <div className="cur-rungs" role="img" aria-label={`${doneRungs} of ${rungs.length} rungs done`}>
+              <div className="cur-rungs" role="img" aria-label={`${doneRungs} of ${rungs.length} sections done`}>
                 {rungs.map(rung => <span key={rung.id} title={rung.title} className={rung.done ? 'is-done' : rung.current ? 'is-current' : ''} />)}
-                <small>{doneRungs} / {rungs.length} rungs</small>
+                <small>{doneRungs} / {rungs.length} sections</small>
               </div>
             </div>
             <Button variant={status === 'next' ? 'primary' : 'secondary'} onClick={() => onOpenLesson(entry.number)} aria-label={`${status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} ${entry.title}`}>

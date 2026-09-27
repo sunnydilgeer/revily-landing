@@ -34,7 +34,7 @@ function Worked({ visual }: { visual: Extract<Visual, { kind: 'worked' }> }) {
   const [step, setStep] = useState(0)
   const frame = step ? visual.steps[step - 1] : undefined
   return <div className="wm-worked">
-    <p className="wm-step-label">{step ? `Step ${step} of ${visual.steps.length}` : 'Worked example'}</p>
+    {step > 0 && <p className="wm-step-label">{`Step ${step} of ${visual.steps.length}`}</p>}
     <StaticDiagram diagram={frame?.diagram ?? visual.initial} />
     <p className="wm-narration" aria-live="polite">{frame?.text ?? 'Reveal one step at a time.'}</p>
     <div className="wm-controls"><button type="button" disabled={!step} onClick={() => setStep(step - 1)}>Previous</button><button type="button" disabled={step === visual.steps.length} onClick={() => setStep(step + 1)}>Next step</button><button type="button" disabled={!step} onClick={() => setStep(0)}>Replay</button></div>

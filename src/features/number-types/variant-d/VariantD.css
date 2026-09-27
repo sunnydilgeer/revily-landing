@@ -2,7 +2,8 @@
 .d-activity { width: 100%; max-width: 620px; margin: 0 auto; }
 .d-activity h3 { font-size: clamp(20px, 2.4vw, 26px); line-height: 1.35; margin: 24px 0 14px; outline: none; }
 .d-body { color: var(--rv-muted); font-size: 16px; line-height: 1.6; margin: 0 0 18px; }
-.d-stage { margin: 0; padding: 24px clamp(16px, 3vw, 32px); background: var(--rv-paper); border: 1px solid var(--rv-line); border-radius: 18px; text-align: center; }
+/* Drawn straight onto the card's grid paper, like the visuals in the other maths lessons. */
+.d-stage { margin: 0; padding: 8px 0 16px; text-align: center; }
 .d-stage figcaption { color: var(--rv-muted); font-size: 14px; margin-top: 10px; }
 .d-line { position: relative; height: 104px; margin: 12px 16px 0; }
 .d-line__rail { position: absolute; left: 0; right: 0; top: 54px; height: 3px; background: var(--rv-muted); }
@@ -49,7 +50,7 @@
 .d-activity button:focus-visible, .d-slider:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 3px; }
 @media (max-width: 600px) {
   .lesson-state.lesson-state--variant-d { padding: 20px 16px; }
-  .d-stage { padding: 18px 12px; }
+  .d-stage { padding: 4px 0 12px; }
   .d-choices--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .d-choice { padding: 12px; flex-basis: 110px; font-size: 15px; }
   .d-activity h3 { margin-top: 20px; }

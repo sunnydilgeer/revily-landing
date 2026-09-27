@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Button } from '../../ui'
 import type { useLessonEngine } from '../number-types/useLessonEngine'
 import type { LessonDefinition, MicroSkillId } from '../number-types/types'
+import { withOrderedOptions } from './optionOrder'
 import { RUNG_COMPLETE_EVENT } from './studyLog'
 import { markSectionComplete, readMathsProgress } from './lessonProgress'
 import { legacyCompleted, sectionsOf } from './rungProgress'
@@ -32,7 +33,7 @@ export function goToOverview() {
 export type RungSummary = { title: string; nextTitle: string; questions: number; firstTry: number }
 
 export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Partial<Record<MicroSkillId, string>>, anchorId: string) {
-  const state = lesson.states[engine.stateIndex]
+  const state = withOrderedOptions(lesson, lesson.states[engine.stateIndex])
   const heading = useRef<HTMLHeadingElement>(null)
   const continueButton = useRef<HTMLButtonElement>(null)
   const previousId = useRef(state.id)
@@ -116,10 +117,10 @@ export function RungDoneCard({ flow }: { flow: Flow }) {
   const done = flow.rungDone!
   return <div className="rung-done rv-paper" role="status">
     <Tick />
-    <p className="rung-done__kicker">Rung {flow.rungIndex + 1} of {flow.rungs.length} complete</p>
+    <p className="rung-done__kicker">{flow.rungIndex + 1} of {flow.rungs.length} done</p>
     <h3 id="rung-done-title" ref={flow.heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{done.title}</h3>
     {done.questions > 0 && <p className="rung-done__score"><strong>{done.firstTry} of {done.questions}</strong> right first time</p>}
-    <p className="rung-done__next">Next rung: <strong>{done.nextTitle}</strong></p>
+    <p className="rung-done__next">Next: <strong>{done.nextTitle}</strong></p>
     <div className="rung-done__actions">
       <Button size="lg" onClick={flow.keepGoing} autoFocus>Keep going</Button>
       <Button variant="secondary" size="lg" onClick={flow.takeABreak}>Take a break</Button>
@@ -131,8 +132,7 @@ export function RungDoneCard({ flow }: { flow: Flow }) {
 export function LessonDoneCard({ flow, lessonTitle, onRestart }: { flow: Flow; lessonTitle: string; onRestart: () => void }) {
   return <div className="rung-done rv-paper" role="status">
     <Tick />
-    <p className="rung-done__kicker">All {flow.rungs.length} rungs climbed</p>
-    <h3 id="lesson-done-title" ref={flow.heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>Lesson complete: {lessonTitle}</h3>
+        <h3 id="lesson-done-title" ref={flow.heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>Lesson complete: {lessonTitle}</h3>
     <div className="rung-done__actions">
       <Button size="lg" onClick={goToOverview}>Back to lessons</Button>
       <Button variant="secondary" size="lg" onClick={onRestart}>Start again</Button>

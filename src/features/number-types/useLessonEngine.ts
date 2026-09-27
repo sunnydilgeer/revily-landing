@@ -6,6 +6,7 @@ import {
   readMathsProgress,
   saveMathsProgress,
 } from '../maths/lessonProgress'
+import { withOrderedOptions } from '../maths/optionOrder'
 import { checkAnswer, formatAcceptedAnswer } from './lessonMath'
 import type { FeedbackDefinition, LessonDefinition, MicroSkillId, MicroSkillProgress, StateAttempt } from './types'
 
@@ -28,7 +29,7 @@ export function useLessonEngine(lesson: LessonDefinition) {
   const [progressHydrated, setProgressHydrated] = useState(false)
 
   const stateIndex = Math.max(0, lesson.states.findIndex((state) => state.id === currentId))
-  const state = lesson.states[stateIndex]
+  const state = withOrderedOptions(lesson, lesson.states[stateIndex])
 
   useEffect(() => {
     const saved = readMathsProgress()[lesson.id]
