@@ -19,7 +19,7 @@
 .rc-deck-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .rc-deck {
   width: 100%; display: grid; gap: 2px; padding: 12px 16px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md);
-  background: var(--rv-surface); color: var(--rv-ink); font: inherit; text-align: left; cursor: pointer;
+  background: var(--rv-surface); color: var(--rv-ink); font: inherit; text-align: center; cursor: pointer;
 }
 button.rc-deck:hover { border-color: var(--rv-ink); }
 button.rc-deck:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
@@ -40,15 +40,15 @@ button.rc-deck:focus-visible { outline: 3px solid var(--rv-biro); outline-offset
 .rc-progress__bar span { display: block; height: 100%; background: var(--rv-cards); transition: width .3s ease; }
 
 .rc-card {
-  min-height: 330px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; padding: 32px;
+  min-height: 330px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 18px; padding: 56px 32px;
   border: 3px solid var(--rv-ink); border-radius: 28px; box-shadow: 0 10px 0 var(--rv-ink);
-  background: var(--rv-surface); color: var(--rv-ink); font: inherit; text-align: left; cursor: pointer;
+  background: var(--rv-surface); color: var(--rv-ink); font: inherit; text-align: center; cursor: pointer;
   transition: background-color .2s, color .2s, transform .08s;
 }
 .rc-card:active { transform: translateY(3px); box-shadow: 0 7px 0 var(--rv-ink); }
 .rc-card:focus-visible { outline: 4px solid var(--rv-biro); outline-offset: 4px; }
 .rc-card.is-back { background: var(--rv-ink); color: #fff; }
-.rc-card__side { font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.rc-card__side { position: absolute; top: 22px; left: 0; right: 0; text-align: center; font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
 .rc-card__text { font-family: var(--rv-font-display); font-weight: 800; font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.25; }
 .rc-card__note { font-family: var(--rv-font-pen); font-weight: 700; font-size: 1.45rem; line-height: 1.2; color: var(--rv-yellow); }
 /* Swiping: the card follows the finger (vertical scrolling still works), then slides off the way it was thrown. */
@@ -74,7 +74,7 @@ button.rc-deck:focus-visible { outline: 3px solid var(--rv-biro); outline-offset
   .rc-layout { grid-template-columns: 1fr; }
   .rc-study { max-width: none; }
   .rc-layout.is-studying .rc-study { order: -1; }
-  .rc-card { min-height: 280px; padding: 24px; }
+  .rc-card { min-height: 280px; padding: 52px 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rc-card, .rc-progress__bar span { transition: none; }

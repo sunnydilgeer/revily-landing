@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { RevilyLogo } from '../../ui'
 import type { StudySummary } from './useStudy'
 import { SUBJECTS, type Subject } from './subject'
@@ -47,6 +47,23 @@ function SubjectSwitch({ subject, onSwitch, placement }: { subject: Subject; onS
   </div>
 }
 
+/** True while the page is being scrolled down; false again on any scroll up or near the top. */
+function useHideOnScrollDown() {
+  const [hidden, setHidden] = useState(false)
+  useEffect(() => {
+    let last = window.scrollY
+    const onScroll = () => {
+      const y = window.scrollY
+      if (Math.abs(y - last) < 8) return
+      setHidden(y > last && y > 60)
+      last = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return hidden
+}
+
 export default function AppShell({ active, onNavigate, study, subject = 'maths', onSwitchSubject, children }: {
   active: AppSection
   onNavigate: (section: AppSection) => void
@@ -55,7 +72,8 @@ export default function AppShell({ active, onNavigate, study, subject = 'maths',
   onSwitchSubject?: (subject: Subject) => void
   children: ReactNode
 }) {
-  const nav = (placement: 'side' | 'bottom') => <nav className={`shell-nav shell-nav--${placement}`} aria-label="Main">
+  const barHidden = useHideOnScrollDown()
+  const nav = (placement: 'side' | 'bottom') => <nav className={`shell-nav shell-nav--${placement}${placement === 'bottom' && barHidden ? ' is-hidden' : ''}`} aria-label="Main">
     {SECTIONS.map(section => <a
       key={section.id}
       href={sectionHref(subject, section.id)}
