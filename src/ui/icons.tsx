@@ -1,6 +1,7 @@
 /*
- * The exam world's icon set: one 24 × 24 line style (2px strokes, round caps) for every topic, plus the
- * lock, crown, star and heart. Icons inherit currentColor, so a node's state sets their colour.
+ * Revily's topic icon set, shared by the exercise book (curriculum cards, lesson headers) and the exam path:
+ * one 24 × 24 line style (2px strokes, round caps) for every GCSE topic, plus the lock, crown, star and heart.
+ * Icons inherit currentColor, so the surface or a node's state sets their colour.
  */
 import type { ReactNode, SVGProps } from 'react'
 

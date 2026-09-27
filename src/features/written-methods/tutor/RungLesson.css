@@ -5,6 +5,9 @@
 /* ---------- Header: which rung, and progress through this rung only ---------- */
 .rung-head { display: grid; gap: 10px; padding: 6px 0 16px; }
 .rung-head__kicker { display: block; color: var(--rv-muted); font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.rung-head__title { display: flex; align-items: center; gap: 12px; }
+/* The lesson's topic icon, as it appears on the exam path. */
+.rung-head__topic { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; background: radial-gradient(circle at 35% 30%, #34409a, var(--rv-night-2)); box-shadow: inset 0 0 0 2px var(--rv-biro-light); }
 .rung-head h2 { margin: 2px 0 0; font-family: var(--rv-font-display); font-size: clamp(1.6rem, 4.5vw, 2.1rem); line-height: 1.1; letter-spacing: -0.015em; color: var(--rv-ink); }
 .rung-head__progress { display: flex; align-items: center; gap: 12px; }
 .rung-head__bar { flex: 1; height: 14px; border-radius: 999px; background: var(--rv-grid); overflow: hidden; }
@@ -98,6 +101,18 @@
 .rung-done__score strong { color: var(--rv-good-ink); }
 .rung-done__next { margin: 4px 0 0; color: var(--rv-ink-2); }
 .rung-done__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px; }
+/* The exam path, glimpsed from the exercise book: a night strip in the paper card. */
+.rung-path {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: min(100%, 420px); margin: 18px auto 0; padding: 10px 14px 10px 10px;
+  border-radius: 18px; text-align: left; text-decoration: none; color: var(--rv-on-night);
+  background: radial-gradient(90% 140% at 0% 0%, #26306a, var(--rv-night) 70%); box-shadow: 0 8px 20px rgb(15 21 48 / 25%);
+}
+.rung-path:hover .rung-path__go { transform: translateX(3px); }
+.rung-path:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.rung-path__node { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: radial-gradient(circle at 35% 30%, #34409a, #1b2358); box-shadow: inset 0 0 0 2px var(--rv-yellow), 0 0 14px var(--rv-level-ready-glow); }
+.rung-path__text { display: grid; gap: 2px; font: 800 1rem/1.2 var(--rv-font-display); }
+.rung-path__text small { font: 800 .64rem/1.2 var(--rv-font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--rv-yellow); }
+.rung-path__go { color: var(--rv-yellow); transition: transform .2s ease; }
 .rung-done__saved { margin: 12px 0 0; color: var(--rv-muted); font-size: .9rem; }
 
 @media (max-width: 560px) {

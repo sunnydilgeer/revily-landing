@@ -1,6 +1,8 @@
 'use client'
 
 import { Button } from '../../ui'
+import { TopicIcon } from '../../ui/icons'
+import { topicForLesson } from './readiness/paperMap'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
 import type { StudySummary } from './useStudy'
@@ -79,7 +81,10 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
           const doneRungs = rungs.filter(rung => rung.done).length
           const status = snapshot?.completed ? 'done' : entry.lessonId === upNext.lessonId ? 'next' : snapshot ? 'progress' : 'todo'
           return <li className={`cur-lesson is-${status}`} key={entry.lessonId}>
-            <span className="cur-lesson__node" aria-hidden="true">{status === 'done' ? '✓' : entry.number}</span>
+            <span className="cur-lesson__node" aria-hidden="true">
+              <TopicIcon id={topicForLesson(entry.number)?.id ?? ''} size={20} />
+              <span className="cur-lesson__num">{status === 'done' ? '✓' : entry.number}</span>
+            </span>
             <div className="cur-lesson__body">
               <h3>{entry.title}</h3>
               <p>{entry.description}</p>

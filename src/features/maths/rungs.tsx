@@ -7,12 +7,16 @@
  */
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Button } from '../../ui'
+import { ArrowIcon, TopicIcon } from '../../ui/icons'
+import { modeLink } from '../../ui/modeTransition'
 import type { useLessonEngine } from '../number-types/useLessonEngine'
 import type { LessonDefinition, MicroSkillId } from '../number-types/types'
 import { withOrderedOptions } from './optionOrder'
 import { RUNG_COMPLETE_EVENT } from './studyLog'
 import { markSectionComplete, readMathsProgress } from './lessonProgress'
 import { legacyCompleted, sectionsOf } from './rungProgress'
+import { mathsLessons } from './courseRegistry'
+import { topicForLesson } from './readiness/paperMap'
 import '../written-methods/tutor/RungLesson.css'
 
 type Engine = ReturnType<typeof useLessonEngine>
@@ -96,8 +100,11 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
     engine.continueLesson() // move past the finished rung first, so "Continue" later starts the next one
   }
 
+  const lessonNumber = mathsLessons.find(entry => entry.lessonId === lesson.id)?.number
+  const topic = lessonNumber ? topicForLesson(lessonNumber) : undefined
+
   return {
-    state, teaching, last, title, heading, continueButton,
+    state, teaching, last, title, heading, continueButton, topic,
     rungs, rungIndex, rungStates, positionInRung, rungQuestions, questionNumber, rungProgress,
     rungDone, next, keepGoing, takeABreak,
   }
@@ -108,13 +115,26 @@ type Flow = ReturnType<typeof useRungFlow>
 export function RungHeader({ flow, lessonTitle, headingId }: { flow: Flow; lessonTitle: string; headingId: string }) {
   const { title, rungIndex, rungs, rungProgress } = flow
   return <header className="rung-head">
-    <h2 id={headingId}>{title}</h2>
+    <div className="rung-head__title">
+      {flow.topic && <span className="rung-head__topic" aria-hidden="true"><TopicIcon id={flow.topic.id} size={22} /></span>}
+      <h2 id={headingId}>{title}</h2>
+    </div>
     <div className="rung-head__progress">
       <div className="rung-head__bar" role="progressbar" aria-label={`${lessonTitle}, rung ${rungIndex + 1} of ${rungs.length}: progress through ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rungProgress}>
         <span style={{ width: `${Math.max(4, rungProgress)}%` }} />
       </div>
     </div>
   </header>
+}
+
+/** A slice of the exam path inside the paper card: where this section's progress shows up. */
+function PathLink({ flow }: { flow: Flow }) {
+  if (!flow.topic) return null
+  return <a className="rung-path" href={`/preview/ready?from=${flow.topic.id}`} onClick={modeLink('night')}>
+    <span className="rung-path__node" aria-hidden="true"><TopicIcon id={flow.topic.id} size={22} /></span>
+    <span className="rung-path__text"><small>Your exam path</small>See {flow.topic.title} light up</span>
+    <ArrowIcon size={18} className="rung-path__go" />
+  </a>
 }
 
 const Tick = () => <div className="rung-done__badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
@@ -131,6 +151,7 @@ export function RungDoneCard({ flow }: { flow: Flow }) {
       <Button size="lg" onClick={flow.keepGoing} autoFocus>Keep going</Button>
       <Button variant="secondary" size="lg" onClick={flow.takeABreak}>Take a break</Button>
     </div>
+    <PathLink flow={flow} />
     <p className="rung-done__saved">Your progress is saved on this device.</p>
   </div>
 }
@@ -138,10 +159,11 @@ export function RungDoneCard({ flow }: { flow: Flow }) {
 export function LessonDoneCard({ flow, lessonTitle, onRestart }: { flow: Flow; lessonTitle: string; onRestart: () => void }) {
   return <div className="rung-done rv-paper" role="status">
     <Tick />
-        <h3 id="lesson-done-title" ref={flow.heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>Lesson complete: {lessonTitle}</h3>
+    <h3 id="lesson-done-title" ref={flow.heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>Lesson complete: {lessonTitle}</h3>
     <div className="rung-done__actions">
       <Button size="lg" onClick={goToOverview}>Back to lessons</Button>
       <Button variant="secondary" size="lg" onClick={onRestart}>Start again</Button>
     </div>
+    <PathLink flow={flow} />
   </div>
 }

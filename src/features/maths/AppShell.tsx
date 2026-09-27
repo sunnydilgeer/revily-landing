@@ -2,6 +2,10 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import { RevilyLogo } from '../../ui'
+import { StarIcon } from '../../ui/icons'
+import { modeLink } from '../../ui/modeTransition'
+import { PAPER_MARKS } from './readiness/paperMap'
+import { usePathMarks } from './readiness/useReadiness'
 import type { StudySummary } from './useStudy'
 import { SUBJECTS, type Subject } from './subject'
 import './AppShell.css'
@@ -66,6 +70,23 @@ function useHideOnScrollDown() {
   return hidden
 }
 
+/** The way into the exam path: the marks the student is ready for, as a little piece of the night sky. */
+function PathPill({ placement }: { placement: 'side' | 'top' }) {
+  const { ready, loaded } = usePathMarks()
+  const marks = loaded ? Math.round(ready) : 0
+  const label = `Exam path: ready for about ${marks} of ${PAPER_MARKS} marks`
+  if (placement === 'top') {
+    return <a className="path-pill" href="/preview/ready" onClick={modeLink('night')} aria-label={label}>
+      <StarIcon size={14} /><strong>{marks}</strong><span>/{PAPER_MARKS}</span>
+    </a>
+  }
+  return <a className="path-card" href="/preview/ready" onClick={modeLink('night')} aria-label={label}>
+    <span className="path-card__kicker"><StarIcon size={12} /> Exam path</span>
+    <span className="path-card__marks"><strong>{marks}</strong>/{PAPER_MARKS} marks ready</span>
+    <span className="path-card__meter" aria-hidden="true"><span style={{ width: `${Math.max(3, ready / PAPER_MARKS * 100)}%` }} /></span>
+  </a>
+}
+
 export default function AppShell({ active, onNavigate, study, subject = 'maths', onSwitchSubject, children }: {
   active: AppSection
   onNavigate: (section: AppSection) => void
@@ -94,6 +115,7 @@ export default function AppShell({ active, onNavigate, study, subject = 'maths',
       {onSwitchSubject && <SubjectSwitch subject={subject} onSwitch={onSwitchSubject} placement="side" />}
       {nav('side')}
       <div className="shell-side__foot">
+        {subject === 'maths' && <PathPill placement="side" />}
         <div className="shell-streak">
           <span className={`shell-streak__bolt${study.streak ? ' is-lit' : ''}`}><Bolt /></span>
           <div>
@@ -108,6 +130,7 @@ export default function AppShell({ active, onNavigate, study, subject = 'maths',
     <header className="shell-top">
       <RevilyLogo href="/" size={24} />
       {onSwitchSubject && <SubjectSwitch subject={subject} onSwitch={onSwitchSubject} placement="top" />}
+      {subject === 'maths' && <PathPill placement="top" />}
       <span className={`shell-top__streak${study.streak ? ' is-lit' : ''}`} aria-label={streakLabel(study.streak)}><Bolt size={18} />{study.streak}</span>
     </header>
 

@@ -74,26 +74,26 @@
 
 .sn--dormant .sn-icon { color: #b9c1e0; }
 
-.sn--available .sn-ring__track { stroke: var(--rv-biro-light); }
+.sn--available .sn-ring__track { stroke: var(--rv-level-learning-light); }
 .sn--available .sn-icon { color: #fff; }
 .sn--available .sn-core { animation: sn-breathe 2.8s ease-in-out infinite; }
 @keyframes sn-breathe { 0%, 100% { filter: drop-shadow(0 0 2px rgb(157 176 238 / 40%)); } 50% { filter: drop-shadow(0 0 14px rgb(157 176 238 / 85%)); } }
 
-.sn--learning .sn-ring__fill { stroke: var(--rv-biro-light); }
+.sn--learning .sn-ring__fill { stroke: var(--rv-level-learning-light); }
 .sn--learning .sn-icon { color: #fff; }
-.sn--learnt .sn-ring__fill { stroke: var(--rv-yellow); }
-.sn--learnt .sn-icon { color: var(--rv-yellow); }
+.sn--learnt .sn-ring__fill { stroke: var(--rv-level-learnt-light); }
+.sn--learnt .sn-icon { color: var(--rv-level-learnt-light); }
 
-.sn--secure .sn-core::before { background: radial-gradient(circle at 35% 30%, #22c07e, #0b6b41 75%); }
+.sn--secure .sn-core::before { background: var(--rv-emerald); }
 .sn--secure .sn-ring__track { stroke: #0f5c39; }
-.sn--secure .sn-ring__fill { stroke: #8ff0bd; }
+.sn--secure .sn-ring__fill { stroke: var(--rv-level-secure-light); }
 .sn--secure .sn-icon { color: #fff; }
 .sn--secure .sn-core { filter: drop-shadow(0 0 8px rgb(34 192 126 / 55%)); }
 
-.sn--examReady .sn-core::before { background: radial-gradient(circle at 35% 30%, #fff1b8, #f2b52c 70%); }
+.sn--examReady .sn-core::before { background: var(--rv-gold); }
 .sn--examReady .sn-ring__track, .sn--examReady .sn-ring__fill { stroke: #fff6d6; }
 .sn--examReady .sn-icon { color: var(--rv-ink); }
-.sn--examReady .sn-core { filter: drop-shadow(0 0 14px rgb(255 211 92 / 80%)); }
+.sn--examReady .sn-core { filter: drop-shadow(0 0 14px var(--rv-level-ready-glow)); }
 
 /* Waiting to light up, then lighting up: the node swells and a ring of light bursts out of it. */
 .sn.is-pending .sn-core { opacity: .45; filter: grayscale(1); animation: none; }
@@ -102,6 +102,12 @@
 .sn-burst { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; }
 .sn-burst::before, .sn-burst::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--rv-yellow); border-radius: 50%; opacity: 0; animation: sn-burst .9s ease-out forwards; }
 .sn-burst::after { border-width: 2px; border-color: #fff; animation-delay: .15s; }
+.sn-gain {
+  position: absolute; left: 50%; top: -6px; z-index: 2; display: inline-flex; align-items: center; gap: 2px; padding: 3px 8px; border-radius: 99px;
+  font: 800 .78rem/1 var(--rv-font-display); color: var(--rv-ink); background: var(--rv-yellow); box-shadow: 0 4px 14px var(--rv-level-ready-glow);
+  pointer-events: none; animation: sn-gain 1.6s ease-out forwards;
+}
+@keyframes sn-gain { 0% { transform: translate(-50%, 6px) scale(.6); opacity: 0; } 20% { transform: translate(-50%, -8px) scale(1.1); opacity: 1; } 75% { opacity: 1; } 100% { transform: translate(-50%, -34px); opacity: 0; } }
 @keyframes sn-burst { 0% { transform: scale(.8); opacity: 1; } 100% { transform: scale(2.4); opacity: 0; } }
 
 /* The boss, standing on a glowing plinth at the foot of the branch. */
@@ -125,6 +131,7 @@
 .sn-boss:focus-visible { outline: none; }
 
 @media (prefers-reduced-motion: reduce) {
+  .sn-gain { animation: none; opacity: 0; }
   .st-star.is-twinkling, .st-edge-flow, .sn--available .sn-core, .sn.is-igniting .sn-core, .sn-burst::before, .sn-burst::after { animation: none; }
   .st-edge-flow { display: none; }
   .st-edge-lit.is-drawing, .st-edge-lit.is-waiting { animation: none; stroke-dashoffset: 0; }

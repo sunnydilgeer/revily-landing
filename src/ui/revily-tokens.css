@@ -49,6 +49,27 @@
   --rv-step-as-tint: #fbe3ef;
   --rv-step-as-light: #ff86bd;
 
+  /* Readiness levels, the same in the exercise book and on the exam path. Learning is biro blue, learnt is
+     highlighter yellow, secure is green, exam-ready is gold. -light versions are for night surfaces. */
+  --rv-level-learning: var(--rv-biro);
+  --rv-level-learning-light: var(--rv-biro-light);
+  --rv-level-learning-tint: var(--rv-biro-tint);
+  --rv-level-learnt: #8a6400;
+  --rv-level-learnt-light: var(--rv-yellow);
+  --rv-level-learnt-tint: var(--rv-yellow-tint);
+  --rv-level-secure: var(--rv-good);
+  --rv-level-secure-light: #8ff0bd;
+  --rv-level-secure-tint: var(--rv-good-tint);
+  --rv-level-ready: #f2b52c;
+  --rv-level-ready-light: #ffe08a;
+  --rv-level-ready-glow: rgb(255 211 92 / 70%);
+  --rv-gold: radial-gradient(circle at 35% 30%, #fff1b8, #f2b52c 70%);
+  --rv-emerald: radial-gradient(circle at 35% 30%, #22c07e, #0b6b41 75%);
+
+  /* Button depth on night surfaces, where the ink edge would vanish */
+  --rv-yellow-deep: #c99a1a;
+  --rv-alarm-deep: #b8433a;
+
   /* The app sections */
   --rv-curriculum: var(--rv-step-b);
   --rv-cards: var(--rv-step-dm);

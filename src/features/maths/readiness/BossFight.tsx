@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { WorkedChain } from '../step-chain/WorkedChain'
 import BossCharacter, { type BossMood } from './BossCharacter'
 import { HEARTS, isCorrect, readAnswer, saveBossRecord, type Boss, type BossRecord } from './bosses'
-import { ArrowIcon, CloseIcon, CrownIcon, HeartIcon } from './icons'
+import { ArrowIcon, CloseIcon, CrownIcon, HeartIcon } from '../../../ui/icons'
 import './BossFight.css'
 
 type Phase = 'vs' | 'fight' | 'hit' | 'won' | 'lost'
@@ -142,7 +142,7 @@ export default function BossFight({ boss, record, readyMarks, onClose, onWin }: 
           <li><strong>{HEARTS}</strong> hearts</li>
           <li>Working on paper, like the real thing</li>
         </ul>
-        <button type="button" className="bf-cta" onClick={start}>Fight <ArrowIcon size={18} /></button>
+        <button type="button" className="rv-btn rv-btn--alarm rv-btn--lg rv-btn--block" onClick={start}>Fight <ArrowIcon size={18} /></button>
       </>}
 
       {phase === 'fight' && <form className="bf-question" onSubmit={check}>
@@ -154,7 +154,7 @@ export default function BossFight({ boss, record, readyMarks, onClose, onWin }: 
           <input ref={input} inputMode="decimal" autoComplete="off" value={typed} onChange={event => setTyped(event.target.value)} placeholder="Your answer" />
         </label>
         {miss > 0 && <p className="bf-miss" role="alert"><strong>Blocked. You lost a heart.</strong> {part.hint}</p>}
-        <button type="submit" className="bf-cta" disabled={readAnswer(typed) === null}>Attack</button>
+        <button type="submit" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" disabled={readAnswer(typed) === null}>Attack</button>
       </form>}
 
       {phase === 'hit' && index < parts.length - 1 && <div className="bf-result">
@@ -162,7 +162,7 @@ export default function BossFight({ boss, record, readyMarks, onClose, onWin }: 
         {showWorking
           ? <WorkedChain steps={part.chain} />
           : <button type="button" className="bf-link" onClick={() => setShowWorking(true)}>See the working</button>}
-        <button type="button" className="bf-cta" onClick={next}>Next question <ArrowIcon size={18} /></button>
+        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={next}>Next question <ArrowIcon size={18} /></button>
       </div>}
 
       {phase === 'hit' && index === parts.length - 1 && <p className="bf-verdict bf-verdict--hit" role="status">Final blow!</p>}
@@ -180,14 +180,14 @@ export default function BossFight({ boss, record, readyMarks, onClose, onWin }: 
         {showWorking
           ? <WorkedChain steps={part.chain} />
           : <button type="button" className="bf-link" onClick={() => setShowWorking(true)}>See the working for the final blow</button>}
-        <button type="button" className="bf-cta" onClick={onClose}>Back to the tree <ArrowIcon size={18} /></button>
+        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={onClose}>Back to the tree <ArrowIcon size={18} /></button>
       </div>}
 
       {phase === 'lost' && <div className="bf-result">
         <p className="bf-verdict bf-verdict--lost" role="status">The Treasurer wins this round.</p>
         <p className="bf-note">Here’s how to crack that one. The rematch has new numbers.</p>
         <WorkedChain steps={part.chain} />
-        <button type="button" className="bf-cta" onClick={rematch}>Rematch <ArrowIcon size={18} /></button>
+        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={rematch}>Rematch <ArrowIcon size={18} /></button>
         <button type="button" className="bf-link bf-link--center" onClick={onClose}>Back to the tree</button>
       </div>}
     </div>

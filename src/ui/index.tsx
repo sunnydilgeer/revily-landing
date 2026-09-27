@@ -84,14 +84,16 @@ export function NewValue({ children, tone = 'biro' }: { children: ReactNode; ton
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   ref?: Ref<HTMLButtonElement>
-  variant?: 'primary' | 'secondary' | 'dark' | 'ghost' | 'good' | 'bad'
+  variant?: 'primary' | 'secondary' | 'dark' | 'ghost' | 'good' | 'bad' | 'alarm'
+  /** On a night surface: the edge becomes the button's own deeper shade. */
+  night?: boolean
   size?: 'md' | 'lg'
   block?: boolean
   icon?: boolean
 }
 
-export function Button({ variant = 'primary', size = 'md', block = false, icon = false, className = '', type = 'button', ...rest }: ButtonProps) {
-  const classes = ['rv-btn', `rv-btn--${variant}`, size === 'lg' && 'rv-btn--lg', block && 'rv-btn--block', icon && 'rv-icon-btn', className].filter(Boolean).join(' ')
+export function Button({ variant = 'primary', size = 'md', block = false, icon = false, night = false, className = '', type = 'button', ...rest }: ButtonProps) {
+  const classes = ['rv-btn', `rv-btn--${variant}`, night && 'rv-btn--night', size === 'lg' && 'rv-btn--lg', block && 'rv-btn--block', icon && 'rv-icon-btn', className].filter(Boolean).join(' ')
   return <button type={type} className={classes} {...rest} />
 }
 
