@@ -1,6 +1,14 @@
 import type { ChainStep } from '../../step-chain/StepChain'
 
-export type CrewMember = { name: string; emoji: string; role: string }
+export type CrewMember = {
+  name: string
+  emoji: string
+  role: string
+  /** What they say when you get one right. */
+  hype: string[]
+  /** What they say when you get one wrong, before the reason. */
+  oops: string
+}
 
 export type Choice = { value: number; label: string; /** Why this answer is wrong, in the crew's voice. */ nope?: string }
 
@@ -12,6 +20,11 @@ export type Question = {
   why: string
   /** What the bar model shows once this question is answered. */
   reveals: 'count' | 'share' | 'payout' | 'take'
+  /** The crew member who asks, and who reacts to the answer. */
+  who: number
+  /** Lines for this question only, in place of the crew member's usual ones. */
+  hype?: string
+  oops?: string
 }
 
 export type Job = {
@@ -26,14 +39,16 @@ export type Job = {
   reverse?: boolean
   brief: string
   why: string
+  /** A crew member who lies about the take: stamped once the student works out the real one. */
+  liar?: { who: number; claim: number }
   questions: Question[]
   chain: ChainStep[]
 }
 
 export const crew: CrewMember[] = [
-  { name: 'Driver', emoji: '🚗', role: 'Gets everyone out' },
-  { name: 'Hacker', emoji: '💻', role: 'Kills the cameras' },
-  { name: 'Insider', emoji: '🕶️', role: 'Leaves a door open' },
+  { name: 'Driver', emoji: '🚗', role: 'Gets everyone out', hype: ['Engine’s running. Let’s go.', 'That’s my planner.', 'Smooth like a getaway.'], oops: 'Oi. That’s not it.' },
+  { name: 'Hacker', emoji: '💻', role: 'Kills the cameras', hype: ['Numbers check out.', 'Access granted.', 'Clean code, clean maths.'], oops: 'Error 404: maths not found.' },
+  { name: 'Insider', emoji: '🕶️', role: 'Leaves a door open', hype: ['Nobody suspects a thing.', 'Sharp. Very sharp.', 'Door’s open. Keep moving.'], oops: 'Keep it down… that’s wrong.' },
 ]
 
 export const pounds = (value: number) => `£${value.toLocaleString('en-GB')}`
@@ -87,6 +102,7 @@ export const jobs: Job[] = [
         ],
         why: '3 + 2 + 1 = 6. Every box is one share, and they’re all the same size.',
         reveals: 'count',
+        who: 1,
       },
       {
         prompt: 'So what’s one share worth?',
@@ -98,6 +114,7 @@ export const jobs: Job[] = [
         ],
         why: '£600 ÷ 6 = £100. Every box is worth £100.',
         reveals: 'share',
+        who: 2,
       },
       {
         prompt: 'How much does the Driver get?',
@@ -109,6 +126,7 @@ export const jobs: Job[] = [
         ],
         why: '3 shares × £100 = £300.',
         reveals: 'payout',
+        who: 0,
       },
     ],
     chain: splitChain(600, [3, 2, 1], 0),
@@ -132,6 +150,7 @@ export const jobs: Job[] = [
         ],
         why: '4 + 3 + 2 = 9 shares.',
         reveals: 'count',
+        who: 1,
       },
       {
         prompt: 'What’s one share worth?',
@@ -143,6 +162,7 @@ export const jobs: Job[] = [
         ],
         why: '£1,800 ÷ 9 = £200.',
         reveals: 'share',
+        who: 2,
       },
       {
         prompt: 'How much does the Hacker get?',
@@ -154,6 +174,7 @@ export const jobs: Job[] = [
         ],
         why: '3 shares × £200 = £600.',
         reveals: 'payout',
+        who: 1,
       },
     ],
     chain: splitChain(1800, [4, 3, 2], 1),
@@ -165,8 +186,9 @@ export const jobs: Job[] = [
     ratio: [5, 3, 2],
     focus: 1,
     reverse: true,
-    brief: 'The split was 5 : 3 : 2. The hacker got £180, but the driver won’t say how big the take was.',
-    why: 'You don’t need the driver to tell you. You know the hacker’s cut and how many shares that is, so you can work back to the whole take.',
+    brief: 'The split was 5 : 3 : 2. The hacker got £180. The driver swears the whole take was only £400…',
+    liar: { who: 0, claim: 400 },
+    why: 'Don’t take the driver’s word for it. You know the hacker’s cut and how many shares that is, so you can work back to the real take.',
     questions: [
       {
         prompt: 'The Hacker’s £180 is 3 shares. What’s one share worth?',
@@ -178,6 +200,7 @@ export const jobs: Job[] = [
         ],
         why: '£180 ÷ 3 = £60. Every share in the deal is worth £60.',
         reveals: 'share',
+        who: 2,
       },
       {
         prompt: 'How many shares in the whole deal?',
@@ -189,6 +212,7 @@ export const jobs: Job[] = [
         ],
         why: '5 + 3 + 2 = 10 shares.',
         reveals: 'count',
+        who: 1,
       },
       {
         prompt: 'So how big was the take?',
@@ -198,8 +222,11 @@ export const jobs: Job[] = [
           { value: 1800, label: '£1,800', nope: 'That’s 10 lots of £180. Each share is only £60.' },
           { value: 600, label: '£600' },
         ],
-        why: '10 shares × £60 = £600. The driver and insider split the other £420.',
+        why: '10 shares × £60 = £600, not £400. The driver tried to pocket £200.',
         reveals: 'take',
+        who: 0,
+        hype: '…Fine. It was £600.',
+        oops: 'Yeah! That’s… totally right. Moving on.',
       },
     ],
     chain: reverseChain(600, [5, 3, 2], 1),
