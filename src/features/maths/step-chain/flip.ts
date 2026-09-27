@@ -7,7 +7,8 @@
  * The new line stays invisible while the copies travel, so the student sees the terms arrive.
  */
 
-export const FLIGHT_DELAY = 220
+/** Long enough to read the operation before anything moves. */
+export const FLIGHT_DELAY = 450
 export const FLIGHT_MS = 560
 
 export function prefersReducedMotion() {

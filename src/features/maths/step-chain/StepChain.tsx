@@ -91,8 +91,10 @@ function MathCell({ source, marks, className }: { source: string; marks: Marks; 
   return <MathHtml html={renderMath(source, marks)} className={className} />
 }
 
-function EquationLine({ line, marks }: { line: string; marks: Marks }) {
+function EquationLine({ line, marks, centred }: { line: string; marks: Marks; centred: boolean }) {
   const trimmed = line.trim()
+  // Simplifying an expression (18/24, = 18÷6 / 24÷6, = 3/4): each line is centred as a whole.
+  if (centred) return <MathCell source={trimmed} marks={marks} className="sc-cell--wide" />
   const at = trimmed.startsWith('= ') ? 0 : trimmed.indexOf(' = ')
   if (at < 0) return <><MathCell source={trimmed} marks={marks} className="sc-cell--lhs" /><span className="sc-cell sc-cell--eq" /><span className="sc-cell sc-cell--rhs" /></>
   const lhs = trimmed.slice(0, at), rhs = trimmed.slice(at === 0 ? 2 : at + 3)
@@ -141,7 +143,8 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
   const stage = useRef<HTMLDivElement>(null)
   const rows = useRef<(HTMLLIElement | null)[]>([])
   const runs = useRef(0)
-  const [openWhy, setOpenWhy] = useState<number | null>(null)
+  /** Which step's why is open: null follows the newest step, 'none' means the student closed it. */
+  const [openWhy, setOpenWhy] = useState<number | 'none' | null>(null)
   const [shown, setShown] = useState(revealed)
   const [flight, setFlight] = useState<Flight | null>(null)
   const [strikes, setStrikes] = useState<Strike[]>([])
@@ -191,6 +194,7 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
 
   const done = last === steps.length - 1 && !flight
   const columns = layout.kind === 'columns' ? layout.columns : null
+  const expression = !columns && !steps[0].line.includes(' = ')
   // Earlier lines fade, but both lines of a step stay bright while its terms are travelling.
   const isDim = (index: number) => index < last && !(flight && (index === flight.index || index === flight.index - 1))
 
@@ -211,7 +215,7 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
         const phase = flight?.index === index ? flight.phase : null
         const feeding = flight?.phase === 'flying' && flight.index === index + 1
         const dim = isDim(index)
-        const why = openWhy === index
+        const why = !!step.why && (openWhy === null ? index === last : openWhy === index)
         return <li
           key={index}
           ref={el => { rows.current[index] = el }}
@@ -223,19 +227,20 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
                 type="button"
                 className="sc-op__label"
                 aria-label={`Replay this step: ${step.op}`}
-                onClick={() => setFlight(fly(index))}
+                onClick={() => { setFlight(fly(index)); setOpenWhy(index) }}
               ><span>{step.op}</span></button>
               {step.why && <button
                 type="button"
                 className={`sc-op__info${why ? ' is-open' : ''}`}
                 aria-label="Why?"
                 aria-expanded={why}
-                onClick={() => setOpenWhy(why ? null : index)}
+                onClick={() => setOpenWhy(why ? 'none' : index)}
               >i</button>}
             </span>
             {why && <p className="sc-op__why">{step.why}</p>}
           </div>}
-          {columns ? <ColumnsLine line={step.line} columns={columns} marks={marks} /> : <EquationLine line={step.line} marks={marks} />}
+          {columns ? <ColumnsLine line={step.line} columns={columns} marks={marks} /> : <EquationLine line={step.line} marks={marks} centred={expression} />}
+          {done && index === last && <span className="sc-tick" role="img" aria-label="Answer">✓</span>}
         </li>
       })}
     </ol>
