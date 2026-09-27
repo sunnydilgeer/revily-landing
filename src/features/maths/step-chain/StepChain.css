@@ -65,12 +65,12 @@
 
 .sc-ghost { position: absolute; z-index: 3; margin: 0; white-space: nowrap; pointer-events: none; line-height: 1.2; }
 
-/* The answer is the last line, shown once. */
+/* The answer is the last line, shown once, with a tick in the margin like a teacher's mark. */
+.sc-row { position: relative; }
 .sc-row.is-final > .sc-cell:not(:empty) { font-weight: 700; }
-.sc-row.is-final > .sc-cell--rhs::after,
-.sc--columns .sc-row.is-final > .sc-cell--wide::after {
-  content: '✓'; margin-left: .5em; font: 700 .7em/1 var(--rv-font-body); color: var(--rv-good);
-  animation: sc-fade .3s both;
+.sc-tick {
+  position: absolute; right: 0; bottom: 0; height: 2.2em; display: grid; place-items: center;
+  font: 700 .8em/1 var(--rv-font-body); color: var(--rv-good); animation: sc-fade .3s both;
 }
 
 /* Place-value columns */
