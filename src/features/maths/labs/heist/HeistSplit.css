@@ -1,0 +1,118 @@
+/* Heist Split lab. The night ground is the getaway; the working sits on paper like everywhere else. */
+.hs-page { min-height: 100dvh; background: var(--rv-night); }
+.hs {
+  min-height: 100dvh; max-width: 560px; margin: 0 auto; padding: 12px 16px 0;
+  display: flex; flex-direction: column; gap: 16px; color: var(--rv-on-night); background: var(--rv-night);
+  font-family: var(--rv-font-body);
+}
+
+.hs-top { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.hs-close {
+  width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
+  font-size: 1.6rem; line-height: 1; color: var(--rv-on-night-muted); text-decoration: none;
+}
+.hs-close:hover { background: var(--rv-night-2); color: var(--rv-on-night); }
+.hs-close:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.hs-job { flex: 1; margin: 0; font-weight: 600; font-size: .9rem; color: var(--rv-on-night-muted); }
+.hs-trust { display: flex; gap: 6px; }
+.hs-pip { font-size: 1.1rem; color: var(--rv-yellow); transition: color .3s, transform .3s; }
+.hs-pip.is-lost { color: var(--rv-night-3); transform: scale(.8); }
+
+.hs-kicker { margin: 0 0 6px; font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--rv-yellow); }
+.hs-title { margin: 0; font: 800 1.55rem/1.2 var(--rv-font-display); letter-spacing: -.01em; }
+
+/* Brief: the deal, one line per crew member, with their parts on the right. */
+.hs-brief, .hs-end { display: grid; gap: 20px; padding-top: 12px; }
+.hs-deal { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.hs-deal li {
+  display: grid; grid-template-columns: 40px 1fr auto; grid-template-areas: 'emoji name parts' 'emoji role parts';
+  align-items: center; column-gap: 12px; padding: 12px 14px; border-radius: var(--rv-radius-md); background: var(--rv-night-2);
+}
+.hs-deal__emoji { grid-area: emoji; font-size: 1.7rem; text-align: center; }
+.hs-deal__name { grid-area: name; font-weight: 700; }
+.hs-deal__role { grid-area: role; font-size: .85rem; color: var(--rv-on-night-muted); }
+.hs-deal__parts {
+  grid-area: parts; min-width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px;
+  font: 800 1.5rem/1 var(--rv-font-display); color: var(--rv-ink); background: var(--rv-yellow);
+}
+.hs-why { margin: 0; padding: 14px 16px; border-radius: var(--rv-radius-md); background: var(--rv-night-2); line-height: 1.5; }
+.hs-why__tag {
+  display: inline-block; margin-right: 8px; padding: 2px 8px; border-radius: var(--rv-radius-pill);
+  font-weight: 700; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: var(--rv-ink); background: var(--rv-yellow);
+}
+
+/* Bar model */
+.hs-card { padding: 14px 12px; border-radius: var(--rv-radius-lg); color: var(--rv-ink); }
+.hs-bars { margin: 0; display: grid; gap: 10px; }
+.hs-take { display: flex; align-items: baseline; justify-content: space-between; padding: 0 2px 4px; border-bottom: 2px dashed var(--rv-line); }
+.hs-take__label { font-weight: 600; font-size: .85rem; color: var(--rv-muted); }
+.hs-take__value { font: 800 1.35rem/1.1 var(--rv-font-display); }
+.hs-take.is-unknown .hs-take__value { color: var(--rv-redpen); }
+
+.hs-row { display: grid; grid-template-columns: 56px 1fr 52px; align-items: center; gap: 8px; }
+.hs-who { display: grid; justify-items: center; gap: 2px; }
+.hs-who__emoji { font-size: 1.4rem; line-height: 1; }
+.hs-who__name { font-weight: 600; font-size: .75rem; color: var(--rv-ink-2); }
+.hs-row.is-focus .hs-who__name { color: var(--rv-ink); font-weight: 800; }
+
+.hs-boxes { display: grid; gap: 4px; min-width: 0; container-type: inline-size; }
+.hs-box {
+  min-width: 0; height: 42px; overflow: hidden; white-space: nowrap; display: grid; place-items: center;
+  border: 2px solid var(--rv-line-strong); border-radius: 8px; background: var(--rv-surface);
+  font-weight: 700; font-size: clamp(.5rem, calc(100cqi / var(--cols, 3) * .26), .85rem); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  transition: background-color .35s, border-color .35s, transform .35s;
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+.hs-box.is-counted { border-color: var(--rv-biro); background: var(--rv-biro-tint); color: var(--rv-biro); }
+.hs-box.is-gold {
+  border-color: var(--rv-accent-ink); color: var(--rv-ink);
+  background: linear-gradient(160deg, #ffe38f, var(--rv-yellow) 55%, #f0b92e);
+  animation: hs-drop .45s both; animation-delay: calc(var(--i, 0) * 70ms);
+}
+@keyframes hs-drop { from { transform: translateY(-10px) scale(.9); opacity: .4; } }
+
+.hs-cut { justify-self: end; font: 800 1rem/1 var(--rv-font-display); color: var(--rv-line-strong); }
+.hs-cut.is-known { color: var(--rv-good-ink); animation: hs-pop .4s both; }
+@keyframes hs-pop { from { transform: scale(.6); opacity: 0; } }
+
+.hs-check { margin: 12px 0 0; padding-top: 10px; border-top: 2px dashed var(--rv-line); font-weight: 600; font-size: .9rem; color: var(--rv-good-ink); }
+
+/* The question and its three answers */
+.hs-ask { display: grid; gap: 14px; }
+.hs-prompt { margin: 0; font: 800 1.3rem/1.25 var(--rv-font-display); }
+.hs-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.hs-choice {
+  min-height: 60px; padding: 0 6px; border: 2px solid var(--rv-night-3); border-radius: var(--rv-radius-md);
+  font: 800 1.25rem/1 var(--rv-font-display); color: var(--rv-on-night); background: var(--rv-night-2);
+  box-shadow: 0 3px 0 var(--rv-night-3); cursor: pointer; transition: transform .08s, background-color .15s, opacity .2s;
+}
+.hs-choice:hover:not(:disabled) { border-color: var(--rv-yellow); }
+.hs-choice:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--rv-night-3); }
+.hs-choice:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.hs-choice:disabled { opacity: .35; cursor: default; }
+.hs-choice.is-right { opacity: 1; border-color: var(--rv-good-ink); color: #fff; background: var(--rv-good); box-shadow: 0 3px 0 var(--rv-good-ink); }
+.hs-choice.is-wrong { opacity: 1; border-color: #a51f1f; color: #fff; background: var(--rv-redpen); box-shadow: 0 3px 0 #a51f1f; animation: hs-shake .4s; }
+@keyframes hs-shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* Worked steps after each job */
+.hs-card--working { padding: 16px 14px 22px; }
+.hs-working__title { margin: 0 0 12px; font: 800 1.05rem/1.2 var(--rv-font-display); }
+
+.hs-rule { padding: 16px; border-radius: var(--rv-radius-md); background: var(--rv-night-2); }
+.hs-rule__label { margin: 0 0 8px; font-weight: 700; color: var(--rv-yellow); }
+.hs-rule ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; line-height: 1.45; }
+.hs-end__stat { margin: 0; font-size: 1.05rem; color: var(--rv-on-night-muted); }
+.hs-end__stat strong { font: 800 2rem/1 var(--rv-font-display); color: var(--rv-yellow); }
+
+/* Bottom bars: ours on the night ground, and the shared CheckBar pulled to the edges. */
+.hs-bar {
+  position: sticky; bottom: 0; margin: auto -16px 0; display: grid; justify-items: center; gap: 12px;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); border-top: 2px solid var(--rv-night-3); background: var(--rv-night);
+}
+.hs-bar__actions { width: 100%; display: flex; gap: 10px; }
+.hs-bar__actions .rv-icon-btn { width: 56px; min-width: 56px; }
+.hs .rv-checkbar { margin: auto -16px 0; color: var(--rv-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-box, .hs-box.is-gold, .hs-cut.is-known, .hs-choice.is-wrong, .hs-pip { animation: none; transition: none; }
+}
