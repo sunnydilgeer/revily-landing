@@ -12,6 +12,13 @@ import { MedicineVisual } from './MedicineVisuals'
 import { EnergyVisual } from './EnergyVisuals'
 import { HumanDiseaseVisual } from './HumanDiseaseVisuals'
 import { PlantDiseaseVisual } from './PlantDiseaseVisuals'
+import { RespirationVisual } from './RespirationVisuals'
+import { NervousVisual } from './NervousVisuals'
+import { HormoneVisual } from './HormoneVisuals'
+import { InheritanceVisual } from './InheritanceVisuals'
+import { EvolutionVisual } from './EvolutionVisuals'
+import { EcologyVisual } from './EcologyVisuals'
+import { EarthVisual } from './EarthVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -150,6 +157,13 @@ function SpecialisedCell({ focus, assessment }: { focus: string; assessment: boo
 }
 
 export function CellBiologyVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
+  if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('inherit-')) return <InheritanceVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('evolve-')) return <EvolutionVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('eco-')) return <EcologyVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('earth-')) return <EarthVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('plant-')) return <PlantOrganisationVisual focus={focus} assessment={assessment} />
   if (/^(?:disease-(?:tmv|blackspot|malaria)-|plantdisease-chain-(?:tmv|growth|blackspot)$)/.test(focus)) return <PlantDiseaseVisual focus={focus} />
   if (/^disease-(?:salmonella|gonorrhoea|measles|hiv)-/.test(focus)) return <HumanDiseaseVisual focus={focus} />

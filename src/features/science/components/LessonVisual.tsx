@@ -8,7 +8,7 @@ import { CellBiologyVisual } from './CellBiologyVisuals'
 
 /** The picture for a question or plain teaching screen, if it has one. */
 export function LessonVisual({ state, feedbackVisible }: { state: ScienceState; feedbackVisible: boolean }) {
-  if (/^B(?:[4-9]|1\d|2[0-6])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
+  if (/^B(?:[4-9]|[1-4]\d|5[0-2])-/.test(state.id) && state.visual) return <CellBiologyVisual focus={state.visual.id} assessment={!feedbackVisible} />
   if (state.id === 'B3-01') return <PracticalVisual focus="onion" />
   if (state.id === 'B3-17') return <PracticalVisual focus="drawing-choice" />
   if (state.id === 'B2-01') return <MicroscopyVisual focus="light" />
