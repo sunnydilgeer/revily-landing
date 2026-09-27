@@ -1,4 +1,4 @@
-import { useId, useRef, type ReactNode } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 export const anatomy = {
   ink: '#304659', muted: '#657a89', red: '#c64c59', blue: '#357eae',
@@ -30,22 +30,90 @@ function Drawing({ description, height = 420, children }: FigureProps) {
   </svg>
 }
 
+const ZOOMS = [1, 1.5, 2, 3, 4]
+
+/**
+ * The enlarged diagram's own zoom, so a pinch never zooms the page behind it: buttons step through
+ * ZOOMS, a two-finger pinch sets any level in between, and the drawing pans by scrolling.
+ * The zoom keeps the middle of the view where it was.
+ */
+function useDiagramZoom(scroller: React.RefObject<HTMLDivElement | null>) {
+  const [zoom, setZoom] = useState(1)
+  const previous = useRef(1)
+  useLayoutEffect(() => {
+    const view = scroller.current, ratio = zoom / previous.current
+    previous.current = zoom
+    if (!view || ratio === 1) return
+    view.scrollLeft = (view.scrollLeft + view.clientWidth / 2) * ratio - view.clientWidth / 2
+    view.scrollTop = (view.scrollTop + view.clientHeight / 2) * ratio - view.clientHeight / 2
+  }, [zoom, scroller])
+  useEffect(() => {
+    const view = scroller.current
+    if (!view) return
+    let start: { distance: number; zoom: number } | null = null
+    const distance = (touches: TouchList) => Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY)
+    const begin = (event: TouchEvent) => { if (event.touches.length === 2) start = { distance: distance(event.touches), zoom: previous.current } }
+    const move = (event: TouchEvent) => {
+      if (!start || event.touches.length !== 2) return
+      event.preventDefault()
+      setZoom(Math.min(4, Math.max(1, start.zoom * distance(event.touches) / start.distance)))
+    }
+    const end = (event: TouchEvent) => { if (event.touches.length < 2) start = null }
+    view.addEventListener('touchstart', begin, { passive: true })
+    view.addEventListener('touchmove', move, { passive: false })
+    view.addEventListener('touchend', end)
+    return () => { view.removeEventListener('touchstart', begin); view.removeEventListener('touchmove', move); view.removeEventListener('touchend', end) }
+  }, [scroller])
+  const step = (direction: 1 | -1) => setZoom(current => direction > 0 ? ZOOMS.find(level => level > current + 0.01) ?? 4 : [...ZOOMS].reverse().find(level => level < current - 0.01) ?? 1)
+  return { zoom, zoomIn: () => step(1), zoomOut: () => step(-1), fit: () => setZoom(1) }
+}
+
 /** One SVG instance per view: useId prevents marker/gradient collisions in the zoom dialog. */
 export function AnatomyFigure(props: FigureProps) {
   const dialog = useRef<HTMLDialogElement>(null)
+  const scroller = useRef<HTMLDivElement>(null)
   const heading = useId()
+  const { zoom, zoomIn, zoomOut, fit } = useDiagramZoom(scroller)
+  const pageScroll = useRef(0)
   const legend = props.labels && <ol className="anatomy-key">{props.labels.map(label => <li key={label.mark} className={label.active ? 'is-active' : undefined}>
     <span className="anatomy-key__mark">{label.mark}</span><div><strong>{label.name}</strong><span>{label.detail}</span></div>
   </li>)}</ol>
+
+  // While the diagram is enlarged the page behind it stays put; closing puts it back exactly as it was, at normal size.
+  const open = () => {
+    pageScroll.current = window.scrollY
+    document.documentElement.classList.add('has-diagram-open')
+    fit()
+    dialog.current?.showModal()
+  }
+  const closed = () => {
+    document.documentElement.classList.remove('has-diagram-open')
+    fit()
+    // The browser hands focus back to "Enlarge diagram" as the dialog closes and may scroll to it; put the page back after that.
+    const top = pageScroll.current
+    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top, behavior: 'instant' })))
+  }
+  useEffect(() => () => document.documentElement.classList.remove('has-diagram-open'), [])
+
   return <figure className="science-anatomy">
-    <figcaption className="anatomy-toolbar"><span>{props.title}</span><button type="button" onClick={() => dialog.current?.showModal()} aria-haspopup="dialog">Enlarge diagram</button></figcaption>
+    <figcaption className="anatomy-toolbar"><span>{props.title}</span><button type="button" onClick={open} aria-haspopup="dialog">Enlarge diagram</button></figcaption>
     <Drawing {...props}/>
     {legend}
     <p className="anatomy-note">{props.note}</p>
-    <dialog ref={dialog} className="anatomy-dialog" aria-labelledby={heading} onClick={event => { if (event.target === event.currentTarget) dialog.current?.close() }}>
-      <div className="anatomy-dialog__header"><h2 id={heading}>{props.title}</h2><button type="button" autoFocus onClick={() => dialog.current?.close()}>Close diagram</button></div>
-      <p className="anatomy-dialog__hint">Scroll across the enlarged drawing on a small screen.{props.labels && ' Labels are also listed below.'}</p>
-      <div className="anatomy-dialog__scroll" tabIndex={0} role="region" aria-label="Enlarged diagram, scroll horizontally"><Drawing {...props}/></div>
+    <dialog ref={dialog} className="anatomy-dialog" aria-labelledby={heading} onClose={closed} onClick={event => { if (event.target === event.currentTarget) dialog.current?.close() }}>
+      <div className="anatomy-dialog__header">
+        <h2 id={heading}>{props.title}</h2>
+        <div className="anatomy-dialog__zoom" role="group" aria-label="Zoom">
+          <button type="button" onClick={zoomOut} disabled={zoom <= 1} aria-label="Zoom out">−</button>
+          <button type="button" onClick={fit} disabled={zoom === 1} aria-label="Fit to screen">{Math.round(zoom * 100)}%</button>
+          <button type="button" onClick={zoomIn} disabled={zoom >= 4} aria-label="Zoom in">+</button>
+        </div>
+        <button type="button" autoFocus onClick={() => dialog.current?.close()}>Close</button>
+      </div>
+      <p className="anatomy-dialog__hint">Pinch or use + and − to zoom, then drag to move around.{props.labels && ' Labels are also listed below.'}</p>
+      <div ref={scroller} className="anatomy-dialog__scroll" tabIndex={0} role="region" aria-label={`Enlarged diagram at ${Math.round(zoom * 100)}%`}>
+        <div className="anatomy-dialog__canvas" style={{ width: `${zoom * 100}%` }}><Drawing {...props}/></div>
+      </div>
       {legend}<p className="anatomy-note">{props.note}</p>
     </dialog>
   </figure>

@@ -99,6 +99,20 @@
 .rv-checkbar--saved { border-top-color: var(--rv-accent-ink); background: var(--rv-accent-tint); }
 .rv-checkbar--saved .rv-checkbar__icon { background: var(--rv-accent-ink); }
 .rv-checkbar--saved .rv-checkbar__title { color: var(--rv-accent-ink); }
+/* A result (right, not quite, saved) floats as a rounded panel just above the screen edge, clear of the card above it. */
+.rv-checkbar--correct, .rv-checkbar--incorrect, .rv-checkbar--saved {
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)); margin-top: 20px;
+  padding: 16px; border: 2px solid; border-radius: var(--rv-radius-lg, 22px);
+  box-shadow: 0 10px 30px rgb(15 21 48 / .14);
+}
+.rv-checkbar--correct { border-color: var(--rv-good); }
+.rv-checkbar--incorrect { border-color: var(--rv-redpen); }
+.rv-checkbar--saved { border-color: var(--rv-accent-ink); }
+.rv-checkbar--compact { padding-block: 10px; }
+.rv-checkbar--compact .rv-checkbar__icon { width: 34px; height: 34px; font-size: 1.1rem; }
+.rv-checkbar--compact .rv-checkbar__status { align-items: center; }
+.rv-checkbar--compact .rv-checkbar__actions { flex-wrap: nowrap; }
+.rv-checkbar--compact .rv-checkbar__actions .rv-btn { flex: 1 1 0; min-width: 0; min-height: 48px; padding-inline: 14px; font-size: 1rem; }
 @media (max-width: 560px) {
   .rv-checkbar__actions { width: 100%; margin-left: 0; }
   .rv-checkbar__actions .rv-btn { flex: 1 1 auto; }

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/lexend";
 import "@fontsource/caveat/700.css";
@@ -11,6 +11,14 @@ import { AppHeader } from "@/components/AppHeader";
 export const metadata: Metadata = {
   title: "Revily",
   description: "Level up your maths",
+};
+
+// "cover" lets the page reach under the iPhone home indicator, so env(safe-area-inset-bottom) is real
+// and the bottom navigation can pad itself instead of leaving a gap below it.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

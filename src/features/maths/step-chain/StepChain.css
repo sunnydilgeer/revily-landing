@@ -19,6 +19,7 @@
 .sc-cell--wide { grid-column: 1 / -1; justify-content: center; }
 /* A whole centred line may be long (four products, a worded step): let it wrap between terms on a phone. */
 .sc:not(.sc--columns) .sc-cell--wide { display: block; white-space: normal; text-align: center; padding-block: .3em; }
+.sc-cell--text { font: 500 .68em/1.45 var(--rv-font-body); color: var(--rv-ink); }
 .sc-cell .katex { font-size: 1em; }
 
 /* The operation sits between the lines, like a note in the margin of an exercise book. Tap it to replay the step. */
