@@ -6,8 +6,13 @@
  *   Learnt       finished the section
  *   Secure       finished it with at least 80% of its questions right first time
  *                (a section with no questions of its own is secure once finished)
- *   Exam-ready   secure, and at least two thirds of its revision cards still remembered after
- *                1- and 3-day gaps (review box 3 or higher)
+ *   Exam-ready   secure, AND past-paper-style questions on it answered in Practice (at least two, two
+ *                thirds right first time), AND at least two thirds of its revision cards still remembered
+ *                after 1- and 3-day gaps (review box 3 or higher), where the section has cards
+ *
+ * Exam-ready is the gold level, so it needs exam-style evidence: learning and remembering a skill is not the
+ * same as answering an exam question on it. Practice is not built yet, so nobody reaches gold until it is; it
+ * will record its results in PRACTICE_KEY, keyed like the checklist ("8:adding-fractions").
  *
  * The student's own red / amber / green rating is kept beside it, and a mismatch between the two is flagged.
  */
@@ -26,6 +31,13 @@ export const levelOrder: Level[] = ['notStarted', 'learning', 'learnt', 'secure'
 export const SECURE_SHARE = 0.8
 export const REMEMBERED_BOX = 3
 export const REMEMBERED_SHARE = 2 / 3
+export const PRACTICE_MIN = 2
+export const PRACTICE_SHARE = 2 / 3
+
+/** Where Practice will save past-paper-style results, per checklist statement, and the event it sends. */
+export const PRACTICE_KEY = 'revily:maths-practice:v1'
+export const PRACTICE_EVENT = 'revily:maths-practice'
+export type PracticeRecord = { attempted: number; firstTry: number; on: string }
 
 export type SectionEvidence = {
   started: boolean
@@ -33,6 +45,8 @@ export type SectionEvidence = {
   score?: SectionScore
   /** Revision-card boxes for this section's cards (0 for a card never reviewed). */
   cardBoxes: number[]
+  /** Past-paper-style questions answered on it in Practice. */
+  practice?: PracticeRecord
 }
 
 export function levelFor(evidence: SectionEvidence): Level {
@@ -41,9 +55,10 @@ export function levelFor(evidence: SectionEvidence): Level {
   // Finished before scores were recorded: the section is learnt, but there is no accuracy evidence yet.
   const secure = score ? score.questions === 0 || score.firstTry / score.questions >= SECURE_SHARE : false
   if (!secure) return 'learnt'
-  const cards = evidence.cardBoxes
-  const remembered = cards.filter(box => box >= REMEMBERED_BOX).length
-  return cards.length && remembered / cards.length >= REMEMBERED_SHARE ? 'examReady' : 'secure'
+  const { practice, cardBoxes: cards } = evidence
+  const practised = Boolean(practice && practice.attempted >= PRACTICE_MIN && practice.firstTry / practice.attempted >= PRACTICE_SHARE)
+  const remembered = cards.length === 0 || cards.filter(box => box >= REMEMBERED_BOX).length / cards.length >= REMEMBERED_SHARE
+  return practised && remembered ? 'examReady' : 'secure'
 }
 
 /** A sentence when the student's own rating and the evidence disagree, else null. */
@@ -66,6 +81,7 @@ export function evidenceFor(
   snapshot: LessonProgressSnapshot | undefined,
   cardIds: string[],
   cards: CardStates,
+  practice?: PracticeRecord,
 ): SectionEvidence {
   const started = Boolean(snapshot && (section.done || snapshot.furthestStateIndex >= section.startIndex || snapshot.currentSectionId === section.id))
   return {
@@ -73,6 +89,7 @@ export function evidenceFor(
     finished: section.done,
     score: snapshot?.sectionScores?.[section.id],
     cardBoxes: cardIds.map(id => cards[id]?.box ?? 0),
+    practice,
   }
 }
 

@@ -1,7 +1,8 @@
 'use client'
 
 /*
- * Each "I can…" statement's level, worked out from this device's lesson progress and revision cards, plus the
+ * Each "I can…" statement's level, worked out from this device's lesson progress, revision cards and Practice
+ * results, plus the
  * student's own confidence ratings. Shared by the exam path and the app header's marks pill, and kept live
  * as progress, cards or another tab change.
  */
@@ -12,10 +13,14 @@ import { mathsLessons } from '../courseRegistry'
 import { MATHS_PROGRESS_EVENT, readMathsProgress, type LessonProgressMap } from '../lessonProgress'
 import { rungStatus } from '../rungProgress'
 import { scoreTopics } from './paperMap'
-import { evidenceFor, levelFor, mismatch, type SelfRating } from './readiness'
+import { evidenceFor, levelFor, mismatch, PRACTICE_EVENT, PRACTICE_KEY, type PracticeRecord, type SelfRating } from './readiness'
 import { canStatements } from './statements'
 
 const RATINGS_KEY = 'revily:maths-self-rating:v1'
+
+function readPractice(): Record<string, PracticeRecord> {
+  try { return JSON.parse(window.localStorage.getItem(PRACTICE_KEY) ?? '{}') ?? {} } catch { return {} }
+}
 
 function readRatings(): Record<string, SelfRating> {
   try { return JSON.parse(window.localStorage.getItem(RATINGS_KEY) ?? '{}') ?? {} } catch { return {} }
@@ -25,13 +30,15 @@ export function useReadiness() {
   const [progress, setProgress] = useState<LessonProgressMap>({})
   const [cards, setCards] = useState<CardStates>({})
   const [ratings, setRatings] = useState<Record<string, SelfRating>>({})
+  const [practice, setPractice] = useState<Record<string, PracticeRecord>>({})
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    const refresh = () => { setProgress(readMathsProgress()); setCards(readCardStates(CARDS_KEY)); setRatings(readRatings()); setLoaded(true) }
+    const refresh = () => { setProgress(readMathsProgress()); setCards(readCardStates(CARDS_KEY)); setRatings(readRatings()); setPractice(readPractice()); setLoaded(true) }
     refresh()
-    for (const event of [MATHS_PROGRESS_EVENT, CARDS_EVENT, 'storage']) window.addEventListener(event, refresh)
-    return () => { for (const event of [MATHS_PROGRESS_EVENT, CARDS_EVENT, 'storage']) window.removeEventListener(event, refresh) }
+    const events = [MATHS_PROGRESS_EVENT, CARDS_EVENT, PRACTICE_EVENT, 'storage']
+    for (const event of events) window.addEventListener(event, refresh)
+    return () => { for (const event of events) window.removeEventListener(event, refresh) }
   }, [])
 
   function rate(key: string, rating: SelfRating) {
@@ -56,13 +63,13 @@ export function useReadiness() {
     const rows = status.flatMap(section => {
       const key = `${entry.number}:${section.id}`, statement = canStatements[key]
       if (!statement) return []
-      const evidence = evidenceFor(section, snapshot, cardIds.get(key) ?? [], cards)
+      const evidence = evidenceFor(section, snapshot, cardIds.get(key) ?? [], cards, practice[key])
       const level = levelFor(evidence)
       const href = `/preview?lesson=${entry.number}&section=${encodeURIComponent(section.id)}`
       return [{ key, statement, level, href, note: mismatch(ratings[key], level, evidence.score) }]
     })
     return { entry, rows }
-  }), [progress, cards, ratings, cardIds])
+  }), [progress, cards, ratings, practice, cardIds])
   const rows = useMemo(() => lessons.flatMap(lesson => lesson.rows), [lessons])
 
   return { lessons, rows, ratings, rate, loaded }

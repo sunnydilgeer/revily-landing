@@ -24,9 +24,9 @@ const MATHS: Copy = {
     unlock: 'Not built yet. Three finished lessons will unlock the first mixed paper.',
   },
   lab: {
-    title: 'Lab',
+    title: 'Arcade',
     lines: ['Games where the maths is the cheat code. Each one trains a real GCSE skill.'],
-    unlock: 'Open the Lab to play.',
+    unlock: 'Open the Arcade to play.',
   },
 }
 
@@ -48,10 +48,10 @@ const SCIENCE: Copy = {
     unlock: 'Not built yet.',
   },
   lab: {
-    title: 'Lab',
+    title: 'Arcade',
     lines: [
-      'Science experiments you can run on screen: change one thing, watch what happens, explain why.',
-      'The Maths labs are open now. Switch to Maths to play them.',
+      'Science games you can play on screen: change one thing, watch what happens, explain why.',
+      'The Maths Arcade is open now. Switch to Maths to play it.',
     ],
     unlock: 'Not built yet.',
   },

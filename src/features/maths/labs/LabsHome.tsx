@@ -6,12 +6,12 @@ import { readBests, type Best } from './kit/Lab'
 import './LabsHome.css'
 
 const HOW = [
-  { emoji: '🎮', title: 'Play', line: 'Every lab is a game: heists, storms, potions, robots, pool and packs.' },
+  { emoji: '🎮', title: 'Play', line: 'Heists, storms, potions, robots, pool and packs: pick a game.' },
   { emoji: '🧠', title: 'Learn the move', line: 'Every answer shows you the working, step by step.' },
   { emoji: '📝', title: 'Bank exam marks', line: 'The same move answers a real GCSE question.' },
 ]
 
-/** The Lab section: games where the maths is the cheat code, each tied to the exam question it trains. */
+/** The Arcade (the 'lab' section in code and URLs): games where the maths is the cheat code, each tied to the exam question it trains. */
 export default function LabsHome() {
   const [bests, setBests] = useState<Record<string, Best>>({})
   useEffect(() => setBests(readBests()), [])
@@ -20,17 +20,16 @@ export default function LabsHome() {
   return <div className="labs">
     <header className="labs-hero">
       <div className="labs-hero__copy">
-        <p className="labs-kicker">Lab · experiments</p>
         <h1>Games where the maths is the cheat code</h1>
         <p>Beat each game and you’ve practised a real GCSE Maths skill without noticing.</p>
       </div>
-      <div className="labs-hero__score" aria-label={`${played} of ${labCatalog.length} labs cleared`}>
+      <div className="labs-hero__score" aria-label={`${played} of ${labCatalog.length} games cleared`}>
         <strong>{played}/{labCatalog.length}</strong>
-        <span>labs cleared</span>
+        <span>games cleared</span>
       </div>
     </header>
 
-    <ol className="labs-how" aria-label="How the labs work">
+    <ol className="labs-how" aria-label="How the Arcade works">
       {HOW.map((step, index) => <li key={step.title}>
         <span className="labs-how__emoji" aria-hidden="true">{step.emoji}</span>
         <div>

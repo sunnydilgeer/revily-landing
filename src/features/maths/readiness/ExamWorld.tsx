@@ -264,7 +264,7 @@ function TopicPanel({ score, state, byKey, next }: { score: TopicScore; state: N
       </div>}
 
     {labs.length > 0 && <>
-      <p className="tp-subhead">Train it in the Lab now</p>
+      <p className="tp-subhead">Play it in the Arcade</p>
       <ul className="tp-labs">
         {labs.map(lab => <li key={lab.id}><a href={lab.href}><span className="tp-labs__emoji" aria-hidden="true">{lab.emoji}</span><span>{lab.title}<small>{lab.skill}</small></span><ArrowIcon size={16} /></a></li>)}
       </ul>

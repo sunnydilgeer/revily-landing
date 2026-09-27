@@ -30,7 +30,7 @@ assert.ok(today.includes('minutesBySubject'), 'Today must show the split between
 assert.ok(overview.includes('Coming later'), 'Unbuilt chapters must be labelled honestly')
 
 // App shell: the four sections, sidebar on desktop and bottom nav on phones
-for (const label of ['Curriculum', 'Revision cards', 'Practice', 'Lab']) assert.ok(shell.includes(`label: '${label}'`), `${label} must be in the main navigation`)
+for (const label of ['Curriculum', 'Revision cards', 'Practice', 'Arcade']) assert.ok(shell.includes(`label: '${label}'`), `${label} must be in the main navigation`)
 assert.ok(shell.includes("nav('side')") && shell.includes("nav('bottom')"), 'Navigation must render as a sidebar and a bottom bar')
 assert.ok(shell.includes("aria-current={active === section.id ? 'page' : undefined}"))
 assert.ok(app.includes("useStudyTimer(view === 'cards' || (subject === 'maths' && view === 'lesson'), subject)"), 'Study minutes must only count while a lesson or revision cards (either subject) are open')
