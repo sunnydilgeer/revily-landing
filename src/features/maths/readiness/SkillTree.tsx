@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import BossCharacter from './BossCharacter'
-import { CrownIcon, LockIcon, StarIcon, TopicIcon } from './icons'
+import { CrownIcon, LockIcon, StarIcon, TopicIcon } from '../../../ui/icons'
 import { branchLeaves, branchTiers, tileLevel, type AreaId, type TopicScore } from './paperMap'
 import { levelLabels, levelOrder, type Level } from './readiness'
 import './SkillTree.css'
@@ -33,6 +33,8 @@ export function nodeState(score: TopicScore, byId: Map<string, TopicScore>): Nod
 
 const stateLabel = (state: NodeState) => state === 'soon' ? 'not in Revily yet' : state === 'dormant' ? 'not started' : state === 'available' ? 'ready to start' : levelLabels[state].toLowerCase()
 
+const formatGain = (marks: number) => String(Math.max(0.1, Math.round(marks * 10) / 10))
+
 /** A deterministic scatter of stars for a branch's sky. */
 function starsFor(seed: number, width: number, height: number) {
   let t = seed
@@ -43,7 +45,8 @@ function starsFor(seed: number, width: number, height: number) {
 type Placed = { id: string; x: number; y: number; size: number }
 
 /** One branch of the exam as a skill tree in the night sky, lit up by what the student has learnt. */
-export type Arrival = 'waiting' | 'igniting'
+/** A topic that moved on since the last visit: waiting its turn, then lighting up with the marks it gained. */
+export type Arrival = { phase: 'waiting' | 'igniting'; gain: number }
 
 export default function SkillTree({ area, scores, selected, onSelect, bossOpen, bossBeaten, arrival }: {
   area: AreaId
@@ -124,7 +127,7 @@ export default function SkillTree({ area, scores, selected, onSelect, bossOpen, 
           const mid = (y1 + y2) / 2
           const d = `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`
           // A path out of a topic that just levelled up draws in once the topic has lit up.
-          const coming = arrival[from.id]
+          const coming = arrival[from.id]?.phase
           return <g key={`${from.id}-${to.id}`}>
             <path className={`st-edge${soon ? ' is-soon' : ''}`} d={d} />
             {lit && <path className={`st-edge-lit${coming === 'waiting' ? ' is-waiting' : coming === 'igniting' ? ' is-drawing' : ''}`} d={d} pathLength={1} />}
@@ -141,7 +144,7 @@ export default function SkillTree({ area, scores, selected, onSelect, bossOpen, 
           key={topic.id}
           id={`node-${topic.id}`}
           type="button"
-          className={`sn sn--${kind} sn--${state}${selected === topic.id ? ' is-selected' : ''}${arrival[topic.id] === 'waiting' ? ' is-pending' : arrival[topic.id] === 'igniting' ? ' is-igniting' : ''}`}
+          className={`sn sn--${kind} sn--${state}${selected === topic.id ? ' is-selected' : ''}${arrival[topic.id]?.phase === 'waiting' ? ' is-pending' : arrival[topic.id]?.phase === 'igniting' ? ' is-igniting' : ''}`}
           style={{ left: at.x, top: at.y, ['--size' as string]: `${at.size}px` }}
           aria-label={`${topic.title}: ${stateLabel(state)}, about ${Math.max(1, Math.round(score.marks))} marks a paper`}
           onClick={() => onSelect(topic.id)}
@@ -151,7 +154,8 @@ export default function SkillTree({ area, scores, selected, onSelect, bossOpen, 
             <TopicIcon id={topic.id} size={kind === 'keystone' ? 34 : kind === 'standard' ? 27 : 22} className="sn-icon" />
             {state === 'soon' && <span className="sn-badge sn-badge--lock"><LockIcon size={11} strokeWidth={2.6} /></span>}
             {state === 'examReady' && <span className="sn-badge sn-badge--crown"><CrownIcon size={12} strokeWidth={2.4} /></span>}
-            {arrival[topic.id] === 'igniting' && <span className="sn-burst" aria-hidden="true" />}
+            {arrival[topic.id]?.phase === 'igniting' && <span className="sn-burst" aria-hidden="true" />}
+            {arrival[topic.id]?.phase === 'igniting' && <span className="sn-gain" aria-hidden="true">+{formatGain(arrival[topic.id].gain)}<StarIcon size={11} /></span>}
           </span>
           <span className="sn-label">{topic.short ?? topic.title}</span>
           <span className="sn-marks"><StarIcon size={10} />{Math.max(1, Math.round(score.marks))}</span>

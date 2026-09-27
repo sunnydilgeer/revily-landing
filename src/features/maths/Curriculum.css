@@ -56,16 +56,23 @@
 .cur-chapter__num.is-locked { background: var(--rv-grid); color: var(--rv-muted); }
 
 .cur-path { position: relative; margin: 0; padding: 0 0 0 8px; list-style: none; display: grid; gap: 6px; }
-.cur-path::before { content: ''; position: absolute; left: 25px; top: 18px; bottom: 18px; width: 5px; border-radius: 3px; background: var(--rv-line); }
-.cur-lesson { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 14px 12px 0; border-radius: var(--rv-radius-md); }
+.cur-path::before { content: ''; position: absolute; left: 27.5px; top: 22px; bottom: 22px; width: 5px; border-radius: 3px; background: var(--rv-line); }
+.cur-lesson { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 14px 12px 0; border-radius: var(--rv-radius-md); }
 .cur-lesson.is-next { background: var(--rv-accent-tint); }
+/* The node carries the lesson's topic icon, the same one as on the exam path, with its number in a tab. */
 .cur-lesson__node {
-  position: relative; z-index: 1; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%;
-  border: 3px solid var(--rv-line); background: var(--rv-surface); color: var(--rv-muted); font-weight: 700; font-size: .9rem;
+  position: relative; z-index: 1; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
+  border: 3px solid var(--rv-line); background: var(--rv-surface); color: var(--rv-muted);
 }
-.cur-lesson.is-done .cur-lesson__node { border-color: var(--rv-good); background: var(--rv-good); color: #fff; }
+.cur-lesson__num {
+  position: absolute; right: -7px; bottom: -5px; min-width: 20px; height: 20px; padding: 0 5px; display: grid; place-items: center;
+  border-radius: 10px; font: 800 .68rem/1 var(--rv-font-body); color: var(--rv-ink-2); background: var(--rv-surface); box-shadow: 0 0 0 2px var(--rv-line);
+}
+.cur-lesson.is-done .cur-lesson__node { border-color: var(--rv-level-secure); background: var(--rv-emerald); color: #fff; }
+.cur-lesson.is-done .cur-lesson__num { color: #fff; background: var(--rv-level-secure); box-shadow: 0 0 0 2px var(--rv-surface); }
 .cur-lesson.is-progress .cur-lesson__node { border-color: var(--rv-ink); color: var(--rv-ink); }
 .cur-lesson.is-next .cur-lesson__node { border-color: var(--rv-ink); background: var(--rv-accent); color: var(--rv-ink); }
+.cur-lesson.is-next .cur-lesson__num, .cur-lesson.is-progress .cur-lesson__num { color: var(--rv-surface); background: var(--rv-ink); box-shadow: 0 0 0 2px var(--rv-surface); }
 .cur-lesson__body h3 { font-size: 1.1rem; font-weight: 700; }
 .cur-lesson.is-todo .cur-lesson__body h3 { color: var(--rv-ink-2); }
 .cur-lesson__body p { margin: 2px 0 8px; color: var(--rv-muted); font-size: .9rem; line-height: 1.45; }
@@ -88,9 +95,9 @@
   .cur-next { padding: 20px; }
   .cur-next__ladder { display: none; }
   .cur-next__go { width: 100%; }
-  .cur-lesson { grid-template-columns: 36px minmax(0, 1fr); }
+  .cur-lesson { grid-template-columns: 44px minmax(0, 1fr); }
   .cur-lesson > .rv-btn { grid-column: 2; justify-self: start; min-height: 44px; }
-  .cur-path::before { left: 25px; }
+  .cur-path::before { left: 27.5px; }
 }
 
 /* Coming soon (Revision cards, Practice) */

@@ -71,6 +71,14 @@
 .rv-btn--bad { color: #fff; background: var(--rv-redpen); border-color: #a51f1f; box-shadow: 0 3px 0 #a51f1f; }
 .rv-btn--ghost { color: var(--rv-ink); background: transparent; }
 .rv-btn--ghost:hover { background: var(--rv-grid); }
+.rv-btn--alarm { color: var(--rv-ink); background: var(--rv-alarm); border-color: var(--rv-ink); box-shadow: 0 3px 0 var(--rv-ink); }
+.rv-btn--alarm:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--rv-ink); }
+/* On night surfaces (the exam path) the ink edge would vanish, so the edge is the button's own deeper shade. */
+.rv-btn--night.rv-btn--primary { border-color: var(--rv-yellow-deep); box-shadow: 0 4px 0 var(--rv-yellow-deep); }
+.rv-btn--night.rv-btn--primary:active { box-shadow: 0 1px 0 var(--rv-yellow-deep); }
+.rv-btn--night.rv-btn--alarm { border-color: var(--rv-alarm-deep); box-shadow: 0 4px 0 var(--rv-alarm-deep); }
+.rv-btn--night.rv-btn--alarm:active { box-shadow: 0 1px 0 var(--rv-alarm-deep); }
+.rv-btn--night:focus-visible { box-shadow: 0 0 0 3px var(--rv-night), 0 0 0 6px var(--rv-biro-light); }
 .rv-btn:disabled { color: var(--rv-muted); background: var(--rv-grid); border-color: var(--rv-line); box-shadow: none; cursor: not-allowed; transform: none; }
 .rv-btn:focus-visible { outline: none; box-shadow: var(--rv-focus); }
 .rv-icon-btn { width: 48px; min-width: 48px; padding: 0; }
@@ -132,3 +140,12 @@
   .rv-line, .rv-answer--solved .rv-answer__box { animation: none; }
   .rv-btn { transition: none; }
 }
+
+/* ---------- Mode transition (modeTransition.ts) ---------- */
+.rv-veil {
+  position: fixed; inset: 0; z-index: 10000; pointer-events: none;
+  clip-path: circle(0 at var(--x) var(--y)); transition: clip-path .5s cubic-bezier(.65, 0, .35, 1);
+}
+.rv-veil.is-open { clip-path: circle(150vmax at var(--x) var(--y)); }
+.rv-veil--paper { background-color: var(--rv-paper); background-image: var(--rv-paper-grid); background-size: 28px 28px; }
+.rv-veil--night { background: radial-gradient(120% 60% at 50% -10%, #1d2863 0%, var(--rv-night) 60%); }

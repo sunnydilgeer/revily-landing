@@ -9,10 +9,10 @@
   font: 600 .78rem/1.2 var(--rv-font-body); white-space: nowrap;
   color: var(--rv-muted); background: var(--rv-grid);
 }
-.xc-level--learning { color: var(--rv-biro); background: var(--rv-biro-tint); }
-.xc-level--learnt { color: #7a5519; background: var(--rv-yellow-tint); }
-.xc-level--secure { color: var(--rv-good-ink); background: var(--rv-good-tint); }
-.xc-level--examReady { color: #fff; background: var(--rv-good); }
+.xc-level--learning { color: var(--rv-level-learning); background: var(--rv-level-learning-tint); }
+.xc-level--learnt { color: var(--rv-level-learnt); background: var(--rv-level-learnt-tint); }
+.xc-level--secure { color: var(--rv-good-ink); background: var(--rv-level-secure-tint); }
+.xc-level--examReady { color: var(--rv-ink); background: var(--rv-gold); box-shadow: 0 2px 8px var(--rv-level-ready-glow); }
 
 .xc-key { padding: 10px 14px; border: 2px solid var(--rv-line); border-radius: 14px; background: var(--rv-surface); font-size: .92rem; }
 .xc-key summary { cursor: pointer; font-weight: 600; }

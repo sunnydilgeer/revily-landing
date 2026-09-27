@@ -175,3 +175,14 @@ export function branchLeaves(area: AreaId) {
   const taught = paperTopics.filter(topic => topic.area === area && topic.statements.length > 0)
   return taught.filter(topic => !taught.some(other => other.requires?.includes(topic.id)))
 }
+
+/** The exam topic a lesson mostly belongs to (the one holding most of its statements), for its icon. */
+export function topicForLesson(lesson: number) {
+  const prefix = `${lesson}:`
+  let best: PaperTopic | undefined, most = 0
+  for (const topic of paperTopics) {
+    const count = topic.statements.filter(key => key.startsWith(prefix)).length
+    if (count > most) { best = topic; most = count }
+  }
+  return best
+}

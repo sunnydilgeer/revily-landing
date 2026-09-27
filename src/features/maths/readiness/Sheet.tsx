@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { CloseIcon } from './icons'
+import { CloseIcon } from '../../../ui/icons'
 import './Sheet.css'
 
 /**

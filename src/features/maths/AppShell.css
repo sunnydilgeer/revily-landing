@@ -54,6 +54,22 @@
 .shell-streak__bolt.is-lit { color: var(--rv-ink); background: var(--rv-yellow); }
 .shell-side__note { margin: 0; padding: 0 6px; color: var(--rv-on-night-muted); font-size: .75rem; }
 
+/* ---------- Exam path: a piece of the night sky in the header ---------- */
+.path-card {
+  display: grid; gap: 6px; padding: 14px; border-radius: 16px; text-decoration: none; color: var(--rv-on-night);
+  background: radial-gradient(120% 120% at 0% 0%, #2b3680, var(--rv-night-2) 70%); border: 1px solid rgb(255 211 92 / 30%);
+  box-shadow: 0 0 20px rgb(255 211 92 / 10%);
+}
+.path-card:hover { border-color: var(--rv-yellow); }
+.path-card:focus-visible { outline: 3px solid var(--rv-accent); outline-offset: 2px; }
+.path-card__kicker { display: inline-flex; align-items: center; gap: 5px; font: 800 .66rem/1.2 var(--rv-font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--rv-yellow); }
+.path-card__marks { font-size: .85rem; color: var(--rv-on-night-muted); }
+.path-card__marks strong { font: 800 1.6rem/1 var(--rv-font-display); color: #fff; }
+.path-card__meter { height: 6px; border-radius: 99px; background: rgb(255 255 255 / 10%); overflow: hidden; }
+.path-card__meter span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #22c07e, var(--rv-yellow)); }
+.path-pill { display: none; }
+.path-pill svg, .path-card svg { flex: none; }
+
 /* ---------- Phone ---------- */
 .shell-top { display: none; }
 @media (max-width: 899px) {
@@ -68,6 +84,16 @@
     color: var(--rv-muted); background: var(--rv-grid); font-weight: 700; font-variant-numeric: tabular-nums;
   }
   .shell-top__streak.is-lit { color: var(--rv-ink); background: var(--rv-yellow); }
+  .path-pill {
+    display: inline-flex; align-items: center; gap: 3px; margin-left: auto; padding: 6px 11px; border-radius: 999px; text-decoration: none;
+    font-variant-numeric: tabular-nums; color: var(--rv-on-night-muted); background: radial-gradient(120% 140% at 0% 0%, #2b3680, var(--rv-night) 75%);
+    box-shadow: inset 0 0 0 1px rgb(255 211 92 / 35%);
+  }
+  .path-pill svg { color: var(--rv-yellow); }
+  .path-pill strong { font-weight: 800; color: #fff; }
+  .path-pill span { font-size: .8rem; font-weight: 700; }
+  .path-pill:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
+  .path-pill + .shell-top__streak { margin-left: -4px; }
   .shell-main { padding: 20px 16px 32px; }
   .shell-nav--bottom {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; justify-content: space-around; gap: 4px;
@@ -82,8 +108,13 @@
   .shell-nav--bottom .shell-nav__icon { width: 36px; height: 36px; border-radius: 10px; }
   .shell-nav--bottom .shell-nav__icon svg { width: 20px; height: 20px; }
 }
-@media (max-width: 380px) {
+/* The marks pill needs the room: the wordmark folds away on phones (the ladder mark stays). */
+@media (max-width: 460px) {
   .shell-top .rv-logo__word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media (max-width: 359px) {
+  .path-pill span { display: none; }
+  .path-pill, .shell-top__streak { padding-inline: 9px; }
 }
 @media (min-width: 900px) {
   .shell-nav--bottom { display: none; }

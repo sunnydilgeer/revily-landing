@@ -5,7 +5,8 @@ import { labCatalog } from '../labs/catalog'
 import BossCharacter from './BossCharacter'
 import BossFight from './BossFight'
 import { bosses, readBossRecords, type Boss } from './bosses'
-import { ArrowIcon, BackIcon, ChecklistIcon, CrownIcon, GridIcon, LockIcon, StarIcon, TopicIcon } from './icons'
+import { ArrowIcon, BackIcon, ChecklistIcon, CrownIcon, GridIcon, LockIcon, StarIcon, TopicIcon } from '../../../ui/icons'
+import { modeLink } from '../../../ui/modeTransition'
 import { MarksMap } from './PaperMap'
 import { areaTitles, biggestWin, GRADE_4_SHARE, PAPER_MARKS, scoreTopics, tileLevel, type AreaId, type TopicScore } from './paperMap'
 import { levelLabels, levelOrder, type Level } from './readiness'
@@ -19,8 +20,9 @@ const branchOrder: AreaId[] = ['number', 'algebra', 'geometry', 'ratio', 'probab
 const branchNames: Record<AreaId, string> = { number: 'Number', algebra: 'Algebra', geometry: 'Geometry', ratio: 'Ratio', probability: 'Probability', statistics: 'Statistics' }
 const LEARNT: Level[] = ['learnt', 'secure', 'examReady']
 
-const SEEN_KEY = 'revily:maths-tree-seen:v1'
-type Seen = { levels: Record<string, Level>; ready: number }
+const SEEN_KEY = 'revily:maths-tree-seen:v2'
+/** What the student last saw: each topic's share of its marks, and the marks in total. */
+type Seen = { shares: Record<string, number>; ready: number }
 function readSeen(): Seen | null {
   try { return JSON.parse(window.localStorage.getItem(SEEN_KEY) ?? 'null') } catch { return null }
 }
@@ -66,28 +68,39 @@ export default function ExamWorld({ rows, loaded, weeks, year, checklist }: {
     if (!loaded || arrived.current) return
     arrived.current = true
     const seen = readSeen()
-    const levels = Object.fromEntries(scores.filter(score => score.taught).map(score => [score.topic.id, tileLevel(score)]))
-    writeSeen({ levels, ready })
-    const improved = scores.filter(score => score.taught && score.topic.area === 'number'
-      && levelOrder.indexOf(levels[score.topic.id]) > levelOrder.indexOf(seen?.levels[score.topic.id] ?? 'notStarted'))
-    const from = Math.min(seen?.ready ?? 0, ready)
-    if (reducedMotion() || (!improved.length && from === ready)) { setShown(ready); return }
+    const shares = Object.fromEntries(scores.filter(score => score.taught).map(score => [score.topic.id, score.share]))
+    writeSeen({ shares, ready })
+    const from = new URLSearchParams(window.location.search).get('from')
+    const fromScore = from ? scores.find(score => score.topic.id === from) : undefined
+    if (fromScore) setArea(fromScore.topic.area)
+    const branch = fromScore?.topic.area ?? 'number'
+    // Any progress lights a topic up, not just a change of level; the topic just trained comes first.
+    const improved = scores
+      .filter(score => score.taught && score.topic.area === branch && score.share > (seen?.shares[score.topic.id] ?? 0) + 1e-9)
+      .sort((a, b) => Number(b.topic.id === from) - Number(a.topic.id === from))
+    const gains = Object.fromEntries(improved.map(score => [score.topic.id, (score.share - (seen?.shares[score.topic.id] ?? 0)) * score.marks]))
+    const start = Math.min(seen?.ready ?? 0, ready)
+    if (reducedMotion() || (!improved.length && start === ready)) {
+      setShown(ready)
+      if (fromScore) window.setTimeout(() => document.getElementById(`node-${fromScore.topic.id}`)?.scrollIntoView({ block: 'center' }), 50)
+      return
+    }
 
     const STEP = 700, START = 450
-    setArrival(Object.fromEntries(improved.map(score => [score.topic.id, 'waiting' as const])))
+    setArrival(Object.fromEntries(improved.map(score => [score.topic.id, { phase: 'waiting' as const, gain: gains[score.topic.id] }])))
     const timers: number[] = []
     improved.forEach((score, index) => {
       const at = START + index * STEP
       if (index === 0) timers.push(window.setTimeout(() => document.getElementById(`node-${score.topic.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), at - 300))
-      timers.push(window.setTimeout(() => setArrival(current => ({ ...current, [score.topic.id]: 'igniting' })), at))
-      timers.push(window.setTimeout(() => setArrival(current => { const next = { ...current }; delete next[score.topic.id]; return next }), at + 1400))
+      timers.push(window.setTimeout(() => setArrival(current => ({ ...current, [score.topic.id]: { phase: 'igniting', gain: gains[score.topic.id] } })), at))
+      timers.push(window.setTimeout(() => setArrival(current => { const next = { ...current }; delete next[score.topic.id]; return next }), at + 1700))
     })
     const duration = START + Math.max(1, improved.length) * STEP
     const began = performance.now()
     let frame = 0
     const tick = (now: number) => {
       const t = Math.min(1, (now - began) / duration)
-      setShown(from + (ready - from) * (1 - Math.pow(1 - t, 3)))
+      setShown(start + (ready - start) * (1 - Math.pow(1 - t, 3)))
       if (t < 1) frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
@@ -109,7 +122,7 @@ export default function ExamWorld({ rows, loaded, weeks, year, checklist }: {
   return <main className="ew">
     <header className="ew-hud">
       <div className="ew-hud__bar">
-        <a className="ew-icon" href="/preview" aria-label="Back to the curriculum"><BackIcon size={20} /></a>
+        <a className="ew-icon" href="/preview" onClick={modeLink('paper')} aria-label="Back to the curriculum"><BackIcon size={20} /></a>
         <p className="ew-hud__title">GCSE Maths · Foundation</p>
         <div className="ew-hud__actions">
           <button type="button" className="ew-icon" aria-label="Exam checklist" onClick={() => setSheet('checklist')}><ChecklistIcon size={20} /></button>
@@ -194,7 +207,7 @@ function Quest({ win, nextHref, bossOpen, bossBeaten, onBoss }: {
   }
   if (!win) return null
   const started = win.share > 0
-  return <a className="ew-quest" href={nextHref ?? '/preview'}>
+  return <a className="ew-quest" href={nextHref ?? '/preview'} onClick={modeLink('paper')}>
     <span className={`ew-quest__icon ew-quest__icon--${nodeKind(win.marks)}`}><TopicIcon id={win.topic.id} size={22} /></span>
     <span className="ew-quest__text">
       <span className="ew-quest__kicker">{started ? 'Keep going' : 'Next quest'} · +{whole(win.marks - win.ready)} <StarIcon size={10} /></span>
@@ -233,11 +246,11 @@ function TopicPanel({ score, state, byKey, next }: { score: TopicScore; state: N
           <div className="tp-progress__bar"><span style={{ width: `${score.share * 100}%` }} /></div>
           <p>Ready for about <strong>{Math.round(score.ready * 10) / 10}</strong> of {whole(score.marks)} marks</p>
         </div>
-        {cta && href && <a className="ew-cta" href={href}>{cta} <ArrowIcon size={18} /></a>}
+        {cta && href && <a className="rv-btn rv-btn--primary rv-btn--night rv-btn--lg rv-btn--block ew-cta" href={href} onClick={modeLink('paper')}>{cta} <ArrowIcon size={18} /></a>}
         <p className="tp-subhead">Skills · {statements.filter(row => row.level === 'secure' || row.level === 'examReady').length} of {statements.length} secure</p>
         <ul className="tp-skills">
           {statements.map(row => <li key={row.key}>
-            <a href={row.href}>
+            <a href={row.href} onClick={modeLink('paper')}>
               <span className={`tp-dot tp-dot--${row.level}`} aria-hidden="true" />
               <span className="tp-skill">{row.statement}<small>{levelLabels[row.level]}</small></span>
               <ArrowIcon size={16} className="tp-chevron" />
@@ -272,7 +285,7 @@ function BossPanel({ boss, open, beaten, waiting, onFight }: { boss: Boss; open:
     </ul>
     {beaten && <p className="bp-beaten"><CrownIcon size={18} /> Beaten. The {areaTitles[boss.area]} branch is mastered.</p>}
     {open
-      ? <button type="button" className="ew-cta ew-cta--alarm" onClick={onFight}>{beaten ? 'Rematch' : 'Fight the Treasurer'} <ArrowIcon size={18} /></button>
+      ? <button type="button" className="rv-btn rv-btn--alarm rv-btn--night rv-btn--lg rv-btn--block ew-cta" onClick={onFight}>{beaten ? 'Rematch' : 'Fight the Treasurer'} <ArrowIcon size={18} /></button>
       : <div className="bp-locked">
         <p><LockIcon size={16} /> Learn every {areaTitles[boss.area]} topic to unlock this fight.</p>
         <ul>{waiting.map(score => <li key={score.topic.id}><TopicIcon id={score.topic.id} size={14} />{score.topic.short ?? score.topic.title}</li>)}</ul>
