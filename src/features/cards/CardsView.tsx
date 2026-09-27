@@ -95,8 +95,39 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
     return () => window.removeEventListener('keydown', onKey)
   })
 
+  // Swipe on a phone: before the answer shows, a swipe either way turns the card over; after it,
+  // right is "Got it" and left is "Still learning". The card follows the finger and slides off.
+  const [drag, setDrag] = useState<{ x: number; leaving?: 'left' | 'right' } | null>(null)
+  const swipe = useRef<{ x: number; y: number; id: number; moved: boolean } | null>(null)
+  const swiped = useRef(false)
+  const SWIPE = 80
+  function swipeStart(event: React.PointerEvent) {
+    if (event.pointerType === 'mouse' || drag?.leaving) return
+    swipe.current = { x: event.clientX, y: event.clientY, id: event.pointerId, moved: false }
+  }
+  function swipeMove(event: React.PointerEvent) {
+    const start = swipe.current
+    if (!start || start.id !== event.pointerId) return
+    const dx = event.clientX - start.x, dy = event.clientY - start.y
+    if (!start.moved && (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy))) return
+    start.moved = true
+    setDrag({ x: dx })
+  }
+  function swipeEnd(event: React.PointerEvent) {
+    const start = swipe.current
+    swipe.current = null
+    if (!start || !start.moved || !session) return
+    swiped.current = true
+    const dx = event.clientX - start.x
+    if (Math.abs(dx) < SWIPE) { setDrag(null); return }
+    if (!session.flipped) { setDrag(null); setSession({ ...session, flipped: true }); return }
+    setDrag({ x: dx, leaving: dx > 0 ? 'right' : 'left' })
+    window.setTimeout(() => { setDrag(null); answer(dx > 0) }, 180)
+  }
+
   const card = session?.queue[session.index]
   const finished = session && !card
+  const lean = drag && session?.flipped ? (drag.x > 0 ? 'right' : 'left') : null
   const dueIn = (deck: StudyDeck) => todaysQueue(deck.studied, states).length
 
   return <div className="rc">
@@ -144,15 +175,24 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
           <button
             ref={cardRef}
             type="button"
-            className={`rc-card${session.flipped ? ' is-back' : ''}`}
+            className={`rc-card${session.flipped ? ' is-back' : ''}${drag ? ' is-dragging' : ''}${drag?.leaving ? ` is-leaving-${drag.leaving}` : ''}`}
+            style={drag && !drag.leaving ? { transform: `translateX(${drag.x}px) rotate(${drag.x / 24}deg)` } : undefined}
             aria-label={session.flipped ? `Answer: ${card.back}` : `Question: ${card.front}. Press to see the answer.`}
-            onClick={() => setSession({ ...session, flipped: !session.flipped })}
+            onPointerDown={swipeStart}
+            onPointerMove={swipeMove}
+            onPointerUp={swipeEnd}
+            onPointerCancel={() => { swipe.current = null; setDrag(null) }}
+            onClick={() => {
+              // A swipe ends with a click on the card; it has already done its job.
+              if (swiped.current) { swiped.current = false; return }
+              setSession({ ...session, flipped: !session.flipped })
+            }}
           >
-            <span className="rc-card__side">{session.flipped ? 'Answer' : card.label}</span>
+            {lean && <span className={`rc-card__stamp rc-card__stamp--${lean}`} style={{ opacity: Math.min(1, Math.abs(drag!.x) / SWIPE) }} aria-hidden="true">{lean === 'right' ? 'Got it ✓' : 'Still learning'}</span>}
+            <span className="rc-card__side">{session.flipped ? 'Answer' : 'Question'}</span>
             <span className="rc-card__text" aria-live="polite">{session.flipped ? card.back : card.front}</span>
             {!session.flipped && card.frontMath && <span className="rc-card__math"><MathSpan latex={card.frontMath} display /></span>}
             {session.flipped && card.note && <span className="rc-card__note">{card.note}</span>}
-            <span className="rc-card__hint">{session.flipped ? 'How did you do?' : 'Think of the answer, then tap the card'}</span>
           </button>
           <div className="rc-answer" aria-hidden={!session.flipped}>
             <Button variant="secondary" size="lg" disabled={!session.flipped} onClick={() => answer(false)}>Still learning</Button>
