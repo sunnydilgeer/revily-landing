@@ -5,7 +5,12 @@ import { labCatalog } from '../labs/catalog'
 import { areaTitles, biggestWin, GRADE_4_SHARE, PAPER_MARKS, scoreTopics, tileLevel, type AreaId, type TopicScore } from './paperMap'
 import { levelLabels, type Level } from './readiness'
 import { squarify, type Rect } from './squarify'
+import SkillTree, { BOSS_ID } from './SkillTree'
+import BossFight from './BossFight'
+import { bosses, readBossRecords, type Boss } from './bosses'
 import './PaperMap.css'
+
+type View = 'tree' | 'map'
 
 export type StatementRow = { key: string; statement: string; level: Level; href: string }
 
@@ -27,42 +32,43 @@ function labelFor(topic: { title: string; short?: string }, rect: Rect) {
   return [topic.title, topic.short].find((name): name is string => Boolean(name && fits(name))) ?? null
 }
 
-/** The exam map: the whole Foundation paper as tiles sized by marks, coloured by how ready the student is. */
+/** How ready the student is for the whole Foundation paper: as a skill tree (default) or a map of the marks. */
 export default function PaperMap({ rows }: { rows: StatementRow[] }) {
   const byKey = useMemo(() => new Map(rows.map(row => [row.key, row])), [rows])
   const scores = useMemo(() => scoreTopics(Object.fromEntries(rows.map(row => [row.key, row.level]))), [rows])
   const win = biggestWin(scores)
+  const [view, setView] = useState<View>('tree')
+  const [area, setArea] = useState<AreaId>('number')
   const [selected, setSelected] = useState<string | null>(null)
-  const current = scores.find(score => score.topic.id === (selected ?? win?.topic.id ?? 'fractions'))!
+  const [records, setRecords] = useState<ReturnType<typeof readBossRecords>>({})
+  const [bossOverride, setBossOverride] = useState(false)
+  const [fighting, setFighting] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('view') === 'map') setView('map')
+    setBossOverride(params.get('boss') === 'open')
+    setRecords(readBossRecords())
+  }, [])
+
+  function show(next: View) {
+    setView(next)
+    const url = new URL(window.location.href)
+    url.searchParams.set('view', next)
+    window.history.replaceState(null, '', url)
+  }
+
+  const boss = bosses.find(candidate => candidate.area === area)
+  const bossTaught = scores.filter(score => score.topic.area === area && score.taught)
+  const bossOpen = Boolean(boss) && (bossOverride || bossTaught.every(score => ['learnt', 'secure', 'examReady'].includes(tileLevel(score))))
+  const bossBeaten = Boolean(records[area]?.beatenOn)
+  const inArea = (id: string | null) => id === BOSS_ID ? Boolean(boss) : scores.some(score => score.topic.id === id && (view === 'map' || score.topic.area === area))
+  const fallback = view === 'tree' && win?.topic.area !== area ? scores.find(score => score.topic.area === area)!.topic.id : win?.topic.id ?? 'fractions'
+  const currentId = inArea(selected) ? selected! : fallback
+  const current = scores.find(score => score.topic.id === currentId)
 
   const ready = scores.reduce((sum, score) => sum + score.ready, 0)
   const taught = scores.filter(score => score.taught).reduce((sum, score) => sum + score.marks, 0)
-
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [size, setSize] = useState<{ w: number; h: number } | null>(null)
-  useIsoLayoutEffect(() => {
-    const node = mapRef.current
-    if (!node) return
-    const measure = () => setSize({ w: node.clientWidth, h: node.clientHeight })
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
-  const layout = useMemo(() => {
-    if (!size) return null
-    const areas = new Map<AreaId, TopicScore[]>()
-    for (const score of scores) areas.set(score.topic.area, [...(areas.get(score.topic.area) ?? []), score])
-    const areaRects = squarify([...areas].map(([area, list]) => ({ value: list.reduce((sum, score) => sum + score.marks, 0), item: area })), { x: 0, y: 0, ...size })
-    return areaRects.map(area => {
-      const outer = inset(area, AREA_GAP)
-      const headed = outer.w >= 64 && outer.h >= 90
-      const box = headed ? { ...outer, y: outer.y + AREA_HEAD, h: outer.h - AREA_HEAD } : outer
-      return { area: area.item, outer, headed, tiles: squarify(areas.get(area.item)!.map(score => ({ value: score.marks, item: score })), box).map(tile => ({ ...inset(tile, TILE_GAP), score: tile.item })) }
-    })
-  }, [scores, size])
-
   const nextStep = (score: TopicScore) => score.topic.statements.map(key => byKey.get(key)).find(row => row && row.level !== 'examReady')
 
   return <section className="pm" aria-labelledby="pm-title">
@@ -90,35 +96,90 @@ export default function PaperMap({ rows }: { rows: StatementRow[] }) {
       </a>
     })()}
 
-    <div className="pm-map" ref={mapRef}>
-      {layout?.map(({ area, outer, headed, tiles }) => <div key={area} className="pm-area" role="group" aria-label={areaTitles[area]}>
-        {tiles.map(({ score, ...rect }) => {
-          const level = tileLevel(score)
-          const label = labelFor(score.topic, rect)
-          return <button
-            key={score.topic.id}
-            type="button"
-            className={[
-              'pm-tile',
-              score.taught ? `pm-tile--${level}` : 'pm-tile--soon',
-              current.topic.id === score.topic.id ? 'is-selected' : '',
-            ].join(' ')}
-            style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}
-            aria-pressed={current.topic.id === score.topic.id}
-            aria-label={`${score.topic.title}: ${aboutMarks(score.marks)} a paper. ${score.taught ? `${levelLabels[level]}, ready for ${aboutMarks(score.ready)}.` : 'Not in Revily yet.'}`}
-            onClick={() => setSelected(score.topic.id)}
-          >
-            {score.taught && <span className="pm-tile__fill" style={{ height: `${score.share * 100}%` }} />}
-            {label && <span className="pm-tile__title">{label}</span>}
-            {label && rect.h >= 56 && rect.w >= 56 && <span className="pm-tile__marks">{round(score.marks) || '<1'} marks</span>}
-          </button>
-        })}
-        {headed && <span className="pm-area__label" style={{ left: outer.x + 2, top: outer.y, width: outer.w - 4 }}>{areaTitles[area]}</span>}
-      </div>)}
+    <div className="pm-views" role="tablist" aria-label="How to see it">
+      <button type="button" role="tab" aria-selected={view === 'tree'} className={view === 'tree' ? 'is-on' : ''} onClick={() => show('tree')}>Skill tree</button>
+      <button type="button" role="tab" aria-selected={view === 'map'} className={view === 'map' ? 'is-on' : ''} onClick={() => show('map')}>Marks map</button>
     </div>
 
-    <TopicDetail score={current} byKey={byKey} />
+    {view === 'tree'
+      ? <SkillTree area={area} onArea={next => { setArea(next); setSelected(null) }} scores={scores} selected={currentId} onSelect={setSelected} bossOpen={bossOpen} bossBeaten={bossBeaten} />
+      : <MarksMap scores={scores} selected={currentId} onSelect={setSelected} />}
+
+    {currentId === BOSS_ID && boss
+      ? <BossDetail boss={boss} open={bossOpen} beaten={bossBeaten} waiting={bossTaught.filter(score => !['learnt', 'secure', 'examReady'].includes(tileLevel(score)))} onFight={() => setFighting(true)} />
+      : current && <TopicDetail score={current} byKey={byKey} />}
+
+    {fighting && boss && <BossFight boss={boss} record={records[area]} onClose={() => { setFighting(false); setRecords(readBossRecords()) }} onWin={() => setRecords(readBossRecords())} />}
   </section>
+}
+
+function MarksMap({ scores, selected, onSelect }: { scores: TopicScore[]; selected: string; onSelect: (id: string) => void }) {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null)
+  useIsoLayoutEffect(() => {
+    const node = mapRef.current
+    if (!node) return
+    const measure = () => setSize({ w: node.clientWidth, h: node.clientHeight })
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  const layout = useMemo(() => {
+    if (!size) return null
+    const areas = new Map<AreaId, TopicScore[]>()
+    for (const score of scores) areas.set(score.topic.area, [...(areas.get(score.topic.area) ?? []), score])
+    const areaRects = squarify([...areas].map(([area, list]) => ({ value: list.reduce((sum, score) => sum + score.marks, 0), item: area })), { x: 0, y: 0, ...size })
+    return areaRects.map(area => {
+      const outer = inset(area, AREA_GAP)
+      const headed = outer.w >= 64 && outer.h >= 90
+      const box = headed ? { ...outer, y: outer.y + AREA_HEAD, h: outer.h - AREA_HEAD } : outer
+      return { area: area.item, outer, headed, tiles: squarify(areas.get(area.item)!.map(score => ({ value: score.marks, item: score })), box).map(tile => ({ ...inset(tile, TILE_GAP), score: tile.item })) }
+    })
+  }, [scores, size])
+
+  return <div className="pm-map" ref={mapRef}>
+    {layout?.map(({ area, outer, headed, tiles }) => <div key={area} className="pm-area" role="group" aria-label={areaTitles[area]}>
+      {tiles.map(({ score, ...rect }) => {
+        const level = tileLevel(score)
+        const label = labelFor(score.topic, rect)
+        return <button
+          key={score.topic.id}
+          type="button"
+          className={[
+            'pm-tile',
+            score.taught ? `pm-tile--${level}` : 'pm-tile--soon',
+            selected === score.topic.id ? 'is-selected' : '',
+          ].join(' ')}
+          style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}
+          aria-pressed={selected === score.topic.id}
+          aria-label={`${score.topic.title}: ${aboutMarks(score.marks)} a paper. ${score.taught ? `${levelLabels[level]}, ready for ${aboutMarks(score.ready)}.` : 'Not in Revily yet.'}`}
+          onClick={() => onSelect(score.topic.id)}
+        >
+          {score.taught && <span className="pm-tile__fill" style={{ height: `${score.share * 100}%` }} />}
+          {label && <span className="pm-tile__title">{label}</span>}
+          {label && rect.h >= 56 && rect.w >= 56 && <span className="pm-tile__marks">{round(score.marks) || '<1'} marks</span>}
+        </button>
+      })}
+      {headed && <span className="pm-area__label" style={{ left: outer.x + 2, top: outer.y, width: outer.w - 4 }}>{areaTitles[area]}</span>}
+    </div>)}
+  </div>
+}
+
+function BossDetail({ boss, open, beaten, waiting, onFight }: { boss: Boss; open: boolean; beaten: boolean; waiting: TopicScore[]; onFight: () => void }) {
+  return <div className="pm-detail pm-boss" aria-live="polite">
+    <p className="pm-detail__area">{areaTitles[boss.area]} · Boss</p>
+    <h3>{boss.title}</h3>
+    <p className="pm-detail__facts">{boss.story}</p>
+    {beaten && <p className="pm-boss__beaten">👑 Beaten. The {areaTitles[boss.area]} branch is mastered. Fight again any time with new numbers.</p>}
+    {open
+      ? <button type="button" className="pm-boss__fight" onClick={onFight}>{beaten ? 'Fight again' : 'Fight the boss'}</button>
+      : <>
+        <p className="pm-detail__soon">Unlocks when you’ve learnt every topic in the branch. Still to go:</p>
+        <ul className="pm-boss__waiting">{waiting.map(score => <li key={score.topic.id}>{score.topic.title}</li>)}</ul>
+      </>}
+  </div>
 }
 
 function TopicDetail({ score, byKey }: { score: TopicScore; byKey: Map<string, StatementRow> }) {
