@@ -1,0 +1,74 @@
+// Checks every step chain in Lesson 8 (worked examples and "See the working" panels):
+// terms that merge must come from the line above, keys are unique on a line, every line renders
+// in KaTeX, each step has an operation and a why, no term is crossed out, and the chain ends on
+// the value it started with.
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
+const Module = require('node:module')
+
+const root = path.resolve(__dirname, '..')
+const ts = require(path.join(root, 'node_modules/typescript'))
+const katex = require(path.join(root, 'node_modules/katex'))
+
+// Load the TypeScript lesson directly, as the other verify scripts read its source.
+const resolve = Module._resolveFilename
+Module._resolveFilename = function (request, parent, ...rest) {
+  try { return resolve.call(this, request, parent, ...rest) } catch (error) {
+    for (const ext of ['.ts', '.tsx']) { try { return resolve.call(this, request + ext, parent, ...rest) } catch {} }
+    throw error
+  }
+}
+for (const ext of ['.ts', '.tsx']) {
+  require.extensions[ext] = (module, file) => module._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: 1, target: 99, jsx: 4, esModuleInterop: true } }).outputText, file)
+}
+require.extensions['.css'] = () => {}
+
+const { tutorFractionsLesson } = require(path.join(root, 'src/features/fractions/tutor/fractionsLesson.ts'))
+const TERM = /\[\[([\w-]+):(.*?)\]\]/g
+const keysOf = line => [...line.matchAll(TERM)].map(match => match[1])
+const latexOf = line => line.replace(TERM, (_, key, body) => `\\htmlData{k=${key}}{${body}}`)
+/** The value of a line of working: fractions, mixed numbers, + − × ÷, "of" and £. */
+function valueOf(line) {
+  const expression = line.replace(TERM, '$2').replace(/^\s*=\s*/, '')
+    .replace(/(\d+)\s*\\frac\{(\d+)\}\{(\d+)\}/g, '($1+$2/$3)')
+    .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '(($1)/($2))')
+    .replace(/\\times/g, '*').replace(/\\div/g, '/').replace(/\\text\{ of \}/g, '*').replace(/\\pounds/g, '')
+  assert.match(expression, /^[\d\s+\-*/().]+$/, `Cannot evaluate ${expression}`)
+  return Function(`return (${expression})`)()
+}
+
+const workings = []
+for (const state of tutorFractionsLesson.states) {
+  for (const visual of [state.visual, state.working]) if (visual?.kind === 'fraction-worked') workings.push([state.id, visual])
+}
+
+let steps = 0, answers = 0
+for (const [id, working] of workings) {
+  const chain = working.chain
+  assert.ok(chain?.length > 1, `${id}: every fraction working needs a step chain`)
+  chain.forEach((step, index) => {
+    const label = `${id} line ${index + 1}`
+    const keys = keysOf(step.line)
+    assert.equal(new Set(keys).size, keys.length, `${label}: keys must be unique on a line (${keys})`)
+    katex.renderToString(`\\displaystyle ${latexOf(step.line)}`, { throwOnError: true, strict: 'ignore', trust: context => context.command === '\\htmlData' })
+    if (index === 0) return
+    steps++
+    assert.ok(step.op && step.why, `${label}: every step needs an operation and a why`)
+    const above = new Set(keysOf(chain[index - 1].line))
+    for (const [result, sources] of Object.entries(step.merge ?? {})) {
+      assert.ok(keys.includes(result), `${label}: merge result ${result} is not on the line`)
+      for (const source of sources) assert.ok(above.has(source), `${label}: merge source ${source} is not on the line above`)
+    }
+    // Nothing in a fraction calculation cancels to nothing: a term that leaves must combine into a result,
+    // otherwise the step chain crosses it out in red.
+    const merged = new Set(Object.values(step.merge ?? {}).flat())
+    for (const key of above) assert.ok(keys.includes(key) || merged.has(key), `${label}: ${key} leaves without combining into anything, so it would be crossed out`)
+  })
+  // Every chain is one calculation, so it must end on the value it started with.
+  const start = valueOf(chain[0].line), end = valueOf(chain.at(-1).line)
+  assert.ok(Math.abs(start - end) < 1e-9, `${id}: chain starts at ${start} but ends at ${end}`)
+  answers++
+}
+
+console.log(`Lesson 8 step chains verified: ${workings.length} chains, ${steps} steps, every move explained and every chain ending on its answer.`)

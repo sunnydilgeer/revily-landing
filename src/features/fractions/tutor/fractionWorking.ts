@@ -1,3 +1,16 @@
+import {
+  addSubtractChain,
+  divideChain,
+  equivalentChain,
+  fractionOfAmountChain,
+  improperToMixedChain,
+  mixedCalculationChain,
+  mixedToImproperChain,
+  multiplyChain,
+  simplifyChain,
+  type FractionChainStep,
+} from './fractionChain'
+
 export type FractionDisplay = {
   numerator: number
   denominator: number
@@ -29,6 +42,8 @@ export type FractionWorking = {
   expression: string
   label: string
   steps: FractionStep[]
+  /** The same working as one chain of lines, each flowing into the next (what students see). */
+  chain?: FractionChainStep[]
 }
 
 export type MixedValue = { whole: number; numerator: number; denominator: number }
@@ -63,50 +78,60 @@ export function rationalLatex(numerator: number, denominator: number, mixed = tr
 }
 
 const rawLatex = (numerator: number, denominator: number) => denominator === 1 ? String(numerator) : `\\frac{${numerator}}{${denominator}}`
+/** Attach fraction pictures to chain steps by index; a negative index counts from the end. */
+function framed(chain: FractionChainStep[], frames: [number, FractionFrame | undefined][]) {
+  const byIndex = new Map(frames.map(([index, frame]) => [index < 0 ? chain.length + index : index, frame]))
+  return chain.map((step, index) => byIndex.get(index) ? { ...step, frame: byIndex.get(index) } : step)
+}
+
 const valueFrame = (numerator: number, denominator: number, tone: FractionDisplay['tone'] = 'source', label?: string): FractionDisplay => ({ numerator, denominator, tone, label })
 
 export function simplifyFractionWorking(numerator: number, denominator: number): FractionWorking {
   const factor = gcd(numerator, denominator), reduced = reduceFraction(numerator, denominator)
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression: rawLatex(numerator, denominator), label: 'Simplify a fraction', steps: [
       { title: 'Find the highest common factor', equation: `\\operatorname{HCF}(${numerator},${denominator})=${factor}`, instruction: `${factor} is the greatest number that divides both ${numerator} and ${denominator} exactly.`, frame: { kind: 'bars', values: [valueFrame(numerator, denominator)], note: `HCF = ${factor}` } },
       { title: 'Divide the numerator and denominator', equation: `\\frac{${numerator}\\div${factor}}{${denominator}\\div${factor}}=\\frac{${reduced.numerator}}{${reduced.denominator}}`, instruction: `Divide both parts by the same factor so the value of the fraction does not change.`, frame: { kind: 'bars', values: [valueFrame(numerator, denominator), valueFrame(reduced.numerator, reduced.denominator, 'equivalent')], note: `Both parts ÷ ${factor}` } },
       { title: 'Check that it is fully simplified', equation: `${rawLatex(numerator, denominator)}=${rawLatex(reduced.numerator, reduced.denominator)}`, instruction: `${reduced.numerator} and ${reduced.denominator} have no common factor greater than 1.`, frame: { kind: 'bars', values: [valueFrame(reduced.numerator, reduced.denominator, 'result')], note: 'Simplest form' } },
     ],
   }
+  return { ...working, chain: framed(simplifyChain(numerator, denominator), [[0, working.steps[0].frame], [-1, working.steps[1].frame]]) }
 }
 
 export function equivalentFractionWorking(numerator: number, denominator: number, targetDenominator: number): FractionWorking {
   const scale = targetDenominator / denominator, targetNumerator = numerator * scale
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression: `${rawLatex(numerator, denominator)}=\\frac{?}{${targetDenominator}}`, label: 'Equivalent fraction', steps: [
       { title: 'Find the scale factor', equation: `${targetDenominator}\\div${denominator}=${scale}`, instruction: `The denominator is multiplied by ${scale}.`, frame: { kind: 'bars', values: [valueFrame(numerator, denominator)], note: `Denominator × ${scale}` } },
       { title: 'Scale the numerator by the same amount', equation: `${numerator}\\times${scale}=${targetNumerator}`, instruction: `Multiply the numerator by the same ${scale} to keep the fraction equivalent.`, frame: { kind: 'bars', values: [valueFrame(numerator, denominator), valueFrame(targetNumerator, targetDenominator, 'equivalent')], note: `Both parts × ${scale}` } },
       { title: 'State the equivalent fraction', equation: `${rawLatex(numerator, denominator)}=${rawLatex(targetNumerator, targetDenominator)}`, instruction: `Both fractions represent the same proportion.`, frame: { kind: 'bars', values: [valueFrame(targetNumerator, targetDenominator, 'result')], note: 'Equivalent value' } },
     ],
   }
+  return { ...working, chain: framed(equivalentChain(numerator, denominator, targetDenominator), [[0, working.steps[0].frame], [-1, working.steps[1].frame]]) }
 }
 
 export function mixedToImproperWorking(whole: number, numerator: number, denominator: number): FractionWorking {
   const improper = whole * denominator + numerator
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression: `${whole}\\frac{${numerator}}{${denominator}}`, label: 'Mixed number to improper fraction', steps: [
       { title: 'Count the parts in the whole numbers', equation: `${whole}\\times${denominator}=${whole * denominator}`, instruction: `Each whole contains ${denominator} ${denominator === 1 ? 'part' : 'equal parts'}, so ${whole} wholes contain ${whole * denominator} parts.`, frame: { kind: 'mixed', values: [{ whole, numerator, denominator }], note: `${whole} wholes = ${whole * denominator}/${denominator}` } },
       { title: 'Add the remaining numerator', equation: `${whole * denominator}+${numerator}=${improper}`, instruction: `Add the ${numerator} extra ${numerator === 1 ? 'part' : 'parts'}.`, frame: { kind: 'mixed', values: [valueFrame(improper, denominator, 'equivalent')], note: 'Keep the denominator' } },
       { title: 'Write the improper fraction', equation: `${whole}\\frac{${numerator}}{${denominator}}=${rawLatex(improper, denominator)}`, instruction: `The denominator remains ${denominator}.`, frame: { kind: 'mixed', values: [valueFrame(improper, denominator, 'result')], note: 'Improper fraction' } },
     ],
   }
+  return { ...working, chain: framed(mixedToImproperChain(whole, numerator, denominator), [[0, working.steps[0].frame], [-1, working.steps[2].frame]]) }
 }
 
 export function improperToMixedWorking(numerator: number, denominator: number): FractionWorking {
   const whole = Math.floor(numerator / denominator), remainder = numerator % denominator
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression: rawLatex(numerator, denominator), label: 'Improper fraction to mixed number', steps: [
       { title: 'Divide to find the whole-number part', equation: `${numerator}\\div${denominator}=${whole}\\;\\mathrm{r}\\;${remainder}`, instruction: `${denominator} fits into ${numerator} ${whole} times, with ${remainder} left over.`, frame: { kind: 'mixed', values: [valueFrame(numerator, denominator)], note: `${whole} complete wholes` } },
       { title: 'Use the remainder as the new numerator', equation: `${rawLatex(numerator, denominator)}=${whole}\\frac{${remainder}}{${denominator}}`, instruction: `The remainder becomes the numerator and the denominator stays ${denominator}.`, frame: { kind: 'mixed', values: [{ whole, numerator: remainder, denominator, tone: 'equivalent' }], note: 'Remainder over the original denominator' } },
       { title: 'Check by converting back', equation: `${whole}\\times${denominator}+${remainder}=${numerator}`, instruction: `The reverse calculation returns the original numerator, so the conversion is correct.`, frame: { kind: 'mixed', values: [{ whole, numerator: remainder, denominator, tone: 'result' }], note: 'Conversion checked' } },
     ],
   }
+  return { ...working, chain: framed(improperToMixedChain(numerator, denominator), [[0, working.steps[0].frame], [-1, working.steps[1].frame]]) }
 }
 
 export function addSubtractFractionsWorking(values: FractionValue[], operation: 'add' | 'subtract'): FractionWorking {
@@ -126,7 +151,10 @@ export function addSubtractFractionsWorking(values: FractionValue[], operation: 
   ]
   if (combined !== final || numerator > denominator) steps.push({ title: 'Simplify and convert if needed', equation: `${combined}=${final}`, instruction: `Give the result in simplest form${numerator > denominator ? ' and write it as a mixed number' : ''}.`, frame: { kind: 'mixed', values: [{ numerator: reduceFraction(numerator, denominator).numerator, denominator: reduceFraction(numerator, denominator).denominator, tone: 'result' }], note: rationalText(numerator, denominator) } })
   else steps.push({ title: 'State the result', equation: `${expression}=${final}`, instruction: `The fraction is already in simplest form.`, frame: { kind: 'bars', values: [valueFrame(numerator, denominator, 'result')], note: rationalText(numerator, denominator) } })
-  return { kind: 'fraction-worked', expression, label: operation === 'add' ? 'Add fractions' : 'Subtract fractions', steps }
+  const working: FractionWorking = { kind: 'fraction-worked', expression, label: operation === 'add' ? 'Add fractions' : 'Subtract fractions', steps }
+  const chain = addSubtractChain(values, operation)
+  const conversion = chain.findIndex(step => step.op === 'Make the bottoms the same')
+  return { ...working, chain: framed(chain, [[0, steps[0].frame], ...(conversion > 0 ? [[conversion + 1, steps[1].frame] as [number, FractionFrame]] : []), [-1, steps.at(-1)!.frame]]) }
 }
 
 export function multiplyFractionsWorking(first: FractionValue, second: FractionValue, cancelFirst = false): FractionWorking {
@@ -137,19 +165,20 @@ export function multiplyFractionsWorking(first: FractionValue, second: FractionV
   if (cancelFirst && (crossA > 1 || crossB > 1)) steps.push({ title: 'Cancel common factors first', equation: `\\frac{${first.numerator / crossA}}{${first.denominator / crossB}}\\times\\frac{${second.numerator / crossB}}{${second.denominator / crossA}}`, instruction: `Divide a numerator and a denominator by the same common factor. This keeps the product equal but makes the multiplication smaller.`, frame: { kind: 'area', values: [valueFrame(first.numerator, first.denominator), valueFrame(second.numerator, second.denominator)], note: 'Cross-cancel equal factors' } })
   steps.push({ title: 'Multiply across', equation: `\\frac{${first.numerator}\\times${second.numerator}}{${first.denominator}\\times${second.denominator}}=\\frac{${numerator}}{${denominator}}`, instruction: `Multiply the numerators together and multiply the denominators together.`, frame: { kind: 'area', values: [valueFrame(first.numerator, first.denominator), valueFrame(second.numerator, second.denominator), valueFrame(numerator, denominator, 'equivalent')], note: 'Numerator × numerator; denominator × denominator' } })
   steps.push({ title: 'Simplify the product', equation: `${rawLatex(numerator, denominator)}=${rationalLatex(numerator, denominator)}`, instruction: `Divide the numerator and denominator by their highest common factor, ${gcd(numerator, denominator)}.`, frame: { kind: 'area', values: [valueFrame(result.numerator, result.denominator, 'result')], note: rationalText(numerator, denominator) } })
-  return { kind: 'fraction-worked', expression, label: 'Multiply fractions', steps }
+  return { kind: 'fraction-worked', expression, label: 'Multiply fractions', steps, chain: multiplyChain(first, second) }
 }
 
 export function divideFractionsWorking(first: FractionValue, second: FractionValue): FractionWorking {
   const numerator = first.numerator * second.denominator, denominator = first.denominator * second.numerator
   const result = reduceFraction(numerator, denominator), expression = `${rawLatex(first.numerator, first.denominator)}\\div${rawLatex(second.numerator, second.denominator)}`
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression, label: 'Divide fractions', steps: [
       { title: 'Use the reciprocal of the divisor', equation: `${expression}=${rawLatex(first.numerator, first.denominator)}\\times${rawLatex(second.denominator, second.numerator)}`, instruction: `Keep the first fraction, change division to multiplication, and swap the numerator and denominator of the second fraction.`, frame: { kind: 'reciprocal', values: [valueFrame(first.numerator, first.denominator), valueFrame(second.numerator, second.denominator), valueFrame(second.denominator, second.numerator, 'equivalent')], note: 'The reciprocal reverses the divisor' } },
       { title: 'Multiply across', equation: `\\frac{${first.numerator}\\times${second.denominator}}{${first.denominator}\\times${second.numerator}}=\\frac{${numerator}}{${denominator}}`, instruction: `Multiply the numerators and denominators.`, frame: { kind: 'reciprocal', values: [valueFrame(numerator, denominator, 'equivalent')], note: 'Equivalent multiplication' } },
       { title: 'Simplify and convert if needed', equation: `${rawLatex(numerator, denominator)}=${rationalLatex(numerator, denominator)}`, instruction: `Simplify fully${result.numerator > result.denominator ? ' and write the improper result as a mixed number' : ''}.`, frame: { kind: 'mixed', values: [valueFrame(result.numerator, result.denominator, 'result')], note: rationalText(numerator, denominator) } },
     ],
   }
+  return { ...working, chain: framed(divideChain(first, second), [[1, working.steps[0].frame]]) }
 }
 
 const improper = (value: MixedValue | FractionValue): FractionValue => 'whole' in value ? { numerator: value.whole * value.denominator + value.numerator, denominator: value.denominator } : value
@@ -159,23 +188,25 @@ export function mixedCalculationWorking(firstValue: MixedValue | FractionValue, 
   const first = improper(firstValue), second = improper(secondValue), symbol = operation === 'multiply' ? '\\times' : '\\div'
   const base = operation === 'multiply' ? multiplyFractionsWorking(first, second, true) : divideFractionsWorking(first, second)
   const expression = `${sourceLatex(firstValue)}${symbol}${sourceLatex(secondValue)}`
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression, label: 'Calculate with mixed numbers', steps: [
       { title: 'Convert mixed numbers to improper fractions', equation: `${sourceLatex(firstValue)}=${rawLatex(first.numerator, first.denominator)},\\quad${sourceLatex(secondValue)}=${rawLatex(second.numerator, second.denominator)}`, instruction: `Use whole × denominator + numerator for each mixed number. Whole numbers can be written over 1.`, frame: { kind: 'mixed', values: [valueFrame(first.numerator, first.denominator, 'equivalent'), valueFrame(second.numerator, second.denominator, 'equivalent')], note: 'Convert before calculating' } },
       ...base.steps.map(step => ({ ...step, frame: { ...step.frame, note: step.frame.note } })),
     ],
   }
+  return { ...working, chain: framed(mixedCalculationChain(firstValue, secondValue, operation), [[1, working.steps[0].frame]]) }
 }
 
 export function fractionOfAmountWorking(numerator: number, denominator: number, amount: number, currency = true): FractionWorking {
   const unit = amount / denominator, answer = unit * numerator, sign = currency ? '£' : ''
-  return {
+  const working: FractionWorking = {
     kind: 'fraction-worked', expression: `${rawLatex(numerator, denominator)}\\text{ of }${sign}${amount}`, label: 'Fraction of an amount', steps: [
       { title: 'Find one equal part', equation: `${sign}${amount}\\div${denominator}=${sign}${unit}`, instruction: `The denominator ${denominator} tells us to divide the amount into ${denominator} equal parts.`, frame: { kind: 'amount', amount, currency, parts: denominator, selectedParts: 1, unitValue: unit, note: `One ${denominator === 2 ? 'half' : `${denominator}th`} is ${sign}${unit}` } },
       { title: 'Take the required number of parts', equation: `${sign}${unit}\\times${numerator}=${sign}${answer}`, instruction: `The numerator ${numerator} tells us to take ${numerator} of those equal parts.`, frame: { kind: 'amount', amount, currency, parts: denominator, selectedParts: numerator, unitValue: unit, note: `${numerator} equal parts` } },
       { title: 'State the amount', equation: `${rawLatex(numerator, denominator)}\\text{ of }${sign}${amount}=${sign}${answer}`, instruction: `The required fraction of the amount is ${sign}${answer}.`, frame: { kind: 'amount', amount, currency, parts: denominator, selectedParts: numerator, unitValue: unit, note: `${sign}${answer}` } },
     ],
   }
+  return { ...working, chain: framed(fractionOfAmountChain(numerator, denominator, amount, currency), [[1, working.steps[0].frame], [3, working.steps[1].frame]]) }
 }
 
 export function fractionWorkingProgress(visual: FractionWorking, revealed: number) {

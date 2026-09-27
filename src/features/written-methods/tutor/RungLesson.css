@@ -32,6 +32,7 @@
 }
 .rung-media__toggle:hover { border-color: var(--rv-ink); }
 .rung-media__toggle:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
+.rung-media__time { color: var(--rv-muted); font-weight: 500; }
 
 /* ---------- Worked example as working lines ---------- */
 .rung-worked { margin: 0; text-align: left; }
