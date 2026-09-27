@@ -85,7 +85,7 @@ export default function Sprint({ questions, gold, onClose, onAgain }: {
       <span className="pr-tally" aria-label={`${total} marks so far`}>{total}<small>/{outOf}</small></span>
     </div>
 
-    <article className="pr-question" aria-labelledby="pr-q-title">
+    <article className="pr-question" aria-labelledby="pr-q-title" data-template={question.id} data-variant={question.variant}>
       <header className="pr-question__head">
         <h2 id="pr-q-title">Question {index + 1}</h2>
         <span className={`pr-chip pr-chip--${question.ramp}`}>{rampLabels[question.ramp]}</span>

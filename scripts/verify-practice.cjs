@@ -25,8 +25,9 @@ require.extensions['.css'] = () => {}
 
 const { templates } = require(path.join(root, 'src/features/maths/practice/bank/index.ts'))
 const { RAMPS, questionMarks } = require(path.join(root, 'src/features/maths/practice/types.ts'))
-const { mark, readNumber, readFraction, answerText, canMark } = require(path.join(root, 'src/features/maths/practice/marking.ts'))
-const { buildSprint, isLearnt, SPRINT_SHAPE } = require(path.join(root, 'src/features/maths/practice/sprint.ts'))
+const { mark, readNumber, readFraction, answerText, canMark, mistakeFor } = require(path.join(root, 'src/features/maths/practice/marking.ts'))
+const { buildSprint, isLearnt, SPRINT_SHAPE, templateWeight } = require(path.join(root, 'src/features/maths/practice/sprint.ts'))
+const { aqaMarks } = require(path.join(root, 'src/features/maths/practice/aqaWeights.ts'))
 const { addAttempt } = require(path.join(root, 'src/features/maths/practice/record.ts'))
 const { canStatements } = require(path.join(root, 'src/features/maths/readiness/statements.ts'))
 const { paperTopics } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
@@ -48,15 +49,17 @@ const renderText = (text, label) => {
 /** The digits of a number as they appear in LaTeX: 39\,000 → 39000, 0.85 → 0.85. */
 const flat = line => line.replace(TERM, (_, key, body) => body).replace(/\\,|\\pounds|\s|\{|\}/g, '')
 
+// Multi-mark parts that stay all-or-nothing: an HCF in context has no step we can check on a phone.
+const NO_METHOD = new Set(['party-bags-hcf'])
 const covered = new Set()
-let parts = 0, variants = 0
+let parts = 0, variants = 0, mistakes = 0
 const ids = new Set()
 for (const template of templates) {
   const label = template.id
   assert.ok(!ids.has(template.id), `${label}: duplicate id`); ids.add(template.id)
   assert.ok(paperTopics.some(topic => topic.id === template.topic), `${label}: unknown topic ${template.topic}`)
   assert.ok(RAMPS.includes(template.ramp), `${label}: unknown ramp`)
-  assert.ok(template.inspiredBy.trim(), `${label}: needs an inspiredBy note`)
+  assert.ok(/\b(Jun|Nov)\d\d [123]F Q\d+/.test(template.inspiredBy) || /^(Not tested|Rare)/.test(template.inspiredBy), `${label}: inspiredBy should name the AQA questions (e.g. "Jun25 1F Q7") or say it is not tested / rare`)
   assert.ok(template.variants.length >= 3, `${label}: needs at least 3 sets of numbers`)
   const shape = v => JSON.stringify(v.parts.map(part => [part.kind, part.marks, part.statements, part.method?.length ?? 0, part.form ?? '']))
   const first = shape(template.variants[0])
@@ -89,11 +92,21 @@ for (const template of templates) {
           for (const source of sources) assert.ok(above.has(source), `${line}: merge source ${source} is not on the line above`)
         }
       })
+      if (part.kind === 'number' || part.kind === 'fraction') {
+        assert.ok((part.method?.length ?? 0) <= part.marks - 1, `${at}: at most marks − 1 method steps`)
+        for (const step of part.method ?? []) assert.ok(Number.isFinite(step.answer) && step.prompt.trim(), `${at}: method step`)
+        // AQA gives method marks on almost every 2+ mark question (M1 A1, M1 M1 A1…), so we do too.
+        if (part.marks >= 2 && !NO_METHOD.has(template.id)) assert.ok(part.method?.length, `${at}: a ${part.marks}-mark part needs method steps, as AQA gives method marks`)
+        for (const slip of part.mistakes ?? []) {
+          const typed = Array.isArray(slip.answer) ? `${slip.answer[0]}/${slip.answer[1]}` : String(slip.answer)
+          assert.ok(!mark(part, typed).right, `${at}: mistake ${typed} is marked right`)
+          assert.equal(mistakeFor(part, typed), slip.note, `${at}: mistake ${typed} does not get its note`)
+          mistakes++
+        }
+      }
       if (part.kind === 'number') {
         assert.ok(Number.isFinite(part.answer), `${at}: answer is not a number`)
         assert.ok(Math.abs(part.answer * 1e4 - Math.round(part.answer * 1e4)) < 1e-6, `${at}: answer ${part.answer} is not clean`)
-        assert.ok((part.method?.length ?? 0) <= part.marks - 1, `${at}: at most marks − 1 method steps`)
-        for (const step of part.method ?? []) assert.ok(Number.isFinite(step.answer), `${at}: method answer`)
         // The worked chain ends on the answer.
         const shown = part.dp !== undefined ? part.answer.toFixed(part.dp) : part.prefix === '£' && !Number.isInteger(part.answer) ? part.answer.toFixed(2) : String(part.answer)
         const lastLines = part.chain.slice(-2).map(step => flat(step.line))
@@ -175,6 +188,26 @@ assert.ok(learntSprint.some(q => q.topic === 'fractions'), 'learnt fractions sho
 const servedOnce = Object.fromEntries(templates.map(t => [t.id, 1]))
 assert.ok(buildSprint(templates, none, servedOnce, random).every(q => q.variant === 1), 'second time round, templates use their next numbers')
 
+// Money needs 2 decimal places, as AQA marks it; whole pounds don't.
+const cost = { kind: 'number', answer: 4.2, prefix: '£' }
+assert.ok(mark(cost, '4.20').right)
+assert.ok(!mark(cost, '4.2').right && /2 decimal places/.test(mark(cost, '4.2').note))
+assert.ok(mark({ kind: 'number', answer: 578, prefix: '£' }, '578').right)
+assert.equal(mistakeFor({ kind: 'number', answer: 64, mistakes: [{ answer: -64, note: 'n' }] }, '−64'), 'n')
+assert.equal(mistakeFor({ kind: 'fraction', answer: [11, 12], mistakes: [{ answer: [3, 7], note: 'f' }] }, '6/14'), 'f', 'equivalent slips match')
+
+// AQA weighting: every statement has a weight, often-tested skills come up more, and everything still comes round.
+for (const key of Object.keys(canStatements)) assert.ok(Number.isFinite(aqaMarks[key]), `${key}: no AQA weight`)
+const byId = id => templates.find(t => t.id === id)
+assert.ok(templateWeight(byId('decimal-multiply')) > 2 * templateWeight(byId('bounds-truncation')), 'decimal multiplication outweighs truncation')
+const counts = {}
+for (let run = 0; run < 400; run++) for (const q of buildSprint(templates, none, {}, random)) counts[q.id] = (counts[q.id] ?? 0) + 1
+assert.ok((counts['bounds-counting'] ?? 0) > 1.3 * (counts['bounds-truncation'] ?? 0), `bounds-counting (${counts['bounds-counting']}) should come up more than truncation (${counts['bounds-truncation']}), same topic and ramp`)
+const rotation = {}
+for (let run = 0; run < 40; run++) for (const q of buildSprint(templates, none, rotation, random)) rotation[q.id] = (rotation[q.id] ?? 0) + 1
+const never = templates.filter(t => !rotation[t.id]).map(t => t.id)
+assert.deepEqual(never, [], `templates never served in 40 sprints: ${never.join(', ')}`)
+
 // Saving: parts add up per statement, and enough right-first-time Practice turns a secure skill gold.
 let records = addAttempt({}, ['8:adding-fractions'], true, '2026-09-27')
 records = addAttempt(records, ['8:adding-fractions', '8:subtracting-fractions'], false, '2026-09-27')
@@ -185,4 +218,4 @@ assert.equal(PRACTICE_MIN, 2)
 assert.equal(levelFor({ started: true, finished: true, score: { questions: 5, firstTry: 5, on: '' }, cardBoxes: [], practice: records['8:adding-fractions'] }), 'examReady', '2 of 3 right first time makes a secure skill gold')
 
 const marks = templates.reduce((sum, t) => sum + questionMarks(t.variants[0]), 0)
-console.log(`Practice verified: ${templates.length} templates, ${variants} questions, ${parts} parts, ${marks} marks per set; all ${covered.size} checklist statements covered; ${[...styles].join(', ')}.`)
+console.log(`Practice verified: ${templates.length} templates, ${variants} questions, ${parts} parts, ${marks} marks per set, ${mistakes} known slips; all ${covered.size} checklist statements covered and weighted by AQA 2022–25; ${[...styles].join(', ')}.`)

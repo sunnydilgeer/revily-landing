@@ -83,7 +83,7 @@ function bidmasWorkOut(a: number, b: number, c: number, d: number, e: number, g:
   return {
     stem: 'Work out the value of each calculation.',
     parts: [
-      { kind: 'number', prompt: `$${a} + ${b} \\times ${c}$`, answer: first, marks: 1, statements: ['2:operation-priority'], hint: 'BIDMAS: multiply before you add.', chain: chainA },
+      { kind: 'number', prompt: `$${a} + ${b} \\times ${c}$`, answer: first, marks: 1, statements: ['2:operation-priority'], hint: 'BIDMAS: multiply before you add.', chain: chainA, mistakes: [{ answer: (a + b) * c, note: `That adds first: (${a} + ${b}) × ${c}. Multiplication comes before addition, so work out ${b} × ${c} first.` }] },
       { kind: 'number', prompt: `$${d} - ${e} \\times ${g}^2$`, answer: second, marks: 1, statements: ['2:bidmas-ladder', '2:operation-priority'], hint: 'Indices first, then multiply, then subtract.', chain: chainB },
     ],
   }
@@ -149,6 +149,7 @@ function bidmasAlgebra(coefficient: number, x: number, by: number): QuestionBody
       },
       {
         kind: 'number', prompt: `Work out the value of $${coefficient}x^2$ when $x = ${x}$.`, answer: right, marks: 1, statements: ['2:mixed'],
+        mistakes: [{ answer: wrong, note: `That squares ${coefficient}x. Only x is squared: ${coefficient} × ${x}².` }],
         hint: `Square ${x} first, then multiply by ${coefficient}.`,
         chain: [
           { line: `[[k:${coefficient}]][[x:x^2]]` },
@@ -241,6 +242,7 @@ function minibuses(people: number, seats: number, group: string, vehicle: string
       kind: 'number', prompt: `How many ${vehicles} are needed?`,
       answer: full + 1, marks: 2, statements: ['5:long-division-remainders', '5:long-division-two-digit'],
       method: [{ prompt: `How many ${vehicles} can be completely filled?`, answer: full }],
+      mistakes: [{ answer: full, note: `${full} ${vehicles} leave ${left} ${group} behind. They still need a seat, so round up.` }],
       hint: `Work out ${people} ÷ ${seats}. What happens to the ${group} left over?`,
       chain: [
         { line: `[[a:${people}]] \\div [[b:${seats}]]` },
@@ -345,6 +347,7 @@ function decimalError(a: string, b: string): QuestionBody {
       },
       {
         kind: 'number', prompt: `Work out $${a} \\times ${b}$ correctly.`, answer: right, marks: 1, statements: ['6:decimal-multiplication'],
+        mistakes: [{ answer: wrong, note: 'That is Kim’s answer. Count every decimal place in the question.' }],
         hint: `Multiply without the decimal points, then put back ${places} decimal places.`,
         chain: [
           { line: `[[a:${a}]] \\times [[b:${b}]]` },
@@ -413,6 +416,8 @@ function lights(a: number, b: number): QuestionBody {
     stem: `Two lights flash at the same moment. The red light flashes every ${a} seconds. The green light flashes every ${b} seconds.`,
     parts: [{
       kind: 'number', prompt: 'After how many seconds will they next flash at the same time?', answer, suffix: ' seconds', marks: 2, statements: ['7:hcf-lcm-listing'],
+      method: [{ prompt: `They flash together at any time that is a multiple of ${a} and of ${b}. ${a} × ${b} is always one. What is ${a} × ${b}?`, answer: a * b, suffix: ' seconds' }],
+      mistakes: [{ answer: a * b, note: `They do flash together after ${a * b} seconds, but not for the first time. Look for a smaller number in both times tables.` }],
       hint: `List the multiples of ${a} and of ${b}. Look for the first number in both lists.`,
       chain: [
         { line: `\\text{Red: } ${multiples(a, answer)}` },
@@ -466,15 +471,143 @@ function vennHcf(a: number, b: number): QuestionBody {
   }
 }
 
+/* Patterns added from the 2022–25 papers */
+
+/** Non-calculator decimal multiplication: digits first, then the point (NOV22 1F Q14: 3 marks for digits, 1 for the point). */
+function decimalMultiply(a: string, b: string): QuestionBody {
+  const A = Number(a.replace('.', '')), B = Number(b.replace('.', ''))
+  const places = a.split('.')[1].length + b.split('.')[1].length, whole = A * B, answer = tidy(whole / 10 ** places)
+  return {
+    stem: 'Work out, without a calculator,',
+    parts: [{
+      kind: 'number', prompt: `$${a} \\times ${b}$`, answer, marks: 3, statements: ['6:decimal-multiplication', '4:long-multiplication-tens'],
+      method: [
+        { prompt: `Ignore the decimal points for now. What is ${A} × ${B}?`, answer: whole },
+        { prompt: 'How many decimal places are there in the question altogether?', answer: places },
+      ],
+      mistakes: [
+        { answer: tidy(whole / 10 ** (places - 1)), note: `The digits are right, but the point is one place out. There are ${places} decimal places in the question, so the answer needs ${places}.` },
+        { answer: tidy(whole / 10 ** (places + 1)), note: `The digits are right, but the point is one place out. There are ${places} decimal places in the question, so the answer needs ${places}.` },
+      ],
+      hint: `Multiply ${A} × ${B} as whole numbers, then put back ${places} decimal places.`,
+      chain: [
+        { line: `[[a:${a}]] \\times [[b:${b}]]` },
+        { line: `= [[w:${A} \\times ${B}]] [[d:\\div ${tex(10 ** places)}]]`, op: 'Take out the points', merge: { w: ['a', 'b'] }, why: `There are ${places} decimal places in the question, so multiply the whole numbers and divide by ${num(10 ** places)} at the end.` },
+        { line: `= [[x:${whole}]] [[d:\\div ${tex(10 ** places)}]]`, op: 'Long multiply', merge: { x: ['w'] }, why: `${A} × ${B} = ${whole}. In the exam, most of the marks are for these digits.` },
+        { line: `= [[r:${answer}]]`, op: 'Put the point back', merge: { r: ['x', 'd'] }, why: `${num(whole)} ÷ ${num(10 ** places)} = ${answer}. The last mark is for the point: ${places} decimal places.` },
+      ],
+    }],
+  }
+}
+
+/** Use a given multiplication fact (NOV22 1F Q10, JUN24 1F Q14). */
+function relatedFacts(a: number, b: number): QuestionBody {
+  const product = a * b, half = a / 2
+  return {
+    stem: `You are told that $${a} \\times ${b} = ${tex(product)}$. Use this fact to answer each part.`,
+    parts: [
+      {
+        kind: 'number', prompt: `Write down the answer to $${tex(product)} \\div ${b}$`, answer: a, marks: 1, statements: ['5:long-division-check'],
+        hint: 'Division undoes multiplication.',
+        chain: [{ line: `${a} \\times ${b} = ${tex(product)}` }, { line: `${tex(product)} \\div ${b} = ${a}`, op: 'Undo it', why: `If ${a} × ${b} = ${num(product)}, dividing ${num(product)} by ${b} takes you back to ${a}.` }],
+      },
+      {
+        kind: 'number', prompt: `Write down the answer to $${half} \\times ${b}$`, answer: half * b, marks: 1, statements: ['4:long-multiplication-application'],
+        mistakes: [{ answer: product * 2, note: `${half} is half of ${a}, so the answer is half of ${num(product)}, not double.` }],
+        hint: `How does ${half} compare with ${a}?`,
+        chain: [{ line: `${half} = ${a} \\div 2` }, { line: `${half} \\times ${b} = ${tex(product)} \\div 2 = ${tex(half * b)}`, op: 'Halve it', why: `${half} is half of ${a}, so the product is half of ${num(product)}.` }],
+      },
+      {
+        kind: 'number', prompt: `Work out $${a} \\times ${b + 1}$`, answer: a * (b + 1), marks: 2, statements: ['4:long-multiplication-application'],
+        method: [{ prompt: `${a} × ${b + 1} is ${a} × ${b} plus one more lot of what?`, answer: a }],
+        hint: `${b + 1} lots of ${a} is ${b} lots plus one more lot.`,
+        chain: [
+          { line: `[[a:${a} \\times ${b + 1}]]` },
+          { line: `= [[p:${tex(product)}]] + [[o:${a}]]`, op: 'One more lot', merge: { p: ['a'] }, why: `${a} × ${b + 1} is ${a} × ${b} (which you know is ${num(product)}) plus one more ${a}.` },
+          { line: `= [[r:${tex(a * (b + 1))}]]`, op: 'Add', merge: { r: ['p', 'o'] }, why: `${num(product)} + ${a} = ${num(a * (b + 1))}.` },
+        ],
+      },
+    ],
+  }
+}
+
+/** Working backwards from a division with a remainder (JUN25 1F Q5). */
+function remainderBack(divisor: number, quotient: number, remainder: number): QuestionBody {
+  const answer = divisor * quotient + remainder
+  return {
+    stem: `A number is divided by ${divisor}. The answer is ${quotient} remainder ${remainder}.`,
+    parts: [{
+      kind: 'number', prompt: 'Work out the number.', answer, marks: 2, statements: ['5:long-division-check', '5:long-division-remainders'],
+      method: [{ prompt: `First, what is ${quotient} × ${divisor}?`, answer: quotient * divisor }],
+      mistakes: [{ answer: quotient * divisor - remainder, note: `The remainder is what was left over after dividing, so add it back on, don’t take it away.` }],
+      hint: `Undo the division: ${quotient} lots of ${divisor}, plus the ${remainder} left over.`,
+      chain: [
+        { line: `[[q:${quotient}]] \\times [[d:${divisor}]] + [[r:${remainder}]]` },
+        { line: `= [[m:${quotient * divisor}]] + [[r:${remainder}]]`, op: 'Multiply back', merge: { m: ['q', 'd'] }, why: `${quotient} full lots of ${divisor} make ${quotient * divisor}.` },
+        { line: `= [[n:${answer}]]`, op: 'Add the remainder', merge: { n: ['m', 'r'] }, why: `The ${remainder} left over goes back on: ${answer}. Check: ${answer} ÷ ${divisor} = ${quotient} r ${remainder}.` },
+      ],
+    }],
+  }
+}
+
+type Claim = { claim: string; right: string; others: string[]; why: string }
+
+/** "Is it always true?": pick the counterexample (NOV24 1F Q4b, NOV22 3F Q10). */
+function counterexample(name: string, multiples: Claim, primes: Claim, by: number): QuestionBody {
+  const part = (c: Claim, statement: string, shift: number) => ({
+    kind: 'choice' as const, prompt: `${name} says, “${c.claim}” Which example shows ${name} is wrong?`, marks: 1, statements: [statement],
+    ...rotate([c.right, ...c.others], 0, by + shift),
+    hint: 'You need one example where the claim does not work. The others fit the claim.',
+    reason: c.why,
+  })
+  return { stem: 'One example that does not work is enough to show a claim is wrong.', parts: [part(multiples, '1:multiples-factors', 0), part(primes, '1:special-integers', 1)] }
+}
+
+type Power = { base: number; square: number; root: number; cube: number; slips: [number, number, number, number] }
+
+/** Squares, roots and cubes, with the slips AQA's mark schemes single out ((−8)² as −64, 1.5² as 3). */
+function powers({ base, square, root, cube, slips }: Power): QuestionBody {
+  const r = Math.sqrt(root)
+  return {
+    stem: 'Work out',
+    parts: [
+      {
+        kind: 'number', prompt: `$(${base})^2$`, answer: base * base, signed: true, marks: 1, statements: ['1:special-integers'],
+        mistakes: [{ answer: slips[0], note: `The bracket means the minus sign is squared too: (${base}) × (${base}) = ${base * base}. Negative × negative is positive.` }],
+        hint: `Multiply (${base}) by (${base}). What is a negative times a negative?`,
+        chain: [{ line: `(${base})^2 = (${base}) \\times (${base})` }, { line: `= ${base * base}`, op: '− × − = +', why: `Two negatives multiply to a positive: ${base * base}.` }],
+      },
+      {
+        kind: 'number', prompt: `$${square}^2$`, answer: tidy(square * square), marks: 1, statements: ['6:decimal-multiplication'],
+        mistakes: [{ answer: slips[1], note: `${square}² means ${square} × ${square}, not ${square} × 2.` }],
+        hint: `${square}² means ${square} × ${square}.`,
+        chain: [{ line: `${square}^2 = ${square} \\times ${square}` }, { line: `= ${tidy(square * square)}`, op: 'Multiply', why: `${String(square).replace('.', '')} × ${String(square).replace('.', '')} = ${Math.round(square * square * 100)}, and there are 2 decimal places in the question: ${tidy(square * square)}.` }],
+      },
+      {
+        kind: 'number', prompt: `$\\sqrt{${root}}$`, answer: r, marks: 1, statements: ['1:special-integers'],
+        mistakes: [{ answer: slips[2], note: `That halves ${root}. The square root is the number that multiplies by itself to make ${root}.` }],
+        hint: `Which number times itself makes ${root}?`,
+        chain: [{ line: `\\sqrt{${root}}` }, { line: `= ${r}`, op: 'Undo the square', why: `${r} × ${r} = ${root}.` }],
+      },
+      {
+        kind: 'number', prompt: `$${cube}^3$`, answer: cube ** 3, marks: 1, statements: ['1:special-integers'],
+        mistakes: [{ answer: slips[3], note: `${cube}³ means ${cube} × ${cube} × ${cube}, not ${cube} × 3.` }],
+        hint: `${cube}³ means ${cube} × ${cube} × ${cube}.`,
+        chain: [{ line: `${cube}^3 = ${cube} \\times ${cube} \\times ${cube}` }, { line: `= ${cube ** 3}`, op: 'Multiply', why: `${cube} × ${cube} = ${cube * cube}, then × ${cube} = ${cube ** 3}.` }],
+      },
+    ],
+  }
+}
+
 export const calculationTemplates: Template[] = [
   {
     id: 'number-types-list', topic: 'number-types', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Q1–3 style: "Here is a list of numbers… write down a prime / cube / multiple"',
+    inspiredBy: 'Jun25 1F Q2; Jun23 1F Q1 — pick a prime, square or multiple from a list',
     variants: [typesList([8, 15, 19, 21, 24, 49], 8, 6), typesList([12, 23, 25, 27, 33, 35], 27, 4), typesList([16, 21, 29, 39, 45, 64], 64, 9)],
   },
   {
     id: 'integers-rational', topic: 'number-types', ramp: 'recall', style: 'explain', context: 'none', calculator: false,
-    inspiredBy: 'Explain-why questions about types of number, with a student’s claim to judge',
+    inspiredBy: 'Not tested by AQA Foundation 2022–25 (rational/irrational); the claim-and-reason style follows Nov22 2F Q21b',
     variants: [
       integersRational(['−8', '0', '6.5', '15'], 2, 16, 0),
       integersRational(['−3', '2.5', '0', '20'], 1, 49, 1),
@@ -483,52 +616,52 @@ export const calculationTemplates: Template[] = [
   },
   {
     id: 'bidmas-work-out', topic: 'bidmas', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Q1–5 style: "Work out 3 + 4 × 5", one mark each',
+    inspiredBy: 'Jun23 1F Q10; Nov23 1F Q18 — order of operations with indices',
     variants: [bidmasWorkOut(3, 4, 5, 20, 2, 3), bidmasWorkOut(6, 2, 7, 60, 3, 4), bidmasWorkOut(9, 5, 3, 70, 2, 5)],
   },
   {
     id: 'bidmas-error', topic: 'bidmas', ramp: 'apply', style: 'errorSpot', context: 'none', calculator: false,
-    inspiredBy: 'Error-spotting: a student’s working for an order-of-operations calculation',
+    inspiredBy: 'Jun23 2F Q11c — say exactly what is wrong with someone’s order of operations',
     variants: [bidmasError(24, 4, 2), bidmasError(36, 6, 3), bidmasError(40, 5, 2)],
   },
   {
     id: 'bidmas-fraction-line', topic: 'bidmas', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Non-calculator "Work out (a + b) / (c − d)"',
+    inspiredBy: 'Nov22 2F Q14 — a fraction line that groups a calculation',
     variants: [fractionLine([18, '+', 6], [10, '-', 2]), fractionLine([35, '-', 7], [2, '+', 5]), fractionLine([6, '*', 9], [20, '-', 11])],
   },
   {
     id: 'bidmas-algebra', topic: 'bidmas', ramp: 'apply', style: 'explain', context: 'none', calculator: false,
-    inspiredBy: 'Substitution with a power, and a student’s claim to check',
+    inspiredBy: 'Jun25 1F Q10; Nov24 2F Q12a — substitute into an expression with a square',
     variants: [bidmasAlgebra(3, 4, 0), bidmasAlgebra(3, 5, 1), bidmasAlgebra(2, 6, 2)],
   },
   {
     id: 'place-value-digit', topic: 'place-value', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Q1 style: "Write down the value of the 7 in…"',
+    inspiredBy: 'Nov23 3F Q2; Nov22 2F Q2 — the value of a digit',
     variants: [placeValue(4706285, 7, '3.529', 2), placeValue(2381604, 8, '16.047', 4), placeValue(9052317, 5, '0.638', 3)],
   },
   {
     id: 'written-multiply', topic: 'written-methods', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Non-calculator "Work out 468 × 7"',
+    inspiredBy: 'Rare on its own 2022–25; multiplication usually sits inside a context (Jun25 1F Q12a)',
     variants: [writtenMultiply(468, 7), writtenMultiply(537, 8), writtenMultiply(649, 6)],
   },
   {
     id: 'bulk-buy', topic: 'money', ramp: 'apply', style: 'standard', context: 'school', calculator: false,
-    inspiredBy: 'Non-calculator money: a number of items at a whole-pound price',
+    inspiredBy: 'Jun25 1F Q12a — a count times a price, non-calculator',
     variants: [bulkBuy(34, 'calculators', 17), bulkBuy(26, 'revision guides', 19), bulkBuy(43, 'football shirts', 15)],
   },
   {
     id: 'minibuses', topic: 'written-methods', ramp: 'apply', style: 'standard', context: 'travel', calculator: false,
-    inspiredBy: 'Division with a remainder in context: how many vehicles/boxes are needed',
+    inspiredBy: 'Nov23 2F Q14; Nov24 3F Q24b — round up for vehicles',
     variants: [minibuses(150, 16, 'students', 'minibus', 'minibuses'), minibuses(200, 24, 'fans', 'coach', 'coaches'), minibuses(175, 12, 'players', 'van', 'vans')],
   },
   {
     id: 'bus-stop', topic: 'written-methods', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Non-calculator "Work out 952 ÷ 7", then checking by the inverse',
+    inspiredBy: 'Jun24 1F Q1a; Nov22 1F Q10 — division, and checking with the inverse',
     variants: [busStop(952, 7, 0), busStop(738, 6, 1), busStop(784, 8, 2)],
   },
   {
     id: 'shopping-change', topic: 'money', ramp: 'multistep', style: 'standard', context: 'shopping', calculator: false,
-    inspiredBy: 'Money multi-step: several items, pay with a note, find the change (3 marks)',
+    inspiredBy: 'Jun23 1F Q5; Nov22 1F Q11 — several items, a total, money to 2 d.p.',
     variants: [
       shoppingChange(3, 'notebooks', 245, 'a pen', 180, 10),
       shoppingChange(4, 'cans of drink', 135, 'a sandwich', 260, 10),
@@ -537,7 +670,7 @@ export const calculationTemplates: Template[] = [
   },
   {
     id: 'decimal-divide', topic: 'decimals', ramp: 'apply', style: 'standard', context: 'home', calculator: false,
-    inspiredBy: 'Non-calculator division by a decimal, in context',
+    inspiredBy: 'Jun23 2F Q5a; Nov22 2F Q6a — dividing by a decimal',
     variants: [
       decimalDivide(4.5, 0.25, 'A ribbon is 4.5 m long. It is cut into pieces that are each 0.25 m long.', 'pieces'),
       decimalDivide(7.2, 0.3, 'A jug holds 7.2 litres of juice. Each glass holds 0.3 litres.', 'full glasses'),
@@ -546,17 +679,17 @@ export const calculationTemplates: Template[] = [
   },
   {
     id: 'decimal-error', topic: 'decimals', ramp: 'apply', style: 'errorSpot', context: 'none', calculator: false,
-    inspiredBy: 'Error-spotting: a decimal multiplication with the point in the wrong place',
+    inspiredBy: 'Nov22 1F Q14; Jun25 1F Q18 — the decimal point in the wrong place',
     variants: [decimalError('0.4', '0.3'), decimalError('0.7', '0.4'), decimalError('0.5', '0.06')],
   },
   {
     id: 'show-tickets', topic: 'money', ramp: 'multistep', style: 'showThat', context: 'events', calculator: false,
-    inspiredBy: 'Show-that with money: prove a total is under (or over) a budget',
+    inspiredBy: 'Jun25 3F Q7a; Nov22 3F Q23 — show a total is under a budget',
     variants: [showTickets(12.5, 7.25, 2, 3, 50), showTickets(9.75, 6.4, 2, 4, 45), showTickets(15.2, 8.6, 3, 2, 65)],
   },
   {
     id: 'prime-product', topic: 'factors', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: '"Write 84 as a product of its prime factors"',
+    inspiredBy: 'Jun23 1F Q21; Nov22 2F Q28 — products of prime factors',
     variants: [
       primeProduct(84, ['2^2 \\times 21', '4 \\times 3 \\times 7', '2 \\times 42'], 0),
       primeProduct(90, ['9 \\times 10', '2 \\times 45', '2 \\times 3 \\times 15'], 1),
@@ -565,17 +698,50 @@ export const calculationTemplates: Template[] = [
   },
   {
     id: 'lights-lcm', topic: 'factors', ramp: 'apply', style: 'standard', context: 'events', calculator: false,
-    inspiredBy: 'LCM in context: two things that repeat, when do they coincide again',
+    inspiredBy: 'Nov22 3F Q12 — two things that repeat; when do they coincide',
     variants: [lights(6, 8), lights(4, 10), lights(9, 12)],
   },
   {
     id: 'party-bags-hcf', topic: 'factors', ramp: 'apply', style: 'standard', context: 'events', calculator: false,
-    inspiredBy: 'HCF in context: share two kinds of item equally with none left over',
+    inspiredBy: 'Rare 2022–25; nearest is Nov22 2F Q28 (HCF)',
     variants: [partyBags(24, 'sweets', 36, 'stickers'), partyBags(18, 'balloons', 30, 'badges'), partyBags(28, 'pencils', 42, 'rubbers')],
   },
   {
     id: 'venn-hcf-lcm', topic: 'factors', ramp: 'stretch', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Prime factors in a Venn diagram, then HCF and LCM',
+    inspiredBy: 'Rare 2022–25; nearest is Nov22 2F Q28 (HCF from prime factors)',
     variants: [vennHcf(60, 84), vennHcf(36, 120), vennHcf(45, 75)],
+  },
+  {
+    id: 'decimal-multiply', topic: 'decimals', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Nov22 1F Q14; Jun25 1F Q18; Nov24 1F Q19 — decimal multiplication by hand, most marks for the digits',
+    variants: [decimalMultiply('0.37', '0.26'), decimalMultiply('0.43', '0.18'), decimalMultiply('2.4', '0.35')],
+  },
+  {
+    id: 'related-facts', topic: 'written-methods', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Nov22 1F Q10; Jun24 1F Q14 — use a given multiplication fact',
+    variants: [relatedFacts(428, 30), relatedFacts(356, 40), relatedFacts(264, 50)],
+  },
+  {
+    id: 'remainder-back', topic: 'written-methods', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Jun25 1F Q5 — a number divided by 8 is 43 remainder 5; find the number',
+    variants: [remainderBack(7, 38, 4), remainderBack(9, 26, 7), remainderBack(6, 57, 5)],
+  },
+  {
+    id: 'counterexample', topic: 'number-types', ramp: 'recall', style: 'explain', context: 'none', calculator: false,
+    inspiredBy: 'Nov24 1F Q4b; Nov22 3F Q10 — give an example that shows a claim is wrong',
+    variants: [
+      counterexample('Jo', { claim: 'When you add two multiples of 5, the answer is always a multiple of 10.', right: '5 + 10 = 15', others: ['10 + 20 = 30', '5 + 5 = 10', '15 + 25 = 40'], why: '5 and 10 are both multiples of 5, but 15 is not a multiple of 10. The other sums are all multiples of 10, so they fit the claim.' }, { claim: 'When you multiply two prime numbers, the answer is always odd.', right: '2 × 3 = 6', others: ['3 × 5 = 15', '5 × 7 = 35', '3 × 3 = 9'], why: '2 is a prime number, and 2 × 3 = 6 is even. The others are all odd, so they fit the claim.' }, 0),
+      counterexample('Kai', { claim: 'Every multiple of 4 is also a multiple of 8.', right: '12', others: ['16', '24', '40'], why: '12 is in the 4 times table (4 × 3) but not the 8 times table. 16, 24 and 40 are multiples of both.' }, { claim: 'Every prime number is odd.', right: '2', others: ['3', '7', '9'], why: '2 is prime (its only factors are 1 and 2) and it is even. 9 is odd but it is not prime, so it says nothing about the claim.' }, 1),
+      counterexample('Mia', { claim: 'Every number in the 3 times table is odd.', right: '6', others: ['9', '15', '21'], why: '6 = 3 × 2 is in the 3 times table and it is even. 9, 15 and 21 are odd, so they fit the claim.' }, { claim: 'Every square number is even.', right: '9', others: ['4', '16', '36'], why: '9 = 3 × 3 is a square number and it is odd. 4, 16 and 36 are even, so they fit the claim.' }, 2),
+    ],
+  },
+  {
+    id: 'powers-quickfire', topic: 'number-types', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Jun23 1F Q3c; Nov24 1F Q1 and Q19; Jun24 1F Q6 — squares, roots and cubes, and their classic slips',
+    variants: [
+      powers({ base: -8, square: 1.5, root: 144, cube: 3, slips: [-64, 3, 72, 9] }),
+      powers({ base: -6, square: 2.5, root: 81, cube: 4, slips: [-36, 5, 40.5, 12] }),
+      powers({ base: -9, square: 0.3, root: 169, cube: 5, slips: [-81, 0.6, 84.5, 15] }),
+    ],
   },
 ]

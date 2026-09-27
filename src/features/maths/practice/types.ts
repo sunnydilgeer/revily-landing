@@ -16,13 +16,19 @@ export const RAMPS: Ramp[] = ['recall', 'apply', 'multistep', 'stretch']
 export const rampLabels: Record<Ramp, string> = { recall: 'Warm-up', apply: 'Work it out', multistep: 'Multi-step', stretch: 'Stretch' }
 
 /** The non-standard types run at about 10% of each paper. */
-export type Style = 'standard' | 'showThat' | 'errorSpot' | 'explain'
-export const styleLabels: Record<Style, string> = { standard: '', showThat: 'Show that', errorSpot: 'Spot the mistake', explain: 'Explain' }
+export type Style = 'standard' | 'showThat' | 'errorSpot' | 'explain' | 'assumeInFact'
+export const styleLabels: Record<Style, string> = { standard: '', showThat: 'Show that', errorSpot: 'Spot the mistake', explain: 'Explain', assumeInFact: 'Assume… in fact' }
 
 export type Context = 'none' | 'shopping' | 'food' | 'travel' | 'school' | 'sport' | 'home' | 'events' | 'weather'
 
 /** One method mark: a step on the way to the answer, asked only when the final answer was wrong. */
 export type MethodStep = { prompt: string; answer: number; prefix?: string; suffix?: string }
+
+/**
+ * A wrong answer AQA's mark schemes single out (their special cases), with feedback on the slip behind it:
+ * "(−4)² is 16, not −16". A number, or a fraction as [numerator, denominator].
+ */
+export type Mistake = { answer: number | [number, number]; note: string }
 
 type PartBase = {
   /** What this part asks. Inline maths goes in $…$. */
@@ -48,10 +54,14 @@ export type NumberPart = PartBase & {
   signed?: boolean
   /** Method marks, one each, for a wrong final answer: marks − 1 of them at most. */
   method?: MethodStep[]
+  mistakes?: Mistake[]
 }
 
 export type FractionPart = PartBase & {
   kind: 'fraction'
+  /** Method marks, as for number parts. Each step's answer is a number (a numerator, say). */
+  method?: MethodStep[]
+  mistakes?: Mistake[]
   /** Numerator and denominator (improper for a mixed number). */
   answer: [number, number]
   /** 'simplest': must be fully simplified. 'mixed': must be a simplified mixed number. Otherwise any equivalent. */
@@ -80,6 +90,7 @@ export type Template = {
   context: Context
   /** False for a question that belongs on the non-calculator paper. */
   calculator: boolean
+  /** The AQA questions it is modelled on ("Jun25 1F Q7"), for our audit trail. Never shown to students. */
   inspiredBy: string
   variants: QuestionBody[]
 }

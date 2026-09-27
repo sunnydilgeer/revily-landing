@@ -4,10 +4,10 @@
  */
 import type { ChainStep } from '../../step-chain/StepChain'
 import { f, frac, gcd, lcm, mixed, rotate, tidy } from '../helpers'
-import type { QuestionBody, Template } from '../types'
+import type { MethodStep, QuestionBody, Template } from '../types'
 
 /** Adding or subtracting two fractions over the lowest common denominator, simplified at the end. */
-function addChain(n1: number, d1: number, n2: number, d2: number, sign: 1 | -1): { chain: ChainStep[]; answer: [number, number] } {
+function addChain(n1: number, d1: number, n2: number, d2: number, sign: 1 | -1): { chain: ChainStep[]; answer: [number, number]; method: MethodStep[] } {
   const L = lcm(d1, d2), m1 = n1 * L / d1, m2 = n2 * L / d2, top = m1 + sign * m2, g = gcd(top, L)
   const op = sign > 0 ? '+' : '-', word = sign > 0 ? 'Add' : 'Subtract'
   const chain: ChainStep[] = [
@@ -19,7 +19,11 @@ function addChain(n1: number, d1: number, n2: number, d2: number, sign: 1 | -1):
     { line: `= [[e:${frac(top, L)}]]`, op: `${word} the tops`, merge: { e: ['c', 'd'] }, why: `The denominators match, so ${word.toLowerCase()} the numerators: ${m1} ${op === '+' ? '+' : '−'} ${m2} = ${top}. The denominator stays ${L}.` },
   ]
   if (g > 1) chain.push({ line: `= [[s:${frac(top / g, L / g)}]]`, op: `÷ ${g}`, merge: { s: ['e'] }, why: `${top} and ${L} share the factor ${g}. Divide both by ${g} to simplify.` })
-  return { chain, answer: [top / g, L / g] }
+  const method: MethodStep[] = [
+    { prompt: `Write ${n1}/${d1} as a fraction over ${L}. What is the numerator?`, answer: m1 },
+    { prompt: `Write ${n2}/${d2} as a fraction over ${L}. What is the numerator?`, answer: m2 },
+  ]
+  return { chain, answer: [top / g, L / g], method }
 }
 
 function simplifyMixed(n: number, d: number, top: number, bottom: number): QuestionBody {
@@ -48,14 +52,17 @@ function simplifyMixed(n: number, d: number, top: number, bottom: number): Quest
   }
 }
 
-function addSubtract(a: [number, number, number, number], s: [number, number, number, number]): QuestionBody {
-  const add = addChain(a[0], a[1], a[2], a[3], 1), sub = addChain(s[0], s[1], s[2], s[3], -1)
+function addOrSubtract(a: [number, number, number, number], sign: 1 | -1): QuestionBody {
+  const worked = addChain(a[0], a[1], a[2], a[3], sign)
+  const adding = sign > 0, word = adding ? 'adds' : 'subtracts'
   return {
     stem: 'Work out',
-    parts: [
-      { kind: 'fraction', prompt: `${f(a[0], a[1])} + ${f(a[2], a[3])}`, answer: add.answer, marks: 2, statements: ['8:adding-fractions'], hint: 'Make the denominators the same first.', chain: add.chain },
-      { kind: 'fraction', prompt: `${f(s[0], s[1])} − ${f(s[2], s[3])}`, answer: sub.answer, marks: 2, statements: ['8:subtracting-fractions'], hint: 'Make the denominators the same first, then subtract the numerators.', chain: sub.chain },
-    ],
+    parts: [{
+      kind: 'fraction', prompt: `${f(a[0], a[1])} ${adding ? '+' : '−'} ${f(a[2], a[3])}`, answer: worked.answer, marks: 3,
+      statements: [adding ? '8:adding-fractions' : '8:subtracting-fractions'], method: worked.method,
+      mistakes: [{ answer: [a[0] + sign * a[2], a[1] + sign * a[3]], note: `That ${word} the bottoms as well as the tops. Make the denominators the same first; only the numerators are ${adding ? 'added' : 'subtracted'}.` }],
+      hint: `Make the denominators the same first, then ${adding ? 'add' : 'subtract'} the numerators.`, chain: worked.chain,
+    }],
   }
 }
 
@@ -70,6 +77,7 @@ function multiplyDivide(m: [number, number, number, number], v: [number, number,
     parts: [
       {
         kind: 'fraction', prompt: `${f(a, b)} × ${f(c, d)}`, answer: [top / g, bottom / g], form: 'simplest', marks: 2, statements: ['8:multiplying-fractions'],
+        method: [{ prompt: 'Multiply the numerators together. What do you get?', answer: top }],
         hint: 'Multiply the tops together and the bottoms together, then simplify.',
         chain: [
           { line: `[[a:${frac(a, b)}]] \\times [[b:${frac(c, d)}]]` },
@@ -80,6 +88,8 @@ function multiplyDivide(m: [number, number, number, number], v: [number, number,
       },
       {
         kind: 'fraction', prompt: `${f(p, q)} ÷ ${f(r, s)}`, answer: [vTop / h, vBottom / h], form: 'simplest', marks: 2, statements: ['8:dividing-fractions'],
+        method: [{ prompt: `Keep, change, flip: ${p}/${q} × ${s}/${r}. What is the numerator of the answer?`, answer: vTop }],
+        mistakes: [{ answer: [p * r, q * s], note: `That multiplies by ${r}/${s}. Dividing by a fraction means multiplying by it flipped: ${s}/${r}.` }],
         hint: 'Keep the first fraction, change ÷ to ×, flip the second fraction.',
         chain: [
           { line: `[[a:${frac(p, q)}]] [[o:\\div]] [[b:${frac(r, s)}]]` },
@@ -98,6 +108,8 @@ function recipe(whole: number, n: number, d: number, cakes: number, what: string
     stem: `A recipe for one ${what} uses ${whole}${f(n, d)} cups of flour.`,
     parts: [{
       kind: 'fraction', prompt: `How much flour is needed for ${cakes} ${whats}? Give your answer as a mixed number.`, answer: [total, d], form: 'mixed', marks: 2,
+      method: [{ prompt: `Write ${whole} ${n}/${d} as an improper fraction. What is the numerator?`, answer: improper }],
+      mistakes: [{ answer: [whole * cakes * d + n, d], note: `That multiplies the ${whole} whole but not the ${n}/${d}. Turn it into an improper fraction first, then multiply the whole thing.` }],
       statements: ['8:mixed-fraction-calculations'],
       hint: `Turn ${whole} ${n}/${d} into an improper fraction first, then multiply by ${cakes}.`,
       chain: [
@@ -172,6 +184,7 @@ function fdpConvert(decimal: number, fraction: [number, number], percentFrom: nu
       },
       {
         kind: 'number', prompt: `Write ${percentFrom} as a percentage.`, answer: percent, suffix: '%', marks: 1, statements: ['9:decimal-to-percentage'],
+        mistakes: [{ answer: tidy(percentFrom * 10), note: 'That multiplies by 10. Per cent means out of 100, so multiply by 100.' }],
         hint: 'Per cent means out of 100. Multiply by 100.',
         chain: [{ line: `${percentFrom} \\times 100` }, { line: `= ${percent}\\%`, op: '× 100', why: `Multiplying by 100 moves each digit two places left: ${percentFrom} → ${percent}%.` }],
       },
@@ -210,45 +223,82 @@ function fdpCompare(percent: number, fractionPercent: number, testA: [number, nu
   }
 }
 
+/** a/b + c/d ÷ e/f: the division first (JUN25 1F Q23, where adding first earns only a special case). */
+function fractionOrder(a: [number, number], c: [number, number], e: [number, number]): QuestionBody {
+  const divTop = c[0] * e[1], divBottom = c[1] * e[0]
+  const L = lcm(a[1], divBottom), sumTop = a[0] * L / a[1] + divTop * L / divBottom, g = gcd(sumTop, L)
+  const wrongTop = a[0] * c[1] + c[0] * a[1], wrongBottom = a[1] * c[1]
+  return {
+    stem: 'Work out the value of this. Give your answer as a fraction in its simplest form.',
+    parts: [{
+      kind: 'fraction', prompt: `${f(a[0], a[1])} + ${f(c[0], c[1])} ÷ ${f(e[0], e[1])}`, answer: [sumTop / g, L / g], form: 'simplest', marks: 3,
+      statements: ['8:dividing-fractions', '8:adding-fractions', '2:operation-priority'],
+      method: [
+        { prompt: `Division comes first. ${c[0]}/${c[1]} ÷ ${e[0]}/${e[1]} = ${c[0]}/${c[1]} × ${e[1]}/${e[0]}. What is the numerator (before simplifying)?`, answer: divTop },
+        { prompt: `Now add ${a[0]}/${a[1]} + ${divTop}/${divBottom} over ${L}. What is the numerator of the total?`, answer: sumTop },
+      ],
+      mistakes: [{ answer: [wrongTop * e[1], wrongBottom * e[0]], note: 'That adds first and then divides. BIDMAS says the division comes before the addition.' }],
+      hint: 'BIDMAS: do the division before the addition.',
+      chain: [
+        { line: `[[a:${frac(a[0], a[1])}]] + [[d:${frac(c[0], c[1])} \\div ${frac(e[0], e[1])}]]` },
+        { line: `= [[a:${frac(a[0], a[1])}]] + [[q:${frac(divTop, divBottom)}]]`, op: 'Divide first', merge: { q: ['d'] }, why: `Division comes before addition. Keep, change, flip: ${c[0]}/${c[1]} × ${e[1]}/${e[0]} = ${divTop}/${divBottom}.` },
+        { line: `= [[A:${frac(a[0] * L / a[1], L)}]] + [[Q:${frac(divTop * L / divBottom, L)}]]`, op: 'Common denominator', merge: { A: ['a'], Q: ['q'] }, why: `${L} is a common multiple of ${a[1]} and ${divBottom}.` },
+        { line: `= [[s:${frac(sumTop, L)}]]`, op: 'Add the tops', merge: { s: ['A', 'Q'] }, why: `${a[0] * L / a[1]} + ${divTop * L / divBottom} = ${sumTop}.` },
+        ...(g > 1 ? [{ line: `= [[r:${frac(sumTop / g, L / g)}]]`, op: `÷ ${g}`, merge: { r: ['s'] }, why: `${sumTop} and ${L} share the factor ${g}. Divide both by ${g}: simplest form.` }] : []),
+      ],
+    }],
+  }
+}
+
 export const fractionTemplates: Template[] = [
   {
     id: 'fractions-simplify-mixed', topic: 'fractions', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Q2–4 style: simplify fully; write an improper fraction as a mixed number',
+    inspiredBy: 'Jun23 1F Q4; Nov24 1F Q3a — simplest form; improper to mixed (1.5 scores 0)',
     variants: [simplifyMixed(18, 24, 11, 4), simplifyMixed(20, 35, 17, 5), simplifyMixed(16, 40, 23, 6)],
   },
   {
-    id: 'fractions-add-subtract', topic: 'fractions', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Non-calculator "Work out 2/3 + 1/4"',
-    variants: [addSubtract([2, 3, 1, 4], [5, 6, 1, 4]), addSubtract([1, 2, 2, 5], [3, 4, 1, 3]), addSubtract([3, 5, 1, 3], [7, 8, 1, 6])],
+    id: 'fractions-add', topic: 'fractions', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Nov23 1F Q15 — add fractions with different denominators, 3 marks',
+    variants: [addOrSubtract([2, 3, 1, 4], 1), addOrSubtract([1, 2, 2, 5], 1), addOrSubtract([3, 5, 1, 3], 1)],
+  },
+  {
+    id: 'fractions-subtract', topic: 'fractions', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Nov24 1F Q24; Nov22 1F Q22 — subtract fractions with different denominators',
+    variants: [addOrSubtract([5, 6, 1, 4], -1), addOrSubtract([3, 4, 1, 3], -1), addOrSubtract([7, 8, 1, 6], -1)],
   },
   {
     id: 'fractions-multiply-divide', topic: 'fractions', ramp: 'apply', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Non-calculator multiply and divide fractions, simplest form',
+    inspiredBy: 'Jun23 1F Q25; Jun25 2F Q19b — multiply and divide fractions',
     variants: [multiplyDivide([3, 5, 10, 21], [3, 4, 9, 10]), multiplyDivide([4, 9, 3, 8], [5, 6, 2, 3]), multiplyDivide([5, 6, 3, 10], [4, 7, 2, 3])],
   },
   {
     id: 'fractions-recipe', topic: 'fractions', ramp: 'multistep', style: 'standard', context: 'food', calculator: false,
-    inspiredBy: 'Recipe scaling with a mixed number',
+    inspiredBy: 'Jun23 1F Q25; Nov23 1F Q7a — calculating with mixed numbers',
     variants: [recipe(1, 3, 4, 3, 'cake', 'cakes'), recipe(2, 1, 3, 4, 'loaf', 'loaves'), recipe(1, 2, 5, 3, 'pie', 'pies')],
   },
   {
     id: 'fractions-show-greater', topic: 'fractions', ramp: 'multistep', style: 'showThat', context: 'none', calculator: false,
-    inspiredBy: 'Show-that comparing two fractions of amounts',
+    inspiredBy: 'Jun23 3F Q8 — show an amount compared with fractions',
     variants: [showFractionsOf([3, 4, 60], [2, 3, 66]), showFractionsOf([2, 5, 85], [3, 8, 88]), showFractionsOf([5, 6, 48], [3, 4, 52])],
   },
   {
     id: 'fractions-tickets', topic: 'fractions', ramp: 'multistep', style: 'standard', context: 'events', calculator: false,
-    inspiredBy: 'Two-stage fraction of an amount ("of the remaining"), 3 marks',
+    inspiredBy: 'Nov23 1F Q17; Jun23 1F Q19 — a fraction of what remains',
     variants: [ticketsLeft(240, [3, 8], [2, 5]), ticketsLeft(360, [5, 12], [3, 7]), ticketsLeft(180, [2, 9], [3, 4])],
   },
   {
     id: 'fdp-convert', topic: 'fdp', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Q1–4 style conversions between fractions, decimals and percentages',
+    inspiredBy: 'Jun24 2F Q1 — decimal to fraction, fraction to decimal, decimal to percentage',
     variants: [fdpConvert(0.35, [3, 8], 0.07), fdpConvert(0.64, [5, 8], 0.4), fdpConvert(0.45, [7, 20], 0.125)],
   },
   {
     id: 'fdp-compare-tests', topic: 'fdp', ramp: 'apply', style: 'explain', context: 'school', calculator: false,
-    inspiredBy: 'Compare two test scores as percentages, with a reason',
+    inspiredBy: 'Jun24 1F Q12; Nov22 3F Q8 — compare by converting to the same form',
     variants: [fdpCompare(45, 12, [17, 20], [41, 50], 0), fdpCompare(8, 35, [18, 25], [37, 50], 1), fdpCompare(70, 4, [13, 20], [33, 50], 2)],
+  },
+  {
+    id: 'fractions-order', topic: 'fractions', ramp: 'stretch', style: 'standard', context: 'none', calculator: false,
+    inspiredBy: 'Jun25 1F Q23; Nov22 1F Q22 — fractions with two operations; order of operations matters',
+    variants: [fractionOrder([4, 15], [1, 5], [1, 2]), fractionOrder([1, 6], [2, 3], [4, 9]), fractionOrder([3, 10], [2, 5], [4, 3])],
   },
 ]
