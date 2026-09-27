@@ -12,9 +12,9 @@ const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
 const columnHint = 'Work from right to left. Multiply the digits. Now add the number you carried over. Write the last digit of the result and carry over the rest.'
 const columnAnswer = (first: number, second: number) => working((first * second).toLocaleString('en-GB', { maximumFractionDigits: 10 }), ...columnWorking(first, second).steps.map(step => [step.title, step.instruction] as [string, string]))
 
-add(grid, 'Split both numbers into tens and units', 'N5.1 Q1 preparation', methodWorking(gridWorking(34, 26)), undefined, undefined, undefined, 'Units means ones. For 34 × 26, split 34 into 30 + 4 and 26 into 20 + 6. Multiply every row value by every column value, then add the four products.')
-const gridExample = methodWorking(gridWorking(34, 26), columnWorking(246, 43))
-const videoState = add(grid, 'Grid: 34 × 26. Column: 246 × 43.', 'N5.1 Q1; video 23.48.58 (two separate examples)', gridExample)
+// The source video shows two separate examples. Each gets its own screen: the grid one here with the video,
+// and 246 × 43 with the other two-digit column examples below.
+const videoState = add(grid, 'Work out 34 × 26 using the grid method.', 'N5.1 Q1; video 23.48.58 (grid example)', methodWorking(gridWorking(34, 26)))
 videoState.video = {
   id: 'lesson4-multiplication', src: '/media/lesson-4/multiplication.mp4', poster: '/media/lesson-4/multiplication.jpg',
   title: 'Grid 34 × 26 and column 246 × 43', durationSeconds: 70.2, sourceFile: 'WhatsApp Video 2026-09-17 at 23.48.58.mp4',
@@ -24,6 +24,7 @@ add(columnTopic, 'Line up the digits and start at the units', 'N5.1 Q2 preparati
 add(columnTopic, 'Work out 213 × 3 using the column method.', 'N5.1 Q2', diagram(column('213', '3')), numeric(639), columnAnswer(213, 3), 'Start with the rightmost digit of 213. Multiply each place by 3; no carry is needed here.')
 add(carry, 'A carry keeps the value in the next column', 'N5.1 Q3 preparation; video first partial product', methodWorking(columnWorking(246, 3)), undefined, undefined, undefined, 'Multiply the digits. Now add the number you carried over. Write the last digit of the result and carry over the rest.')
 add(carry, 'Work out 246 × 3 using the column method.', 'N5.1 Q3', diagram(column('246', '3')), numeric(738), columnAnswer(246, 3), columnHint)
+add(twoDigits, 'Work through 246 × 43 using long multiplication.', 'N5.1 Q1; video 23.48.58 (column example)', methodWorking(columnWorking(246, 43)), undefined, undefined, undefined, 'Multiply by 3 first. Then multiply by 40, starting the second row with a zero in units. Add the two rows, including every carry.')
 add(twoDigits, 'Work through 424 × 28 using long multiplication.', 'User-added worked example: 424 × 28', methodWorking(columnWorking(424, 28)), undefined, undefined, undefined, 'Multiply by 8 first. Then multiply by 20, starting the second row with a zero in units. Add the two partial products, keeping every digit in its column.')
 add(twoDigits, 'Work through 291 × 56 using long multiplication.', 'User-added worked example: 291 × 56', methodWorking(columnWorking(291, 56)), undefined, undefined, undefined, 'Multiply by 6, then by 50. Include every carry and the zero in the second row. Finally add the partial products from right to left.')
 add(apply, 'Work out 42 × 18 using the grid method.', 'N5.1 Q4a', { kind: 'grid', first: [40, 2], second: [10, 8] }, numeric(756), working('756', ['Split both numbers.', '42 = 40 + 2; 18 = 10 + 8.'], ['Multiply all four pairs.', '40 × 10 = 400; 40 × 8 = 320; 2 × 10 = 20; 2 × 8 = 16.'], ['Add all four products.', '400 + 320 + 20 + 16 = 756.']), 'Use every cell of the grid. Multiply its row value by its column value, then add all four products.')
