@@ -70,7 +70,7 @@
 .study-topic { padding: 2px 0 14px; }
 .study-topic h2 { margin: 0; color: var(--rv-muted); font-size: 14px; font-weight: 500; line-height: 1.4; }
 .numbers-lesson--focused .lesson-progress-nav { margin-top: 0; }
-.numbers-lesson--focused .lesson-state { margin-top: 24px; border-radius: 20px; background: white; }
+.numbers-lesson--focused .lesson-state { margin-top: 24px; border-radius: 20px; }
 .numbers-lesson--focused .lesson-state--variant-d { padding: 24px 32px; }
 .numbers-lesson--focused .d-activity { max-width: none; }
 @media (max-width: 600px) {

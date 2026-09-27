@@ -3,7 +3,7 @@
 .opb-topic h2 { margin: 0; font-size: 14px; font-weight: 500; }
 .opb-topic > span { font-size: 12px; white-space: nowrap; }
 .opb-lesson .lesson-progress { height: 5px; border-radius: 99px; overflow: hidden; background: #e1e7ed; }
-.opb-activity { margin-top: 24px; padding: 28px 32px; border-radius: 20px; background: white; }
+.opb-activity { margin-top: 24px; padding: 28px 32px; border-radius: 20px; }
 .opb-activity h3 { margin: 24px 0 14px; color: var(--rv-ink); font-size: clamp(20px, 2.4vw, 26px); line-height: 1.35; outline: none; }
 .opb-body { margin: 0 0 18px; color: var(--rv-muted); font-size: 16px; line-height: 1.6; }
 .opb-stage { margin: 0; padding: 24px clamp(12px, 3vw, 28px); background: var(--rv-paper); border: 1px solid var(--rv-line); border-radius: 18px; text-align: center; color: var(--rv-ink); }
