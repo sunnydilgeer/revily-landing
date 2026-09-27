@@ -1,3 +1,9 @@
+# Science B — retired page, kept content (26 September 2026)
+
+The `/preview/scienceB` page is retired: it redirects to Science revision cards in the app (`/preview?subject=science&view=cards`). Its 27 Lesson 1 cards were folded into the Science decks (`features/science/cards/facts/`). `content.ts` (practice tasks, alignment, source-review status) and `engine.ts` (their marking rules, never auto-marking written answers) stay, with their tests, for the Practice design to reuse.
+
+The notes below describe the page as it was.
+
 # Science B — exam-focused Lesson 1
 
 `/preview/scienceB` now serves only Lesson 1, **Cells: animal, plant and bacterial**, not all six lessons or the whole AQA Cell Biology unit. Old `?lesson=2` through `6` URLs fall back to this single-lesson overview rather than exposing other lessons. The original `/preview/science` A/B prototypes and their authored content/progress are unchanged. The Coach experiment remains in source, but is no longer the Science B route. No old browser records are deleted or migrated.

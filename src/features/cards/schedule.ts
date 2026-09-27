@@ -3,6 +3,7 @@
  * - "Got it" moves a card up a box: back in 1, 3, 7, then 21 days (the old app's review timing).
  * - "Still learning" drops it to box 1: it comes back later in the same session and again tomorrow.
  * - New cards are introduced at most NEW_PER_DAY a day, so a long lesson doesn't flood the queue.
+ * Each subject keeps its own schedule under its own storage key, so Maths and Science never mix.
  */
 import { dayKey } from '../maths/studyLog'
 
@@ -10,6 +11,7 @@ export type CardState = { box: number; due: string; reviews: number; introduced:
 export type CardStates = Record<string, CardState>
 
 export const CARDS_KEY = 'revily:revision-cards:v1'
+export const SCIENCE_CARDS_KEY = 'revily:science-cards:v1'
 export const CARDS_EVENT = 'revily:revision-cards'
 export const INTERVAL_DAYS = [1, 3, 7, 21]
 export const NEW_PER_DAY = 12
@@ -51,17 +53,17 @@ export function deckQueue<T extends { id: string }>(cards: T[], states: CardStat
   return [...due, ...unseen, ...later].slice(0, SESSION_MAX)
 }
 
-export function readCardStates(): CardStates {
+export function readCardStates(key = CARDS_KEY): CardStates {
   if (typeof window === 'undefined') return {}
   try {
-    const value = JSON.parse(window.localStorage.getItem(CARDS_KEY) ?? '{}')
+    const value = JSON.parse(window.localStorage.getItem(key) ?? '{}')
     return value && typeof value === 'object' ? value as CardStates : {}
   } catch {
     return {}
   }
 }
 
-export function saveCardStates(states: CardStates) {
-  try { window.localStorage.setItem(CARDS_KEY, JSON.stringify(states)) } catch { /* storage unavailable: keep going */ }
+export function saveCardStates(states: CardStates, key = CARDS_KEY) {
+  try { window.localStorage.setItem(key, JSON.stringify(states)) } catch { /* storage unavailable: keep going */ }
   window.dispatchEvent(new CustomEvent(CARDS_EVENT))
 }

@@ -3,7 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 const ts = require('typescript')
-require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText, filename)
+for (const ext of ['.ts', '.tsx']) require.extensions[ext] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true }, fileName: filename }).outputText, filename)
 const root = path.join(__dirname, '..')
 const { mathsLessons } = require(path.join(root, 'src/features/maths/courseRegistry.ts'))
 const { buildDecks } = require(path.join(root, 'src/features/cards/decks.ts'))
@@ -86,4 +86,42 @@ assert.deepEqual(rungStatus(sections, 9, snap({ completed: true })).map(r => r.d
 assert.deepEqual(rungStatus(sections, 9, snap({ completedSections: [] })).map(r => r.current), [false, false, true])
 assert.deepEqual(legacyCompleted(sections, 9, 3), ['a'])
 
-console.log(`Revision cards verified: ${decks.length} decks, ${facts} key facts, ${recall} quick questions, ${checkedAnswers} shown answers, schedule rules.`)
+// ---------- Science decks: separate from Maths, one per lesson, every taught section covered ----------
+module.paths.unshift(path.join(root, 'node_modules'))
+const { scienceLessons } = require(path.join(root, 'src/features/science/lessonNavigation.ts'))
+const { buildScienceDecks } = require(path.join(root, 'src/features/science/cards/decks.ts'))
+const { scienceFacts } = require(path.join(root, 'src/features/science/cards/facts/index.ts'))
+const { CARDS_KEY, SCIENCE_CARDS_KEY } = require(path.join(root, 'src/features/cards/schedule.ts'))
+assert.notEqual(CARDS_KEY, SCIENCE_CARDS_KEY, 'Maths and Science keep separate schedules')
+const scienceDecks = buildScienceDecks()
+assert.equal(scienceDecks.length, scienceLessons.length, 'Every Science lesson has a deck')
+const scienceIds = new Set()
+let scienceFactCount = 0, scienceRecall = 0
+for (const entry of scienceLessons) {
+  const set = scienceFacts[entry.lesson.id]
+  assert.ok(set, `${entry.lesson.id} has no key facts`)
+  const deck = scienceDecks.find(d => d.lessonId === entry.lesson.id)
+  const sectionIds = entry.sections.map(section => section.id)
+  for (const key of Object.keys(set.sections)) assert.ok(sectionIds.includes(key), `${entry.lesson.id} facts use unknown section ${key}`)
+  for (const section of entry.sections) {
+    if (/^(Start here|On your own)$/.test(section.label)) continue
+    assert.ok((set.sections[section.id] ?? []).length >= 2, `${entry.lesson.id} "${section.label}" needs at least 2 key facts`)
+  }
+  assert.ok(set.recall.length >= 2 && set.recall.length <= 4, `${entry.lesson.id} needs 2–4 quick questions`)
+  for (const id of Object.keys(set.recallNotes ?? {})) assert.ok(set.recall.includes(id), `${entry.lesson.id} has a note for ${id}, which is not a quick question`)
+  for (const id of set.recall) {
+    const state = entry.lesson.states.find(item => item.id === id)
+    assert.ok(state && state.kind === 'choice', `${entry.lesson.id} quick question ${id} must be a choice question`)
+    assert.equal(state.explanation.answer, state.options.find(option => option.id === state.answerId).label, `${id} card answer must be the marked answer`)
+  }
+  for (const card of deck.cards) {
+    assert.ok(!scienceIds.has(card.id), `Duplicate Science card id ${card.id}`); scienceIds.add(card.id)
+    assert.ok(card.front.trim().length > 3 && card.back.trim().length > 0, `${card.id} needs a front and a back`)
+    for (const text of [card.front, card.back, card.note ?? '']) assert.ok(!/\b[Ll]essons? \d/.test(text), `${card.id} must refer to topics, not lesson numbers`)
+    if (card.kind === 'fact') { scienceFactCount++; assert.ok(card.back.split(/\s+/).length <= 36, `${card.id} answer is too long`) } else scienceRecall++
+  }
+}
+assert.ok(scienceFactCount >= 300, `Expected at least 300 Science key facts, found ${scienceFactCount}`)
+if (process.argv.includes('--science')) for (const deck of scienceDecks) for (const card of deck.cards) console.log(`${deck.number} ${card.sectionTitle} | ${card.front} → ${card.back}${card.note ? `  [${card.note}]` : ''}`)
+
+console.log(`Revision cards verified: ${decks.length} Maths decks, ${facts} key facts, ${recall} quick questions, ${checkedAnswers} shown answers, schedule rules; ${scienceDecks.length} Science decks, ${scienceFactCount} key facts, ${scienceRecall} quick questions.`)
