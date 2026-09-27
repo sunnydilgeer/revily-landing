@@ -26,6 +26,7 @@ const { canStatements } = require(path.join(root, 'src/features/maths/readiness/
 const { levelFor, mismatch, nextExamSeries } = require(path.join(root, 'src/features/maths/readiness/readiness.ts'))
 const { paperTopics, marksPerPaper, scoreTopics, biggestWin, tileLevel, PAPER_MARKS } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
 const { squarify } = require(path.join(root, 'src/features/maths/readiness/squarify.ts'))
+const { assignColumns, colX, railPoints, rowY, ROW, LABEL_DROP } = require(path.join(root, 'src/features/maths/readiness/rails.ts'))
 const { branchTiers, branchLeaves } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
 const { bosses, isCorrect, readAnswer } = require(path.join(root, 'src/features/maths/readiness/bosses.ts'))
 const katex = require(path.join(root, 'node_modules/katex'))
@@ -49,9 +50,15 @@ assert.equal(levelFor({ started: true, finished: true, cardBoxes: [] }), 'learnt
 assert.equal(levelFor({ started: true, finished: true, score: score(5, 7), cardBoxes: [] }), 'learnt', '5/7 is under 80%')
 assert.equal(levelFor({ started: true, finished: true, score: score(6, 7), cardBoxes: [] }), 'secure')
 assert.equal(levelFor({ started: true, finished: true, score: score(0, 0), cardBoxes: [] }), 'secure', 'a section with no questions is secure once finished')
-assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [3, 4, 1] }), 'examReady', '2 of 3 cards remembered')
-assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [3, 1, 1] }), 'secure', '1 of 3 cards remembered')
-assert.equal(levelFor({ started: true, finished: true, score: score(4, 7), cardBoxes: [4, 4, 4] }), 'learnt', 'cards cannot make an insecure section exam-ready')
+// Exam-ready (gold) needs past-paper-style questions from Practice, as well as remembered cards.
+const practice = (firstTry, attempted) => ({ firstTry, attempted, on: '2026-09-27' })
+assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [3, 4, 4] }), 'secure', 'cards alone never make a section exam-ready')
+assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [3, 4, 1], practice: practice(2, 3) }), 'examReady', 'practised, and 2 of 3 cards remembered')
+assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [3, 1, 1], practice: practice(3, 3) }), 'secure', '1 of 3 cards remembered')
+assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [], practice: practice(2, 2) }), 'examReady', 'a section without cards needs only the practice')
+assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [4], practice: practice(1, 1) }), 'secure', 'one practice question is not enough')
+assert.equal(levelFor({ started: true, finished: true, score: score(7, 7), cardBoxes: [4], practice: practice(1, 3) }), 'secure', 'practice has to go mostly right')
+assert.equal(levelFor({ started: true, finished: true, score: score(4, 7), cardBoxes: [4, 4, 4], practice: practice(5, 5) }), 'learnt', 'practice cannot make an insecure section exam-ready')
 
 // Mismatch notes.
 assert.match(mismatch('green', 'learnt', score(2, 5)), /2 of 5/)
@@ -119,6 +126,38 @@ for (const area of new Set(paperTopics.map(topic => topic.area))) {
 for (const topic of paperTopics) assert.ok(hasTopicIcon(topic.id), `${topic.id} needs an icon in src/ui/icons.tsx`)
 assert.deepEqual(branchLeaves('number').map(topic => topic.id).sort(), ['bidmas', 'bounds', 'fdp'])
 
+// Rails: every link is straight lines and right angles, and none runs behind a node it doesn't join.
+for (const width of [320, 640]) for (const area of ['number', 'algebra', 'geometry', 'ratio', 'probability', 'statistics']) {
+  const tiers = branchTiers(area)
+  const boss = branchLeaves(area).length > 0
+  const grid = { width, cols: Math.max(3, ...tiers.map(tier => tier.length)), top: 58, row: ROW }
+  const aside = row => boss && tiers[row].every(topic => topic.statements.length === 0)
+  const cols = assignColumns(tiers, grid.cols, aside)
+  const nodes = new Map()
+  tiers.forEach((tier, row) => tier.forEach(topic => nodes.set(topic.id, { id: topic.id, row, col: cols.get(topic.id), x: colX(grid, cols.get(topic.id)), y: rowY(grid, row), size: 64 })))
+  if (boss) nodes.set('boss', { id: 'boss', row: tiers.length, col: (grid.cols - 1) / 2, x: width / 2, y: rowY(grid, tiers.length) + 20, size: 108 })
+  const taken = new Set([...nodes.values()].map(node => `${node.row}:${node.col}`))
+  assert.equal(taken.size, nodes.size, `${area}: two topics share a spot`)
+  const links = [...nodes.values()].flatMap(node => node.id === 'boss' ? branchLeaves(area).map(leaf => [leaf.id, 'boss']) : (paperTopics.find(t => t.id === node.id).requires ?? []).map(parent => [parent, node.id]))
+  for (const [a, b] of links) {
+    const from = nodes.get(a), to = nodes.get(b)
+    const points = railPoints(grid, from, to, (row, col) => taken.has(`${row}:${col}`))
+    for (let i = 1; i < points.length; i++) {
+      const [x1, y1] = points[i - 1], [x2, y2] = points[i]
+      assert.ok(x1 === x2 || y1 === y2, `${area} ${a}→${b}: segment ${i} is not straight`)
+      for (const other of nodes.values()) {
+        if (other === from || other === to) continue
+        // The node's core plus its label block below it.
+        const left = other.x - Math.min(width / grid.cols / 2 - 4, 40), right = other.x + Math.min(width / grid.cols / 2 - 4, 40)
+        const top = other.y - other.size / 2, bottom = other.y + other.size / 2 + LABEL_DROP - 6
+        const hitX = Math.max(Math.min(x1, x2), left) < Math.min(Math.max(x1, x2), right) || (x1 === x2 && x1 > left && x1 < right)
+        const hitY = Math.max(Math.min(y1, y2), top) < Math.min(Math.max(y1, y2), bottom) || (y1 === y2 && y1 > top && y1 < bottom)
+        assert.ok(!(hitX && hitY), `${area} at ${width}px: ${a}→${b} runs behind ${other.id}`)
+      }
+    }
+  }
+}
+
 // Bosses: every question's worked chain renders, merges come from the line above, and ends on the answer.
 const TERM = /\[\[([\w-]+):(.*?)\]\]/g
 const keysOf = line => [...line.matchAll(TERM)].map(match => match[1])
@@ -144,4 +183,4 @@ for (const boss of bosses) for (const round of boss.rounds) for (const part of r
 assert.equal(readAnswer('£1,180'), 1180)
 assert.equal(readAnswer('abc'), null)
 
-console.log(`Exam checklist verified: ${expected.size} "I can…" statements, one per teaching section; levels, mismatch notes and May/June countdown behave as documented; the exam map covers every statement once, adds up to ${PAPER_MARKS} marks and lays out without overlaps; the skill tree and ${bossParts} boss questions check out.`)
+console.log(`Exam checklist verified: ${expected.size} "I can…" statements, one per teaching section; levels, mismatch notes and May/June countdown behave as documented; the exam map covers every statement once, adds up to ${PAPER_MARKS} marks and lays out without overlaps; the skill tree's rails stay straight and clear of other nodes, and ${bossParts} boss questions check out.`)

@@ -28,9 +28,11 @@
 .st-star.is-twinkling { animation: st-twinkle 4s ease-in-out infinite; }
 @keyframes st-twinkle { 50% { opacity: .08; } }
 
-.st-edge { fill: none; stroke: #2a3470; stroke-width: 3; stroke-linecap: round; }
-.st-edge.is-soon { stroke: #28305f; stroke-dasharray: 1 8; }
-.st-edge-lit { fill: none; stroke: var(--rv-yellow); stroke-width: 3.5; stroke-linecap: round; filter: drop-shadow(0 0 5px rgb(255 211 92 / 75%)); }
+.st-edge-case { fill: none; stroke: #070b22; stroke-width: 9; stroke-linejoin: round; stroke-linecap: round; }
+.st-edge-case.is-soon { stroke-width: 7; opacity: .7; }
+.st-edge { fill: none; stroke: #2e3a7c; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+.st-edge.is-soon { stroke: #2a3266; stroke-width: 3; stroke-dasharray: 1 8; }
+.st-edge-lit { fill: none; stroke: var(--rv-yellow); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 5px rgb(255 211 92 / 75%)); }
 .st-edge-lit.is-waiting { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .st-edge-lit.is-drawing { stroke-dasharray: 1; stroke-dashoffset: 1; animation: st-draw .7s cubic-bezier(.6, 0, .3, 1) .3s forwards; }
 @keyframes st-draw { to { stroke-dashoffset: 0; } }
@@ -39,7 +41,7 @@
 
 /* Topic nodes. The core's centre sits on the node's position; the label hangs below. */
 .sn {
-  position: absolute; z-index: 1; display: grid; justify-items: center; gap: 3px; width: max(var(--size), 86px);
+  position: absolute; z-index: 1; display: grid; justify-items: center; gap: 3px; width: max(var(--size), var(--label-w, 86px));
   padding: 0; border: 0; background: none; font: inherit; color: var(--rv-on-night); cursor: pointer;
   transform: translate(-50%, calc(var(--size) / -2)); -webkit-tap-highlight-color: transparent;
 }
@@ -58,8 +60,8 @@
 .sn-ring__fill { stroke: transparent; transition: stroke-dasharray .8s ease; }
 .sn-icon { position: relative; color: var(--rv-on-night-muted); }
 
-.sn-label { max-width: 86px; font: 700 .72rem/1.15 var(--rv-font-body); text-align: center; letter-spacing: .01em; color: var(--rv-on-night); text-wrap: balance; }
-.sn-marks { display: inline-flex; align-items: center; gap: 2px; font: 800 .66rem/1 var(--rv-font-body); color: var(--rv-yellow); }
+.sn-label { padding: 1px 5px; border-radius: 6px; background: rgb(11 16 38 / 88%); max-width: var(--label-w, 86px); font: 700 .72rem/1.15 var(--rv-font-body); text-align: center; letter-spacing: .01em; color: var(--rv-on-night); text-wrap: balance; }
+.sn-marks { padding: 1px 6px; border-radius: 6px; background: rgb(11 16 38 / 88%); display: inline-flex; align-items: center; gap: 2px; font: 800 .66rem/1 var(--rv-font-body); color: var(--rv-yellow); }
 .sn-badge { position: absolute; z-index: 1; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; }
 .sn-badge--lock { right: 0; bottom: 0; color: #a9b2d3; background: #1d2452; box-shadow: 0 0 0 2px var(--rv-night); }
 .sn-badge--crown { top: -4px; right: -2px; color: var(--rv-ink); background: var(--rv-yellow); box-shadow: 0 0 0 2px var(--rv-night), 0 0 10px rgb(255 211 92 / 70%); }

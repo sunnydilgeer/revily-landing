@@ -48,7 +48,7 @@ export function LabTop({ progress, streak, lives }: { progress: string; streak: 
   useEffect(() => setMutedState(isMuted()), [])
   const toggle = () => { setMuted(!muted); setMutedState(!muted) }
   return <header className="lab-top">
-    <a className="lab-icon lab-icon--close" href="/preview?view=lab" aria-label="Back to the labs">×</a>
+    <a className="lab-icon lab-icon--close" href="/preview?view=lab" aria-label="Back to the Arcade">×</a>
     <p className="lab-progress">{progress}</p>
     {streak >= 2 && <span className="lab-streak" aria-label={`${streak} in a row`}>🔥 {streak}</span>}
     <div className="lab-lives" aria-label={`Lives: ${lives} of ${LIVES}`}>

@@ -27,7 +27,7 @@ export default function ExamChecklist() {
           <dl>
             <dt>Learnt</dt><dd>You finished the section.</dd>
             <dt>Secure</dt><dd>You got at least 80% of its questions right first time.</dd>
-            <dt>Exam-ready</dt><dd>Secure, and you still remembered its revision cards days later.</dd>
+            <dt>Exam-ready</dt><dd>Secure, remembered on your revision cards days later, and you’ve answered past-paper questions on it in Practice. Practice is coming soon.</dd>
           </dl>
           <p>Tap the colours to say how confident you feel. If your results say something different, we’ll tell you.</p>
         </details>

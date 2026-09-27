@@ -2,10 +2,10 @@
 export type LabArea = 'ratio' | 'algebra' | 'geometry' | 'probability'
 
 export const labAreas: { id: LabArea; title: string; chip: string }[] = [
-  { id: 'ratio', title: 'Ratio labs', chip: 'Ratio, proportion & rates · about a quarter of Foundation marks' },
-  { id: 'algebra', title: 'Algebra labs', chip: 'Algebra · about a fifth of Foundation marks' },
-  { id: 'geometry', title: 'Geometry labs', chip: 'Geometry & measures · about 15% of Foundation marks' },
-  { id: 'probability', title: 'Probability labs', chip: 'Probability & statistics · about 15% of Foundation marks' },
+  { id: 'ratio', title: 'Ratio games', chip: 'Ratio, proportion & rates · about a quarter of Foundation marks' },
+  { id: 'algebra', title: 'Algebra games', chip: 'Algebra · about a fifth of Foundation marks' },
+  { id: 'geometry', title: 'Geometry games', chip: 'Geometry & measures · about 15% of Foundation marks' },
+  { id: 'probability', title: 'Probability games', chip: 'Probability & statistics · about 15% of Foundation marks' },
 ]
 
 export type LabEntry = {

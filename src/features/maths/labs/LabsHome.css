@@ -1,7 +1,6 @@
 /* The Lab section inside the app: a hero, how it works, and a card per game. */
 .labs { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; color: var(--rv-ink); }
 .labs h1, .labs h2, .labs h3 { margin: 0; }
-.labs-kicker { margin: 0; color: var(--rv-yellow); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 
 .labs-hero {
   position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 24px;

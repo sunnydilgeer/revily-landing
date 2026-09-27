@@ -5,10 +5,10 @@ import BossCharacter from './BossCharacter'
 import { CrownIcon, LockIcon, StarIcon, TopicIcon } from '../../../ui/icons'
 import { branchLeaves, branchTiers, tileLevel, type AreaId, type TopicScore } from './paperMap'
 import { levelLabels, levelOrder, type Level } from './readiness'
+import { assignColumns, colX, railPoints, roundedPath, ROW, rowY, type Grid, type RailNode } from './rails'
 import './SkillTree.css'
 
 export const BOSS_ID = 'boss'
-const ROW = 138
 const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 /** Node size follows the marks a topic is worth: keystones are the big-ticket topics of the paper. */
@@ -42,7 +42,7 @@ function starsFor(seed: number, width: number, height: number) {
   return Array.from({ length: Math.round(width * height / 5200) }, (_, index) => ({ x: next() * width, y: next() * height, r: next() < 0.15 ? 1.6 : 0.6 + next() * 0.7, twinkle: index % 7 === 0, delay: next() * 4 }))
 }
 
-type Placed = { id: string; x: number; y: number; size: number }
+type Placed = RailNode
 
 /** One branch of the exam as a skill tree in the night sky, lit up by what the student has learnt. */
 /** A topic that moved on since the last visit: waiting its turn, then lighting up with the marks it gained. */
@@ -75,58 +75,52 @@ export default function SkillTree({ area, scores, selected, onSelect, bossOpen, 
     return () => observer.disconnect()
   }, [])
 
-  // Rows from the roots down; within a row, nodes sit under the average position of their parents. Rows of
-  // topics not in Revily yet move to the right, leaving the middle clear for the path down to the boss.
+  // Nodes on a grid of columns, rows from the roots down. Rows of topics not in Revily yet keep to the
+  // right-hand columns, leaving the middle clear for the rails down to the boss.
+  const grid: Grid = useMemo(() => ({ width, cols: Math.max(3, ...tiers.map(tier => tier.length)), top: 58, row: ROW }), [width, tiers])
   const placed = useMemo(() => {
+    const aside = (row: number) => hasBoss && tiers[row].every(topic => !byId.get(topic.id)?.taught)
+    const cols = assignColumns(tiers, grid.cols, aside)
     const at = new Map<string, Placed>()
-    const top = 58
-    tiers.forEach((tier, row) => {
-      const order = row === 0 ? tier : [...tier].sort((a, b) => parentX(a.requires) - parentX(b.requires))
-      const aside = hasBoss && order.every(topic => !byId.get(topic.id)?.taught)
-      order.forEach((topic, index) => {
-        const slot = (index + 0.5) / order.length
-        const size = nodeSize[nodeKind(byId.get(topic.id)!.marks)]
-        at.set(topic.id, { id: topic.id, x: (aside ? 0.64 + slot * 0.28 : 0.04 + slot * 0.92) * width, y: top + row * ROW, size })
-      })
-    })
-    function parentX(requires?: string[]) {
-      const xs = (requires ?? []).map(id => at.get(id)?.x ?? 0)
-      return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0
-    }
-    if (hasBoss) at.set(BOSS_ID, { id: BOSS_ID, x: width / 2, y: top + tiers.length * ROW + 20, size: BOSS_SIZE })
+    tiers.forEach((tier, row) => tier.forEach(topic => {
+      const col = cols.get(topic.id)!
+      at.set(topic.id, { id: topic.id, row, col, x: colX(grid, col), y: rowY(grid, row), size: nodeSize[nodeKind(byId.get(topic.id)!.marks)] })
+    }))
+    if (hasBoss) at.set(BOSS_ID, { id: BOSS_ID, row: tiers.length, col: (grid.cols - 1) / 2, x: width / 2, y: rowY(grid, tiers.length) + 20, size: BOSS_SIZE })
     return at
-  }, [tiers, hasBoss, byId, width])
+  }, [tiers, hasBoss, byId, grid, width])
 
   const edges = useMemo(() => {
-    const list: { from: Placed; to: Placed; lit: boolean; soon: boolean }[] = []
+    const taken = new Set([...placed.values()].map(node => `${node.row}:${node.col}`))
+    const occupied = (row: number, col: number) => taken.has(`${row}:${col}`)
+    const list: { from: Placed; to: Placed; d: string; lit: boolean; soon: boolean }[] = []
     const litFrom = (id: string) => { const score = byId.get(id); return Boolean(score && ['secure', 'examReady'].includes(tileLevel(score))) }
+    const link = (from: Placed, to: Placed, lit: boolean, soon: boolean) => list.push({ from, to, lit, soon, d: roundedPath(railPoints(grid, from, to, occupied)) })
     for (const tier of tiers) for (const topic of tier) for (const parent of topic.requires ?? []) {
       const from = placed.get(parent), to = placed.get(topic.id)
-      if (from && to) list.push({ from, to, lit: litFrom(parent), soon: !byId.get(topic.id)?.taught })
+      if (from && to) link(from, to, litFrom(parent), !byId.get(topic.id)?.taught)
     }
     const boss = placed.get(BOSS_ID)
     if (boss) for (const leaf of leaves) {
       const from = placed.get(leaf.id)
-      if (from) list.push({ from, to: boss, lit: litFrom(leaf.id), soon: false })
+      if (from) link(from, boss, litFrom(leaf.id), false)
     }
-    return list
-  }, [tiers, leaves, placed, byId])
+    // Unlit rails first, so a lit rail sharing a stretch with an unlit one is drawn on top.
+    return list.sort((a, b) => Number(a.lit) - Number(b.lit))
+  }, [tiers, leaves, placed, byId, grid])
 
   const height = Math.max(0, ...[...placed.values()].map(node => node.y + node.size / 2)) + 72
   const stars = useMemo(() => width ? starsFor(area.length * 7919 + 13, width, height) : [], [area, width, height])
 
-  return <div className={`st st--${area}`} ref={ref} style={{ height: width ? height : 520 }}>
+  return <div className={`st st--${area}`} ref={ref} style={{ height: width ? height : 520, ['--label-w' as string]: `${Math.max(60, Math.min(86, width / grid.cols - 14))}px` }}>
     {width > 0 && <>
       <svg className="st-sky" width={width} height={height} aria-hidden="true">
         {stars.map((star, index) => <circle key={index} cx={star.x} cy={star.y} r={star.r} className={star.twinkle ? 'st-star is-twinkling' : 'st-star'} style={star.twinkle ? { animationDelay: `${star.delay}s` } : undefined} />)}
       </svg>
       <svg className="st-edges" width={width} height={height} aria-hidden="true">
-        {edges.map(({ from, to, lit, soon }) => {
-          // From under the parent's label to the top of the child, so lines never cross a name.
-          const x1 = from.x, y1 = from.y + from.size / 2 + 36, x2 = to.x, y2 = to.y - to.size / 2 - 6
-          const mid = (y1 + y2) / 2
-          const d = `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`
-          // A path out of a topic that just levelled up draws in once the topic has lit up.
+        {edges.map(({ from, to, d, soon }) => <path key={`case-${from.id}-${to.id}`} className={`st-edge-case${soon ? ' is-soon' : ''}`} d={d} />)}
+        {edges.map(({ from, to, d, lit, soon }) => {
+          // A rail out of a topic that just levelled up draws in once the topic has lit up.
           const coming = arrival[from.id]?.phase
           return <g key={`${from.id}-${to.id}`}>
             <path className={`st-edge${soon ? ' is-soon' : ''}`} d={d} />
