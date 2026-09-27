@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Arrow, Bacterium, Badge, Diagram, Label, Mini, Virus, blob, infectionPalette as C } from './InfectionVisuals'
+import { Arrow, Bacterium, Badge, Diagram, Label, Mini, Protist, Virus, blob, infectionPalette as C } from './InfectionVisuals'
 import { plantPalette as P } from './PlantOrganisationVisuals'
 
 // Chapter B6b (Lessons 46–50): variation, evolution, resistance, breeding, genetic engineering, fossils and classification.
@@ -251,7 +251,7 @@ const SPOTS: Pt[] = [[-32, -52], [20, -62], [-8, -18], [34, -12], [-36, 26], [14
 const GENS: Array<{ cx: number; cols: BeetleColour[]; name: string }> = [
   { cx: 92, cols: ['green', 'brown', 'brown', 'green', 'green', 'brown', 'green', 'brown'], name: 'generation 1' },
   { cx: 270, cols: ['green', 'green', 'brown', 'green', 'green', 'green', 'brown', 'green'], name: 'next generation' },
-  { cx: 448, cols: ['green', 'green', 'green', 'green', 'green', 'green', 'brown', 'green'], name: 'many generations later' },
+  { cx: 448, cols: ['green', 'green', 'green', 'green', 'green', 'green', 'brown', 'green'], name: 'generations later' },
 ]
 function SelectionScene({ focus }: { focus: string }) {
   const step = focus.replace('evolve-ns-', '')
@@ -541,6 +541,359 @@ function ResistanceData() {
   </Diagram>
 }
 
+// ---------- Lesson 49: selective breeding and genetic engineering ----------
+const choose = C.amber
+const alleleTones = ['#8fb4de', '#e7b76a', '#9acb8f', '#dc9ab5', '#b9a3dc', '#f2a27a']
+function Berry({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <path d="M0 16C-8 12 -14 2 -13 -5C-12 -10 -6 -11 0 -10C6 -11 12 -10 13 -5C14 2 8 12 0 16Z" fill="#e0525a" stroke="#a8323b" strokeWidth={1.4 / s} />
+    {[[-6, -4], [0, -5], [6, -4], [-4, 3], [4, 3], [0, 9]].map(([dx, dy], i) => <ellipse key={i} cx={dx} cy={dy} rx="1" ry="1.6" fill="#f6d25e" />)}
+    <path d="M-9 -9l3 -6l3 4l3 -7l3 7l3 -4l3 6q-9 3 -18 0z" fill={leaf} stroke={leafLine} strokeWidth={1.2 / s} /></g>
+}
+function BerryPlant({ x, y, s, chosen = false }: { x: number; y: number; s: number; chosen?: boolean }) {
+  return <g>
+    {chosen && <circle cx={x} cy={y + 4} r={34} fill="none" stroke={choose} strokeWidth="2.6" strokeDasharray="6 4" />}
+    <path d={`M${x} ${y + 26}V${y - 8}`} stroke={leafLine} strokeWidth="2" />
+    <path d={blob(x - 11, y + 22, 10, 6, 3, .1)} fill={leaf} stroke={leafLine} strokeWidth="1.3" /><path d={blob(x + 11, y + 22, 10, 6, 5, .1)} fill={leaf} stroke={leafLine} strokeWidth="1.3" />
+    <Berry x={x} y={y - 2} s={s} /></g>
+}
+const GEN_X = [8, 195, 382], GEN_W = 150
+const BREED: Array<{ name: string; sizes: number[]; chosen: number[]; caption: string[] }> = [
+  { name: 'parents', sizes: [.7, 1.3, .9, 1.25], chosen: [1, 3], caption: ['breed the two with', 'the biggest fruit'] },
+  { name: 'offspring', sizes: [1.05, 1.45, 1.15, 1.5], chosen: [1, 3], caption: ['offspring vary: breed', 'the biggest again'] },
+  { name: 'generations later', sizes: [1.6, 1.55, 1.65, 1.6], chosen: [], caption: ['all the offspring', 'have big fruit'] },
+]
+function BreedScene({ focus }: { focus: string }) {
+  const step = ['intro', 'choose', 'repeat', 'artificial'].indexOf(focus.replace('evolve-breed-', ''))
+  const lit = (i: number) => step === 3 || (step === 0 && i === 0) || (step === 1 && i < 2) || (step === 2 && i > 0)
+  return <Diagram title="Selective breeding of strawberry plants, in three boxes from left to right. Parents: the two plants with the biggest strawberries are circled and bred together. Offspring: their strawberries vary in size, and the two biggest are chosen and bred again. Generations later: every plant has big strawberries.">
+    {BREED.map((g, gi) => { const x0 = GEN_X[gi], cx = x0 + GEN_W / 2
+      return <g key={g.name} opacity={lit(gi) ? 1 : faded}>
+        <rect x={x0} y={24} width={GEN_W} height={206} rx="12" fill="#fbfdfc" stroke="#d6e3e9" strokeWidth="1.4" />
+        <text x={cx} y={46} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{g.name}</text>
+        {g.sizes.map((s, i) => <BerryPlant key={i} x={cx + (i % 2 ? 36 : -36)} y={i < 2 ? 98 : 176} s={s} chosen={g.chosen.includes(i)} />)}
+        <Caption x={cx} y={250} lines={g.caption} strong={step === gi} />
+        {gi < 2 && <g opacity={lit(gi + 1) && lit(gi) ? 1 : faded}><Arrow x1={x0 + GEN_W + 4} y1={128} x2={GEN_X[gi + 1] - 5} y2={128} colour={choose} width={2.4} /></g>}
+      </g> })}
+    {step === 3 ? <text x={270} y={292} textAnchor="middle" fill={choose} fontSize="13" fontWeight="700">people choose, not nature: artificial selection</text>
+      : <g><circle cx={196} cy={287} r="8" fill="none" stroke={choose} strokeWidth="2.2" strokeDasharray="4 3" /><text x={212} y={292} fill={ink} fontSize="12">chosen to breed</text></g>}
+  </Diagram>
+}
+function Wheat({ x, ground, h = 90, sick = false, k = 1 }: { x: number; ground: number; h?: number; sick?: boolean; k?: number }) {
+  const top = ground - h, grain = sick ? '#c9a36b' : '#e2b64a', line = sick ? '#8a6a3c' : '#a8801f'
+  return <g><path d={`M${x} ${ground}V${top + 10}`} stroke={sick ? '#9c9a5a' : leafLine} strokeWidth="2.4" />
+    <path d={`M${x} ${ground - h * .35}q-16 -6 -20 -22q12 4 20 16`} fill={sick ? '#c9c486' : leaf} stroke={sick ? '#9c9a5a' : leafLine} strokeWidth="1.2" />
+    {[0, 1, 2, 3, 4].map(i => [-1, 1].map(s => <ellipse key={`${i}${s}`} cx={x + s * 4 * k} cy={top + 14 - i * 8 * k} rx={3.6 * k} ry={6 * k} transform={`rotate(${s * 22} ${x + s * 4 * k} ${top + 14 - i * 8 * k})`} fill={grain} stroke={line} strokeWidth="1" />))}
+    {sick && [[-5, 4], [4, -10], [-3, -22], [6, 14]].map(([dx, dy], i) => <circle key={i} cx={x + dx} cy={top + dy} r="2.4" fill="#6b4a2a" />)}</g>
+}
+function Dog({ x, y, s = 1, fur = '#c9964a' }: { x: number; y: number; s?: number; fur?: string }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <ellipse cx="-17" cy="2" rx="7" ry="15" fill="#8a5a3b" transform="rotate(18 -17 2)" /><ellipse cx="17" cy="2" rx="7" ry="15" fill="#8a5a3b" transform="rotate(-18 17 2)" />
+    <circle cx="0" cy="0" r="17" fill={fur} stroke="#8a5a3b" strokeWidth="1.4" />
+    <ellipse cx="0" cy="8" rx="9" ry="7" fill="#f3e2c6" /><ellipse cx="0" cy="4" rx="3.6" ry="2.6" fill="#2a2320" />
+    <circle cx="-6" cy="-5" r="2.2" fill="#2a2320" /><circle cx="6" cy="-5" r="2.2" fill="#2a2320" />
+    <path d="M-4 10q4 3 8 0" stroke="#2a2320" strokeWidth="1.3" fill="none" strokeLinecap="round" /></g>
+}
+function Bottle({ x, y, text, fill = 'white' }: { x: number; y: number; text: string; fill?: string }) {
+  return <g><path d={`M${x - 8} ${y - 40}h16v10l8 10v40q0 6 -6 6h-20q-6 0 -6 -6v-40l8 -10z`} fill={fill} stroke={ink} strokeWidth="1.6" />
+    <rect x={x - 10} y={y - 46} width={20} height={7} rx="2" fill={P.blue} />
+    <text x={x} y={y + 10} textAnchor="middle" fill={ink} fontSize="10" fontWeight="700">{text}</text></g>
+}
+function BreedUses() {
+  return <Diagram title="Four panels of features people breed for. More milk or meat: a milk bottle. Crops that resist disease: a healthy wheat plant. Gentle dogs: a friendly dog. Big or unusual flowers: a large flower.">
+    <Quad i={0} lit title="more milk or meat"><Bottle x={130} y={96} text="milk" /></Quad>
+    <Quad i={1} lit title="crops that resist disease"><Wheat x={380} ground={138} h={76} /><Wheat x={420} ground={138} h={70} /><text x={466} y={92} fill={leafLine} fontSize="22" fontWeight="700">✓</text></Quad>
+    <Quad i={2} lit title="gentle dogs"><Dog x={136} y={228} s={1.4} /></Quad>
+    <Quad i={3} lit title="big or unusual flowers"><g transform="translate(404 218) scale(1.4) translate(-404 -218)"><Flower x={404} ground={246} top={206} /></g></Quad>
+  </Diagram>
+}
+function AllelePair({ x, y, a, b }: { x: number; y: number; a: string; b: string }) {
+  return <g>{[a, b].map((c, i) => <rect key={i} x={x - 9 + i * 10} y={y - 18} width={8} height={36} rx="3" fill={c} stroke={c === C.red ? '#8e2f3a' : ink} strokeWidth="1" />)}</g>
+}
+function InbredScene({ focus }: { focus: string }) {
+  const step = ['relatives', 'alleles', 'health', 'disease'].indexOf(focus.replace('evolve-inbred-', ''))
+  return <Diagram title="Four panels on inbreeding. Close relatives: two parent dogs have three puppies, and a brother and sister are bred together. Fewer alleles: a varied population has six colours of allele; an inbred population has only two. Health problems: two parents each carry one harmful allele, and their offspring inherits it from both. A new disease: every wheat plant in a field is diseased, because none has an allele to resist it.">
+    <Quad i={0} lit={step === 0} title="close relatives">
+      <Dog x={96} y={54} s={.8} /><Dog x={176} y={54} s={.8} fur="#e8c49a" /><path d={`M110 54H162M136 54V78M76 78H196M76 78v8M136 78v8M196 78v8`} stroke={ink} strokeWidth="1.6" fill="none" />
+      <Dog x={76} y={104} s={.7} /><Dog x={136} y={104} s={.7} fur="#e8c49a" /><Dog x={196} y={104} s={.7} />
+      <path d="M150 120q23 14 32 0" stroke={choose} strokeWidth="2.4" fill="none" strokeDasharray="5 3" /><text x={166} y={142} textAnchor="middle" fill={choose} fontSize="11" fontWeight="700">bred together</text>
+    </Quad>
+    <Quad i={1} lit={step === 1} title="fewer different alleles">
+      <text x={288} y={62} fill={ink} fontSize="12">varied</text><text x={288} y={112} fill={ink} fontSize="12">inbred</text>
+      {[0, 1, 2, 3, 4, 5, 2, 4].map((c, i) => <rect key={i} x={340 + i * 22} y={44} width={14} height={26} rx="4" fill={alleleTones[c]} stroke={ink} strokeWidth=".8" />)}
+      {[0, 1, 0, 0, 1, 0, 1, 0].map((c, i) => <rect key={i} x={340 + i * 22} y={94} width={14} height={26} rx="4" fill={alleleTones[c]} stroke={ink} strokeWidth=".8" />)}
+    </Quad>
+    <Quad i={2} lit={step === 2} title="health problems">
+      <AllelePair x={50} y={210} a={alleleTones[0]} b={C.red} /><AllelePair x={130} y={210} a={C.red} b={alleleTones[1]} />
+      <text x={90} y={214} textAnchor="middle" fill={ink} fontSize="16">+</text>
+      <Arrow x1={150} y1={210} x2={190} y2={210} colour={ink} width={2} /><AllelePair x={216} y={210} a={C.red} b={C.red} />
+      <rect x={40} y={252} width={10} height={14} rx="3" fill={C.red} /><text x={56} y={264} fill={ink} fontSize="12">harmful allele from both parents</text>
+    </Quad>
+    <Quad i={3} lit={step === 3} title="a new disease">
+      {[310, 350, 390, 430, 470].map((x, i) => <Wheat key={x} x={x} ground={262} h={48 - (i % 2) * 6} sick k={.9} />)}
+      <text x={404} y={284} textAnchor="middle" fill={ink} fontSize="12">no plant has an allele to resist it</text>
+    </Quad>
+  </Diagram>
+}
+const GE_X = [66, 202, 338, 474], GE_Y = 118
+const GE_NAMES = [['cut out the', 'insulin gene'], ['put it into', 'a bacterium'], ['the bacteria', 'multiply'], ['collect the', 'insulin']]
+function GeneBit({ x, y, a = 0 }: { x: number; y: number; a?: number }) {
+  return <g transform={`rotate(${a} ${x} ${y})`}><rect x={x - 12} y={y - 4} width={24} height={8} rx="4" fill={gene} stroke="white" strokeWidth="1" /></g>
+}
+function Scissors({ x, y }: { x: number; y: number }) {
+  return <g stroke={ink} strokeWidth="1.8" fill="none"><circle cx={x - 6} cy={y + 12} r="4.5" /><circle cx={x + 6} cy={y + 12} r="4.5" /><path d={`M${x - 4} ${y + 8}L${x + 6} ${y - 12}M${x + 4} ${y + 8}L${x - 6} ${y - 12}`} strokeLinecap="round" /></g>
+}
+function GeStage({ n }: { n: number }) {
+  const cx = GE_X[n], cy = GE_Y
+  if (n === 0) return <g><circle cx={cx - 8} cy={cy + 8} r={42} fill={C.skin} stroke={C.skinLine} strokeWidth="1.8" /><circle cx={cx - 8} cy={cy + 8} r={18} fill="#e6c3a6" stroke={C.skinLine} strokeWidth="1.4" />
+    <path d={`M${cx - 20} ${cy + 8}q6 -6 12 0t12 0`} stroke="#9c7a5e" strokeWidth="2" fill="none" /><GeneBit x={cx + 28} y={cy - 38} a={-20} />
+    <Arrow x1={cx} y1={cy - 6} x2={cx + 20} y2={cy - 28} colour={gene} width={1.8} dashed /><Scissors x={cx + 44} y={cy - 12} />
+    <text x={cx - 8} y={cy + 66} textAnchor="middle" fill={ink} fontSize="11">human cell</text></g>
+  if (n === 1) return <g><Bacterium cx={cx} cy={cy + 8} length={96} thick={46} seed={5} /><GeneBit x={cx + 4} y={cy + 8} /></g>
+  if (n === 2) return <g>{([[-30, -16, 20], [8, -26, -30], [34, 4, 70], [-26, 22, -60], [4, 14, 10], [16, 40, 30], [-40, 50, -10]] as Array<[number, number, number]>).map(([dx, dy, a], i) => <g key={i}><Bacterium cx={cx + dx} cy={cy + dy} length={30} thick={13} angle={a} seed={i + 3} /><circle cx={cx + dx} cy={cy + dy} r="3.6" fill={gene} stroke="white" strokeWidth="1" /></g>)}</g>
+  return <g><Bottle x={cx} y={cy + 20} text="insulin" fill="#eef7fb" /><Arrow x1={cx - 44} y1={cy + 34} x2={cx - 22} y2={cy + 18} colour={ink} width={1.8} /></g>
+}
+function InsulinScene({ focus, question = false, assessment = false }: { focus: string; question?: boolean; assessment?: boolean }) {
+  const step = question ? 9 : ['cut', 'gm', 'insulin'].indexOf(focus.replace('evolve-ge-', ''))
+  const lit = (i: number) => step >= 2 || step === i
+  return <Diagram title={assessment ? 'Four numbered steps in making insulin. 1: a human cell and a gene with scissors. 2: a large bacterium with the gene inside it. 3: many bacteria, each with the gene. 4: a bottle of insulin.' : 'Making human insulin, in four numbered steps. 1: the insulin gene, shown in coral, is cut out of a human cell. 2: the gene is put into a bacterium, making a GM bacterium. 3: the bacteria multiply, and each one has the gene. 4: the bacteria make insulin, which is collected.'}>
+    {GE_X.map((x, i) => <g key={x}>
+      <g opacity={lit(i) ? 1 : faded}><GeStage n={i} /><Badge n={i + 1} x={x - 50} y={GE_Y - 62} />
+        {!assessment && <Caption x={x} y={GE_Y + 104} lines={GE_NAMES[i]} strong={step === i} />}</g>
+      {i < 3 && <g opacity={lit(i + 1) ? 1 : faded}><Arrow x1={x + 50} y1={GE_Y + 8} x2={GE_X[i + 1] - 50} y2={GE_Y + 8} colour={ink} width={2.2} /></g>}
+    </g>)}
+    <GeneBit x={40} y={278} /><text x={60} y={283} fill={ink} fontSize="12">the human insulin gene</text>
+    {step === 1 && <text x={390} y={283} textAnchor="middle" fill={gene} fontSize="13" fontWeight="700">a GM bacterium: it has a new gene</text>}
+  </Diagram>
+}
+function Weed({ x, ground }: { x: number; ground: number }) {
+  return <g><path d={`M${x} ${ground}q-2 -14 -12 -20M${x} ${ground}q2 -16 12 -18M${x} ${ground}q0 -12 -2 -24`} stroke="#9c8450" strokeWidth="2" fill="none" />
+    {[[-12, -20], [12, -18], [-2, -24]].map(([dx, dy], i) => <path key={i} d={blob(x + dx, ground + dy, 5, 3, 40 + i, .2)} fill="#c8b98a" stroke="#9c8450" strokeWidth="1" />)}</g>
+}
+function GeUses({ focus }: { focus: string }) {
+  const step = ['herbicide', 'yield', 'therapy'].indexOf(focus.replace('evolve-ge-', ''))
+  return <Diagram title="Three panels on uses of genetic engineering. Resists herbicide: a field is sprayed; the GM wheat stays healthy and the weeds between it die. Bigger crop yield: a bar for the GM crop is taller than for the normal crop. Gene therapy: a working gene is added to a person’s cell that has a faulty gene.">
+    {PANELS.map(({ x, w }, i) => <g key={x} opacity={step === i ? 1 : faded}><rect x={x} y={4} width={w} height={292} rx="12" fill="#fbfdfc" stroke="#d6e3e9" strokeWidth="1.4" />
+      <text x={x + w / 2} y={28} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{['resists herbicide', 'bigger crop yield', 'gene therapy'][i]}</text></g>)}
+    <g opacity={step === 0 ? 1 : faded}>
+      <path d="M40 58h104M92 58v-10h-14" stroke={ink} strokeWidth="2" fill="none" />{[52, 76, 100, 124].map(x => <path key={x} d={`M${x} 62l-4 10M${x} 62l4 10`} stroke={P.blue} strokeWidth="1.4" />)}
+      {[42, 92, 142].map(x => <Wheat key={x} x={x} ground={236} h={112} />)}{[67, 117].map(x => <Weed key={x} x={x} ground={236} />)}
+      <path d="M14 236H170V246H14Z" fill={soil} />
+      <Caption x={92} y={266} lines={['weeds die;', 'the GM crop survives']} />
+    </g>
+    <g opacity={step === 1 ? 1 : faded}>
+      <path d="M204 230H336" stroke={ink} strokeWidth="1.8" />
+      <rect x={220} y={160} width={40} height={70} fill="#f3e3b0" stroke="#a8801f" strokeWidth="1.5" /><rect x={280} y={110} width={40} height={120} fill="#e2b64a" stroke="#a8801f" strokeWidth="1.5" />
+      <Wheat x={240} ground={156} h={48} k={.7} /><Wheat x={300} ground={106} h={48} k={.7} />
+      <text x={240} y={248} textAnchor="middle" fill={ink} fontSize="12">normal</text><text x={300} y={248} textAnchor="middle" fill={ink} fontSize="12" fontWeight="700">GM</text>
+      <Caption x={270} y={276} lines={['more food produced']} />
+    </g>
+    <g opacity={step === 2 ? 1 : faded}>
+      <circle cx={448} cy={140} r={62} fill={C.skin} stroke={C.skinLine} strokeWidth="1.8" /><circle cx={448} cy={140} r={34} fill="#e6c3a6" stroke={C.skinLine} strokeWidth="1.4" />
+      <GeneBit x={436} y={128} /><path d="M428 120l16 16M444 120l-16 16" stroke={C.red} strokeWidth="2.6" strokeLinecap="round" />
+      <GeneBit x={452} y={154} /><text x={474} y={159} fill={leafLine} fontSize="15" fontWeight="700">✓</text>
+      <Arrow x1={510} y1={60} x2={470} y2={146} colour={gene} width={1.8} dashed />
+      <Caption x={448} y={232} lines={['faulty gene ✗', 'working gene added ✓']} />
+      <Caption x={448} y={276} lines={['may treat', 'inherited disorders']} />
+    </g>
+  </Diagram>
+}
+const BENEFITS = ['bigger crop yields', 'human insulin', 'may treat inherited disorders']
+const CONCERNS = ['GM animal health problems', 'fewer wild flowers and insects', 'unknown effects on health']
+function WeighScene({ focus }: { focus: string }) {
+  const step = ['benefits', 'animals', 'crops', 'weigh'].indexOf(focus.replace('evolve-gm-', ''))
+  const litL = step === 0 || step === 3, litR = (i: number) => step === 3 || (step === 1 && i === 0) || (step === 2 && i > 0)
+  return <Diagram title="A balance weighs benefits of genetic engineering against concerns. Benefits: bigger crop yields, human insulin, and may treat inherited disorders. Concerns: health problems in GM animals, fewer wild flowers and insects, and unknown effects on human health.">
+    <path d="M270 110L248 268H292Z" fill="#e3ebf0" stroke={ink} strokeWidth="1.8" /><path d="M60 110H480" stroke={ink} strokeWidth="4" strokeLinecap="round" /><circle cx={270} cy={110} r="6" fill={ink} />
+    {[130, 410].map(x => <path key={x} d={`M${x} 110L${x - 90} 250M${x} 110L${x + 90} 250`} stroke={muted} strokeWidth="1.2" />)}
+    {[130, 410].map(x => <path key={x} d={`M${x - 100} 250H${x + 100}q0 18 -20 18H${x - 80}q-20 0 -20 -18z`} fill="#eef2f5" stroke={ink} strokeWidth="1.6" />)}
+    <text x={130} y={90} textAnchor="middle" fill={leafLine} fontSize="15" fontWeight="700" opacity={litL ? 1 : faded}>benefits</text>
+    <text x={410} y={90} textAnchor="middle" fill={C.red} fontSize="15" fontWeight="700" opacity={step > 0 ? 1 : faded}>concerns</text>
+    {BENEFITS.map((t, i) => <Chip key={t} x={130} y={170 + i * 30} w={222} text={t} colour={leafLine} dim={!litL} />)}
+    {CONCERNS.map((t, i) => <Chip key={t} x={410} y={170 + i * 30} w={232} text={t} colour={C.red} dim={!litR(i)} />)}
+    {step === 3 && <text x={270} y={292} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">weigh up each use, case by case</text>}
+  </Diagram>
+}
+function GmData() {
+  const Y = (v: number) => 250 - v * 20
+  return <Diagram title="Bar chart of maize yield from two fields of the same size on one farm in one year. Normal maize: 8.1 tonnes. GM insect-resistant maize: 9.4 tonnes.">
+    <text x={20} y={24} fill={ink} fontSize="14" fontWeight="600">Maize yield from two fields on one farm, one year</text>
+    {[0, 2, 4, 6, 8, 10].map(v => <g key={v}><path d={`M110 ${Y(v)}H440`} stroke="#e3ebf0" strokeWidth={v ? 1 : 0} /><path d={`M104 ${Y(v)}h6`} stroke={ink} /><text x={100} y={Y(v) + 4} textAnchor="end" fontSize="12" fill={ink}>{v}</text></g>)}
+    <path d={`M110 ${Y(0)}H440M110 ${Y(0)}V${Y(10) - 8}`} stroke={ink} strokeWidth="2" />
+    {([['normal maize', 8.1, '#f3e3b0'], ['GM maize', 9.4, '#e2b64a']] as Array<[string, number, string]>).map(([n, v, c], i) => <g key={n}>
+      <rect x={170 + i * 150} y={Y(v)} width={70} height={v * 20} fill={c} stroke="#a8801f" strokeWidth="1.6" />
+      <text x={205 + i * 150} y={Y(v) - 8} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{v}</text>
+      <text x={205 + i * 150} y={Y(0) + 20} textAnchor="middle" fill={ink} fontSize="12">{n}</text></g>)}
+    <text x={40} y={150} fill={ink} fontSize="12" transform="rotate(-90 40 150)" textAnchor="middle">yield (tonnes)</text>
+  </Diagram>
+}
+
+// ---------- Lesson 50: fossils and classification ----------
+const rock = ['#efe3cf', '#e5d4b6', '#dac59f', '#cfb58b', '#c3a77c'], rockLine = '#a88d63', fossilInk = '#6f5636'
+function LeafFossil({ x, y }: { x: number; y: number }) {
+  return <g><path d={`M${x - 22} ${y + 6}C${x - 10} ${y - 14} ${x + 14} ${y - 14} ${x + 24} ${y}C${x + 10} ${y + 12} ${x - 10} ${y + 14} ${x - 22} ${y + 6}Z`} fill="#b89a6c" stroke={fossilInk} strokeWidth="1.2" />
+    <path d={`M${x - 22} ${y + 6}L${x + 24} ${y}M${x - 6} ${y + 4}l6 -9M${x + 6} ${y + 2}l6 -8M${x - 4} ${y + 4}l6 7M${x + 8} ${y + 2}l6 6`} stroke={fossilInk} strokeWidth="1" fill="none" /></g>
+}
+function FishFossil({ x, y }: { x: number; y: number }) {
+  return <g stroke={fossilInk} strokeWidth="1.4" fill="none"><path d={`M${x - 26} ${y}H${x + 20}`} />{[-18, -10, -2, 6, 14].map(d => <path key={d} d={`M${x + d} ${y - 8}V${y + 8}`} />)}
+    <circle cx={x + 24} cy={y} r="5" fill="#b89a6c" /><path d={`M${x - 26} ${y}l-8 -8v16z`} fill="#b89a6c" /></g>
+}
+function Trilobite({ x, y }: { x: number; y: number }) {
+  return <g><ellipse cx={x} cy={y} rx={12} ry={17} fill="#b89a6c" stroke={fossilInk} strokeWidth="1.2" />
+    {[-9, -4, 1, 6, 11].map(d => <path key={d} d={`M${x - 11} ${y + d}H${x + 11}`} stroke={fossilInk} strokeWidth="1" />)}<path d={`M${x - 4} ${y - 16}V${y + 15}M${x + 4} ${y - 16}V${y + 15}`} stroke={fossilInk} strokeWidth="1" /></g>
+}
+function RockColumn({ focus }: { focus: string }) {
+  const gaps = focus === 'evolve-fossil-gaps', x0 = 150, w = 240, top = 40, h = 40
+  return <Diagram title="A cross-section of rock layers, youngest at the top and oldest at the bottom. From the top down: a fossil leaf, a fossil fish, an ammonite and a trilobite. The lowest layer has question marks: early organisms had soft bodies and left few fossils.">
+    {rock.map((c, i) => <rect key={c} x={x0} y={top + i * h} width={w} height={h} fill={c} stroke={rockLine} strokeWidth="1.2" />)}
+    <g opacity={gaps ? faded : 1}><LeafFossil x={x0 + 70} y={top + 20} /><FishFossil x={x0 + 160} y={top + 60} /><Ammonite x={x0 + 90} y={top + 100} r={13} /><Trilobite x={x0 + 170} y={top + 140} /></g>
+    <g opacity={gaps ? 1 : faded}>{[70, 130, 190].map(dx => <text key={dx} x={x0 + dx} y={top + 188} textAnchor="middle" fill={gene} fontSize="20" fontWeight="700">?</text>)}
+      <path d={`M${x0 + 206} ${top + 80}l14 12l-10 12l16 14`} stroke={fossilInk} strokeWidth="2" fill="none" /></g>
+    <g opacity={gaps ? faded : 1}><Arrow x1={x0 + w + 30} y1={top + 190} x2={x0 + w + 30} y2={top + 10} colour={ink} width={2} />
+      <text x={x0 + w + 44} y={top + 16} fill={ink} fontSize="12">younger</text><text x={x0 + w + 44} y={top + 194} fill={ink} fontSize="12">older</text></g>
+    <text x={x0 - 14} y={top + 24} textAnchor="end" fill={ink} fontSize="12">fossils</text>
+    <text x={x0 - 14} y={top + 184} textAnchor="end" fill={gaps ? gene : ink} fontSize="12" fontWeight={gaps ? 700 : 500}>soft bodies:</text>
+    <text x={x0 - 14} y={top + 199} textAnchor="end" fill={gaps ? gene : ink} fontSize="12" fontWeight={gaps ? 700 : 500}>few fossils</text>
+    <Caption x={270} y={280} lines={[gaps ? 'the fossil record has gaps: nobody can be sure how life began' : 'older rock is lower down, so it holds older fossils']} size={13} strong />
+  </Diagram>
+}
+function Footprint({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`} fill="#a88d63" stroke={fossilInk} strokeWidth="1.2">
+    <path d="M-10 14C-14 2 -8 -6 0 -6C8 -6 14 2 10 14C6 20 -6 20 -10 14Z" />
+    <path d="M-6 -6L-16 -28L-8 -8Z" /><path d="M-2 -8L0 -34L4 -8Z" /><path d="M6 -6L16 -28L8 -8Z" /></g>
+}
+function Amber({ x, y }: { x: number; y: number }) {
+  return <g><path d={blob(x, y, 52, 40, 9, .14)} fill="#f2b64a" stroke="#b9791c" strokeWidth="2" opacity=".95" />
+    <path d={blob(x - 18, y - 18, 12, 6, 4, .1)} fill="#fbe0a0" opacity=".7" />
+    <g stroke="#3b2a20" strokeWidth="1.4"><ellipse cx={x} cy={y + 2} rx={10} ry={5} fill="#5a3f22" /><circle cx={x + 12} cy={y + 1} r="4" fill="#5a3f22" />
+      {[-6, 0, 6].map(d => <path key={d} d={`M${x + d} ${y + 5}l-4 10M${x + d} ${y - 1}l-4 -10`} fill="none" />)}
+      <path d={`M${x - 4} ${y - 2}q-12 -18 -22 -8M${x - 2} ${y - 2}q-4 -20 -18 -18`} fill="#e7eef3" fillOpacity=".7" /></g></g>
+}
+function FossilScene({ focus }: { focus: string }) {
+  const step = ['minerals', 'cast', 'decay'].indexOf(focus.replace('evolve-fossil-', ''))
+  return <Diagram title="Three ways fossils form. Replaced by minerals: an ammonite shell in layers of rock. Casts and impressions: a three-toed dinosaur footprint in rock that was once soft mud. No decay: an insect kept whole in amber.">
+    {PANELS.map(({ x, w }, i) => <g key={x} opacity={step === i ? 1 : faded}><rect x={x} y={4} width={w} height={292} rx="12" fill="#fbfdfc" stroke="#d6e3e9" strokeWidth="1.4" />
+      <text x={x + w / 2} y={30} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{['replaced by minerals', 'casts and impressions', 'no decay'][i]}</text></g>)}
+    <g opacity={step === 0 ? 1 : faded}>{rock.slice(0, 4).map((c, i) => <rect key={c} x={24} y={60 + i * 40} width={136} height={40} fill={c} stroke={rockLine} strokeWidth="1.2" />)}
+      <Ammonite x={92} y={160} r={30} /><Caption x={92} y={242} lines={['a shell slowly', 'turned to rock']} /></g>
+    <g opacity={step === 1 ? 1 : faded}><rect x={202} y={60} width={136} height={160} rx="8" fill={rock[2]} stroke={rockLine} strokeWidth="1.2" />
+      <Footprint x={246} y={176} s={1.1} /><Footprint x={296} y={110} s={1.1} /><Caption x={270} y={242} lines={['a footprint pressed', 'into mud, now rock']} /></g>
+    <g opacity={step === 2 ? 1 : faded}><Amber x={448} y={140} /><Caption x={448} y={242} lines={['an insect in amber:', 'no decay']} /></g>
+  </Diagram>
+}
+function Mushroom({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`}><path d="M-7 0V22H7V0Z" fill="#f3e6cf" stroke="#9c8450" strokeWidth="1.4" />
+    <path d="M-26 2C-26 -24 26 -24 26 2Z" fill="#c8505a" stroke="#8e2f3a" strokeWidth="1.4" />{[[-12, -8], [4, -12], [14, -4]].map(([dx, dy], i) => <circle key={i} cx={dx} cy={dy} r="3" fill="white" />)}</g>
+}
+const KINGDOMS = ['animals', 'plants', 'fungi', 'protists', 'prokaryotes']
+function KingdomIcon({ i, x, y }: { i: number; x: number; y: number }) {
+  if (i === 0) return <Dog x={x} y={y} s={1.1} />
+  if (i === 1) return <g transform={`translate(${x} ${y}) scale(.9) translate(${-x} ${-y})`}><Flower x={x} ground={y + 36} top={y - 20} /></g>
+  if (i === 2) return <Mushroom x={x} y={y} s={1.1} />
+  if (i === 3) return <g transform={`translate(${x} ${y}) scale(.7) translate(${-x} ${-y})`}><Protist cx={x} cy={y} /></g>
+  return <Bacterium cx={x - 6} cy={y} length={48} thick={22} seed={3} />
+}
+function KingdomsScene({ focus }: { focus: string }) {
+  const features = focus === 'evolve-class-features'
+  return <Diagram title="Five boxes for the five kingdoms: animals, shown by a dog; plants, a flower; fungi, a mushroom; protists, a single cell with a nucleus; and prokaryotes, a bacterium with no nucleus.">
+    {KINGDOMS.map((k, i) => { const x = 6 + i * 106, cx = x + 50
+      return <g key={k}><rect x={x} y={40} width={100} height={170} rx="12" fill="#fbfdfc" stroke="#d6e3e9" strokeWidth="1.4" />
+        <text x={cx} y={64} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{k}</text><KingdomIcon i={i} x={cx} y={130} />
+        {i >= 3 && <Caption x={cx} y={184} lines={i === 3 ? ['one cell,', 'has a nucleus'] : ['one cell,', 'no nucleus']} size={11} />}</g> })}
+    <text x={270} y={24} textAnchor="middle" fill={ink} fontSize="14" fontWeight="700">the five kingdoms</text>
+    <Caption x={270} y={246} lines={features ? ['sorted by features you can see, such as legs or leaves,', 'and by structures inside cells'] : ['the biggest groups of living things']} size={13} strong={features} />
+  </Diagram>
+}
+const LEVELS: Array<[string, string]> = [['kingdom', 'animals'], ['phylum', 'chordates'], ['class', 'mammals'], ['order', 'primates'], ['family', 'great apes'], ['genus', 'Homo'], ['species', 'sapiens']]
+function LevelsScene({ focus }: { focus: string }) {
+  const binomial = focus === 'evolve-class-binomial'
+  return <Diagram title="Seven levels of classification as bars that get narrower from top to bottom: kingdom, phylum, class, order, family, genus and species. Humans are shown as an example: animals, chordates, mammals, primates, great apes, genus Homo, species sapiens. Human's two-part name is Homo sapiens.">
+    {LEVELS.map(([lvl, eg], i) => { const w = 380 - i * 36, y = 18 + i * 34, lit = !binomial || i >= 5, col = binomial && i >= 5 ? gene : ink
+      return <g key={lvl} opacity={lit ? 1 : faded}><rect x={200 - w / 2} y={y} width={w} height={28} rx="8" fill={binomial && i >= 5 ? geneFill : '#eef4f7'} stroke={col} strokeWidth="1.5" />
+        <text x={200 - w / 2 + 12} y={y + 19} fill={col} fontSize="13" fontWeight="700">{lvl}</text>
+        <text x={200 + w / 2 - 12} y={y + 19} textAnchor="end" fill={col} fontSize="12" fontStyle={i >= 5 ? 'italic' : 'normal'}>{eg}</text></g> })}
+    <Arrow x1={410} y1={24} x2={410} y2={250} colour={muted} width={2} /><Caption x={470} y={124} lines={['smaller', 'groups,', 'more alike']} />
+    {binomial ? <Caption x={270} y={284} lines={['two-part name: Homo sapiens (genus, then species)']} colour={gene} size={13} strong />
+      : <Caption x={200} y={284} lines={['example: humans']} size={12} />}
+  </Diagram>
+}
+function ChangeScene() {
+  return <Diagram title="Left: the old system of five kingdoms. An arrow labelled better microscopes and chemical tests points right to the new system of three domains: Archaea, Bacteria and Eukaryota.">
+    <text x={100} y={36} textAnchor="middle" fill={ink} fontSize="14" fontWeight="700">five kingdoms</text>
+    {KINGDOMS.map((k, i) => <Chip key={k} x={100} y={70 + i * 34} w={150} text={k} colour={muted} />)}
+    <Arrow x1={196} y1={140} x2={330} y2={140} colour={ink} width={2.6} />
+    <Caption x={263} y={100} lines={['better microscopes', 'and chemical tests']} strong />
+    <text x={440} y={36} textAnchor="middle" fill={gene} fontSize="14" fontWeight="700">three domains</text>
+    {['Archaea', 'Bacteria', 'Eukaryota'].map((d, i) => <Chip key={d} x={440} y={104 + i * 34} w={150} text={d} colour={gene} />)}
+    <Caption x={270} y={276} lines={['some organisms were less closely related than people thought']} size={13} />
+  </Diagram>
+}
+function HotSpring({ x, y }: { x: number; y: number }) {
+  return <g><ellipse cx={x} cy={y} rx={52} ry={14} fill="#bfe1f0" stroke={P.water} strokeWidth="1.6" />
+    {[-20, 0, 20].map(d => <path key={d} d={`M${x + d} ${y - 14}q-8 -10 0 -20t0 -20`} stroke="#9aa9b4" strokeWidth="2" fill="none" strokeLinecap="round" />)}</g>
+}
+function DomainsScene({ focus }: { focus: string }) {
+  const euk = focus === 'evolve-class-eukaryota'
+  return <Diagram title="Three domains. Archaea: simple cells with no nucleus, first found in extreme places such as hot springs. Bacteria: true bacteria. Eukaryota: cells with a nucleus, including animals, plants, fungi and protists.">
+    {PANELS.map(({ x, w }, i) => <g key={x} opacity={!euk || i === 2 ? 1 : faded}><rect x={x} y={4} width={w} height={292} rx="12" fill="#fbfdfc" stroke="#d6e3e9" strokeWidth="1.4" />
+      <text x={x + w / 2} y={30} textAnchor="middle" fill={gene} fontSize="15" fontWeight="700">{['Archaea', 'Bacteria', 'Eukaryota'][i]}</text></g>)}
+    <g opacity={euk ? faded : 1}><HotSpring x={92} y={200} />{([[64, 90, 20], [110, 110, -30], [80, 136, 70]] as Array<[number, number, number]>).map(([x, y, a], i) => <g key={i} transform={`rotate(${a} ${x} ${y})`}><ellipse cx={x} cy={y} rx={16} ry={9} fill="#e8dcf4" stroke="#7e5aa8" strokeWidth="1.6" /></g>)}
+      <Caption x={92} y={250} lines={['no nucleus; first found', 'in extreme places']} /></g>
+    <g opacity={euk ? faded : 1}><Bacterium cx={270} cy={120} length={90} thick={36} seed={4} /><Caption x={270} y={250} lines={['true bacteria:', 'no nucleus']} /></g>
+    <g><Dog x={410} y={86} s={.8} /><Mushroom x={486} y={92} s={.9} /><g transform="translate(410 170) scale(.6) translate(-410 -170)"><Flower x={410} ground={214} top={150} /></g>
+      <g transform="translate(486 170) scale(.55) translate(-486 -170)"><Protist cx={486} cy={170} /></g><Caption x={448} y={250} lines={['cells with a nucleus:', 'animals, plants, fungi, protists']} /></g>
+  </Diagram>
+}
+type SeaKind = 'shark' | 'croc' | 'whale' | 'dolphin'
+function SeaAnimal({ x, y, kind }: { x: number; y: number; kind: SeaKind }) {
+  const t = `translate(${x} ${y})`
+  if (kind === 'shark') return <g transform={t} stroke="#5f7180" strokeWidth="1.4"><path d="M-38 0L-52 -18L-46 0L-52 16Z" fill="#9aa9b4" /><path d="M-6 -10L4 -28L12 -9Z" fill="#9aa9b4" />
+    <path d="M-40 0C-26 -13 10 -14 34 -4L44 1L34 5C10 13 -26 11 -40 0Z" fill="#b7c3cc" /><path d="M2 6l-8 12l16 -8z" fill="#9aa9b4" /><circle cx={28} cy={-2} r="1.8" fill="#1d252c" stroke="none" />
+    <path d="M14 -4v8M18 -4v8" strokeWidth="1" /></g>
+  if (kind === 'dolphin') return <g transform={t} stroke="#4f86b8" strokeWidth="1.4"><path d="M-38 0L-50 -11L-46 0L-50 11Z" fill="#8fb4de" /><path d="M-6 -11Q0 -26 10 -10Z" fill="#8fb4de" />
+    <path d="M-40 0C-24 -15 16 -15 28 -5L46 -2L46 2L28 5C16 12 -24 10 -40 0Z" fill="#a9c8e8" /><path d="M6 6l-10 10l14 -6z" fill="#8fb4de" /><circle cx={24} cy={-3} r="1.8" fill="#1d252c" stroke="none" /></g>
+  if (kind === 'whale') return <g transform={t} stroke="#3a4f6a" strokeWidth="1.4"><path d="M-44 0L-58 -12L-52 0L-58 12Z" fill="#5a7a9c" />
+    <path d="M-46 2C-42 -20 34 -22 48 -2C44 12 -22 16 -46 2Z" fill="#6d8db0" /><path d="M-8 -16L0 -24L4 -16Z" fill="#5a7a9c" /><path d="M20 6q12 2 26 -4" fill="none" /><circle cx={32} cy={-6} r="2" fill="#1d252c" stroke="none" /></g>
+  return <g transform={t} stroke="#4f7a35" strokeWidth="1.4"><path d="M-10 6l-6 12M8 6l6 12M-26 4l-6 10" fill="none" strokeWidth="3" strokeLinecap="round" />
+    <path d="M-56 2C-40 -6 16 -9 30 -5L50 -3L50 3L30 5C16 10 -40 8 -56 2Z" fill="#8fb86b" />{[-30, -20, -10, 0, 10].map(d => <path key={d} d={`M${d} -7l4 -5l4 5`} fill="#8fb86b" />)}<circle cx={30} cy={-4} r="1.8" fill="#1d252c" stroke="none" /></g>
+}
+const TREE: Array<{ kind: SeaKind; name: string; x: number }> = [{ kind: 'shark', name: 'shark', x: 80 }, { kind: 'croc', name: 'crocodile', x: 200 }, { kind: 'whale', name: 'whale', x: 330 }, { kind: 'dolphin', name: 'dolphin', x: 460 }]
+function TreeScene({ focus, assessment = false, question = false }: { focus: string; assessment?: boolean; question?: boolean }) {
+  const ancestor = focus === 'evolve-tree-ancestor', leafY = 92
+  const A: Pt = [395, 150], B: Pt = [298, 200], R: Pt = [190, 250]
+  const hi = (on: boolean) => ancestor && on ? gene : ink
+  return <Diagram title={question ? (assessment ? 'An evolutionary tree with four numbered animals at the tips of its branches. Branches join at common ancestors lower down; the lowest point is the oldest common ancestor.' : 'An evolutionary tree: a shark (1), a crocodile (2), a whale (3) and a dolphin (4). The whale and dolphin branches join most recently.') : 'An evolutionary tree of a shark, a crocodile, a whale and a dolphin. The whale and dolphin branches join at a recent common ancestor. The shark branch joins the others only at the oldest common ancestor, at the bottom.'}>
+    {TREE.map((a, i) => <g key={a.kind}><SeaAnimal x={a.x} y={46} kind={a.kind} />
+      {question ? <Badge n={i + 1} x={a.x} y={leafY - 10} /> : <text x={a.x} y={leafY - 6} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{a.name}</text>}</g>)}
+    <g strokeWidth="3" strokeLinecap="round" fill="none">
+      <path d={`M330 ${leafY + 6}L${A[0]} ${A[1]}L460 ${leafY + 6}`} stroke={hi(true)} />
+      <path d={`M200 ${leafY + 6}L${B[0]} ${B[1]}L${A[0]} ${A[1]}`} stroke={ink} />
+      <path d={`M80 ${leafY + 6}L${R[0]} ${R[1]}L${B[0]} ${B[1]}`} stroke={ancestor ? muted : ink} />
+      <path d={`M${R[0]} ${R[1]}V${R[1] + 22}`} stroke={ancestor ? muted : ink} />
+    </g>
+    {[A, B, R].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="6" fill={i === 0 && ancestor ? gene : 'white'} stroke={i === 0 && ancestor ? gene : ink} strokeWidth="2" />)}
+    {!question && <g>
+      <text x={A[0] + 14} y={A[1] + 18} fill={hi(true)} fontSize="12" fontWeight="700"><tspan x={A[0] + 14}>recent common</tspan><tspan x={A[0] + 14} dy="15">ancestor</tspan></text>
+      <text x={R[0] + 14} y={R[1] + 20} fill={ink} fontSize="12" fontWeight={ancestor ? 700 : 500}>oldest common ancestor</text>
+      <Arrow x1={24} y1={270} x2={24} y2={70} colour={muted} width={1.8} /><text x={34} y={272} fill={muted} fontSize="11">past</text><text x={34} y={78} fill={muted} fontSize="11">now</text>
+    </g>}
+    {question && <Arrow x1={24} y1={270} x2={24} y2={70} colour={muted} width={1.8} />}
+  </Diagram>
+}
+const CATS: Array<[string, string[]]> = [['lion', ['Felidae', 'Panthera', 'leo']], ['tiger', ['Felidae', 'Panthera', 'tigris']], ['house cat', ['Felidae', 'Felis', 'catus']]]
+function ClassTable() {
+  const cols = [150, 300, 450]
+  return <Diagram title="A table classifying three cats. Lion: family Felidae, genus Panthera, species leo. Tiger: family Felidae, genus Panthera, species tigris. House cat: family Felidae, genus Felis, species catus. All three are in the kingdom animals and the class mammals.">
+    <text x={20} y={26} fill={ink} fontSize="14" fontWeight="600">How three cats are classified</text>
+    <rect x={20} y={40} width={500} height={200} rx="10" fill="#fbfdfc" stroke="#d6e3e9" strokeWidth="1.4" />
+    {CATS.map(([n], i) => <text key={n} x={cols[i]} y={66} textAnchor="middle" fill={ink} fontSize="13" fontWeight="700">{n}</text>)}
+    {['kingdom', 'class', 'family', 'genus', 'species'].map((lvl, r) => { const y = 102 + r * 30
+      return <g key={lvl}><path d={`M28 ${y - 20}H512`} stroke="#e3ebf0" /><text x={36} y={y} fill={muted} fontSize="12" fontWeight="700">{lvl}</text>
+        {CATS.map(([n, v], i) => <text key={n} x={cols[i]} y={y} textAnchor="middle" fill={ink} fontSize="13" fontStyle={r >= 3 ? 'italic' : 'normal'}>{r === 0 ? 'animals' : r === 1 ? 'mammals' : v[r - 2]}</text>)}</g> })}
+    <Caption x={270} y={270} lines={['same genus = more closely related than same family only']} size={12} />
+  </Diagram>
+}
+
 export function EvolutionVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
   if (focus === 'evolve-var-people') return <PeopleScene />
   if (focus === 'evolve-var-question') return <VariationQuestion assessment={assessment} />
@@ -559,5 +912,22 @@ export function EvolutionVisual({ focus, assessment = false }: { focus: string; 
   if (focus.startsWith('evolve-res-')) return <ResistanceScene focus={focus} />
   if (focus.startsWith('evolve-prob-')) return <ProblemScene focus={focus} />
   if (focus.startsWith('evolve-slow-')) return <SlowScene focus={focus} />
+  if (focus === 'evolve-breed-uses') return <BreedUses />
+  if (focus.startsWith('evolve-breed-')) return <BreedScene focus={focus} />
+  if (focus.startsWith('evolve-inbred-')) return <InbredScene focus={focus} />
+  if (focus === 'evolve-ge-question') return <InsulinScene focus={focus} question assessment={assessment} />
+  if (['evolve-ge-herbicide', 'evolve-ge-yield', 'evolve-ge-therapy'].includes(focus)) return <GeUses focus={focus} />
+  if (focus.startsWith('evolve-ge-')) return <InsulinScene focus={focus} />
+  if (focus === 'evolve-gm-data') return <GmData />
+  if (focus.startsWith('evolve-gm-')) return <WeighScene focus={focus} />
+  if (['evolve-fossil-intro', 'evolve-fossil-gaps'].includes(focus)) return <RockColumn focus={focus} />
+  if (focus.startsWith('evolve-fossil-')) return <FossilScene focus={focus} />
+  if (['evolve-class-features', 'evolve-class-kingdoms'].includes(focus)) return <KingdomsScene focus={focus} />
+  if (['evolve-class-levels', 'evolve-class-binomial'].includes(focus)) return <LevelsScene focus={focus} />
+  if (focus === 'evolve-class-new') return <ChangeScene />
+  if (focus === 'evolve-class-question') return <ClassTable />
+  if (focus.startsWith('evolve-class-')) return <DomainsScene focus={focus} />
+  if (focus === 'evolve-tree-question') return <TreeScene focus={focus} question assessment={assessment} />
+  if (focus.startsWith('evolve-tree-')) return <TreeScene focus={focus} />
   return <PeopleScene />
 }

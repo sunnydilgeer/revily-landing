@@ -92,8 +92,14 @@ import { lesson41, variationSections } from './lesson-41/lesson'
 import { variationFrames } from './lesson-41/teachingFrames'
 import { lesson42, evolutionSections } from './lesson-42/lesson'
 import { evolutionFrames } from './lesson-42/teachingFrames'
+import { lesson43, resistanceSections } from './lesson-43/lesson'
+import { resistanceFrames } from './lesson-43/teachingFrames'
+import { lesson44, breedingSections } from './lesson-44/lesson'
+import { breedingFrames } from './lesson-44/teachingFrames'
+import { lesson45, fossilSections } from './lesson-45/lesson'
+import { fossilFrames } from './lesson-45/teachingFrames'
 
-export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47
+export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [12, 13, 14, 15, 16, 17] },
@@ -103,9 +109,9 @@ export const scienceChapters = [
   { code: 'B4', title: 'Bioenergetics', lessonNumbers: [31, 32, 33, 34] },
   { code: 'B5', title: 'Homeostasis and response', lessonNumbers: [35, 36, 37, 38, 39, 40, 41] },
   { code: 'B6', title: 'Inheritance', lessonNumbers: [42, 43, 44, 45] },
-  { code: 'B6b', title: 'Variation and evolution', lessonNumbers: [46, 47] },
+  { code: 'B6b', title: 'Variation and evolution', lessonNumbers: [46, 47, 48, 49, 50] },
 ] as const
-// The Science catalogue: 47 Biology lessons in teaching order. `number` is the position students see;
+// The Science catalogue: 50 Biology lessons in teaching order. `number` is the position students see;
 // `folder` is the source folder (e.g. lesson-1b). Code about one particular lesson should key on `lesson.id`.
 export const scienceLessons = [
   { number: 1, folder: '1', title: 'Animal and plant cells', detail: 'Cell parts, and what is new in a plant cell', lesson: lesson1, sections: cellsSections, frames: cellsFrames },
@@ -155,6 +161,9 @@ export const scienceLessons = [
   { number: 45, folder: '40', title: 'Inherited disorders and embryo screening', detail: 'Polydactyly, cystic fibrosis, family trees and screening', lesson: lesson40, sections: inheritedDisorderSections, frames: inheritedDisorderFrames },
   { number: 46, folder: '41', title: 'Variation and mutation', detail: 'Genes, environment and genetic variants', lesson: lesson41, sections: variationSections, frames: variationFrames },
   { number: 47, folder: '42', title: 'Evolution, new species and extinction', detail: 'Natural selection, evidence, speciation and extinction', lesson: lesson42, sections: evolutionSections, frames: evolutionFrames },
+  { number: 48, folder: '43', title: 'Antibiotic-resistant bacteria', detail: 'How resistance evolves, and how to slow it down', lesson: lesson43, sections: resistanceSections, frames: resistanceFrames },
+  { number: 49, folder: '44', title: 'Selective breeding and genetic engineering', detail: 'Choosing parents, inbreeding, GM organisms', lesson: lesson44, sections: breedingSections, frames: breedingFrames },
+  { number: 50, folder: '45', title: 'Fossils and classification', detail: 'How fossils form, kingdoms, domains and evolutionary trees', lesson: lesson45, sections: fossilSections, frames: fossilFrames },
 ] as const
 export function scienceLessonNumberById(id: string): LessonNumber | null {
   return (scienceLessons.find(item => item.lesson.id === id)?.number as LessonNumber | undefined) ?? null
