@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function HeistLabPage() {
-  return <div className="hs-page"><HeistSplit /></div>
+  return <div className="lab-page"><HeistSplit /></div>
 }

@@ -49,10 +49,11 @@
   --rv-step-as-tint: #fbe3ef;
   --rv-step-as-light: #ff86bd;
 
-  /* The three app sections */
+  /* The app sections */
   --rv-curriculum: var(--rv-step-b);
   --rv-cards: var(--rv-step-dm);
   --rv-practice: var(--rv-step-as);
+  --rv-lab: var(--rv-step-i);
 
   /* Subject accent. Maths is yellow; [data-subject="science"] below swaps in teal.
      Text on the accent is always ink, so both subjects pass AA the same way. */

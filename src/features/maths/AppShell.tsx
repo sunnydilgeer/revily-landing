@@ -6,18 +6,20 @@ import type { StudySummary } from './useStudy'
 import { SUBJECTS, type Subject } from './subject'
 import './AppShell.css'
 
-export type AppSection = 'curriculum' | 'cards' | 'practice'
+export type AppSection = 'curriculum' | 'cards' | 'practice' | 'lab'
 
 export const SECTION_ICONS: Record<AppSection, ReactNode> = {
   curriculum: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M7 3v18M17 3v18M7 7h10M7 12h10M7 17h10" /></svg>,
   cards: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="14" rx="2" /><path d="M8 3h11a2 2 0 0 1 2 2v12" /></svg>,
   practice: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z" /><path d="M14 6l3 3" /></svg>,
+  lab: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.6 9.4A1.7 1.7 0 0 0 5.9 21h12.2a1.7 1.7 0 0 0 1.5-2.6L14 9V3" /><path d="M7.2 15h9.6" /></svg>,
 }
 
 export const SECTIONS: { id: AppSection; label: string }[] = [
   { id: 'curriculum', label: 'Curriculum' },
   { id: 'cards', label: 'Revision cards' },
   { id: 'practice', label: 'Practice' },
+  { id: 'lab', label: 'Lab' },
 ]
 
 export const Bolt = ({ size = 20 }: { size?: number }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" aria-hidden="true"><path d="M13 3L5 14h6l-1 7 8-11h-6z" /></svg>

@@ -20,6 +20,7 @@ import { variantDLesson, variantDMicroSkillLabels } from './features/number-type
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
 import ComingSoon from './features/maths/ComingSoon'
+import LabsHome from './features/maths/labs/LabsHome'
 import RevisionCards from './features/cards/RevisionCards'
 import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
 import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from './features/maths/subject'
@@ -39,11 +40,11 @@ import {
 const ScienceCurriculum = dynamic(() => import('./features/science/ScienceCurriculum'), { ssr: false })
 const ScienceCards = dynamic(() => import('./features/science/cards/ScienceCards'), { ssr: false })
 
-type MathsView = 'overview' | 'lesson' | 'cards' | 'practice'
+type MathsView = 'overview' | 'lesson' | 'cards' | 'practice' | 'lab'
 
 function sectionFromUrl(): MathsView {
   const value = new URLSearchParams(window.location.search).get('view')
-  return value === 'cards' || value === 'practice' ? value : 'overview'
+  return value === 'cards' || value === 'practice' || value === 'lab' ? value : 'overview'
 }
 
 function lessonFromUrl() {
@@ -178,7 +179,9 @@ function App() {
             ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
             : view === 'cards'
               ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
-              : <ComingSoon section={active as 'practice'} onBack={() => navigate('curriculum')} />}
+              : view === 'lab'
+                ? <LabsHome />
+                : <ComingSoon section={active as 'practice'} onBack={() => navigate('curriculum')} />}
       </AppShell>
     </div>
   }

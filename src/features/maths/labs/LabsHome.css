@@ -1,0 +1,85 @@
+/* The Lab section inside the app: a hero, how it works, and a card per game. */
+.labs { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; color: var(--rv-ink); }
+.labs h1, .labs h2, .labs h3 { margin: 0; }
+.labs-kicker { margin: 0; color: var(--rv-yellow); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+.labs-hero {
+  position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 24px;
+  padding: 26px; border-radius: var(--rv-radius-lg); color: #fff; background: var(--rv-night);
+}
+.labs-hero::after {
+  content: '🧪 ⚗️ 🎮 🏆 🌀 💰'; position: absolute; right: -10px; bottom: -14px; font-size: 3.2rem; letter-spacing: .2em;
+  opacity: .12; pointer-events: none; white-space: nowrap;
+}
+.labs-hero__copy { flex: 1 1 320px; display: grid; gap: 8px; }
+.labs-hero h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -0.015em; }
+.labs-hero p { margin: 0; color: var(--rv-on-night); opacity: .85; font-size: 1.02rem; line-height: 1.45; }
+.labs-hero__score {
+  position: relative; z-index: 1; display: grid; justify-items: center; min-width: 120px; padding: 14px 18px;
+  border: 2px solid var(--rv-yellow); border-radius: var(--rv-radius-md); background: var(--rv-night-2);
+}
+.labs-hero__score strong { font: 800 2rem/1 var(--rv-font-display); color: var(--rv-yellow); }
+.labs-hero__score span { font-size: .8rem; color: var(--rv-on-night-muted); }
+
+.labs-how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.labs-how li { display: flex; gap: 12px; align-items: center; padding: 14px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); background: var(--rv-surface); }
+.labs-how__emoji { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; font-size: 1.4rem; background: var(--rv-yellow-tint); }
+.labs-how strong { display: flex; align-items: center; gap: 6px; font-size: .95rem; }
+.labs-how li span:not(.labs-how__emoji, .labs-how__n) { display: block; margin-top: 2px; color: var(--rv-muted); font-size: .82rem; line-height: 1.35; }
+.labs-how__n { width: 20px; height: 20px; display: inline-grid; place-items: center; border-radius: 50%; font-size: .72rem; color: var(--rv-ink); background: var(--rv-yellow); }
+
+.labs-group { display: grid; gap: 14px; }
+.labs-group__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.labs-group__head h2 { font: 800 1.5rem/1.2 var(--rv-font-display); }
+.labs-chip { padding: 4px 10px; border-radius: var(--rv-radius-pill); font-size: .78rem; font-weight: 700; color: var(--rv-step-b); background: var(--rv-step-b-tint); }
+
+/* Game cards: a coloured art panel on top, the maths underneath */
+.labs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.labs-card {
+  --tint: var(--rv-yellow); height: 100%; display: flex; flex-direction: column; overflow: hidden;
+  border: 2px solid var(--rv-ink); border-radius: var(--rv-radius-lg); color: var(--rv-ink); background: var(--rv-surface);
+  text-decoration: none; box-shadow: 0 5px 0 var(--rv-ink); transition: transform .1s, box-shadow .1s;
+}
+.labs-card:hover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--rv-ink); }
+.labs-card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--rv-ink); }
+.labs-card:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.labs-card--heist { --tint: #ffd35c; --deep: #3a2c00; }
+.labs-card--storm { --tint: #bfa4ff; --deep: #2b1466; }
+.labs-card--potion { --tint: #7ff0a8; --deep: #0b4a2a; }
+.labs-card--tiers { --tint: #ffaa66; --deep: #5a2400; }
+.labs-card__art {
+  position: relative; height: 112px; display: grid; place-items: center; border-bottom: 2px solid var(--rv-ink);
+  background: radial-gradient(circle at 30% 20%, rgb(255 255 255 / 55%), transparent 55%), var(--tint);
+}
+.labs-card__emoji { font-size: 3.6rem; line-height: 1; filter: drop-shadow(0 4px 0 rgb(0 0 0 / 18%)); transition: transform .2s; }
+.labs-card:hover .labs-card__emoji { transform: scale(1.12) rotate(-6deg); }
+.labs-card__time { position: absolute; top: 10px; right: 10px; padding: 3px 9px; border-radius: var(--rv-radius-pill); font-size: .75rem; font-weight: 700; color: var(--deep); background: rgb(255 255 255 / 70%); }
+.labs-card__body { flex: 1; display: grid; align-content: start; gap: 8px; padding: 16px; }
+.labs-card h3 { font: 800 1.4rem/1.15 var(--rv-font-display); }
+.labs-card__hook { margin: 0; color: var(--rv-ink-2); line-height: 1.4; }
+.labs-card__skill { justify-self: start; padding: 3px 9px; border-radius: var(--rv-radius-pill); font-size: .78rem; font-weight: 700; color: var(--rv-ink); background: var(--rv-yellow-tint); }
+.labs-card__bridge { display: grid; gap: 6px; margin: 4px 0 0; }
+.labs-card__bridge div { padding: 8px 10px; border-radius: 10px; background: var(--rv-paper); border: 1px dashed var(--rv-line); }
+.labs-card__bridge div + div { background: var(--rv-good-tint); border-color: rgb(21 146 90 / 35%); }
+.labs-card__bridge dt { font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--rv-muted); }
+.labs-card__bridge dd { margin: 2px 0 0; font-size: .9rem; line-height: 1.35; }
+.labs-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.labs-card__best { font-size: .82rem; font-weight: 600; color: var(--rv-muted); }
+.labs-card__best.is-set { color: var(--rv-good-ink); }
+.labs-card__play { flex: none; padding: 8px 14px; border: 2px solid var(--rv-ink); border-radius: var(--rv-radius-pill); font-weight: 700; font-size: .9rem; background: var(--rv-accent); box-shadow: 0 2px 0 var(--rv-ink); }
+
+.labs-soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.labs-soon li { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px dashed var(--rv-line-strong); border-radius: var(--rv-radius-md); background: var(--rv-surface); opacity: .75; }
+.labs-soon__emoji { font-size: 1.8rem; filter: grayscale(1); }
+.labs-soon li div { flex: 1; min-width: 0; }
+.labs-soon strong { display: block; }
+.labs-soon li div span { display: block; font-size: .8rem; color: var(--rv-muted); }
+
+@media (max-width: 760px) {
+  .labs-how, .labs-grid, .labs-soon { grid-template-columns: 1fr; }
+  .labs-hero { padding: 20px; }
+  .labs-hero__score { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 10px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .labs-card, .labs-card__emoji { transition: none; }
+}
