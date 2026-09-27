@@ -76,7 +76,7 @@ export function TeachingChunk({ state, onExposure, headingRef, customFrames }: {
 
 /** The picture that goes with a worked-reasoning screen. */
 export function WorkedVisual({ state }: { state: TeachingState }) {
-  return /^B(?:[4-9]|1\d|2[0-6])-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />
+  return /^B(?:[4-9]|[1-4]\d|5[0-2])-/.test(state.id) ? <CellBiologyVisual focus={state.visual?.id || ''} /> : state.id.startsWith('B3-') ? <PracticalVisual focus={state.id} /> : state.id.startsWith('B2-') ? <MicroscopyVisual focus={state.id} /> : state.id === 'B1-30' ? <AreaModel /> : <CellModel highlight="mitochondria" />
 }
 
 export function WorkedReasoning({ state, onExposure }: { state: TeachingState; onExposure: () => void }) {

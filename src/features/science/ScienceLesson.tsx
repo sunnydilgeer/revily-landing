@@ -33,6 +33,8 @@ const PRACTICAL_NOTES: Record<string, string> = {
   'B-CELL-006B-B': 'This lesson prepares you for required practical 2. You still need to do the real investigation with your teacher.',
   'B-ORG-008-B': 'This lesson prepares you for required practical 4. You still need to do the real investigation with your teacher.',
   'B-ORG-009-B': 'This lesson prepares you for required practical 3. You still need to do the real food tests with your teacher.',
+  'B-BIO-027-B': 'This lesson prepares you for the photosynthesis required practical. You still need to do the real investigation with your teacher.',
+  'B-HOM-032-B': 'This lesson prepares you for the reaction time required practical. You still need to do the real investigation with your teacher.',
 }
 
 // Short optional reminders on a lesson's first screen, for students coming back to the topic.
