@@ -7,14 +7,19 @@
 }
 
 .hs-top { display: flex; align-items: center; gap: 12px; min-height: 44px; }
-.hs-close {
-  width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
-  font-size: 1.6rem; line-height: 1; color: var(--rv-on-night-muted); text-decoration: none;
+.hs-icon {
+  width: 40px; height: 40px; flex: none; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%;
+  font-size: 1.3rem; line-height: 1; color: var(--rv-on-night-muted); background: none; text-decoration: none; cursor: pointer;
 }
-.hs-close:hover { background: var(--rv-night-2); color: var(--rv-on-night); }
-.hs-close:focus-visible { outline: none; box-shadow: var(--rv-focus); }
-.hs-job { flex: 1; margin: 0; font-weight: 600; font-size: .9rem; color: var(--rv-on-night-muted); }
-.hs-trust { display: flex; gap: 6px; }
+a.hs-icon { font-size: 1.6rem; }
+.hs-icon:hover { background: var(--rv-night-2); color: var(--rv-on-night); }
+.hs-icon:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.hs-streak {
+  padding: 4px 10px; border-radius: var(--rv-radius-pill); font-weight: 800; font-size: .85rem;
+  color: var(--rv-ink); background: var(--rv-step-i-light); animation: hs-pop .35s both;
+}
+.hs-job { flex: 1; min-width: 0; margin: 0; white-space: nowrap; font-weight: 600; font-size: .9rem; color: var(--rv-on-night-muted); }
+.hs-trust { display: flex; gap: 4px; }
 .hs-pip { font-size: 1.1rem; color: var(--rv-yellow); transition: color .3s, transform .3s; }
 .hs-pip.is-lost { color: var(--rv-night-3); transform: scale(.8); }
 
@@ -45,7 +50,10 @@
 .hs-card { padding: 14px 12px; border-radius: var(--rv-radius-lg); color: var(--rv-ink); }
 .hs-bars { margin: 0; display: grid; gap: 10px; }
 .hs-take { display: flex; align-items: baseline; justify-content: space-between; padding: 0 2px 4px; border-bottom: 2px dashed var(--rv-line); }
-.hs-take__label { font-weight: 600; font-size: .85rem; color: var(--rv-muted); }
+.hs-take__label { display: grid; gap: 2px; font-weight: 600; font-size: .85rem; color: var(--rv-muted); }
+.hs-box__label { font-size: clamp(.62rem, 26cqi, .85rem); }
+.hs-take__each { font-weight: 700; font-size: .8rem; color: var(--rv-accent-ink); animation: hs-pop .35s both; }
+.hs-take__lie { margin-right: 8px; font-size: .9rem; color: var(--rv-redpen); text-decoration-thickness: 2px; }
 .hs-take__value { font: 800 1.35rem/1.1 var(--rv-font-display); }
 .hs-take.is-unknown .hs-take__value { color: var(--rv-redpen); }
 
@@ -55,11 +63,13 @@
 .hs-who__name { font-weight: 600; font-size: .75rem; color: var(--rv-ink-2); }
 .hs-row.is-focus .hs-who__name { color: var(--rv-ink); font-weight: 800; }
 
-.hs-boxes { display: grid; gap: 4px; min-width: 0; container-type: inline-size; }
+.hs-boxes { position: relative; display: grid; gap: 4px; min-width: 0; }
+/* A box too narrow for "£60" drops its label: "1 share = £60" above the bars says it instead. */
+@container (max-width: 34px) { .hs-box.is-gold .hs-box__label { display: none; } }
 .hs-box {
   min-width: 0; height: 42px; overflow: hidden; white-space: nowrap; display: grid; place-items: center;
   border: 2px solid var(--rv-line-strong); border-radius: 8px; background: var(--rv-surface);
-  font-weight: 700; font-size: clamp(.5rem, calc(100cqi / var(--cols, 3) * .26), .85rem); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  container-type: inline-size; font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; letter-spacing: -.02em;
   transition: background-color .35s, border-color .35s, transform .35s;
   transition-delay: calc(var(--i, 0) * 70ms);
 }
@@ -75,10 +85,24 @@
 .hs-cut.is-known { color: var(--rv-good-ink); animation: hs-pop .4s both; }
 @keyframes hs-pop { from { transform: scale(.6); opacity: 0; } }
 
+.hs-stamp {
+  position: absolute; inset: 50% auto auto 50%; padding: 2px 10px; border: 3px solid var(--rv-redpen); border-radius: 6px;
+  font: 800 1.1rem/1 var(--rv-font-display); letter-spacing: .12em; color: var(--rv-redpen); background: rgb(255 255 255 / 85%);
+  transform: translate(-50%, -50%) rotate(-12deg); animation: hs-stamp .35s .45s both; pointer-events: none;
+}
+@keyframes hs-stamp { from { transform: translate(-50%, -50%) rotate(-12deg) scale(2.6); opacity: 0; } }
+
 .hs-check { margin: 12px 0 0; padding-top: 10px; border-top: 2px dashed var(--rv-line); font-weight: 600; font-size: .9rem; color: var(--rv-good-ink); }
 
 /* The question and its three answers */
-.hs-ask { display: grid; gap: 14px; }
+.hs-ask { position: relative; display: grid; gap: 14px; }
+.hs-asker { margin: 0 0 -8px; font-weight: 600; font-size: .85rem; color: var(--rv-on-night-muted); }
+.hs-combo {
+  justify-self: center; margin: 0; padding: 6px 14px; border-radius: var(--rv-radius-pill);
+  font: 800 1.05rem/1 var(--rv-font-display); color: var(--rv-ink); background: var(--rv-step-i-light);
+  animation: hs-combo .6s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+@keyframes hs-combo { from { transform: scale(.3) rotate(-8deg); opacity: 0; } }
 .hs-prompt { margin: 0; font: 800 1.3rem/1.25 var(--rv-font-display); }
 .hs-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .hs-choice {
@@ -94,6 +118,38 @@
 .hs-choice.is-wrong { opacity: 1; border-color: #a51f1f; color: #fff; background: var(--rv-redpen); box-shadow: 0 3px 0 #a51f1f; animation: hs-shake .4s; }
 @keyframes hs-shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
 
+/* The vault: a steel door that swings open on its left hinge. */
+.hs-brief--vault { justify-items: center; text-align: center; }
+.hs-vault { position: relative; width: min(240px, 70vw); aspect-ratio: 1; margin: 12px auto 0; perspective: 900px; }
+.hs-vault__inside {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 6px; border-radius: 50%;
+  background: radial-gradient(circle, #2b2410 0%, #0b0d1c 75%); box-shadow: inset 0 0 0 10px var(--rv-night-3);
+}
+.hs-vault__loot { font-size: 3.4rem; line-height: 1; }
+.hs-vault__sum { min-height: 1.2em; font: 800 1.9rem/1.2 var(--rv-font-display); color: var(--rv-yellow); font-variant-numeric: tabular-nums; }
+.hs-vault__door {
+  position: absolute; inset: 0; border-radius: 50%; transform-origin: 0 50%;
+  background: radial-gradient(circle at 35% 30%, #d8deea, #8d97ad 60%, #5b647c);
+  box-shadow: inset 0 0 0 10px #6f7890, inset 0 0 0 14px #b8c0d2, 0 10px 30px rgb(0 0 0 / 45%);
+  transition: transform .8s .75s cubic-bezier(.5, 0, .2, 1);
+}
+.hs-vault__dial {
+  position: absolute; inset: 30%; border-radius: 50%; background: radial-gradient(circle, #eef1f7 20%, #9aa3b8 22%, #c9cfdd 60%, #7c859c);
+  box-shadow: 0 3px 6px rgb(0 0 0 / 35%); transition: transform .7s cubic-bezier(.3, 0, .2, 1);
+}
+.hs-vault__dial::before, .hs-vault__dial::after { content: ''; position: absolute; inset: 46% -18%; border-radius: 6px; background: #6f7890; }
+.hs-vault__dial::after { transform: rotate(90deg); }
+.hs-vault__bolt { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #6f7890; box-shadow: inset 0 2px 2px rgb(255 255 255 / 40%); }
+.hs-vault__bolt--a { top: 12%; left: 47%; } .hs-vault__bolt--b { bottom: 12%; left: 47%; }
+.hs-vault__bolt--c { left: 12%; top: 47%; } .hs-vault__bolt--d { right: 12%; top: 47%; }
+.hs-vault.is-open .hs-vault__dial { transform: rotate(540deg); }
+.hs-vault.is-open .hs-vault__door { transform: rotateY(-100deg); }
+
+/* Coins raining over the payout */
+.hs-burst { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 20; }
+.hs-burst span { position: absolute; top: -40px; font-size: 1.6rem; animation: hs-fall 1.6s ease-in both; }
+@keyframes hs-fall { to { transform: translateY(110vh) rotate(var(--spin)); } }
+
 /* Worked steps after each job */
 .hs-card--working { padding: 16px 14px 22px; }
 .hs-working__title { margin: 0 0 12px; font: 800 1.05rem/1.2 var(--rv-font-display); }
@@ -101,8 +157,17 @@
 .hs-rule { padding: 16px; border-radius: var(--rv-radius-md); background: var(--rv-night-2); }
 .hs-rule__label { margin: 0 0 8px; font-weight: 700; color: var(--rv-yellow); }
 .hs-rule ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; line-height: 1.45; }
-.hs-end__stat { margin: 0; font-size: 1.05rem; color: var(--rv-on-night-muted); }
-.hs-end__stat strong { font: 800 2rem/1 var(--rv-font-display); color: var(--rv-yellow); }
+.hs-rank { display: grid; justify-items: center; gap: 4px; padding: 22px 16px; border: 2px solid var(--rv-yellow); border-radius: var(--rv-radius-lg); text-align: center; background: var(--rv-night-2); }
+.hs-rank__badge { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; font-size: 3.6rem; line-height: 1; animation: hs-combo .7s cubic-bezier(.2, 1.6, .4, 1) both; }
+.hs-rank__label { margin: 6px 0 0; font-weight: 700; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--rv-on-night-muted); }
+.hs-rank__name { margin: 0; font: 800 2rem/1.1 var(--rv-font-display); color: var(--rv-yellow); }
+.hs-rank__line { margin: 0; line-height: 1.45; color: var(--rv-on-night); }
+.hs-stats { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 0; }
+.hs-stats div { padding: 10px 4px; border-radius: var(--rv-radius-sm); background: var(--rv-night); }
+.hs-stats dt { font-size: .72rem; color: var(--rv-on-night-muted); }
+.hs-stats dd { margin: 4px 0 0; font: 800 1.05rem/1 var(--rv-font-display); }
+.hs-sirens { font-size: 3rem; animation: hs-siren .5s steps(2) infinite; }
+@keyframes hs-siren { 50% { transform: scaleX(-1); filter: hue-rotate(200deg); } }
 
 /* Bottom bars: ours on the night ground, and the shared CheckBar pulled to the edges. */
 .hs-bar {
@@ -110,9 +175,12 @@
   padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); border-top: 2px solid var(--rv-night-3); background: var(--rv-night);
 }
 .hs-bar__actions { width: 100%; display: flex; gap: 10px; }
+.hs-bar__actions--stack { flex-direction: column-reverse; }
 .hs-bar__actions .rv-icon-btn { width: 56px; min-width: 56px; }
 .hs .rv-checkbar { margin: auto -16px 0; color: var(--rv-ink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .hs-box, .hs-box.is-gold, .hs-cut.is-known, .hs-choice.is-wrong, .hs-pip { animation: none; transition: none; }
+  .hs-box, .hs-box.is-gold, .hs-cut.is-known, .hs-choice.is-wrong, .hs-pip, .hs-streak, .hs-combo, .hs-stamp,
+  .hs-take__each, .hs-rank__badge, .hs-sirens, .hs-vault__door, .hs-vault__dial { animation: none; transition: none; }
+  .hs-burst { display: none; }
 }
