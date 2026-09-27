@@ -1,10 +1,10 @@
 'use client'
 
-import { useId, useState, type CSSProperties } from 'react'
-import { MathSpan } from '../../../../components/MathText'
-import { methodProgress, type MethodExample, type MethodFrame, type MethodStep, type MethodWorking } from './methodWorking'
+import { useId, useMemo, useState, type CSSProperties } from 'react'
+import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { methodChain } from './methodChain'
+import type { MethodExample, MethodFrame, MethodStep, MethodWorking } from './methodWorking'
 import { isNumberSenseWorking, NumberSenseWorkedExample } from './NumberSenseWorkedExample'
-import { WorkedLines } from './WorkedLines'
 
 
 function Column({ example, frame, step }: { example: MethodExample; frame: MethodFrame; step?: MethodStep }) {
@@ -104,7 +104,7 @@ function FactorTree({ example, frame }: { example: MethodExample; frame: MethodF
       {edges.map(([parent, child]) => <line key={`${parent.key}-${child.key}`} x1={parent.x} y1={(parent.y ?? 0) + 24} x2={child.x} y2={(child.y ?? 0) - 28} markerEnd={`url(#${markerId})`} />)}
       {nodes.map(node => <g className={node.children ? '' : 'is-prime'} key={node.key} transform={`translate(${node.x} ${node.y})`}><circle r="24" /><text y="0.35em" textAnchor="middle">{node.value}</text></g>)}
     </svg>
-    {frame.factorAnswer && <strong aria-hidden="true"><MathSpan latex={frame.factorAnswer} /></strong>}
+    {/* The answer is the step chain's last line, so the tree does not repeat it (it stays in the label). */}
   </div>
 }
 
@@ -145,37 +145,15 @@ export function MethodWorkedExample({ visual }: { visual: MethodWorking }) {
   return isNumberSenseWorking(visual) ? <NumberSenseWorkedExample visual={visual} /> : <ArithmeticWorkedExample visual={visual} />
 }
 
-/** The answer to show in the "= ?" box, only where it is certain from the example itself. */
-function exampleAnswer(example: MethodExample) {
-  if (example.method === 'column' || example.method === 'grid') return `${example.first * example.second}`
-  if ((example.method === 'division' || example.method === 'long-division') && example.second) {
-    const quotient = Math.floor(example.first / example.second), remainder = example.first % example.second
-    return remainder ? `${quotient}\text{ r }${remainder}` : `${quotient}`
-  }
-  return undefined
-}
-
 function ArithmeticWorkedExample({ visual }: { visual: MethodWorking }) {
-  const [revealed, setRevealed] = useState(0)
-  const { total, working, active, current, completed } = methodProgress(visual, revealed)
-  const { example, count } = working[active]
-  const multiple = working.length > 1
-  return <WorkedLines
-    question={example.expression}
-    answer={exampleAnswer(example)}
-    solved={count === example.steps.length}
-    visual={<div className="rung-worked__visual"><WorkingDiagram example={example} frame={example.steps[count - 1]?.frame ?? {}} step={current} /></div>}
-    lines={completed.map(({ step, example: ex, index, number }) => ({
-      key: `${index}-${number}`,
-      math: step.equation,
-      note: step.title,
-      group: multiple ? `Example ${index + 1}: ${ex.label}` : undefined,
-    }))}
-    say={current?.instruction}
-    revealed={revealed}
-    total={total}
-    onReveal={setRevealed}
-  />
+  const chain = useMemo(() => methodChain(visual), [visual])
+  // The method's own picture (grid, columns, bus stop, factor tree…) for the latest line that has one.
+  const picture = (revealed: number) => {
+    const at = chain.slice(0, revealed).findLast(line => line.at)?.at ?? { example: 0, step: -1 }
+    const example = visual.examples[at.example ?? 0], step = example.steps[at.step]
+    return <div className="rung-worked__visual"><WorkingDiagram example={example} frame={step?.frame ?? {}} step={step} /></div>
+  }
+  return <WorkedChain steps={chain} picture={picture} />
 }
 
 export function AnswerMethodWorking({ visual }: { visual: MethodWorking }) {

@@ -65,7 +65,7 @@
 .wms-decimal > small { color: var(--rv-muted); font-size: 12px; font-weight: 700; }
 
 .wms-factor-tree { min-height: 220px; display: grid; align-content: center; justify-items: center; gap: 18px; overflow-x: auto; }
-.wms-factor-tree svg { display: block; width: min(100%, 520px); min-width: 300px; height: auto; overflow: visible; }
+.wms-factor-tree svg { display: block; width: min(100%, 520px); height: auto; overflow: visible; }
 .wms-factor-tree line { stroke: var(--rv-line-strong); stroke-width: 3; stroke-linecap: round; }
 .wms-factor-tree marker path { fill: var(--rv-line-strong); }
 .wms-factor-tree circle { fill: var(--rv-grid); stroke: var(--rv-muted); stroke-width: 2; }
@@ -98,5 +98,4 @@
 .wms-venn-region b { width: 34px; box-sizing: border-box; padding: 0; flex: 0 0 34px; background: var(--rv-paper); }
 @media (max-width: 480px) {
   .wms-venn { height: 215px; transform: scale(.82); transform-origin: top center; margin-bottom: -34px; }
-  .wms-factor-tree svg { min-width: 280px; }
 }

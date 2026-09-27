@@ -84,7 +84,8 @@ export function flyTerms({ stage, from, to, merge = {}, pace = 1, onArrive }: {
     ghosts.forEach(ghost => ghost.remove())
     onArrive()
   }
-  const timer = window.setTimeout(finish, (FLIGHT_DELAY + FLIGHT_MS) * pace)
+  // With nothing to fly (a line of working that is written fresh), the line appears once the operation has been read.
+  const timer = window.setTimeout(finish, (ghosts.length ? FLIGHT_DELAY + FLIGHT_MS : FLIGHT_DELAY) * pace)
   return () => {
     window.clearTimeout(timer)
     animations.forEach(animation => animation.cancel())

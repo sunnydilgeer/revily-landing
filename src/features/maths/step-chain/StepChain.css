@@ -17,16 +17,19 @@
 .sc-cell--eq { justify-content: center; font-family: KaTeX_Main, serif; }
 .sc-cell--rhs { justify-content: flex-start; }
 .sc-cell--wide { grid-column: 1 / -1; justify-content: center; }
+/* A whole centred line may be long (four products, a worded step): let it wrap between terms on a phone. */
+.sc:not(.sc--columns) .sc-cell--wide { display: block; white-space: normal; text-align: center; padding-block: .3em; }
 .sc-cell .katex { font-size: 1em; }
 
 /* The operation sits between the lines, like a note in the margin of an exercise book. Tap it to replay the step. */
 .sc-op { grid-column: 1 / -1; justify-self: center; display: grid; justify-items: center; padding-top: .35em; font-size: .62em; }
 .sc-op__line { display: inline-flex; align-items: center; gap: .35em; }
 .sc-op__label {
-  display: inline-flex; align-items: center; gap: .4em; min-height: 2.2em; padding: .2em .4em; border: 0; border-radius: 8px;
-  font: 600 1em/1.2 var(--rv-font-body); color: var(--rv-biro); background: none; cursor: pointer;
+  display: inline-block; min-height: 2.2em; padding: .45em .4em; border: 0; border-radius: 8px; text-align: center; text-wrap: balance;
+  font: 600 1em/1.25 var(--rv-font-body); color: var(--rv-biro); background: none; cursor: pointer;
 }
-.sc-op__label::before { content: '↓'; font-weight: 700; }
+/* The arrow flows with the words, so a long operation wraps as one centred phrase. */
+.sc-op__label::before { content: '↓\00a0'; font-weight: 700; }
 .sc-op__label:hover { background: var(--rv-biro-tint); }
 .sc-op__info {
   width: 1.6em; height: 1.6em; display: grid; place-items: center; padding: 0; border: 1.5px solid var(--rv-biro-light); border-radius: 50%;

@@ -22,6 +22,7 @@
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",
         "verify:fractions:chains": "node scripts/verify-fraction-chains.cjs",
+        "verify:step-chains": "node scripts/verify-step-chains.cjs",
         "verify:study-log": "node scripts/verify-study-log.cjs",
         "verify:number:diagnosis": "node scripts/verify-number-diagnosis.cjs",
         "verify:bidmas:stepper": "node scripts/verify-bidmas-stepper.cjs",

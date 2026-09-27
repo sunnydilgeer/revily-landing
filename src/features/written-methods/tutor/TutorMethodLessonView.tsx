@@ -102,8 +102,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const canCheck = pair ? Boolean(engine.quotientValue.trim() && engine.remainderValue.trim()) : Boolean(engine.inputValue.trim())
   const answerState = feedback ? feedback.correct ? ' is-correct' : ' is-incorrect' : ''
   const extraLines = state.visual.kind === 'text' && !repeatsTitle(state)
-  // A step chain explains every move itself, so the one-line method summary would repeat it.
-  const stepChain = state.visual.kind === 'fraction-worked' && Boolean(state.visual.chain)
+  // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
+  const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
   return <section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}

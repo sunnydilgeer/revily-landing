@@ -208,9 +208,3 @@ export function fractionOfAmountWorking(numerator: number, denominator: number, 
   }
   return { ...working, chain: framed(fractionOfAmountChain(numerator, denominator, amount, currency), [[1, working.steps[0].frame], [3, working.steps[1].frame]]) }
 }
-
-export function fractionWorkingProgress(visual: FractionWorking, revealed: number) {
-  const total = visual.steps.length
-  const count = Math.max(0, Math.min(total, revealed))
-  return { total, current: visual.steps[count - 1], completed: visual.steps.slice(0, count) }
-}

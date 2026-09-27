@@ -1,8 +1,9 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { MathSpan } from '../../../../components/MathText'
-import { WorkedLines } from '../../written-methods/tutor/WorkedLines'
+import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { chainFromSteps } from '../../maths/step-chain/fromSteps'
 import type { ConversionForm, ConversionForms, ConversionWorking } from './conversionWorking'
 
 const labels: Array<[keyof ConversionForms, string]> = [
@@ -28,17 +29,13 @@ function FormsDiagram({ forms }: { forms: ConversionForms }) {
 }
 
 export function ConversionWorkedExample({ visual }: { visual: ConversionWorking }) {
-  const [revealed, setRevealed] = useState(0)
-  const current = revealed ? visual.steps[revealed - 1] : undefined
-  return <WorkedLines
-    question={visual.expression}
-    visual={current && <div className="rung-worked__visual"><FormsDiagram forms={current.forms} /></div>}
-    lines={visual.steps.slice(0, revealed).map((step, index) => ({ key: `${step.title}-${index}`, math: step.equation, note: step.title }))}
-    say={current?.instruction}
-    revealed={revealed}
-    total={visual.steps.length}
-    onReveal={setRevealed}
-  />
+  const chain = useMemo(() => chainFromSteps(visual.expression, visual.steps), [visual])
+  // The fraction, decimal and percentage forms for the step on screen.
+  const picture = (revealed: number) => {
+    const step = visual.steps[revealed - 2]
+    return step && <div className="rung-worked__visual"><FormsDiagram forms={step.forms} /></div>
+  }
+  return <WorkedChain steps={chain} picture={picture} />
 }
 
 export function AnswerConversionWorking({ visual }: { visual: ConversionWorking }) {
