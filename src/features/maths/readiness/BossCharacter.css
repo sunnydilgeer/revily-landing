@@ -1,0 +1,39 @@
+/* The Treasurer's moods. Everything here stops under reduced motion. */
+.bc { display: block; overflow: visible; }
+.bc * { transform-box: fill-box; }
+.bc-aura { transform-origin: center; animation: bc-aura 3.2s ease-in-out infinite; }
+@keyframes bc-aura { 50% { transform: scale(1.08); opacity: .75; } }
+.bc-orbit { transform-box: view-box; transform-origin: 100px 98px; animation: bc-spin 22s linear infinite; }
+.bc-glyph { transform-origin: center; animation: bc-spin 22s linear infinite reverse; }
+@keyframes bc-spin { to { transform: rotate(360deg); } }
+.bc-float { transform-box: view-box; animation: bc-bob 3.4s ease-in-out infinite; }
+@keyframes bc-bob { 50% { transform: translateY(-6px); } }
+.bc-lid { transform-origin: top; transform: scaleY(.42); animation: bc-blink 5s ease-in-out infinite; }
+@keyframes bc-blink { 0%, 90%, 100% { transform: scaleY(.42); } 94% { transform: scaleY(1); } }
+.bc-iris { animation: bc-look 6s ease-in-out infinite; }
+@keyframes bc-look { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 60% { transform: translateX(5px); } }
+.bc-shard { transition: transform .9s cubic-bezier(.2, .8, .3, 1), opacity .9s ease; transform-origin: center; }
+.bc-rim, .bc-face, .bc-horns, .bc-cracks { transition: opacity .35s ease; }
+.bc-crack { stroke-dasharray: 1; stroke-dashoffset: 1; animation: bc-crack .35s ease-out forwards; }
+@keyframes bc-crack { to { stroke-dashoffset: 0; } }
+
+.bc--hit .bc-float { animation: bc-shake .5s ease; }
+.bc--hit .bc-body { animation: bc-flash .5s ease; }
+@keyframes bc-shake { 15%, 55% { transform: translate(-9px, 2px) rotate(-5deg); } 35%, 75% { transform: translate(9px, -2px) rotate(5deg); } }
+@keyframes bc-flash { 0%, 30% { filter: brightness(3) saturate(0); } }
+
+.bc--taunt .bc-float { animation: bc-laugh .5s ease-in-out infinite; }
+@keyframes bc-laugh { 50% { transform: translateY(-5px) rotate(2deg); } }
+.bc--taunt .bc-lid { animation: none; transform: scaleY(.2); }
+
+.bc--down .bc-float, .bc--down .bc-orbit, .bc--down .bc-aura { animation: none; }
+.bc--down .bc-shard { transform: translate(var(--dx), var(--dy)) rotate(var(--spin)) scale(.8); opacity: 0; }
+.bc--down .bc-rim, .bc--down .bc-face, .bc--down .bc-horns, .bc--down .bc-cracks, .bc--down .bc-orbit { opacity: 0; }
+.bc--down .bc-aura { animation: bc-blast .9s ease-out forwards; }
+@keyframes bc-blast { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bc *, .bc--hit .bc-float, .bc--hit .bc-body, .bc--taunt .bc-float { animation: none !important; transition: none !important; }
+  .bc-lid { transform: scaleY(.42); }
+  .bc-crack { stroke-dashoffset: 0; }
+}

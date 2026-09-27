@@ -1,0 +1,32 @@
+/* Bottom sheets over the exam world. */
+html.has-sheet-open { overflow: hidden; }
+.sheet {
+  width: 100%; max-width: 100%; height: 100%; max-height: 100%; margin: 0; padding: 0; border: 0; background: none;
+  display: none; align-items: flex-end; justify-content: center; overscroll-behavior: contain;
+}
+.sheet[open] { display: flex; }
+.sheet::backdrop { background: rgb(7 10 28 / 62%); backdrop-filter: blur(3px); animation: sheet-fade .25s ease; }
+.sheet-panel {
+  position: relative; width: 100%; max-width: 560px; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0;
+  animation: sheet-up .38s cubic-bezier(.2, .9, .25, 1);
+}
+@media (min-width: 640px) {
+  .sheet { align-items: center; }
+  .sheet-panel { border-radius: 28px; max-height: min(760px, 90dvh); }
+}
+.sheet--night .sheet-panel {
+  color: var(--rv-on-night);
+  background: linear-gradient(180deg, #1c2455 0%, #121942 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%), 0 -20px 60px rgb(0 0 0 / 45%);
+}
+.sheet--paper .sheet-panel { color: var(--rv-ink); background: var(--rv-paper); box-shadow: 0 -20px 60px rgb(0 0 0 / 35%); }
+.sheet-grip { position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 4px; background: currentColor; opacity: .25; }
+.sheet-close {
+  position: absolute; top: 14px; right: 14px; z-index: 2; display: grid; place-items: center; width: 36px; height: 36px;
+  border: 0; border-radius: 50%; color: inherit; background: rgb(127 140 190 / 18%); cursor: pointer;
+}
+.sheet-close:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } }
+@keyframes sheet-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sheet-panel, .sheet::backdrop { animation: none; } }
