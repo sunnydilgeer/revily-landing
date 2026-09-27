@@ -6,25 +6,45 @@ import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
 import { scienceLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson26, photosynthesisSections } from './lesson-26/lesson'
-import { photosynthesisFrames } from './lesson-26/teachingFrames'
-import { lesson25 } from './lesson-25/lesson'
+import { lesson27, photosynthesisRateSections } from './lesson-27/lesson'
+import { photosynthesisRateFrames } from './lesson-27/teachingFrames'
+import { lesson28, respirationSections } from './lesson-28/lesson'
+import { respirationFrames } from './lesson-28/teachingFrames'
+import { lesson29, exerciseSections } from './lesson-29/lesson'
+import { exerciseFrames } from './lesson-29/teachingFrames'
+import { lesson30, homeostasisSections } from './lesson-30/lesson'
+import { homeostasisFrames } from './lesson-30/teachingFrames'
+import { lesson31, nervousSystemSections } from './lesson-31/lesson'
+import { nervousSystemFrames } from './lesson-31/teachingFrames'
+import { lesson32, reactionTimeSections } from './lesson-32/lesson'
+import { reactionTimeFrames } from './lesson-32/teachingFrames'
+import { lesson33, hormonesSections } from './lesson-33/lesson'
+import { hormonesFrames } from './lesson-33/teachingFrames'
+import { lesson34, bloodGlucoseSections } from './lesson-34/lesson'
+import { bloodGlucoseFrames } from './lesson-34/teachingFrames'
+import { lesson35, menstrualCycleSections } from './lesson-35/lesson'
+import { menstrualCycleFrames } from './lesson-35/teachingFrames'
+import { lesson36, contraceptionSections } from './lesson-36/lesson'
+import { contraceptionFrames } from './lesson-36/teachingFrames'
 import type { EvidenceDimension, Profile, ScienceState } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
-const lessons = [lesson26]
-const frameSets = [photosynthesisFrames]
-const sections = [photosynthesisSections]
+const lessons = [lesson27, lesson28, lesson29, lesson30, lesson31, lesson32, lesson33, lesson34, lesson35, lesson36]
+const frameSets = [photosynthesisRateFrames, respirationFrames, exerciseFrames, homeostasisFrames, nervousSystemFrames, reactionTimeFrames, hormonesFrames, bloodGlucoseFrames, menstrualCycleFrames, contraceptionFrames]
+const sections = [photosynthesisRateSections, respirationSections, exerciseSections, homeostasisSections, nervousSystemSections, reactionTimeSections, hormonesSections, bloodGlucoseSections, menstrualCycleSections, contraceptionSections]
+const specs = ['4.4', '4.4', '4.4', '4.5', '4.5', '4.5', '4.5', '4.5', '4.5', '4.5']
+const families = ['B-BIO', 'B-BIO', 'B-BIO', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM', 'B-HOM']
+const prefixes = ['energy-', 'energy-', 'energy-', 'nerve-', 'nerve-', 'nerve-', 'hormone-', 'hormone-', 'hormone-', 'hormone-']
 const at = '2026-09-26T18:00:00.000Z'
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
 lessons.forEach((lesson, index) => {
-  const number = index + 26
+  const number = index + 27
   check(`${lesson.id}: metadata, source links, sections and sampled requirements`, () => {
-    assert.equal(lesson.id, `B-BIO-0${number}-B`)
+    assert.equal(lesson.id, `${families[index]}-0${number}-B`)
     assert.equal(lesson.contentVersion, '0.1.0')
     assert.equal(lesson.reviewStatus, 'draftNeedsTeacherReview')
     assert.equal(lesson.qualification, 'AQA-8464F')
@@ -34,9 +54,9 @@ lessons.forEach((lesson, index) => {
     const contexts = lesson.states.flatMap(state => state.kind === 'teaching' ? [] : [state.contextId])
     assert.equal(new Set(contexts).size, contexts.length)
     const sourceIds = lesson.sources.map(source => source.id)
-    lesson.sources.forEach(source => { assert.ok(source.url.startsWith('https://')); assert.match(source.locator, /4\.4\.1/) })
+    lesson.sources.forEach(source => { assert.ok(source.url.startsWith('https://')); assert.ok(source.locator.includes(specs[index])) })
     lesson.states.forEach(state => {
-      assert.ok(state.specRefs.length && state.specRefs.every(ref => ref.startsWith('4.4.1')))
+      assert.ok(state.specRefs.length && state.specRefs.every(ref => ref.startsWith(specs[index])))
       state.sourceIds.forEach(sourceId => assert.ok(sourceIds.includes(sourceId)))
     })
     assert.equal(sections[index][0].id, lesson.states[0].id)
@@ -80,7 +100,7 @@ lessons.forEach((lesson, index) => {
   check(`${lesson.id}: plain Year 10 wording, one idea per sentence`, () => {
     const frames = Object.values(frameSets[index]).flat()
     const all = [...frames.map(f => `${f.label}. ${f.summary} ${f.text}`), ...lesson.states.map(learnerText)].join(' ')
-    assert.doesNotMatch(all, /limiting factor|inverse square|metabolism|aerobic|anaerobic|mitochondri|iodine|magnesium|thylakoid|stroma\b|diagnostic|misconception|distractor/i)
+    assert.doesNotMatch(all, /inverse square|glucagon|negative feedback|diagnostic|misconception|distractor/i)
     for (const f of frames) for (const sentence of f.text.split(/(?<=[.!?])\s+/)) assert.ok(sentence.split(/\s+/).length <= 26, `long sentence: ${sentence}`)
     for (const state of lesson.states) if (state.kind !== 'teaching') assert.ok(state.title.split(/\s+/).length <= 22, `${state.id}: question is too long`)
   })
@@ -92,7 +112,7 @@ lessons.forEach((lesson, index) => {
       assert.equal(state.media.script, frames.map(f => `${f.label}. ${f.summary} ${f.text}`).join(' '))
       assert.equal(new Set(frames.map(f => f.label)).size, frames.length, `${id}: step labels must be unique`)
       for (const f of frames) {
-        assert.ok(f.label && f.summary && f.cue.startsWith('Think: ') && f.text && (f.focus || '').startsWith('photo-'))
+        assert.ok(f.label && f.summary && f.cue.startsWith('Think: ') && f.text && (f.focus || '').startsWith(prefixes[index]))
         const html = renderToStaticMarkup(createElement(TeachingChunk, { state, onExposure: () => {}, customFrames: [f] }))
         const escaped = f.text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' }[c]!))
         assert.ok(html.includes(escaped), `${id}: frame copy must appear on the teaching screen`)
@@ -119,7 +139,8 @@ lessons.forEach((lesson, index) => {
       if (state.id === 'B26-04') { assert.doesNotMatch(hidden, /oxygen|O₂|carbon dioxide|CO₂|water|glucose|arrow 3/i); assert.match(shown, /oxygen/) }
       if (state.id === 'B26-09') { assert.doesNotMatch(hidden, /seed|root|stem|leaf|part 4/i); assert.match(shown, /seeds/) }
       if (state.id === 'B26-14') assert.doesNotMatch(hidden, /built up in the light|used up in the dark/i)
-      assert.ok(!hidden.toLowerCase().includes(answer), `${state.id}: the answer text must not appear in the question diagram`)
+      // A one-letter answer (A, B, C…) is a label that has to be on the diagram.
+      if (answer.length > 2) assert.ok(!hidden.toLowerCase().includes(answer), `${state.id}: the answer text must not appear in the question diagram`)
     }
   })
 
@@ -144,7 +165,8 @@ lessons.forEach((lesson, index) => {
     assert.equal(profile.pendingReview.length, 1)
     assert.equal(profile.dimensions.explanation === 'secureInSession', false)
     const next = recommendedNext(profile, false, lesson)
-    assert.deepEqual(next, { kind: 'lesson', lessonId: 'B-BIO-027-B' })
+    if (index < lessons.length - 1) assert.deepEqual(next, { kind: 'lesson', lessonId: lessons[index + 1].id })
+    else assert.equal(next.kind, 'practical')
   })
 
   check(`${lesson.id}: a wrong independent answer keeps the learner on a repair route`, () => {
@@ -160,37 +182,18 @@ lessons.forEach((lesson, index) => {
   })
 })
 
-check('Scope: equation, then chloroplasts, then five uses of glucose; earlier lessons stay brief links', () => {
-  const l26 = Object.values(photosynthesisFrames).flat().map(frame => `${frame.summary} ${frame.text}`).join(' ')
-  for (const link of [/how water moves into and out of cells/, /when you learned about the leaf/, /when you learned about transpiration/, /when you learned how water moves through a plant/]) assert.match(l26, link)
-  for (const term of [/Photosynthesis uses energy from light/, /Glucose is a sugar/, /stomata/, /xylem/, /chloroplasts/, /Chlorophyll is/, /endothermic/, /CO₂/, /H₂O/, /C₆H₁₂O₆/, /O₂/, /respiration/, /cellulose/, /nitrate ions/, /amino acids/, /lipids/, /starch/, /insoluble/, /osmosis/]) assert.match(l26, term)
-  assert.doesNotMatch(l26, /photosynthesis (?:gives out|releases) energy|light is a reactant|takes in oxygen/i, 'photosynthesis takes energy in; light is not a reactant')
-})
-
-check('Flow: follows one sunflower; inputs and outputs before chloroplasts, glucose made before it is used', () => {
-  const order = lesson26.states.map(state => state.id)
-  assert.ok(order.indexOf('B26-02') < order.indexOf('B26-05') && order.indexOf('B26-05') < order.indexOf('B26-08'))
-  assert.match(photosynthesisFrames['B26-02'][0].text, /sunflower/); assert.match(photosynthesisFrames['B26-08'][3].text, /sunflower oil/)
-  const uses = photosynthesisFrames['B26-08'].map(f => f.label)
-  assert.ok(uses.indexOf('Starch') < uses.indexOf('Why starch?'), 'why starch builds on starch')
-  assert.equal(photosynthesisFrames['B26-05'].at(-1)!.focus, 'photo-summary')
-})
-
-check('Lesson 26 has its own storage record, separate from Lesson 25', () => {
-  const [mine, previous] = [lesson26, lesson25].map(createPreviewSessionEngine)
-  assert.notEqual(mine.storageKey, previous.storageKey)
-  assert.equal(previous.restorePreviewSession(mine.createPreviewSession('isolation')), null)
-  assert.equal(mine.restorePreviewSession(previous.createPreviewSession('isolation')), null)
-})
-
-check('New B4 chapter; hub, parser and links include Lesson 26; Lesson 25 leads here', () => {
+check('B4 and B5 chapters list Lessons 31–41; the catalogue, parser and links include them; Lesson 31 leads on', () => {
   assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B4')?.lessonNumbers, [31, 32, 33, 34])
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B3')?.lessonNumbers, [24, 25, 26, 27, 28, 29, 30])
-  assert.ok(scienceLessons.some(item => item.number === 31 && item.lesson.id === lesson26.id))
-  assert.equal(parseScienceLesson('31'), 31)
-  assert.equal(scienceLessonHref(31), '/preview/science?lesson=31')
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B5')?.lessonNumbers, [35, 36, 37, 38, 39, 40, 41])
+  lessons.forEach((lesson, index) => {
+    assert.ok(scienceLessons.some(item => item.number === index + 32 && item.lesson.id === lesson.id && item.folder === String(index + 27)))
+    assert.equal(parseScienceLesson(String(index + 32)), index + 32)
+    assert.equal(scienceLessonHref((index + 32) as never), `/preview/science?lesson=${index + 32}`)
+  })
+  const engines = lessons.map(createPreviewSessionEngine)
+  assert.equal(new Set(engines.map(engine => engine.storageKey)).size, lessons.length)
   const secure: Profile = { dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }
-  assert.deepEqual(recommendedNext(secure, false, { ...lesson26, id: 'B-INF-025-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-BIO-026-B' })
+  assert.deepEqual(recommendedNext(secure, false, { ...lesson27, id: 'B-BIO-026-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-BIO-027-B' })
 })
 
-console.log(`${checks} Lesson 26 checks passed`)
+console.log(`${checks} Lessons 32–41 checks passed`)

@@ -141,7 +141,7 @@ Source boundary: supplied pages 58–59 (for scope only); AQA 8464 section 4.5.3
 - Explanation: Sterilisation needs no daily action and uses no hormones. It is permanent, so a person who later wants children cannot easily undo it.
 
 ### B36-17 · written · `teacherOnly`
-**Q:** Evaluate the contraceptive pill and condoms as ways of preventing pregnancy. For each, say how it works and give at least one advantage and one disadvantage.
+**Q:** Evaluate the pill and condoms. For each, say how it works and give one advantage and one disadvantage.
 - Hint: For each method, say how it works, then give a pro and a con. Finish by comparing them.
 - Model answer: The pill contains hormones that stop FSH being released, so no eggs mature. It is over 99% effective, but it must be taken every day, it can cause side effects such as headaches, and it does not protect against STIs. Condoms are a barrier that stops sperm reaching an egg. They are the only method that protects against STIs and they contain no hormones, but they must be used every time. So condoms are the better choice for protection against STIs, while the pill is very effective against pregnancy.
 - Marking points: The pill stops FSH being released, so no eggs mature. · An advantage of the pill, such as being over 99% effective. · A disadvantage of the pill, such as side effects, taking it every day or no STI protection. · Condoms are a barrier that stops sperm reaching an egg. · An advantage and a disadvantage of condoms, such as STI protection and needing to be used every time.

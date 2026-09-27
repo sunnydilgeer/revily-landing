@@ -48,7 +48,7 @@ Source boundary: supplied pages 45 and 46 (scans p44-45.png right page, p46-47.p
 - Explanation: A limiting factor is the thing in shortest supply. So it stops photosynthesis going any faster, even when everything else is plentiful.
 
 ### B27-04 · choice
-**Q:** A plant grows in soil that is short of nutrients, and its leaves turn pale. Why does its rate of photosynthesis go down?
+**Q:** A plant in soil short of nutrients has pale leaves. Why does its rate of photosynthesis go down?
 - 0 Its leaves take in too much carbon dioxide · 1 Pale leaves get too hot · **2 It has less chlorophyll, so it absorbs less light ✓**
 - Hint: What does chlorophyll do?
 - Explanation: A lack of nutrients stops the plant making enough chlorophyll. With less chlorophyll, the leaves absorb less light, so the rate goes down.
@@ -70,7 +70,7 @@ Diagram: an original sketch graph of rate of photosynthesis against light intens
 - Explanation: At points 1 and 2 the line is still rising, so more light still speeds photosynthesis up. At point 3 the line is flat, so light is no longer the limiting factor.
 
 ### B27-07 · choice
-**Q:** A tomato plant has plenty of light and plenty of carbon dioxide, but its rate of photosynthesis has levelled off. What is probably the limiting factor?
+**Q:** A tomato plant has plenty of light and carbon dioxide, but its rate has levelled off. What is probably limiting it?
 - **0 Temperature ✓** · 1 Light intensity · 2 Carbon dioxide concentration · 3 Oxygen
 - Hint: Which of the three factors is not plentiful?
 - Explanation: Light and carbon dioxide are both plentiful, so neither is holding the rate back. So temperature is probably the limiting factor.
@@ -124,7 +124,7 @@ Diagram: a results row for the lamp at 10 cm (1.2, 1.5, 1.2 cm, mean shown as ?)
 - Explanation: Temperature is also a limiting factor for photosynthesis. If it changed, you could not tell whether the light caused the difference, so it is a control variable.
 
 ### B27-15 · choice · `application`, independent
-**Q:** A greenhouse has bright winter sunshine and plenty of carbon dioxide, but the air inside is very cold. Which change would most likely speed up photosynthesis?
+**Q:** A greenhouse has bright sunshine and plenty of carbon dioxide, but it is very cold. Which change would speed up photosynthesis?
 - 0 Add more lamps · 1 Pump in more carbon dioxide · **2 Heat the greenhouse ✓** · 3 Give the plants less water
 - Hint: Which factor is in shortest supply?
 - Explanation: Light and carbon dioxide are plentiful, but it is very cold. Temperature is the limiting factor, so heating the greenhouse would speed photosynthesis up.

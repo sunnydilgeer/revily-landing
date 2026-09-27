@@ -64,4 +64,17 @@ export const infectionSequence = [
 
 export const bioenergeticsSequence = [
   { title: 'Photosynthesis and what plants do with glucose', status: 'Built · easier-wording draft', spec: '4.4.1.1; 4.4.1.3' },
+  { title: 'The rate of photosynthesis', status: 'Built · digital preparation draft', spec: '4.4.1.2; required practical 5' },
+  { title: 'Respiration: aerobic and anaerobic', status: 'Built · easier-wording draft', spec: '4.4.2.1' },
+  { title: 'Exercise and metabolism', status: 'Built · easier-wording draft', spec: '4.4.2.2–4.4.2.3' },
+] as const
+
+export const homeostasisSequence = [
+  { title: 'Homeostasis', status: 'Built · easier-wording draft', spec: '4.5.1' },
+  { title: 'The nervous system and reflexes', status: 'Built · easier-wording draft', spec: '4.5.2.1' },
+  { title: 'Reaction time practical', status: 'Built · digital preparation draft', spec: '4.5.2.1; required practical 6' },
+  { title: 'Hormones and the endocrine system', status: 'Built · easier-wording draft', spec: '4.5.3.1' },
+  { title: 'Controlling blood glucose and diabetes', status: 'Built · easier-wording draft', spec: '4.5.3.2' },
+  { title: 'Puberty and the menstrual cycle', status: 'Built · easier-wording draft', spec: '4.5.3.3' },
+  { title: 'Contraception', status: 'Built · easier-wording draft', spec: '4.5.3.4' },
 ] as const

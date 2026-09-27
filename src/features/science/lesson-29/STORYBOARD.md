@@ -137,7 +137,7 @@ Diagram: the simple front-view body from the walkthrough with three numbered poi
 - Explanation: The body cannot store extra protein. It is broken down into urea, which leaves the body in urine.
 
 ### B29-17 · written · `teacherOnly`
-**Q:** A cyclist rides hard up a long, steep hill. Explain how her body gets more oxygen to her leg muscles, and what happens if it cannot get enough.
+**Q:** A cyclist rides hard up a hill. Explain how her muscles get more oxygen, and what happens if they cannot.
 - Hint: Start with what the leg muscles need, then her lungs and heart, then what happens without enough oxygen.
 - Model answer: Her leg muscles contract more, so they respire more and need more oxygen. Her breathing rate and breath volume increase, so more oxygen gets into her blood. Her heart rate increases, so oxygenated blood reaches the muscles faster. If not enough oxygen arrives, the muscles also respire anaerobically, and lactic acid builds up. Afterwards she keeps breathing hard to repay the oxygen debt.
 - Marking points: Muscles contract more, so they need more energy from respiration and more oxygen. · Breathing rate and breath volume increase, so more oxygen gets into the blood. · Heart rate increases, so oxygenated blood reaches the muscles faster. · Without enough oxygen, the muscles also respire anaerobically and lactic acid builds up (painful, or leads to fatigue). · Afterwards there is an oxygen debt, so she keeps breathing hard.

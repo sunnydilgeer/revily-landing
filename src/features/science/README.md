@@ -1,6 +1,14 @@
 # Revily Science: local lesson preview
 
-## Current state — 26 September 2026, after the cell-biology split (read this first)
+## Current state — 27 September 2026, B4 and B5 added (read this first)
+
+- **41 Biology lessons.** Lessons 32–34 finish B4 Bioenergetics (rate of photosynthesis, respiration, exercise and metabolism; folders `lesson-27`–`lesson-29`). Lessons 35–41 are the new B5 Homeostasis and response chapter (homeostasis, nervous system and reflexes, reaction time practical, hormones, blood glucose and diabetes, puberty and the menstrual cycle, contraception; folders `lesson-30`–`lesson-36`). Folder = lesson number − 5.
+- **Source.** Built from scanned revision-guide pages 45–59, used for scope only; all wording, examples and diagrams are original. Each lesson has a `STORYBOARD.md`.
+- **Diagrams.** One visuals file per chapter group, routed by focus-id prefix from `CellBiologyVisuals.tsx`: `RespirationVisuals.tsx` (`energy-`), `NervousVisuals.tsx` (`nerve-`), `HormoneVisuals.tsx` (`hormone-`). Stubs for B6 and B7 (`InheritanceVisuals`, `EvolutionVisuals`, `EcologyVisuals`, `EarthVisuals`) are wired and waiting. `node scripts/render-science-visuals.cjs <folder> <dir>` renders a lesson's diagrams to PNG for review.
+- **Checks.** Every new lesson passes `scripts/check-science-lesson.cjs`; `lessons3241.test.tsx` covers grading, wording, diagrams (no answer leaks), flow and navigation for Lessons 32–41.
+- **Still a draft** awaiting qualified teacher review. B6 and B7 (pages 61–89) are the next batch.
+
+## Earlier state — 26 September 2026, after the cell-biology split
 
 - **31 Biology lessons.** Lessons 1, 2, 5 and 6 were split, so Science went from 26 to 31 lessons. The catalogue (`scienceLessons` in `lessonNavigation.ts`) is the single source of truth for order, titles, sections and frames. `lessonSections.ts` and `lessonFrames.ts` are derived from it.
 - **Folders are not lesson numbers.** Cell biology (chapter B1) is lessons 1–11: `lesson-1` animal and plant cells, `lesson-1b` bacteria and comparing cells, `lesson-2` light and electron microscopes, `lesson-2b` magnification maths, `lesson-3` practical skills (RP1), `lesson-4` specialisation, `lesson-5` chromosomes and mitosis, `lesson-5b` stem cells, `lesson-6` diffusion and osmosis, `lesson-6b` osmosis practical (RP2), `lesson-6c` active transport and exchange surfaces. Folders `lesson-7` … `lesson-26` are now lessons 12 … 31.

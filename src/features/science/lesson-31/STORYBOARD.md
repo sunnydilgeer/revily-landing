@@ -144,7 +144,7 @@ Source boundary: supplied pages 52–53 (scan p52-53.png) for scope only; AQA 84
 - Explanation: A reflex does not involve the thinking part of the brain. Reflexes are automatic, so you do not think about the response.
 
 ### B31-18 · written · `teacherOnly`
-**Q:** You step on a sharp stone with bare feet, and your foot lifts up before you think about it. Describe the path of this reflex, from stimulus to response.
+**Q:** You step on a sharp stone and your foot lifts before you think. Describe this reflex, from stimulus to response.
 - Hint: Start at the receptors, then name each neurone in order.
 - Model answer: The sharp stone is the stimulus. Receptors in the skin of the foot detect it. Impulses travel along a sensory neurone to the spinal cord. A relay neurone passes the impulses to a motor neurone. The motor neurone carries the impulses to a muscle in the leg, the effector, which contracts and lifts the foot.
 - Marking points: Receptors in the skin detect the stimulus, the sharp stone. · A sensory neurone carries impulses to the spinal cord, part of the CNS. · A relay neurone passes the impulses to a motor neurone. · The motor neurone carries impulses to the effector, a muscle. · The muscle contracts and lifts the foot.

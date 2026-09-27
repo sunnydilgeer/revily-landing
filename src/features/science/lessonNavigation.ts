@@ -60,17 +60,38 @@ import { lesson25, drugTestingSections } from './lesson-25/lesson'
 import { drugTestingFrames } from './lesson-25/teachingFrames'
 import { lesson26, photosynthesisSections } from './lesson-26/lesson'
 import { photosynthesisFrames } from './lesson-26/teachingFrames'
+import { lesson27, photosynthesisRateSections } from './lesson-27/lesson'
+import { photosynthesisRateFrames } from './lesson-27/teachingFrames'
+import { lesson28, respirationSections } from './lesson-28/lesson'
+import { respirationFrames } from './lesson-28/teachingFrames'
+import { lesson29, exerciseSections } from './lesson-29/lesson'
+import { exerciseFrames } from './lesson-29/teachingFrames'
+import { lesson30, homeostasisSections } from './lesson-30/lesson'
+import { homeostasisFrames } from './lesson-30/teachingFrames'
+import { lesson31, nervousSystemSections } from './lesson-31/lesson'
+import { nervousSystemFrames } from './lesson-31/teachingFrames'
+import { lesson32, reactionTimeSections } from './lesson-32/lesson'
+import { reactionTimeFrames } from './lesson-32/teachingFrames'
+import { lesson33, hormonesSections } from './lesson-33/lesson'
+import { hormonesFrames } from './lesson-33/teachingFrames'
+import { lesson34, bloodGlucoseSections } from './lesson-34/lesson'
+import { bloodGlucoseFrames } from './lesson-34/teachingFrames'
+import { lesson35, menstrualCycleSections } from './lesson-35/lesson'
+import { menstrualCycleFrames } from './lesson-35/teachingFrames'
+import { lesson36, contraceptionSections } from './lesson-36/lesson'
+import { contraceptionFrames } from './lesson-36/teachingFrames'
 
-export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31
+export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [12, 13, 14, 15, 16, 17] },
   { code: 'B2b', title: 'Health and disease', lessonNumbers: [18, 19, 20, 21] },
   { code: 'B2c', title: 'Plant organisation', lessonNumbers: [22, 23] },
   { code: 'B3', title: 'Infection and response', lessonNumbers: [24, 25, 26, 27, 28, 29, 30] },
-  { code: 'B4', title: 'Bioenergetics', lessonNumbers: [31] },
+  { code: 'B4', title: 'Bioenergetics', lessonNumbers: [31, 32, 33, 34] },
+  { code: 'B5', title: 'Homeostasis and response', lessonNumbers: [35, 36, 37, 38, 39, 40, 41] },
 ] as const
-// The Science catalogue: 31 Biology lessons in teaching order. `number` is the position students see;
+// The Science catalogue: 41 Biology lessons in teaching order. `number` is the position students see;
 // `folder` is the source folder (e.g. lesson-1b). Code about one particular lesson should key on `lesson.id`.
 export const scienceLessons = [
   { number: 1, folder: '1', title: 'Animal and plant cells', detail: 'Cell parts, and what is new in a plant cell', lesson: lesson1, sections: cellsSections, frames: cellsFrames },
@@ -104,6 +125,16 @@ export const scienceLessons = [
   { number: 29, folder: '24', title: 'Medicines and where they come from', detail: 'Painkillers, antibiotics, resistance and drugs from plants', lesson: lesson24, sections: medicineSections, frames: medicineFrames },
   { number: 30, folder: '25', title: 'Testing new drugs', detail: 'Preclinical tests, clinical trials, placebos and peer review', lesson: lesson25, sections: drugTestingSections, frames: drugTestingFrames },
   { number: 31, folder: '26', title: 'Photosynthesis and what plants do with glucose', detail: 'The word equation, chloroplasts and five uses of glucose', lesson: lesson26, sections: photosynthesisSections, frames: photosynthesisFrames },
+  { number: 32, folder: '27', title: 'The rate of photosynthesis', detail: 'Limiting factors and the pondweed practical', lesson: lesson27, sections: photosynthesisRateSections, frames: photosynthesisRateFrames },
+  { number: 33, folder: '28', title: 'Respiration: aerobic and anaerobic', detail: 'Energy from glucose, with and without oxygen', lesson: lesson28, sections: respirationSections, frames: respirationFrames },
+  { number: 34, folder: '29', title: 'Exercise and metabolism', detail: 'Breathing, heart rate, oxygen debt and reactions in cells', lesson: lesson29, sections: exerciseSections, frames: exerciseFrames },
+  { number: 35, folder: '30', title: 'Homeostasis', detail: 'Receptors, coordination centres and effectors', lesson: lesson30, sections: homeostasisSections, frames: homeostasisFrames },
+  { number: 36, folder: '31', title: 'The nervous system and reflexes', detail: 'Neurones, synapses and reflex arcs', lesson: lesson31, sections: nervousSystemSections, frames: nervousSystemFrames },
+  { number: 37, folder: '32', title: 'Reaction time practical', detail: 'The ruler-drop test, caffeine and means', lesson: lesson32, sections: reactionTimeSections, frames: reactionTimeFrames },
+  { number: 38, folder: '33', title: 'Hormones and the endocrine system', detail: 'Glands, target organs, and nerves compared', lesson: lesson33, sections: hormonesSections, frames: hormonesFrames },
+  { number: 39, folder: '34', title: 'Controlling blood glucose and diabetes', detail: 'Insulin, glycogen, Type 1 and Type 2', lesson: lesson34, sections: bloodGlucoseSections, frames: bloodGlucoseFrames },
+  { number: 40, folder: '35', title: 'Puberty and the menstrual cycle', detail: 'Sex hormones, four stages and four hormones', lesson: lesson35, sections: menstrualCycleSections, frames: menstrualCycleFrames },
+  { number: 41, folder: '36', title: 'Contraception', detail: 'Hormonal and non-hormonal methods', lesson: lesson36, sections: contraceptionSections, frames: contraceptionFrames },
 ] as const
 export function scienceLessonNumberById(id: string): LessonNumber | null {
   return (scienceLessons.find(item => item.lesson.id === id)?.number as LessonNumber | undefined) ?? null

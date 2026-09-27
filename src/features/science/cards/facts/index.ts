@@ -31,5 +31,15 @@ import { facts as f23 } from './23'
 import { facts as f24 } from './24'
 import { facts as f25 } from './25'
 import { facts as f26 } from './26'
+import { facts as f27 } from './27'
+import { facts as f28 } from './28'
+import { facts as f29 } from './29'
+import { facts as f30 } from './30'
+import { facts as f31 } from './31'
+import { facts as f32 } from './32'
+import { facts as f33 } from './33'
+import { facts as f34 } from './34'
+import { facts as f35 } from './35'
+import { facts as f36 } from './36'
 
-export const scienceFacts: Record<string, ScienceFactSet> = Object.fromEntries([f1, f1b, f2, f2b, f3, f4, f5, f5b, f6, f6b, f6c, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26].map(set => [set.lessonId, set]))
+export const scienceFacts: Record<string, ScienceFactSet> = Object.fromEntries([f1, f1b, f2, f2b, f3, f4, f5, f5b, f6, f6b, f6c, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36].map(set => [set.lessonId, set]))

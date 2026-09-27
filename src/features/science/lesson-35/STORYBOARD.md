@@ -101,7 +101,7 @@ Source boundary: supplied page 57 (for scope only); AQA 8464 section 4.5.3.3, Fo
 - Explanation: FSH and LH act on the egg in the ovary. Oestrogen and progesterone grow and maintain the uterus lining.
 
 ### B35-11 · choice · `application`, independent
-**Q:** Amira’s period starts on 1 March, and her cycle lasts about 28 days. On about which date would you expect an egg to be released?
+**Q:** Amira’s period starts on 1 March and her cycle is about 28 days. On about which date is an egg released?
 - 0 1 March · 1 4 March · **2 14 March ✓** · 3 28 March
 - Hint: Day 1 of the cycle is 1 March. When is ovulation?
 - Explanation: Day 1 is the first day of the period, 1 March. Ovulation is at about day 14, so about 14 March.
@@ -125,7 +125,7 @@ Source boundary: supplied page 57 (for scope only); AQA 8464 section 4.5.3.3, Fo
 - Explanation: Her cycles were 27, 29, 28 and 30 days, so they changed a little, but not always in one direction; one person cannot show what happens for everyone. So her cycle length varied a little, around 28 days.
 
 ### B35-15 · written · `teacherOnly`
-**Q:** Describe what happens to the uterus lining and to an egg during one 28-day menstrual cycle. Name the hormone that causes the egg to be released.
+**Q:** Describe what happens to the uterus lining and an egg in one 28-day cycle. Name the hormone that releases the egg.
 - Hint: Go through the four stages in order, and say what the lining and the egg are doing in each.
 - Model answer: In days 1 to 4, the lining breaks down and leaves the body; this is a period. The lining then builds up into a thick, spongy layer full of blood vessels. At about day 14, LH causes an egg to be released from an ovary; this is ovulation. The lining is kept thick, and if no fertilised egg settles by day 28 it breaks down and the cycle starts again.
 - Marking points: Days 1 to 4: the lining breaks down (menstruation, a period). · The lining then builds up into a thick layer with blood vessels. · At about day 14 an egg is released from an ovary (ovulation). · LH causes the egg to be released. · The lining is kept thick, then breaks down if no fertilised egg settles by day 28.

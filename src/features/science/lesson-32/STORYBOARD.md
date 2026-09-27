@@ -112,13 +112,13 @@ Before the drink, one person caught the ruler five times. The distances were 12 
 4. Add the unit: the mean is 13 cm.
 
 ### B32-13 · choice · `calculation`
-**Q:** After the drink, the same person caught the ruler five times: 10 cm, 12 cm, 9 cm, 11 cm and 13 cm. What is the mean distance?
+**Q:** After the drink, the catches were 10 cm, 12 cm, 9 cm, 11 cm and 13 cm. What is the mean distance?
 - 0 55 cm · 1 13 cm · 2 10 cm · **3 11 cm ✓**
 - Hint: Add them up, then divide by 5.
 - Explanation: Add them up: 10 + 12 + 9 + 11 + 13 = 55 cm. Divide by 5: 55 ÷ 5 = 11 cm.
 
 ### B32-14 · choice · `calculation`, independent
-**Q:** A student did a computer reaction test four times. Their times were 260 ms, 240 ms, 250 ms and 270 ms. What is their mean reaction time?
+**Q:** A student’s four reaction times were 260 ms, 240 ms, 250 ms and 270 ms. What is their mean reaction time?
 - 0 1020 ms · 1 250 ms · **2 255 ms ✓** · 3 270 ms
 - Hint: How many results are there this time?
 - Explanation: Add them up: 260 + 240 + 250 + 270 = 1020 ms. There are 4 results, so 1020 ÷ 4 = 255 ms.
@@ -136,7 +136,7 @@ Before the drink, one person caught the ruler five times. The distances were 12 
 - Explanation: Jo may react at a different speed with each hand. The hand is a control variable, so changing it means the test is no longer fair.
 
 ### B32-17 · written · `teacherOnly`
-**Q:** Describe how you would use a ruler drop to find out whether caffeine affects a person’s reaction time. Include how you would make it a fair test.
+**Q:** Describe how a ruler drop could show whether caffeine affects reaction time. Include how you would make it fair.
 - Hint: Go in order: set up, drop, read, repeat, drink, wait, repeat. Then say what stays the same.
 - Model answer: The person rests their forearm on a table with their hand over the edge. Hold a ruler with the zero level with the top of their thumb, then drop it without warning. They catch it, and you read the number at the top of their thumb. Repeat several times and find the mean. Then they have a drink with caffeine, wait 10 minutes and repeat. Use the same person, the same hand and the same drop height each time.
 - Marking points: The ruler is held with zero level with the top of the thumb and dropped without warning. · The distance is read at the top of the thumb when the ruler is caught. · The test is repeated several times and the mean distance is calculated. · The test is repeated after a caffeinated drink and a 10-minute wait, and the means are compared. · Control variables are kept the same: the same person, the same hand and the same drop height.

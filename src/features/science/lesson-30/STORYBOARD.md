@@ -119,7 +119,7 @@ Source boundary: supplied page 51 (scan p50-51.png, right-hand page; the left-ha
 - Explanation: The readings went from 36.7 °C to 37.3 °C; one person cannot show what everyone’s temperature does. So their temperature rose and fell a little but stayed close to 37 °C.
 
 ### B30-15 · written · `teacherOnly`
-**Q:** Your body temperature starts to rise while you run on a hot day. Describe how a control system brings it back to normal. Use the words receptor, coordination centre and effector.
+**Q:** Your body temperature rises on a hot run. Describe how a control system brings it back, using receptor, coordination centre and effector.
 - Hint: Take the three parts in order, then say which way the temperature changes.
 - Model answer: The rise in temperature is a stimulus. Receptors detect the rise and send information to a coordination centre, such as the brain. The coordination centre processes the information and organises a response. Effectors produce the response, which decreases the temperature back towards the optimum.
 - Marking points: Receptors detect the rise in temperature, the stimulus. · Information goes to a coordination centre, such as the brain. · The coordination centre processes the information and organises a response. · Effectors produce a response that decreases the temperature back to the optimum.

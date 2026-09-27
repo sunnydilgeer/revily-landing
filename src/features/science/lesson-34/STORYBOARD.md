@@ -139,7 +139,7 @@ Source boundary: supplied page 56 (for scope only); AQA 8464 section 4.5.3.2, Fo
 - Explanation: Working muscles need more energy, so they take more glucose from the blood for respiration. With no food to top it up, her blood glucose level falls.
 
 ### B34-17 · written · `teacherOnly`
-**Q:** Explain how the body brings the blood glucose level back down after a meal. Then explain why a person with Type 1 diabetes needs insulin injections.
+**Q:** Explain how blood glucose comes back down after a meal, and why someone with Type 1 diabetes needs insulin injections.
 - Hint: Follow the glucose from the meal to the cells, naming the organ and the hormone. Then say what is different in Type 1.
 - Model answer: Glucose from the meal enters the blood, so the level rises. The pancreas detects the high level and releases insulin into the blood. Insulin makes glucose move from the blood into cells, and liver and muscle cells store it as glycogen. In Type 1 diabetes the pancreas makes too little insulin, or none, so the person injects insulin to bring the level down.
 - Marking points: Glucose from the meal enters the blood, so the level rises. · The pancreas detects the high level and releases insulin into the blood. · Insulin makes glucose move from the blood into cells. · Liver and muscle cells store the glucose as glycogen. · In Type 1 the pancreas makes too little or no insulin, so insulin has to be injected.

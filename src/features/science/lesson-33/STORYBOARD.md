@@ -107,7 +107,7 @@ Source boundary: supplied page 55 (for scope only); AQA 8464 section 4.5.3.1. Al
 - Explanation: Puberty, sperm production and blood glucose control all happen over a long time, so hormones control them. Blinking must happen very fast in one precise place, so nerves control it.
 
 ### B33-12 · choice · `application`, independent
-**Q:** Just before a race, Priya feels her heart pounding and she is ready to run. Which gland released the hormone that caused this?
+**Q:** Before a race, Priya’s heart is pounding and she is ready to run. Which gland released the hormone causing this?
 - 0 Thyroid gland · 1 Pancreas · **2 Adrenal glands ✓** · 3 Testes
 - Hint: Which hormone gets the body ready for action?
 - Explanation: Adrenaline gets the body ready for fight or flight, such as a race. Adrenaline is released by the adrenal glands.
@@ -131,7 +131,7 @@ Source boundary: supplied page 55 (for scope only); AQA 8464 section 4.5.3.1. Al
 - Explanation: The blood carries a hormone all around the body, so it reached almost every organ. Only the liver responded, so the liver is a target organ for this hormone.
 
 ### B33-16 · written · `teacherOnly`
-**Q:** The pancreas releases insulin, and the liver responds to it. Explain how insulin gets from the pancreas to the liver. Then give one way this is different from a response controlled by nerves.
+**Q:** Explain how insulin gets from the pancreas to the liver. Give one way this differs from a nerve response.
 - Hint: Say where the gland releases the hormone, how it travels and why the liver responds. Then compare speed or how long the effect lasts.
 - Model answer: The pancreas is an endocrine gland, so it releases insulin directly into the blood. The blood carries insulin all around the body. The liver responds because it is a target organ for insulin. Hormones act more slowly than nerves, but their effects last longer.
 - Marking points: The pancreas releases insulin directly into the blood. · The blood carries insulin around the body. · The liver responds because it is a target organ for insulin. · A correct difference: hormones act more slowly, last longer or act more generally than nerves.
