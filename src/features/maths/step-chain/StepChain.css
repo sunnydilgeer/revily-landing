@@ -1,0 +1,84 @@
+/* Worked steps as one chain of working. Tokens come from src/ui/revily-tokens.css. */
+
+.sc { font-size: clamp(1.25rem, 5.4vw, 1.6rem); color: var(--rv-ink); }
+
+.sc-chain {
+  position: relative; margin: 0; padding: 0; list-style: none;
+  display: grid; grid-template-columns: 1fr auto 1fr; column-gap: .35em; row-gap: .15em;
+}
+
+.sc-row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; }
+.sc-row > .sc-cell, .sc-op__label { transition: opacity .3s; }
+/* Earlier lines fade, but an open "why" stays readable. */
+.sc-row.is-dim > .sc-cell, .sc-row.is-dim .sc-op__label { opacity: .5; }
+
+.sc-cell { min-height: 2.2em; display: flex; align-items: center; white-space: nowrap; }
+.sc-cell--lhs { justify-content: flex-end; }
+.sc-cell--eq { justify-content: center; font-family: KaTeX_Main, serif; }
+.sc-cell--rhs { justify-content: flex-start; }
+.sc-cell--wide { grid-column: 1 / -1; justify-content: center; }
+.sc-cell .katex { font-size: 1em; }
+
+/* The operation sits between the lines, like a note in the margin of an exercise book. */
+.sc-op { grid-column: 1 / -1; justify-self: center; display: grid; justify-items: center; padding-top: .35em; font-size: .62em; }
+.sc-op__label {
+  display: inline-flex; align-items: center; gap: .4em; padding: .2em .1em;
+  font: 600 1em/1.2 var(--rv-font-body); color: var(--rv-biro); background: none; border: 0;
+}
+.sc-op__label::before { content: '↓'; font-weight: 700; }
+.sc-op__label--why { cursor: pointer; }
+.sc-op__label--why > span { text-decoration: underline dotted; text-underline-offset: .25em; }
+.sc-op__label--why:focus-visible { outline: none; border-radius: 6px; box-shadow: var(--rv-focus); }
+.sc-op__why {
+  max-width: 22rem; margin: .3em 0 .1em; padding: .55em .8em; border-radius: 12px;
+  font: 400 1em/1.4 var(--rv-font-body); color: var(--rv-ink-2); background: var(--rv-biro-tint); text-align: center;
+}
+
+/* Terms: new ones are the operation, results pop in, cancelled ones are struck through in red pen. */
+.sc [data-role='op'] { color: var(--rv-biro); }
+.sc [data-role='result'] { border-radius: .2em; }
+.sc [data-fate='cancel'] { position: relative; color: var(--rv-muted); }
+.sc [data-fate='cancel']::after {
+  content: ''; position: absolute; left: -.1em; right: -.1em; top: 50%; height: .09em; border-radius: 1em;
+  background: var(--rv-redpen); transform: rotate(-14deg); transform-origin: left center;
+  animation: sc-strike .3s .05s both;
+}
+
+/* The new line waits, invisible, while its terms fly in; then anything new arrives. */
+.sc-row.is-flying > .sc-cell { opacity: 0; }
+.sc-row.is-flying > .sc-op { animation: sc-fade .25s both; }
+.sc-row.is-arriving [data-role='op'],
+.sc-row.is-arriving [data-role='result'] { display: inline-block; animation: sc-pop .38s cubic-bezier(.3, 1.4, .5, 1) both; }
+.sc-row.is-arriving [data-role='result'] { animation-name: sc-pop, sc-glow; animation-duration: .38s, 1.2s; }
+
+.sc-ghost { position: absolute; z-index: 3; margin: 0; white-space: nowrap; pointer-events: none; line-height: 1.2; }
+
+/* The answer is the last line, shown once. */
+.sc-row.is-final > .sc-cell:not(:empty) { font-weight: 700; }
+.sc-row.is-final > .sc-cell--rhs::after,
+.sc--columns .sc-row.is-final > .sc-cell--wide::after {
+  content: '✓'; margin-left: .5em; font: 700 .7em/1 var(--rv-font-body); color: var(--rv-good);
+  animation: sc-fade .3s both;
+}
+
+/* Place-value columns */
+.sc--columns .sc-chain { grid-template-columns: 1fr; }
+.sc-columns { display: grid; }
+.sc-column { display: grid; place-items: center; min-height: 2.2em; font-family: KaTeX_Main, serif; }
+.sc-head { display: flex; justify-content: center; padding-bottom: .2em; border-bottom: 2px solid var(--rv-line); margin-bottom: .2em; }
+.sc-head .sc-column { min-height: 1.6em; font: 700 .55em/1 var(--rv-font-body); color: var(--rv-muted); letter-spacing: .04em; }
+
+/* Progress dots */
+.sc-dots { display: inline-flex; gap: 6px; }
+.sc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rv-line); transition: background-color .2s, transform .2s; }
+.sc-dot.is-on { background: var(--rv-ink); }
+
+@keyframes sc-fade { from { opacity: 0; transform: translateY(-.2em); } }
+@keyframes sc-pop { from { opacity: 0; transform: scale(.4); } }
+@keyframes sc-strike { from { transform: rotate(-14deg) scaleX(0); } }
+@keyframes sc-glow { 0%, 40% { background: var(--rv-yellow-tint); box-shadow: 0 0 0 .12em var(--rv-yellow-tint); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sc *, .sc *::after { animation: none !important; transition: none !important; }
+}
+.sc[data-reduce-motion] *, .sc[data-reduce-motion] *::after { animation: none !important; transition: none !important; }
