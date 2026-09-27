@@ -10,16 +10,22 @@ import { lesson41, variationSections } from './lesson-41/lesson'
 import { variationFrames } from './lesson-41/teachingFrames'
 import { lesson42, evolutionSections } from './lesson-42/lesson'
 import { evolutionFrames } from './lesson-42/teachingFrames'
+import { lesson43, resistanceSections } from './lesson-43/lesson'
+import { resistanceFrames } from './lesson-43/teachingFrames'
+import { lesson44, breedingSections } from './lesson-44/lesson'
+import { breedingFrames } from './lesson-44/teachingFrames'
+import { lesson45, fossilSections } from './lesson-45/lesson'
+import { fossilFrames } from './lesson-45/teachingFrames'
 import type { EvidenceDimension, Profile, ScienceState } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
-const lessons = [lesson41, lesson42]
-const frameSets = [variationFrames, evolutionFrames]
-const sections = [variationSections, evolutionSections]
-const specs = ['4.6', '4.6']
-const families = ['B-GEN', 'B-GEN']
-const prefixes = ['evolve-', 'evolve-']
+const lessons = [lesson41, lesson42, lesson43, lesson44, lesson45]
+const frameSets = [variationFrames, evolutionFrames, resistanceFrames, breedingFrames, fossilFrames]
+const sections = [variationSections, evolutionSections, resistanceSections, breedingSections, fossilSections]
+const specs = ['4.6', '4.6', '4.6', '4.6', '4.6']
+const families = ['B-GEN', 'B-GEN', 'B-GEN', 'B-GEN', 'B-GEN']
+const prefixes = ['evolve-', 'evolve-', 'evolve-', 'evolve-', 'evolve-']
 const at = '2026-09-26T18:00:00.000Z'
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
@@ -166,8 +172,8 @@ lessons.forEach((lesson, index) => {
   })
 })
 
-check('B6b chapter lists Lessons 46–47; the catalogue, parser and links include them; Lesson 45 leads on', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B6b')?.lessonNumbers, [46, 47])
+check('B6b chapter lists Lessons 46–50; the catalogue, parser and links include them; Lesson 45 leads on', () => {
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B6b')?.lessonNumbers, [46, 47, 48, 49, 50])
   lessons.forEach((lesson, index) => {
     assert.ok(scienceLessons.some(item => item.number === index + 46 && item.lesson.id === lesson.id && item.folder === String(index + 41)))
     assert.equal(parseScienceLesson(String(index + 46)), index + 46)
@@ -179,4 +185,4 @@ check('B6b chapter lists Lessons 46–47; the catalogue, parser and links includ
   assert.deepEqual(recommendedNext(secure, false, { ...lesson41, id: 'B-GEN-040-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-GEN-041-B' })
 })
 
-console.log(`${checks} Lessons 46–47 checks passed`)
+console.log(`${checks} Lessons 46–50 checks passed`)
