@@ -112,6 +112,7 @@ export default function StormRun() {
 
   const play = (next: Ride) => {
     setRide(next)
+    setRun(stateAt(drop, next, 0))
     sfx.whoosh()
     const travel = drop.squares * drop.scale / next.speed
     const span = Math.max(travel, drop.closes) * 1.05
