@@ -1,42 +1,59 @@
 'use client'
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { areaTitles, branchLeaves, branchTiers, tileLevel, type AreaId, type TopicScore } from './paperMap'
-import { levelLabels } from './readiness'
+import BossCharacter from './BossCharacter'
+import { CrownIcon, LockIcon, StarIcon, TopicIcon } from './icons'
+import { branchLeaves, branchTiers, tileLevel, type AreaId, type TopicScore } from './paperMap'
+import { levelLabels, levelOrder, type Level } from './readiness'
 import './SkillTree.css'
 
 export const BOSS_ID = 'boss'
-const ROW = 118
-const NODE = 58
-/** From a node's centre to just under its label. */
-const LABEL_DROP = 58
+const ROW = 138
 const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
-/** Node symbols: a glance at what each topic is about. */
-const symbols: Record<string, string> = {
-  'number-types': 'π', 'place-value': '10³', bidmas: '( )', factors: '2×3', 'written-methods': '×÷', rounding: '≈',
-  fractions: '½', decimals: '0.1', bounds: '±', fdp: '½ %', percentages: '%', money: '£',
-  simplifying: '2a', 'function-machines': '→', substitution: 'x=3', equations: '=', sequences: '1,3,5', 'straight-lines': '╱',
-  ratio: '2:3', conversions: 'km', speed: '⏱',
-  shapes: '◇', angles: '∠', area: '▭', volume: '⬚', transformations: '↻', pythagoras: 'a²', trigonometry: 'sin',
-  probability: '🎲', 'frequency-trees': '⑂', charts: '▥', averages: 'x̄',
+/** Node size follows the marks a topic is worth: keystones are the big-ticket topics of the paper. */
+export type NodeKind = 'keystone' | 'standard' | 'stud'
+export const nodeKind = (marks: number): NodeKind => marks >= 3.5 ? 'keystone' : marks >= 1.5 ? 'standard' : 'stud'
+const nodeSize: Record<NodeKind, number> = { keystone: 84, standard: 64, stud: 52 }
+const BOSS_SIZE = 108
+
+/** What a node looks like: not in Revily yet, waiting on earlier topics, ready to start, or a level. */
+export type NodeState = 'soon' | 'dormant' | 'available' | Exclude<Level, 'notStarted'>
+
+export function nodeState(score: TopicScore, byId: Map<string, TopicScore>): NodeState {
+  if (!score.taught) return 'soon'
+  const level = tileLevel(score)
+  if (level !== 'notStarted') return level
+  const ready = (score.topic.requires ?? []).every(id => {
+    const parent = byId.get(id)
+    return !parent?.taught || levelOrder.indexOf(tileLevel(parent)) >= levelOrder.indexOf('learning')
+  })
+  return ready ? 'available' : 'dormant'
 }
 
-const tabTitles: Record<AreaId, string> = { number: 'Number', algebra: 'Algebra', geometry: 'Geometry', ratio: 'Ratio', probability: 'Probability', statistics: 'Statistics' }
+const stateLabel = (state: NodeState) => state === 'soon' ? 'not in Revily yet' : state === 'dormant' ? 'not started' : state === 'available' ? 'ready to start' : levelLabels[state].toLowerCase()
 
-export const branchOrder: AreaId[] = ['number', 'algebra', 'geometry', 'ratio', 'probability', 'statistics']
+/** A deterministic scatter of stars for a branch's sky. */
+function starsFor(seed: number, width: number, height: number) {
+  let t = seed
+  const next = () => { t = (t + 0x6d2b79f5) | 0; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296 }
+  return Array.from({ length: Math.round(width * height / 5200) }, (_, index) => ({ x: next() * width, y: next() * height, r: next() < 0.15 ? 1.6 : 0.6 + next() * 0.7, twinkle: index % 7 === 0, delay: next() * 4 }))
+}
 
-type Placed = { id: string; x: number; y: number }
+type Placed = { id: string; x: number; y: number; size: number }
 
-/** One branch of the exam as a skill tree: topics light up as the student gets ready, with a boss at the end. */
-export default function SkillTree({ area, onArea, scores, selected, onSelect, bossOpen, bossBeaten }: {
+/** One branch of the exam as a skill tree in the night sky, lit up by what the student has learnt. */
+export type Arrival = 'waiting' | 'igniting'
+
+export default function SkillTree({ area, scores, selected, onSelect, bossOpen, bossBeaten, arrival }: {
   area: AreaId
-  onArea: (area: AreaId) => void
   scores: TopicScore[]
-  selected: string
+  selected: string | null
   onSelect: (id: string) => void
   bossOpen: boolean
   bossBeaten: boolean
+  /** Topics that levelled up since the last visit: dimmed while they wait their turn, then lighting up. */
+  arrival: Record<string, Arrival>
 }) {
   const byId = useMemo(() => new Map(scores.map(score => [score.topic.id, score])), [scores])
   const tiers = useMemo(() => branchTiers(area), [area])
@@ -55,109 +72,123 @@ export default function SkillTree({ area, onArea, scores, selected, onSelect, bo
     return () => observer.disconnect()
   }, [])
 
-  // Rows from the roots down. Within a row, nodes sit under the average position of their parents. Rows of
-  // topics not in Revily yet move to the right-hand side, leaving the middle clear for the path to the boss.
+  // Rows from the roots down; within a row, nodes sit under the average position of their parents. Rows of
+  // topics not in Revily yet move to the right, leaving the middle clear for the path down to the boss.
   const placed = useMemo(() => {
     const at = new Map<string, Placed>()
+    const top = 58
     tiers.forEach((tier, row) => {
       const order = row === 0 ? tier : [...tier].sort((a, b) => parentX(a.requires) - parentX(b.requires))
       const aside = hasBoss && order.every(topic => !byId.get(topic.id)?.taught)
       order.forEach((topic, index) => {
         const slot = (index + 0.5) / order.length
-        at.set(topic.id, { id: topic.id, x: (aside ? 0.62 + slot * 0.3 : slot) * width, y: row * ROW + NODE / 2 + 8 })
+        const size = nodeSize[nodeKind(byId.get(topic.id)!.marks)]
+        at.set(topic.id, { id: topic.id, x: (aside ? 0.64 + slot * 0.28 : 0.04 + slot * 0.92) * width, y: top + row * ROW, size })
       })
     })
     function parentX(requires?: string[]) {
       const xs = (requires ?? []).map(id => at.get(id)?.x ?? 0)
       return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0
     }
-    if (hasBoss) at.set(BOSS_ID, { id: BOSS_ID, x: width / 2, y: tiers.length * ROW + NODE / 2 + 18 })
+    if (hasBoss) at.set(BOSS_ID, { id: BOSS_ID, x: width / 2, y: top + tiers.length * ROW + 20, size: BOSS_SIZE })
     return at
   }, [tiers, hasBoss, byId, width])
 
   const edges = useMemo(() => {
     const list: { from: Placed; to: Placed; lit: boolean; soon: boolean }[] = []
+    const litFrom = (id: string) => { const score = byId.get(id); return Boolean(score && ['secure', 'examReady'].includes(tileLevel(score))) }
     for (const tier of tiers) for (const topic of tier) for (const parent of topic.requires ?? []) {
       const from = placed.get(parent), to = placed.get(topic.id)
-      const score = byId.get(parent)
-      if (from && to) list.push({ from, to, lit: Boolean(score && (tileLevel(score) === 'secure' || tileLevel(score) === 'examReady')), soon: !byId.get(topic.id)?.taught })
+      if (from && to) list.push({ from, to, lit: litFrom(parent), soon: !byId.get(topic.id)?.taught })
     }
     const boss = placed.get(BOSS_ID)
     if (boss) for (const leaf of leaves) {
-      const from = placed.get(leaf.id), score = byId.get(leaf.id)
-      if (from) list.push({ from, to: boss, lit: Boolean(score && tileLevel(score) !== 'notStarted' && tileLevel(score) !== 'learning'), soon: false })
+      const from = placed.get(leaf.id)
+      if (from) list.push({ from, to: boss, lit: litFrom(leaf.id), soon: false })
     }
     return list
   }, [tiers, leaves, placed, byId])
 
-  const height = Math.max(...[...placed.values()].map(node => node.y)) + NODE / 2 + 56
-  const branchMarks = scores.filter(score => score.topic.area === area)
-  const ready = branchMarks.reduce((sum, score) => sum + score.ready, 0)
-  const worth = branchMarks.reduce((sum, score) => sum + score.marks, 0)
+  const height = Math.max(0, ...[...placed.values()].map(node => node.y + node.size / 2)) + 72
+  const stars = useMemo(() => width ? starsFor(area.length * 7919 + 13, width, height) : [], [area, width, height])
 
-  return <div className="st">
-    <div className="st-branches" role="tablist" aria-label="Branches">
-      {branchOrder.map(id => {
-        const taught = scores.some(score => score.topic.area === id && score.taught)
-        return <button key={id} type="button" role="tab" aria-selected={id === area} className={`st-branch${id === area ? ' is-on' : ''}`} onClick={() => onArea(id)}>
-          {!taught && <span aria-hidden="true">🔒 </span>}{tabTitles[id]}
+  return <div className={`st st--${area}`} ref={ref} style={{ height: width ? height : 520 }}>
+    {width > 0 && <>
+      <svg className="st-sky" width={width} height={height} aria-hidden="true">
+        {stars.map((star, index) => <circle key={index} cx={star.x} cy={star.y} r={star.r} className={star.twinkle ? 'st-star is-twinkling' : 'st-star'} style={star.twinkle ? { animationDelay: `${star.delay}s` } : undefined} />)}
+      </svg>
+      <svg className="st-edges" width={width} height={height} aria-hidden="true">
+        {edges.map(({ from, to, lit, soon }) => {
+          // From under the parent's label to the top of the child, so lines never cross a name.
+          const x1 = from.x, y1 = from.y + from.size / 2 + 36, x2 = to.x, y2 = to.y - to.size / 2 - 6
+          const mid = (y1 + y2) / 2
+          const d = `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`
+          // A path out of a topic that just levelled up draws in once the topic has lit up.
+          const coming = arrival[from.id]
+          return <g key={`${from.id}-${to.id}`}>
+            <path className={`st-edge${soon ? ' is-soon' : ''}`} d={d} />
+            {lit && <path className={`st-edge-lit${coming === 'waiting' ? ' is-waiting' : coming === 'igniting' ? ' is-drawing' : ''}`} d={d} pathLength={1} />}
+            {lit && !coming && <path className="st-edge-flow" d={d} pathLength={1} />}
+          </g>
+        })}
+      </svg>
+
+      {tiers.flat().map(topic => {
+        const at = placed.get(topic.id)!, score = byId.get(topic.id)!
+        const kind = nodeKind(score.marks), state = nodeState(score, byId)
+        const share = state === 'soon' ? 0 : score.share
+        return <button
+          key={topic.id}
+          id={`node-${topic.id}`}
+          type="button"
+          className={`sn sn--${kind} sn--${state}${selected === topic.id ? ' is-selected' : ''}${arrival[topic.id] === 'waiting' ? ' is-pending' : arrival[topic.id] === 'igniting' ? ' is-igniting' : ''}`}
+          style={{ left: at.x, top: at.y, ['--size' as string]: `${at.size}px` }}
+          aria-label={`${topic.title}: ${stateLabel(state)}, about ${Math.max(1, Math.round(score.marks))} marks a paper`}
+          onClick={() => onSelect(topic.id)}
+        >
+          <span className="sn-core">
+            <NodeRing kind={kind} share={share} />
+            <TopicIcon id={topic.id} size={kind === 'keystone' ? 34 : kind === 'standard' ? 27 : 22} className="sn-icon" />
+            {state === 'soon' && <span className="sn-badge sn-badge--lock"><LockIcon size={11} strokeWidth={2.6} /></span>}
+            {state === 'examReady' && <span className="sn-badge sn-badge--crown"><CrownIcon size={12} strokeWidth={2.4} /></span>}
+            {arrival[topic.id] === 'igniting' && <span className="sn-burst" aria-hidden="true" />}
+          </span>
+          <span className="sn-label">{topic.short ?? topic.title}</span>
+          <span className="sn-marks"><StarIcon size={10} />{Math.max(1, Math.round(score.marks))}</span>
         </button>
       })}
-    </div>
-    <p className="st-branch-score">
-      <strong>{areaTitles[area]}</strong> · ready for about {Math.round(ready)} of {Math.round(worth)} marks
-      {bossBeaten && <span className="st-mastered">👑 Mastered</span>}
-    </p>
 
-    <div className="st-tree" ref={ref} style={{ height: width ? height : undefined }}>
-      {width > 0 && <>
-        <svg className="st-edges" width={width} height={height} aria-hidden="true">
-          {edges.map(({ from, to, lit, soon }) => {
-            // From under the parent's label to the top of the child, so lines never cross a name.
-            const x1 = from.x, y1 = from.y + LABEL_DROP, x2 = to.x, y2 = to.y - (to.id === BOSS_ID ? 44 : NODE / 2 + 4)
-            const mid = (y1 + y2) / 2
-            return <path
-              key={`${from.id}-${to.id}`}
-              className={`st-edge${lit ? ' is-lit' : ''}${soon ? ' is-soon' : ''}`}
-              d={`M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`}
-            />
-          })}
-        </svg>
-        {tiers.flat().map(topic => {
-          const at = placed.get(topic.id)!, score = byId.get(topic.id)!
-          const level = tileLevel(score)
-          const state = score.taught ? level : 'soon'
-          return <button
-            key={topic.id}
-            type="button"
-            className={`st-node st-node--${state}${selected === topic.id ? ' is-selected' : ''}`}
-            style={{ left: at.x, top: at.y }}
-            aria-pressed={selected === topic.id}
-            aria-label={`${topic.title}: ${score.taught ? levelLabels[level] : 'not in Revily yet'}, about ${Math.round(score.marks)} marks a paper`}
-            onClick={() => onSelect(topic.id)}
-          >
-            <span className="st-node__orb" style={{ ['--share' as string]: `${score.share * 360}deg` }}>
-              <span className="st-node__symbol" aria-hidden="true">{score.taught ? symbols[topic.id] ?? '•' : '🔒'}</span>
-            </span>
-            <span className="st-node__marks" aria-hidden="true">★{Math.max(1, Math.round(score.marks))}</span>
-            <span className="st-node__label">{topic.short ?? topic.title}</span>
-          </button>
-        })}
-        {hasBoss && (() => {
-          const at = placed.get(BOSS_ID)!
-          return <button
-            type="button"
-            className={`st-node st-boss${bossBeaten ? ' is-beaten' : bossOpen ? ' is-open' : ''}${selected === BOSS_ID ? ' is-selected' : ''}`}
-            style={{ left: at.x, top: at.y }}
-            aria-pressed={selected === BOSS_ID}
-            aria-label={`${areaTitles[area]} boss: ${bossBeaten ? 'beaten' : bossOpen ? 'ready to fight' : 'locked'}`}
-            onClick={() => onSelect(BOSS_ID)}
-          >
-            <span className="st-node__orb"><span className="st-node__symbol" aria-hidden="true">{bossBeaten ? '👑' : bossOpen ? '⚔️' : '🔒'}</span></span>
-            <span className="st-node__label">Boss</span>
-          </button>
-        })()}
-      </>}
-    </div>
+      {hasBoss && (() => {
+        const at = placed.get(BOSS_ID)!
+        const state = bossBeaten ? 'beaten' : bossOpen ? 'open' : 'locked'
+        return <button
+          type="button"
+          id="node-boss"
+          className={`sn-boss sn-boss--${state}${selected === BOSS_ID ? ' is-selected' : ''}`}
+          style={{ left: at.x, top: at.y }}
+          aria-label={`The Treasurer, the Number boss: ${state === 'beaten' ? 'beaten' : state === 'open' ? 'ready to fight' : 'locked'}`}
+          onClick={() => onSelect(BOSS_ID)}
+        >
+          <span className="sn-boss__plinth" aria-hidden="true" />
+          <span className="sn-boss__art" aria-hidden="true"><BossCharacter mood="idle" damage={bossBeaten ? 3 : 0} size={BOSS_SIZE} /></span>
+          {state === 'locked' && <span className="sn-badge sn-badge--lock sn-boss__badge"><LockIcon size={13} strokeWidth={2.6} /></span>}
+          {state === 'beaten' && <span className="sn-badge sn-badge--crown sn-boss__badge"><CrownIcon size={14} strokeWidth={2.4} /></span>}
+          <span className="sn-boss__kicker">Boss</span>
+          <span className="sn-boss__name">The Treasurer</span>
+        </button>
+      })()}
+    </>}
   </div>
+}
+
+/** The progress ring round a node: a hexagon for keystones, a circle for the rest. */
+function NodeRing({ kind, share }: { kind: NodeKind; share: number }) {
+  const shape = kind === 'keystone'
+    ? { as: 'polygon' as const, points: '50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5' }
+    : { as: 'circle' as const }
+  return <svg className="sn-ring" viewBox="0 0 100 100" aria-hidden="true">
+    {shape.as === 'polygon'
+      ? <><polygon className="sn-ring__track" points={shape.points} /><polygon className="sn-ring__fill" points={shape.points} pathLength={1} style={{ strokeDasharray: `${share} 1` }} /></>
+      : <><circle className="sn-ring__track" cx="50" cy="50" r="46" /><circle className="sn-ring__fill" cx="50" cy="50" r="46" pathLength={1} style={{ strokeDasharray: `${share} 1` }} transform="rotate(-90 50 50)" /></>}
+  </svg>
 }

@@ -29,6 +29,7 @@ const { squarify } = require(path.join(root, 'src/features/maths/readiness/squar
 const { branchTiers, branchLeaves } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
 const { bosses, isCorrect, readAnswer } = require(path.join(root, 'src/features/maths/readiness/bosses.ts'))
 const katex = require(path.join(root, 'node_modules/katex'))
+const { hasTopicIcon } = require(path.join(root, 'src/features/maths/readiness/icons.tsx'))
 
 // Coverage: one statement per teaching section, none for review sections, none left over.
 const expected = new Set()
@@ -115,6 +116,7 @@ for (const area of new Set(paperTopics.map(topic => topic.area))) {
   assert.equal(tiers.flat().length, paperTopics.filter(topic => topic.area === area).length, `${area}: every topic is in the tree once`)
   tiers.forEach((tier, row) => tier.forEach(topic => (topic.requires ?? []).forEach(id => assert.ok(tiers.findIndex(t => t.some(p => p.id === id)) < row, `${topic.id} sits below ${id}`))))
 }
+for (const topic of paperTopics) assert.ok(hasTopicIcon(topic.id), `${topic.id} needs an icon in icons.tsx`)
 assert.deepEqual(branchLeaves('number').map(topic => topic.id).sort(), ['bidmas', 'bounds', 'fdp'])
 
 // Bosses: every question's worked chain renders, merges come from the line above, and ends on the answer.
