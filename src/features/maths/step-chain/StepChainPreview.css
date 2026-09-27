@@ -26,3 +26,6 @@
   margin: 0 -16px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
   border-top: 2px solid var(--rv-line); background: var(--rv-surface);
 }
+
+.scp-bar__actions { width: 100%; display: flex; gap: 10px; }
+.scp-bar__actions .rv-icon-btn { width: 56px; min-width: 56px; }

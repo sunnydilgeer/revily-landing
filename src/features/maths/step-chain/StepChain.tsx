@@ -111,54 +111,65 @@ function columnGrid(columns: string[]) {
   return { gridTemplateColumns: columns.map(column => column === '.' ? '.8rem' : '2.5rem').join(' ') }
 }
 
-type Flight = { index: number; phase: 'flying' | 'arriving' }
+type Flight = { index: number; phase: 'flying' | 'arriving'; run: number }
 
 /**
  * Worked steps as one chain of working: each line is the line above, transformed.
- * The parent owns `revealed` (how many lines are showing, at least 1); each time it goes up by one,
- * the operation appears first, then the terms fly down into the new line.
+ * The parent owns `revealed` (how many lines are showing, at least 1). When it goes up, the operation
+ * appears first, then the terms fly down into the new last line; when it goes down, lines just go.
+ * Tapping an operation replays that step. `pace` stretches every movement (1.5 is "slower").
  */
-export function StepChain({ steps, layout = { kind: 'equation' }, revealed, reduceMotion = false }: {
+export function StepChain({ steps, layout = { kind: 'equation' }, revealed, reduceMotion = false, pace = 1 }: {
   steps: ChainStep[]
   layout?: ChainLayout
   revealed: number
   reduceMotion?: boolean
+  pace?: number
 }) {
   const stage = useRef<HTMLOListElement>(null)
   const rows = useRef<(HTMLLIElement | null)[]>([])
+  const runs = useRef(0)
   const [openWhy, setOpenWhy] = useState<number | null>(null)
   const [shown, setShown] = useState(revealed)
   const [flight, setFlight] = useState<Flight | null>(null)
+  const still = () => reduceMotion || prefersReducedMotion()
+  const fly = (index: number): Flight | null => still() || index < 1 ? null : { index, phase: 'flying', run: ++runs.current }
 
   // Decide on the new line's first render, so it never flashes up before its terms arrive.
   if (revealed !== shown) {
     setShown(revealed)
-    setFlight(revealed === shown + 1 && !reduceMotion && !prefersReducedMotion() ? { index: revealed - 1, phase: 'flying' } : null)
+    setFlight(revealed > shown ? fly(revealed - 1) : null)
     setOpenWhy(null)
   }
 
-  const flyingIndex = flight?.phase === 'flying' ? flight.index : null
+  const flying = flight?.phase === 'flying' ? flight : null
   useLayoutEffect(() => {
-    const from = flyingIndex === null ? null : rows.current[flyingIndex - 1], to = flyingIndex === null ? null : rows.current[flyingIndex]
-    if (flyingIndex === null || !stage.current || !from || !to) return
+    if (!flying) return
+    const from = rows.current[flying.index - 1], to = rows.current[flying.index]
+    if (!stage.current || !from || !to) return
     to.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
     return flyTerms({
-      stage: stage.current, from, to, merge: steps[flyingIndex].merge,
-      onArrive: () => setFlight({ index: flyingIndex, phase: 'arriving' }),
+      stage: stage.current, from, to, merge: steps[flying.index].merge, pace,
+      onArrive: () => setFlight({ ...flying, phase: 'arriving' }),
     })
-  }, [flyingIndex, steps])
+    // Keyed on the run, so replaying the same step starts a fresh flight.
+  }, [flying?.run, steps, pace])
 
   useLayoutEffect(() => {
     if (flight?.phase !== 'arriving') return
-    const timer = window.setTimeout(() => setFlight(null), ARRIVE_MS)
+    const timer = window.setTimeout(() => setFlight(null), ARRIVE_MS * pace)
     return () => window.clearTimeout(timer)
-  }, [flight])
+  }, [flight, pace])
 
   const last = Math.min(revealed, steps.length) - 1
   const done = last === steps.length - 1 && !flight
   const columns = layout.kind === 'columns' ? layout.columns : null
 
-  return <div className={`sc${columns ? ' sc--columns' : ''}`} data-reduce-motion={reduceMotion || undefined}>
+  return <div
+    className={`sc${columns ? ' sc--columns' : ''}`}
+    data-reduce-motion={reduceMotion || undefined}
+    style={{ ['--sc-pace' as string]: pace }}
+  >
     {columns && <div className="sc-head" aria-hidden="true">
       <span className="sc-columns" style={columnGrid(columns)}>
         {columns.map(column => <span key={column} className="sc-column">{column === '.' ? '' : column}</span>)}
@@ -168,8 +179,9 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
       {steps.slice(0, last + 1).map((step, index) => {
         const marks = marksFor(steps, index, index < last)
         const phase = flight?.index === index ? flight.phase : null
-        // The line above stays bright while its terms are still travelling.
-        const dim = index < last && !(flight && index === last - 1)
+        // Both lines of a step stay bright while its terms are travelling.
+        const active = flight && (index === flight.index || index === flight.index - 1)
+        const dim = index < last && !active
         const why = openWhy === index
         return <li
           key={index}
@@ -177,9 +189,21 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
           className={['sc-row', phase && `is-${phase}`, dim && 'is-dim', done && index === last && 'is-final'].filter(Boolean).join(' ')}
         >
           {step.op && <div className="sc-op">
-            {step.why
-              ? <button type="button" className="sc-op__label sc-op__label--why" aria-expanded={why} onClick={() => setOpenWhy(why ? null : index)}><span>{step.op}</span></button>
-              : <span className="sc-op__label"><span>{step.op}</span></span>}
+            <span className="sc-op__line">
+              <button
+                type="button"
+                className="sc-op__label"
+                aria-label={`Replay this step: ${step.op}`}
+                onClick={() => setFlight(fly(index))}
+              ><span>{step.op}</span></button>
+              {step.why && <button
+                type="button"
+                className={`sc-op__info${why ? ' is-open' : ''}`}
+                aria-label="Why?"
+                aria-expanded={why}
+                onClick={() => setOpenWhy(why ? null : index)}
+              >i</button>}
+            </span>
             {why && <p className="sc-op__why">{step.why}</p>}
           </div>}
           {columns ? <ColumnsLine line={step.line} columns={columns} marks={marks} /> : <EquationLine line={step.line} marks={marks} />}
@@ -189,9 +213,35 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
   </div>
 }
 
-/** Small row of dots: one per step, filled up to the current one. */
-export function StepDots({ total, current }: { total: number; current: number }) {
-  return <span className="sc-dots" role="img" aria-label={`Step ${current} of ${total}`}>
+/** One dot per step, filled up to the current one. With `onSelect`, each dot jumps to its step. */
+export function StepDots({ total, current, onSelect }: { total: number; current: number; onSelect?: (step: number) => void }) {
+  if (!onSelect) return <span className="sc-dots" role="img" aria-label={`Step ${current} of ${total}`}>
     {Array.from({ length: total }, (_, i) => <span key={i} className={`sc-dot${i < current ? ' is-on' : ''}`} />)}
   </span>
+  return <span className="sc-dots" role="group" aria-label={`Step ${current} of ${total}`}>
+    {Array.from({ length: total }, (_, i) => <button
+      key={i}
+      type="button"
+      className={`sc-dot-button${i < current ? ' is-on' : ''}`}
+      aria-label={`Go to step ${i + 1}`}
+      aria-current={i + 1 === current ? 'step' : undefined}
+      onClick={() => onSelect(i + 1)}
+    ><span className="sc-dot" /></button>)}
+  </span>
+}
+
+const PACE_KEY = 'revily:slower-steps'
+export const SLOWER_PACE = 1.6
+
+/** The student's "Slower animations" setting, kept on this device. */
+export function useStepPace() {
+  const [slower, setSlower] = useState(false)
+  useLayoutEffect(() => {
+    try { setSlower(window.localStorage.getItem(PACE_KEY) === '1') } catch { /* storage blocked: default pace */ }
+  }, [])
+  const update = (next: boolean) => {
+    setSlower(next)
+    try { window.localStorage.setItem(PACE_KEY, next ? '1' : '0') } catch { /* storage blocked: this visit only */ }
+  }
+  return { slower, setSlower: update, pace: slower ? SLOWER_PACE : 1 }
 }

@@ -28,11 +28,13 @@ function centre(rect: DOMRect) {
  * Flies each term from `from` to `to` inside `stage` (which must be position: relative).
  * Calls `onArrive` once every copy has landed. Returns a function that stops the flight early.
  */
-export function flyTerms({ stage, from, to, merge = {}, onArrive }: {
+export function flyTerms({ stage, from, to, merge = {}, pace = 1, onArrive }: {
   stage: HTMLElement
   from: HTMLElement
   to: HTMLElement
   merge?: Record<string, string[]>
+  /** Multiplies every duration: 1 is normal, above 1 is slower. */
+  pace?: number
   onArrive: () => void
 }) {
   const sources = termsIn(from)
@@ -70,7 +72,7 @@ export function flyTerms({ stage, from, to, merge = {}, onArrive }: {
       animations.push(ghost.animate([
         { transform: 'translate(0, 0) scale(1)', opacity: 1 },
         { transform: `translate(${end.x - start.x}px, ${end.y - start.y}px) scale(${scale})`, opacity: merging ? 0 : 1 },
-      ], { duration: FLIGHT_MS, delay: FLIGHT_DELAY, easing: 'cubic-bezier(.3, .7, .2, 1)', fill: 'both' }))
+      ], { duration: FLIGHT_MS * pace, delay: FLIGHT_DELAY * pace, easing: 'cubic-bezier(.3, .7, .2, 1)', fill: 'both' }))
     }
   })
 
@@ -81,7 +83,7 @@ export function flyTerms({ stage, from, to, merge = {}, onArrive }: {
     ghosts.forEach(ghost => ghost.remove())
     onArrive()
   }
-  const timer = window.setTimeout(finish, FLIGHT_DELAY + FLIGHT_MS)
+  const timer = window.setTimeout(finish, (FLIGHT_DELAY + FLIGHT_MS) * pace)
   return () => {
     window.clearTimeout(timer)
     animations.forEach(animation => animation.cancel())

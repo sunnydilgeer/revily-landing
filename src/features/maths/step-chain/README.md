@@ -21,6 +21,17 @@ const steps: ChainStep[] = [
 - Lines split on the first ` = ` so equals signs line up. A line starting `= ` continues the one above (`18/24`, `= 3/4`).
 - For digits moving between place-value columns, pass `layout={{ kind: 'columns', columns: ['H', 'T', 'U', '.', 't'] }}` and split each line into cells with `|`.
 
+## Controls
+
+Worked steps are paced by the student, so the controls work in steps, not seconds:
+
+- **Next step / ←** in the bottom bar move one line on or back. Going back removes lines without animation.
+- **Dots** (`<StepDots onSelect>`) jump to any step. Jumping forward animates only the last line.
+- **Tap an operation** to replay that step. The ⓘ next to it opens the `why`.
+- **Slower animations** (`useStepPace()`, saved on the device) passes `pace={1.6}`, which stretches every movement.
+
+A play/pause/speed/scrubber player only makes sense once a worked example has narration to follow.
+
 ## Rules
 
 One thing moves per step. Show the same operation on both sides rather than moving a term across the equals sign. The last line is the answer, shown once. Reduced motion (system setting or the `reduceMotion` prop) shows each line straight away.
