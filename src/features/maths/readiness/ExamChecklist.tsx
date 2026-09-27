@@ -75,7 +75,7 @@ export default function ExamChecklist() {
 
     <PaperMap rows={rows} />
 
-    <p className="xc-honest">Tiles are sized by the marks each topic has been worth in the last 30 Foundation papers. Marks are a rough guide, not a prediction.</p>
+    <p className="xc-honest">Marks come from what each topic has been worth in the last 30 Foundation papers. A rough guide, not a prediction.</p>
 
     <section className="xc-area" aria-labelledby="xc-all">
       <h2 id="xc-all">Every statement <span>{secureOrBetter} of {rows.length} secure or better</span></h2>

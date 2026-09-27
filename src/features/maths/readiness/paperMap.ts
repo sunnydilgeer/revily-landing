@@ -30,6 +30,8 @@ export type PaperTopic = {
   estimate?: boolean
   /** Checklist statements (lesson:section) that make up the topic. None means Revily does not teach it yet. */
   statements: string[]
+  /** Topics to learn first: the branches of the skill tree. */
+  requires?: string[]
   labs?: LabEntry['id'][]
 }
 
@@ -46,21 +48,21 @@ const lesson = (number: number, ...sections: string[]) => sections.map(section =
 
 export const paperTopics: PaperTopic[] = [
   // Number
-  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, statements: [] },
-  { id: 'percentages', title: 'Percentages', short: 'Percent', area: 'number', marks30: 130, sittings: 10, statements: [] },
-  { id: 'factors', title: 'Factors and multiples', short: 'Factors', area: 'number', marks30: 49, sittings: 9, statements: [
+  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [] },
+  { id: 'percentages', title: 'Percentages', short: 'Percent', area: 'number', marks30: 130, sittings: 10, requires: ['fdp'], statements: [] },
+  { id: 'factors', title: 'Factors and multiples', short: 'Factors', area: 'number', marks30: 49, sittings: 9, requires: ['number-types'], statements: [
     ...lesson(1, 'multiples-factors'), ...lesson(7, 'prime-factorisation', 'hcf-lcm-listing', 'hcf-lcm-venn'),
   ] },
-  { id: 'fractions', title: 'Fractions', area: 'number', marks30: 46, sittings: 10, statements: lesson(8,
+  { id: 'fractions', title: 'Fractions', area: 'number', marks30: 46, sittings: 10, requires: ['factors'], statements: lesson(8,
     'simplifying-fractions', 'mixed-improper-fractions', 'adding-fractions', 'subtracting-fractions',
     'multiplying-fractions', 'dividing-fractions', 'mixed-fraction-calculations', 'fractions-of-amounts') },
-  { id: 'decimals', title: 'Decimals', area: 'number', marks30: 28, sittings: 6, statements: lesson(6,
+  { id: 'decimals', title: 'Decimals', area: 'number', marks30: 28, sittings: 6, requires: ['written-methods', 'place-value'], statements: lesson(6,
     'decimal-addition', 'decimal-subtraction', 'decimal-multiplication', 'decimal-division') },
-  { id: 'written-methods', title: 'Written methods', short: 'Written methods', area: 'number', marks30: 60, estimate: true, statements: [
+  { id: 'written-methods', title: 'Written methods', short: 'Written methods', area: 'number', marks30: 60, estimate: true, requires: ['place-value'], statements: [
     ...lesson(4, 'long-multiplication-layout', 'long-multiplication-ones', 'long-multiplication-carrying', 'long-multiplication-tens', 'long-multiplication-application'),
     ...lesson(5, 'long-division-layout', 'long-division-regrouping', 'long-division-remainders', 'long-division-check', 'long-division-two-digit'),
   ] },
-  { id: 'rounding', title: 'Rounding and estimating', short: 'Rounding', area: 'number', marks30: 60, estimate: true, statements: [
+  { id: 'rounding', title: 'Rounding and estimating', short: 'Rounding', area: 'number', marks30: 60, estimate: true, requires: ['place-value'], statements: [
     ...lesson(10, 'rounding-decimal-places', 'rounding-significant-figures', 'rounding-powers-of-ten', 'rounding-carrying'),
     ...lesson(12, 'estimating-significant-figures', 'estimating-calculations', 'estimating-formulas', 'estimating-checking'),
   ] },
@@ -70,42 +72,42 @@ export const paperTopics: PaperTopic[] = [
   ] },
   { id: 'number-types', title: 'Types of number', short: 'Number types', area: 'number', marks30: 45, estimate: true, statements: lesson(1,
     'whole-values', 'special-integers', 'rational-numbers', 'irrational-numbers') },
-  { id: 'fdp', title: 'Fractions, decimals and percentages', short: 'FDP', area: 'number', marks30: 40, estimate: true, statements: lesson(9,
+  { id: 'fdp', title: 'Fractions, decimals and percentages', short: 'FDP', area: 'number', marks30: 40, estimate: true, requires: ['fractions', 'decimals'], statements: lesson(9,
     'fraction-to-decimal', 'decimal-to-fraction', 'decimal-to-percentage', 'percentage-to-decimal', 'fraction-to-percentage', 'percentage-to-fraction') },
-  { id: 'bidmas', title: 'Order of operations', short: 'BIDMAS', area: 'number', marks30: 25, estimate: true, statements: lesson(2,
+  { id: 'bidmas', title: 'Order of operations', short: 'BIDMAS', area: 'number', marks30: 25, estimate: true, requires: ['number-types'], statements: lesson(2,
     'bidmas-ladder', 'operation-priority', 'equal-priority', 'fraction-grouping', 'mixed') },
-  { id: 'bounds', title: 'Bounds and error intervals', short: 'Bounds', area: 'number', marks30: 20, estimate: true, statements: lesson(13,
+  { id: 'bounds', title: 'Bounds and error intervals', short: 'Bounds', area: 'number', marks30: 20, estimate: true, requires: ['rounding'], statements: lesson(13,
     'bounds-half-unit', 'bounds-lower-upper', 'bounds-error-interval', 'truncation', 'truncation-error-interval') },
 
   // Algebra
-  { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, statements: [] },
-  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, statements: [] },
-  { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, statements: [] },
-  { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, statements: [] },
+  { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [] },
+  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [] },
+  { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: [] },
+  { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [] },
   { id: 'simplifying', title: 'Simplifying expressions', short: 'Simplifying', area: 'algebra', marks30: 43, sittings: 9, statements: [] },
   { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [] },
 
   // Ratio, proportion and rates of change
   { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: [], labs: ['heist', 'potion', 'tiers'] },
   { id: 'conversions', title: 'Unit conversions', short: 'Units', area: 'ratio', marks30: 57, sittings: 10, statements: [] },
-  { id: 'speed', title: 'Speed, distance, time', short: 'Speed', area: 'ratio', marks30: 37, sittings: 8, statements: [], labs: ['storm'] },
+  { id: 'speed', title: 'Speed, distance, time', short: 'Speed', area: 'ratio', marks30: 37, sittings: 8, requires: ['conversions'], statements: [], labs: ['storm'] },
 
   // Geometry and measures
-  { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, statements: [] },
-  { id: 'area', title: 'Area and perimeter', short: 'Area', area: 'geometry', marks30: 58, sittings: 10, statements: [] },
-  { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, statements: [] },
+  { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, requires: ['shapes'], statements: [] },
+  { id: 'area', title: 'Area and perimeter', short: 'Area', area: 'geometry', marks30: 58, sittings: 10, requires: ['shapes'], statements: [] },
+  { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, requires: ['area'], statements: [] },
   { id: 'shapes', title: 'Properties of shapes', short: 'Shapes', area: 'geometry', marks30: 31, sittings: 8, statements: [] },
-  { id: 'transformations', title: 'Transformations', short: 'Transform', area: 'geometry', marks30: 23, sittings: 7, statements: [] },
-  { id: 'trigonometry', title: 'Trigonometry', short: 'Trig', area: 'geometry', marks30: 22, sittings: 8, statements: [] },
-  { id: 'pythagoras', title: 'Pythagoras', area: 'geometry', marks30: 17, sittings: 5, statements: [] },
+  { id: 'transformations', title: 'Transformations', short: 'Transform', area: 'geometry', marks30: 23, sittings: 7, requires: ['shapes'], statements: [] },
+  { id: 'trigonometry', title: 'Trigonometry', short: 'Trig', area: 'geometry', marks30: 22, sittings: 8, requires: ['pythagoras'], statements: [] },
+  { id: 'pythagoras', title: 'Pythagoras', area: 'geometry', marks30: 17, sittings: 5, requires: ['area'], statements: [] },
 
   // Probability
   { id: 'probability', title: 'Probability', area: 'probability', marks30: 59, sittings: 10, statements: [] },
-  { id: 'frequency-trees', title: 'Frequency trees', short: 'Freq. trees', area: 'probability', marks30: 38, sittings: 9, statements: [] },
+  { id: 'frequency-trees', title: 'Frequency trees', short: 'Freq. trees', area: 'probability', marks30: 38, sittings: 9, requires: ['probability'], statements: [] },
 
   // Statistics
   { id: 'charts', title: 'Charts and graphs', short: 'Charts', area: 'statistics', marks30: 56, sittings: 10, statements: [] },
-  { id: 'averages', title: 'Averages', area: 'statistics', marks30: 26, sittings: 7, statements: [] },
+  { id: 'averages', title: 'Averages', area: 'statistics', marks30: 26, sittings: 7, requires: ['charts'], statements: [] },
 ]
 
 const totalMarks30 = paperTopics.reduce((sum, topic) => sum + topic.marks30, 0)
@@ -150,4 +152,26 @@ export function tileLevel(score: TopicScore): Level {
   if (score.share < 0.75) return 'learnt'
   if (score.share < 0.95) return 'secure'
   return 'examReady'
+}
+
+/** A branch of the skill tree: its topics in rows, each row one step further from the roots. */
+export function branchTiers(area: AreaId) {
+  const topics = paperTopics.filter(topic => topic.area === area)
+  const depth = new Map<string, number>()
+  const depthOf = (topic: PaperTopic): number => {
+    if (!depth.has(topic.id)) {
+      const parents = (topic.requires ?? []).map(id => topics.find(candidate => candidate.id === id)!)
+      depth.set(topic.id, parents.length ? 1 + Math.max(...parents.map(depthOf)) : 0)
+    }
+    return depth.get(topic.id)!
+  }
+  const tiers: PaperTopic[][] = []
+  for (const topic of topics) (tiers[depthOf(topic)] ??= []).push(topic)
+  return tiers
+}
+
+/** Taught topics in the branch that no other taught topic builds on: the boss sits beneath these. */
+export function branchLeaves(area: AreaId) {
+  const taught = paperTopics.filter(topic => topic.area === area && topic.statements.length > 0)
+  return taught.filter(topic => !taught.some(other => other.requires?.includes(topic.id)))
 }

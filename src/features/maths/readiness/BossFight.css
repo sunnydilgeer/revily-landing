@@ -1,0 +1,62 @@
+/* The boss fight, full screen over the skill tree. Tokens come from src/ui/revily-tokens.css. */
+html.has-boss-open { overflow: hidden; }
+
+.bf {
+  width: 100%; max-width: 560px; height: 100dvh; max-height: 100dvh; margin: 0 auto; padding: 0; border: 0;
+  overflow-y: auto; color: var(--rv-on-night); background: var(--rv-night);
+}
+.bf[open] { display: flex; flex-direction: column; }
+.bf::backdrop { background: rgb(15 21 48 / 88%); }
+@media (min-width: 600px) { .bf { height: auto; max-height: calc(100dvh - 48px); margin-top: 24px; border-radius: var(--rv-radius-lg); } }
+
+.bf-top { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 0; }
+.bf-close { width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--rv-night-2); color: var(--rv-on-night); font-size: 1.1rem; cursor: pointer; }
+.bf-close:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.bf-hearts { display: flex; gap: 4px; font-size: 1.5rem; line-height: 1; }
+.bf-hearts span { color: var(--rv-night-3); transition: color .3s ease, transform .3s ease; }
+.bf-hearts span.is-full { color: var(--rv-alarm); }
+
+.bf-boss { display: grid; justify-items: center; gap: 6px; padding: 8px 16px 18px; text-align: center; }
+.bf-boss__face { font-size: 3.4rem; line-height: 1.1; }
+.bf-boss__face.is-hit { animation: bf-shake .45s ease; }
+.bf-boss__face.is-down { animation: bf-pop .6s ease; }
+@keyframes bf-shake { 20%, 60% { transform: translateX(-8px) rotate(-6deg); } 40%, 80% { transform: translateX(8px) rotate(6deg); } }
+@keyframes bf-pop { 0% { transform: scale(.4); } 70% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .bf-boss__face { animation: none !important; } }
+.bf-kicker { margin: 0; font: 700 .72rem/1.3 var(--rv-font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--rv-alarm); }
+.bf-boss h2 { margin: 0; font: 800 1.7rem/1.1 var(--rv-font-display); }
+.bf-hp { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; width: min(240px, 80%); margin-top: 6px; }
+.bf-hp span { height: 10px; border-radius: var(--rv-radius-pill); background: var(--rv-night-3); transition: background .3s ease; }
+.bf-hp span.is-full { background: var(--rv-alarm); }
+
+.bf-body {
+  flex: 1; display: grid; align-content: start; gap: 14px; padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  border-radius: var(--rv-radius-lg) var(--rv-radius-lg) 0 0; color: var(--rv-ink); background: var(--rv-paper);
+}
+@media (min-width: 600px) { .bf-body { border-radius: var(--rv-radius-lg); } }
+.bf-story, .bf-note { margin: 0; color: var(--rv-ink-2); }
+.bf-rules { display: grid; gap: 6px; margin: 0; padding-left: 20px; }
+.bf-question, .bf-result { display: grid; gap: 12px; }
+.bf-count { margin: 0; font: 700 .76rem/1.3 var(--rv-font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--rv-muted); }
+.bf-prompt { margin: 0; font: 600 1.12rem/1.45 var(--rv-font-body); }
+
+.bf-answer { display: flex; align-items: center; gap: 6px; padding: 0 14px; border: 2px solid var(--rv-line-strong); border-radius: var(--rv-radius-md); background: var(--rv-surface); }
+.bf-answer:focus-within { border-color: var(--rv-biro); box-shadow: 0 0 0 3px var(--rv-biro-tint); }
+.bf-answer__prefix { font: 700 1.3rem/1 var(--rv-font-body); color: var(--rv-ink-2); }
+.bf-answer input { flex: 1; min-width: 0; padding: 14px 0; border: 0; outline: none; background: none; font: 700 1.3rem/1 var(--rv-font-body); color: var(--rv-ink); }
+.bf-answer .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.bf-miss { margin: 0; padding: 10px 12px; border-radius: 12px; color: var(--rv-redpen); background: var(--rv-redpen-tint); font-weight: 600; }
+.bf-miss span { display: block; margin-top: 2px; font-weight: 500; color: var(--rv-ink); }
+.bf-hit, .bf-won { margin: 0; font: 800 1.5rem/1.2 var(--rv-font-display); color: var(--rv-good-ink); }
+.bf-lost { margin: 0; font: 800 1.3rem/1.2 var(--rv-font-display); color: var(--rv-redpen); }
+
+.bf-cta {
+  justify-self: stretch; padding: 14px 18px; border: 2px solid var(--rv-ink); border-radius: var(--rv-radius-md);
+  background: var(--rv-accent); color: var(--rv-accent-on); font: 800 1.05rem/1 var(--rv-font-display); cursor: pointer;
+  box-shadow: 0 4px 0 var(--rv-ink);
+}
+.bf-cta:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--rv-ink); }
+.bf-cta:disabled { opacity: .45; cursor: default; transform: none; box-shadow: 0 4px 0 var(--rv-ink); }
+.bf-cta:focus-visible { outline: none; box-shadow: 0 4px 0 var(--rv-ink), var(--rv-focus); }
+.bf-link { justify-self: start; padding: 0; border: 0; background: none; color: var(--rv-biro); font: 700 .95rem/1.4 var(--rv-font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }

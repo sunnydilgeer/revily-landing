@@ -26,6 +26,9 @@ const { canStatements } = require(path.join(root, 'src/features/maths/readiness/
 const { levelFor, mismatch, nextExamSeries } = require(path.join(root, 'src/features/maths/readiness/readiness.ts'))
 const { paperTopics, marksPerPaper, scoreTopics, biggestWin, tileLevel, PAPER_MARKS } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
 const { squarify } = require(path.join(root, 'src/features/maths/readiness/squarify.ts'))
+const { branchTiers, branchLeaves } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
+const { bosses, isCorrect, readAnswer } = require(path.join(root, 'src/features/maths/readiness/bosses.ts'))
+const katex = require(path.join(root, 'node_modules/katex'))
 
 // Coverage: one statement per teaching section, none for review sections, none left over.
 const expected = new Set()
@@ -100,4 +103,43 @@ for (let i = 0; i < tiles.length; i++) for (let j = i + 1; j < tiles.length; j++
   assert.ok(!overlap, `${a.item} and ${b.item} overlap`)
 }
 
-console.log(`Exam checklist verified: ${expected.size} "I can…" statements, one per teaching section; levels, mismatch notes and May/June countdown behave as documented; the exam map covers every statement once, adds up to ${PAPER_MARKS} marks and lays out without overlaps.`)
+// Skill tree: prerequisites stay inside their branch, every topic gets a row, and the Number boss sits under
+// the taught topics nothing else builds on.
+for (const topic of paperTopics) for (const id of topic.requires ?? []) {
+  const parent = paperTopics.find(candidate => candidate.id === id)
+  assert.ok(parent, `${topic.id} requires ${id}, which does not exist`)
+  assert.equal(parent.area, topic.area, `${topic.id} requires ${id} from another branch`)
+}
+for (const area of new Set(paperTopics.map(topic => topic.area))) {
+  const tiers = branchTiers(area)
+  assert.equal(tiers.flat().length, paperTopics.filter(topic => topic.area === area).length, `${area}: every topic is in the tree once`)
+  tiers.forEach((tier, row) => tier.forEach(topic => (topic.requires ?? []).forEach(id => assert.ok(tiers.findIndex(t => t.some(p => p.id === id)) < row, `${topic.id} sits below ${id}`))))
+}
+assert.deepEqual(branchLeaves('number').map(topic => topic.id).sort(), ['bidmas', 'bounds', 'fdp'])
+
+// Bosses: every question's worked chain renders, merges come from the line above, and ends on the answer.
+const TERM = /\[\[([\w-]+):(.*?)\]\]/g
+const keysOf = line => [...line.matchAll(TERM)].map(match => match[1])
+let bossParts = 0
+for (const boss of bosses) for (const round of boss.rounds) for (const part of round) {
+  bossParts++
+  assert.ok(Number.isFinite(part.answer) && part.prompt && part.hint)
+  part.chain.forEach((step, index) => {
+    katex.renderToString(step.line.replace(TERM, (_, key, body) => `\\htmlData{k=${key}}{${body}}`), { trust: true, strict: 'ignore', throwOnError: true })
+    if (index === 0) return
+    assert.ok(step.op && step.why, `${boss.title}: step ${index} of "${part.prompt}" needs an op and a why`)
+    const above = keysOf(part.chain[index - 1].line)
+    for (const [result, from] of Object.entries(step.merge ?? {})) {
+      assert.ok(keysOf(step.line).includes(result))
+      for (const key of from) assert.ok(above.includes(key), `${part.prompt}: ${key} merges from the line above`)
+    }
+  })
+  const last = [...part.chain.at(-1).line.matchAll(TERM)].at(-1)[2]
+  assert.equal(Number(last), part.answer, `${part.prompt}: the chain ends on the answer`)
+  assert.ok(isCorrect(String(part.answer), part) && isCorrect(`£${part.answer}`, part) && isCorrect(` ${part.answer}.00 `, part))
+  assert.ok(!isCorrect(String(part.answer + 1), part))
+}
+assert.equal(readAnswer('£1,180'), 1180)
+assert.equal(readAnswer('abc'), null)
+
+console.log(`Exam checklist verified: ${expected.size} "I can…" statements, one per teaching section; levels, mismatch notes and May/June countdown behave as documented; the exam map covers every statement once, adds up to ${PAPER_MARKS} marks and lays out without overlaps; the skill tree and ${bossParts} boss questions check out.`)
