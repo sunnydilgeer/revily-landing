@@ -63,16 +63,22 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
   useEffect(() => { if (engine.feedback) continueButton.current?.focus({ preventScroll: true }) }, [engine.feedback])
 
   function next() {
+    const score = { questions: rungQuestions.length, firstTry: rungQuestions.filter(i => engine.attempts[lesson.states[i].id]?.correctFirstTry).length }
     if (!engine.completed && lastInRung) {
       window.dispatchEvent(new CustomEvent(RUNG_COMPLETE_EVENT))
-      markSectionComplete(lesson.id, state.microSkillId, legacyCompleted(sectionsOf(lesson), lesson.states.length, readMathsProgress()[lesson.id]?.furthestStateIndex))
+      // Attempts are only known for this sitting, so the saved score counts the questions answered in it:
+      // a section finished across a reload isn't marked down for answers given before the reload.
+      const answered = rungQuestions.filter(i => engine.attempts[lesson.states[i].id])
+      const saved = rungQuestions.length === 0 ? { questions: 0, firstTry: 0 }
+        : answered.length ? { questions: answered.length, firstTry: answered.filter(i => engine.attempts[lesson.states[i].id]?.correctFirstTry).length }
+        : undefined
+      markSectionComplete(lesson.id, state.microSkillId, legacyCompleted(sectionsOf(lesson), lesson.states.length, readMathsProgress()[lesson.id]?.furthestStateIndex), saved)
     }
     if (!engine.completed && lastInRung && !last && rungIndex < rungs.length - 1) {
       setRungDone({
         title,
         nextTitle: labels[rungs[rungIndex + 1]] ?? 'the next rung',
-        questions: rungQuestions.length,
-        firstTry: rungQuestions.filter(i => engine.attempts[lesson.states[i].id]?.correctFirstTry).length,
+        ...score,
       })
       return
     }

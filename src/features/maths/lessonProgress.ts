@@ -8,6 +8,8 @@ export type LessonProgressSnapshot = {
   completed: boolean
   /** Rungs the student has finished (rungs are open, so position alone doesn't say this). */
   completedSections?: string[]
+  /** First-try score for each finished rung, from its latest finish (the exam checklist's evidence). */
+  sectionScores?: Record<string, { questions: number; firstTry: number; on: string }>
 }
 
 export type LessonProgressMap = Record<string, LessonProgressSnapshot>
@@ -31,7 +33,11 @@ export function saveMathsProgress(snapshot: LessonProgressSnapshot) {
   if (typeof window === 'undefined') return
   const progress = readMathsProgress()
   const previous = progress[snapshot.lessonId]
-  progress[snapshot.lessonId] = { ...snapshot, completedSections: snapshot.completedSections ?? previous?.completedSections }
+  progress[snapshot.lessonId] = {
+    ...snapshot,
+    completedSections: snapshot.completedSections ?? previous?.completedSections,
+    sectionScores: snapshot.sectionScores ?? previous?.sectionScores,
+  }
   window.localStorage.setItem(MATHS_PROGRESS_STORAGE_KEY, JSON.stringify(progress))
   window.dispatchEvent(new CustomEvent<LessonProgressSnapshot>(MATHS_PROGRESS_EVENT, { detail: snapshot }))
 }
@@ -46,11 +52,12 @@ export function lessonPercent(snapshot?: LessonProgressSnapshot) {
   return Math.round(snapshot.furthestStateIndex / Math.max(1, snapshot.totalStates - 1) * 100)
 }
 
-/** Record that a rung is finished, keeping any rungs finished earlier. */
-export function markSectionComplete(lessonId: string, sectionId: string, legacy: string[] = []) {
+/** Record that a rung is finished, keeping any rungs finished earlier, with its first-try score when known. */
+export function markSectionComplete(lessonId: string, sectionId: string, legacy: string[] = [], score?: { questions: number; firstTry: number }) {
   if (typeof window === 'undefined') return
   const current = readMathsProgress()[lessonId]
   if (!current) return
   const completedSections = [...new Set([...(current.completedSections ?? legacy), sectionId])]
-  saveMathsProgress({ ...current, completedSections })
+  const sectionScores = score ? { ...current.sectionScores, [sectionId]: { ...score, on: new Date().toISOString().slice(0, 10) } } : current.sectionScores
+  saveMathsProgress({ ...current, completedSections, sectionScores })
 }

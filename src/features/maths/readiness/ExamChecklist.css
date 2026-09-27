@@ -1,0 +1,59 @@
+/* The exam checklist. Tokens come from src/ui/revily-tokens.css. */
+.xc { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; color: var(--rv-ink); background: var(--rv-paper); min-height: 100dvh; }
+.xc-back { display: inline-block; margin-bottom: 12px; color: var(--rv-muted); font-weight: 600; text-decoration: none; }
+.xc-back:hover { color: var(--rv-ink); }
+
+.xc-head { display: grid; gap: 10px; margin-bottom: 24px; }
+.xc-kicker { margin: 0; font: 700 .78rem/1 var(--rv-font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); }
+.xc-head h1 { margin: 0; font: 800 clamp(1.8rem, 7vw, 2.4rem)/1.1 var(--rv-font-display); }
+.xc-countdown { margin: 0; color: var(--rv-ink-2); }
+.xc-summary { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0; padding: 0; list-style: none; }
+
+.xc-level {
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--rv-radius-pill);
+  font: 600 .78rem/1.2 var(--rv-font-body); white-space: nowrap;
+  color: var(--rv-muted); background: var(--rv-grid);
+}
+.xc-level--learning { color: var(--rv-biro); background: var(--rv-biro-tint); }
+.xc-level--learnt { color: #7a5519; background: var(--rv-yellow-tint); }
+.xc-level--secure { color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.xc-level--examReady { color: #fff; background: var(--rv-good); }
+
+.xc-key { padding: 10px 14px; border: 2px solid var(--rv-line); border-radius: 14px; background: var(--rv-surface); font-size: .92rem; }
+.xc-key summary { cursor: pointer; font-weight: 600; }
+.xc-key dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 12px 0 8px; }
+.xc-key dt { font-weight: 700; }
+.xc-key dd { margin: 0; color: var(--rv-ink-2); }
+.xc-key p { margin: 0; color: var(--rv-muted); }
+
+.xc-area { margin-top: 28px; }
+.xc-area h2 { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin: 0 0 8px; font: 800 1.35rem/1.2 var(--rv-font-display); }
+.xc-area h2 span { font: 600 .9rem/1.2 var(--rv-font-body); color: var(--rv-muted); }
+.xc-lesson { margin-top: 16px; }
+.xc-lesson h3 { margin: 0 0 6px; font: 700 .95rem/1.3 var(--rv-font-body); color: var(--rv-ink-2); }
+.xc-lesson ul, .xc-area--later ul { margin: 0; padding: 0; list-style: none; border: 2px solid var(--rv-line); border-radius: 16px; background: var(--rv-surface); overflow: hidden; }
+
+.xc-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; padding: 10px 12px; border-top: 1px solid var(--rv-grid); }
+.xc-row:first-child { border-top: 0; }
+.xc-row__main { display: grid; gap: 4px; justify-items: start; color: inherit; text-decoration: none; min-width: 0; }
+.xc-row__main:hover .xc-can { text-decoration: underline; text-underline-offset: 3px; }
+.xc-row__main:focus-visible { outline: none; border-radius: 8px; box-shadow: var(--rv-focus); }
+.xc-can { font-weight: 500; line-height: 1.35; }
+
+.xc-rate { display: flex; gap: 6px; }
+.xc-dot {
+  width: 30px; height: 30px; padding: 0; border: 2px solid currentColor; border-radius: 50%; background: transparent; cursor: pointer; opacity: .55;
+}
+.xc-dot--red { color: var(--rv-redpen); }
+.xc-dot--amber { color: #d98a0b; }
+.xc-dot--green { color: var(--rv-good); }
+.xc-dot.is-on { background: currentColor; opacity: 1; }
+.xc-dot:hover { opacity: 1; }
+.xc-dot:focus-visible { outline: none; box-shadow: var(--rv-focus); opacity: 1; }
+
+.xc-note { grid-column: 1 / -1; margin: 2px 0 0; padding: 8px 10px; border-radius: 10px; font-size: .88rem; line-height: 1.4; color: var(--rv-ink); background: var(--rv-yellow-tint); }
+
+.xc-area--later li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 12px; border-top: 1px solid var(--rv-grid); font-weight: 500; }
+.xc-area--later li:first-child { border-top: 0; }
+.xc-soon { color: var(--rv-muted); font-size: .88rem; }
+.xc-honest { margin: 10px 2px 0; font-size: .88rem; color: var(--rv-muted); }

@@ -46,6 +46,15 @@ export function useLessonEngine(lesson: LessonDefinition) {
       setFurthestStateIndex(furthestIndex)
       setCompleted(saved.completed)
     }
+    // A link can open the lesson at one section (?lesson=8&section=adding-fractions), e.g. from the exam checklist.
+    const url = new URL(window.location.href), section = url.searchParams.get('section')
+    const sectionStart = section ? lesson.states.find(candidate => candidate.microSkillId === section) : undefined
+    if (sectionStart) {
+      setCurrentId(sectionStart.id)
+      setCompleted(false)
+      url.searchParams.delete('section')
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+    }
     setProgressHydrated(true)
   }, [lesson])
 
