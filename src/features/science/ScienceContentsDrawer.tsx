@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { progress } from './engine'
-import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessons, TRANSPORT_EXAM_LESSON_ID, type LessonNumber } from './lessonNavigation'
+import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessonNumberById, scienceLessons, TRANSPORT_EXAM_LESSON_ID, type LessonNumber } from './lessonNavigation'
 import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
 
@@ -20,6 +20,14 @@ type Props = {
   onJump: (stateId: string) => void
   onRestart: (clearPracticeHistory: boolean) => void
 }
+
+// Four lessons follow one story: how the body gets food and oxygen to its cells (keyed by lesson id).
+const TRANSPORT_STORY = [
+  { lessonId: 'B-ORG-009-B', title: 'Nutrients enter blood', route: 'Food becomes soluble molecules' },
+  { lessonId: 'B-ORG-010-B', title: 'Oxygen enters blood', route: 'Air reaches the alveoli' },
+  { lessonId: 'B-ORG-011-B', title: 'The heart pumps blood', route: 'Blood completes two linked circuits' },
+  { lessonId: 'B-ORG-012-B', title: 'Vessels deliver and exchange', route: 'Blood reaches body cells and returns' },
+] as const
 
 const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
 
@@ -95,6 +103,16 @@ export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle
             })}
           </ol>
         </section>)}
+
+        {TRANSPORT_STORY.some(step => step.lessonId === entry.lesson.id) && <section className="sl-drawer-story" aria-labelledby="transport-story-title">
+          <h3 id="transport-story-title">How the transport lessons connect</h3>
+          <ol>{TRANSPORT_STORY.map(step => {
+            const number = scienceLessonNumberById(step.lessonId)!
+            return <li key={step.lessonId} className={step.lessonId === entry.lesson.id ? 'is-current' : ''}>
+              <a href={scienceLessonHref(number)}><strong>{number} · {step.title}</strong></a><span>{step.route}</span>
+            </li>
+          })}</ol>
+        </section>}
 
         <a className="maths-all-lessons" href={scienceHubHref()}>All Science lessons</a>
 
