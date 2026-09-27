@@ -1,0 +1,39 @@
+import type { ScienceLesson, ScienceState } from '../types'
+import { author, sampledRequirements } from '../lessonAuthoring'
+import { variationFrames as frames } from './teachingFrames'
+
+const source = { id: 'aqa-biology', title: 'AQA 8464 Biology subject content', url: 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/biology-subject-content', locator: '4.6.2.1 Variation: genetic, environmental and combined causes; mutations and genetic variants' }
+const a = author('B-VARIATION', ['4.6.2.1'])
+const t = (id: keyof typeof frames, title: string) => a.teach(id, title, frames[id])
+
+export const variationSections = [
+  { id: 'B41-01', label: 'Start here', detail: 'Why do children look a bit like their parents?' },
+  { id: 'B41-02', label: 'Why are no two the same?', detail: 'Genetic, environmental, or both' },
+  { id: 'B41-05', label: 'What is a mutation?', detail: 'A random change that makes a genetic variant' },
+  { id: 'B41-08', label: 'What can a mutation do?', detail: 'Most do little; very rarely, a new phenotype' },
+  { id: 'B41-11', label: 'On your own', detail: 'Twins, wheat fields, rabbits and three examples' },
+]
+
+const states: ScienceState[] = [
+  { ...a.choice('B41-01', 'Why do children often look a bit like each of their parents?', ['They eat the same food as their parents', 'They copy the way their parents look', 'They live in the same house', 'They inherit genes from both parents'], 3, 'You met genes when you learned how characteristics are passed on.', ['Food and home can change how you grow, but they do not pass on features from parents.', 'Children inherit genes from both parents, so they share some of their characteristics.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  t('B41-02', 'Why are no two the same?'),
+  a.choice('B41-03', 'Two mint plants have the same genes. One kept in the dark grows pale and thin. What caused the difference?', ['Their genes', 'Their environment', 'Their parents'], 1, 'Are their genes the same or different?', ['The two plants have exactly the same genes, so genes cannot explain the difference.', 'The difference comes from the conditions they grew in, so it is environmental variation.']),
+  a.choice('B41-04', 'Which characteristic is set by genes alone?', ['Eye colour', 'A scar', 'Body mass', 'The language you speak'], 0, 'Which one could not be changed by how or where you live?', ['A scar and the language you speak come from the environment, and body mass depends on genes and the environment.', 'Eye colour is set by genes alone.']),
+  t('B41-05', 'What is a mutation?'),
+  a.choice('B41-06', 'What is a mutation?', ['A change caused by what an organism eats', 'A new species', 'A random change to a gene', 'An infection caused by bacteria'], 2, 'Think about what happens to the code in the DNA.', ['Food affects growth, but it does not change the code in a gene.', 'A mutation is a random change to a gene.']),
+  a.choice('B41-07', 'A mutation changes a gene. What is the new form of the gene called?', ['A genetic variant', 'A species', 'A phenotype', 'A chromosome'], 0, 'It is a different form, or version, of the gene.', ['A phenotype is the characteristics an organism has, not the gene itself.', 'A new form of a gene made by a mutation is a genetic variant.']),
+  t('B41-08', 'What can a mutation do?'),
+  a.choice('B41-09', 'How often does a mutation produce a completely new phenotype?', ['Every time', 'Most of the time', 'Very rarely', 'Never'], 2, 'Think about what most genetic variants do.', ['Most variants have little or no effect, and some have a small effect.', 'Only very rarely does a variant produce a new phenotype.']),
+  a.choice('B41-10', 'When is a new phenotype most likely to spread through a species?', ['When it suits a changed environment better', 'When it makes the individual less likely to survive', 'Only when the organism is fully grown'], 0, 'Which individuals survive and reproduce more?', ['Individuals with a phenotype that suits the new conditions survive and reproduce more.', 'So a new phenotype spreads when it suits a changed environment better.']),
+  a.choice('B41-11', 'Identical twins have the same genes. At 30, one twin is 8 kg heavier. What is the best explanation?', ['A mutation in every cell of one twin', 'Genetic variation', 'Environmental variation, such as diet and exercise'], 2, 'If the genes are the same, what else can be different?', ['The twins have the same genes, so genetic variation cannot explain the difference.', 'Differences in diet and exercise are environmental variation.'], 'application', true),
+  a.choice('B41-12', 'Wheat seeds with almost identical genes were sown in two fields. The chart shows mean plant height. Which conclusion fits?', ['The plants in field A have different genes', 'The difference is probably environmental, but the chart does not show which condition caused it', 'Field B had less water', 'Wheat always grows taller in field A'], 1, 'Were the genes different? Does the chart say anything about water?', ['The plants had almost identical genes, so the difference is probably caused by the conditions in each field.', 'The chart does not show which condition, such as water or nutrients, made the difference.'], 'dataInterpretation', true, 'evolve-var-data'),
+  a.choice('B41-13', 'Look at the three numbered examples. Which one shows variation caused by both genes and the environment?', ['Example 1', 'Example 2', 'Example 3'], 1, 'Which example has a limit set by genes, and a result set by conditions?', ['Example 1 has the same genes but different light, so it is environmental. Example 3, eye colour, is set by genes alone.', 'Example 2, height, depends on genes and the environment together.'], 'understanding', true, 'evolve-var-question'),
+  a.choice('B41-14', 'A mutation happens in one of several genes that control fur colour in rabbits. What is the most likely result?', ['The fur colour changes slightly, or not at all', 'A completely new species forms', 'Every rabbit in the population changes colour'], 0, 'Fur colour is controlled by more than one gene.', ['Most variants have little or no effect, and a change to one of several genes usually has a small effect.', 'So the fur colour changes slightly, or not at all.'], 'application', true),
+  a.written('B41-15', 'Explain the difference between genetic and environmental variation, with an example of each. Then explain why height depends on both.', 'Say what causes each type, give one example of each, then say what genes set and what the environment decides.', 'Genetic variation is caused by the genes an organism inherits from its parents; eye colour is an example. Environmental variation is caused by the conditions an organism lives in; a plant grown in the dark turning pale is an example. Height depends on both: genes set the greatest height it could reach, but the food or water it gets decides how tall it actually grows.', ['Genetic variation is caused by inherited genes.', 'A correct example of genetic variation, such as eye colour or cystic fibrosis.', 'Environmental variation is caused by the conditions an organism lives in.', 'A correct example of environmental variation, such as a plant grown in the dark or a scar.', 'Genes set the greatest possible height, and the environment, such as food, decides the actual height.'], ['Saying all variation is caused by genes.', 'Giving height or body mass as an example of genes alone.', 'Saying a mutation always produces a new phenotype.', 'Saying environmental differences are passed on to offspring.']),
+]
+
+export const lesson41: ScienceLesson = {
+  id: 'B-GEN-041-B', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'biology',
+  title: 'Variation and mutation', prerequisites: [], reviewStatus: 'draftNeedsTeacherReview',
+  sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
+}
