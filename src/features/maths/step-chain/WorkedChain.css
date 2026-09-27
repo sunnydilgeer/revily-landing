@@ -1,0 +1,18 @@
+/* A step chain inside a lesson card. Tokens come from src/ui/revily-tokens.css. */
+.wc { margin: 4px 0 0; display: grid; gap: 14px; }
+.wc-picture { display: flex; justify-content: center; }
+.wc-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
+.wc-back {
+  width: 44px; height: 44px; flex: none; border: 2px solid var(--rv-line); border-radius: 50%;
+  font: 700 1.1rem/1 var(--rv-font-body); color: var(--rv-ink); background: var(--rv-surface); cursor: pointer;
+}
+.wc-back:disabled { color: var(--rv-line); cursor: default; }
+.wc-next {
+  min-height: 44px; flex: none; padding: 0 18px; border: 0; border-radius: var(--rv-radius-pill);
+  font: 700 .95rem/1 var(--rv-font-body); color: var(--rv-on-night); background: var(--rv-ink); cursor: pointer;
+}
+.wc-next--again { color: var(--rv-ink); background: var(--rv-grid); }
+.wc-back:focus-visible, .wc-next:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+/* Progress only (← and Next step move through it), kept small so seven steps fit beside the buttons at 320px. */
+.wc-controls .sc-dots { flex: 1; justify-content: center; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.wc-controls .sc-dot { width: 7px; height: 7px; }

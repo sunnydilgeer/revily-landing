@@ -20,6 +20,9 @@ export function TeachingVisual({ visual }: { visual: Visual }) {
   return <div className="pvb-stage"><MethodVisual visual={visual.kind === 'diagram' ? visual.diagram : visual} /></div>
 }
 
+/** 47 → "0:47", 70 → "1:10". */
+const clock = (seconds: number) => `${Math.floor(Math.round(seconds) / 60)}:${String(Math.round(seconds) % 60).padStart(2, '0')}`
+
 /**
  * Teaching media for one worked example. The step-by-step working is shown first; the video is
  * one tap away for students who would rather watch. (Previously the video was the default tab.)
@@ -32,10 +35,10 @@ export function TutorMethodMedia({ state }: { state: TutorMethodState }) {
     {watching
       ? <div id={panel}><LessonVideo video={state.video} active onShowWorking={() => setWatching(false)} /></div>
       : <TeachingVisual visual={state.visual} />}
-    <button type="button" className="rung-media__toggle" aria-expanded={watching} aria-controls={watching ? panel : undefined} onClick={() => setWatching(!watching)}>
+    <button type="button" className="rung-media__toggle" aria-expanded={watching} aria-controls={watching ? panel : undefined} aria-label={watching ? undefined : `Watch the video${state.video.durationSeconds ? `, ${Math.round(state.video.durationSeconds)} seconds` : ''}`} onClick={() => setWatching(!watching)}>
       {watching
-        ? <>Back to the step-by-step working</>
-        : <><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>Watch the video{state.video.durationSeconds ? ` (${Math.round(state.video.durationSeconds)} sec)` : ''}</>}
+        ? <>Back to the working</>
+        : <><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>Video{state.video.durationSeconds ? <span className="rung-media__time">{clock(state.video.durationSeconds)}</span> : ''}</>}
     </button>
   </div>
 }

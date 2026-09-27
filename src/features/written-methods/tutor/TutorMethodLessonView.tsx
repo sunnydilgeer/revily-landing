@@ -102,14 +102,16 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const canCheck = pair ? Boolean(engine.quotientValue.trim() && engine.remainderValue.trim()) : Boolean(engine.inputValue.trim())
   const answerState = feedback ? feedback.correct ? ' is-correct' : ' is-incorrect' : ''
   const extraLines = state.visual.kind === 'text' && !repeatsTitle(state)
+  // A step chain explains every move itself, so the one-line method summary would repeat it.
+  const stepChain = state.visual.kind === 'fraction-worked' && Boolean(state.visual.chain)
 
   return <section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.title}</h3>
-      {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
+      {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
       {(teaching || !numberSense || extraLines) && !repeatsTitle(state) && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}>{line}</p>)}</div>)}
-      {teaching && state.video && state.content.body && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
+      {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>

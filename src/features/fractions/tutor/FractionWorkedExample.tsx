@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react'
 import { WorkedLines, finalValue } from '../../written-methods/tutor/WorkedLines'
+import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { fractionWorkingProgress, type FractionDisplay, type FractionFrame, type FractionWorking } from './fractionWorking'
 
 function FractionCard({ value }: { value: FractionDisplay }) {
@@ -39,6 +40,19 @@ function FractionFrameView({ frame }: { frame: FractionFrame }) {
 }
 
 export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
+  if (visual.chain) {
+    const chain = visual.chain
+    // The picture for the latest step that has one, so it changes as the working moves on.
+    const picture = (revealed: number) => {
+      const frame = chain.slice(0, revealed).findLast(step => step.frame)?.frame
+      return frame && <FractionFrameView frame={frame} />
+    }
+    return <WorkedChain steps={chain} picture={picture} />
+  }
+  return <FractionWorkedLines visual={visual} />
+}
+
+function FractionWorkedLines({ visual }: { visual: FractionWorking }) {
   const [revealed, setRevealed] = useState(0)
   const { total, current, completed } = fractionWorkingProgress(visual, revealed)
   return <WorkedLines
