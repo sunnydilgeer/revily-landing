@@ -1,9 +1,10 @@
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
+import { memo, useLayoutEffect, useRef, useState } from 'react'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { flyTerms, prefersReducedMotion } from './flip'
+import { measureStrikes, type Strike } from './strikes'
 import './StepChain.css'
 
 /**
@@ -70,13 +71,24 @@ function latexWithTerms(source: string, marks: Marks) {
   })
 }
 
-function MathCell({ source, marks, className }: { source: string; marks: Marks; className: string }) {
-  const html = katex.renderToString(`\\displaystyle ${latexWithTerms(source, marks)}`, {
+function renderMath(source: string, marks: Marks) {
+  return katex.renderToString(`\\displaystyle ${latexWithTerms(source, marks)}`, {
     throwOnError: false,
     strict: 'ignore',
     trust: context => context.command === '\\htmlData',
   })
+}
+
+/**
+ * Memoised on the HTML string: React rewrites innerHTML on every render otherwise, which replaces
+ * the terms mid-flight and restarts any animation on them.
+ */
+const MathHtml = memo(function MathHtml({ html, className }: { html: string; className: string }) {
   return <span className={`sc-cell ${className}`} dangerouslySetInnerHTML={{ __html: html }} />
+})
+
+function MathCell({ source, marks, className }: { source: string; marks: Marks; className: string }) {
+  return <MathHtml html={renderMath(source, marks)} className={className} />
 }
 
 function EquationLine({ line, marks }: { line: string; marks: Marks }) {
@@ -126,12 +138,13 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
   reduceMotion?: boolean
   pace?: number
 }) {
-  const stage = useRef<HTMLOListElement>(null)
+  const stage = useRef<HTMLDivElement>(null)
   const rows = useRef<(HTMLLIElement | null)[]>([])
   const runs = useRef(0)
   const [openWhy, setOpenWhy] = useState<number | null>(null)
   const [shown, setShown] = useState(revealed)
   const [flight, setFlight] = useState<Flight | null>(null)
+  const [strikes, setStrikes] = useState<Strike[]>([])
   const still = () => reduceMotion || prefersReducedMotion()
   const fly = (index: number): Flight | null => still() || index < 1 ? null : { index, phase: 'flying', run: ++runs.current }
 
@@ -162,8 +175,24 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
   }, [flight, pace])
 
   const last = Math.min(revealed, steps.length) - 1
+
+  // Re-measure the crossings-out whenever lines come or go, the layout resizes, or the maths fonts land.
+  useLayoutEffect(() => {
+    const element = stage.current
+    if (!element) return
+    const measure = () => setStrikes(measureStrikes(element, rows.current.slice(0, last + 1)))
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    let live = true
+    document.fonts?.ready.then(() => { if (live) measure() })
+    return () => { live = false; observer.disconnect() }
+  }, [last, steps])
+
   const done = last === steps.length - 1 && !flight
   const columns = layout.kind === 'columns' ? layout.columns : null
+  // Earlier lines fade, but both lines of a step stay bright while its terms are travelling.
+  const isDim = (index: number) => index < last && !(flight && (index === flight.index || index === flight.index - 1))
 
   return <div
     className={`sc${columns ? ' sc--columns' : ''}`}
@@ -175,18 +204,18 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
         {columns.map(column => <span key={column} className="sc-column">{column === '.' ? '' : column}</span>)}
       </span>
     </div>}
-    <ol className="sc-chain" ref={stage} aria-live="polite">
+    <div className="sc-stage" ref={stage}>
+    <ol className="sc-chain" aria-live="polite">
       {steps.slice(0, last + 1).map((step, index) => {
         const marks = marksFor(steps, index, index < last)
         const phase = flight?.index === index ? flight.phase : null
-        // Both lines of a step stay bright while its terms are travelling.
-        const active = flight && (index === flight.index || index === flight.index - 1)
-        const dim = index < last && !active
+        const feeding = flight?.phase === 'flying' && flight.index === index + 1
+        const dim = isDim(index)
         const why = openWhy === index
         return <li
           key={index}
           ref={el => { rows.current[index] = el }}
-          className={['sc-row', phase && `is-${phase}`, dim && 'is-dim', done && index === last && 'is-final'].filter(Boolean).join(' ')}
+          className={['sc-row', phase && `is-${phase}`, feeding && 'is-feeding', dim && 'is-dim', done && index === last && 'is-final'].filter(Boolean).join(' ')}
         >
           {step.op && <div className="sc-op">
             <span className="sc-op__line">
@@ -210,6 +239,16 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
         </li>
       })}
     </ol>
+    <svg className="sc-strikes" aria-hidden="true">
+      {strikes.map((strike, i) => <line
+        key={`${strike.row}-${i}`}
+        x1={strike.x1} y1={strike.y1} x2={strike.x2} y2={strike.y2}
+        pathLength={1}
+        // Drawn once, while the step that cancels these terms plays; after that it is just ink.
+        className={[flight?.phase === 'flying' && flight.index === strike.row + 1 && 'is-drawing', isDim(strike.row) && 'is-dim'].filter(Boolean).join(' ') || undefined}
+      />)}
+    </svg>
+    </div>
   </div>
 }
 
