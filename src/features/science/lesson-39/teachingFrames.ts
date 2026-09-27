@@ -1,0 +1,31 @@
+import type { TeachingFrame } from '../teachingFrame'
+
+// Sex chromosomes first: the XX × XY cross is the simplest genetic diagram, so learners meet the Punnett square with
+// letters they can see. Then alleles and their words (one term per frame), then genotype, phenotype and crosses with mice.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const geneticDiagramFrames: Record<string, TeachingFrame[]> = {
+  'B39-02': [
+    f('23 pairs', 'Human body cells have 23 pairs of chromosomes.', '22 matching pairs + 1 more pair', 'The 46 chromosomes in a human body cell come in 23 pairs. In 22 of the pairs, the two chromosomes match. These 22 pairs carry genes that control your characteristics.', 'inherit-sex-pairs'),
+    f('Sex chromosomes', 'The 23rd pair decides whether you are male or female.', 'pair 23: XX or XY', 'The 23rd pair decides your sex, so they are called the sex chromosomes. They are labelled X and Y. Females have two X chromosomes, XX, which let female characteristics develop. Males have an X and a Y, XY. The Y chromosome causes male characteristics.', 'inherit-sex-xy'),
+    f('Eggs and sperm', 'Every egg has an X; each sperm has an X or a Y.', 'egg: X; sperm: X or Y', 'Each gamete gets one chromosome from the sex pair. A female is XX, so all her egg cells carry an X. A male is XY, so each sperm carries either an X or a Y.', 'inherit-sex-gametes'),
+    f('Punnett square', 'A grid shows every way the gametes could join.', 'one parent along the top, the other down the side', 'A genetic diagram shows how gametes could combine. Write one parent’s possible gametes along the top of a grid, and the other parent’s down the side. Fill each square with the letters from its column and its row. This grid is called a Punnett square.', 'inherit-sex-punnett'),
+    f('A 1 in 2 chance', 'Half the squares are XX and half are XY.', '2 of 4 squares = 1 in 2 = 50%', 'Two of the four squares are XX and two are XY. So each baby has a 1 in 2 chance of being a girl, and the same chance of being a boy. A 1 in 2 chance is the same as 50%. It stays 50% for every pregnancy, however many boys or girls came before.', 'inherit-sex-chance'),
+    f('Another way to draw it', 'Circles and lines can show the same thing.', 'parents → gametes → offspring', 'Some genetic diagrams use circles and lines instead of a grid. The parents go at the top, with their possible gametes in the middle row. Criss-cross lines join each egg to each sperm. The bottom row shows the same four possible offspring.', 'inherit-sex-lines'),
+  ],
+  'B39-05': [
+    f('One gene or many', 'A few characteristics are controlled by one gene; most by several.', 'one gene: fur colour; most things: several', 'A few characteristics are controlled by a single gene. Fur colour in mice is one example, and red-green colour blindness in humans is another. Most characteristics, such as height, are controlled by several genes working together.', 'inherit-allele-genes'),
+    f('Alleles', 'Genes come in different versions called alleles.', 'same gene, different versions', 'A gene can come in different versions. In these mice, one version of the fur gene gives black fur and another gives brown fur. Different versions of the same gene are called alleles. You have two alleles of every gene, one on each chromosome of a pair.', 'inherit-allele-pair'),
+    f('Homozygous', 'Both alleles are the same.', 'same + same', 'Sometimes both alleles of a gene are the same. A mouse with two black-fur alleles is like this, and so is a mouse with two brown-fur alleles. When both alleles are the same, the organism is homozygous for that characteristic.', 'inherit-allele-homo'),
+    f('Heterozygous', 'The two alleles are different.', 'one of each', 'Sometimes the two alleles are different. A mouse could have one black-fur allele and one brown-fur allele. When the two alleles are different, the organism is heterozygous for that characteristic.', 'inherit-allele-hetero'),
+    f('Dominant', 'A dominant allele shows even when there is only one.', 'capital letter: one is enough', 'A mouse with one black allele and one brown allele has black fur. The black allele shows, because one copy is enough. An allele like this is called dominant. It is written as a capital letter, B.', 'inherit-allele-dominant'),
+    f('Recessive', 'A recessive allele only shows when there are two.', 'small letter: needs two', 'The brown allele only shows when a mouse has two copies, bb. An allele like this is called recessive. It is written as a small letter, b. So brown mice are always bb, but black mice can be BB or Bb.', 'inherit-allele-recessive'),
+  ],
+  'B39-08': [
+    f('Genotype', 'The alleles an organism has are its genotype.', 'genotype = the letters', 'The mix of alleles an organism has is called its genotype. It is written as two letters, such as BB, Bb or bb.', 'inherit-cross-genotype'),
+    f('Phenotype', 'The characteristic an organism has is its phenotype.', 'phenotype = what you see', 'The alleles decide the characteristic. The characteristic an organism actually has, such as black fur, is called its phenotype. BB and Bb mice have the same phenotype but different genotypes.', 'inherit-cross-phenotype'),
+    f('A cross', 'Breeding BB with bb gives babies that are all Bb.', 'each baby: one allele from each parent', 'Breeding two organisms together is called a cross. Here a BB mouse is crossed with a bb mouse. Each gamete carries just one allele, so one parent gives B and the other gives b. Every baby is Bb, so all of them have black fur.', 'inherit-cross-lines'),
+    f('Two Bb parents', 'Crossing Bb with Bb can give a brown baby.', 'B or b from each parent', 'Now cross two Bb mice, which both have black fur. Each parent can make B gametes or b gametes. The Punnett square shows the four possible genotypes: BB, Bb, Bb and bb.', 'inherit-cross-punnett'),
+    f('A 3 : 1 ratio', 'Three black to every one brown.', '3 black : 1 brown', 'Three of the four squares have at least one B, so they give black fur. One square, bb, gives brown fur. A ratio compares how many of each type you expect. Here the ratio of black to brown is 3 : 1.', 'inherit-cross-ratio'),
+  ],
+}

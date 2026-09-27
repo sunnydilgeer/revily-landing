@@ -1,0 +1,40 @@
+import type { ScienceLesson, ScienceState } from '../types'
+import { author, sampledRequirements } from '../lessonAuthoring'
+import { meiosisFrames as frames } from './teachingFrames'
+
+const source = { id: 'aqa-biology', title: 'AQA 8464 Biology subject content', url: 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/biology-subject-content', locator: '4.6.1.1 Sexual and asexual reproduction: gametes, meiosis, fertilisation, variation, mitosis and clones; 4.6.1.2 Meiosis: halving the chromosome number, four genetically different gametes, fertilisation and growth of the embryo by mitosis' }
+const a = author('B-MEIOSIS', ['4.6.1.1', '4.6.1.2'])
+const t = (id: keyof typeof frames, title: string) => a.teach(id, title, frames[id])
+
+export const meiosisSections = [
+  { id: 'B38-01', label: 'Start here', detail: 'What does mitosis make?' },
+  { id: 'B38-02', label: 'Two ways to reproduce', detail: 'Gametes, fertilisation, and clones' },
+  { id: 'B38-06', label: 'How are gametes made?', detail: 'Meiosis, step by step' },
+  { id: 'B38-09', label: 'From one cell to an embryo', detail: 'Mitosis and differentiation' },
+  { id: 'B38-12', label: 'On your own', detail: 'Runners, dogs, a table and a diagram' },
+]
+
+const states: ScienceState[] = [
+  { ...a.choice('B38-01', 'A body cell divides by mitosis. What are the two new cells like?', ['Genetically identical to the parent cell', 'Each has half the chromosomes', 'Genetically different from each other', 'Each is a sex cell'], 0, 'You met mitosis when you learned how cells divide for growth and repair.', ['In mitosis, the chromosomes are copied and shared out equally.', 'So the two new cells are genetically identical to the parent cell.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  t('B38-02', 'Two ways to reproduce'),
+  a.choice('B38-03', 'A normal human body cell has 46 chromosomes. How many chromosomes are in a human egg cell?', ['46', '92', '23', '12'], 2, 'A gamete has half the normal number.', ['Gametes have half the number of chromosomes of a body cell.', 'Half of 46 is 23.']),
+  a.choice('B38-04', 'Why is asexual offspring genetically identical to its parent?', ['Two gametes fuse and mix their genes', 'The parent divides by mitosis, so no genes are mixed', 'Each offspring gets half the parent’s chromosomes', 'The offspring are made by meiosis'], 1, 'How many parents are there, and which kind of division happens?', ['In asexual reproduction there are no gametes and no fertilisation.', 'The parent divides by mitosis, so the offspring has exactly the same genes: it is a clone.']),
+  a.choice('B38-05', 'Why do offspring from sexual reproduction show variation?', ['They are clones of one parent', 'They are made by mitosis only', 'They get a mixture of genes from two parents', 'Their cells have no chromosomes'], 2, 'Where do the offspring’s genes come from?', ['A sperm and an egg from two different parents fuse at fertilisation.', 'The offspring gets a mixture of genes from both parents, so there is variation.']),
+  t('B38-06', 'How are gametes made?'),
+  a.choice('B38-07', 'One cell divides by meiosis. What does it make?', ['Two cells, identical to each other', 'Four gametes, all genetically different', 'Four gametes, all genetically identical', 'One cell with the full number of chromosomes'], 1, 'How many times does the cell divide in meiosis?', ['The cell divides twice, so one cell makes four.', 'Each gamete gets a different mix of chromosomes, so all four are genetically different.']),
+  a.choice('B38-08', 'In humans, where does meiosis happen?', ['Only in the ovaries and testes', 'In every body cell', 'In the skin, to repair cuts', 'In the blood'], 0, 'Meiosis makes gametes. Where are gametes made?', ['Body cells divide by mitosis for growth and repair.', 'Meiosis happens only in the reproductive organs: the ovaries and testes.']),
+  t('B38-09', 'From one cell to an embryo'),
+  a.choice('B38-10', 'After fertilisation, which type of cell division makes the embryo grow?', ['Meiosis', 'Mitosis', 'Fertilisation', 'Differentiation'], 1, 'Should the new cells be identical, or have half the chromosomes?', ['Meiosis only makes gametes, and differentiation is cells becoming specialised.', 'The fertilised cell divides again and again by mitosis to form the embryo.']),
+  a.choice('B38-11', 'What happens when the cells of an embryo differentiate?', ['They become specialised to do different jobs', 'They halve their chromosomes', 'They fuse with more gametes', 'They turn back into a single cell'], 0, 'Think of nerve cells and muscle cells.', ['Early embryo cells are all alike.', 'As they differentiate, they become specialised cells that do different jobs.']),
+  a.choice('B38-12', 'A strawberry runner (a side shoot) grows into a new plant without gametes. What is the new plant like?', ['A mixture of genes from two parents', 'It has half the parent’s chromosomes', 'It is genetically different from the parent', 'Genetically identical to the parent: a clone'], 3, 'No gametes means which type of reproduction?', ['No gametes means no fertilisation and no mixing of genes, so this is asexual reproduction.', 'The new plant is made by mitosis, so it is genetically identical to its parent: a clone.'], 'application', true),
+  a.choice('B38-13', 'A dog’s body cells have 78 chromosomes. How many chromosomes are in each of its sperm cells?', ['78', '156', '39', '23'], 2, 'Sperm cells are gametes. What fraction of the chromosomes do gametes have?', ['Gametes are made by meiosis, so they have half the number of chromosomes of a body cell.', 'Half of 78 is 39.'], 'application', true),
+  a.choice('B38-14', 'The table shows the chromosomes in body cells and gametes of four organisms. Which conclusion fits?', ['In each organism, gametes have half as many chromosomes as body cells', 'All organisms have 46 chromosomes', 'Bigger organisms always have more chromosomes', 'Plants do not make gametes'], 0, 'Compare the two numbers in each row.', ['Each gamete number is half its body-cell number, and the body-cell numbers are all different; four organisms cannot show a rule about size.', 'So in each organism, gametes have half as many chromosomes as body cells.'], 'dataInterpretation', true, 'inherit-repro-table'),
+  a.choice('B38-15', 'Look at the numbered stages of meiosis. Which stage shows the gametes, each with a single set of chromosomes?', ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4'], 3, 'Gametes come at the end, after the second division.', ['Stage 1 is the starting cell with pairs, stage 2 has copied its DNA and stage 3 is after the first division.', 'Stage 4 shows the four gametes, each with a single set.'], 'understanding', true, 'inherit-meiosis-question'),
+  a.written('B38-16', 'Explain why a baby is not genetically identical to either of its parents.', 'Think about how gametes are made, then what happens at fertilisation.', 'Each parent makes gametes by meiosis. Each gamete has half the number of chromosomes, 23 in humans, and every gamete is genetically different. At fertilisation, a sperm from the father and an egg from the mother fuse. So the baby gets a mixture of genes from both parents, which causes variation.', ['Gametes are made by meiosis.', 'Each gamete has half the number of chromosomes (23 in humans).', 'The gametes are genetically different from each other.', 'At fertilisation a sperm and an egg fuse, so the baby gets genes from both parents.', 'This mixture of genes causes variation.'], ['Saying gametes are made by mitosis.', 'Saying each gamete has 46 chromosomes, or that the baby has 92.', 'Saying the baby is a clone of one parent.']),
+]
+
+export const lesson38: ScienceLesson = {
+  id: 'B-GEN-038-B', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'biology',
+  title: 'Reproduction and meiosis', prerequisites: ['B-DNA-GENOME'], reviewStatus: 'draftNeedsTeacherReview',
+  sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
+}
