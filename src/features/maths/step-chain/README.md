@@ -14,7 +14,7 @@ const steps: ChainStep[] = [
 ```
 
 - `line` is LaTeX. Wrap each term that moves in `[[key:latex]]`. The same key on the next line is where it flies to.
-- `op` is how this line came from the one above, in two to four words. `why` is one sentence, shown when the student taps `op`.
+- `op` is how this line came from the one above, in two to four words. `why` is one sentence, opened from the ⓘ next to `op`.
 - `merge` names a result and the terms above that combine into it (20 and − 5 become 15). Those terms fly into the result and fade.
 - A key that appears for the first time is the operation and is coloured to match `op`.
 - A key that disappears without being merged is struck through in red on the line above.
