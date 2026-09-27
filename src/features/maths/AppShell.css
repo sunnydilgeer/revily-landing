@@ -48,7 +48,7 @@
 .shell-side__foot { margin-top: auto; display: grid; gap: 12px; }
 .shell-streak { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--rv-night-3); border-radius: 14px; background: var(--rv-night-2); }
 .shell-streak strong { display: block; font-size: .95rem; }
-.shell-streak span { display: block; margin-top: 2px; color: var(--rv-on-night-muted); font-size: .8rem; line-height: 1.35; }
+.shell-streak div > span { display: block; margin-top: 2px; color: var(--rv-on-night-muted); font-size: .8rem; line-height: 1.35; }
 .shell-streak__bolt { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--rv-on-night-muted); background: var(--rv-night-3); }
 .shell-streak__bolt.is-lit { color: var(--rv-ink); background: var(--rv-yellow); }
 .shell-side__note { margin: 0; padding: 0 6px; color: var(--rv-on-night-muted); font-size: .75rem; }
@@ -71,7 +71,10 @@
   .shell-nav--bottom {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; justify-content: space-around; gap: 4px;
     padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--rv-night);
+    transition: transform .25s ease;
   }
+  /* Tucked away while scrolling down; slides back in on any scroll up. */
+  .shell-nav--bottom.is-hidden { transform: translateY(100%); }
   /* Carry the bar's colour below the screen edge, so Safari's toolbar area and overscroll never show a strip of page under it. */
   .shell-nav--bottom::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 120px; background: var(--rv-night); }
   .shell-nav--bottom .shell-nav__item { flex: 1; flex-direction: column; gap: 4px; padding: 6px 4px; border-radius: 14px; font-size: .75rem; text-align: center; }

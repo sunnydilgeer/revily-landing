@@ -305,7 +305,7 @@ export default function ScienceLesson({ lessonNumber, initialActivity }: { lesso
     <header className="site-header">
       <RevilyLogo wordmark={false} size={24} href={scienceHubHref()} />
       <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
-        <a href={scienceHubHref()}>Curriculum</a>
+        <a href={scienceHubHref()}>{chapter.code}</a>
         <span aria-hidden="true">/</span>
         <span className="maths-breadcrumb-number" aria-current="page">{entry.title}</span>
       </nav>
