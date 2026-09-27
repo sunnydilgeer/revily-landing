@@ -1,0 +1,32 @@
+import type { TeachingFrame } from '../teachingFrame'
+
+// One question runs through the lesson: what stops a plant photosynthesising any faster? First the idea of a limiting
+// factor, then how to read the light and carbon dioxide graphs, then temperature, then the pondweed practical that measures it.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const photosynthesisRateFrames: Record<string, TeachingFrame[]> = {
+  'B27-02': [
+    f('How fast?', 'The rate of photosynthesis is how fast a plant makes glucose.', 'rate = how fast', 'A plant makes glucose faster on some days than on others. How fast photosynthesis happens is called the rate of photosynthesis. When the rate is high, the plant makes more glucose and gives out more oxygen.', 'energy-limit-rate'),
+    f('Three things matter', 'Light, carbon dioxide and temperature all affect the rate.', 'light intensity = how bright the light is', 'Photosynthesis needs energy from light. How bright the light is, is called the light intensity. The rate also depends on the concentration of carbon dioxide in the air, and on the temperature.', 'energy-limit-factors'),
+    f('The one in short supply', 'Whatever is in shortest supply holds the rate back.', 'shortest supply → sets the rate', 'Think of a team making sandwiches. If they run out of bread, extra cheese will not help them go faster. A plant is the same. Something that stops photosynthesis going any faster is called a limiting factor. Light, carbon dioxide or temperature can each be the limiting factor.', 'energy-limit-limiting'),
+    f('Chlorophyll', 'Too little chlorophyll can also hold the rate back.', 'less chlorophyll → less light absorbed', 'Chlorophyll absorbs the light for photosynthesis. Disease, or a lack of nutrients in the soil, can damage chloroplasts or stop the plant making enough chlorophyll. The leaves then absorb less light, so the rate goes down. So the amount of chlorophyll can be a limiting factor too.', 'energy-limit-chlorophyll'),
+  ],
+  'B27-05': [
+    f('More light, faster', 'At first, more light makes photosynthesis faster.', 'line going up → light is limiting', 'This graph shows the rate of photosynthesis as the light gets brighter. At first, the line goes up. More light gives faster photosynthesis. So here, light intensity is the limiting factor.', 'energy-graph-rise'),
+    f('Then it levels off', 'After a point, more light makes no difference.', 'flat line → something else is limiting', 'After a certain point, the line goes flat. More light no longer speeds photosynthesis up, so light is no longer the limiting factor. Now the carbon dioxide concentration or the temperature is holding it back.', 'energy-graph-flat'),
+    f('Carbon dioxide', 'The carbon dioxide graph has the same shape.', 'up, then flat', 'The graph for carbon dioxide looks the same. At first, more carbon dioxide gives faster photosynthesis, so carbon dioxide is the limiting factor. Then the line levels off. Now the light intensity or the temperature needs to go up.', 'energy-graph-co2'),
+    f('Put it together', 'Is the line still rising? Then that factor is limiting.', 'still rising → the factor on the bottom axis', 'To read these graphs, ask whether the line is still going up. If it is, the factor on the bottom axis is the limiting factor. If it is flat, something else is. With plenty of light and carbon dioxide, temperature is probably the limiting factor.', 'energy-graph-both'),
+  ],
+  'B27-08': [
+    f('Too cold', 'In the cold, photosynthesis is slow.', 'cold → enzymes work slowly', 'Photosynthesis needs enzymes, which you met when you learned how enzymes work. Enzymes work slowly when it is cold. So when temperature is the limiting factor, it is usually because it is too low. Warming the plant speeds photosynthesis up.', 'energy-temp-cold'),
+    f('Too hot', 'If the plant gets too hot, its enzymes are damaged.', 'too hot → enzymes damaged → slower', 'If the plant gets too hot, the enzymes it needs for photosynthesis are damaged. This is the denaturing you met when you learned about enzymes. So above a certain temperature, the rate falls quickly.', 'energy-temp-hot'),
+    f('About 45 °C', 'Photosynthesis stops at about 45 °C.', 'rises, peaks, falls to zero', 'The temperature graph goes up, reaches a peak, then falls. At about 45 °C, photosynthesis stops altogether. So the temperature has to be just right: not too cold and not too hot.', 'energy-temp-45'),
+  ],
+  'B27-11': [
+    f('Oxygen shows the rate', 'Pondweed gives off oxygen bubbles as it photosynthesises.', 'more oxygen → faster photosynthesis', 'Pondweed is a plant that lives underwater. As it photosynthesises, it gives off bubbles of oxygen. The faster it makes oxygen, the faster the rate of photosynthesis. This practical uses pondweed to see how light intensity affects the rate, ready for when you do it in class.', 'energy-rp-idea'),
+    f('Set the distance', 'A ruler sets how far the lamp is from the pondweed.', 'closer lamp → brighter light', 'The pondweed sits in a tube of water. Use a ruler to put a lamp at a set distance from it. The closer the lamp, the higher the light intensity. Then leave the pondweed to photosynthesise for a set time.', 'energy-rp-distance'),
+    f('Collect the oxygen', 'The oxygen collects in a thin tube.', 'longer bubble → faster rate', 'The oxygen collects in a thin glass tube called a capillary tube. At the end, a syringe pulls the gas bubble along the tube, next to a ruler. Measure the length of the bubble. The longer the bubble, the faster the rate of photosynthesis.', 'energy-rp-collect'),
+    f('Repeat, then move the lamp', 'Repeat each distance, then try other distances.', 'repeat → mean; then change the distance', 'Repeat the test twice more with the lamp at the same distance, then work out the mean bubble length. After that, repeat the whole test with the lamp at different distances. Another way to measure is to count the bubbles given off in a set time.', 'energy-rp-repeat'),
+    f('Keep it fair', 'Only the lamp distance should change.', 'change one thing; keep the rest the same', 'Everything else that could affect the results must stay the same, such as the temperature and the time. These are called control variables. A hot lamp can warm the water, so check the temperature. Take care: lamps get hot, so do not touch the bulb, and keep water away from the plug.', 'energy-rp-fair'),
+  ],
+}
