@@ -78,12 +78,3 @@ export const canStatements: Record<string, string> = {
   '13:truncation-error-interval': 'I can write an error interval for a truncated value',
 }
 
-/** The six areas of GCSE Maths Foundation. Only Number is taught in Revily so far. */
-export const foundationAreas = [
-  { id: 'number', title: 'Number' },
-  { id: 'algebra', title: 'Algebra' },
-  { id: 'ratio', title: 'Ratio, proportion and rates of change' },
-  { id: 'geometry', title: 'Geometry and measures' },
-  { id: 'probability', title: 'Probability' },
-  { id: 'statistics', title: 'Statistics' },
-] as const
