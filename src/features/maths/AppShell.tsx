@@ -78,7 +78,7 @@ export default function AppShell({ active, onNavigate, study, subject = 'maths',
           <span className={`shell-streak__bolt${study.streak ? ' is-lit' : ''}`}><Bolt /></span>
           <div>
             <strong>{streakLabel(study.streak)}</strong>
-            <span>{study.rungsToday || study.minutesToday >= 5 ? 'Today counts. Nice work.' : subject === 'science' ? 'Study for 5 minutes today to keep it going' : 'Finish one rung today to keep it going'}</span>
+            <span>{study.rungsToday || study.minutesToday >= 5 ? 'Today counts. Nice work.' : subject === 'science' ? 'Study for 5 minutes today to keep it going' : 'Finish one section today to keep it going'}</span>
           </div>
         </div>
         <p className="shell-side__note">Preview · progress is saved on this device</p>

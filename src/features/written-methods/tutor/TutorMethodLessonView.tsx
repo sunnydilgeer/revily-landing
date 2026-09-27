@@ -80,11 +80,9 @@ function explainMistake(state: TutorMethodState, response: string) {
 
 export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodLesson }) {
   const numberSense = lesson.number >= 10
-  // Lessons 12 onwards follow the minimal layout: no eyebrow above the question, no idle helper line.
-  const minimal = lesson.number >= 12
   const engine = useLessonEngine(lesson)
   const flow = useRungFlow(lesson, engine, lesson.labels, `lesson-${lesson.number}`)
-  const { state: baseState, teaching, last, heading, continueButton, rungQuestions, questionNumber, next } = flow
+  const { state: baseState, teaching, last, heading, continueButton, next } = flow
   const state = baseState as TutorMethodState
   const { feedback, selection } = engine
   const [showWorking, setShowWorking] = useState(false)
@@ -108,7 +106,6 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   return <section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
-      {!minimal && <p className="rung-card__eyebrow">{teaching ? state.video ? 'Worked example' : 'Learn' : `Question ${questionNumber} of ${rungQuestions.length}`}</p>}
       <h3 ref={heading} tabIndex={-1}>{state.content.title}</h3>
       {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
       {(teaching || !numberSense || extraLines) && !repeatsTitle(state) && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}>{line}</p>)}</div>)}
@@ -145,7 +142,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
           {state.working && <Button variant="secondary" aria-expanded={showWorking} onClick={() => setShowWorking(!showWorking)}>{showWorking ? 'Hide the working' : 'See the working'}</Button>}
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
-      : <CheckBar message={choices && !minimal ? 'Tap the answer you think is right.' : undefined}>
+      : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}
