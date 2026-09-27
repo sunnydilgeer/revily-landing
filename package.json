@@ -28,6 +28,7 @@
         "verify:number:diagnosis": "node scripts/verify-number-diagnosis.cjs",
         "verify:bidmas:stepper": "node scripts/verify-bidmas-stepper.cjs",
         "verify:revision-cards": "node scripts/verify-revision-cards.cjs",
+        "verify:practice": "node scripts/verify-practice.cjs",
         "verify:science:lesson": "node scripts/verify-science-lesson.cjs"
     },
     "dependencies": {
