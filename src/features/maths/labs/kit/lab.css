@@ -14,7 +14,7 @@
 .lab-icon--close { font-size: 1.6rem; }
 .lab-icon:hover { background: var(--rv-night-2); color: var(--rv-on-night); }
 .lab-icon:focus-visible { outline: none; box-shadow: var(--rv-focus); }
-.lab-progress { flex: 1; min-width: 0; margin: 0; white-space: nowrap; font-weight: 600; font-size: .9rem; color: var(--rv-on-night-muted); }
+.lab-progress { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: .9rem; color: var(--rv-on-night-muted); }
 .lab-streak {
   padding: 4px 10px; border-radius: var(--rv-radius-pill); font-weight: 800; font-size: .85rem;
   color: var(--rv-ink); background: var(--rv-step-i-light); animation: lab-pop .35s both;
@@ -98,6 +98,11 @@
 .lab-bar__actions--stack { flex-direction: column-reverse; }
 .lab-bar__actions .rv-icon-btn { width: 56px; min-width: 56px; }
 .lab .rv-checkbar { margin: auto -16px 0; color: var(--rv-ink); }
+
+@media (max-width: 359px) {
+  .lab-top { gap: 6px; }
+  .lab-lives { gap: 2px; }
+}
 
 @keyframes lab-pop { from { transform: scale(.6); opacity: 0; } }
 @keyframes lab-combo { from { transform: scale(.3) rotate(-8deg); opacity: 0; } }

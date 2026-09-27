@@ -47,6 +47,9 @@
 .labs-card--storm { --tint: #bfa4ff; --deep: #2b1466; }
 .labs-card--potion { --tint: #7ff0a8; --deep: #0b4a2a; }
 .labs-card--tiers { --tint: #ffaa66; --deep: #5a2400; }
+.labs-card--balance { --tint: #9db0ee; --deep: #14286e; }
+.labs-card--trick { --tint: #52d8c4; --deep: #064a40; }
+.labs-card--packs { --tint: #ff86bd; --deep: #5c0c33; }
 .labs-card__art {
   position: relative; height: 112px; display: grid; place-items: center; border-bottom: 2px solid var(--rv-ink);
   background: radial-gradient(circle at 30% 20%, rgb(255 255 255 / 55%), transparent 55%), var(--tint);

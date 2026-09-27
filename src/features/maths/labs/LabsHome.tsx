@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { labCatalog, labTeasers } from './catalog'
+import { labAreas, labCatalog, labTeasers } from './catalog'
 import { readBests, type Best } from './kit/Lab'
 import './LabsHome.css'
 
 const HOW = [
-  { emoji: '🎮', title: 'Play', line: 'Every lab is a game: a heist, a storm, a potion, a shop.' },
+  { emoji: '🎮', title: 'Play', line: 'Every lab is a game: heists, storms, potions, robots, pool and packs.' },
   { emoji: '🧠', title: 'Learn the move', line: 'Every answer shows you the working, step by step.' },
   { emoji: '📝', title: 'Bank exam marks', line: 'The same move answers a real GCSE question.' },
 ]
@@ -40,13 +40,13 @@ export default function LabsHome() {
       </li>)}
     </ol>
 
-    <section className="labs-group" aria-labelledby="labs-ratio">
+    {labAreas.map(area => <section key={area.id} className="labs-group" aria-labelledby={`labs-${area.id}`}>
       <div className="labs-group__head">
-        <h2 id="labs-ratio">Ratio labs</h2>
-        <span className="labs-chip">Ratio, proportion &amp; rates · about a quarter of Foundation marks</span>
+        <h2 id={`labs-${area.id}`}>{area.title}</h2>
+        <span className="labs-chip">{area.chip}</span>
       </div>
       <ul className="labs-grid">
-        {labCatalog.map(lab => {
+        {labCatalog.filter(lab => lab.area === area.id).map(lab => {
           const best = bests[lab.id]
           return <li key={lab.id}>
             <a className={`labs-card labs-card--${lab.id}`} href={lab.href}>
@@ -57,7 +57,7 @@ export default function LabsHome() {
               <div className="labs-card__body">
                 <h3>{lab.title}</h3>
                 <p className="labs-card__hook">{lab.hook}</p>
-                <span className="labs-card__skill">Trains: {lab.skill}</span>
+                <span className="labs-card__skill">Topic: {lab.skill}</span>
                 <dl className="labs-card__bridge">
                   <div><dt>🎮 In the game</dt><dd>{lab.inGame}</dd></div>
                   <div><dt>📝 In the exam</dt><dd>{lab.inExam}</dd></div>
@@ -71,7 +71,7 @@ export default function LabsHome() {
           </li>
         })}
       </ul>
-    </section>
+    </section>)}
 
     <section className="labs-group" aria-labelledby="labs-soon">
       <div className="labs-group__head">

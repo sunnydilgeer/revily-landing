@@ -1,0 +1,37 @@
+/* Pack Opener: the odds card, the 20-pack grid and the 1,000-pack tally. The shared lab look is in ../kit/lab.css. */
+.po-stage { min-height: 200px; display: grid; align-content: center; }
+
+.po-odds { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.po-odds__row { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--rv-radius-md); font-size: 1.15rem; background: var(--rv-surface); border: 2px solid var(--rv-line); }
+.po-odds__name { font-weight: 700; font-size: 1rem; }
+.po-odds__row strong { font: 800 1.35rem/1 var(--rv-font-display); font-variant-numeric: tabular-nums; animation: lab-pop .35s both; }
+.po-odds__row strong.is-hidden { color: var(--rv-redpen); }
+.po-odds__row.is-rare { border-color: #9db0ee; }
+.po-odds__row.is-legendary { border-color: #f0b92e; background: var(--rv-yellow-tint); }
+
+.po-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
+.po-card {
+  aspect-ratio: 3 / 4; display: grid; place-items: center; border-radius: 8px; font-size: 1.3rem;
+  background: linear-gradient(160deg, #3a4a8c, var(--rv-night-2)); box-shadow: inset 0 0 0 2px var(--rv-night-3);
+}
+.po-card.is-open { animation: po-flip .35s both; }
+.po-card.is-common { background: #eef1f7; box-shadow: inset 0 0 0 2px var(--rv-line); }
+.po-card.is-rare { background: var(--rv-biro-tint); box-shadow: inset 0 0 0 2px var(--rv-biro-light); }
+.po-card.is-legendary { background: linear-gradient(160deg, #ffe38f, var(--rv-yellow) 55%, #f0b92e); box-shadow: inset 0 0 0 2px #b8860b, 0 0 14px var(--rv-yellow); }
+@keyframes po-flip { from { transform: rotateY(90deg) scale(.9); } }
+
+.po-tally { display: grid; gap: 10px; }
+.po-tally__count { margin: 0; font: 800 1.2rem/1.2 var(--rv-font-display); font-variant-numeric: tabular-nums; }
+.po-bar { display: grid; grid-template-columns: 104px 1fr 40px; align-items: center; gap: 8px; font-size: .88rem; font-weight: 600; }
+.po-bar__track { position: relative; height: 18px; border-radius: 6px; background: var(--rv-grid); overflow: visible; }
+.po-bar__fill { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: #b8c0d2; }
+.po-bar.is-rare .po-bar__fill { background: var(--rv-biro-light); }
+.po-bar.is-legendary .po-bar__fill { background: #f0b92e; }
+.po-bar__target { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--rv-redpen); }
+.po-bar__target--key { position: relative; display: inline-block; top: 2px; height: 14px; margin: 0 4px 0 0; }
+.po-bar__n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; }
+.po-tally__key { margin: 0; font-size: .8rem; color: var(--rv-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .po-card.is-open, .po-odds__row strong { animation: none; }
+}

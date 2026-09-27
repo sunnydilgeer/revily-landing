@@ -1,0 +1,49 @@
+/* Balance Bot: the see-saw. The shared lab look is in ../kit/lab.css. */
+.bb-eq { display: inline-block; margin-left: 4px; padding: 0 10px; border-radius: 10px; color: var(--rv-ink); background: var(--rv-yellow); white-space: nowrap; }
+
+.bb-scale {
+  --arm: 34cqw; position: relative; height: 200px; margin: 0; container-type: inline-size;
+}
+.bb-beam {
+  position: absolute; top: 40px; left: 12%; right: 12%; height: 10px; border-radius: 6px;
+  background: linear-gradient(#7c87a6, #4d5675); transform: rotate(var(--tilt)); transform-origin: 50% 50%;
+  transition: transform .5s cubic-bezier(.3, 1.6, .5, 1);
+}
+.bb-post {
+  position: absolute; left: 50%; top: 42px; bottom: 6px; width: 60px; translate: -50% 0;
+  background: #4d5675; clip-path: polygon(50% 0, 62% 0, 100% 100%, 0 100%, 38% 0);
+}
+.bb-post::before { content: ''; position: absolute; left: 50%; top: -4px; width: 16px; height: 16px; translate: -50% 0; border-radius: 50%; background: var(--rv-yellow); }
+
+/* The pans hang from the beam ends and move up and down with it, staying level. */
+.bb-pan {
+  position: absolute; top: 46px; width: 32%; height: 140px; display: flex; flex-direction: column; justify-content: flex-end;
+  transition: translate .5s cubic-bezier(.3, 1.6, .5, 1);
+}
+.bb-pan--left { left: 0; translate: 0 calc(sin(var(--tilt)) * var(--arm) * -1); }
+.bb-pan--right { right: 0; translate: 0 calc(sin(var(--tilt)) * var(--arm)); }
+.bb-pan::before {
+  content: ''; position: absolute; top: 0; left: 12%; right: 12%; bottom: 8px;
+  border-left: 2px solid #9aa3b8; border-right: 2px solid #9aa3b8; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+  background: linear-gradient(to right, transparent 49%, #9aa3b8 49%, #9aa3b8 51%, transparent 51%);
+  opacity: .5;
+}
+.bb-pan::after { content: ''; position: relative; display: block; height: 8px; border-radius: 0 0 20px 20px; background: #4d5675; }
+.bb-pan__items { position: relative; z-index: 1; display: flex; flex-wrap: wrap-reverse; justify-content: center; align-items: flex-end; gap: 3px; padding: 0 4px 3px; }
+
+.bb-box, .bb-weight {
+  display: grid; place-items: center; font-weight: 800; font-family: var(--rv-font-display); animation: lab-pop .35s both;
+  transition: opacity .5s, transform .5s;
+}
+.bb-box { width: 30px; height: 30px; border-radius: 7px; font-size: 1rem; color: #fff; background: var(--rv-step-b); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 25%); }
+.bb-box.is-open { color: var(--rv-ink); background: var(--rv-yellow); animation: lab-combo .6s cubic-bezier(.2, 1.6, .4, 1) both; }
+.bb-weight { width: 18px; height: 18px; border-radius: 50%; font-size: .62rem; color: var(--rv-ink); background: var(--rv-step-i-light); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 20%); }
+.bb-box.is-leaving, .bb-weight.is-leaving { opacity: 0; transform: translateY(-26px) scale(.6); }
+
+.bb-stage { display: grid; gap: 6px; }
+.bb-equation { margin: 0; text-align: center; font: 800 1.6rem/1.2 var(--rv-font-display); letter-spacing: .01em; }
+.bb-stage--solved .bb-equation { color: var(--rv-good-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-beam, .bb-pan, .bb-box, .bb-weight { transition: none; animation: none; }
+}
