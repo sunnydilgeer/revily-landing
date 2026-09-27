@@ -1,6 +1,7 @@
 // Checks the exam checklist: every teaching section of every maths lesson has one "I can…" statement
 // (review sections have none) and no statement points at a section that no longer exists; the level
-// rules, mismatch notes and May/June countdown behave as documented in readiness.ts.
+// rules, mismatch notes and May/June countdown behave as documented in readiness.ts; the exam map
+// (paperMap.ts, squarify.ts) places every statement in one topic and lays the paper out cleanly.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -23,6 +24,8 @@ require.extensions['.css'] = () => {}
 const { mathsLessons } = require(path.join(root, 'src/features/maths/courseRegistry.ts'))
 const { canStatements } = require(path.join(root, 'src/features/maths/readiness/statements.ts'))
 const { levelFor, mismatch, nextExamSeries } = require(path.join(root, 'src/features/maths/readiness/readiness.ts'))
+const { paperTopics, marksPerPaper, scoreTopics, biggestWin, tileLevel, PAPER_MARKS } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
+const { squarify } = require(path.join(root, 'src/features/maths/readiness/squarify.ts'))
 
 // Coverage: one statement per teaching section, none for review sections, none left over.
 const expected = new Set()
@@ -60,4 +63,41 @@ assert.equal(nextExamSeries(new Date(2027, 2, 1)).year, 2027)
 assert.equal(nextExamSeries(new Date(2027, 5, 10)).days, 0, 'during the series the countdown stays at zero')
 assert.equal(nextExamSeries(new Date(2027, 6, 1)).year, 2028)
 
-console.log(`Exam checklist verified: ${expected.size} "I can…" statements, one per teaching section; levels, mismatch notes and May/June countdown behave as documented.`)
+// The exam map: every statement sits in exactly one topic, and the topics make up the whole paper.
+const placed = paperTopics.flatMap(topic => topic.statements)
+for (const key of Object.keys(canStatements)) assert.equal(placed.filter(k => k === key).length, 1, `${key} belongs in exactly one map topic`)
+for (const key of placed) assert.ok(canStatements[key], `${key}: map topic points at a statement that does not exist`)
+assert.equal(new Set(paperTopics.map(topic => topic.id)).size, paperTopics.length, 'topic ids are unique')
+assert.ok(Math.abs(paperTopics.reduce((sum, topic) => sum + marksPerPaper(topic), 0) - PAPER_MARKS) < 1e-9, 'topics add up to the 80-mark paper')
+const money = paperTopics.find(topic => topic.id === 'money')
+assert.ok(paperTopics.every(topic => marksPerPaper(topic) <= marksPerPaper(money)), 'money is the biggest topic, as in the analysis')
+
+// Scoring: nothing done is 0 marks; everything exam-ready is every taught mark; the biggest win is the largest gap.
+const none = scoreTopics({})
+assert.equal(none.reduce((sum, score) => sum + score.ready, 0), 0)
+const all = scoreTopics(Object.fromEntries(placed.map(key => [key, 'examReady'])))
+const taught = all.filter(score => score.taught).reduce((sum, score) => sum + score.marks, 0)
+assert.ok(Math.abs(all.reduce((sum, score) => sum + score.ready, 0) - taught) < 1e-9)
+assert.equal(biggestWin(all), null, 'nothing left to win once every taught topic is exam-ready')
+assert.equal(biggestWin(none).topic.id, [...none].filter(score => score.taught).sort((a, b) => b.marks - a.marks)[0].topic.id)
+const fractionsDone = scoreTopics(Object.fromEntries(paperTopics.find(topic => topic.id === 'fractions').statements.map(key => [key, 'secure'])))
+const fractions = fractionsDone.find(score => score.topic.id === 'fractions')
+assert.equal(tileLevel(fractions), 'secure')
+assert.ok(Math.abs(fractions.ready - fractions.marks * 0.8) < 1e-9)
+
+// Treemap layout: tiles fill the space exactly, without overlapping, and keep their share of the area.
+const tiles = squarify(paperTopics.map(topic => ({ value: marksPerPaper(topic), item: topic.id })), { x: 0, y: 0, w: 320, h: 400 })
+assert.equal(tiles.length, paperTopics.length)
+assert.ok(Math.abs(tiles.reduce((sum, t) => sum + t.w * t.h, 0) - 320 * 400) < 1e-6, 'tiles fill the map')
+for (const t of tiles) {
+  assert.ok(t.x >= -1e-9 && t.y >= -1e-9 && t.x + t.w <= 320 + 1e-6 && t.y + t.h <= 400 + 1e-6, `${t.item} stays inside the map`)
+  const topic = paperTopics.find(p => p.id === t.item)
+  assert.ok(Math.abs(t.w * t.h / (320 * 400) - marksPerPaper(topic) / PAPER_MARKS) < 1e-9, `${t.item} keeps its share`)
+}
+for (let i = 0; i < tiles.length; i++) for (let j = i + 1; j < tiles.length; j++) {
+  const a = tiles[i], b = tiles[j]
+  const overlap = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 1e-6 && Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 1e-6
+  assert.ok(!overlap, `${a.item} and ${b.item} overlap`)
+}
+
+console.log(`Exam checklist verified: ${expected.size} "I can…" statements, one per teaching section; levels, mismatch notes and May/June countdown behave as documented; the exam map covers every statement once, adds up to ${PAPER_MARKS} marks and lays out without overlaps.`)
