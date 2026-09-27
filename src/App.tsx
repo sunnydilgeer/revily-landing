@@ -21,6 +21,7 @@ import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
 import ComingSoon from './features/maths/ComingSoon'
 import LabsHome from './features/maths/labs/LabsHome'
+import PracticeHome from './features/maths/practice/PracticeHome'
 import RevisionCards from './features/cards/RevisionCards'
 import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
 import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from './features/maths/subject'
@@ -181,7 +182,7 @@ function App() {
               ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
               : view === 'lab'
                 ? <LabsHome />
-                : <ComingSoon section={active as 'practice'} onBack={() => navigate('curriculum')} />}
+                : <PracticeHome />}
       </AppShell>
     </div>
   }
