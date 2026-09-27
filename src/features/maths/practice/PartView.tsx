@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { WorkedChain } from '../step-chain/WorkedChain'
-import { answerText, canMark, mark, markNumber } from './marking'
+import { answerText, canMark, mark, markNumber, mistakeFor } from './marking'
 import { MathLine, MathText } from './MathText'
 import { recordAttempt } from './record'
 import type { MethodStep, Part } from './types'
@@ -35,7 +35,7 @@ export default function PartView({ part, label, onDone }: { part: Part; label?: 
   const [showWorking, setShowWorking] = useState(false)
   const input = useRef<HTMLInputElement>(null)
   const typedPart = part.kind === 'number' || part.kind === 'fraction'
-  const method = part.kind === 'number' ? part.method ?? [] : []
+  const method = part.kind === 'number' || part.kind === 'fraction' ? part.method ?? [] : []
   const step = stage === 'method' ? method[methodIndex] : undefined
 
   useEffect(() => { if (stage !== 'done') input.current?.focus({ preventScroll: true }) }, [stage, methodIndex])
@@ -53,7 +53,8 @@ export default function PartView({ part, label, onDone }: { part: Part; label?: 
     if (stage === 'done') return
     if (stage === 'method' && step) {
       if (typed.trim() === '') return
-      const right = markNumber(step, typed).right
+      // Method marks are for the working, so money notation (£19.2 for £19.20) is only checked on the final answer.
+      const right = markNumber({ answer: step.answer }, typed).right
       const results = [...methods, { step, right }]
       setMethods(results)
       setTyped('')
@@ -63,7 +64,7 @@ export default function PartView({ part, label, onDone }: { part: Part; label?: 
     }
     if (!canMark(part, typed)) return
     const verdict = mark(part, typed)
-    setNote(verdict.note ?? null)
+    setNote(verdict.note ?? (stage === 'first' ? mistakeFor(part, typed) : undefined) ?? null)
     if (stage === 'first') {
       setFirstAnswer(typed)
       recordAttempt(part.statements, verdict.right)
@@ -134,9 +135,12 @@ export default function PartView({ part, label, onDone }: { part: Part; label?: 
     </ul>}
 
     {stage !== 'done' && <form className="pr-check" onSubmit={check}>
-      {stage === 'method' && step && <p className="pr-nudge"><strong>Not quite. Let’s pick up the method marks.</strong> {step.prompt}</p>}
+      {stage === 'method' && step && <p className="pr-nudge">
+        {methodIndex === 0 && note && <span className="pr-nudge__slip">{note}</span>}
+        <strong>{methodIndex === 0 ? 'Not quite. Let’s pick up the method marks.' : 'Next step.'}</strong> {step.prompt}
+      </p>}
       {stage === 'retry' && <p className="pr-nudge" role="alert">
-        <strong>{methods.length ? 'Now have another go at the answer.' : 'Not quite.'}</strong> {note ?? part.hint}{methods.length ? ' (No marks for this go, but it counts for learning.)' : ''}
+        <strong>{methods.length ? 'Now have another go at the answer.' : 'Not quite.'}</strong> {methods.length && note ? part.hint : note ?? part.hint}{methods.length ? ' (No marks for this go, but it counts for learning.)' : ''}
       </p>}
       {box}
       <button type="submit" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" disabled={stage === 'method' ? typed.trim() === '' : !canMark(part, typed)}>Check</button>

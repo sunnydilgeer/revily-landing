@@ -52,11 +52,15 @@ export function canMark(part: Part, typed: string) {
 
 export type Verdict = { right: boolean; note?: string }
 
-export function markNumber(part: Pick<NumberPart, 'answer' | 'dp'>, typed: string): Verdict {
+export function markNumber(part: Pick<NumberPart, 'answer' | 'dp' | 'prefix'>, typed: string): Verdict {
   const value = readNumber(typed)
   if (value === null || Math.abs(value - part.answer) > 1e-9) return { right: false }
   if (part.dp !== undefined && typedPlaces(typed) !== part.dp) {
     return { right: false, note: `Right value, but the question wants ${part.dp} decimal place${part.dp === 1 ? '' : 's'}, like ${part.answer.toFixed(part.dp)}.` }
+  }
+  // AQA marks money as wrong without its pence: £4.2 loses the mark, £4.20 gets it.
+  if (part.prefix === '£' && !Number.isInteger(part.answer) && typedPlaces(typed) !== 2) {
+    return { right: false, note: `Right amount, but money needs 2 decimal places: £${part.answer.toFixed(2)}, not £${typed.replace(/[£\s]/g, '')}. The exam takes the mark off for this.` }
   }
   return { right: true }
 }
@@ -74,6 +78,21 @@ export function markFraction(part: Pick<FractionPart, 'answer' | 'form'>, typed:
     return { right: false, note: 'Right value, but the question says simplest form. Can you divide top and bottom again?' }
   }
   return { right: true }
+}
+
+/** The feedback for a known slip, when the typed answer is one the mark scheme singles out. */
+export function mistakeFor(part: Part, typed: string) {
+  if (part.kind === 'number') {
+    const value = readNumber(typed)
+    return value === null ? undefined : part.mistakes?.find(m => typeof m.answer === 'number' && Math.abs(m.answer - value) < 1e-9)?.note
+  }
+  if (part.kind === 'fraction') {
+    const read = readFraction(typed)
+    if (!read) return undefined
+    const [n, d] = improper(read)
+    return part.mistakes?.find(m => Array.isArray(m.answer) ? m.answer[0] * d === n * m.answer[1] : m.answer * d === n)?.note
+  }
+  return undefined
 }
 
 /** Marks a typed or chosen answer. Choice and spot answers are the option or line index as a string. */

@@ -2,7 +2,7 @@
  * Practice templates for rounding, ordering, estimating and bounds (lessons 10–13).
  * Original questions in the style of AQA Foundation papers; `inspiredBy` is our audit trail.
  */
-import { rotate, tidy } from '../helpers'
+import { num, rotate, tidy } from '../helpers'
 import type { NumberPart, QuestionBody, Template } from '../types'
 
 type Round = { statement: string; prompt: string; answer: number; dp?: number; start: string; why: string }
@@ -83,38 +83,57 @@ function estimate(values: [number, number, number], rounded: [number, number, nu
   }
 }
 
-function circleEstimate(radius: number, rounded: number): QuestionBody {
+function circleEstimate(radius: number, rounded: number, by: number): QuestionBody {
   const answer = 3 * rounded * rounded
+  const choice = rotate([
+    'Bigger. 3.14 is more than 3, and everything else stays the same.',
+    'Smaller. 3.14 is more accurate, so the answer goes down.',
+    'The same. π is π, whichever value you use.',
+  ], 0, by)
   return {
     stem: `The area of a circle is $A = \\pi r^2$. A circle has radius ${radius} cm.`,
-    parts: [{
-      kind: 'number', prompt: 'Use π ≈ 3 to estimate its area.', answer, suffix: ' cm²', marks: 2, statements: ['12:estimating-formulas'],
-      method: [{ prompt: `Round ${radius} to 1 significant figure and square it. What do you get?`, answer: rounded * rounded }],
-      hint: `Round ${radius} to 1 significant figure first, then square it.`,
-      chain: [
-        { line: 'A = [[p:\\pi]] [[r:r^2]]' },
-        { line: `\\approx [[p:3]] \\times [[r:${rounded}^2]]`, op: 'Round, then substitute', why: `Round ${radius} to ${rounded} (1 s.f.) and use π ≈ 3, as the question says.` },
-        { line: `= [[p:3]] \\times [[s:${rounded * rounded}]]`, op: 'Square', merge: { s: ['r'] }, why: `${rounded}² = ${rounded} × ${rounded} = ${rounded * rounded}. Indices before multiplying.` },
-        { line: `= [[a:${answer}]]`, op: '× 3', merge: { a: ['p', 's'] }, why: `3 × ${rounded * rounded} = ${answer}, so the area is about ${answer} cm².` },
-      ],
-    }],
+    parts: [
+      {
+        kind: 'number', prompt: 'Use π ≈ 3 to estimate its area.', answer, suffix: ' cm²', marks: 2, statements: ['12:estimating-formulas'],
+        method: [{ prompt: `Round ${radius} to 1 significant figure and square it. What do you get?`, answer: rounded * rounded }],
+        mistakes: [{ answer: (3 * rounded) ** 2, note: `That squares 3 × ${rounded}. Only the radius is squared: 3 × ${rounded}².` }],
+        hint: `Round ${radius} to 1 significant figure first, then square it.`,
+        chain: [
+          { line: 'A = [[p:\\pi]] [[r:r^2]]' },
+          { line: `\\approx [[p:3]] \\times [[r:${rounded}^2]]`, op: 'Round, then substitute', why: `Round ${radius} to ${rounded} (1 s.f.) and use π ≈ 3, as the question says.` },
+          { line: `= [[p:3]] \\times [[s:${rounded * rounded}]]`, op: 'Square', merge: { s: ['r'] }, why: `${rounded}² = ${rounded} × ${rounded} = ${rounded * rounded}. Indices before multiplying.` },
+          { line: `= [[a:${answer}]]`, op: '× 3', merge: { a: ['p', 's'] }, why: `3 × ${rounded * rounded} = ${answer}, so the area is about ${answer} cm².` },
+        ],
+      },
+      {
+        kind: 'choice', prompt: `Kai works it out with π = 3.14 instead of 3, and the same radius of ${rounded} cm. Will his answer be bigger or smaller than yours?`, marks: 1,
+        statements: ['12:estimating-checking'], ...choice,
+        hint: 'Compare 3.14 with 3. Everything else stays the same.',
+        reason: `3.14 × ${rounded * rounded} is more than 3 × ${rounded * rounded}. The exam wants that comparison: “3.14 is more accurate” on its own scores nothing.`,
+      },
+    ],
   }
 }
 
-function speedEstimate(distance: number, hours: number, rd: number, rh: number): QuestionBody {
-  const answer = rd / rh
+/** Bounds for things you count: the upper bound is the largest whole number (JUN24 1F Q20). */
+function countBounds(what: string, value: number, unit: number): QuestionBody {
+  const lower = value - unit / 2, upper = value + unit / 2 - 1
   return {
-    stem: `Speed = distance ÷ time. A coach travels ${distance} miles in ${hours} hours.`,
-    parts: [{
-      kind: 'number', prompt: 'Estimate its average speed.', answer, suffix: ' mph', marks: 2, statements: ['12:estimating-formulas'],
-      method: [{ prompt: `Round ${distance} to 1 significant figure. What do you get?`, answer: rd }],
-      hint: 'Round both numbers to 1 significant figure, then divide.',
-      chain: [
-        { line: '\\text{speed} = [[d:\\text{distance}]] \\div [[t:\\text{time}]]' },
-        { line: `\\approx [[d:${rd}]] \\div [[t:${rh}]]`, op: 'Round, then substitute', why: `Round ${distance} to ${rd} and ${hours} to ${rh}: both to 1 significant figure.` },
-        { line: `= [[s:${answer}]]`, op: 'Divide', merge: { s: ['d', 't'] }, why: `${rd} ÷ ${rh} = ${answer}, so the speed is about ${answer} mph.` },
-      ],
-    }],
+    stem: `The number of ${what} is ${num(value)}, correct to the nearest ${num(unit)}.`,
+    parts: [
+      {
+        kind: 'number', prompt: `What is the smallest possible number of ${what}?`, answer: lower, marks: 1, statements: ['13:bounds-half-unit', '13:bounds-lower-upper'],
+        mistakes: [{ answer: value - unit, note: `${value - unit} rounds to ${value - unit}, not ${value}. Go down half of ${unit}, not all of it.` }],
+        hint: `Half of ${unit} is ${unit / 2}. What is the smallest number that rounds up to ${value}?`,
+        chain: [{ line: `${value} - ${unit / 2}` }, { line: `= ${lower}`, op: 'Half a unit down', why: `${lower} is exactly halfway, and halfway rounds up to ${value}. So ${lower} is the smallest.` }],
+      },
+      {
+        kind: 'number', prompt: `What is the largest possible number of ${what}?`, answer: upper, marks: 1, statements: ['13:bounds-lower-upper'],
+        mistakes: [{ answer: value + unit / 2, note: `${value + unit / 2} would round up to ${value + unit}. ${what[0].toUpperCase() + what.slice(1)} come in whole numbers, so the largest is ${upper}.` }],
+        hint: `Half a unit up is ${value + unit / 2}, but that rounds up. You can only count whole ${what}.`,
+        chain: [{ line: `${value} + ${unit / 2} = ${value + unit / 2}` }, { line: `${value + unit / 2} - 1 = ${upper}`, op: 'Whole numbers only', why: `${value + unit / 2} rounds up to ${value + unit}, so it can’t be the answer. You count ${what} in whole numbers, so the largest is ${upper}. (For a length, you would write the interval with < ${value + unit / 2}.)` }],
+      },
+    ],
   }
 }
 
@@ -171,7 +190,7 @@ function truncation(start: string, cut: number, x: number): QuestionBody {
 export const accuracyTemplates: Template[] = [
   {
     id: 'rounding-mixed', topic: 'rounding', ramp: 'recall', style: 'standard', context: 'none', calculator: false,
-    inspiredBy: 'Q1–5 style one-mark rounding: decimal places, significant figures, nearest 100',
+    inspiredBy: 'Nov23 3F Q8; Nov23 2F Q9a; Nov22 3F Q30 — rounding, often the last mark of a longer question',
     variants: [
       rounding([
         { statement: '10:rounding-decimal-places', prompt: 'Round 6.4827 to 2 decimal places.', answer: 6.48, dp: 2, start: '6.48\\underline{2}7', why: 'The digit after the 2nd decimal place is 2. That is less than 5, so round down: 6.48.' },
@@ -195,7 +214,7 @@ export const accuracyTemplates: Template[] = [
   },
   {
     id: 'ordering-mixed', topic: 'place-value', ramp: 'recall', style: 'standard', context: 'weather', calculator: false,
-    inspiredBy: 'Ordering decimals, negative temperatures and large numbers (1 mark each)',
+    inspiredBy: 'Jun24 3F Q2 and Q5; Nov24 3F Q4; Nov22 2F Q3 — ordering, and negative temperatures',
     variants: [
       ordering({
         decimals: [['0.3, 0.25, 0.305', '0.25, 0.3, 0.305', '0.25, 0.305, 0.3', '0.305, 0.3, 0.25'], 1],
@@ -216,17 +235,17 @@ export const accuracyTemplates: Template[] = [
   },
   {
     id: 'estimate-calculation', topic: 'rounding', ramp: 'apply', style: 'explain', context: 'none', calculator: false,
-    inspiredBy: 'Estimate by rounding to 1 s.f., then "Is your estimate an overestimate? Give a reason"',
+    inspiredBy: 'Jun25 1F Q14; Jun23 3F Q24; Nov23 2F Q9 — estimate to 1 s.f., then over or under, with a reason',
     variants: [estimate([48.7, 5.8, 0.53], [50, 6, 0.5], true, 0), estimate([31.6, 4.2, 0.46], [30, 4, 0.5], false, 1), estimate([19.2, 7.9, 0.42], [20, 8, 0.4], true, 2)],
   },
   {
-    id: 'estimate-formula', topic: 'rounding', ramp: 'apply', style: 'standard', context: 'travel', calculator: false,
-    inspiredBy: 'Estimate using a given formula (area of a circle, speed)',
-    variants: [circleEstimate(9.8, 10), circleEstimate(6.1, 6), speedEstimate(298, 5.9, 300, 6)],
+    id: 'estimate-formula', topic: 'rounding', ramp: 'apply', style: 'explain', context: 'none', calculator: false,
+    inspiredBy: 'Jun24 1F Q22 — circle area with π = 3, then π = 3.14: bigger or smaller?',
+    variants: [circleEstimate(9.8, 10, 0), circleEstimate(6.1, 6, 1), circleEstimate(4.1, 4, 2)],
   },
   {
     id: 'bounds-error-interval', topic: 'bounds', ramp: 'stretch', style: 'standard', context: 'home', calculator: true,
-    inspiredBy: 'Error interval for a measurement rounded to 1 d.p. / nearest 10 (2 marks)',
+    inspiredBy: 'Nov23 3F Q19; Jun25 2F Q23a; Nov24 2F Q23 — complete the error interval',
     variants: [
       errorInterval('The length of a pencil, l cm, is 14.3 cm correct to 1 decimal place.', 14.3, 'cm', 'l', 0.05, 'to 1 decimal place (the nearest 0.1)'),
       errorInterval('The mass of a suitcase, m kg, is 60 kg correct to the nearest 10 kg.', 60, 'kg', 'm', 5, 'to the nearest 10'),
@@ -235,7 +254,12 @@ export const accuracyTemplates: Template[] = [
   },
   {
     id: 'bounds-truncation', topic: 'bounds', ramp: 'stretch', style: 'standard', context: 'none', calculator: true,
-    inspiredBy: 'Truncation, then the error interval for a truncated number',
+    inspiredBy: 'Not tested by AQA Foundation 2022–25; kept because it is on the specification',
     variants: [truncation('8.679', 8.6, 5.3), truncation('12.458', 12.4, 7.8), truncation('3.9999', 3.9, 2.1)],
+  },
+  {
+    id: 'bounds-counting', topic: 'bounds', ramp: 'stretch', style: 'standard', context: 'events', calculator: false,
+    inspiredBy: 'Jun24 1F Q20 — a crowd to the nearest 100: the largest is 8449, not 8450',
+    variants: [countBounds('people at the match', 8400, 100), countBounds('people at the concert', 2600, 100), countBounds('fans in the stadium', 35000, 1000)],
   },
 ]

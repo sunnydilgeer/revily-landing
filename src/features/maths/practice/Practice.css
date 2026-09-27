@@ -74,6 +74,7 @@
 .pr-answer__affix { color: var(--rv-ink-2); font-size: 1.2rem; font-weight: 700; }
 .pr-nudge { margin: 0; padding: 12px 14px; border-radius: var(--rv-radius-md); background: var(--rv-yellow-tint); line-height: 1.5; }
 .pr-nudge strong { display: block; }
+.pr-nudge__slip { display: block; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--rv-line-strong); }
 
 .pr-choices { display: grid; gap: 8px; }
 .pr-choice, .pr-spot__line {
