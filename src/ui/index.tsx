@@ -100,21 +100,23 @@ export function Button({ variant = 'primary', size = 'md', block = false, icon =
 /** 'saved' is for answers nobody can auto-mark (Science written answers): no tick, no cross. */
 export type CheckStatus = 'idle' | 'correct' | 'incorrect' | 'saved'
 
-export function CheckBar({ status = 'idle', title, message, children, style }: {
+export function CheckBar({ status = 'idle', title, message, compact = false, children, style }: {
   status?: CheckStatus
   title?: ReactNode
   message?: ReactNode
+  /** Folds the message away, leaving the result and the buttons, so working opened above has the room. */
+  compact?: boolean
   children: ReactNode
   style?: CSSProperties
 }) {
   const icon = status === 'correct' ? '✓' : status === 'incorrect' ? '✗' : status === 'saved' ? '✎' : null
-  return <div className={`rv-checkbar rv-checkbar--${status}`} style={style}>
+  return <div className={`rv-checkbar rv-checkbar--${status}${compact ? ' rv-checkbar--compact' : ''}`} style={style}>
     <div className="rv-checkbar__inner">
       {(title || message) && <div className="rv-checkbar__status" role={status === 'idle' ? undefined : 'status'}>
         {icon && <span className="rv-checkbar__icon" aria-hidden="true">{icon}</span>}
         <div>
           {title && <p className="rv-checkbar__title">{title}</p>}
-          {message && <div className="rv-checkbar__message">{message}</div>}
+          {message && !compact && <div className="rv-checkbar__message">{message}</div>}
         </div>
       </div>}
       <div className="rv-checkbar__actions">{children}</div>
