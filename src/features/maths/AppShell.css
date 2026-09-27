@@ -28,6 +28,7 @@
 .shell-nav__item--curriculum .shell-nav__icon { background: var(--rv-curriculum); }
 .shell-nav__item--cards .shell-nav__icon { background: var(--rv-cards); }
 .shell-nav__item--practice .shell-nav__icon { background: var(--rv-practice); }
+.shell-nav__item--lab .shell-nav__icon { background: var(--rv-lab); }
 
 /* ---------- Subject switch ---------- */
 .subject-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; }

@@ -1,8 +1,8 @@
 /**
- * Tiny synthesised sound effects, so the lab ships no audio files. Every sound starts from a tap,
+ * Tiny synthesised sound effects shared by the labs, so they ship no audio files. Every sound starts from a tap,
  * which is what browsers need before they allow audio. Muting is remembered on the device.
  */
-const KEY = 'revily.heist.muted'
+const KEY = 'revily.labs.muted'
 let context: AudioContext | null = null
 
 export function isMuted() {
@@ -44,6 +44,14 @@ export const sfx = {
   vault: () => { for (let i = 0; i < 6; i++) tone(2200 - i * 120, i * .1, .03, 'square', .05); tone(110, .65, .5, 'triangle', .25, 55) },
   /** The LIAR stamp landing. */
   stamp: () => tone(90, 0, .25, 'square', .22, 40),
+  /** A tap that places or picks something. */
+  tick: () => tone(1500, 0, .05, 'sine', .12),
+  /** Bubbles rising in the cauldron. */
+  bubble: () => [0, .08, .16].forEach(at => tone(320 + Math.random() * 200, at, .09, 'sine', .12, 760)),
+  /** A potion blowing up. */
+  boom: () => { tone(140, 0, .7, 'sawtooth', .2, 30); tone(70, .02, .8, 'square', .12, 25) },
+  /** Moving fast: a falling rush. */
+  whoosh: () => tone(900, 0, .45, 'triangle', .1, 180),
   /** Payout and streaks: a rising arpeggio. */
   win: () => [523, 659, 784, 1047].forEach((note, i) => tone(note, i * .09, .22, 'triangle', .14)),
 }

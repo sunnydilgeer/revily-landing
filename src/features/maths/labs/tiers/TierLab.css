@@ -1,0 +1,47 @@
+/* Value Tier List: deal cards and the S–C board. The shared lab look is in ../kit/lab.css. */
+.tl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+.tl-deal {
+  display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'emoji name' 'emoji offer' 'value value';
+  align-items: center; column-gap: 8px; row-gap: 2px; min-width: 0; padding: 10px; border-radius: var(--rv-radius-md);
+  text-align: left; color: var(--rv-on-night); background: var(--rv-night-2);
+}
+.tl-deal__emoji { grid-area: emoji; font-size: 1.5rem; }
+.tl-deal__name { grid-area: name; font-weight: 700; font-size: .9rem; }
+.tl-deal__offer { grid-area: offer; font-size: .78rem; color: var(--rv-on-night-muted); }
+.tl-deal__value {
+  grid-area: value; justify-self: start; margin-top: 6px; padding: 3px 8px; border-radius: var(--rv-radius-pill);
+  font: 800 .85rem/1.1 var(--rv-font-display); color: var(--rv-ink); background: var(--rv-yellow); animation: lab-pop .35s both;
+}
+.tl-deal--big { grid-template-columns: auto 1fr; padding: 4px 2px 12px; color: var(--rv-ink); background: none; border-bottom: 2px dashed var(--rv-line); border-radius: 0; }
+.tl-deal--big .tl-deal__emoji { font-size: 2.2rem; }
+.tl-deal--big .tl-deal__name { font: 800 1.15rem/1.2 var(--rv-font-display); }
+.tl-deal--big .tl-deal__offer { font-size: .95rem; color: var(--rv-ink-2); }
+
+.tl-count { margin: 0; font-weight: 600; font-size: .85rem; color: var(--rv-on-night-muted); }
+.tl-pricing { display: grid; gap: 12px; }
+
+/* The board: classic tier list colours down the left */
+.tl-board { display: grid; gap: 6px; }
+.tl-tier { display: grid; grid-template-columns: 52px 1fr; min-height: 76px; border-radius: var(--rv-radius-md); overflow: hidden; background: var(--rv-night-2); }
+.tl-tier__label { display: grid; place-items: center; font: 800 1.6rem/1 var(--rv-font-display); color: var(--rv-ink); }
+.tl-tier--S .tl-tier__label { background: #ff7f7f; }
+.tl-tier--A .tl-tier__label { background: #ffbf7f; }
+.tl-tier--B .tl-tier__label { background: #ffdf7f; }
+.tl-tier--C .tl-tier__label { background: #bfff7f; }
+.tl-tier__slot { display: grid; align-items: center; padding: 4px; }
+.tl-tier__slot .tl-deal { grid-template-columns: auto 1fr auto; grid-template-areas: 'emoji name value' 'emoji offer value'; background: none; animation: tl-land .4s cubic-bezier(.2, 1.4, .4, 1) both; }
+.tl-tier__slot .tl-deal__value { margin-top: 0; }
+@keyframes tl-land { from { transform: translateY(40px) scale(.9); opacity: 0; } }
+
+.tl-tray { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tl-pick { display: grid; padding: 0; border: 2px solid var(--rv-night-3); border-radius: var(--rv-radius-md); background: none; box-shadow: 0 3px 0 var(--rv-night-3); cursor: pointer; font: inherit; }
+.tl-pick:hover:not(:disabled) { border-color: var(--rv-yellow); }
+.tl-pick:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--rv-night-3); }
+.tl-pick:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.tl-pick:disabled { cursor: default; opacity: .5; }
+.tl-pick.is-wrong { opacity: 1; border-color: var(--rv-redpen); animation: lab-shake .4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-deal__value, .tl-tier__slot .tl-deal, .tl-pick.is-wrong { animation: none; }
+}

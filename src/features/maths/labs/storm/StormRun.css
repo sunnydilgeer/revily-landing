@@ -1,0 +1,33 @@
+/* Storm Run: the map. The shared lab look is in ../kit/lab.css. */
+.sr-map { position: relative; margin: 0; display: grid; gap: 8px; }
+.sr-map svg { display: block; width: 100%; max-height: 42dvh; aspect-ratio: 1; margin: 0 auto; border-radius: 14px; overflow: hidden; }
+.sr-ground { fill: #5f9e5a; }
+.sr-grid line { stroke: rgb(255 255 255 / 28%); stroke-width: .025; }
+.sr-prop { font-size: .6px; text-anchor: middle; dominant-baseline: central; }
+.sr-zone { fill: rgb(255 255 255 / 18%); stroke: #fff; stroke-width: .07; }
+.sr-path { stroke: #fff; stroke-width: .06; stroke-dasharray: .16 .12; }
+.sr-tick { stroke: #fff; stroke-width: .05; }
+.sr-distance {
+  font: 800 .42px var(--rv-font-display); fill: #fff; text-anchor: middle;
+  paint-order: stroke; stroke: var(--rv-ink); stroke-width: .1px; animation: lab-pop .35s both;
+}
+.sr-storm { fill: rgb(116 70 214 / 62%); }
+.sr-you { font-size: .75px; text-anchor: middle; dominant-baseline: central; }
+
+.sr-hud { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; font-size: .85rem; color: var(--rv-ink-2); }
+.sr-hud__scale { display: inline-flex; align-items: center; gap: 6px; }
+.sr-square { width: 14px; height: 14px; border: 2px solid var(--rv-ink-2); border-radius: 2px; }
+.sr-hud__clock { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--rv-step-b); }
+.sr-hud__clock.is-low { color: var(--rv-redpen); }
+
+.sr-banner {
+  position: absolute; top: 38%; left: 50%; margin: 0; padding: 8px 18px; border-radius: var(--rv-radius-pill);
+  font: 800 1.4rem/1 var(--rv-font-display); letter-spacing: .02em; transform: translate(-50%, -50%);
+  animation: lab-combo .5s cubic-bezier(.2, 1.6, .4, 1) both; box-shadow: 0 6px 18px rgb(0 0 0 / 30%);
+}
+.sr-banner.is-safe { color: #fff; background: var(--rv-good); }
+.sr-banner.is-caught { color: #fff; background: var(--rv-step-b); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-distance, .sr-banner { animation: none; }
+}
