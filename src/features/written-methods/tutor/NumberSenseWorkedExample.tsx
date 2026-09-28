@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
-import type { HopFrame, TermsFrame, IntervalFrame, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
+import type { HopFrame, TermsFrame, IntervalFrame, MethodStep, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
   return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
@@ -77,15 +77,34 @@ function HopVisual({ frame }: { frame: HopFrame }) {
   </div>
 }
 
-function TermsVisual({ frame, plain }: { frame: TermsFrame; plain?: boolean }) {
+function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boolean; heading?: ReactNode }) {
   const label = frame.groups
     ? frame.groups.map(group => `${group.parts} gives ${group.total}`).join('. ')
     : `The terms: ${frame.terms.map(term => term.text).join(' ')}.${plain ? '' : ' Like terms share a colour.'}`
   return <div className="ns-terms" role="img" aria-label={`${label}${frame.answer ? `. ${frame.answer}` : ''}`}>
+    {!frame.groups && heading}
     <p className="ns-terms-row" aria-hidden="true">{frame.terms.map((term, i) => <span key={i} className={`ns-term ${plain ? 'is-plain' : `is-f${term.family % 4}`}`}>{term.text}</span>)}</p>
+    {frame.groups && !frame.answer && heading}
     {frame.groups && <ul className="ns-term-groups" aria-hidden="true">{frame.groups.map((group, i) => <li key={i} className={`is-f${group.family % 4}`}><span>{group.parts}</span><span aria-hidden="true">→</span><strong>{group.total}</strong></li>)}</ul>}
+    {frame.answer && heading}
     {frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
   </div>
+}
+
+/**
+ * One step of a collecting-like-terms working: its heading sits just above what the step adds,
+ * and its explanation just below. Earlier steps' headings go; their maths stays.
+ */
+function CollectStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
+  const [open, setOpen] = useState(true)
+  const heading = <p className="ns-step" aria-live="polite">
+    <span className="ns-step__title">{step.title}</span>
+    <button type="button" className={`ns-step__info${open ? ' is-open' : ''}`} aria-label="Why?" aria-expanded={open} onClick={() => setOpen(!open)}>i</button>
+  </p>
+  return <>
+    {children(heading)}
+    {open && <p className="ns-step__why">{step.instruction}</p>}
+  </>
 }
 
 function OrderingVisual({ frame }: { frame: OrderingFrame }) {
@@ -104,12 +123,19 @@ function OrderingVisual({ frame }: { frame: OrderingFrame }) {
 
 export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) {
   const chain = useMemo(() => methodChain(visual), [visual])
+  // Collecting like terms: the term tiles show every line, so the picture carries the whole working.
+  const collect = visual.examples.every(example => example.method === 'collect')
   const picture = (revealed: number) => {
     const at = chain.slice(0, revealed).findLast(line => line.at)?.at
     const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
-    // Before the first step, like terms show as plain tiles: the question itself, not yet sorted.
-    const opening = !at && visual.examples[0].method === 'collect' ? visual.examples[0].steps[0]?.frame.terms : undefined
-    if (opening) return <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: opening.terms }} plain /></div>
+    if (collect) {
+      const example = visual.examples[at?.example ?? 0], step = at && example.steps[at.step]
+      // Before the first step, like terms show as plain tiles: the question itself, not yet sorted.
+      if (!step) return example.steps[0]?.frame.terms ? <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: example.steps[0].frame.terms.terms }} plain /></div> : null
+      return <div className="ns-visual rung-worked__visual" key={`${at.example ?? 0}-${at.step}`}><CollectStep step={step}>{heading => step.frame.terms
+        ? <TermsVisual frame={step.frame.terms} heading={heading} />
+        : <>{heading}{step.frame.ordering && <OrderingVisual frame={step.frame.ordering} />}</>}</CollectStep></div>
+    }
     if (!frame || !(frame.rounding || frame.interval || frame.ordering || frame.hop || frame.terms)) return null
     return <div className="ns-visual rung-worked__visual">
       {frame.rounding && <RoundingVisual frame={frame.rounding} />}
@@ -119,5 +145,5 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
       {frame.terms && <TermsVisual frame={frame.terms} />}
     </div>
   }
-  return <WorkedChain steps={chain} picture={picture} />
+  return <WorkedChain steps={chain} picture={picture} pictureOnly={collect} />
 }

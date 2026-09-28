@@ -74,6 +74,16 @@
 .ns-visual:has(> .ns-hop) { flex: 1 1 auto; min-width: 0; }
 /* Term tiles sit close to the steps below them: no reserved height, just a little air above. */
 .ns-lesson .ns-visual:has(> .ns-terms) { min-height: 0; padding: 12px 0 0; }
+/* A collecting step's heading, just above what the step adds, with its explanation below (same look as the step chain's). */
+.ns-step { display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font: 600 17px/1.25 var(--rv-font-body); color: var(--rv-biro); }
+.ns-step__title::before { content: '↓\00a0'; font-weight: 700; }
+.ns-step__info {
+  width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 1.5px solid var(--rv-biro-light); border-radius: 50%;
+  font: 700 14px/1 var(--rv-font-body); font-style: italic; color: var(--rv-biro); background: none; cursor: pointer;
+}
+.ns-step__info.is-open { color: var(--rv-surface); background: var(--rv-biro); border-color: var(--rv-biro); }
+.ns-step__info:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.ns-step__why { justify-self: center; max-width: 22rem; margin: 0; padding: 9px 13px; border-radius: 12px; font: 400 16px/1.4 var(--rv-font-body); color: var(--rv-ink-2); background: var(--rv-biro-tint); text-align: center; }
 .ns-hop { container-type: inline-size; display: grid; justify-items: center; gap: 10px; }
 .ns-hop-row { display: flex; align-items: flex-end; justify-content: center; padding-top: 1.35em; font-size: clamp(22px, 7cqw, 40px); font-variant-numeric: tabular-nums; line-height: 1.2; }
 .ns-hop-cell { position: relative; display: inline-grid; place-items: center; min-width: .66em; height: 1.2em; }

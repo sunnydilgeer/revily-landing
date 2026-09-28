@@ -13,7 +13,7 @@ const steps: ChainStep[] = [
 <StepChain steps={steps} revealed={revealed} />
 ```
 
-- `line` is LaTeX. Set `pictured` when a picture beside the chain already shows that line: only its `op` and `why` are drawn. Wrap each term that moves in `[[key:latex]]`. The same key on the next line is where it flies to.
+- `line` is LaTeX. Wrap each term that moves in `[[key:latex]]`. The same key on the next line is where it flies to.
 - `op` is how this line came from the one above, in two to four words. `why` explains the reasoning in one or two plain sentences (why this move, not just what it is). It opens by itself with its step; earlier steps fold theirs behind the ⓘ next to `op`.
 - `merge` names a result and the terms above that combine into it (20 and − 5 become 15). Those terms fly into the result and fade.
 - A key that appears for the first time is the operation and is coloured to match `op`.
