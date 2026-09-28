@@ -26,11 +26,11 @@ require.extensions['.css'] = () => {}
 const { templates } = require(path.join(root, 'src/features/maths/practice/bank/index.ts'))
 const { RAMPS, questionMarks } = require(path.join(root, 'src/features/maths/practice/types.ts'))
 const { mark, readNumber, readFraction, answerText, canMark, mistakeFor } = require(path.join(root, 'src/features/maths/practice/marking.ts'))
-const { buildSprint, isLearnt, SPRINT_SHAPE, templateWeight } = require(path.join(root, 'src/features/maths/practice/sprint.ts'))
+const { buildSprint, isLearnt, SPRINT_SHAPE, templateWeight } = require(path.join(root, 'src/features/maths/practice/sprintPlan.ts'))
 const { aqaMarks } = require(path.join(root, 'src/features/maths/practice/aqaWeights.ts'))
 const { addAttempt } = require(path.join(root, 'src/features/maths/practice/record.ts'))
 const { canStatements } = require(path.join(root, 'src/features/maths/readiness/statements.ts'))
-const { paperTopics } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
+const { paperTopics } = require(path.join(root, 'src/features/maths/readiness/paperTopics.ts'))
 const { levelFor, PRACTICE_MIN } = require(path.join(root, 'src/features/maths/readiness/readiness.ts'))
 
 const TERM = /\[\[([\w-]+):(.*?)\]\]/g

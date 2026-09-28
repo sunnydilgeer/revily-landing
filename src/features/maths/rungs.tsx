@@ -16,7 +16,7 @@ import { RUNG_COMPLETE_EVENT } from './studyLog'
 import { markSectionComplete, readMathsProgress } from './lessonProgress'
 import { legacyCompleted, sectionsOf } from './rungProgress'
 import { mathsLessons } from './courseRegistry'
-import { topicForLesson } from './readiness/paperMap'
+import { topicForLesson } from './readiness/paperTopics'
 import '../written-methods/tutor/RungLesson.css'
 
 type Engine = ReturnType<typeof useLessonEngine>

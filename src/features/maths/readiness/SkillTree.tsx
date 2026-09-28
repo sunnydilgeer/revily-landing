@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import BossCharacter from './BossCharacter'
 import { CrownIcon, LockIcon, StarIcon, TopicIcon } from '../../../ui/icons'
-import { branchLeaves, branchTiers, tileLevel, type AreaId, type TopicScore } from './paperMap'
+import { branchLeaves, branchTiers, tileLevel, type AreaId, type TopicScore } from './paperTopics'
 import { levelLabels, levelOrder, type Level } from './readiness'
 import { assignColumns, colX, railPoints, roundedPath, ROW, rowY, type Grid, type RailNode } from './rails'
 import './SkillTree.css'

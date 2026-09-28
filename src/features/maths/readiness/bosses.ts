@@ -4,7 +4,7 @@
  * Each attempt uses the next set of numbers, so a retry is a new fight rather than a memory test.
  */
 import type { ChainStep } from '../step-chain/StepChain'
-import type { AreaId } from './paperMap'
+import type { AreaId } from './paperTopics'
 
 export type BossPart = {
   /** The question, as plain text. */

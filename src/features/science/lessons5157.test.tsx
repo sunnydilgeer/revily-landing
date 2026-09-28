@@ -6,33 +6,37 @@ import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
 import { scienceLessons, parseScienceLesson, scienceChapters, scienceLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { lesson41, variationSections } from './lesson-41/lesson'
-import { variationFrames } from './lesson-41/teachingFrames'
-import { lesson42, evolutionSections } from './lesson-42/lesson'
-import { evolutionFrames } from './lesson-42/teachingFrames'
-import { lesson43, resistanceSections } from './lesson-43/lesson'
-import { resistanceFrames } from './lesson-43/teachingFrames'
-import { lesson44, breedingSections } from './lesson-44/lesson'
-import { breedingFrames } from './lesson-44/teachingFrames'
-import { lesson45, fossilSections } from './lesson-45/lesson'
-import { fossilFrames } from './lesson-45/teachingFrames'
+import { lesson46, communitySections } from './lesson-46/lesson'
+import { communityFrames } from './lesson-46/teachingFrames'
+import { lesson47, factorSections } from './lesson-47/lesson'
+import { factorFrames } from './lesson-47/teachingFrames'
+import { lesson48, foodChainSections } from './lesson-48/lesson'
+import { foodChainFrames } from './lesson-48/teachingFrames'
+import { lesson49, samplingSections } from './lesson-49/lesson'
+import { samplingFrames } from './lesson-49/teachingFrames'
+import { lesson50, cyclesSections } from './lesson-50/lesson'
+import { cyclesFrames } from './lesson-50/teachingFrames'
+import { lesson51, biodiversitySections } from './lesson-51/lesson'
+import { biodiversityFrames } from './lesson-51/teachingFrames'
+import { lesson52, warmingSections } from './lesson-52/lesson'
+import { warmingFrames } from './lesson-52/teachingFrames'
 import type { EvidenceDimension, Profile, ScienceState } from './types'
 
 let checks = 0
 function check(name: string, fn: () => void) { fn(); checks++; console.log(`PASS ${name}`) }
-const lessons = [lesson41, lesson42, lesson43, lesson44, lesson45]
-const frameSets = [variationFrames, evolutionFrames, resistanceFrames, breedingFrames, fossilFrames]
-const sections = [variationSections, evolutionSections, resistanceSections, breedingSections, fossilSections]
-const specs = ['4.6', '4.6', '4.6', '4.6', '4.6']
-const families = ['B-GEN', 'B-GEN', 'B-GEN', 'B-GEN', 'B-GEN']
-const prefixes = ['evolve-', 'evolve-', 'evolve-', 'evolve-', 'evolve-']
-const at = '2026-09-26T18:00:00.000Z'
+const lessons = [lesson46, lesson47, lesson48, lesson49, lesson50, lesson51, lesson52]
+const frameSets = [communityFrames, factorFrames, foodChainFrames, samplingFrames, cyclesFrames, biodiversityFrames, warmingFrames]
+const sections = [communitySections, factorSections, foodChainSections, samplingSections, cyclesSections, biodiversitySections, warmingSections]
+const specs = ['4.7', '4.7', '4.7', '4.7', '4.7', '4.7', '4.7']
+const families = ['B-ECO', 'B-ECO', 'B-ECO', 'B-ECO', 'B-ECO', 'B-ECO', 'B-ECO']
+const prefixes = ['eco-', 'eco-', 'eco-', 'eco-', 'earth-', 'earth-', 'earth-']
+const at = '2026-09-28T09:00:00.000Z'
 const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
 lessons.forEach((lesson, index) => {
-  const number = index + 41
+  const number = index + 46
   check(`${lesson.id}: metadata, source links, sections and sampled requirements`, () => {
     assert.equal(lesson.id, `${families[index]}-0${number}-B`)
     assert.equal(lesson.contentVersion, '0.1.0')
@@ -129,8 +133,13 @@ lessons.forEach((lesson, index) => {
       if (state.id === 'B26-04') { assert.doesNotMatch(hidden, /oxygen|O₂|carbon dioxide|CO₂|water|glucose|arrow 3/i); assert.match(shown, /oxygen/) }
       if (state.id === 'B26-09') { assert.doesNotMatch(hidden, /seed|root|stem|leaf|part 4/i); assert.match(shown, /seeds/) }
       if (state.id === 'B26-14') assert.doesNotMatch(hidden, /built up in the light|used up in the dark/i)
+      if (state.id === 'B48-12') assert.doesNotMatch(hidden, /(owl|vole)s?[^<]{0,15}line|line [ab][^<]{0,15}(owl|vole)|predator|prey/i)
       // A one-letter answer (A, B, C…) is a label that has to be on the diagram.
-      if (answer.length > 2) assert.ok(!hidden.toLowerCase().includes(answer), `${state.id}: the answer text must not appear in the question diagram`)
+      // A diagram that names every option (like a food web to read) does not single out the answer.
+      const namesEveryOption = state.options.every(option => hidden.toLowerCase().includes(option.label.toLowerCase()))
+      // So does an answer that is itself a diagram label, such as "Line B".
+      const isDiagramLabel = /^(line|label|part|arrow|area|quadrat) \w{1,2}$/.test(answer)
+      if (answer.length > 2 && !namesEveryOption && !isDiagramLabel) assert.ok(!hidden.toLowerCase().includes(answer), `${state.id}: the answer text must not appear in the question diagram`)
     }
   })
 
@@ -155,7 +164,8 @@ lessons.forEach((lesson, index) => {
     assert.equal(profile.pendingReview.length, 1)
     assert.equal(profile.dimensions.explanation === 'secureInSession', false)
     const next = recommendedNext(profile, false, lesson)
-    assert.deepEqual(next, { kind: 'lesson', lessonId: index < lessons.length - 1 ? lessons[index + 1].id : 'B-ECO-046-B' })
+    if (index < lessons.length - 1) assert.deepEqual(next, { kind: 'lesson', lessonId: lessons[index + 1].id })
+    else assert.equal(next.kind, 'practical')
   })
 
   check(`${lesson.id}: a wrong independent answer keeps the learner on a repair route`, () => {
@@ -171,17 +181,17 @@ lessons.forEach((lesson, index) => {
   })
 })
 
-check('B6b chapter lists Lessons 46–50; the catalogue, parser and links include them; Lesson 45 leads on', () => {
-  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B6b')?.lessonNumbers, [46, 47, 48, 49, 50])
+check('B7 chapter lists Lessons 51–57; the catalogue, parser and links include them; Lesson 50 leads on', () => {
+  assert.deepEqual(scienceChapters.find(chapter => chapter.code === 'B7')?.lessonNumbers, [51, 52, 53, 54, 55, 56, 57])
   lessons.forEach((lesson, index) => {
-    assert.ok(scienceLessons.some(item => item.number === index + 46 && item.lesson.id === lesson.id && item.folder === String(index + 41)))
-    assert.equal(parseScienceLesson(String(index + 46)), index + 46)
-    assert.equal(scienceLessonHref((index + 46) as never), `/preview/science?lesson=${index + 46}`)
+    assert.ok(scienceLessons.some(item => item.number === index + 51 && item.lesson.id === lesson.id && item.folder === String(index + 46)))
+    assert.equal(parseScienceLesson(String(index + 51)), index + 51)
+    assert.equal(scienceLessonHref((index + 51) as never), `/preview/science?lesson=${index + 51}`)
   })
   const engines = lessons.map(createPreviewSessionEngine)
   assert.equal(new Set(engines.map(engine => engine.storageKey)).size, lessons.length)
   const secure: Profile = { dimensions: { recall: 'secureInSession', understanding: 'secureInSession', explanation: 'notAssessed', application: 'secureInSession', calculation: 'notAssessed', practicalReasoning: 'notAssessed', dataInterpretation: 'secureInSession' }, pendingReview: [] }
-  assert.deepEqual(recommendedNext(secure, false, { ...lesson41, id: 'B-GEN-040-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-GEN-041-B' })
+  assert.deepEqual(recommendedNext(secure, false, { ...lesson46, id: 'B-GEN-045-B', requirements: {} }), { kind: 'lesson', lessonId: 'B-ECO-046-B' })
 })
 
-console.log(`${checks} Lessons 46–50 checks passed`)
+console.log(`${checks} Lessons 51–57 checks passed`)

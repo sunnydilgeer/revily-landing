@@ -7,7 +7,7 @@ import { useReadiness } from '../readiness/useReadiness'
 import { templates } from './bank'
 import { markServed, readServed, readSprints, type SprintRecord } from './record'
 import Sprint from './Sprint'
-import { buildSprint, SPRINT_SHAPE } from './sprint'
+import { buildSprint, SPRINT_SHAPE } from './sprintPlan'
 import { rampLabels, RAMPS, type Question } from './types'
 import './Practice.css'
 
