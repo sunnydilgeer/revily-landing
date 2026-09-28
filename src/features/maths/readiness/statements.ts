@@ -97,5 +97,8 @@ export const canStatements: Record<string, string> = {
   '16:indices-power-of-power': 'I can raise a power to a power, like (5²)³ = 5⁶',
   '16:indices-fraction': 'I can raise a fraction to a power, like (2/3)² = 4/9',
   '16:roots': 'I can work out square roots, cube roots and other roots, like √49 = 7 and ∛27 = 3',
+
+  '17:expand-single': 'I can expand a single bracket, like −3(2p − 5) = −6p + 15',
+  '17:expand-double': 'I can expand and simplify double brackets, like (x + 4)(x + 6) = x² + 10x + 24',
 }
 

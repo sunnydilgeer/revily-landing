@@ -89,6 +89,7 @@ export const paperTopics: PaperTopic[] = [
   { id: 'simplifying', title: 'Simplifying expressions', short: 'Simplifying', area: 'algebra', marks30: 43, sittings: 9, statements: [...lesson(15,
     'like-terms-one-letter', 'like-terms-different-letters', 'like-terms-powers', 'like-terms-mixed'),
     ...lesson(16, 'indices-power-one', 'indices-multiply', 'indices-divide', 'indices-power-zero', 'indices-one', 'indices-power-of-power', 'indices-fraction', 'roots'),
+    ...lesson(17, 'expand-single', 'expand-double'),
   ] },
   { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [] },
 

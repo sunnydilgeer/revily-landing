@@ -86,6 +86,9 @@ export const aqaMarks: Record<string, number> = {
   '16:indices-power-of-power': 2,
   '16:indices-fraction': 1,
   '16:roots': 4,
+  // Estimates, not yet counted from the 18 papers: expanding brackets comes up most sittings, usually for 1–2 marks.
+  '17:expand-single': 4,
+  '17:expand-double': 3,
 }
 
 /**

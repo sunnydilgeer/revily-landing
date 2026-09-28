@@ -204,4 +204,8 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'indices-fraction': [['Work out (2/3)².', '4/9. Square the top and the bottom: 2² = 4 and 3² = 9.']],
     'roots': [['Work out √49 and ∛27.', '7 and 3. 7 × 7 = 49, and 3 × 3 × 3 = 27. A square root is not half.']],
   },
+  17: {
+    'expand-single': [['Expand −3(2p − 5).', '−6p + 15. Multiply −3 by both terms: −3 × 2p = −6p, and −3 × −5 = +15 (negative × negative is positive).']],
+    'expand-double': [['Expand and simplify (n − 4)².', 'n² − 8n + 16, not n² − 16. (n − 4)² is (n − 4)(n − 4): four products, n² − 4n − 4n + 16.']],
+  },
 }
