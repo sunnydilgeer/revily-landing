@@ -22,7 +22,7 @@ export function WorkedChain({ steps, layout, picture, pictureOnly }: {
   const done = revealed === steps.length
   const shown = picture?.(revealed)
 
-  return <figure className="wc">
+  return <figure className={`wc${pictureOnly ? ' wc--picture' : ''}`}>
     {shown && <div className="wc-picture">{shown}</div>}
     {!pictureOnly && <StepChain steps={steps} layout={layout} revealed={revealed} pace={pace} />}
     {total > 0 && <div className="wc-controls">

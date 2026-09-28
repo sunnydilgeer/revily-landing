@@ -16,3 +16,6 @@
 /* Progress only (← and Next step move through it), kept small so seven steps fit beside the buttons at 320px. */
 .wc-controls .sc-dots { flex: 1; justify-content: center; flex-wrap: wrap; gap: 5px; min-width: 0; }
 .wc-controls .sc-dot { width: 7px; height: 7px; }
+/* A picture-only working (like terms) keeps ←, dots and Next step together in the middle, under the maths. */
+.wc--picture .wc-controls { justify-content: center; gap: 18px; }
+.wc--picture .wc-controls .sc-dots { flex: none; }
