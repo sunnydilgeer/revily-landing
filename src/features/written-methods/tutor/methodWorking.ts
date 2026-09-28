@@ -49,6 +49,13 @@ export type HopFrame = {
   stage: 'start' | 'hops' | 'result'
   answer?: string
 }
+/** Collecting like terms: each term keeps its sign and is coloured by its family of like terms. */
+export type TermsFrame = {
+  terms: { text: string; family: number }[]
+  /** Each family added up: "4p + 2p" gives "6p". */
+  groups?: { parts: string; total: string; family: number }[]
+  answer?: string
+}
 export type OrderingFrame = {
   values?: string[]
   comparison?: string
@@ -67,13 +74,14 @@ export type MethodFrame = {
   ordering?: OrderingFrame
   interval?: IntervalFrame
   hop?: HopFrame
+  terms?: TermsFrame
 }
 export type MethodStep = {
   title: string; operation: string; equation: string; instruction: string; frame: MethodFrame
   focus?: { topPlace?: number; factorPlace: number } | { dividendIndex: number; dividendStart?: number } | { cell: string }
 }
 export type MethodExample = {
-  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'estimate' | 'factor-tree' | 'number-lists' | 'venn' | 'standard-form'
+  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'estimate' | 'factor-tree' | 'number-lists' | 'venn' | 'standard-form' | 'collect'
   expression: string; label: string; first: number; second: number
   grid?: { first: number[]; second: number[] }
   steps: MethodStep[]

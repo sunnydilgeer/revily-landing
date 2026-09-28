@@ -4,10 +4,10 @@ import { useMemo } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
-import type { HopFrame, IntervalFrame, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
+import type { HopFrame, TermsFrame, IntervalFrame, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
-  return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form')
+  return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
 }
 
 function RoundingVisual({ frame }: { frame: RoundingFrame }) {
@@ -77,6 +77,17 @@ function HopVisual({ frame }: { frame: HopFrame }) {
   </div>
 }
 
+function TermsVisual({ frame }: { frame: TermsFrame }) {
+  const label = frame.groups
+    ? frame.groups.map(group => `${group.parts} gives ${group.total}`).join('. ')
+    : `The terms: ${frame.terms.map(term => term.text).join(' ')}. Like terms share a colour.`
+  return <div className="ns-terms" role="img" aria-label={`${label}${frame.answer ? `. ${frame.answer}` : ''}`}>
+    <p className="ns-terms-row" aria-hidden="true">{frame.terms.map((term, i) => <span key={i} className={`ns-term is-f${term.family % 4}`}>{term.text}</span>)}</p>
+    {frame.groups && <ul className="ns-term-groups" aria-hidden="true">{frame.groups.map((group, i) => <li key={i} className={`is-f${group.family % 4}`}><span>{group.parts}</span><span aria-hidden="true">→</span><strong>{group.total}</strong></li>)}</ul>}
+    {frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
+  </div>
+}
+
 function OrderingVisual({ frame }: { frame: OrderingFrame }) {
   if (frame.answer) return <p className="ns-order-answer">{frame.answer}</p>
   if (frame.comparison) {
@@ -96,12 +107,13 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
   const picture = (revealed: number) => {
     const at = chain.slice(0, revealed).findLast(line => line.at)?.at
     const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
-    if (!frame || !(frame.rounding || frame.interval || frame.ordering || frame.hop)) return null
+    if (!frame || !(frame.rounding || frame.interval || frame.ordering || frame.hop || frame.terms)) return null
     return <div className="ns-visual rung-worked__visual">
       {frame.rounding && <RoundingVisual frame={frame.rounding} />}
       {frame.interval && <IntervalVisual frame={frame.interval} />}
       {frame.ordering && <OrderingVisual frame={frame.ordering} />}
       {frame.hop && <HopVisual frame={frame.hop} />}
+      {frame.terms && <TermsVisual frame={frame.terms} />}
     </div>
   }
   return <WorkedChain steps={chain} picture={picture} />

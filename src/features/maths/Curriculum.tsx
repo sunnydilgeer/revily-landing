@@ -17,7 +17,7 @@ type Props = {
   onOpenLesson: (lesson: MathsLessonNumber) => void
 }
 
-const LATER_CHAPTERS = ['Algebra', 'Ratio and proportion', 'Geometry and measures', 'Probability', 'Statistics']
+const LATER_CHAPTERS = ['Ratio and proportion', 'Geometry and measures', 'Probability', 'Statistics']
 
 /** Rung status for one lesson (done = finished, current = where the student is now). */
 export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnapshot) {
@@ -71,7 +71,7 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
         <span className="cur-chapter__num" aria-hidden="true">{chapterIndex + 1}</span>
         <div>
           <h2 id={`chapter-${chapter.id}`}>Chapter {chapterIndex + 1} · {chapter.title}</h2>
-          <p>{chapter.lessons.length} lessons · {chapter.lessons.reduce((sum, entry) => sum + entry.sections.length, 0)} sections</p>
+          <p>{chapter.lessons.length} {chapter.lessons.length === 1 ? 'lesson' : 'lessons'} · {chapter.lessons.reduce((sum, entry) => sum + entry.sections.length, 0)} sections</p>
         </div>
       </header>
       <ol className="cur-path">
@@ -83,7 +83,7 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
           return <li className={`cur-lesson is-${status}`} key={entry.lessonId}>
             <span className="cur-lesson__node" aria-hidden="true">
               <TopicIcon id={topicForLesson(entry.number)?.id ?? ''} size={20} />
-              <span className="cur-lesson__num">{status === 'done' ? '✓' : entry.number}</span>
+              <span className="cur-lesson__num">{status === 'done' ? '✓' : entry.position}</span>
             </span>
             <div className="cur-lesson__body">
               <h3>{entry.title}</h3>

@@ -72,6 +72,11 @@ export const aqaMarks: Record<string, number> = {
   '14:standard-form-write-small': 4,
   '14:standard-form-multiply': 3,
   '14:standard-form-divide': 2,
+  // Estimates, not yet counted from the 18 papers: "simplify" comes up most sittings, usually for 1–2 marks.
+  '15:like-terms-one-letter': 5,
+  '15:like-terms-different-letters': 3,
+  '15:like-terms-powers': 2,
+  '15:like-terms-mixed': 3,
 }
 
 /**

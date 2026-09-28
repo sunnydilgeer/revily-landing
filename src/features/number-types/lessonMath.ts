@@ -131,6 +131,7 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const wanted = Array.isArray(expected) ? expected.map(String) : []
     return actual.length === wanted.length && actual.every((value, index) => value === wanted[index])
   }
+  if (interaction.acceptanceRule === 'collectedExpression') return sameCollectedExpression(response, expected)
   if (interaction.acceptanceRule === 'standardForm') {
     // A must be at least 1 and less than 10. With bounds, any such number strictly between them is right.
     const actual = parseStandardForm(response)
@@ -279,3 +280,65 @@ function parseFormattedNumber(value: unknown): number | null {
 export function formatExpression(value: string): string {
   return value.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−')
 }
+
+/*
+ * Algebraic expressions such as "5x + 3y − 2" or "10x²y + xy^2", read as a sum of terms without evaluating
+ * the learner's text. Used to mark collected-like-terms answers in any order. Kept in this file because
+ * several verifiers load lessonMath.ts on its own, so it must not import anything at runtime.
+ */
+/** One term: its number in front and its letter part, e.g. −3 and "a" for −3a. */
+export type Term = { coefficient: number; key: string }
+
+/** "x^2y" style key with letters in alphabetical order, so yx and xy are the same term. "" is a number term. */
+function keyOf(powers: Map<string, number>) {
+  return [...powers].sort(([a], [b]) => a.localeCompare(b)).map(([letter, power]) => power === 1 ? letter : `${letter}^${power}`).join('')
+}
+
+/** The terms exactly as written, in order, or null if the text is not a sum of terms. */
+export function readTerms(value: unknown): Term[] | null {
+  const text = String(value ?? '').toLowerCase()
+    .replace(/[−–]/g, '-').replace(/²/g, '^2').replace(/³/g, '^3').replace(/⁴/g, '^4')
+    .replace(/[()\s×*·]/g, '')
+  if (!text || !/^[+-]?[^+-]+([+-][^+-]+)*$/.test(text)) return null
+  const terms: Term[] = []
+  for (const match of text.matchAll(/([+-]?)([^+-]+)/g)) {
+    const [, sign, body] = match
+    const parts = body.match(/^(\d*)((?:[a-z](?:\^\d+)?)*)$/)
+    if (!parts || (!parts[1] && !parts[2])) return null
+    const powers = new Map<string, number>()
+    for (const [, letter, power] of parts[2].matchAll(/([a-z])(?:\^(\d+))?/g)) powers.set(letter, (powers.get(letter) ?? 0) + Number(power ?? 1))
+    const size = parts[1] ? Number(parts[1]) : 1
+    terms.push({ coefficient: (sign === '-' ? -1 : 1) * size, key: keyOf(powers) })
+  }
+  return terms
+}
+
+/** Collects like terms: key → total number in front, keeping the order each key first appears. */
+export function collect(terms: Term[]) {
+  const totals = new Map<string, number>()
+  for (const { coefficient, key } of terms) totals.set(key, (totals.get(key) ?? 0) + coefficient)
+  return totals
+}
+
+/** Right when it has the same terms as the answer and nothing is left to collect. */
+export function sameCollectedExpression(response: unknown, expected: unknown) {
+  const actual = readTerms(response), wanted = readTerms(expected)
+  if (!actual || !wanted) return false
+  const keys = actual.map(term => term.key)
+  if (new Set(keys).size !== keys.length || actual.some(term => term.coefficient === 0)) return false
+  const a = collect(actual), b = collect(wanted)
+  for (const [key, value] of b) if (value === 0) b.delete(key)
+  return a.size === b.size && [...b].every(([key, value]) => a.get(key) === value)
+}
+
+const SUPERSCRIPT: Record<string, string> = { '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶' }
+/** "x^2y" → "x²y". */
+export const prettyKey = (key: string) => key.replace(/\^(\d)/g, (_, d: string) => SUPERSCRIPT[d] ?? `^${d}`)
+/** One term as written: 1x → x, −1x → −x. */
+export function prettyTerm({ coefficient, key }: Term, first = true) {
+  const size = Math.abs(coefficient)
+  const body = key ? `${size === 1 ? '' : size}${prettyKey(key)}` : String(size)
+  return first ? `${coefficient < 0 ? '−' : ''}${body}` : `${coefficient < 0 ? '−' : '+'} ${body}`
+}
+/** Terms as an expression: "7ab − 3a". */
+export const prettyExpression = (terms: Term[]) => terms.filter(term => term.coefficient !== 0).map((term, i) => prettyTerm(term, i === 0)).join(' ') || '0'

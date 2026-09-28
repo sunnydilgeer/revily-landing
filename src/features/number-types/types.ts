@@ -76,6 +76,10 @@ export type MicroSkillId =
   | 'standard-form-write-small'
   | 'standard-form-multiply'
   | 'standard-form-divide'
+  | 'like-terms-one-letter'
+  | 'like-terms-different-letters'
+  | 'like-terms-powers'
+  | 'like-terms-mixed'
   | 'mixed'
 
 export type LessonPhase =
@@ -122,8 +126,8 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression'
   requiredDenominator?: number
   requiredDecimalPlaces?: number
   requireSimplest?: boolean
