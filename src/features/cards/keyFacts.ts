@@ -188,4 +188,10 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'standard-form-multiply': [['(5 × 10⁴) × (6 × 10³) in standard form?', '3 × 10⁸. 5 × 6 = 30 and 4 + 3 = 7, then 30 × 10⁷ = 3 × 10⁸.']],
     'standard-form-divide': [['(7.2 × 10⁸) ÷ (9 × 10³) in standard form?', '8 × 10⁴. 7.2 ÷ 9 = 0.8 and 8 − 3 = 5, then 0.8 × 10⁵ = 8 × 10⁴.']],
   },
+  15: {
+    'like-terms-one-letter': [['Simplify 9y + 5 − 4y + 6.', '5y + 11. The − belongs to the 4y, so 9y − 4y = 5y, and 5 + 6 = 11.']],
+    'like-terms-different-letters': [['Simplify 3ab + 4a + 2ab.', '5ab + 4a. ab and a are not like terms, so 4a stays as it is.']],
+    'like-terms-powers': [['Are x²y and xy² like terms?', 'No. The letters match, but the powers don’t: x is squared in one and y in the other.']],
+    'like-terms-mixed': [['Simplify 5w + 5w + 5w.', '15w, not 5w³. Adding only changes the number in front; the letters and powers stay the same.']],
+  },
 }

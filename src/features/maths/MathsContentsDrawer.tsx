@@ -86,7 +86,7 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
                   aria-current={isCurrent ? 'page' : undefined}
                   onClick={() => isCurrent ? undefined : onSelectLesson(entry.number)}
                 >
-                  <span className="maths-drawer-number" aria-hidden="true">{snapshot?.completed ? '✓' : entry.number}</span>
+                  <span className="maths-drawer-number" aria-hidden="true">{snapshot?.completed ? '✓' : entry.position}</span>
                   <span>{entry.title}</span>
                   {snapshot && <small>{lessonPercent(snapshot)}%</small>}
                 </button>

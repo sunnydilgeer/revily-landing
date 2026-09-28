@@ -61,6 +61,21 @@ function StandardFormAnswerInput({ id, disabled, onChange }: { id: string; disab
   </div>
 }
 
+/** An algebra answer, typed with the letter keyboard. The ² key saves hunting for a superscript. */
+function ExpressionAnswerInput({ id, value, disabled, onChange }: { id: string; value: string; disabled: boolean; onChange: (value: string) => void }) {
+  const input = useRef<HTMLInputElement>(null)
+  const square = () => {
+    const field = input.current, at = field?.selectionStart ?? value.length, end = field?.selectionEnd ?? at
+    onChange(`${value.slice(0, at)}²${value.slice(end)}`)
+    requestAnimationFrame(() => { field?.focus(); field?.setSelectionRange(at + 1, at + 1) })
+  }
+  return <div className="rung-expression">
+    <label className="sr-only" htmlFor={`answer-${id}`}>Your answer</label>
+    <input ref={input} id={`answer-${id}`} className="pvb-input rung-answer__input rung-expression__input" type="text" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} value={value} disabled={disabled} placeholder="?" onChange={event => onChange(event.target.value)} />
+    <button type="button" className="rung-expression__key" onClick={square} disabled={disabled} aria-label="Type a squared sign">x²</button>
+  </div>
+}
+
 function WorkingPanel({ visual, ref }: { visual: TutorWorking; ref?: Ref<HTMLDivElement> }) {
   return <div className="pvb-stage rung-working-panel" ref={ref}>
     {visual.kind === 'fraction-worked' ? <FractionWorkedExample visual={visual} />
@@ -78,7 +93,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -112,6 +127,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const numeric = state.interaction.type === 'numericInput'
   const fraction = state.interaction.type === 'fractionInput'
   const standardForm = numeric && state.interaction.responseShape === 'standardForm'
+  const expression = numeric && state.interaction.responseShape === 'expression'
+  const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
   const header = <RungHeader flow={flow} lessonTitle={lesson.title} headingId={`wmt-topic-${lesson.number}`} />
@@ -119,7 +136,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   if (flow.rungDone) return <section className="rung-lesson" id={`lesson-${lesson.number}`} aria-labelledby="rung-done-title">{header}<RungDoneCard flow={flow} /></section>
   if (engine.completed) return <section className="rung-lesson" id={`lesson-${lesson.number}`} aria-labelledby="lesson-done-title"><LessonDoneCard flow={flow} lessonTitle={lesson.title} onRestart={engine.continueLesson} /></section>
 
-  const response = pair ? `${engine.quotientValue} r ${engine.remainderValue}` : engine.inputValue
+  const response = pair ? `${engine.quotientValue} r ${engine.remainderValue}` : multi ? selection.join(',') : engine.inputValue
   const mistake = feedback && !feedback.correct ? explainMistake(state, response) : null
   const canCheck = pair ? Boolean(engine.quotientValue.trim() && engine.remainderValue.trim()) : Boolean(engine.inputValue.trim())
   const answerState = feedback ? feedback.correct ? ' is-correct' : ' is-incorrect' : ''
@@ -137,8 +154,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          {!standardForm && <span className="rung-answer__eq" aria-hidden="true">=</span>}
-          {standardForm
+          {!standardForm && !expression && <span className="rung-answer__eq" aria-hidden="true">=</span>}
+          {expression
+            ? <ExpressionAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : standardForm
             ? <StandardFormAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : numeric
             ? <><label className="sr-only" htmlFor={`answer-${state.id}`}>{state.answerLabel ?? 'Your answer'}</label>
@@ -148,10 +167,11 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
         </div> : <div className="wm-pair-input">{(['quotient', 'remainder'] as const).map(field => <label key={field} htmlFor={`${field}-${state.id}`}><span>{field === 'quotient' ? 'Full boxes' : 'Buns left over'}</span><input id={`${field}-${state.id}`} className="pvb-input" type="text" inputMode="numeric" autoComplete="off" value={field === 'quotient' ? engine.quotientValue : engine.remainderValue} disabled={Boolean(feedback)} onChange={event => (field === 'quotient' ? engine.setQuotientValue : engine.setRemainderValue)(event.target.value)} /></label>)}</div>}
       </form>}
 
-      {choices && <div className="pvb-choices" role="group" aria-label="Choose one answer">{state.interaction.options?.map(option => {
-        const selected = selection.includes(option.id), correct = state.interaction.correctAnswer === option.id
+      {choices && <div className="pvb-choices" role="group" aria-label={multi ? 'Choose every answer that fits' : 'Choose one answer'}>{state.interaction.options?.map(option => {
+        const answers = state.interaction.correctAnswer
+        const selected = selection.includes(option.id), correct = Array.isArray(answers) ? answers.map(String).includes(option.id) : answers === option.id
         const status = feedback ? correct ? 'correct' : selected ? 'incorrect' : 'neutral' : 'neutral'
-        return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : ''}</span></button>
+        return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => multi ? engine.toggleOption(option.id) : engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : ''}</span></button>
       })}</div>}
 
       {!teaching && !feedback && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
@@ -171,6 +191,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
+          {multi && <Button size="lg" disabled={!selection.length} onClick={engine.submit}>Check</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}
         </CheckBar>}
   </section>

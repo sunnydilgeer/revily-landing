@@ -13,8 +13,9 @@ import { tutorOrderingLesson } from '../ordering/tutor/orderingLesson'
 import { tutorEstimatingLesson } from '../estimating/tutor/estimatingLesson'
 import { tutorBoundsLesson } from '../bounds/tutor/boundsLesson'
 import { tutorStandardFormLesson } from '../standard-form/tutor/standardFormLesson'
+import { tutorLikeTermsLesson } from '../like-terms/tutor/likeTermsLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
 
 export type MathsSection = {
   id: MicroSkillId
@@ -23,10 +24,15 @@ export type MathsSection = {
   startIndex: number
 }
 
+export type MathsChapterId = 'number' | 'algebra'
+
 export type MathsLessonEntry = {
+  /** The course-wide number: the URL (?lesson=15) and progress key (L015) use it. */
   number: MathsLessonNumber
+  /** The lesson's place in its own chapter, which is what students see: Algebra's first lesson is 1. */
+  position: number
   lessonId: string
-  chapterId: 'number'
+  chapterId: MathsChapterId
   title: string
   description: string
   stateCount: number
@@ -36,7 +42,7 @@ export type MathsLessonEntry = {
 }
 
 export type MathsChapter = {
-  id: 'number'
+  id: MathsChapterId
   title: string
   description: string
   lessons: MathsLessonEntry[]
@@ -60,11 +66,13 @@ function entry(
   title: string,
   description: string,
   labels: Partial<Record<MicroSkillId, string>>,
+  chapterId: MathsChapterId = 'number',
 ): MathsLessonEntry {
   return {
     number,
+    position: 0,
     lessonId: lesson.id,
-    chapterId: 'number',
+    chapterId,
     title,
     description,
     stateCount: lesson.states.length,
@@ -88,14 +96,19 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(12, tutorEstimatingLesson, 'Estimating', 'Round to 1 significant figure and estimate calculations and formulas.', tutorEstimatingLesson.labels),
   entry(13, tutorBoundsLesson, 'Bounds and truncation', 'Find upper and lower bounds, write error intervals and truncate numbers.', tutorBoundsLesson.labels),
   entry(14, tutorStandardFormLesson, 'Standard form', 'Convert to and from standard form, and multiply and divide in standard form.', tutorStandardFormLesson.labels),
+  entry(15, tutorLikeTermsLesson, 'Collecting like terms', 'Simplify expressions by collecting terms with the same letters and powers.', tutorLikeTermsLesson.labels, 'algebra'),
 ]
 
-export const mathsChapters: MathsChapter[] = [{
-  id: 'number',
-  title: 'Number',
-  description: 'Build secure number sense and reliable written calculation methods.',
-  lessons: mathsLessons,
-}]
+export const mathsChapters: MathsChapter[] = ([
+  { id: 'number', title: 'Number', description: 'Build secure number sense and reliable written calculation methods.' },
+  { id: 'algebra', title: 'Algebra', description: 'Use letters for numbers: simplify, expand and solve.' },
+] as const).map(chapter => ({ ...chapter, lessons: mathsLessons.filter(entry => entry.chapterId === chapter.id) }))
+
+// Number each lesson within its chapter.
+for (const chapter of mathsChapters) chapter.lessons.forEach((entry, i) => { entry.position = i + 1 })
+
+/** A short name for a lesson in a list of every lesson: "14" in Number, "A1" in Algebra. */
+export const lessonCode = (entry: MathsLessonEntry) => entry.chapterId === 'number' ? String(entry.position) : `${entry.chapterId[0].toUpperCase()}${entry.position}`
 
 export function getMathsLesson(number: MathsLessonNumber) {
   return mathsLessons.find(lesson => lesson.number === number)!

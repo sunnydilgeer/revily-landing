@@ -83,5 +83,10 @@ export const canStatements: Record<string, string> = {
   '14:standard-form-write-small': 'I can write a small number in standard form',
   '14:standard-form-multiply': 'I can multiply numbers in standard form',
   '14:standard-form-divide': 'I can divide numbers in standard form',
+
+  '15:like-terms-one-letter': 'I can collect like terms with one letter, like 4p + 6 + 2p − 3',
+  '15:like-terms-different-letters': 'I can tell like terms apart when they use different letters, like ab and a',
+  '15:like-terms-powers': 'I can collect like terms with powers, like x²y and xy²',
+  '15:like-terms-mixed': 'I can simplify expressions with several letters and powers',
 }
 

@@ -94,6 +94,11 @@
   .rung-sf__times { font-size: 1.5rem; }
 }
 
+.rung-expression { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; }
+.rung-lesson .rung-expression__input { width: min(11em, 62vw); text-align: left; }
+.rung-expression__key { min-width: 48px; height: 48px; border: 2px solid var(--rv-line); border-radius: 12px; background: var(--rv-surface); color: var(--rv-ink); font: 600 1.15rem var(--rv-font-body); cursor: pointer; }
+.rung-expression__key:hover:not(:disabled) { border-color: var(--rv-biro); color: var(--rv-biro); }
+
 /* ---------- Choices ---------- */
 .rung-lesson .pvb-choices { gap: 12px; }
 .rung-lesson .pvb-choice {

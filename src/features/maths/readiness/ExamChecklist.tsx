@@ -5,6 +5,7 @@ import { modeLink } from '../../../ui/modeTransition'
 import ExamWorld from './ExamWorld'
 import { levelLabels, levelOrder, nextExamSeries, type Level, type SelfRating } from './readiness'
 import { useReadiness } from './useReadiness'
+import { lessonCode } from '../courseRegistry'
 import './ExamChecklist.css'
 
 const ratingLabels: Record<SelfRating, string> = { red: 'Not confident', amber: 'Getting there', green: 'Confident' }
@@ -32,7 +33,7 @@ export default function ExamChecklist() {
           <p>Tap the colours to say how confident you feel. If your results say something different, we’ll tell you.</p>
         </details>
         {lessons.map(({ entry, rows }) => rows.length > 0 && <div className="xc-lesson" key={entry.lessonId}>
-          <h3>{entry.number}. {entry.title}</h3>
+          <h3>{lessonCode(entry)}. {entry.title}</h3>
           <ul>
             {rows.map(row => <li key={row.key} className={`xc-row xc-row--${row.level}`}>
               <a className="xc-row__main" href={row.href} onClick={modeLink('paper')}>
