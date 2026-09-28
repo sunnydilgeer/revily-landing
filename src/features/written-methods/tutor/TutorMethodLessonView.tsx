@@ -43,20 +43,19 @@ function FractionAnswerInput({ id, mixed, disabled, onChange }: { id: string; mi
   </div>
 }
 
-/** Standard form as two boxes, A × 10 to the power n. The sign button makes the power negative without a minus key. */
+/** Standard form as two boxes, A × 10 to the power n. The power box takes a minus sign, so it opens the full keyboard (a number pad has no minus key). */
 function StandardFormAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
-  const [a, setA] = useState(''), [power, setPower] = useState(''), [negative, setNegative] = useState(false)
-  const update = (nextA: string, nextPower: string, nextNegative: boolean) => {
-    const digits = nextPower.trim().replace(/^[-−]/, '')
-    const sign = nextNegative !== /^[-−]/.test(nextPower.trim()) ? '-' : ''
+  const [a, setA] = useState(''), [power, setPower] = useState('')
+  const update = (nextA: string, nextPower: string) => {
+    const digits = nextPower.trim().replace(/^[-−]\s*/, '')
+    const sign = /^[-−]/.test(nextPower.trim()) ? '-' : ''
     onChange(nextA.trim() && digits ? `${nextA.trim()}×10^${sign}${digits}` : '')
   }
   return <div className="rung-sf" role="group" aria-label="Enter a number in standard form">
-    <label htmlFor={`sf-a-${id}`}><span className="sr-only">Number from 1 up to 10</span><input id={`sf-a-${id}`} className="rung-sf__a" inputMode="decimal" autoComplete="off" spellCheck={false} placeholder="?" disabled={disabled} value={a} onChange={event => { setA(event.target.value); update(event.target.value, power, negative) }} /></label>
+    <label htmlFor={`sf-a-${id}`}><span className="sr-only">Number from 1 up to 10</span><input id={`sf-a-${id}`} className="rung-sf__a" inputMode="decimal" autoComplete="off" spellCheck={false} placeholder="?" disabled={disabled} value={a} onChange={event => { setA(event.target.value); update(event.target.value, power) }} /></label>
     <span className="rung-sf__times" aria-hidden="true">× 10</span>
     <span className="rung-sf__power">
-      <button type="button" className="rung-sf__sign" aria-pressed={negative} aria-label="Negative power" disabled={disabled} onClick={() => { setNegative(!negative); update(a, power, !negative) }}>{negative ? '−' : '+'}</button>
-      <label htmlFor={`sf-n-${id}`}><span className="sr-only">Power of 10</span><input id={`sf-n-${id}`} inputMode="numeric" autoComplete="off" spellCheck={false} placeholder="?" disabled={disabled} value={power} onChange={event => { setPower(event.target.value); update(a, event.target.value, negative) }} /></label>
+      <label htmlFor={`sf-n-${id}`}><span className="sr-only">Power of 10 (type − first if it is negative)</span><input id={`sf-n-${id}`} inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={power} onChange={event => { setPower(event.target.value); update(a, event.target.value) }} /></label>
     </span>
   </div>
 }

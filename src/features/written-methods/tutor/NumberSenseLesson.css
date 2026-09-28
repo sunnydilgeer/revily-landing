@@ -83,6 +83,7 @@
   width: 26px; height: 26px; display: inline-grid; place-items: center; margin-left: 8px; vertical-align: .1em; padding: 0; border: 1.5px solid var(--rv-biro-light); border-radius: 50%;
   font: 700 14px/1 var(--rv-font-body); font-style: italic; color: var(--rv-biro); background: none; cursor: pointer;
 }
+.ns-step__tag { margin-left: 8px; color: var(--rv-muted); font-size: .8em; font-weight: 500; white-space: nowrap; }
 .ns-step__info.is-open { color: var(--rv-surface); background: var(--rv-biro); border-color: var(--rv-biro); }
 .ns-step__info:focus-visible { outline: none; box-shadow: var(--rv-focus); }
 .ns-step__why { justify-self: center; max-width: 22rem; margin: 0; padding: 9px 13px; border-radius: 12px; font: 400 16px/1.4 var(--rv-font-body); color: var(--rv-ink-2); background: var(--rv-biro-tint); text-align: center; }
@@ -90,6 +91,8 @@
 .ns-hop-row { display: flex; align-items: flex-end; justify-content: center; padding-top: 1.35em; font-size: clamp(22px, 7cqw, 40px); font-variant-numeric: tabular-nums; line-height: 1.2; }
 .ns-hop-cell { position: relative; display: inline-grid; place-items: center; min-width: .66em; height: 1.2em; }
 .ns-hop-cell.is-added { color: var(--rv-muted); }
+/* The first non-zero digit: the point will sit straight after it. */
+.ns-hop-cell.is-lead { border-radius: 6px; background: var(--rv-biro-tint); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rv-biro) 45%, transparent); color: var(--rv-biro); font-weight: 600; }
 .ns-hop-cell.is-added:empty { box-sizing: border-box; margin: 0 .04em; border: 1px dashed var(--rv-line-strong); border-radius: 4px; min-width: .58em; }
 .ns-hop-cell.is-dropped { color: var(--rv-line-strong); text-decoration: line-through; text-decoration-thickness: 2px; }
 .ns-hop-arc { position: absolute; bottom: 100%; left: 8%; right: 8%; height: .42em; border: 2px solid var(--rv-biro); border-bottom: 0; border-radius: 50% 50% 0 0 / 100% 100% 0 0; color: var(--rv-biro); font-size: .36em; font-style: normal; font-weight: 700; line-height: 1; text-align: center; }
@@ -97,6 +100,7 @@
 .ns-hop-point { display: inline-block; width: .28em; color: var(--rv-biro); font-weight: 700; text-align: center; }
 .ns-hop-point.is-ghost { color: var(--rv-line-strong); font-weight: 400; }
 .ns-hop-point.is-trailing:not(.is-ghost) { color: var(--rv-biro); }
+.ns-hop-point.is-plain, .ns-hop-point.is-plain.is-trailing { color: var(--rv-ink); }
 .ns-hop-note { margin: 0; color: var(--rv-biro); font-size: 14px; font-weight: 600; }
 .ns-hop-answer { margin: 0; color: var(--rv-biro); font-size: clamp(22px, 5vw, 32px); font-weight: 600; text-align: center; overflow-wrap: anywhere; }
 /* Like terms share a colour; the sign in front of a term is part of the term. */
@@ -104,6 +108,11 @@
 .ns-terms-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; font-size: clamp(20px, 4vw, 26px); }
 .ns-term { padding: 2px 10px; border: 2px solid color-mix(in srgb, var(--f) 45%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--f) 10%, transparent); color: var(--f); font-weight: 600; white-space: nowrap; }
 .ns-term.is-plain { --f: var(--rv-ink); }
+/* A sign or bracket between tiles (standard form × and ÷). */
+.ns-term-chunk { display: inline-flex; gap: 6px; }
+.ns-term-op { align-self: center; margin: 0 4px; color: var(--rv-ink); font-weight: 500; }
+.ns-term-op.is-bracket { margin: 0 1px; position: relative; }
+.ns-term-groups__heading { margin-top: 4px; }
 .is-f0 { --f: var(--rv-biro); }
 .is-f1 { --f: #b45309; }
 .is-f2 { --f: var(--rv-good-ink); }

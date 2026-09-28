@@ -50,7 +50,8 @@ function IntervalVisual({ frame }: { frame: IntervalFrame }) {
   </svg>
 }
 
-function HopVisual({ frame }: { frame: HopFrame }) {
+/** `heading` sits above the hops, or above the answer when the hops were already shown by the step before (`headingAtAnswer`). */
+function HopVisual({ frame, plain, heading, headingAtAnswer }: { frame: HopFrame; plain?: boolean; heading?: ReactNode; headingAtAnswer?: boolean }) {
   const { cells, start, end, stage } = frame
   const moved = stage !== 'start', places = Math.abs(end - start), left = end < start
   const added = new Set(frame.added), dropped = new Set(stage === 'result' ? frame.dropped : [])
@@ -58,47 +59,67 @@ function HopVisual({ frame }: { frame: HopFrame }) {
   const hopOver = new Map<number, number>()
   if (moved) for (let k = 1; k <= places; k++) hopOver.set(left ? start - k : start + k - 1, k)
   const point = (gap: number) => {
-    if (gap === (moved ? end : start)) return <span key={`p${gap}`} className={`ns-hop-point${gap === cells.length ? ' is-trailing' : ''}`}>.</span>
+    if (gap === (moved ? end : start)) return <span key={`p${gap}`} className={`ns-hop-point${gap === cells.length ? ' is-trailing' : ''}${plain ? ' is-plain' : ''}`}>.</span>
     if (moved && gap === start) return <span key={`p${gap}`} className="ns-hop-point is-ghost">.</span>
     return null
   }
   const direction = `${places} place${places === 1 ? '' : 's'} ${left ? 'left' : 'right'}`
   const label = moved ? `The point hops ${direction}.${frame.added?.length ? ' Empty places are filled with zeros.' : ''}${frame.answer ? ` ${frame.answer}` : ''}` : `${cells.filter((_, i) => !added.has(i)).join('')}, with the point after ${start} digit${start === 1 ? '' : 's'}.`
   return <div className="ns-hop" role="img" aria-label={label}>
+    {!(stage === 'result' && headingAtAnswer) && heading}
     <div className="ns-hop-row" aria-hidden="true">
-      {cells.map((cell, i) => [point(i), <span key={i} className={`ns-hop-cell${added.has(i) ? ' is-added' : ''}${dropped.has(i) ? ' is-dropped' : ''}${hopOver.has(i) ? ' is-hopped' : ''}`}>
+      {cells.map((cell, i) => plain && added.has(i) ? point(i) : [point(i), <span key={i} className={`ns-hop-cell${i === frame.lead && !plain ? ' is-lead' : ''}${added.has(i) ? ' is-added' : ''}${dropped.has(i) ? ' is-dropped' : ''}${hopOver.has(i) ? ' is-hopped' : ''}`}>
         {hopOver.has(i) && <i className="ns-hop-arc"><b>{hopOver.get(i)}</b></i>}
         {added.has(i) && !moved ? '' : cell}
       </span>])}
       {point(cells.length)}
     </div>
     {moved && <p className="ns-hop-note" aria-hidden="true">{left ? `← ${direction}` : `${direction} →`}</p>}
+    {stage === 'result' && headingAtAnswer && heading}
     {stage === 'result' && frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
   </div>
+}
+
+/** Tiles split where a line may wrap: never inside brackets, so "(2 × 10³)" stays together on a phone. */
+function chunks(terms: TermsFrame['terms']) {
+  const out: { term: TermsFrame['terms'][number]; i: number }[][] = []
+  let depth = 0
+  terms.forEach((term, i) => {
+    if (depth === 0 && (term.text !== ')' || !out.length)) out.push([])
+    out[out.length - 1].push({ term, i })
+    if (term.op && term.text === '(') depth++
+    if (term.op && term.text === ')') depth--
+  })
+  return out
 }
 
 function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boolean; heading?: ReactNode }) {
   const label = frame.groups
     ? frame.groups.map(group => `${group.parts} gives ${group.total}`).join('. ')
-    : `The terms: ${frame.terms.map(term => term.text).join(' ')}.${plain ? '' : ' Like terms share a colour.'}`
+    : `${frame.terms.some(term => term.op) ? 'The question' : 'The terms'}: ${frame.terms.map(term => term.text).join(' ')}.${plain ? '' : ' Like terms share a colour.'}`
   return <div className="ns-terms" role="img" aria-label={`${label}${frame.answer ? `. ${frame.answer}` : ''}`}>
     {!frame.groups && heading}
-    <p className="ns-terms-row" aria-hidden="true">{frame.terms.map((term, i) => <span key={i} className={`ns-term ${plain ? 'is-plain' : `is-f${term.family % 4}`}`}>{term.text}</span>)}</p>
-    {frame.groups && !frame.answer && heading}
-    {frame.groups && <ul className="ns-term-groups" aria-hidden="true">{frame.groups.map((group, i) => <li key={i} className={`is-f${group.family % 4}`}><span>{group.parts}</span><span aria-hidden="true">→</span><strong>{group.total}</strong></li>)}</ul>}
+    <p className="ns-terms-row" aria-hidden="true">{chunks(frame.terms).map((chunk, c) => <span key={c} className="ns-term-chunk">{chunk.map(({ term, i }) => term.op
+      ? <span key={i} className={`ns-term-op${/[()]/.test(term.text) ? ' is-bracket' : ''}`}>{term.text}</span>
+      : <span key={i} className={`ns-term ${plain ? 'is-plain' : `is-f${term.family % 4}`}`}>{term.text}</span>)}</span>)}</p>
+    {frame.groups && <ul className="ns-term-groups" aria-hidden="true">{frame.groups.map((group, i) => [
+      i === (frame.newFrom ?? 0) && !frame.answer && heading && <li key="heading" className="ns-term-groups__heading">{heading}</li>,
+      <li key={i} className={`is-f${group.family % 4}`}><span>{group.parts}</span><span aria-hidden="true">→</span><strong>{group.total}</strong></li>,
+    ])}</ul>}
     {frame.answer && heading}
     {frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
   </div>
 }
 
 /**
- * One step of a collecting-like-terms working: its heading sits just above what the step adds,
- * and its explanation (closed until the student taps ⓘ) just below. Earlier steps' headings go; their maths stays.
+ * One step of a picture-only working (see src/features/EXPLANATIONS.md): its heading sits just above what the
+ * step adds, and its explanation (closed until the student taps ⓘ) just below. Earlier steps' headings go.
  */
-function CollectStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
+function PictureStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
   const [open, setOpen] = useState(false)
   const heading = <p className="ns-step" aria-live="polite">
     <span className="ns-step__title">{step.title}</span>
+    {step.tag && <span className="ns-step__tag">{step.tag}</span>}
     <button type="button" className={`ns-step__info${open ? ' is-open' : ''}`} aria-label="Why?" aria-expanded={open} onClick={() => setOpen(!open)}>i</button>
   </p>
   return <>
@@ -123,18 +144,31 @@ function OrderingVisual({ frame }: { frame: OrderingFrame }) {
 
 export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) {
   const chain = useMemo(() => methodChain(visual), [visual])
-  // Collecting like terms: the term tiles show every line, so the picture carries the whole working.
-  const collect = visual.examples.every(example => example.method === 'collect')
+  // When every step has its own picture (term tiles, hops, value cards), the picture carries the whole working.
+  const pictureOnly = visual.examples.every(example => example.method === 'collect'
+    || (example.method === 'standard-form' && example.steps.every(step => step.frame.hop || step.frame.ordering || step.frame.terms)))
   const picture = (revealed: number) => {
     const at = chain.slice(0, revealed).findLast(line => line.at)?.at
     const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
-    if (collect) {
+    if (pictureOnly) {
       const example = visual.examples[at?.example ?? 0], step = at && example.steps[at.step]
-      // Before the first step, like terms show as plain tiles: the question itself, not yet sorted.
-      if (!step) return example.steps[0]?.frame.terms ? <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: example.steps[0].frame.terms.terms }} plain /></div> : null
-      return <div className="ns-visual rung-worked__visual" key={`${at.example ?? 0}-${at.step}`}><CollectStep step={step}>{heading => step.frame.terms
-        ? <TermsVisual frame={step.frame.terms} heading={heading} />
-        : <>{heading}{step.frame.ordering && <OrderingVisual frame={step.frame.ordering} />}</>}</CollectStep></div>
+      if (!step) {
+        // Before the first step: the question's own picture, plain (tiles not yet sorted, the number before any hops).
+        const first = example.steps[0]?.frame
+        if (first?.terms) return <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: first.terms.terms }} plain /></div>
+        if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
+        return null
+      }
+      const { terms, hop, ordering } = step.frame
+      // Earlier maths stays: tiles or value cards from an earlier step remain above a step that doesn't redraw them.
+      const before = example.steps.slice(0, at.step)
+      const earlier = ordering?.values || terms ? undefined : before.findLast(step => step.frame.ordering?.values)?.frame.ordering
+      const earlierTiles = terms ? undefined : before.findLast(step => step.frame.terms)?.frame.terms
+      return <div className="ns-visual rung-worked__visual" key={`${at.example ?? 0}-${at.step}`}>{earlierTiles && <TermsVisual frame={earlierTiles} />}{earlier && <OrderingVisual frame={earlier} />}<PictureStep step={step}>{heading => terms
+        ? <TermsVisual frame={terms} heading={heading} />
+        : hop
+          ? <><HopVisual frame={hop} heading={heading} headingAtAnswer={Boolean(before.at(-1)?.frame.hop)} />{ordering && <OrderingVisual frame={ordering} />}</>
+          : <>{heading}{ordering && <OrderingVisual frame={ordering} />}</>}</PictureStep></div>
     }
     if (!frame || !(frame.rounding || frame.interval || frame.ordering || frame.hop || frame.terms)) return null
     return <div className="ns-visual rung-worked__visual">
@@ -145,5 +179,5 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
       {frame.terms && <TermsVisual frame={frame.terms} />}
     </div>
   }
-  return <WorkedChain steps={chain} picture={picture} pictureOnly={collect} />
+  return <WorkedChain steps={chain} picture={picture} pictureOnly={pictureOnly} />
 }
