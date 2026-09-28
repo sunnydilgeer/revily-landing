@@ -111,7 +111,7 @@
 /* A sign or bracket between tiles (standard form × and ÷). */
 .ns-term-chunk { display: inline-flex; gap: 6px; }
 .ns-term-op { align-self: center; margin: 0 4px; color: var(--rv-ink); font-weight: 500; }
-.ns-term-op.is-bracket { margin: 0 -3px; }
+.ns-term-op.is-bracket { margin: 0 1px; position: relative; }
 .ns-term-groups__heading { margin-top: 4px; }
 .is-f0 { --f: var(--rv-biro); }
 .is-f1 { --f: #b45309; }
