@@ -89,6 +89,7 @@
 .ns-terms { display: grid; justify-items: center; gap: 12px; }
 .ns-terms-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; font-size: clamp(20px, 4vw, 26px); }
 .ns-term { padding: 2px 10px; border: 2px solid color-mix(in srgb, var(--f) 45%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--f) 10%, transparent); color: var(--f); font-weight: 600; white-space: nowrap; }
+.ns-term.is-plain { --f: var(--rv-ink); }
 .is-f0 { --f: var(--rv-biro); }
 .is-f1 { --f: #b45309; }
 .is-f2 { --f: var(--rv-good-ink); }

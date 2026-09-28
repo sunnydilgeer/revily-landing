@@ -13,6 +13,8 @@ export type MethodChainStep = ChainStep & { at?: { example?: number; step: numbe
 export function methodChain(visual: MethodWorking): MethodChainStep[] {
   return visual.examples.flatMap((example, index) => {
     const own: MethodChainStep[] = example.chain ?? chainFromSteps(example.expression, example.steps).map((line, i) => i ? { ...line, at: { step: i - 1 } } : line)
+    // Collecting like terms: the coloured term tiles already show each line, so the chain keeps only the words.
+    if (example.method === 'collect') own.forEach((line, i) => { if (!i || example.steps[i - 1].frame.terms) line.pictured = true })
     const lines = own.map(line => line.at ? { ...line, at: { ...line.at, example: index } } : line)
     if (index === 0) return lines
     const [first, ...rest] = lines

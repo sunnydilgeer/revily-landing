@@ -77,12 +77,12 @@ function HopVisual({ frame }: { frame: HopFrame }) {
   </div>
 }
 
-function TermsVisual({ frame }: { frame: TermsFrame }) {
+function TermsVisual({ frame, plain }: { frame: TermsFrame; plain?: boolean }) {
   const label = frame.groups
     ? frame.groups.map(group => `${group.parts} gives ${group.total}`).join('. ')
-    : `The terms: ${frame.terms.map(term => term.text).join(' ')}. Like terms share a colour.`
+    : `The terms: ${frame.terms.map(term => term.text).join(' ')}.${plain ? '' : ' Like terms share a colour.'}`
   return <div className="ns-terms" role="img" aria-label={`${label}${frame.answer ? `. ${frame.answer}` : ''}`}>
-    <p className="ns-terms-row" aria-hidden="true">{frame.terms.map((term, i) => <span key={i} className={`ns-term is-f${term.family % 4}`}>{term.text}</span>)}</p>
+    <p className="ns-terms-row" aria-hidden="true">{frame.terms.map((term, i) => <span key={i} className={`ns-term ${plain ? 'is-plain' : `is-f${term.family % 4}`}`}>{term.text}</span>)}</p>
     {frame.groups && <ul className="ns-term-groups" aria-hidden="true">{frame.groups.map((group, i) => <li key={i} className={`is-f${group.family % 4}`}><span>{group.parts}</span><span aria-hidden="true">→</span><strong>{group.total}</strong></li>)}</ul>}
     {frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
   </div>
@@ -107,6 +107,9 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
   const picture = (revealed: number) => {
     const at = chain.slice(0, revealed).findLast(line => line.at)?.at
     const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
+    // Before the first step, like terms show as plain tiles: the question itself, not yet sorted.
+    const opening = !at && visual.examples[0].method === 'collect' ? visual.examples[0].steps[0]?.frame.terms : undefined
+    if (opening) return <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: opening.terms }} plain /></div>
     if (!frame || !(frame.rounding || frame.interval || frame.ordering || frame.hop || frame.terms)) return null
     return <div className="ns-visual rung-worked__visual">
       {frame.rounding && <RoundingVisual frame={frame.rounding} />}
