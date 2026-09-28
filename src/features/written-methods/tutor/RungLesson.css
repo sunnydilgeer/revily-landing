@@ -83,9 +83,7 @@
 .rung-sf__a { width: 3.4em; margin-top: 22px; }
 .rung-sf__times { margin-top: 30px; color: var(--rv-ink); font-size: 1.8rem; font-weight: 500; white-space: nowrap; }
 .rung-sf__power { display: inline-flex; align-items: center; gap: 4px; }
-.rung-sf__power input { width: 2.2em; height: 48px; font-size: 1.25rem; border-radius: 12px; }
-.rung-sf__sign { width: 34px; height: 34px; border: 2px solid var(--rv-line); border-radius: 10px; background: var(--rv-surface); color: var(--rv-ink); font: 700 1.2rem var(--rv-font-body); cursor: pointer; }
-.rung-sf__sign[aria-pressed="true"] { border-color: var(--rv-biro); background: var(--rv-biro-tint); color: var(--rv-biro); }
+.rung-sf__power input { width: 2.8em; height: 48px; font-size: 1.25rem; border-radius: 12px; }
 .rung-answer.is-correct .rung-sf input { border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint); }
 .rung-answer.is-incorrect .rung-sf input { border-style: solid; border-color: var(--rv-redpen); color: #a51f1f; background: var(--rv-redpen-tint); text-decoration: line-through; text-decoration-thickness: 2px; }
 @media (max-width: 380px) {

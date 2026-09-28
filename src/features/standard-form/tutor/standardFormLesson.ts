@@ -1,6 +1,6 @@
 import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import type { HopFrame, MethodStep, OrderingFrame } from '../../written-methods/tutor/methodWorking'
+import type { HopFrame, MethodStep, OrderingFrame, TermsFrame } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { diagnoseBetween, diagnoseMultiplier, diagnoseOrdinary, diagnoseStandardForm, sf, sup, type StandardFormCheck } from './standardFormDiagnosis'
@@ -68,7 +68,7 @@ function hopsToStandard(ordinary: string, stage: HopFrame['stage'], answer: stri
   const cells = (whole + fraction).split('')
   const first = cells.findIndex(cell => cell !== '0'), last = cells.length - 1 - [...cells].reverse().findIndex(cell => cell !== '0')
   const dropped = cells.map((_, i) => i).filter(i => i < first || i > last)
-  return { cells, start: whole.length, end: first + 1, dropped, stage, answer }
+  return { cells, start: whole.length, end: first + 1, dropped, stage, answer, lead: first }
 }
 
 /** Standard form facts for a number given as a digit string. */
@@ -84,11 +84,11 @@ function standardOf(ordinary: string) {
 
 /* ---------- Working models ---------- */
 
-type Step = { title: string; math: string; say: string; hop?: HopFrame; order?: OrderingFrame; tag?: string }
+type Step = { title: string; math: string; say: string; hop?: HopFrame; order?: OrderingFrame; terms?: TermsFrame; tag?: string }
 
 function lines(question: string, ...list: Step[]): TutorWorking {
   const steps: MethodStep[] = list.map(step => ({
-    title: step.title, operation: question, equation: step.math, instruction: step.say, frame: { hop: step.hop, ordering: step.order }, tag: step.tag,
+    title: step.title, operation: question, equation: step.math, instruction: step.say, frame: { hop: step.hop, ordering: step.order, terms: step.terms }, tag: step.tag,
   }))
   return { kind: 'method-worked', examples: [{ method: 'standard-form', expression: question, label: 'Standard form', first: 0, second: 0, steps }] }
 }
@@ -129,24 +129,34 @@ function fixUp(raw: number, rawPower: number): Step {
 }
 
 type Pair = [number, number]
-function times([a1, n1]: Pair, [a2, n2]: Pair, extra: Step[] = []): TutorWorking {
-  const p = tidy(a1 * a2), s = n1 + n2
-  const done: Step = p >= 10 ? fixUp(p, s) : { title: 'Write the answer', math: sfTex(p, s), say: 'The first number is between 1 and 10, so this is standard form.', order: { answer: sf(p, s) } }
-  return lines(`(${sfTex(a1, n1)})\\times(${sfTex(a2, n2)})`,
-    { title: 'Multiply the numbers', math: `${a1}\\times${a2}=${p}`, say: 'Multiply the numbers in front.', order: { values: [`Numbers: ${a1} × ${a2} = ${p}`] } },
-    { title: 'Add the powers', math: `10^{${n1}}\\times10^{${n2}}=10^{${s}}`, say: 'Multiplying powers of 10 adds the powers.', order: { values: [`Numbers: ${a1} × ${a2} = ${p}`, `Powers: ${n1} + ${n2} = ${s}`] } },
+/**
+ * (a₁ × 10ⁿ¹) × or ÷ (a₂ × 10ⁿ²) as tiles: numbers in front in one colour, powers of 10 in another,
+ * like the like-terms tiles. Sort the parts, work out the numbers, then the powers, then the answer.
+ */
+function calculate([a1, n1]: Pair, [a2, n2]: Pair, divide: boolean, extra: Step[]): TutorWorking {
+  const sign = divide ? '÷' : '×', result = divide ? tidy(a1 / a2) : tidy(a1 * a2), s = divide ? n1 - n2 : n1 + n2
+  const op = (text: string) => ({ text, family: 0, op: true })
+  const terms: TermsFrame['terms'] = [
+    op('('), { text: String(a1), family: 1 }, op('×'), { text: `10${sup(n1)}`, family: 0 }, op(')'), op(sign),
+    op('('), { text: String(a2), family: 1 }, op('×'), { text: `10${sup(n2)}`, family: 0 }, op(')'),
+  ]
+  const numbers = { parts: `${a1} ${sign} ${a2}`, total: String(result), family: 1 }
+  const powers = { parts: `10${sup(n1)} ${sign} 10${sup(n2)}`, total: `10${sup(s)}`, family: 0 }
+  const done: Step = result < 1 || result >= 10 ? fixUp(result, s)
+    : { title: 'Write the answer', math: sfTex(result, s), say: 'The first number is between 1 and 10, so this is standard form.', terms: { terms, groups: [numbers, powers], answer: sf(result, s) } }
+  return lines(`(${sfTex(a1, n1)})\\${divide ? 'div' : 'times'}(${sfTex(a2, n2)})`,
+    { title: 'Sort the parts', math: `(${sfTex(a1, n1)})\\${divide ? 'div' : 'times'}(${sfTex(a2, n2)})`, say: 'Numbers in front are one colour and powers of 10 another. Work each kind out separately.', terms: { terms } },
+    divide
+      ? { title: 'Divide the numbers', math: `${a1}\\div${a2}=${result}`, say: 'Divide the first number in front by the second.', terms: { terms, groups: [numbers] } }
+      : { title: 'Multiply the numbers', math: `${a1}\\times${a2}=${result}`, say: 'Multiply the numbers in front.', terms: { terms, groups: [numbers] } },
+    divide
+      ? { title: 'Subtract the powers', math: `10^{${n1}}\\div10^{${n2}}=10^{${s}}`, say: 'Dividing powers of 10 subtracts them: first power minus second.', terms: { terms, groups: [numbers, powers], newFrom: 1 } }
+      : { title: 'Add the powers', math: `10^{${n1}}\\times10^{${n2}}=10^{${s}}`, say: 'Multiplying powers of 10 adds the powers.', terms: { terms, groups: [numbers, powers], newFrom: 1 } },
     done, ...extra,
   )
 }
-function over([a1, n1]: Pair, [a2, n2]: Pair, extra: Step[] = []): TutorWorking {
-  const q = tidy(a1 / a2), s = n1 - n2
-  const done: Step = q < 1 || q >= 10 ? fixUp(q, s) : { title: 'Write the answer', math: sfTex(q, s), say: 'The first number is between 1 and 10, so this is standard form.', order: { answer: sf(q, s) } }
-  return lines(`(${sfTex(a1, n1)})\\div(${sfTex(a2, n2)})`,
-    { title: 'Divide the numbers', math: `${a1}\\div${a2}=${q}`, say: 'Divide the first number in front by the second.', order: { values: [`Numbers: ${a1} ÷ ${a2} = ${q}`] } },
-    { title: 'Subtract the powers', math: `10^{${n1}}\\div10^{${n2}}=10^{${s}}`, say: 'Dividing powers of 10 subtracts them: first power minus second.', order: { values: [`Numbers: ${a1} ÷ ${a2} = ${q}`, `Powers: ${n1} − ${minus(n2)} = ${minus(s)}`] } },
-    done, ...extra,
-  )
-}
+const times = (first: Pair, second: Pair, extra: Step[] = []) => calculate(first, second, false, extra)
+const over = (first: Pair, second: Pair, extra: Step[] = []) => calculate(first, second, true, extra)
 
 /* ---------- Answers ---------- */
 
@@ -176,7 +186,10 @@ function practice(topic: MicroSkillId, title: string, sourceRef: string, interac
   return state
 }
 function worked(topic: MicroSkillId, title: string, sourceRef: string, model: TutorWorking, body?: string) {
-  return add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
+  const state = add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
+  // × and ÷ open with the question as tiles, so the heading doesn't repeat it.
+  if (title.startsWith('Work out (')) state.content.heading = 'Work out. Give your answer in standard form.'
+  return state
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 const media = (name: string, title: string, durationSeconds: number, sourceFile: string, textAlternative: string[]) => ({

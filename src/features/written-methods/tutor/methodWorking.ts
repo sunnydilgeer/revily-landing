@@ -48,12 +48,17 @@ export type HopFrame = {
   dropped?: number[]
   stage: 'start' | 'hops' | 'result'
   answer?: string
+  /** The first non-zero digit, marked while finding where the point should go (writing a number in standard form). */
+  lead?: number
 }
 /** Collecting like terms: each term keeps its sign and is coloured by its family of like terms. */
 export type TermsFrame = {
-  terms: { text: string; family: number }[]
+  /** Tiles; an `op` is a plain sign or bracket between tiles (standard form × and ÷). */
+  terms: { text: string; family: number; op?: boolean }[]
   /** Each family added up: "4p + 2p" gives "6p". */
   groups?: { parts: string; total: string; family: number }[]
+  /** The groups from this index on are the ones this step adds; the step's heading sits above them. */
+  newFrom?: number
   answer?: string
 }
 export type OrderingFrame = {

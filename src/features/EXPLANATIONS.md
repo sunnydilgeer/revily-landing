@@ -24,6 +24,9 @@ The aim is minimal: a student should see the maths once, one step at a time, wit
 
 Like things share a colour across the tiles, the sums and the answer (`is-f0`…`is-f3`: biro blue, amber, green, purple). Plain ink means "not sorted yet". Green and red are kept for marking right and wrong.
 
+- A calculation with parts of different kinds opens with the question as tiles, one colour per kind, as in collecting like terms. Standard form × and ÷: numbers in front are amber, powers of 10 are blue; the first step sorts them, then each kind is worked out on its own line under its own heading.
+- The digit a step is about is marked in its picture (writing a number in standard form: the first non-zero digit, before the point moves).
+
 ## Building one
 
 - A working whose every step has a picture uses `WorkedChain` with `pictureOnly`. The picture draws the step heading (`PictureStep`) and the chain isn't drawn. `NumberSenseWorkedExample` decides which methods qualify (`collect`, and `standard-form` when every step has a hop or value cards).
