@@ -16,7 +16,7 @@ The aim is minimal: a student should see the maths once, one step at a time, wit
 6. **Explanations are words, not maths.** The picture already shows every sum, so the box says what to do and why: "Add the p terms, then the numbers." Never repeat the calculation ("3p + 2p = 5p") or the answer.
 7. **Short step headings, no decoration.** Two to four words ("Sort the terms", "Collect each family", "Write the answer"). No arrows or numbering. The last step reads as the answer ("The answer", not "Read the number"), so it doesn't sound like more work. A heading may carry a small grey reminder of what it refers to (`tag`, e.g. "Read the power × 10³").
 8. **One type size.** Step headings and lines of working use the question's size (`--ns-problem-size`: 21px on phones, up to 25px). Only the picture itself and the final answer are bigger.
-9. **App font only.** No serif maths lines (KaTeX) under a picture. Maths inside the working uses the body font, coloured to match its picture.
+9. **App font only.** No serif maths lines (KaTeX) under a picture. Maths inside the working uses the body font, coloured to match its picture. Powers are drawn as raised digits (`Powers.tsx`), because the app font's ¹ ² ³ are much smaller than the ⁴–⁹ it borrows from another font.
 10. **Controls in the middle.** ←, the progress dots and Next step sit together, centred under the working.
 11. **Phone first.** Everything fits 320px wide with no sideways scroll; a long heading wraps as one centred phrase with ⓘ after its last word.
 
@@ -36,4 +36,4 @@ Like things share a colour across the tiles, the sums and the answer (`is-f0`…
 
 ## Rolling out
 
-Done: Collecting like terms (A1), Standard form (14), Bounds (13). Lessons 4–12 still use the older step chain (serif lines, every heading stacked, explanations open). Convert them one lesson at a time. Show Sunny one example in the Vercel preview first, then do the rest of that lesson.
+Done: Collecting like terms (A1), Standard form (14), Bounds (13), Powers and roots (A2: powers written out as copies, area squares and lines of working, in `PowerPictures.tsx`). Lessons 4–12 still use the older step chain (serif lines, every heading stacked, explanations open). Convert them one lesson at a time. Show Sunny one example in the Vercel preview first, then do the rest of that lesson.

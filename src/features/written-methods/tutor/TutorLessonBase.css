@@ -96,3 +96,6 @@
   .pvb-order strong { font-size: 18px; }
   .pvb-order li > div { gap: 3px; }
 }
+
+/* Powers drawn as raised digits (Powers.tsx), so ¹ ² ³ match ⁴–⁹. */
+.rv-pow { position: relative; top: -.42em; vertical-align: baseline; font-size: .7em; line-height: 0; margin-left: .01em; letter-spacing: 0; }

@@ -67,11 +67,26 @@ export type OrderingFrame = {
   comparison?: string
   answer?: string
 }
+/**
+ * Powers written out as copies (indices): each group is one power's copies, e.g. 3⁴ as four 3 tiles.
+ * `over` stacks the first row above the second as a fraction, for division; `crossed` tiles cancel.
+ */
+export type TilesFrame = {
+  rows: { groups: { tiles: string[]; family: number; crossed?: number }[] }[]
+  over?: boolean
+  /** A short count under the tiles, e.g. "4 + 5 = 9 threes". */
+  note?: string
+  plain?: boolean
+}
+/** A square of small squares (area), with `shaded` rows × columns coloured in: (⅔)² or √49. */
+export type SquaresFrame = { rows: number; cols: number; shaded: [number, number]; side?: string; label: string }
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
   /** The lines of working so far; a step that adds lines has its heading above the new ones. */
   sums?: WorkingLine[]
+  tiles?: TilesFrame
+  squares?: SquaresFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

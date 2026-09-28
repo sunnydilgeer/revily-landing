@@ -80,6 +80,14 @@ export type MicroSkillId =
   | 'like-terms-different-letters'
   | 'like-terms-powers'
   | 'like-terms-mixed'
+  | 'indices-power-one'
+  | 'indices-multiply'
+  | 'indices-divide'
+  | 'indices-power-zero'
+  | 'indices-one'
+  | 'indices-power-of-power'
+  | 'indices-fraction'
+  | 'roots'
   | 'mixed'
 
 export type LessonPhase =
@@ -126,8 +134,10 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'power'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power'
+  /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
+  anyPower?: boolean
   requiredDenominator?: number
   requiredDecimalPlaces?: number
   requireSimplest?: boolean
