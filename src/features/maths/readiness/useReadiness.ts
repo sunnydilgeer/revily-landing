@@ -12,7 +12,7 @@ import { CARDS_EVENT, CARDS_KEY, readCardStates, type CardStates } from '../../c
 import { mathsLessons } from '../courseRegistry'
 import { MATHS_PROGRESS_EVENT, readMathsProgress, type LessonProgressMap } from '../lessonProgress'
 import { rungStatus } from '../rungProgress'
-import { scoreTopics } from './paperMap'
+import { scoreTopics } from './paperTopics'
 import { evidenceFor, levelFor, mismatch, PRACTICE_EVENT, PRACTICE_KEY, type PracticeRecord, type SelfRating } from './readiness'
 import { canStatements } from './statements'
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowIcon, CloseIcon } from '../../../ui/icons'
 import { modeLink } from '../../../ui/modeTransition'
-import { paperTopics } from '../readiness/paperMap'
+import { paperTopics } from '../readiness/paperTopics'
 import PartView from './PartView'
 import { MathText } from './MathText'
 import { saveSprint } from './record'

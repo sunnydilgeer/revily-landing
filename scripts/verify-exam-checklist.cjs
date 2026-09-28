@@ -1,7 +1,7 @@
 // Checks the exam checklist: every teaching section of every maths lesson has one "I can…" statement
 // (review sections have none) and no statement points at a section that no longer exists; the level
 // rules, mismatch notes and May/June countdown behave as documented in readiness.ts; the exam map
-// (paperMap.ts, squarify.ts) places every statement in one topic and lays the paper out cleanly.
+// (paperTopics.ts, squarify.ts) places every statement in one topic and lays the paper out cleanly.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -24,10 +24,10 @@ require.extensions['.css'] = () => {}
 const { mathsLessons } = require(path.join(root, 'src/features/maths/courseRegistry.ts'))
 const { canStatements } = require(path.join(root, 'src/features/maths/readiness/statements.ts'))
 const { levelFor, mismatch, nextExamSeries } = require(path.join(root, 'src/features/maths/readiness/readiness.ts'))
-const { paperTopics, marksPerPaper, scoreTopics, biggestWin, tileLevel, PAPER_MARKS } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
+const { paperTopics, marksPerPaper, scoreTopics, biggestWin, tileLevel, PAPER_MARKS } = require(path.join(root, 'src/features/maths/readiness/paperTopics.ts'))
 const { squarify } = require(path.join(root, 'src/features/maths/readiness/squarify.ts'))
 const { assignColumns, colX, railPoints, rowY, ROW, LABEL_DROP } = require(path.join(root, 'src/features/maths/readiness/rails.ts'))
-const { branchTiers, branchLeaves } = require(path.join(root, 'src/features/maths/readiness/paperMap.ts'))
+const { branchTiers, branchLeaves } = require(path.join(root, 'src/features/maths/readiness/paperTopics.ts'))
 const { bosses, isCorrect, readAnswer } = require(path.join(root, 'src/features/maths/readiness/bosses.ts'))
 const katex = require(path.join(root, 'node_modules/katex'))
 const { hasTopicIcon } = require(path.join(root, 'src/ui/icons.tsx'))

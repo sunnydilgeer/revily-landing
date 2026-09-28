@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { areaTitles, tileLevel, type AreaId, type TopicScore } from './paperMap'
+import { areaTitles, tileLevel, type AreaId, type TopicScore } from './paperTopics'
 import { levelLabels } from './readiness'
 import { squarify, type Rect } from './squarify'
 import './PaperMap.css'
