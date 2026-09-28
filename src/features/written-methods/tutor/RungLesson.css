@@ -106,6 +106,9 @@
   background: var(--rv-surface); box-shadow: 0 3px 0 var(--rv-line); font-size: 1.05rem; text-align: left;
 }
 .rung-lesson .pvb-choice:hover:not(:disabled) { border-color: var(--rv-biro); box-shadow: 0 3px 0 var(--rv-biro); background: var(--rv-surface); }
+.rung-lesson .pvb-choice--selected, .rung-lesson .pvb-choice--selected:hover:not(:disabled) { border-color: var(--rv-biro); box-shadow: 0 3px 0 var(--rv-biro); background: var(--rv-biro-tint); }
+.rung-lesson .pvb-choice__box { flex-shrink: 0; width: 22px; height: 22px; border: 2px solid var(--rv-line); border-radius: 6px; background: var(--rv-surface); }
+.rung-lesson .pvb-choice__box--on { border-color: var(--rv-biro); background: var(--rv-biro) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
 .rung-lesson .pvb-choice--correct { border-color: var(--rv-good); box-shadow: 0 3px 0 var(--rv-good); background: var(--rv-good-tint); }
 .rung-lesson .pvb-choice--incorrect { border-color: var(--rv-redpen); box-shadow: 0 3px 0 var(--rv-redpen); background: var(--rv-redpen-tint); }
 

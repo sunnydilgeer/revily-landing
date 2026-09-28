@@ -170,8 +170,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {choices && <div className="pvb-choices" role="group" aria-label={multi ? 'Choose every answer that fits' : 'Choose one answer'}>{state.interaction.options?.map(option => {
         const answers = state.interaction.correctAnswer
         const selected = selection.includes(option.id), correct = Array.isArray(answers) ? answers.map(String).includes(option.id) : answers === option.id
-        const status = feedback ? correct ? 'correct' : selected ? 'incorrect' : 'neutral' : 'neutral'
-        return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => multi ? engine.toggleOption(option.id) : engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : ''}</span></button>
+        const status = feedback ? correct ? 'correct' : selected ? 'incorrect' : 'neutral' : selected ? 'selected' : 'neutral'
+        return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => multi ? engine.toggleOption(option.id) : engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true" className={multi && !feedback ? `pvb-choice__box${selected ? ' pvb-choice__box--on' : ''}` : undefined}>{feedback ? correct ? '✓' : selected ? '×' : '' : ''}</span></button>
       })}</div>}
 
       {!teaching && !feedback && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
