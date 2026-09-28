@@ -100,7 +100,7 @@ function toOrdinary(a: string, n: number, extra: Step[] = []): TutorWorking {
   return lines(sfTex(a, n),
     { title: 'Read the power', math: sfTex(a, n), say: n > 0 ? `The power is ${n}, so the number is large. The point moves ${places(n)} right.` : `The power is ${minus(n)}, so the number is small. The point moves ${places(n)} left.`, hop: hopsToOrdinary(a, n, 'start') },
     { title: 'Hop the point', math: `\\text{${places(n)} ${way}}`, say: 'Hop one place at a time. Fill each empty place with a 0.', hop: hopsToOrdinary(a, n, 'hops') },
-    { title: 'Read the number', math: `${sfTex(a, n)}=${tex(answer)}`, say: `${sf(Number(a), n)} = ${answer}.`, hop: hopsToOrdinary(a, n, 'result') },
+    { title: 'Read the number', math: `${sfTex(a, n)}=${tex(answer)}`, say: n > 0 ? 'The point is now at the end, so leave it off.' : 'Nothing is in front of the point, so write a 0 there.', hop: hopsToOrdinary(a, n, 'result') },
     ...extra,
   )
 }
@@ -111,7 +111,7 @@ function toStandard(ordinary: string, first: Step[] = [], extra: Step[] = []): T
   const lead = ordinary.replaceAll(' ', '').replace(/^0\.0*/, '')[0]
   return lines(tex(ordinary), ...first,
     { title: 'Find the first digit', math: tex(ordinary), say: `The point needs to sit straight after the ${lead}, so that one digit is in front of it.`, hop: hopsToStandard(ordinary, 'start', answer) },
-    { title: 'Hop the point', math: `\\text{${places(n)} ${left ? 'left' : 'right'}}`, say: `The point hops ${places(n)} ${left ? 'left' : 'right'} to give ${a}.`, hop: hopsToStandard(ordinary, 'hops', answer) },
+    { title: 'Hop the point', math: `\\text{${places(n)} ${left ? 'left' : 'right'}}`, say: 'Hop one place at a time, until one digit is in front of the point.', hop: hopsToStandard(ordinary, 'hops', answer) },
     { title: 'Write the power', math: `${tex(ordinary)}=${sfTex(a, n)}`, say: left ? `It hopped left, so the number is large and the power is ${n}.` : `It hopped right, so the number is small and the power is ${minus(n)}.`, hop: hopsToStandard(ordinary, 'result', answer) },
     ...extra,
   )
@@ -124,26 +124,26 @@ function fixUp(raw: number, rawPower: number): Step {
     ? { cells: String(raw).replace('.', '').split(''), start: String(Math.trunc(raw)).length, end: 1, dropped: String(raw).endsWith('0') ? [String(raw).length - 1] : [], stage: 'result', answer: sf(a, n) }
     : { cells: String(raw).replace('.', '').split(''), start: 1, end: 2, dropped: [0], stage: 'result', answer: sf(a, n) }
   return raw >= 10
-    ? { title: 'Check the first number', math: `${sfTex(raw, rawPower)}=${sfTex(a, n)}`, say: `${raw} is 10 or more, so it isn’t standard form yet. ${raw} = ${a} × 10, so add 1 to the power.`, hop }
-    : { title: 'Check the first number', math: `${sfTex(raw, rawPower)}=${sfTex(a, n)}`, say: `${raw} is less than 1, so it isn’t standard form yet. ${raw} = ${a} × 10${sup(-1)}, so take 1 off the power.`, hop }
+    ? { title: 'Check the first number', math: `${sfTex(raw, rawPower)}=${sfTex(a, n)}`, say: 'The first number is 10 or more, so it isn’t standard form yet. Hop the point 1 place left and add 1 to the power.', hop }
+    : { title: 'Check the first number', math: `${sfTex(raw, rawPower)}=${sfTex(a, n)}`, say: 'The first number is less than 1, so it isn’t standard form yet. Hop the point 1 place right and take 1 off the power.', hop }
 }
 
 type Pair = [number, number]
 function times([a1, n1]: Pair, [a2, n2]: Pair, extra: Step[] = []): TutorWorking {
   const p = tidy(a1 * a2), s = n1 + n2
-  const done: Step = p >= 10 ? fixUp(p, s) : { title: 'Write the answer', math: sfTex(p, s), say: `${p} is between 1 and 10, so this is standard form.`, order: { answer: sf(p, s) } }
+  const done: Step = p >= 10 ? fixUp(p, s) : { title: 'Write the answer', math: sfTex(p, s), say: 'The first number is between 1 and 10, so this is standard form.', order: { answer: sf(p, s) } }
   return lines(`(${sfTex(a1, n1)})\\times(${sfTex(a2, n2)})`,
     { title: 'Multiply the numbers', math: `${a1}\\times${a2}=${p}`, say: 'Multiply the numbers in front.', order: { values: [`Numbers: ${a1} × ${a2} = ${p}`] } },
-    { title: 'Add the powers', math: `10^{${n1}}\\times10^{${n2}}=10^{${s}}`, say: `Add the powers: ${n1} + ${n2} = ${s}.`, order: { values: [`Numbers: ${a1} × ${a2} = ${p}`, `Powers: ${n1} + ${n2} = ${s}`] } },
+    { title: 'Add the powers', math: `10^{${n1}}\\times10^{${n2}}=10^{${s}}`, say: 'Multiplying powers of 10 adds the powers.', order: { values: [`Numbers: ${a1} × ${a2} = ${p}`, `Powers: ${n1} + ${n2} = ${s}`] } },
     done, ...extra,
   )
 }
 function over([a1, n1]: Pair, [a2, n2]: Pair, extra: Step[] = []): TutorWorking {
   const q = tidy(a1 / a2), s = n1 - n2
-  const done: Step = q < 1 || q >= 10 ? fixUp(q, s) : { title: 'Write the answer', math: sfTex(q, s), say: `${q} is between 1 and 10, so this is standard form.`, order: { answer: sf(q, s) } }
+  const done: Step = q < 1 || q >= 10 ? fixUp(q, s) : { title: 'Write the answer', math: sfTex(q, s), say: 'The first number is between 1 and 10, so this is standard form.', order: { answer: sf(q, s) } }
   return lines(`(${sfTex(a1, n1)})\\div(${sfTex(a2, n2)})`,
     { title: 'Divide the numbers', math: `${a1}\\div${a2}=${q}`, say: 'Divide the first number in front by the second.', order: { values: [`Numbers: ${a1} ÷ ${a2} = ${q}`] } },
-    { title: 'Subtract the powers', math: `10^{${n1}}\\div10^{${n2}}=10^{${s}}`, say: `First power minus second power: ${n1} − ${minus(n2)} = ${minus(s)}.`, order: { values: [`Numbers: ${a1} ÷ ${a2} = ${q}`, `Powers: ${n1} − ${minus(n2)} = ${minus(s)}`] } },
+    { title: 'Subtract the powers', math: `10^{${n1}}\\div10^{${n2}}=10^{${s}}`, say: 'Dividing powers of 10 subtracts them: first power minus second.', order: { values: [`Numbers: ${a1} ÷ ${a2} = ${q}`, `Powers: ${n1} − ${minus(n2)} = ${minus(s)}`] } },
     done, ...extra,
   )
 }
@@ -199,7 +199,7 @@ function normalised(raw: number, power: number) {
 }
 const betweenQuestion = (topic: MicroSkillId, title: string, ref: string, lower: number, upper: number, n: number) =>
   practice(topic, title, ref, between(lower, upper, n), `Every number between these two has the same power of 10. Which power?`, lines(`${tex(group(String(lower)))}\\text{ to }${tex(group(String(upper)))}`,
-    { title: 'Write both ends in standard form', math: `${sfTex(1, n)}\\text{ to }${sfTex(1, n + 1)}`, say: `${group(String(lower))} = 1 × 10${sup(n)} and ${group(String(upper))} = 1 × 10${sup(n + 1)}.`, order: { values: [`Lower: 1 × 10${sup(n)}`, `Upper: 1 × 10${sup(n + 1)}`] } },
+    { title: 'Write both ends in standard form', math: `${sfTex(1, n)}\\text{ to }${sfTex(1, n + 1)}`, say: 'Write each end as 1 × a power of 10.', order: { values: [`Lower: 1 × 10${sup(n)}`, `Upper: 1 × 10${sup(n + 1)}`] } },
     { title: 'Pick a number in between', math: sfTex(5, n), say: `Any number from 1 to 10 (but not 1 itself) times 10${sup(n)} works, such as 5 × 10${sup(n)}.`, order: { answer: `5 × 10${sup(n)}` } },
   ), response => diagnoseBetween(response, { lower, upper, n }))
 
@@ -265,7 +265,7 @@ toStandardQuestion(writeLarge, 'Write 921 000 in standard form.', 'N14.3 Q3', '9
 toStandardQuestion(writeLarge, 'Write 3 070 000 in standard form.', 'N14.3 Q4a', '3 070 000', 'Hop the point left to 3.07. Keep the zero between the 3 and the 7.')
 toStandardQuestion(writeLarge, 'A company’s revenue was £15 600 000. Write this in standard form.', 'N14.3 Q4b', '15 600 000', 'Hop the point left to 1.56.')
 toStandardQuestion(writeLarge, 'A city has 2.4 million people. Write this in standard form.', 'N14.3 Q5a', '2 400 000', 'First write 2.4 million as an ordinary number.', undefined, [
-  { title: 'Write it out', math: '2.4\\text{ million}=2\\,400\\,000', say: 'A million is 1 000 000, so 2.4 million = 2 400 000.' },
+  { title: 'Write it out', math: '2.4\\text{ million}=2\\,400\\,000', say: 'A million is 1 000 000.', order: { values: ['2.4 million = 2 400 000'] } },
 ])
 betweenQuestion(writeLarge, 'Write a number in standard form that is between 10 000 and 100 000.', 'N14.3 Q5b', 10000, 100000, 4)
 practice(writeLarge, 'Maya says: “The power in standard form is always the number of digits in the ordinary number.” Is Maya correct?', 'N14.3 Q5c', choose([
