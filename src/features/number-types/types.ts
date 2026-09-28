@@ -70,6 +70,12 @@ export type MicroSkillId =
   | 'bounds-error-interval'
   | 'truncation'
   | 'truncation-error-interval'
+  | 'standard-form-to-large'
+  | 'standard-form-to-small'
+  | 'standard-form-write-large'
+  | 'standard-form-write-small'
+  | 'standard-form-multiply'
+  | 'standard-form-divide'
   | 'mixed'
 
 export type LessonPhase =
@@ -116,8 +122,8 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval'
-  responseShape?: 'fraction' | 'mixedNumber'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm'
   requiredDenominator?: number
   requiredDecimalPlaces?: number
   requireSimplest?: boolean

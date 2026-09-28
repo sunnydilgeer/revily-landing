@@ -78,6 +78,8 @@ export const paperTopics: PaperTopic[] = [
     'bidmas-ladder', 'operation-priority', 'equal-priority', 'fraction-grouping', 'mixed') },
   { id: 'bounds', title: 'Bounds and error intervals', short: 'Bounds', area: 'number', marks30: 20, estimate: true, requires: ['rounding'], statements: lesson(13,
     'bounds-half-unit', 'bounds-lower-upper', 'bounds-error-interval', 'truncation', 'truncation-error-interval') },
+  { id: 'standard-form', title: 'Standard form', short: 'Std form', area: 'number', marks30: 25, estimate: true, requires: ['rounding'], statements: lesson(14,
+    'standard-form-to-large', 'standard-form-to-small', 'standard-form-write-large', 'standard-form-write-small', 'standard-form-multiply', 'standard-form-divide') },
 
   // Algebra
   { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [] },

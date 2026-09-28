@@ -4,10 +4,10 @@ import { useMemo } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
-import type { IntervalFrame, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
+import type { HopFrame, IntervalFrame, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
-  return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate')
+  return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form')
 }
 
 function RoundingVisual({ frame }: { frame: RoundingFrame }) {
@@ -50,6 +50,33 @@ function IntervalVisual({ frame }: { frame: IntervalFrame }) {
   </svg>
 }
 
+function HopVisual({ frame }: { frame: HopFrame }) {
+  const { cells, start, end, stage } = frame
+  const moved = stage !== 'start', places = Math.abs(end - start), left = end < start
+  const added = new Set(frame.added), dropped = new Set(stage === 'result' ? frame.dropped : [])
+  // Hop k (1, 2, 3…) passes over one cell, counted from where the point starts.
+  const hopOver = new Map<number, number>()
+  if (moved) for (let k = 1; k <= places; k++) hopOver.set(left ? start - k : start + k - 1, k)
+  const point = (gap: number) => {
+    if (gap === (moved ? end : start)) return <span key={`p${gap}`} className={`ns-hop-point${gap === cells.length ? ' is-trailing' : ''}`}>.</span>
+    if (moved && gap === start) return <span key={`p${gap}`} className="ns-hop-point is-ghost">.</span>
+    return null
+  }
+  const direction = `${places} place${places === 1 ? '' : 's'} ${left ? 'left' : 'right'}`
+  const label = moved ? `The point hops ${direction}.${frame.added?.length ? ' Empty places are filled with zeros.' : ''}${frame.answer ? ` ${frame.answer}` : ''}` : `${cells.filter((_, i) => !added.has(i)).join('')}, with the point after ${start} digit${start === 1 ? '' : 's'}.`
+  return <div className="ns-hop" role="img" aria-label={label}>
+    <div className="ns-hop-row" aria-hidden="true">
+      {cells.map((cell, i) => [point(i), <span key={i} className={`ns-hop-cell${added.has(i) ? ' is-added' : ''}${dropped.has(i) ? ' is-dropped' : ''}${hopOver.has(i) ? ' is-hopped' : ''}`}>
+        {hopOver.has(i) && <i className="ns-hop-arc"><b>{hopOver.get(i)}</b></i>}
+        {added.has(i) && !moved ? '' : cell}
+      </span>])}
+      {point(cells.length)}
+    </div>
+    {moved && <p className="ns-hop-note" aria-hidden="true">{left ? `← ${direction}` : `${direction} →`}</p>}
+    {stage === 'result' && frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
+  </div>
+}
+
 function OrderingVisual({ frame }: { frame: OrderingFrame }) {
   if (frame.answer) return <p className="ns-order-answer">{frame.answer}</p>
   if (frame.comparison) {
@@ -69,11 +96,12 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
   const picture = (revealed: number) => {
     const at = chain.slice(0, revealed).findLast(line => line.at)?.at
     const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
-    if (!frame || !(frame.rounding || frame.interval || frame.ordering)) return null
+    if (!frame || !(frame.rounding || frame.interval || frame.ordering || frame.hop)) return null
     return <div className="ns-visual rung-worked__visual">
       {frame.rounding && <RoundingVisual frame={frame.rounding} />}
       {frame.interval && <IntervalVisual frame={frame.interval} />}
       {frame.ordering && <OrderingVisual frame={frame.ordering} />}
+      {frame.hop && <HopVisual frame={frame.hop} />}
     </div>
   }
   return <WorkedChain steps={chain} picture={picture} />

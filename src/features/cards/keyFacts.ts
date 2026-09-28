@@ -180,4 +180,12 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'truncation': [['Truncate 7.396 to 2 decimal places.', '7.39. Chop off everything after the cut-off. Don’t round up.']],
     'truncation-error-interval': [['Error interval for 3.7, truncated to 1 decimal place?', '3.7 ≤ m < 3.8. The value itself is the lower bound; add one whole unit for the upper bound.']],
   },
+  14: {
+    'standard-form-to-large': [['Write 3.6 × 10⁴ as an ordinary number.', '36 000. A positive power: hop the point 4 places right and fill the empty places with zeros.']],
+    'standard-form-to-small': [['Write 6.3 × 10⁻⁵ as an ordinary number.', '0.000063. A negative power: hop the point 5 places left and fill the empty places with zeros.']],
+    'standard-form-write-large': [['Write 84 300 000 in standard form.', '8.43 × 10⁷. The point hops 7 places left: one less than the 8 digits.']],
+    'standard-form-write-small': [['Write 0.000512 in standard form.', '5.12 × 10⁻⁴. The point hops 4 places right: one more than the 3 zeros after the point.']],
+    'standard-form-multiply': [['(5 × 10⁴) × (6 × 10³) in standard form?', '3 × 10⁸. 5 × 6 = 30 and 4 + 3 = 7, then 30 × 10⁷ = 3 × 10⁸.']],
+    'standard-form-divide': [['(7.2 × 10⁸) ÷ (9 × 10³) in standard form?', '8 × 10⁴. 7.2 ÷ 9 = 0.8 and 8 − 3 = 5, then 0.8 × 10⁵ = 8 × 10⁴.']],
+  },
 }

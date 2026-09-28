@@ -16,6 +16,7 @@ import TutorRoundingLesson from './features/rounding/tutor/RoundingLessonView'
 import TutorOrderingLesson from './features/ordering/tutor/OrderingLessonView'
 import TutorEstimatingLesson from './features/estimating/tutor/EstimatingLessonView'
 import TutorBoundsLesson from './features/bounds/tutor/BoundsLessonView'
+import TutorStandardFormLesson from './features/standard-form/tutor/StandardFormLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -246,6 +247,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorEstimatingLesson />
     case 13:
       return <TutorBoundsLesson />
+    case 14:
+      return <TutorStandardFormLesson />
   }
 }
 

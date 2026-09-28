@@ -35,6 +35,20 @@ export type IntervalFrame = {
   /** A value to test against the interval, e.g. "Could it be 2450?" */
   test?: string
 }
+/** Standard form: the decimal point hops one place at a time over a row of digits. */
+export type HopFrame = {
+  /** The digits in order, including any zeros filled in as the point moves. */
+  cells: string[]
+  /** Where the point starts and ends, counted as the number of cells in front of it. */
+  start: number
+  end: number
+  /** Empty places that are filled with zeros as the point moves. */
+  added?: number[]
+  /** Zeros that fall away once the point has moved, e.g. the leading zeros of 0.000512. */
+  dropped?: number[]
+  stage: 'start' | 'hops' | 'result'
+  answer?: string
+}
 export type OrderingFrame = {
   values?: string[]
   comparison?: string
@@ -52,13 +66,14 @@ export type MethodFrame = {
   rounding?: RoundingFrame
   ordering?: OrderingFrame
   interval?: IntervalFrame
+  hop?: HopFrame
 }
 export type MethodStep = {
   title: string; operation: string; equation: string; instruction: string; frame: MethodFrame
   focus?: { topPlace?: number; factorPlace: number } | { dividendIndex: number; dividendStart?: number } | { cell: string }
 }
 export type MethodExample = {
-  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'estimate' | 'factor-tree' | 'number-lists' | 'venn'
+  method: 'column' | 'grid' | 'division' | 'long-division' | 'decimal' | 'rounding' | 'ordering' | 'estimate' | 'factor-tree' | 'number-lists' | 'venn' | 'standard-form'
   expression: string; label: string; first: number; second: number
   grid?: { first: number[]; second: number[] }
   steps: MethodStep[]

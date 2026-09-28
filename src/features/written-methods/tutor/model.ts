@@ -21,7 +21,7 @@ export type TutorMethodState = LearningState & {
   diagnose?: (response: string) => string | null
 }
 export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
-  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13
+  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
   labels: Partial<Record<MicroSkillId, string>>
   states: TutorMethodState[]
 }
