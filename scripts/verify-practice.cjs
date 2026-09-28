@@ -59,7 +59,7 @@ for (const template of templates) {
   assert.ok(!ids.has(template.id), `${label}: duplicate id`); ids.add(template.id)
   assert.ok(paperTopics.some(topic => topic.id === template.topic), `${label}: unknown topic ${template.topic}`)
   assert.ok(RAMPS.includes(template.ramp), `${label}: unknown ramp`)
-  assert.ok(/\b(Jun|Nov)\d\d [123]F Q\d+/.test(template.inspiredBy) || /^(Not tested|Rare)/.test(template.inspiredBy), `${label}: inspiredBy should name the AQA questions (e.g. "Jun25 1F Q7") or say it is not tested / rare`)
+  assert.ok(/\b(Jun|Nov)\d\d [123]F Q\d+/.test(template.inspiredBy) || /^(Not tested|Rare|Estimate:)/.test(template.inspiredBy), `${label}: inspiredBy should name the AQA questions (e.g. "Jun25 1F Q7") or say it is not tested / rare`)
   assert.ok(template.variants.length >= 3, `${label}: needs at least 3 sets of numbers`)
   const shape = v => JSON.stringify(v.parts.map(part => [part.kind, part.marks, part.statements, part.method?.length ?? 0, part.form ?? '']))
   const first = shape(template.variants[0])

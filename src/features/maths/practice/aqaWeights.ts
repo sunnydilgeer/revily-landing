@@ -65,6 +65,13 @@ export const aqaMarks: Record<string, number> = {
   '13:bounds-error-interval': 6,
   '13:truncation': 0,
   '13:truncation-error-interval': 0,
+  // Estimates, not yet counted from the 18 papers: standard form comes up most sittings, usually for 1–2 marks.
+  '14:standard-form-to-large': 3,
+  '14:standard-form-to-small': 3,
+  '14:standard-form-write-large': 4,
+  '14:standard-form-write-small': 4,
+  '14:standard-form-multiply': 3,
+  '14:standard-form-divide': 2,
 }
 
 /**

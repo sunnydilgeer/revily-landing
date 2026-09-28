@@ -43,6 +43,24 @@ function FractionAnswerInput({ id, mixed, disabled, onChange }: { id: string; mi
   </div>
 }
 
+/** Standard form as two boxes, A × 10 to the power n. The sign button makes the power negative without a minus key. */
+function StandardFormAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
+  const [a, setA] = useState(''), [power, setPower] = useState(''), [negative, setNegative] = useState(false)
+  const update = (nextA: string, nextPower: string, nextNegative: boolean) => {
+    const digits = nextPower.trim().replace(/^[-−]/, '')
+    const sign = nextNegative !== /^[-−]/.test(nextPower.trim()) ? '-' : ''
+    onChange(nextA.trim() && digits ? `${nextA.trim()}×10^${sign}${digits}` : '')
+  }
+  return <div className="rung-sf" role="group" aria-label="Enter a number in standard form">
+    <label htmlFor={`sf-a-${id}`}><span className="sr-only">Number from 1 up to 10</span><input id={`sf-a-${id}`} className="rung-sf__a" inputMode="decimal" autoComplete="off" spellCheck={false} placeholder="?" disabled={disabled} value={a} onChange={event => { setA(event.target.value); update(event.target.value, power, negative) }} /></label>
+    <span className="rung-sf__times" aria-hidden="true">× 10</span>
+    <span className="rung-sf__power">
+      <button type="button" className="rung-sf__sign" aria-pressed={negative} aria-label="Negative power" disabled={disabled} onClick={() => { setNegative(!negative); update(a, power, !negative) }}>{negative ? '−' : '+'}</button>
+      <label htmlFor={`sf-n-${id}`}><span className="sr-only">Power of 10</span><input id={`sf-n-${id}`} inputMode="numeric" autoComplete="off" spellCheck={false} placeholder="?" disabled={disabled} value={power} onChange={event => { setPower(event.target.value); update(a, event.target.value, negative) }} /></label>
+    </span>
+  </div>
+}
+
 function WorkingPanel({ visual, ref }: { visual: TutorWorking; ref?: Ref<HTMLDivElement> }) {
   return <div className="pvb-stage rung-working-panel" ref={ref}>
     {visual.kind === 'fraction-worked' ? <FractionWorkedExample visual={visual} />
@@ -60,6 +78,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
+  if (interaction.responseShape === 'standardForm') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -92,6 +111,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
   const numeric = state.interaction.type === 'numericInput'
   const fraction = state.interaction.type === 'fractionInput'
+  const standardForm = numeric && state.interaction.responseShape === 'standardForm'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
   const header = <RungHeader flow={flow} lessonTitle={lesson.title} headingId={`wmt-topic-${lesson.number}`} />
@@ -117,8 +137,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          <span className="rung-answer__eq" aria-hidden="true">=</span>
-          {numeric
+          {!standardForm && <span className="rung-answer__eq" aria-hidden="true">=</span>}
+          {standardForm
+            ? <StandardFormAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : numeric
             ? <><label className="sr-only" htmlFor={`answer-${state.id}`}>{state.answerLabel ?? 'Your answer'}</label>
               <input id={`answer-${state.id}`} className="pvb-input rung-answer__input" inputMode="decimal" type="text" autoComplete="off" spellCheck={false} value={engine.inputValue} disabled={Boolean(feedback)} placeholder="?" onChange={event => engine.setInputValue(event.target.value)} /></>
             : <FractionAnswerInput id={state.id} mixed={state.interaction.responseShape === 'mixedNumber'} disabled={Boolean(feedback)} onChange={engine.setInputValue} />}

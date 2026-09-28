@@ -20,6 +20,7 @@
         "verify:lesson11:tutor": "node scripts/verify-ordering-tutor.cjs",
         "verify:lesson12:tutor": "node scripts/verify-estimating-tutor.cjs",
         "verify:lesson13:tutor": "node scripts/verify-bounds-tutor.cjs",
+        "verify:lesson14:tutor": "node scripts/verify-standard-form-tutor.cjs",
         "verify:file-casing": "node scripts/verify-file-casing.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",

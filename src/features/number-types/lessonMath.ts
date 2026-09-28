@@ -131,6 +131,17 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const wanted = Array.isArray(expected) ? expected.map(String) : []
     return actual.length === wanted.length && actual.every((value, index) => value === wanted[index])
   }
+  if (interaction.acceptanceRule === 'standardForm') {
+    // A must be at least 1 and less than 10. With bounds, any such number strictly between them is right.
+    const actual = parseStandardForm(response)
+    if (actual === null || actual.a < 1 || actual.a >= 10) return false
+    if (interaction.lowerBound !== undefined || interaction.upperBound !== undefined) {
+      return (interaction.lowerBound === undefined || actual.value > interaction.lowerBound)
+        && (interaction.upperBound === undefined || actual.value < interaction.upperBound)
+    }
+    const wanted = parseStandardForm(expected)
+    return wanted !== null && actual.a === wanted.a && actual.n === wanted.n
+  }
   if (interaction.acceptanceRule === 'normalisedNumber') {
     const actual = parseFormattedNumber(response)
     const wanted = parseFormattedNumber(expected)
@@ -239,6 +250,19 @@ function parseNonNegativeInteger(value: unknown): number | null {
   if (!/^\d+$/.test(text)) return null
   const parsed = Number(text)
   return Number.isSafeInteger(parsed) ? parsed : null
+}
+
+/**
+ * Reads "A × 10^n" (as the two-box standard form answer writes it) without evaluating it.
+ * A is not checked here, so a wrong-answer message can still spot 30 × 10^7.
+ */
+export function parseStandardForm(value: unknown): { a: number; n: number; value: number } | null {
+  const text = String(value ?? '').trim().replace(/^£\s?/, '').replace(/−/g, '-').replace(/·/g, '.')
+  const match = text.match(/^([+-]?(?:\d+(?:\.\d+)?|\.\d+))\s*[×xX*]\s*10\s*\^\s*\(?\s*([+-]?\d{1,3})\s*\)?$/)
+  if (!match) return null
+  const a = Number(match[1]), n = Number(match[2])
+  const exact = Number(`${match[1]}e${n}`)
+  return Number.isFinite(a) && Number.isFinite(exact) ? { a, n, value: exact } : null
 }
 
 function parseFormattedNumber(value: unknown): number | null {

@@ -15,6 +15,7 @@ const paths: Record<string, ReactNode> = {
   rounding: <><path d="M4 9c2.5-2.5 5.5 2.5 8 0s5.5-2.5 8 0" /><path d="M4 15c2.5-2.5 5.5 2.5 8 0s5.5-2.5 8 0" /></>,
   fractions: <><circle cx="12" cy="12" r="8.5" /><path d="M12 12V3.5A8.5 8.5 0 0 1 20.5 12Z" fill="currentColor" fillOpacity=".35" /></>,
   decimals: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7.5 5v14M12 5v14M16.5 5v14" /><path d="M3.8 6h2.9v12.3H3.8Z" fill="currentColor" fillOpacity=".35" stroke="none" /></>,
+  'standard-form': <><path d="M4 18h3M10.5 18h3M17 18h3" /><path d="M7 14c1.4-5 7.6-5 9 0" /><path d="M13.6 12.8l2.4 1.2.9-2.5" /><circle cx="15.5" cy="18" r="1.1" fill="currentColor" /></>,
   bounds: <><path d="M3 12h18" /><path d="M7 7H5.5v10H7M17 7h1.5v10H17" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /></>,
   fdp: <><path d="M19 9a7.5 7.5 0 0 0-13.5-2M5 15a7.5 7.5 0 0 0 13.5 2" /><path d="M5 3.5v3.8h3.8M19 20.5v-3.8h-3.8" /></>,
   percentages: <><circle cx="7" cy="7" r="2.6" /><circle cx="17" cy="17" r="2.6" /><path d="M18.5 5.5l-13 13" /></>,

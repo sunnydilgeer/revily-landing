@@ -76,5 +76,12 @@ export const canStatements: Record<string, string> = {
   '13:bounds-error-interval': 'I can write an error interval for a rounded value',
   '13:truncation': 'I can truncate a number',
   '13:truncation-error-interval': 'I can write an error interval for a truncated value',
+
+  '14:standard-form-to-large': 'I can write a number like 3.6 × 10⁴ as an ordinary number',
+  '14:standard-form-to-small': 'I can write a number like 6.3 × 10⁻⁵ as an ordinary number',
+  '14:standard-form-write-large': 'I can write a large number in standard form',
+  '14:standard-form-write-small': 'I can write a small number in standard form',
+  '14:standard-form-multiply': 'I can multiply numbers in standard form',
+  '14:standard-form-divide': 'I can divide numbers in standard form',
 }
 
