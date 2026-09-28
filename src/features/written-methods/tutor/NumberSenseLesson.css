@@ -39,6 +39,8 @@
 .ns-point { margin-right: .04em; }
 .ns-decision { padding: 0 .15em; border-radius: 6px; background: #fff0ce; color: #78500f; font-weight: 600; }
 .ns-remaining { color: var(--rv-line-strong); }
+/* The number before its cut-off is marked (opening screen of a truncating or rounding working). */
+.ns-plain-number { margin: 0; text-align: center; font-size: clamp(27px, 6vw, 44px); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
 .ns-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; margin-top: 17px; color: var(--rv-muted); font-size: 11px; }
 .ns-key span { display: inline-flex; align-items: center; gap: 6px; }
 .ns-key span::before { content: ''; width: 11px; height: 3px; background: var(--rv-biro); }
@@ -73,7 +75,7 @@
 .ns-line__test text { font-weight: 600; }
 .ns-order-answer { margin: 0; text-align: center; color: var(--rv-biro); font-size: clamp(20px, 3vw, 27px); font-weight: 500; line-height: 1.65; overflow-wrap: anywhere; }
 /* The picture frame is a flex row; the hop row sizes its digits from the width it is given, so it must fill the frame. */
-.ns-visual:has(> .ns-hop) { flex: 1 1 auto; min-width: 0; }
+.ns-visual:has(> .ns-hop), .ns-visual:has(> .ns-rounding) { flex: 1 1 auto; min-width: 0; }
 /* Term tiles sit close to the steps below them: no reserved height, just a little air above. */
 .ns-lesson .ns-visual:has(> .ns-terms) { min-height: 0; padding: 12px 0 0; }
 /* A collecting step's heading, just above what the step adds, with its explanation below (same look as the step chain's). */
