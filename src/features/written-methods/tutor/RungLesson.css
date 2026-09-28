@@ -151,6 +151,8 @@
   .rung-lesson .rung-card .pvb-stage { padding: 16px 10px; }
   .rung-answer { font-size: 1.6rem; gap: 10px; }
   .rung-lesson .rung-answer__input { width: 4.6em; }
+  /* Algebra answers are longer than numbers: keep the box as wide as the row allows beside its key. */
+  .rung-lesson .rung-answer__input.rung-expression__input { width: min(11em, calc(100vw - 132px)); }
   .rung-done__actions { width: 100%; }
   .rung-done__actions .rv-btn { flex: 1 1 100%; }
 }
