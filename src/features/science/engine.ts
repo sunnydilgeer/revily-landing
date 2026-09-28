@@ -142,7 +142,9 @@ export function recommendedNext(profile: Profile, retrievalDue: boolean, lesson?
     'B-HOM-030': 'B-HOM-031', 'B-HOM-031': 'B-HOM-032', 'B-HOM-032': 'B-HOM-033', 'B-HOM-033': 'B-HOM-034', 'B-HOM-034': 'B-HOM-035', 'B-HOM-035': 'B-HOM-036',
     'B-HOM-036': 'B-GEN-037', 'B-GEN-037': 'B-GEN-038', 'B-GEN-038': 'B-GEN-039', 'B-GEN-039': 'B-GEN-040',
     'B-GEN-040': 'B-GEN-041', 'B-GEN-041': 'B-GEN-042', 'B-GEN-042': 'B-GEN-043', 'B-GEN-043': 'B-GEN-044',
-    'B-GEN-044': 'B-GEN-045' }
+    'B-GEN-044': 'B-GEN-045',
+    'B-GEN-045': 'B-ECO-046', 'B-ECO-046': 'B-ECO-047', 'B-ECO-047': 'B-ECO-048', 'B-ECO-048': 'B-ECO-049', 'B-ECO-049': 'B-ECO-050',
+    'B-ECO-050': 'B-ECO-051', 'B-ECO-051': 'B-ECO-052' }
   const isVariantB = currentLessonId.endsWith('-B')
   const baseLessonId = isVariantB ? currentLessonId.slice(0, -2) : currentLessonId
   const baseNextLessonId = (isVariantB ? easierOnlyNextIds : nextLessonIds)[baseLessonId]
