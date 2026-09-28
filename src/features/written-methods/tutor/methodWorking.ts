@@ -78,6 +78,8 @@ export type MethodFrame = {
 }
 export type MethodStep = {
   title: string; operation: string; equation: string; instruction: string; frame: MethodFrame
+  /** A small, quiet reminder after a picture-only step's heading, such as the power being read ("× 10³"). */
+  tag?: string
   focus?: { topPlace?: number; factorPlace: number } | { dividendIndex: number; dividendStart?: number } | { cell: string }
 }
 export type MethodExample = {

@@ -101,6 +101,7 @@ function PictureStep({ step, children }: { step: MethodStep; children: (heading:
   const [open, setOpen] = useState(false)
   const heading = <p className="ns-step" aria-live="polite">
     <span className="ns-step__title">{step.title}</span>
+    {step.tag && <span className="ns-step__tag">{step.tag}</span>}
     <button type="button" className={`ns-step__info${open ? ' is-open' : ''}`} aria-label="Why?" aria-expanded={open} onClick={() => setOpen(!open)}>i</button>
   </p>
   return <>

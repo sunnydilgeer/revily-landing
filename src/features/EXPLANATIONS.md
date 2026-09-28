@@ -14,7 +14,7 @@ The aim is minimal: a student should see the maths once, one step at a time, wit
 4. **A step's heading sits directly above the maths it adds.** Sort → above the tiles. Collect → above the sums. Answer → above the answer. Reading top to bottom is the order of the working.
 5. **Explanations are hidden until asked for.** Each heading has an ⓘ; the explanation box opens under that step's maths only when tapped, and each new step starts closed.
 6. **Explanations are words, not maths.** The picture already shows every sum, so the box says what to do and why: "Add the p terms, then the numbers." Never repeat the calculation ("3p + 2p = 5p") or the answer.
-7. **Short step headings, no decoration.** Two to four words ("Sort the terms", "Collect each family", "Write the answer"). No arrows or numbering.
+7. **Short step headings, no decoration.** Two to four words ("Sort the terms", "Collect each family", "Write the answer"). No arrows or numbering. The last step reads as the answer ("The answer", not "Read the number"), so it doesn't sound like more work. A heading may carry a small grey reminder of what it refers to (`tag`, e.g. "Read the power × 10³").
 8. **One type size.** Step headings and lines of working use the question's size (`--ns-problem-size`: 21px on phones, up to 25px). Only the picture itself and the final answer are bigger.
 9. **App font only.** No serif maths lines (KaTeX) under a picture. Maths inside the working uses the body font, coloured to match its picture.
 10. **Controls in the middle.** ←, the progress dots and Next step sit together, centred under the working.

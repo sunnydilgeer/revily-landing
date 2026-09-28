@@ -84,11 +84,11 @@ function standardOf(ordinary: string) {
 
 /* ---------- Working models ---------- */
 
-type Step = { title: string; math: string; say: string; hop?: HopFrame; order?: OrderingFrame }
+type Step = { title: string; math: string; say: string; hop?: HopFrame; order?: OrderingFrame; tag?: string }
 
 function lines(question: string, ...list: Step[]): TutorWorking {
   const steps: MethodStep[] = list.map(step => ({
-    title: step.title, operation: question, equation: step.math, instruction: step.say, frame: { hop: step.hop, ordering: step.order },
+    title: step.title, operation: question, equation: step.math, instruction: step.say, frame: { hop: step.hop, ordering: step.order }, tag: step.tag,
   }))
   return { kind: 'method-worked', examples: [{ method: 'standard-form', expression: question, label: 'Standard form', first: 0, second: 0, steps }] }
 }
@@ -98,9 +98,9 @@ const sfTex = (a: number | string, n: number) => `${a}\\times10^{${n}}`
 function toOrdinary(a: string, n: number, extra: Step[] = []): TutorWorking {
   const answer = n > 0 ? group(ordinaryOf(a, n)) : ordinaryOf(a, n), way = n > 0 ? 'right' : 'left'
   return lines(sfTex(a, n),
-    { title: 'Read the power', math: sfTex(a, n), say: n > 0 ? `The power is ${n}, so the number is large. The point moves ${places(n)} right.` : `The power is ${minus(n)}, so the number is small. The point moves ${places(n)} left.`, hop: hopsToOrdinary(a, n, 'start') },
+    { title: 'Read the power', tag: `× 10${sup(n)}`, math: sfTex(a, n), say: n > 0 ? `The power is ${n}, so the number is large. The point moves ${places(n)} right.` : `The power is ${minus(n)}, so the number is small. The point moves ${places(n)} left.`, hop: hopsToOrdinary(a, n, 'start') },
     { title: 'Hop the point', math: `\\text{${places(n)} ${way}}`, say: 'Hop one place at a time. Fill each empty place with a 0.', hop: hopsToOrdinary(a, n, 'hops') },
-    { title: 'Read the number', math: `${sfTex(a, n)}=${tex(answer)}`, say: n > 0 ? 'The point is now at the end, so leave it off.' : 'Nothing is in front of the point, so write a 0 there.', hop: hopsToOrdinary(a, n, 'result') },
+    { title: 'The answer', math: `${sfTex(a, n)}=${tex(answer)}`, say: n > 0 ? 'The point is now at the end, so leave it off.' : 'Nothing is in front of the point, so write a 0 there.', hop: hopsToOrdinary(a, n, 'result') },
     ...extra,
   )
 }

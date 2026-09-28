@@ -83,6 +83,7 @@
   width: 26px; height: 26px; display: inline-grid; place-items: center; margin-left: 8px; vertical-align: .1em; padding: 0; border: 1.5px solid var(--rv-biro-light); border-radius: 50%;
   font: 700 14px/1 var(--rv-font-body); font-style: italic; color: var(--rv-biro); background: none; cursor: pointer;
 }
+.ns-step__tag { margin-left: 8px; color: var(--rv-muted); font-size: .8em; font-weight: 500; white-space: nowrap; }
 .ns-step__info.is-open { color: var(--rv-surface); background: var(--rv-biro); border-color: var(--rv-biro); }
 .ns-step__info:focus-visible { outline: none; box-shadow: var(--rv-focus); }
 .ns-step__why { justify-self: center; max-width: 22rem; margin: 0; padding: 9px 13px; border-radius: 12px; font: 400 16px/1.4 var(--rv-font-body); color: var(--rv-ink-2); background: var(--rv-biro-tint); text-align: center; }
