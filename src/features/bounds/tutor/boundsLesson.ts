@@ -48,12 +48,13 @@ function lines(question: string, ...list: Step[]): TutorWorking {
 type Rounded = { value: number; unit: number; target: string; letter: string; test?: string }
 function roundedBounds({ value, unit, target, letter, test }: Rounded, extra: Step[] = []): TutorWorking {
   const half = show(unit / 2), lower = show(value - unit / 2), upper = show(value + unit / 2), v = show(value)
+  const decimals = /decimal/.test(target)
   const line = (stage: IntervalFrame['stage']): IntervalFrame => ({ lower, upper, value: v, stage })
   // Half the unit in amber, the bounds in blue: built up one line per step under the number line.
   const halving: WorkingLine = { parts: `${show(unit)} ÷ 2`, total: half, family: 1 }
   const low: WorkingLine = { parts: `${v} − ${half}`, total: lower, family: 0 }, high: WorkingLine = { parts: `${v} + ${half}`, total: upper, family: 0 }
   return lines(`${letter}=${tex(v)}`,
-    { title: 'Halve the unit', tag: `to ${target[0].toLowerCase()}${target.slice(1)}`, math: `${show(unit)}\\div2=${half}`, say: 'A rounded value can be out by up to half a unit either way.', line: line('value'), sums: [halving] },
+    { title: decimals ? `Rounded to the nearest ${show(unit)}` : `Rounded to ${target[0].toLowerCase()}${target.slice(1)}`, math: `${show(unit)}\\div2=${half}`, say: `${decimals ? `${target} means rounded to the nearest ${show(unit)}. ` : ''}The real value can be up to half of that away, either side.`, line: line('value'), sums: [halving] },
     { title: 'Lower bound', math: `${v}-${half}=${lower}`, say: 'Take half a unit off.', line: line('lower'), sums: [halving, low] },
     { title: 'Upper bound', math: `${v}+${half}=${upper}`, say: 'Add half a unit on.', line: line('bounds'), sums: [halving, low, high] },
     { title: 'Error interval', math: `${lower}\\leq ${letter}<${upper}`, say: 'The lower bound is included. The upper bound is not, because it would round up.', line: { ...line('interval'), test }, answer: `${lower} ≤ ${letter} < ${upper}` },
