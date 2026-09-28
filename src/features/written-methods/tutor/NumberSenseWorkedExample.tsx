@@ -93,10 +93,10 @@ function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boo
 
 /**
  * One step of a collecting-like-terms working: its heading sits just above what the step adds,
- * and its explanation just below. Earlier steps' headings go; their maths stays.
+ * and its explanation (closed until the student taps ⓘ) just below. Earlier steps' headings go; their maths stays.
  */
 function CollectStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const heading = <p className="ns-step" aria-live="polite">
     <span className="ns-step__title">{step.title}</span>
     <button type="button" className={`ns-step__info${open ? ' is-open' : ''}`} aria-label="Why?" aria-expanded={open} onClick={() => setOpen(!open)}>i</button>
