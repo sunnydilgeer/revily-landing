@@ -72,6 +72,8 @@
 .ns-order-answer { margin: 0; text-align: center; color: var(--rv-biro); font-size: clamp(20px, 3vw, 27px); font-weight: 500; line-height: 1.65; overflow-wrap: anywhere; }
 /* The picture frame is a flex row; the hop row sizes its digits from the width it is given, so it must fill the frame. */
 .ns-visual:has(> .ns-hop) { flex: 1 1 auto; min-width: 0; }
+/* Term tiles sit close to the steps below them: no reserved height, just a little air above. */
+.ns-lesson .ns-visual:has(> .ns-terms) { min-height: 0; padding: 12px 0 0; }
 .ns-hop { container-type: inline-size; display: grid; justify-items: center; gap: 10px; }
 .ns-hop-row { display: flex; align-items: flex-end; justify-content: center; padding-top: 1.35em; font-size: clamp(22px, 7cqw, 40px); font-variant-numeric: tabular-nums; line-height: 1.2; }
 .ns-hop-cell { position: relative; display: inline-grid; place-items: center; min-width: .66em; height: 1.2em; }

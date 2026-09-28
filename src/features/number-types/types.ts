@@ -529,6 +529,8 @@ export type LearningState = {
   content: {
     eyebrow?: string
     title: string
+    /** A shorter heading to show when the screen's picture already shows the rest of the title. Screen readers still get the full title. */
+    heading?: string
     body?: string
     prompt?: string
   }

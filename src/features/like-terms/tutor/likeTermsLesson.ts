@@ -54,13 +54,14 @@ function collecting(expression: string, extra: { title: string; math: string; sa
   const sort = families.length === 1
     ? `All the terms are ${familyName(families[0])}, so they are like terms. Each sign stays with the term after it.`
     : `Colour the like terms: ${families.map(familyName).join(', ').replace(/, ([^,]*)$/, ' and $1')}. Each sign stays with the term after it.`
-  const sums = groups.filter(group => !group.alone).map(group => `${group.parts} = ${group.total}`)
-  const alone = groups.filter(group => group.alone).map(group => group.total)
-  const collectSay = [sums.length ? `Add each family: ${sums.join(', ')}.` : '', alone.length ? `${alone.join(' and ')} ${alone.length === 1 ? 'has' : 'have'} no match, so ${alone.length === 1 ? 'it stays' : 'they stay'} as ${alone.length === 1 ? 'it is' : 'they are'}.` : ''].filter(Boolean).join(' ')
+  // Words only: the tiles above already show every sum.
+  const added = groups.filter(group => !group.alone).map(group => familyName(group.key))
+  const alone = groups.filter(group => group.alone).map(group => group.key ? `the ${prettyKey(group.key)} term` : 'the number')
+  const collectSay = [added.length ? `Add the ${added.join(', then the ')}.` : '', alone.length ? `Nothing matches ${alone.join(' or ')}, so ${alone.length === 1 ? 'it stays' : 'they stay'} as ${alone.length === 1 ? 'it is' : 'they are'}.` : ''].filter(Boolean).join(' ')
   const steps: MethodStep[] = [
     { title: 'Sort the terms', operation: tex(expression), equation: tex(expression), instruction: sort, frame: { terms: frame('sort') } },
     { title: 'Collect each family', operation: tex(expression), equation: groups.filter(group => !group.alone).map(group => `${tex(group.parts)}=${tex(group.total)}`).join(',\\ ') || tex(answer), instruction: collectSay, frame: { terms: frame('collect') } },
-    { title: 'Write the answer', operation: tex(expression), equation: tex(answer), instruction: `${expression} = ${answer}.`, frame: { terms: frame('answer') } },
+    { title: 'Write the answer', operation: tex(expression), equation: tex(answer), instruction: groups.length === 1 ? 'That’s the simplest form.' : 'Join the totals, keeping each sign. That’s the simplest form.', frame: { terms: frame('answer') } },
     ...extra.map(step => ({ title: step.title, operation: tex(expression), equation: step.math, instruction: step.say, frame: step.answer ? { ordering: { answer: step.answer } } : {} })),
   ]
   return { kind: 'method-worked', examples: [{ method: 'collect', expression: tex(expression), label: 'Collect like terms', first: 0, second: 0, steps }] }
@@ -80,7 +81,10 @@ function practice(topic: MicroSkillId, title: string, sourceRef: string, interac
   return state
 }
 function worked(topic: MicroSkillId, title: string, sourceRef: string, model: TutorWorking, body?: string) {
-  return add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
+  const state = add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
+  // The term tiles show the expression, so the heading doesn't repeat it.
+  if (title.startsWith('Simplify ')) state.content.heading = 'Simplify'
+  return state
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 const media = (name: string, title: string, durationSeconds: number, sourceFile: string, textAlternative: string[]) => ({
