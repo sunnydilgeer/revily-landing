@@ -2,7 +2,7 @@
 
 import { Button } from '../../ui'
 import { TopicIcon } from '../../ui/icons'
-import { topicForLesson } from './readiness/paperMap'
+import { topicForLesson } from './readiness/paperTopics'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
 import type { StudySummary } from './useStudy'

@@ -83,7 +83,7 @@ export type QuestionBody = { stem: string; diagram?: Diagram; parts: Part[] }
 
 export type Template = {
   id: string
-  /** The exam-map topic (paperMap.ts). */
+  /** The exam-map topic (paperTopics.ts). */
   topic: string
   ramp: Ramp
   style: Style
