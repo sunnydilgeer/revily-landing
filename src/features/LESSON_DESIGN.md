@@ -14,6 +14,8 @@ Small Revily logo, Lesson menu, current topic and slim progress bar. Activity ta
 
 Questions begin with Hint collapsed. Method guides and any associated highlighting appear only when requested. Closing the hint hides both. Hints do not submit responses or reveal final results; they remain usable after grading. One-tap choices; numeric/multiple/order responses use Check answer. Keep the submitted response visible. Both correct and incorrect attempts reveal numbered Explanation steps and an explicit Answer. Always enable Continue after submission; no forced guessing. Demonstrations never gate progression.
 
+How explanations look and read (worked examples and "See the working") is set out in [EXPLANATIONS.md](./EXPLANATIONS.md). Follow it for every new or changed working.
+
 ## Subject-specific visuals
 
 Choose a visual that explains the actual concept. Lesson 2 has a four-level BIDMAS reference (B, I, DM, AS), with equal-priority pairs grouped. It is available inside Hint for all 17 questions. Lesson 3 should use place-value columns, fixed decimal alignment and direct number ordering, rather than copying an operations mnemonic.
