@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'B42-08': [
       ['What is speciation?', 'The forming of new species, when populations of one species become so different they cannot breed to produce fertile offspring.'],
+      ['How can one species become two?', 'Two populations live in different environments. Natural selection favours different characteristics in each, so over a long time their phenotypes become very different.', 'Fertile offspring are young that can themselves reproduce.'],
     ],
     'B42-10': [
       ['What is extinction?', 'When no individuals of a species are left.'],
