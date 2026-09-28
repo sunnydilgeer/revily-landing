@@ -98,8 +98,22 @@ import { lesson44, breedingSections } from './lesson-44/lesson'
 import { breedingFrames } from './lesson-44/teachingFrames'
 import { lesson45, fossilSections } from './lesson-45/lesson'
 import { fossilFrames } from './lesson-45/teachingFrames'
+import { lesson46, communitySections } from './lesson-46/lesson'
+import { communityFrames } from './lesson-46/teachingFrames'
+import { lesson47, factorSections } from './lesson-47/lesson'
+import { factorFrames } from './lesson-47/teachingFrames'
+import { lesson48, foodChainSections } from './lesson-48/lesson'
+import { foodChainFrames } from './lesson-48/teachingFrames'
+import { lesson49, samplingSections } from './lesson-49/lesson'
+import { samplingFrames } from './lesson-49/teachingFrames'
+import { lesson50, cyclesSections } from './lesson-50/lesson'
+import { cyclesFrames } from './lesson-50/teachingFrames'
+import { lesson51, biodiversitySections } from './lesson-51/lesson'
+import { biodiversityFrames } from './lesson-51/teachingFrames'
+import { lesson52, warmingSections } from './lesson-52/lesson'
+import { warmingFrames } from './lesson-52/teachingFrames'
 
-export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50
+export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [12, 13, 14, 15, 16, 17] },
@@ -110,8 +124,9 @@ export const scienceChapters = [
   { code: 'B5', title: 'Homeostasis and response', lessonNumbers: [35, 36, 37, 38, 39, 40, 41] },
   { code: 'B6', title: 'Inheritance', lessonNumbers: [42, 43, 44, 45] },
   { code: 'B6b', title: 'Variation and evolution', lessonNumbers: [46, 47, 48, 49, 50] },
+  { code: 'B7', title: 'Ecology', lessonNumbers: [51, 52, 53, 54, 55, 56, 57] },
 ] as const
-// The Science catalogue: 50 Biology lessons in teaching order. `number` is the position students see;
+// The Science catalogue: 57 Biology lessons in teaching order. `number` is the position students see;
 // `folder` is the source folder (e.g. lesson-1b). Code about one particular lesson should key on `lesson.id`.
 export const scienceLessons = [
   { number: 1, folder: '1', title: 'Animal and plant cells', detail: 'Cell parts, and what is new in a plant cell', lesson: lesson1, sections: cellsSections, frames: cellsFrames },
@@ -164,6 +179,13 @@ export const scienceLessons = [
   { number: 48, folder: '43', title: 'Antibiotic-resistant bacteria', detail: 'How resistance evolves, and how to slow it down', lesson: lesson43, sections: resistanceSections, frames: resistanceFrames },
   { number: 49, folder: '44', title: 'Selective breeding and genetic engineering', detail: 'Choosing parents, inbreeding, GM organisms', lesson: lesson44, sections: breedingSections, frames: breedingFrames },
   { number: 50, folder: '45', title: 'Fossils and classification', detail: 'How fossils form, kingdoms, domains and evolutionary trees', lesson: lesson45, sections: fossilSections, frames: fossilFrames },
+  { number: 51, folder: '46', title: 'Communities and interdependence', detail: 'Habitats, competition and who depends on whom', lesson: lesson46, sections: communitySections, frames: communityFrames },
+  { number: 52, folder: '47', title: 'Abiotic and biotic factors, and adaptations', detail: 'Living and non-living factors, and features that suit a place', lesson: lesson47, sections: factorSections, frames: factorFrames },
+  { number: 53, folder: '48', title: 'Food chains and predator–prey cycles', detail: 'Producers, consumers and populations that rise and fall', lesson: lesson48, sections: foodChainSections, frames: foodChainFrames },
+  { number: 54, folder: '49', title: 'Quadrats and transects', detail: 'Sampling practical: means, estimates and distribution', lesson: lesson49, sections: samplingSections, frames: samplingFrames },
+  { number: 55, folder: '50', title: 'The water and carbon cycles', detail: 'How water and carbon are recycled, and the role of decay', lesson: lesson50, sections: cyclesSections, frames: cyclesFrames },
+  { number: 56, folder: '51', title: 'Biodiversity and waste', detail: 'Why variety matters, and how people and pollution reduce it', lesson: lesson51, sections: biodiversitySections, frames: biodiversityFrames },
+  { number: 57, folder: '52', title: 'Global warming and land use', detail: 'Greenhouse gases, their effects, and deforestation', lesson: lesson52, sections: warmingSections, frames: warmingFrames },
 ] as const
 export function scienceLessonNumberById(id: string): LessonNumber | null {
   return (scienceLessons.find(item => item.lesson.id === id)?.number as LessonNumber | undefined) ?? null
