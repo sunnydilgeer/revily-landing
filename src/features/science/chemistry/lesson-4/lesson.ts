@@ -1,0 +1,47 @@
+import type { ScienceLesson, ScienceState } from '../../types'
+import { author, sampledRequirements } from '../../lessonAuthoring'
+import { separationFrames as frames } from './teachingFrames'
+
+const source = { id: 'aqa-chemistry', title: 'AQA 8464 Chemistry subject content', url: 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/chemistry-subject-content', locator: '5.1.1.2 Mixtures (filtration, crystallisation, simple distillation and fractional distillation)' }
+const skill = 'C-SEPARATION'
+const sep = author(skill, ['5.1.1.2'], ['aqa-chemistry'])
+const t = (id: keyof typeof frames, title: string) => sep.teach(id, title, frames[id])
+
+export const separationSections = [
+  { id: 'C4-01', label: 'Start here', detail: 'Sugar in a cup of tea' },
+  { id: 'C4-02', label: 'How does filtration work?', detail: 'Soluble, insoluble, filtrate and residue' },
+  { id: 'C4-05', label: 'How do you get a salt back?', detail: 'Evaporation and crystallisation' },
+  { id: 'C4-08', label: 'How do you separate rock salt?', detail: 'Grind, dissolve, filter, evaporate' },
+  { id: 'C4-11', label: 'How does simple distillation work?', detail: 'Pure water from sea water' },
+  { id: 'C4-14', label: 'How does fractional distillation work?', detail: 'Separating a mixture of liquids' },
+  { id: 'C4-17', label: 'On your own', detail: 'Apparatus, boiling points, rock salt and sea water' },
+]
+
+const states: ScienceState[] = [
+  { ...sep.choice('C4-01', 'You stir a spoonful of sugar into a cup of tea and it seems to disappear. What has happened to the sugar?', ['It has been destroyed', 'It has dissolved and is still in the tea', 'It has turned into water'], 1, 'Does the tea taste sweet afterwards?', ['The tea still tastes sweet, so the sugar is still there.', 'It has dissolved: it has broken into particles too small to see, spread all through the tea.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  t('C4-02', 'How does filtration work?'),
+  sep.choice('C4-03', 'Sandy water has been filtered. Look at the numbered parts. Which part is the residue?', ['Part 1', 'Part 2', 'Part 3'], 2, 'Which part could not get through the holes in the paper?', ['Part 1 is the filter paper and part 2 is the filtrate, the liquid that passed through.', 'Part 3 is the sand left on the paper, so it is the residue.'], 'understanding', false, 'sep-filter-question'),
+  sep.choice('C4-04', 'Which of these mixtures could you separate by filtration?', ['Chalk powder stirred into water', 'Sugar dissolved in water', 'Salt dissolved in water', 'Blue ink mixed with water'], 0, 'Which solid does not dissolve?', ['Sugar, salt and the dyes in ink dissolve, so their particles pass through the filter paper.', 'Chalk is insoluble, so its grains stay on the paper as the residue.']),
+  t('C4-05', 'How do you get a salt back?'),
+  sep.choice('C4-06', 'A salt breaks down if it gets too hot. Which method should you use to get its crystals from a solution?', ['Evaporation until the dish is dry', 'Crystallisation', 'Filtration on its own'], 1, 'Which method stops heating early?', ['Evaporation heats until dry, so the salt would get too hot. Filtration cannot remove a dissolved salt.', 'Crystallisation only heats gently for a short time, so the salt does not break down.']),
+  sep.choice('C4-07', 'In crystallisation, what do you do once crystals start to form in the hot solution?', ['Keep heating until the dish is dry', 'Add more water and stir', 'Pour the hot solution away', 'Stop heating and leave it to cool'], 3, 'What makes more crystals grow?', ['Crystallisation stops heating once crystals start to form.', 'So you leave the solution to cool, and more crystals grow. Then you filter and dry them.']),
+  t('C4-08', 'How do you separate rock salt?'),
+  sep.choice('C4-09', 'Ground rock salt is stirred into water, then filtered. What is left on the filter paper?', ['Sand', 'Salt crystals', 'Salt solution', 'Nothing, because everything passes through'], 0, 'Which part of rock salt does not dissolve?', ['Salt dissolves, so it passes through the paper in the filtrate.', 'Sand is insoluble, so its grains are left on the paper as the residue.']),
+  sep.choice('C4-10', 'Why do you stir rock salt into water before you filter it?', ['To wash the sand away', 'To make the sand dissolve', 'To dissolve the salt so it can pass through the paper'], 2, 'Which part needs to get through the filter paper?', ['Dry salt crystals cannot pass through filter paper, and sand does not dissolve.', 'So water is added to dissolve the salt. It passes through, while the sand stays behind.']),
+  t('C4-11', 'How does simple distillation work?'),
+  sep.choice('C4-12', 'In simple distillation, what happens to the gas inside the condenser?', ['It is heated until it boils', 'It cools and turns back into a liquid', 'It turns into salt crystals', 'It escapes into the air'], 1, 'What does the cold water around the tube do?', ['The condenser is surrounded by cold water.', 'So the gas cools and condenses back into a liquid, which drips out and is collected.']),
+  sep.choice('C4-13', 'You use simple distillation to get pure water from salty water. Where is the salt at the end?', ['Left behind in the flask', 'In the beaker with the water', 'Inside the condenser', 'In the cold water flowing out'], 0, 'Which part of salty water has the lower boiling point?', ['Only the water boils at 100 °C and travels into the condenser.', 'The salt does not boil, so it is left behind in the flask.']),
+  t('C4-14', 'How does fractional distillation work?'),
+  sep.choice('C4-15', 'Propanone boils at 56 °C and water boils at 100 °C. Why does propanone reach the top of the column first?', ['It is heavier than water', 'It sits on top, so it is heated first', 'It has a lower boiling point, so it evaporates first', 'It has a higher boiling point'], 2, 'Compare 56 °C with 100 °C.', ['Propanone boils at 56 °C and water boils at 100 °C.', 'So propanone evaporates at a lower temperature and reaches the top of the column first.']),
+  sep.choice('C4-16', 'Two liquids boil at 80 °C and 84 °C. Which method should you use to separate them?', ['Filtration', 'Simple distillation', 'Crystallisation', 'Fractional distillation'], 3, 'Are the boiling points far apart or close together?', ['Simple distillation cannot separate liquids with similar boiling points, because both boil off together.', 'So you need fractional distillation, which uses a fractionating column.']),
+  sep.choice('C4-17', 'Look at the numbered parts of this distillation apparatus. Which part turns the gas back into a liquid?', ['Part 1', 'Part 2', 'Part 3', 'Part 4'], 2, 'Which part has cold water flowing around it?', ['Part 1 is the flask, part 2 is the thermometer and part 4 is the collected liquid.', 'Part 3 is the condenser. Its cold water cools the gas, so it condenses back into a liquid.'], 'understanding', true, 'sep-question'),
+  sep.choice('C4-18', 'Pentane, hexane and heptane are separated by fractional distillation. The thermometer at the top reads 69 °C. Which liquid is being collected?', ['Pentane', 'Hexane', 'Heptane', 'All three together'], 1, 'Which liquid boils at the temperature on the thermometer?', ['The liquid reaching the top is the one whose boiling point matches the thermometer reading.', 'Hexane boils at 69 °C, so hexane is being collected. Pentane (36 °C) has already come off.'], 'application', true, 'sep-frac-data'),
+  sep.choice('C4-19', 'A student filters dry rock salt, then adds water, then evaporates the filtrate. What is wrong with this plan?', ['Water must be added before filtering, to dissolve the salt', 'The sand should be evaporated, not filtered', 'Rock salt should never be ground up', 'Evaporating the filtrate will remove the sand'], 0, 'What must happen to the salt before it can pass through filter paper?', ['Dry salt crystals cannot pass through filter paper, so nothing would separate.', 'So the salt must be dissolved in water first. Then filtering leaves the sand behind.'], 'application', true),
+  sep.written('C4-20', 'A ship’s crew needs drinking water, but they only have sea water. Explain how simple distillation could give them pure water.', 'Follow the water: heat, gas, condenser, collect. Then say where the salt ends up.', 'Heat the sea water in a flask. Water has a much lower boiling point than salt, so the water boils at 100 °C and turns into a gas, but the salt does not. The gas passes into a condenser, where cold water cools it so it condenses back into liquid water. The pure water drips out and is collected. The salt is left behind in the flask.', ['Heat the sea water in a flask so the water boils.', 'Only the water turns into a gas, because it has a much lower boiling point than salt.', 'The gas passes into a condenser, where cold water cools it so it condenses back into a liquid.', 'The pure water is collected in a beaker, and the salt is left behind in the flask.'], ['Saying the salt evaporates or is collected with the water.', 'Saying filtration can remove the dissolved salt.', 'Saying the condenser heats the gas.']),
+]
+
+export const lessonC4: ScienceLesson = {
+  id: 'C-ATM-004-C', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'chemistry',
+  title: 'Filtration, crystallisation and distillation', prerequisites: [], reviewStatus: 'draftNeedsTeacherReview',
+  sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
+}

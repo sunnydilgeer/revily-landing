@@ -2,7 +2,7 @@
 // Usage: node scripts/render-science-visuals.cjs <lesson folder> [out dir]
 //        (Biology: 53 → lesson-53; Chemistry: c1 or chemistry/1 → chemistry/lesson-1)
 //        node scripts/render-science-visuals.cjs --focus <focus id> [--assessment] [out dir]
-// Writes one PNG per diagram (teaching frames, then question visuals in their assessment view) at 720px wide,
+// Writes one PNG per diagram (teaching frames, worked-example visuals, then question visuals in their assessment view) at 720px wide,
 // with the lesson's CSS, and prints the paths. Needs Playwright (global install is fine) and Chromium.
 const fs = require('node:fs')
 const path = require('node:path')
@@ -46,7 +46,11 @@ if (args[0] === '--focus') {
     if (!f.focus || seen.has(f.focus)) return
     seen.add(f.focus); jobs.push({ name: `${id}-f${i + 1}-${f.focus}`, focus: f.focus, assessment: false })
   })
-  for (const s of lesson.states) if (s.visual && s.kind !== 'teaching') jobs.push({ name: `${s.id}-question-${s.visual.id}`, focus: s.visual.id, assessment: true })
+  for (const s of lesson.states) if (s.visual) {
+    // Worked-example (teaching) screens show their visual in full; question visuals render in their assessment view.
+    if (s.kind === 'teaching') { if (!seen.has(s.visual.id)) { seen.add(s.visual.id); jobs.push({ name: `${s.id}-worked-${s.visual.id}`, focus: s.visual.id, assessment: false }) } }
+    else jobs.push({ name: `${s.id}-question-${s.visual.id}`, focus: s.visual.id, assessment: true })
+  }
 }
 out = path.resolve(out || path.join(require('node:os').tmpdir(), 'science-visuals'))
 fs.mkdirSync(out, { recursive: true })

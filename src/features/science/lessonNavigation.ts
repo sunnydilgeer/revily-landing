@@ -116,6 +116,18 @@ import { lesson53, protectSections } from './lesson-53/lesson'
 import { protectFrames } from './lesson-53/teachingFrames'
 import { lessonC1, atomSections } from './chemistry/lesson-1/lesson'
 import { atomFrames } from './chemistry/lesson-1/teachingFrames'
+import { lessonC2, compoundSections } from './chemistry/lesson-2/lesson'
+import { compoundFrames } from './chemistry/lesson-2/teachingFrames'
+import { lessonC3, mixtureSections } from './chemistry/lesson-3/lesson'
+import { mixtureFrames } from './chemistry/lesson-3/teachingFrames'
+import { lessonC4, separationSections } from './chemistry/lesson-4/lesson'
+import { separationFrames } from './chemistry/lesson-4/teachingFrames'
+import { lessonC5, historySections } from './chemistry/lesson-5/lesson'
+import { historyFrames } from './chemistry/lesson-5/teachingFrames'
+import { lessonC6, electronSections } from './chemistry/lesson-6/lesson'
+import { electronFrames } from './chemistry/lesson-6/teachingFrames'
+import { lessonC7, periodicSections } from './chemistry/lesson-7/lesson'
+import { periodicFrames } from './chemistry/lesson-7/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -229,6 +241,12 @@ export const chemistryChapters = [
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 1, folder: '1', title: 'Atoms, elements and isotopes', detail: 'Protons, neutrons, electrons and relative atomic mass', lesson: lessonC1, sections: atomSections, frames: atomFrames },
+  { subject: 'chemistry', number: 2, folder: '2', title: 'Compounds and chemical equations', detail: 'Formulae, word equations and balanced symbol equations', lesson: lessonC2, sections: compoundSections, frames: compoundFrames },
+  { subject: 'chemistry', number: 3, folder: '3', title: 'Mixtures and chromatography', detail: 'Mixtures, separation and paper chromatography', lesson: lessonC3, sections: mixtureSections, frames: mixtureFrames },
+  { subject: 'chemistry', number: 4, folder: '4', title: 'Filtration, crystallisation and distillation', detail: 'Separating mixtures by physical processes', lesson: lessonC4, sections: separationSections, frames: separationFrames },
+  { subject: 'chemistry', number: 5, folder: '5', title: 'How the model of the atom changed', detail: 'From plum pudding to the nuclear model', lesson: lessonC5, sections: historySections, frames: historyFrames },
+  { subject: 'chemistry', number: 6, folder: '6', title: 'Electronic structure', detail: 'Electrons in shells for the first 20 elements', lesson: lessonC6, sections: electronSections, frames: electronFrames },
+  { subject: 'chemistry', number: 7, folder: '7', title: 'Building the periodic table', detail: 'Mendeleev, gaps, predictions and isotopes', lesson: lessonC7, sections: periodicSections, frames: periodicFrames },
 ]
 
 export const scienceSubjects = [

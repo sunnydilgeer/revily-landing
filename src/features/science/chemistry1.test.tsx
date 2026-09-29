@@ -160,7 +160,7 @@ check(`${lesson.id}: question diagrams never reveal the answer before submission
   }
 })
 
-check(`${lesson.id}: complete flow reloads, locks answers and ends the subject so far`, () => {
+check(`${lesson.id}: complete flow reloads, locks answers and finishes the lesson`, () => {
   const engine = createPreviewSessionEngine(lesson)
   let session = engine.createPreviewSession('chemistry-lesson-1-flow')
   for (const state of lesson.states) {
@@ -194,7 +194,7 @@ check(`${lesson.id}: a wrong independent answer keeps the learner on a repair ro
 })
 
 check('Chemistry is its own section: Lesson 1 opens at /preview/science?subject=chemistry&lesson=1, in chapter C1a', () => {
-  assert.equal(chemistryLessons.length, 1)
+  assert.equal(chemistryLessons[0], getScienceLesson('chemistry', 1))
   const entry = getScienceLesson('chemistry', 1)!
   assert.equal(entry.lesson, lessonC1)
   assert.equal(entry.title, 'Atoms, elements and isotopes')
@@ -203,14 +203,14 @@ check('Chemistry is its own section: Lesson 1 opens at /preview/science?subject=
   assert.equal(scienceChapterFor(entry)?.title, chemistryChapters[0].title)
   assert.deepEqual(parseScienceLessonRef('chemistry', '1'), { subject: 'chemistry', number: 1 })
   assert.equal(scienceSubjectLessonHref('chemistry', 1), '/preview/science?subject=chemistry&lesson=1')
-  assert.equal(nextScienceLesson(entry), null, 'the next Chemistry lesson is not built yet')
+  assert.equal(nextScienceLesson(entry)?.number, 2, 'Lesson 1 leads on to Chemistry Lesson 2')
   // Biology Lesson 1 is untouched.
   assert.equal(getScienceLesson('biology', 1)!.lesson.id, 'B-CELL-001-B')
   assert.deepEqual(parseScienceLessonRef(undefined, '1'), { subject: 'biology', number: 1 })
   // The curriculum shows every subject with a lesson as real units, and lists the rest under "Coming later".
   assert.ok(!scienceSubjects.filter(item => item.lessons.length === 0).some(item => item.subject === 'chemistry'), 'Chemistry is no longer "Coming later"')
   const units = scienceUnits.filter(unit => unit.subject === 'chemistry')
-  assert.deepEqual(units.map(unit => [unit.code, unit.subjectTitle, unit.lessons.length]), [['C1a', 'Chemistry', 1], ['C1b', 'Chemistry', 0]])
+  assert.deepEqual(units.map(unit => [unit.code, unit.subjectTitle, unit.lessons.length]), [['C1a', 'Chemistry', 4], ['C1b', 'Chemistry', 3]])
   // Revision cards: one Chemistry deck, keyed on the lesson id, with its own key facts and recall questions.
   const facts = scienceFacts[lessonC1.id]
   assert.ok(facts)
