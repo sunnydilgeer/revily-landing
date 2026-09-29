@@ -31,7 +31,8 @@ export type IntervalFrame = {
   lower: string
   upper: string
   value: string
-  stage: 'value' | 'bounds' | 'interval'
+  /** 'lower' shows only the lower bound, for the step that works it out. */
+  stage: 'value' | 'lower' | 'bounds' | 'interval'
   /** A value to test against the interval, e.g. "Could it be 2450?" */
   test?: string
 }
@@ -66,7 +67,11 @@ export type OrderingFrame = {
   comparison?: string
   answer?: string
 }
+/** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
+export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
+  /** The lines of working so far; a step that adds lines has its heading above the new ones. */
+  sums?: WorkingLine[]
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>
@@ -94,6 +99,8 @@ export type MethodExample = {
   steps: MethodStep[]
   /** The working as a step chain with terms that move between lines; otherwise the steps become the lines. */
   chain?: MethodChainStep[]
+  /** Draw the whole working in the picture, one step at a time (src/features/EXPLANATIONS.md). */
+  pictureOnly?: boolean
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`

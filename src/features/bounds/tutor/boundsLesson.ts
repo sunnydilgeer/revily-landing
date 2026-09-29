@@ -1,6 +1,6 @@
 import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import type { IntervalFrame, MethodStep } from '../../written-methods/tutor/methodWorking'
+import type { IntervalFrame, MethodStep, WorkingLine } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { diagnoseBound, diagnoseCut, type BoundCheck, type CutCheck } from './boundsDiagnosis'
@@ -30,29 +30,34 @@ const number = (answer: number, displayAnswer = show(answer)): InteractionDefini
 
 /* ---------- Working models ---------- */
 
-type Step = { title: string; math: string; say: string; values?: string[]; answer?: string; line?: IntervalFrame }
+type Step = { title: string; math: string; say: string; values?: string[]; answer?: string; line?: IntervalFrame; sums?: WorkingLine[]; tag?: string }
 
 function lines(question: string, ...list: Step[]): TutorWorking {
   const steps: MethodStep[] = list.map(step => ({
-    title: step.title, operation: question, equation: step.math, instruction: step.say,
+    title: step.title, operation: question, equation: step.math, instruction: step.say, tag: step.tag,
     frame: {
+      sums: step.sums,
       interval: step.line,
       ordering: step.answer ? { answer: step.answer } : step.values ? { values: step.values } : undefined,
     },
   }))
-  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: question, label: 'Bounds', first: 0, second: 0, steps }] }
+  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: question, label: 'Bounds', first: 0, second: 0, steps, pictureOnly: true }] }
 }
 
 /** A rounded value: half the unit, each bound, then the error interval. */
 type Rounded = { value: number; unit: number; target: string; letter: string; test?: string }
 function roundedBounds({ value, unit, target, letter, test }: Rounded, extra: Step[] = []): TutorWorking {
   const half = show(unit / 2), lower = show(value - unit / 2), upper = show(value + unit / 2), v = show(value)
+  const decimals = /decimal/.test(target)
   const line = (stage: IntervalFrame['stage']): IntervalFrame => ({ lower, upper, value: v, stage })
+  // Half the unit in amber, the bounds in blue: built up one line per step under the number line.
+  const halving: WorkingLine = { parts: `${show(unit)} ÷ 2`, total: half, family: 1 }
+  const low: WorkingLine = { parts: `${v} − ${half}`, total: lower, family: 0 }, high: WorkingLine = { parts: `${v} + ${half}`, total: upper, family: 0 }
   return lines(`${letter}=${tex(v)}`,
-    { title: 'Halve the unit', math: `${show(unit)}\\div2=${half}`, say: `${target} means the unit is ${show(unit)}. Half of that is ${half}.`, line: line('value') },
-    { title: 'Lower bound', math: `${v}-${half}=${lower}`, say: `Take ${half} off.`, line: line('bounds') },
-    { title: 'Upper bound', math: `${v}+${half}=${upper}`, say: `Add ${half} on.`, line: line('bounds') },
-    { title: 'Error interval', math: `${lower}\\leq ${letter}<${upper}`, say: `The lower bound is included. The upper bound is not, because ${upper} would round up.`, line: { ...line('interval'), test }, answer: `${lower} ≤ ${letter} < ${upper}` },
+    { title: decimals ? `Rounded to the nearest ${show(unit)}` : `Rounded to ${target[0].toLowerCase()}${target.slice(1)}`, math: `${show(unit)}\\div2=${half}`, say: `${decimals ? `${target} means rounded to the nearest ${show(unit)}. ` : ''}The real value can be up to half of that away, either side.`, line: line('value'), sums: [halving] },
+    { title: 'Lower bound', math: `${v}-${half}=${lower}`, say: 'Take half a unit off.', line: line('lower'), sums: [halving, low] },
+    { title: 'Upper bound', math: `${v}+${half}=${upper}`, say: 'Add half a unit on.', line: line('bounds'), sums: [halving, low, high] },
+    { title: 'Error interval', math: `${lower}\\leq ${letter}<${upper}`, say: 'The lower bound is included. The upper bound is not, because it would round up.', line: { ...line('interval'), test }, answer: `${lower} ≤ ${letter} < ${upper}` },
     ...extra,
   )
 }
@@ -62,9 +67,10 @@ type Truncated = { value: number; unit: number; letter: string; test?: string }
 function truncatedBounds({ value, unit, letter, test }: Truncated, extra: Step[] = []): TutorWorking {
   const v = show(value), upper = show(value + unit)
   const line = (stage: IntervalFrame['stage']): IntervalFrame => ({ lower: v, upper, value: v, stage })
+  const low: WorkingLine = { total: v, family: 0 }, high: WorkingLine = { parts: `${v} + ${show(unit)}`, total: upper, family: 0 }
   return lines(`${letter}=${tex(v)}`,
-    { title: 'Lower bound', math: `${letter}\\geq ${v}`, say: `It started with ${v} and then had more digits chopped off. So ${v} is the smallest it can be.`, line: line('bounds') },
-    { title: 'Upper bound', math: `${v}+${show(unit)}=${upper}`, say: `Add one whole unit. It can get close to ${upper} but never reach it.`, line: line('bounds') },
+    { title: 'Lower bound', math: `${letter}\\geq ${v}`, say: 'Truncating only chops digits off, so the value can’t be smaller than this.', line: line('lower'), sums: [low] },
+    { title: 'Upper bound', math: `${v}+${show(unit)}=${upper}`, say: 'Add one whole unit. It can get close to this but never reach it.', line: line('bounds'), sums: [low, high] },
     { title: 'Error interval', math: `${v}\\leq ${letter}<${upper}`, say: 'The lower bound is included. The upper bound is not.', line: { ...line('interval'), test }, answer: `${v} ≤ ${letter} < ${upper}` },
     ...extra,
   )
@@ -82,9 +88,9 @@ function cut({ original, kept, next, rest = '', answer, places, mode }: Cut): Tu
     { title: 'Find the cut-off', operation: original, equation: `${kept}\\mid${next}${rest}`, instruction: `The cut-off comes straight after the ${place} decimal place.`, frame: { rounding: frame('identify') } },
     chop
       ? { title: 'Chop off the rest', operation: original, equation: `${original}\\to${answer}`, instruction: `Throw away everything after the cut-off. Don’t round the ${kept.slice(-1)} up.`, frame: { rounding: frame('result') } }
-      : { title: 'Use the next digit', operation: original, equation: up ? `${next}\\geq5` : `${next}<5`, instruction: `${next} is ${up ? '5 or more, so round up' : 'less than 5, so keep the digit'}: ${original} ≈ ${answer}.`, frame: { rounding: frame('result') } },
+      : { title: 'Use the next digit', operation: original, equation: up ? `${next}\\geq5` : `${next}<5`, instruction: up ? 'The next digit is 5 or more, so round up.' : 'The next digit is less than 5, so keep the digit.', frame: { rounding: frame('result') } },
   ]
-  return { kind: 'method-worked', examples: [{ method: 'rounding', expression: original, label: chop ? 'Truncate' : 'Round', first: 0, second: 0, steps }] }
+  return { kind: 'method-worked', examples: [{ method: 'rounding', expression: original, label: chop ? 'Truncate' : 'Round', first: 0, second: 0, steps, pictureOnly: true }] }
 }
 
 /* ---------- Screens ---------- */

@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
-import type { HopFrame, TermsFrame, IntervalFrame, MethodStep, MethodWorking, OrderingFrame, RoundingFrame } from './methodWorking'
+import type { HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
   return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
@@ -35,17 +35,18 @@ function IntervalVisual({ frame }: { frame: IntervalFrame }) {
   const inside = frame.test !== undefined && Number(frame.test) >= lower && Number(frame.test) < upper
   const label = interval
     ? `Number line: ${frame.lower} is included, ${frame.upper} is not.${frame.test ? ` ${frame.test} is ${inside ? 'inside' : 'outside'} the interval.` : ''}`
+    : frame.stage === 'lower' ? `Number line: ${frame.value} with lower bound ${frame.lower}.`
     : bounds ? `Number line: ${frame.value} with bounds ${frame.lower} and ${frame.upper}.` : `Number line around ${frame.value}.`
   return <svg className="ns-line" viewBox="0 0 320 96" role="img" aria-label={label}>
     <line className="ns-line__axis" x1="8" x2="312" y1="56" y2="56" />
     {interval && <rect className="ns-line__band" x={x(lower)} y="50" width={x(upper) - x(lower)} height="12" rx="3" />}
     {value !== lower && <g className="ns-line__value"><line x1={x(value)} x2={x(value)} y1="46" y2="66" /><text x={x(value)} y="36">{frame.value}</text></g>}
-    {bounds && ([[lower, frame.lower], [upper, frame.upper]] as const).map(([n, text], i) => <g key={i} className="ns-line__bound">
+    {bounds && ([[lower, frame.lower], [upper, frame.upper]] as const).map(([n, text], i) => (i === 0 || frame.stage !== 'lower') && <g key={i} className="ns-line__bound">
       <line x1={x(n)} x2={x(n)} y1="48" y2="64" />
       <text x={x(n)} y="86">{text}</text>
       {interval && <circle cx={x(n)} cy="56" r="6" className={i ? 'is-open' : 'is-closed'} />}
     </g>)}
-    {value === lower && <text className="ns-line__value" x={x(value)} y="36">{frame.value}</text>}
+    {value === lower && !bounds && <text className="ns-line__value" x={x(value)} y="36">{frame.value}</text>}
     {frame.test && <g className={`ns-line__test${inside ? ' is-inside' : ''}`}><path d={`M${x(Number(frame.test))} 44l-6 -9h12z`} /><text x={Math.min(290, Math.max(30, x(Number(frame.test))))} y="20">{frame.test}</text></g>}
   </svg>
 }
@@ -128,6 +129,41 @@ function PictureStep({ step, children }: { step: MethodStep; children: (heading:
   </>
 }
 
+/** Lines of working under a picture; the step's heading goes above the lines it adds (from `newFrom`). */
+function WorkingLines({ lines, newFrom, heading }: { lines: WorkingLine[]; newFrom?: number; heading?: ReactNode }) {
+  return <ul className="ns-term-groups" aria-label={lines.map(line => line.parts ? `${line.parts} gives ${line.total}` : line.total).join('. ')}>{lines.map((line, i) => [
+    i === newFrom && heading && <li key="heading" className="ns-term-groups__heading">{heading}</li>,
+    <li key={i} className={`is-f${line.family % 4}`} aria-hidden="true">{line.parts && <><span>{line.parts}</span><span>→</span></>}<strong>{line.total}</strong></li>,
+  ])}</ul>
+}
+
+/**
+ * A picture-only step drawn from a number line or a cut-off, lines of working and an answer.
+ * The picture and lines from earlier steps stay; the heading sits above whatever this step adds.
+ */
+function LinesStep({ example, index, heading }: { example: MethodExample; index: number; heading: ReactNode }) {
+  const upTo = example.steps.slice(0, index + 1), own = example.steps[index].frame
+  const interval = upTo.findLast(step => step.frame.interval)?.frame.interval
+  const rounding = upTo.findLast(step => step.frame.rounding)?.frame.rounding
+  const lines = upTo.findLast(step => step.frame.sums)?.frame.sums ?? []
+  const before = example.steps.slice(0, index).findLast(step => step.frame.sums)?.frame.sums?.length ?? 0
+  const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
+  const answer = own.ordering?.answer ?? (own.rounding?.stage === 'result' ? own.rounding.answer : undefined)
+  const rule = own.rounding && own.rounding.stage !== 'identify' && !own.rounding.chop
+  const at = own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
+  return <>
+    {at === 'picture' && heading}
+    {interval && <IntervalVisual frame={interval} />}
+    {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
+    {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
+    {at === 'values' && heading}
+    {values && <OrderingVisual frame={values} />}
+    {at === 'answer' && heading}
+    {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
+    {answer && <p className="ns-hop-answer">{answer}</p>}
+  </>
+}
+
 function OrderingVisual({ frame }: { frame: OrderingFrame }) {
   if (frame.answer) return <p className="ns-order-answer">{frame.answer}</p>
   if (frame.comparison) {
@@ -146,7 +182,8 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
   const chain = useMemo(() => methodChain(visual), [visual])
   // When every step has its own picture (term tiles, hops, value cards), the picture carries the whole working.
   const pictureOnly = visual.examples.every(example => example.method === 'collect'
-    || (example.method === 'standard-form' && example.steps.every(step => step.frame.hop || step.frame.ordering || step.frame.terms)))
+    || (example.method === 'standard-form' && example.steps.every(step => step.frame.hop || step.frame.ordering || step.frame.terms))
+    || example.pictureOnly)
   const picture = (revealed: number) => {
     const at = chain.slice(0, revealed).findLast(line => line.at)?.at
     const frame = at && visual.examples[at.example ?? 0].steps[at.step]?.frame
@@ -157,8 +194,11 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         const first = example.steps[0]?.frame
         if (first?.terms) return <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: first.terms.terms }} plain /></div>
         if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
+        if (first?.interval) return <div className="ns-visual rung-worked__visual"><IntervalVisual frame={{ ...first.interval, stage: 'value' }} /></div>
+        if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null
       }
+      if (example.pictureOnly) return <div className="ns-visual rung-worked__visual" key={`${at.example ?? 0}-${at.step}`}><PictureStep step={step}>{heading => <LinesStep example={example} index={at.step} heading={heading} />}</PictureStep></div>
       const { terms, hop, ordering } = step.frame
       // Earlier maths stays: tiles or value cards from an earlier step remain above a step that doesn't redraw them.
       const before = example.steps.slice(0, at.step)

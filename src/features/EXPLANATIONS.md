@@ -1,6 +1,6 @@
 # Revily explanations — style guide
 
-How every worked example and "See the working" explanation looks and reads. Agreed with Sunny on 28 Sep 2026, on the Collecting like terms lesson (A1). That working is the reference: `src/features/like-terms/tutor/` and `NumberSenseWorkedExample.tsx` (`PictureStep`, `TermsVisual`). Standard form (lesson 14) follows it too, with the hop picture and value cards.
+How every worked example and "See the working" explanation looks and reads. Agreed with Sunny on 28 Sep 2026, on the Collecting like terms lesson (A1). That working is the reference: `src/features/like-terms/tutor/` and `NumberSenseWorkedExample.tsx` (`PictureStep`, `TermsVisual`). Standard form (lesson 14) and Bounds (13) follow it too, with the hop picture, tiles, the number line and the cut-off.
 
 The aim is minimal: a student should see the maths once, one step at a time, with nothing to read unless they ask.
 
@@ -29,10 +29,11 @@ Like things share a colour across the tiles, the sums and the answer (`is-f0`…
 
 ## Building one
 
-- A working whose every step has a picture uses `WorkedChain` with `pictureOnly`. The picture draws the step heading (`PictureStep`) and the chain isn't drawn. `NumberSenseWorkedExample` decides which methods qualify (`collect`, and `standard-form` when every step has a hop or value cards).
+- A working whose every step has a picture uses `WorkedChain` with `pictureOnly`. The picture draws the step heading (`PictureStep`) and the chain isn't drawn. `NumberSenseWorkedExample` decides which workings qualify: `collect`, `standard-form` when every step has a hop, tiles or value cards, and any example marked `pictureOnly: true` (Bounds).
+- For a number line or cut-off picture, build the working as lines under it (`sums`: "0.1 ÷ 2 → 0.05", one more per step, coloured by family). `LinesStep` keeps the picture and earlier lines, and puts each heading above what its step adds: new lines, the answer, value cards, or the picture itself.
 - Each `MethodStep` still carries its `equation` (checked by `verify:step-chains`) and its `instruction` (the ⓘ text).
 - Check the whole working in a browser at desktop width and at 320px: the opening screen, every step with ⓘ closed and open, and the "See the working" version after answering.
 
 ## Rolling out
 
-Done: Collecting like terms (A1), Standard form (14). Lessons 4–13 still use the older step chain (serif lines, every heading stacked, explanations open). Convert them one lesson at a time. Show Sunny one example in the Vercel preview first, then do the rest of that lesson.
+Done: Collecting like terms (A1), Standard form (14), Bounds (13). Lessons 4–12 still use the older step chain (serif lines, every heading stacked, explanations open). Convert them one lesson at a time. Show Sunny one example in the Vercel preview first, then do the rest of that lesson.
