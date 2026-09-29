@@ -9,13 +9,12 @@
 import { useCallback, useEffect, useReducer, useRef, useState, type RefObject } from 'react'
 import { Button, CheckBar, RevilyLogo } from '../../ui'
 import { progress } from './engine'
-import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessons, type LessonNumber } from './lessonNavigation'
+import { allScienceLessons, getScienceLesson, nextScienceLesson, scienceChapterFor, scienceHubHref, scienceSubjectLessonHref, type ScienceSubject } from './lessonNavigation'
 import { createPreviewSessionEngine, type PreviewSession, type SessionAction } from './previewSession'
 import { sectionRanges } from './scienceProgress'
 import { WalkthroughDiagram, WorkedVisual } from './components/TeachingChunk'
 import { LessonVisual } from './components/LessonVisual'
 import ScienceContentsDrawer from './ScienceContentsDrawer'
-import { lessonFrames } from './lessonFrames'
 import type { ChoiceState, TeachingState, WrittenState } from './types'
 import '../../App.css'
 import '../maths/MathsNavigation.css'
@@ -44,7 +43,7 @@ const REFRESHERS: Record<string, { title: string; text: string }> = {
   'B5-01': { title: 'Quick nucleus refresher', text: 'The nucleus contains genetic information. Chromosomes in the nucleus consist of DNA; a gene is a small section of DNA. This lesson connects that model to cell division.' },
 }
 
-const engines = new Map(scienceLessons.map(item => [item.number, createPreviewSessionEngine(item.lesson)] as const))
+const engines = new Map(allScienceLessons.map(item => [item.lesson.id, createPreviewSessionEngine(item.lesson)] as const))
 const newSessionId = () => window.crypto.randomUUID()
 const now = () => new Date().toISOString()
 const sectionTitle = (title: string) => title.replace(/^Chapter \d+ · /, '')
@@ -60,13 +59,14 @@ function Hint({ open, text, id, onToggle }: { open: boolean; text: string; id: s
   </div>
 }
 
-export default function ScienceLesson({ lessonNumber, initialActivity }: { lessonNumber: LessonNumber; initialActivity?: string }) {
-  const entry = scienceLessons.find(item => item.number === lessonNumber)!
+// `lessonNumber` is the number within `subject` (Biology when omitted, as in the original ?lesson=N links).
+export default function ScienceLesson({ subject = 'biology', lessonNumber, initialActivity }: { subject?: ScienceSubject; lessonNumber: number; initialActivity?: string }) {
+  const entry = getScienceLesson(subject, lessonNumber)!
   const lesson = entry.lesson
-  const nextEntry = scienceLessons.find(item => item.number === lessonNumber + 1)
-  const chapter = scienceChapters.find(item => (item.lessonNumbers as readonly number[]).includes(lessonNumber))!
-  const frames = lessonFrames[lessonNumber]
-  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = engines.get(lessonNumber)!
+  const nextEntry = nextScienceLesson(entry)
+  const chapter = scienceChapterFor(entry)!
+  const frames = entry.frames
+  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = engines.get(lesson.id)!
   const reducer = useCallback((session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) =>
     action.type === 'restore' ? action.session : previewReducer(session, action), [previewReducer])
   const [session, dispatch] = useReducer(reducer, createPreviewSession('loading'))
@@ -83,7 +83,7 @@ export default function ScienceLesson({ lessonNumber, initialActivity }: { lesso
 
   const state = lesson.states.find(item => item.id === session.currentId)
   const stateIndex = state ? lesson.states.indexOf(state) : lesson.states.length
-  const ranges = sectionRanges(lesson, lessonNumber)
+  const ranges = sectionRanges(lesson, entry.sections)
   const sectionIndex = Math.max(0, ranges.findIndex(range => stateIndex >= range.start && stateIndex < range.end))
   const range = ranges[sectionIndex] ?? { id: '', title: lesson.title, start: 0, end: lesson.states.length }
   const submitted = state ? session.answers[state.id] : undefined
@@ -204,7 +204,7 @@ export default function ScienceLesson({ lessonNumber, initialActivity }: { lesso
         <div className="rung-done__actions">
           {remaining
             ? <Button size="lg" onClick={() => jump(remaining.id)}>Go to what’s left</Button>
-            : nextEntry && <Button size="lg" onClick={() => window.location.assign(scienceLessonHref(nextEntry.number))}>Next: {nextEntry.title}</Button>}
+            : nextEntry && <Button size="lg" onClick={() => window.location.assign(scienceSubjectLessonHref(nextEntry.subject, nextEntry.number))}>Next: {nextEntry.title}</Button>}
           <Button variant="secondary" size="lg" onClick={goToCurriculum}>Back to lessons</Button>
         </div>
       </div>
@@ -314,6 +314,7 @@ export default function ScienceLesson({ lessonNumber, initialActivity }: { lesso
     <main className="lesson-preview" id="main-content" aria-busy={!ready} inert={drawerOpen || undefined}>{body}</main>
     <ScienceContentsDrawer
       open={drawerOpen}
+      subject={subject}
       lessonNumber={lessonNumber}
       chapterTitle={chapter.title}
       session={session}

@@ -1,6 +1,7 @@
 // Checks one Science lesson against the grading rules and the lesson 13–26 flow rules
 // (see src/features/science/LESSONS-1-12-FLOW-AUDIT.md).
-// Usage: node scripts/check-science-lesson.cjs <lesson folder number> [--quiet]
+// Usage: node scripts/check-science-lesson.cjs <lesson folder> [--quiet]
+//   Biology: the folder suffix (53 → lesson-53, 1b → lesson-1b). Chemistry: c1 or chemistry/1 → chemistry/lesson-1.
 // Prints the lesson's flow, then every failure. Exit code 1 if anything fails.
 const fs = require('node:fs')
 const path = require('node:path')
@@ -17,12 +18,14 @@ for (const ext of ['.ts', '.tsx']) {
 module.paths.unshift(path.join(root, 'node_modules'))
 
 const folder = process.argv[2]
-if (!folder) { console.error('Usage: node scripts/check-science-lesson.cjs <lesson folder number>'); process.exit(2) }
-const lessonModule = require(path.join(science, `lesson-${folder}/lesson.ts`))
-const framesModule = require(path.join(science, `lesson-${folder}/teachingFrames.ts`))
+if (!folder) { console.error('Usage: node scripts/check-science-lesson.cjs <lesson folder, e.g. 53 or c1>'); process.exit(2) }
+const { subject, dir } = require('./science-lesson-dir.cjs')(folder)
+if (!fs.existsSync(path.join(science, dir, 'lesson.ts'))) { console.error(`No lesson at src/features/science/${dir}/lesson.ts`); process.exit(2) }
+const lessonModule = require(path.join(science, `${dir}/lesson.ts`))
+const framesModule = require(path.join(science, `${dir}/teachingFrames.ts`))
 const lesson = Object.values(lessonModule).find(value => value && typeof value === 'object' && Array.isArray(value.states))
 const sections = Object.entries(lessonModule).find(([name, value]) => /Sections$/.test(name) && Array.isArray(value))?.[1]
-  ?? require(path.join(science, 'lessonSections.ts')).scienceLessonSections?.[Number(folder)]
+  ?? (subject === 'biology' ? require(path.join(science, 'lessonSections.ts')).scienceLessonSections?.[Number(folder)] : undefined)
 const frameSets = Object.assign({}, ...Object.values(framesModule).filter(value => value && typeof value === 'object' && !Array.isArray(value)))
 
 const fails = []
@@ -30,8 +33,8 @@ const fail = (rule, message) => fails.push(`[${rule}] ${message}`)
 const words = text => (text || '').split(/\s+/).filter(Boolean).length
 const sentences = text => (text || '').split(/(?<=[.!?])\s+/).filter(s => s.trim())
 
-if (!lesson) { console.error(`No lesson export found in lesson-${folder}/lesson.ts`); process.exit(2) }
-if (!sections) { console.error(`No *Sections export found for lesson-${folder}`); process.exit(2) }
+if (!lesson) { console.error(`No lesson export found in ${dir}/lesson.ts`); process.exit(2) }
+if (!sections) { console.error(`No *Sections export found for ${dir}`); process.exit(2) }
 const states = lesson.states
 const index = new Map(states.map((state, i) => [state.id, i]))
 

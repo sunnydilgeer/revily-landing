@@ -1,5 +1,6 @@
 // Renders Science lesson diagrams to PNG so they can be looked at without the app.
 // Usage: node scripts/render-science-visuals.cjs <lesson folder> [out dir]
+//        (Biology: 53 → lesson-53; Chemistry: c1 or chemistry/1 → chemistry/lesson-1)
 //        node scripts/render-science-visuals.cjs --focus <focus id> [--assessment] [out dir]
 // Writes one PNG per diagram (teaching frames, then question visuals in their assessment view) at 720px wide,
 // with the lesson's CSS, and prints the paths. Needs Playwright (global install is fine) and Chromium.
@@ -35,8 +36,9 @@ if (args[0] === '--focus') {
 } else {
   const folder = args[0]
   out = args[1]
-  const framesModule = require(path.join(science, `lesson-${folder}/teachingFrames.ts`))
-  const lessonModule = require(path.join(science, `lesson-${folder}/lesson.ts`))
+  const { dir } = require('./science-lesson-dir.cjs')(folder)
+  const framesModule = require(path.join(science, `${dir}/teachingFrames.ts`))
+  const lessonModule = require(path.join(science, `${dir}/lesson.ts`))
   const lesson = Object.values(lessonModule).find(v => v && typeof v === 'object' && Array.isArray(v.states))
   const frameSets = Object.assign({}, ...Object.values(framesModule).filter(v => v && typeof v === 'object' && !Array.isArray(v)))
   const seen = new Set()

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import ScienceLesson from '../../../src/features/science/ScienceLesson'
 import StudyTimer from '../../../src/features/maths/StudyTimer'
-import { parseScienceLesson } from '../../../src/features/science/lessonNavigation'
+import { parseScienceLessonRef } from '../../../src/features/science/lessonNavigation'
 
 export const metadata: Metadata = {
   title: 'Science lessons | Revily',
@@ -11,13 +11,14 @@ export const metadata: Metadata = {
 
 // The Science home lives in the app (/preview?subject=science); this route only plays lessons.
 // Old links with ?variant= still work: the parameter is ignored.
-export default async function SciencePreviewPage({ searchParams }: { searchParams: Promise<{ lesson?: string | string[]; activity?: string | string[] }> }) {
+// Biology: ?lesson=N (unchanged). Other subjects: ?subject=chemistry&lesson=N (numbered from 1 per subject).
+export default async function SciencePreviewPage({ searchParams }: { searchParams: Promise<{ subject?: string | string[]; lesson?: string | string[]; activity?: string | string[] }> }) {
   const params = await searchParams
-  const number = parseScienceLesson(params.lesson)
+  const ref = parseScienceLessonRef(params.subject, params.lesson)
   const activity = typeof params.activity === 'string' ? params.activity : undefined
-  if (!number) redirect('/preview?subject=science')
+  if (!ref) redirect('/preview?subject=science')
   return <>
     <StudyTimer subject="science" />
-    <ScienceLesson lessonNumber={number} initialActivity={activity} key={`science-lesson-${number}-${activity || ''}`} />
+    <ScienceLesson subject={ref.subject} lessonNumber={ref.number} initialActivity={activity} key={`science-lesson-${ref.subject}-${ref.number}-${activity || ''}`} />
   </>
 }

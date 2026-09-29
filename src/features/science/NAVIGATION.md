@@ -1,8 +1,21 @@
 # Unified Science preview — 14 September 2026
 
-## Current state — 26 September 2026, after the cell-biology split (read this first)
+## Per-subject lesson numbers — 29 September 2026 (read this first)
 
-- **31 Biology lessons.** Lessons 1, 2, 5 and 6 were split, so Science went from 26 to 31 lessons. The catalogue (`scienceLessons` in `lessonNavigation.ts`) is the single source of truth for order, titles, sections and frames. `lessonSections.ts` and `lessonFrames.ts` are derived from it.
+Lesson numbers restart in each subject: Biology Lesson 1–58 (unchanged), Chemistry Lesson 1, 2, 3 … Only the scaffolding exists; no Chemistry lesson is built yet.
+
+- **Catalogue** (`lessonNavigation.ts`): every chapter and lesson entry has a `subject`. Biology is still `scienceChapters` / `scienceLessons` (and `LessonNumber`, `scienceLessonHref`, `parseScienceLesson` still mean Biology). Chemistry is `chemistryChapters` — C1a *Atoms, elements, compounds and mixtures* (Lessons 1–4), C1b *The periodic table* (Lessons 5–7) — and `chemistryLessons` (empty for now). Chapters list planned numbers; a lesson appears once registered.
+- **Lookups:** `getScienceLesson(subject, number)`, `scienceLessonsFor`, `scienceChaptersFor`, `scienceChapterFor`, `nextScienceLesson` (stays inside the subject), `scienceEntryById`, `allScienceLessons`, `scienceLessonDir`.
+- **Routes:** Biology `/preview/science?lesson=N` (unchanged). Other subjects `/preview/science?subject=chemistry&lesson=N` (`scienceSubjectLessonHref`, `parseScienceLessonRef`). An unbuilt lesson redirects to the Science home.
+- **Storage:** lesson sessions were already keyed by lesson id (`revily:science:<id>:<version>:preview`); curriculum/card progress maps are now keyed by lesson id too. The last-lesson key `revily:science-last-lesson:v1` keeps a bare number for Biology (existing values still load) and stores `chemistry:N` for Chemistry. Card ids use screen ids, so screen ids must be unique across subjects (tested).
+- **Ids:** lesson `C-<TOPIC>-<NNN>-C` (e.g. `C-ATM-001-C` for C1a, `C-PER-005-C` for C1b; NNN = the Chemistry number when first built, never renumbered); screens `C<N>-NN` (e.g. `C1-01`); `strand: 'chemistry'`.
+- **Curriculum:** Chemistry stays under "Coming later" until it has a lesson; then its chapters show as a real section (an empty chapter says "Coming soon"). `recommendedNext` in `engine.ts` and the exam coverage map are Biology-only.
+
+**Register a Chemistry lesson:** (1) add `chemistry/lesson-N/lesson.ts` (exporting the lesson and `…Sections`) and `teachingFrames.ts`; (2) append `{ subject: 'chemistry', number: N, folder: 'N', title, detail, lesson, sections, frames }` to `chemistryLessons`, numbers 1, 2, 3 … in order; (3) add key facts `cards/facts/chemistry/N.ts` and import it in `cards/facts/index.ts`; (4) run `node scripts/check-science-lesson.cjs c<N>` (or `chemistry/<N>`), `node scripts/render-science-visuals.cjs c<N> [out dir]` and `npm run test:science`.
+
+## Current state — 26 September 2026, after the cell-biology split
+
+- **31 Biology lessons.** Lessons 1, 2, 5 and 6 were split, so Science went from 26 to 31 lessons. The catalogue (`scienceLessons` in `lessonNavigation.ts`) is the single source of truth for order, titles, sections and frames. `lessonSections.ts` is derived from it (`lessonFrames.ts` was removed on 29 September; the player reads `entry.frames`).
 - **Folders are not lesson numbers.** Cell biology (chapter B1) is lessons 1–11: `lesson-1` animal and plant cells, `lesson-1b` bacteria and comparing cells, `lesson-2` light and electron microscopes, `lesson-2b` magnification maths, `lesson-3` practical skills (RP1), `lesson-4` specialisation, `lesson-5` chromosomes and mitosis, `lesson-5b` stem cells, `lesson-6` diffusion and osmosis, `lesson-6b` osmosis practical (RP2), `lesson-6c` active transport and exchange surfaces. Folders `lesson-7` … `lesson-26` are now lessons 12 … 31.
 - **Key on lesson ids, not numbers.** Anything about a particular lesson (practical notes, the transport story, the exam pilot link, the new-screen pilot in `app/preview/science/page.tsx`, the coverage map) uses `lesson.id`. Use `scienceLessonNumberById` / `scienceLessonHrefById` to get a number or a link.
 - **State ids were not renumbered.** Screens that moved to a split lesson keep their ids (e.g. B1-21 is in `lesson-1b`, B1-35 and B2-12… are in `lesson-2b`). New screens continue each family: B1-43+, B2-35+, B5-32+, B6-46+.
