@@ -10,26 +10,36 @@ import { evidenceProfile, gradeResponse, progress, recommendedNext } from './eng
 import { chemistryLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceLessonDir, scienceSubjectLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { scienceUnits } from './scienceProgress'
-import { lessonC31, ratesSections } from './chemistry/lesson-31/lesson'
-import { ratesFrames } from './chemistry/lesson-31/teachingFrames'
-import { lessonC32, rateFactorSections } from './chemistry/lesson-32/lesson'
-import { rateFactorFrames } from './chemistry/lesson-32/teachingFrames'
-import { lessonC33, gasRateSections } from './chemistry/lesson-33/lesson'
-import { gasRateFrames } from './chemistry/lesson-33/teachingFrames'
-import { lessonC34, crossSections } from './chemistry/lesson-34/lesson'
-import { crossFrames } from './chemistry/lesson-34/teachingFrames'
-import { lessonC35, rateGraphSections } from './chemistry/lesson-35/lesson'
-import { rateGraphFrames } from './chemistry/lesson-35/teachingFrames'
-import { lessonC36, reversibleSections } from './chemistry/lesson-36/lesson'
-import { reversibleFrames } from './chemistry/lesson-36/teachingFrames'
-import { lessonC37, hydrocarbonSections } from './chemistry/lesson-37/lesson'
-import { hydrocarbonFrames } from './chemistry/lesson-37/teachingFrames'
-import { lessonC38, crudeOilSections } from './chemistry/lesson-38/lesson'
-import { crudeOilFrames } from './chemistry/lesson-38/teachingFrames'
-import { lessonC39, fractionSections } from './chemistry/lesson-39/lesson'
-import { fractionFrames } from './chemistry/lesson-39/teachingFrames'
-import { lessonC40, crackingSections } from './chemistry/lesson-40/lesson'
-import { crackingFrames } from './chemistry/lesson-40/teachingFrames'
+import { lessonC41, puritySections } from './chemistry/lesson-41/lesson'
+import { purityFrames } from './chemistry/lesson-41/teachingFrames'
+import { lessonC42, chromaSections } from './chemistry/lesson-42/lesson'
+import { chromaFrames } from './chemistry/lesson-42/teachingFrames'
+import { lessonC43, rfSections } from './chemistry/lesson-43/lesson'
+import { rfFrames } from './chemistry/lesson-43/teachingFrames'
+import { lessonC44, gasTestSections } from './chemistry/lesson-44/lesson'
+import { gasTestFrames } from './chemistry/lesson-44/teachingFrames'
+import { lessonC45, atmosphereSections } from './chemistry/lesson-45/lesson'
+import { atmosphereFrames } from './chemistry/lesson-45/teachingFrames'
+import { lessonC46, greenhouseSections } from './chemistry/lesson-46/lesson'
+import { greenhouseFrames } from './chemistry/lesson-46/teachingFrames'
+import { lessonC47, footprintSections } from './chemistry/lesson-47/lesson'
+import { footprintFrames } from './chemistry/lesson-47/teachingFrames'
+import { lessonC48, pollutionSections } from './chemistry/lesson-48/lesson'
+import { pollutionFrames } from './chemistry/lesson-48/teachingFrames'
+import { lessonC49, resourceSections } from './chemistry/lesson-49/lesson'
+import { resourceFrames } from './chemistry/lesson-49/teachingFrames'
+import { lessonC50, recycleSections } from './chemistry/lesson-50/lesson'
+import { recycleFrames } from './chemistry/lesson-50/teachingFrames'
+import { lessonC51, lcaSections } from './chemistry/lesson-51/lesson'
+import { lcaFrames } from './chemistry/lesson-51/teachingFrames'
+import { lessonC52, lcaCompareSections } from './chemistry/lesson-52/lesson'
+import { lcaCompareFrames } from './chemistry/lesson-52/teachingFrames'
+import { lessonC53, potableSections } from './chemistry/lesson-53/lesson'
+import { potableFrames } from './chemistry/lesson-53/teachingFrames'
+import { lessonC54, waterTestSections } from './chemistry/lesson-54/lesson'
+import { waterTestFrames } from './chemistry/lesson-54/teachingFrames'
+import { lessonC55, sewageSections } from './chemistry/lesson-55/lesson'
+import { sewageFrames } from './chemistry/lesson-55/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { EvidenceDimension, ScienceLesson, ScienceState } from './types'
@@ -41,18 +51,23 @@ const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
-type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C6' | 'C7' }
+type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C8' | 'C9' | 'C10' }
 const cases: Case[] = [
-  { number: 31, lesson: lessonC31, sections: ratesSections, frames: ratesFrames, title: 'Rates of reaction and collision theory', chapter: 'C6' },
-  { number: 32, lesson: lessonC32, sections: rateFactorSections, frames: rateFactorFrames, title: 'What changes the rate of a reaction', chapter: 'C6' },
-  { number: 33, lesson: lessonC33, sections: gasRateSections, frames: gasRateFrames, title: 'Measuring rates using gas', chapter: 'C6' },
-  { number: 34, lesson: lessonC34, sections: crossSections, frames: crossFrames, title: 'The disappearing cross', chapter: 'C6' },
-  { number: 35, lesson: lessonC35, sections: rateGraphSections, frames: rateGraphFrames, title: 'Rate graphs and mean rate', chapter: 'C6' },
-  { number: 36, lesson: lessonC36, sections: reversibleSections, frames: reversibleFrames, title: 'Reversible reactions and equilibrium', chapter: 'C6' },
-  { number: 37, lesson: lessonC37, sections: hydrocarbonSections, frames: hydrocarbonFrames, title: 'Hydrocarbons and alkanes', chapter: 'C7' },
-  { number: 38, lesson: lessonC38, sections: crudeOilSections, frames: crudeOilFrames, title: 'Crude oil', chapter: 'C7' },
-  { number: 39, lesson: lessonC39, sections: fractionSections, frames: fractionFrames, title: 'Fractional distillation', chapter: 'C7' },
-  { number: 40, lesson: lessonC40, sections: crackingSections, frames: crackingFrames, title: 'Cracking', chapter: 'C7' },
+  { number: 41, lesson: lessonC41, sections: puritySections, frames: purityFrames, title: 'Purity and formulations', chapter: 'C8' },
+  { number: 42, lesson: lessonC42, sections: chromaSections, frames: chromaFrames, title: 'How paper chromatography works', chapter: 'C8' },
+  { number: 43, lesson: lessonC43, sections: rfSections, frames: rfFrames, title: 'Rf values', chapter: 'C8' },
+  { number: 44, lesson: lessonC44, sections: gasTestSections, frames: gasTestFrames, title: 'Tests for gases', chapter: 'C8' },
+  { number: 45, lesson: lessonC45, sections: atmosphereSections, frames: atmosphereFrames, title: 'How the atmosphere evolved', chapter: 'C9' },
+  { number: 46, lesson: lessonC46, sections: greenhouseSections, frames: greenhouseFrames, title: 'Greenhouse gases and climate change', chapter: 'C9' },
+  { number: 47, lesson: lessonC47, sections: footprintSections, frames: footprintFrames, title: 'Carbon footprints', chapter: 'C9' },
+  { number: 48, lesson: lessonC48, sections: pollutionSections, frames: pollutionFrames, title: 'Air pollution', chapter: 'C9' },
+  { number: 49, lesson: lessonC49, sections: resourceSections, frames: resourceFrames, title: 'Finite and renewable resources', chapter: 'C10' },
+  { number: 50, lesson: lessonC50, sections: recycleSections, frames: recycleFrames, title: 'Reuse and recycling', chapter: 'C10' },
+  { number: 51, lesson: lessonC51, sections: lcaSections, frames: lcaFrames, title: 'Life cycle assessments', chapter: 'C10' },
+  { number: 52, lesson: lessonC52, sections: lcaCompareSections, frames: lcaCompareFrames, title: 'Comparing life cycle assessments', chapter: 'C10' },
+  { number: 53, lesson: lessonC53, sections: potableSections, frames: potableFrames, title: 'Potable water', chapter: 'C10' },
+  { number: 54, lesson: lessonC54, sections: waterTestSections, frames: waterTestFrames, title: 'Testing and purifying water', chapter: 'C10' },
+  { number: 55, lesson: lessonC55, sections: sewageSections, frames: sewageFrames, title: 'Waste water treatment', chapter: 'C10' },
 ]
 
 for (const { number, lesson, sections, frames, title, chapter } of cases) {
@@ -211,9 +226,13 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
   })
 }
 
-check('Chemistry catalogue: C6 holds 31–36, C7 holds 37–40, Lesson 40 leads to Lesson 41', () => {
-  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]).slice(6, 8), [['C6', 6], ['C7', 4]])
-  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 40)!), getScienceLesson('chemistry', 41))
+check('Chemistry catalogue: Lessons 1–55, C8 holds 41–44, C9 holds 45–48, C10 holds 49–55, Lesson 55 is the last', () => {
+  assert.deepEqual(chemistryLessons.map(item => item.number), Array.from({ length: 55 }, (_, i) => i + 1))
+  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]), [['C1a', 4], ['C1b', 7], ['C2', 6], ['C3', 4], ['C4', 6], ['C5', 3], ['C6', 6], ['C7', 4], ['C8', 4], ['C9', 4], ['C10', 7]])
+  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 55)!), null)
+  assert.equal(parseScienceLessonRef('chemistry', '56'), null)
+  const cards = buildScienceDecks().flatMap(item => item.cards.map(card => card.id))
+  assert.equal(new Set(cards).size, cards.length)
 })
 
-console.log(`${checks} Chemistry Lessons 31–40 checks passed`)
+console.log(`${checks} Chemistry Lessons 41–55 checks passed`)
