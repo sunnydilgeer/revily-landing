@@ -1,0 +1,26 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// What an LCA is, then the four stages in two halves, then the whole cycle put together.
+// Fractional distillation, ore extraction and greenhouse gases are recalled by name from earlier lessons, not re-taught.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const lcaFrames: Record<string, TeachingFrame[]> = {
+  'C51-02': [
+    f('Look at the whole life', 'A life cycle assessment (LCA) looks at every stage of a product’s life to judge its effect on the environment.', 'every stage, not just one', 'A life cycle assessment looks at every stage of a product’s life. It is often shortened to LCA. The aim is to judge the impact the product would have on the environment. Impact means effect.', 'lca-whole'),
+    f('Why a company does one', 'A company that plans a new product can use an LCA to see its total environmental cost before it is made.', 'the total cost to the environment', 'A company that wants to make a new product can carry out an LCA first. It shows the total environmental cost, not only the cost in the factory. The company can then see where the biggest problems are.', 'lca-why'),
+    f('The four stages', 'The four stages are getting the raw materials, manufacture and packaging, using the product, and product disposal.', 'four stages in order', 'An LCA is split into four stages. Stage 1 is getting the raw materials. Stage 2 is manufacture and packaging. Stage 3 is using the product. Stage 4 is product disposal, which means getting rid of it at the end.', 'lca-four'),
+  ],
+  'C51-05': [
+    f('Stage 1: raw materials', 'Raw materials must be extracted, which can damage the local environment, use energy and cause pollution.', 'digging things out has a cost', 'Raw materials are the starting materials for a product. They have to be extracted, which means separated from other materials. Mining metals can damage the local environment. Extraction also uses energy, and that can cause pollution.', 'lca-raw'),
+    f('Processing needs energy', 'Raw materials often have to be processed into useful materials, and that can need a lot of energy.', 'shape and properties change', 'Raw materials often need processing before they are useful. Processing changes their shape or properties. This often needs large amounts of energy. Extracting a metal from its ore and separating crude oil by fractional distillation are two examples.', 'lca-process'),
+    f('Stage 2: manufacture and packaging', 'Making a product and its packaging can use energy and other resources, and can cause pollution.', 'making things uses resources', 'Making a product and its packaging can use a lot of energy and other resources. It can also cause pollution. Chemical reactions are sometimes needed to make the product.', 'lca-make'),
+    f('Waste from making', 'Chemical reactions can produce waste. Some waste can be turned into useful chemicals, which reduces pollution.', 'waste can sometimes be used', 'The reactions used in manufacture can make waste products, and these must be got rid of. Sometimes the waste can be turned into other useful chemicals. This reduces the amount that ends up polluting the environment.', 'lca-waste'),
+  ],
+  'C51-08': [
+    f('Stage 3: using the product', 'Using a product can harm the environment too, for example burning fuels or fertilisers washing into rivers.', 'harm can happen during use', 'The way a product is used can also damage the environment. Burning fuels releases greenhouse gases and other harmful substances. Fertilisers can drain into streams and rivers. This harms plants and animals.', 'lca-use'),
+    f('How long it is used for', 'A product that takes lots of energy to make but is used for a long time can mean less waste in the long run.', 'a long life spreads the cost', 'An LCA also asks how long a product is used for, and how many uses it gets. A product that needs a lot of energy to make can still be a good choice if it lasts for ages. Over its whole life it makes less waste.', 'lca-lifespan'),
+    f('Stage 4: product disposal', 'Thrown-away products take up space in landfill sites and can pollute land and water.', 'landfill takes space and can pollute', 'At the end of its life a product is often thrown away in a landfill site. This takes up space and can pollute land and water. Energy is also used to transport the waste. That can release pollutants such as carbon monoxide and carbon dioxide.', 'lca-landfill'),
+    f('Burning it instead', 'Some products are incinerated, which means burnt. This causes air pollution.', 'burning causes air pollution', 'Some products are incinerated at the end of their life. This means they are burnt. Burning waste causes air pollution, so it is another environmental cost to include.', 'lca-burn'),
+    f('Put the cycle together', 'An LCA adds up the effects from all four stages: raw materials, manufacture, use and disposal.', 'add up all four stages', 'Now put all four stages together. Each one uses energy or resources, or can cause pollution or waste. An LCA adds up the effects from every stage. That gives the total environmental cost of the product.', 'lca-cycle'),
+  ],
+}
