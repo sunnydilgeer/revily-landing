@@ -342,6 +342,60 @@ import { lessonP58, emUseSections } from './physics/lesson-58/lesson'
 import { emUseFrames } from './physics/lesson-58/teachingFrames'
 import { lessonP59, emMoreSections } from './physics/lesson-59/lesson'
 import { emMoreFrames } from './physics/lesson-59/teachingFrames'
+import { lessonP60, irEmitSections } from './physics/lesson-60/lesson'
+import { irEmitFrames } from './physics/lesson-60/teachingFrames'
+import { lessonP61, irAbsorbSections } from './physics/lesson-61/lesson'
+import { irAbsorbFrames } from './physics/lesson-61/teachingFrames'
+import { lessonP62, emDangerSections } from './physics/lesson-62/lesson'
+import { emDangerFrames } from './physics/lesson-62/teachingFrames'
+import { lessonP63, magnetSections } from './physics/lesson-63/lesson'
+import { magnetFrames } from './physics/lesson-63/teachingFrames'
+import { lessonP64, electromagSections } from './physics/lesson-64/lesson'
+import { electromagFrames } from './physics/lesson-64/teachingFrames'
+import { lessonW1, wsMethodSections } from './skills/lesson-1/lesson'
+import { wsMethodFrames } from './skills/lesson-1/teachingFrames'
+import { lessonW2, wsIssueSections } from './skills/lesson-2/lesson'
+import { wsIssueFrames } from './skills/lesson-2/teachingFrames'
+import { lessonW3, wsRiskSections } from './skills/lesson-3/lesson'
+import { wsRiskFrames } from './skills/lesson-3/teachingFrames'
+import { lessonW4, wsDesignSections } from './skills/lesson-4/lesson'
+import { wsDesignFrames } from './skills/lesson-4/teachingFrames'
+import { lessonW5, wsCollectSections } from './skills/lesson-5/lesson'
+import { wsCollectFrames } from './skills/lesson-5/teachingFrames'
+import { lessonW6, wsProcessSections } from './skills/lesson-6/lesson'
+import { wsProcessFrames } from './skills/lesson-6/teachingFrames'
+import { lessonW7, wsPresentSections } from './skills/lesson-7/lesson'
+import { wsPresentFrames } from './skills/lesson-7/teachingFrames'
+import { lessonW8, wsGraphSections } from './skills/lesson-8/lesson'
+import { wsGraphFrames } from './skills/lesson-8/teachingFrames'
+import { lessonW9, wsUnitSections } from './skills/lesson-9/lesson'
+import { wsUnitFrames } from './skills/lesson-9/teachingFrames'
+import { lessonW10, wsMathsSections } from './skills/lesson-10/lesson'
+import { wsMathsFrames } from './skills/lesson-10/teachingFrames'
+import { lessonW11, wsConcludeSections } from './skills/lesson-11/lesson'
+import { wsConcludeFrames } from './skills/lesson-11/teachingFrames'
+import { lessonW12, wsEvalSections } from './skills/lesson-12/lesson'
+import { wsEvalFrames } from './skills/lesson-12/teachingFrames'
+import { lessonW13, wsMeasureSections } from './skills/lesson-13/lesson'
+import { wsMeasureFrames } from './skills/lesson-13/teachingFrames'
+import { lessonW14, wsLengthSections } from './skills/lesson-14/lesson'
+import { wsLengthFrames } from './skills/lesson-14/teachingFrames'
+import { lessonW15, wsPhCellSections } from './skills/lesson-15/lesson'
+import { wsPhCellFrames } from './skills/lesson-15/teachingFrames'
+import { lessonW16, wsSafetySections } from './skills/lesson-16/lesson'
+import { wsSafetyFrames } from './skills/lesson-16/teachingFrames'
+import { lessonW17, wsSetupSections } from './skills/lesson-17/lesson'
+import { wsSetupFrames } from './skills/lesson-17/teachingFrames'
+import { lessonW18, wsGasSections } from './skills/lesson-18/lesson'
+import { wsGasFrames } from './skills/lesson-18/teachingFrames'
+import { lessonW19, wsHeatSections } from './skills/lesson-19/lesson'
+import { wsHeatFrames } from './skills/lesson-19/teachingFrames'
+import { lessonW20, wsElecSections } from './skills/lesson-20/lesson'
+import { wsElecFrames } from './skills/lesson-20/teachingFrames'
+import { lessonW21, wsSampleSections } from './skills/lesson-21/lesson'
+import { wsSampleFrames } from './skills/lesson-21/teachingFrames'
+import { lessonW22, wsPercentSections } from './skills/lesson-22/lesson'
+import { wsPercentFrames } from './skills/lesson-22/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -528,7 +582,8 @@ export const physicsChapters = [
   { subject: 'physics', code: 'P3', title: 'Particle model of matter', lessonNumbers: [27, 28, 29, 30] },
   { subject: 'physics', code: 'P4', title: 'Atomic structure', lessonNumbers: [31, 32, 33, 34, 35, 36, 37] },
   { subject: 'physics', code: 'P5', title: 'Forces', lessonNumbers: [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52] },
-  { subject: 'physics', code: 'P6', title: 'Waves', lessonNumbers: [53, 54, 55, 56, 57, 58, 59] },
+  { subject: 'physics', code: 'P6', title: 'Waves', lessonNumbers: [53, 54, 55, 56, 57, 58, 59, 60, 61, 62] },
+  { subject: 'physics', code: 'P7', title: 'Magnetism and electromagnetism', lessonNumbers: [63, 64] },
 ] as const
 /** Register a Physics lesson here: { subject: 'physics', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const physicsLessons: readonly ScienceCatalogueEntry[] = [
@@ -591,6 +646,11 @@ export const physicsLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'physics', number: 57, folder: '57', title: 'Electromagnetic waves', detail: 'The spectrum from radio to gamma', lesson: lessonP57, sections: emSpectrumSections, frames: emSpectrumFrames },
   { subject: 'physics', number: 58, folder: '58', title: 'Uses of radio waves, microwaves and infrared', detail: 'Communication, cooking and heating', lesson: lessonP58, sections: emUseSections, frames: emUseFrames },
   { subject: 'physics', number: 59, folder: '59', title: 'Uses of light, UV, X-rays and gamma rays', detail: 'Fibres, fluorescence and medicine', lesson: lessonP59, sections: emMoreSections, frames: emMoreFrames },
+  { subject: 'physics', number: 60, folder: '60', title: 'Investigating infrared emission', detail: 'Which surfaces give out the most infrared', lesson: lessonP60, sections: irEmitSections, frames: irEmitFrames },
+  { subject: 'physics', number: 61, folder: '61', title: 'Investigating infrared absorption', detail: 'Which surfaces soak up the most infrared', lesson: lessonP61, sections: irAbsorbSections, frames: irAbsorbFrames },
+  { subject: 'physics', number: 62, folder: '62', title: 'Dangers of electromagnetic waves', detail: 'UV, X-ray and gamma harm and radiation dose', lesson: lessonP62, sections: emDangerSections, frames: emDangerFrames },
+  { subject: 'physics', number: 63, folder: '63', title: 'Magnets and magnetic fields', detail: 'Poles, field lines and induced magnets', lesson: lessonP63, sections: magnetSections, frames: magnetFrames },
+  { subject: 'physics', number: 64, folder: '64', title: 'Electromagnetism', detail: 'Fields round wires, solenoids and electromagnets', lesson: lessonP64, sections: electromagSections, frames: electromagFrames },
 ]
 
 // Working Scientifically (subject 'skills') restarts at Lesson 1: the cross-science method and practical skills pages.
@@ -601,6 +661,28 @@ export const skillsChapters = [
 ] as const
 /** Register a Working Scientifically lesson here: { subject: 'skills', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const skillsLessons: readonly ScienceCatalogueEntry[] = [
+  { subject: 'skills', number: 1, folder: '1', title: 'The scientific method', detail: 'Hypotheses, testing, peer review and models', lesson: lessonW1, sections: wsMethodSections, frames: wsMethodFrames },
+  { subject: 'skills', number: 2, folder: '2', title: 'Communicating science and its issues', detail: 'Bias, issues and questions science can’t answer', lesson: lessonW2, sections: wsIssueSections, frames: wsIssueFrames },
+  { subject: 'skills', number: 3, folder: '3', title: 'Hazards and risk', detail: 'Judging risk and staying safe in investigations', lesson: lessonW3, sections: wsRiskSections, frames: wsRiskFrames },
+  { subject: 'skills', number: 4, folder: '4', title: 'Designing investigations', detail: 'Fair tests, variables and valid results', lesson: lessonW4, sections: wsDesignSections, frames: wsDesignFrames },
+  { subject: 'skills', number: 5, folder: '5', title: 'Collecting data', detail: 'Sample size, accuracy, precision and errors', lesson: lessonW5, sections: wsCollectSections, frames: wsCollectFrames },
+  { subject: 'skills', number: 6, folder: '6', title: 'Processing data', detail: 'Mean, median, mode, range and significant figures', lesson: lessonW6, sections: wsProcessSections, frames: wsProcessFrames },
+  { subject: 'skills', number: 7, folder: '7', title: 'Presenting data', detail: 'Bar charts, line graphs and lines of best fit', lesson: lessonW7, sections: wsPresentSections, frames: wsPresentFrames },
+  { subject: 'skills', number: 8, folder: '8', title: 'Interpreting graphs', detail: 'Gradients, rates and correlation', lesson: lessonW8, sections: wsGraphSections, frames: wsGraphFrames },
+  { subject: 'skills', number: 9, folder: '9', title: 'Units and converting them', detail: 'SI units, prefixes and conversions', lesson: lessonW9, sections: wsUnitSections, frames: wsUnitFrames },
+  { subject: 'skills', number: 10, folder: '10', title: 'Maths skills for science', detail: 'Standard form, rearranging and proportion', lesson: lessonW10, sections: wsMathsSections, frames: wsMathsFrames },
+  { subject: 'skills', number: 11, folder: '11', title: 'Drawing conclusions', detail: 'What the data shows, and correlation vs cause', lesson: lessonW11, sections: wsConcludeSections, frames: wsConcludeFrames },
+  { subject: 'skills', number: 12, folder: '12', title: 'Uncertainty and evaluations', detail: 'Uncertainty from the range and improving methods', lesson: lessonW12, sections: wsEvalSections, frames: wsEvalFrames },
+  { subject: 'skills', number: 13, folder: '13', title: 'Measuring mass, liquids and gases', detail: 'Balances, pipettes, cylinders and gas syringes', lesson: lessonW13, sections: wsMeasureSections, frames: wsMeasureFrames },
+  { subject: 'skills', number: 14, folder: '14', title: 'Measuring volume, length, angles, temperature and time', detail: 'Eureka cans, rulers, protractors, thermometers, stopwatches', lesson: lessonW14, sections: wsLengthSections, frames: wsLengthFrames },
+  { subject: 'skills', number: 15, folder: '15', title: 'Measuring pH and the size of a cell', detail: 'Indicators, pH probes and cells under a microscope', lesson: lessonW15, sections: wsPhCellSections, frames: wsPhCellFrames },
+  { subject: 'skills', number: 16, folder: '16', title: 'Safety and ethics in the lab', detail: 'Handling chemicals, equipment and living things', lesson: lessonW16, sections: wsSafetySections, frames: wsSafetyFrames },
+  { subject: 'skills', number: 17, folder: '17', title: 'Setting up electrolysis and a potometer', detail: 'Collecting gases at electrodes and transpiration rate', lesson: lessonW17, sections: wsSetupSections, frames: wsSetupFrames },
+  { subject: 'skills', number: 18, folder: '18', title: 'Collecting gases and drawing apparatus', detail: 'Gas over water and scientific drawings', lesson: lessonW18, sections: wsGasSections, frames: wsGasFrames },
+  { subject: 'skills', number: 19, folder: '19', title: 'Heating substances safely', detail: 'Bunsen burners, water baths and electric heaters', lesson: lessonW19, sections: wsHeatSections, frames: wsHeatFrames },
+  { subject: 'skills', number: 20, folder: '20', title: 'Electrical meters and light gates', detail: 'Voltmeters, ammeters, multimeters and light gates', lesson: lessonW20, sections: wsElecSections, frames: wsElecFrames },
+  { subject: 'skills', number: 21, folder: '21', title: 'Random sampling', detail: 'Quadrats and choosing people at random', lesson: lessonW21, sections: wsSampleSections, frames: wsSampleFrames },
+  { subject: 'skills', number: 22, folder: '22', title: 'Percentage change', detail: 'Comparing results with different starting values', lesson: lessonW22, sections: wsPercentSections, frames: wsPercentFrames },
 ]
 
 export const scienceSubjects = [
