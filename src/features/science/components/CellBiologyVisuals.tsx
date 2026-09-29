@@ -48,6 +48,21 @@ import { HydrocarbonVisual } from './HydrocarbonVisuals'
 import { CrudeOilVisual } from './CrudeOilVisuals'
 import { FractionVisual } from './FractionVisuals'
 import { CrackingVisual } from './CrackingVisuals'
+import { PurityVisual } from './PurityVisuals'
+import { ChromaVisual } from './ChromaVisuals'
+import { RfVisual } from './RfVisuals'
+import { GasTestVisual } from './GasTestVisuals'
+import { AtmosphereVisual } from './AtmosphereVisuals'
+import { GreenhouseVisual } from './GreenhouseVisuals'
+import { FootprintVisual } from './FootprintVisuals'
+import { PollutionVisual } from './PollutionVisuals'
+import { ResourceVisual } from './ResourceVisuals'
+import { RecycleVisual } from './RecycleVisuals'
+import { LcaVisual } from './LcaVisuals'
+import { LcaCompareVisual } from './LcaCompareVisuals'
+import { PotableVisual } from './PotableVisuals'
+import { WaterTestVisual } from './WaterTestVisuals'
+import { SewageVisual } from './SewageVisuals'
 import { ProfileVisual } from './ProfileVisuals'
 import { EnergyMeasureVisual } from './EnergyMeasureVisuals'
 import { ExoEndoVisual } from './ExoEndoVisuals'
@@ -225,6 +240,21 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('crude-')) return <CrudeOilVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('frac-')) return <FractionVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('crack-')) return <CrackingVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('pure-')) return <PurityVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('chroma-')) return <ChromaVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rfval-')) return <RfVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('gastest-')) return <GasTestVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('atmos-')) return <AtmosphereVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('ghg-')) return <GreenhouseVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('footprint-')) return <FootprintVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('pollute-')) return <PollutionVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('resource-')) return <ResourceVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('recycle-')) return <RecycleVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('lca-')) return <LcaVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('lcause-')) return <LcaCompareVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('potable-')) return <PotableVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wtest-')) return <WaterTestVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('sewage-')) return <SewageVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('profile-')) return <ProfileVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('calor-')) return <EnergyMeasureVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('exo-')) return <ExoEndoVisual focus={focus} assessment={assessment} />

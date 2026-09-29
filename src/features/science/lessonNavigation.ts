@@ -194,6 +194,36 @@ import { lessonC39, fractionSections } from './chemistry/lesson-39/lesson'
 import { fractionFrames } from './chemistry/lesson-39/teachingFrames'
 import { lessonC40, crackingSections } from './chemistry/lesson-40/lesson'
 import { crackingFrames } from './chemistry/lesson-40/teachingFrames'
+import { lessonC41, puritySections } from './chemistry/lesson-41/lesson'
+import { purityFrames } from './chemistry/lesson-41/teachingFrames'
+import { lessonC42, chromaSections } from './chemistry/lesson-42/lesson'
+import { chromaFrames } from './chemistry/lesson-42/teachingFrames'
+import { lessonC43, rfSections } from './chemistry/lesson-43/lesson'
+import { rfFrames } from './chemistry/lesson-43/teachingFrames'
+import { lessonC44, gasTestSections } from './chemistry/lesson-44/lesson'
+import { gasTestFrames } from './chemistry/lesson-44/teachingFrames'
+import { lessonC45, atmosphereSections } from './chemistry/lesson-45/lesson'
+import { atmosphereFrames } from './chemistry/lesson-45/teachingFrames'
+import { lessonC46, greenhouseSections } from './chemistry/lesson-46/lesson'
+import { greenhouseFrames } from './chemistry/lesson-46/teachingFrames'
+import { lessonC47, footprintSections } from './chemistry/lesson-47/lesson'
+import { footprintFrames } from './chemistry/lesson-47/teachingFrames'
+import { lessonC48, pollutionSections } from './chemistry/lesson-48/lesson'
+import { pollutionFrames } from './chemistry/lesson-48/teachingFrames'
+import { lessonC49, resourceSections } from './chemistry/lesson-49/lesson'
+import { resourceFrames } from './chemistry/lesson-49/teachingFrames'
+import { lessonC50, recycleSections } from './chemistry/lesson-50/lesson'
+import { recycleFrames } from './chemistry/lesson-50/teachingFrames'
+import { lessonC51, lcaSections } from './chemistry/lesson-51/lesson'
+import { lcaFrames } from './chemistry/lesson-51/teachingFrames'
+import { lessonC52, lcaCompareSections } from './chemistry/lesson-52/lesson'
+import { lcaCompareFrames } from './chemistry/lesson-52/teachingFrames'
+import { lessonC53, potableSections } from './chemistry/lesson-53/lesson'
+import { potableFrames } from './chemistry/lesson-53/teachingFrames'
+import { lessonC54, waterTestSections } from './chemistry/lesson-54/lesson'
+import { waterTestFrames } from './chemistry/lesson-54/teachingFrames'
+import { lessonC55, sewageSections } from './chemistry/lesson-55/lesson'
+import { sewageFrames } from './chemistry/lesson-55/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -309,6 +339,9 @@ export const chemistryChapters = [
   { subject: 'chemistry', code: 'C5', title: 'Energy changes', lessonNumbers: [28, 29, 30] },
   { subject: 'chemistry', code: 'C6', title: 'The rate and extent of chemical change', lessonNumbers: [31, 32, 33, 34, 35, 36] },
   { subject: 'chemistry', code: 'C7', title: 'Organic chemistry', lessonNumbers: [37, 38, 39, 40] },
+  { subject: 'chemistry', code: 'C8', title: 'Chemical analysis', lessonNumbers: [41, 42, 43, 44] },
+  { subject: 'chemistry', code: 'C9', title: 'Chemistry of the atmosphere', lessonNumbers: [45, 46, 47, 48] },
+  { subject: 'chemistry', code: 'C10', title: 'Using resources', lessonNumbers: [49, 50, 51, 52, 53, 54, 55] },
 ] as const satisfies readonly ScienceChapter[]
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
@@ -352,6 +385,21 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 38, folder: '38', title: 'Crude oil', detail: 'How it formed and why chain length matters', lesson: lessonC38, sections: crudeOilSections, frames: crudeOilFrames },
   { subject: 'chemistry', number: 39, folder: '39', title: 'Fractional distillation', detail: 'Separating crude oil into fractions', lesson: lessonC39, sections: fractionSections, frames: fractionFrames },
   { subject: 'chemistry', number: 40, folder: '40', title: 'Cracking', detail: 'Splitting long chains and testing for alkenes', lesson: lessonC40, sections: crackingSections, frames: crackingFrames },
+  { subject: 'chemistry', number: 41, folder: '41', title: 'Purity and formulations', detail: 'Pure substances, melting points and formulations', lesson: lessonC41, sections: puritySections, frames: purityFrames },
+  { subject: 'chemistry', number: 42, folder: '42', title: 'How paper chromatography works', detail: 'Mobile and stationary phases and reading a chromatogram', lesson: lessonC42, sections: chromaSections, frames: chromaFrames },
+  { subject: 'chemistry', number: 43, folder: '43', title: 'Rf values', detail: 'Calculating Rf and identifying substances', lesson: lessonC43, sections: rfSections, frames: rfFrames },
+  { subject: 'chemistry', number: 44, folder: '44', title: 'Tests for gases', detail: 'Chlorine, oxygen, carbon dioxide and hydrogen', lesson: lessonC44, sections: gasTestSections, frames: gasTestFrames },
+  { subject: 'chemistry', number: 45, folder: '45', title: 'How the atmosphere evolved', detail: 'From volcanic gases to oxygen-rich air', lesson: lessonC45, sections: atmosphereSections, frames: atmosphereFrames },
+  { subject: 'chemistry', number: 46, folder: '46', title: 'Greenhouse gases and climate change', detail: 'The greenhouse effect and human activity', lesson: lessonC46, sections: greenhouseSections, frames: greenhouseFrames },
+  { subject: 'chemistry', number: 47, folder: '47', title: 'Carbon footprints', detail: 'Measuring and reducing greenhouse gas emissions', lesson: lessonC47, sections: footprintSections, frames: footprintFrames },
+  { subject: 'chemistry', number: 48, folder: '48', title: 'Air pollution', detail: 'Carbon monoxide, particulates, sulfur dioxide and acid rain', lesson: lessonC48, sections: pollutionSections, frames: pollutionFrames },
+  { subject: 'chemistry', number: 49, folder: '49', title: 'Finite and renewable resources', detail: 'Natural resources and which ones will run out', lesson: lessonC49, sections: resourceSections, frames: resourceFrames },
+  { subject: 'chemistry', number: 50, folder: '50', title: 'Reuse and recycling', detail: 'Sustainable development, metals and glass', lesson: lessonC50, sections: recycleSections, frames: recycleFrames },
+  { subject: 'chemistry', number: 51, folder: '51', title: 'Life cycle assessments', detail: 'The four stages from raw materials to disposal', lesson: lessonC51, sections: lcaSections, frames: lcaFrames },
+  { subject: 'chemistry', number: 52, folder: '52', title: 'Comparing life cycle assessments', detail: 'Plastic and paper bags, and why LCAs can be biased', lesson: lessonC52, sections: lcaCompareSections, frames: lcaCompareFrames },
+  { subject: 'chemistry', number: 53, folder: '53', title: 'Potable water', detail: 'Making water safe to drink', lesson: lessonC53, sections: potableSections, frames: potableFrames },
+  { subject: 'chemistry', number: 54, folder: '54', title: 'Testing and purifying water', detail: 'Checking purity and distilling water', lesson: lessonC54, sections: waterTestSections, frames: waterTestFrames },
+  { subject: 'chemistry', number: 55, folder: '55', title: 'Waste water treatment', detail: 'How sewage is cleaned', lesson: lessonC55, sections: sewageSections, frames: sewageFrames },
 ]
 
 export const scienceSubjects = [
