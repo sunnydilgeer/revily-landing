@@ -36,12 +36,12 @@ Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18.
 - `potable-distill`: a simple distillation flow: boil sea water in a flask, steam, condense in a cooled tube, collect fresh water; salt left behind labelled. Few labels.
 - `potable-membrane`: a membrane across the middle of a tank; salty water on one side, water molecules (blue) passing through to the other side, salt (other colour) and bigger molecules blocked. Labels "membrane" and "salty water", "fresh water".
 - `potable-cost`: a big energy symbol (a lightning bolt in yellow) over a purse or £ sign, labelled "lots of energy = expensive", with two small pictures "distillation" and "reverse osmosis".
-- `potable-treat`: a simple flow strip of two boxes, "Filtration" then "Sterilisation", between a river and a tap.
-- `potable-mesh`: a wire mesh with water flowing through and twigs stopped on top. Label "wire mesh stops large things".
-- `potable-beds`: a tank with layers of sand and gravel, grains catching tiny solid bits; labels "filter bed: sand and gravel".
-- `potable-sterilise`: a beaker of water with microbes (small bugs) being crossed out, and three small icons labelled "chlorine gas", "ozone", "ultraviolet light".
-- `potable-route`: the whole route: rain, surface/ground water, wire mesh, filter beds, sterilisation, tap; a side branch "sea water: desalination" joins before the mesh. Numbered steps.
-- `potable-q-flow` (question, assessment view): a lake on the left with twigs and bugs in the water, a tap on the right, and three empty numbered boxes between them with no treatment names. Description: "A lake containing twigs and microbes, three unlabelled stages and a tap."
+- `potable-treat`: one treatment-works strip reused for the whole section: river (twigs, microbes) → wire mesh → filter beds → sterilising tank → tap, with brackets "Filtration" (mesh and beds) and "Sterilisation". The next three frames highlight one stage each and fade the others.
+- `potable-mesh`: the strip with the wire mesh highlighted, twigs caught on the upstream side. Caption "Wire mesh stops large things, such as twigs."
+- `potable-beds`: the strip with the filter beds highlighted: layers of sand and gravel, water trickling down, tiny bits caught. Caption "Filter beds: sand and gravel catch tiny bits."
+- `potable-sterilise`: the strip with the sterilising tank highlighted: bubbles, a UV lamp, microbes crossed out. Caption "Chlorine gas, ozone or ultraviolet light kill microbes."
+- `potable-route`: the same strip with rain above the source and numbered steps 1 to 6 (rain, surface water, wire mesh, filter beds, sterilisation, tap); a feed pipe from below labelled "or ground water, or sea water after desalination" joins before the mesh.
+- `potable-q-flow` (question, assessment view): a lake on the left with twigs and microbes in the water, a tap on the right, and two empty numbered boxes between them with no treatment names (two boxes, to match the two-stage answer). Description: "A lake containing twigs and microbes, two unlabelled treatment stages numbered 1 and 2, and a tap."
 
 ## States in full
 Read the states in `lesson.ts` and the frames in `teachingFrames.ts`; they are the single source for wording, answers and hints.

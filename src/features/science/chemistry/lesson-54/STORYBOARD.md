@@ -41,9 +41,9 @@ Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18.
 - `wtest-flask`: a round-bottomed flask of water over a Bunsen burner with bubbles and steam rising; a thermometer in the neck. Labels: "impure water", "heat until it boils", "solids stay behind".
 - `wtest-condenser`: the condenser tube slanting downwards with an outer jacket; "cold water in" at the bottom, "water out" at the top; steam entering and droplets forming. Label "steam cools and condenses".
 - `wtest-collect`: the end of the condenser dripping into a beaker; label "pure water collected".
-- `wtest-setup`: the whole apparatus: burner, flask, thermometer, condenser with cold-water arrows, beaker. Numbered steps 1 to 4 along the route (heat, steam, condense, collect).
+- `wtest-setup`: the whole apparatus: burner, flask, thermometer, condenser with cold-water arrows, beaker. Numbered steps 1 to 4 along the route (heat, steam, condense, collect). The flask, condenser and collect frames reuse this rig with one part highlighted, and the rig matches the separation lesson's drawing.
 - `wtest-q-basin` (question, assessment view): two balance readings beside an evaporating basin: "before: 44.10 g" and "after: 44.58 g". No conclusions or the word "pure". Description: "An evaporating basin with a balance reading before and after evaporation."
-- `wtest-q-apparatus` (question, assessment view): the distillation apparatus with numbered pointers 1 (flask), 2 (condenser), 3 (beaker), 4 (Bunsen burner) and no part names. Description: "Distillation apparatus with four numbered parts."
+- `wtest-q-apparatus` (question, assessment view): the distillation apparatus with numbered pointers 1 (flask), 2 (condenser), 3 (beaker), 4 (Bunsen burner) and no part names; no thermometer reading. Description: "Distillation apparatus with four numbered parts." The C54-16 options are "Part 1" to "Part 4" so the options do not name the parts.
 
 ## States in full
 Read the states in `lesson.ts` and the frames in `teachingFrames.ts`; they are the single source for wording, answers and hints.
