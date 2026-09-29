@@ -23,7 +23,7 @@ Judgement calls for the teacher:
 - "Precipitation" is explained once in words (an insoluble solid forming from a solution).
 
 ## Diagram specs
-Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18. Course colours: purple = carbon dioxide, blue = water, teal = oxygen, yellow = Sun/energy, green = plants. Nitrogen in a neutral grey-blue and other gases in a pale grey. Gas particles are small labelled dots, not chemical-diagram detail. Text in the SVG at least 12px; the drawing must read on a 360px phone.
+Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18. Course colours: purple = carbon dioxide, blue = water, teal = oxygen, yellow = Sun/energy, green = plants. Nitrogen in a neutral grey-blue, methane in pale orange (as in Lesson 46), ammonia and noble gases in a pale grey. Gas particles are small labelled dots, not chemical-diagram detail. Text in the SVG at least 12px; the drawing must read on a 360px phone.
 
 - `atmos-volcanoes`: a soft landscape of several rounded volcanoes erupting into a dull sky, no oceans, no plants. Label "about 4.6 billion years ago" and "volcanoes give out gases".
 - `atmos-theory`: the same landscape faded, with a small thought-bubble style note "our best theory" and a faint "?" over the sky. Label "very old, so hard to get evidence".
