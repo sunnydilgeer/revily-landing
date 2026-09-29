@@ -1,0 +1,26 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// Three ideas in order: energy is stored and moved (never lost), the two names and what you see (temperature), then examples and uses.
+// Diagrams use energy blocks and beaker-and-thermometer pictures; reaction profiles come in a later lesson.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const exoEndoFrames: Record<string, TeachingFrame[]> = {
+  'C28-02': [
+    f('Chemicals store energy', 'Different chemicals store different amounts of energy.', 'reactants store some, products store some', 'Every chemical stores some energy. Different chemicals store different amounts. In a reaction the reactants turn into products. So the energy stored can change from before to after.', 'exo-store'),
+    f('Products store less', 'If the products store less, the extra energy is given out to the surroundings.', 'less stored → the extra leaves', 'Sometimes the products store less energy than the reactants did. The extra energy has to go somewhere. It is given out to the surroundings, so the surroundings gain it. The amount given out is the difference between the two stores.', 'exo-gives'),
+    f('Products store more', 'If the products store more, the extra energy is taken in from the surroundings.', 'more stored → it came from outside', 'Other times the products store more energy than the reactants did. That extra energy must come from somewhere. It is taken in from the surroundings, so the surroundings lose it. Again, the amount is the difference between the two stores.', 'exo-takes'),
+    f('Energy is conserved', 'Energy is never made or destroyed in a reaction, only moved around.', 'total before = total after', 'Add up the energy in the reacting chemicals and their surroundings. The total is the same before and after. We say energy is conserved. It is only moved from one place to another, and never made or destroyed.', 'exo-conserve'),
+  ],
+  'C28-05': [
+    f('Energy out: exothermic', 'In an exothermic reaction, energy is given out to the surroundings, so the temperature rises.', 'out → warmer', 'Suppose the products store less energy than the reactants. Energy is given out to the surroundings, so they get warmer. A thermometer in the mixture shows the temperature going up. This kind of reaction is called exothermic.', 'exo-def-exo'),
+    f('Energy in: endothermic', 'In an endothermic reaction, energy is taken in from the surroundings, so the temperature falls.', 'in → colder', 'Now suppose the products store more energy than the reactants. Energy is taken in from the surroundings, so they get cooler. The thermometer shows the temperature going down. This kind of reaction is called endothermic.', 'exo-def-endo'),
+    f('Side by side', 'Exo- means out and endo- means in. Temperature rising means exothermic, falling means endothermic.', 'rise → exo · fall → endo', 'Here are the two types together. The first part of each name is a clue. Exo- means out, and endo- means in. To decide which type it is, look at the temperature. Rise means exothermic and fall means endothermic.', 'exo-def-table'),
+  ],
+  'C28-08': [
+    f('Exothermic examples', 'Burning fuels, neutralisation and many oxidation reactions are exothermic.', 'burning, acid + alkali, oxidation', 'Many types of reaction are exothermic. Burning a fuel is one, and it is also called combustion. Neutralisation, when an acid reacts with an alkali, is another. Many oxidation reactions, such as rusting, also give out energy.', 'exo-ex-exo'),
+    f('Hand warmers and hot cans', 'Exothermic reactions are useful for warming things up.', 'reaction gives out energy → warm', 'Some hand warmers contain chemicals that react and give out energy. That warms your hands. A self-heating can of a hot drink works the same way. Chemicals in its base react and give out energy to heat the drink.', 'exo-use-exo'),
+    f('Endothermic examples', 'Endothermic reactions are less common. Two examples are citric acid with sodium hydrogencarbonate and thermal decomposition.', 'citric acid + sodium hydrogencarbonate · thermal decomposition', 'Endothermic reactions are less common. Citric acid reacts with sodium hydrogencarbonate and the mixture gets colder. Thermal decomposition is when a substance breaks down as it is heated. It takes in energy from the heat source.', 'exo-ex-endo'),
+    f('Sports injury packs', 'Some sports injury packs use an endothermic reaction to get cold.', 'reaction takes in energy → cold pack', 'Some sports injury packs use an endothermic reaction. When the reaction starts, it takes in energy from the surroundings. The pack quickly gets cold. You do not need a freezer to make it cold.', 'exo-use-endo'),
+    f('Put it together', 'Exothermic reactions are more common. Each example goes with a temperature change.', 'sort each example', 'Sort the examples into the two types. Exothermic: burning fuels, neutralisation, many oxidation reactions, hand warmers and self-heating cans. Endothermic: citric acid with sodium hydrogencarbonate, thermal decomposition and sports injury packs.', 'exo-sort'),
+  ],
+}
