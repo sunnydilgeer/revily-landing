@@ -114,6 +114,8 @@ import { lesson52, warmingSections } from './lesson-52/lesson'
 import { warmingFrames } from './lesson-52/teachingFrames'
 import { lesson53, protectSections } from './lesson-53/lesson'
 import { protectFrames } from './lesson-53/teachingFrames'
+import { lessonC1, atomSections } from './chemistry/lesson-1/lesson'
+import { atomFrames } from './chemistry/lesson-1/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -225,7 +227,9 @@ export const chemistryChapters = [
   { subject: 'chemistry', code: 'C1b', title: 'The periodic table', lessonNumbers: [5, 6, 7] },
 ] as const satisfies readonly ScienceChapter[]
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
-export const chemistryLessons: readonly ScienceCatalogueEntry[] = []
+export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
+  { subject: 'chemistry', number: 1, folder: '1', title: 'Atoms, elements and isotopes', detail: 'Protons, neutrons, electrons and relative atomic mass', lesson: lessonC1, sections: atomSections, frames: atomFrames },
+]
 
 export const scienceSubjects = [
   { subject: 'biology', title: 'Biology', code: 'B', chapters: scienceChapters as readonly ScienceChapter[], lessons: scienceLessons as readonly ScienceCatalogueEntry[] },

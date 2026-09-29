@@ -19,6 +19,7 @@ import { InheritanceVisual } from './InheritanceVisuals'
 import { EvolutionVisual } from './EvolutionVisuals'
 import { EcologyVisual } from './EcologyVisuals'
 import { EarthVisual } from './EarthVisuals'
+import { AtomVisual } from './AtomVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -157,6 +158,7 @@ function SpecialisedCell({ focus, assessment }: { focus: string; assessment: boo
 }
 
 export function CellBiologyVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
+  if (focus.startsWith('atom-')) return <AtomVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />

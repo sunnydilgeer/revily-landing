@@ -87,7 +87,7 @@ try {
     const html = render(f.focus, false)
     if (html.length <= 20 || html.includes('NaN')) fail('visuals', `${id} frame "${f.label}" focus "${f.focus}" does not render a diagram`)
   }
-  for (const state of states) if (state.visual && /^B(?:[4-9]|[1-9]\d)-/.test(state.id)) {
+  for (const state of states) if (state.visual && /^(?:B(?:[4-9]|[1-9]\d)|C\d+)-/.test(state.id)) {
     const html = render(state.visual.id, state.kind !== 'teaching')
     if (html.length <= 20 || html.includes('NaN')) fail('visuals', `${state.id} visual "${state.visual.id}" does not render`)
   }
