@@ -10,7 +10,7 @@ const acid = author(skill, ['5.9.3.1', '5.9.3.2'], ['aqa-chemistry'])
 const t = (a: ReturnType<typeof author>, id: keyof typeof frames, title: string) => a.teach(id, title, frames[id])
 
 export const pollutionSections = [
-  { id: 'C48-01', label: 'Start here', detail: 'A blocked chimney' },
+  { id: 'C48-01', label: 'Start here', detail: 'A heater short of air' },
   { id: 'C48-02', label: 'What is released when fuels burn?', detail: 'Complete and incomplete combustion' },
   { id: 'C48-05', label: 'Why are CO and particulates harmful?', detail: 'Blood, lungs and global dimming' },
   { id: 'C48-08', label: 'Where do acid rain gases come from?', detail: 'Sulfur dioxide and nitrogen oxides' },
@@ -18,7 +18,7 @@ export const pollutionSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...burn.choice('C48-01', 'A gas heater is running in a small room with the window shut. Its air supply is nearly blocked. What is the main risk?', ['Too much oxygen in the room', 'Not enough oxygen, so a harmful gas can be made', 'The heater will make water only', 'There is no risk at all'], 1, 'Think about what a fuel needs to burn well.', ['Fuels need plenty of oxygen to burn completely.', 'With too little oxygen the fuel burns incompletely and can make a poisonous gas.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...burn.choice('C48-01', 'A gas heater runs in a closed room and its air supply is nearly blocked. What is the main risk?', ['Too much oxygen in the room', 'Not enough oxygen, so a harmful gas can be made', 'The heater will make water only', 'There is no risk at all'], 1, 'Think about what a fuel needs to burn well.', ['Fuels need plenty of oxygen to burn completely.', 'With too little oxygen the fuel burns incompletely and can make a poisonous gas.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t(burn, 'C48-02', 'What is released when fuels burn?'),
   burn.choice('C48-03', 'Which are the products of complete combustion of a hydrocarbon fuel?', ['Carbon dioxide and water vapour', 'Carbon monoxide and soot', 'Sulfur dioxide and water', 'Hydrogen and oxygen'], 0, 'Both products are made in every kind of combustion.', ['Complete combustion of a hydrocarbon releases carbon dioxide and water vapour.', 'Incomplete combustion releases these as well as other things.'], 'recall'),
   burn.choice('C48-04', 'What is the difference between complete and incomplete combustion?', ['Complete needs no oxygen at all', 'Incomplete uses more oxygen than complete', 'Complete uses plenty of oxygen; incomplete does not have enough', 'They are exactly the same'], 2, 'It depends on how much oxygen there is.', ['In complete combustion there is plenty of oxygen and all the fuel burns.', 'In incomplete combustion there is not enough oxygen, so some fuel does not burn.']),
