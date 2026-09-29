@@ -257,3 +257,90 @@ export function GasSyringe({ x, y, w = 150, fill = 0.4, dim = false, scale = tru
     <rect x={r1(gas + bw * 0.55)} y={y - 13} width="7" height="26" rx="2.5" fill="#c3ccd4" stroke={W.metalLine} strokeWidth="1.6" />
   </g>
 }
+
+/* ---------- Glassware and eyes (added for the practical-skills lessons, WS 13 onwards) ---------- */
+
+/** Rubber (pipette bulbs, fillers, tubing) and the gas space in glassware; the gas tint matches GasSyringe. */
+export const rubber = { fill: '#eeb0a6', line: '#a9564c' }
+export const gasFill = '#e6f2ea'
+/** A beaker; (x, y) is the middle of its base. `level` 0–1 is how full it is. Children draw inside, behind the glass. */
+export function Beaker({ x, y, w = 80, h = 90, level = 0, fill = P.water, line = P.waterLine, dim = false, marks = true, children }: { x: number; y: number; w?: number; h?: number; level?: number; fill?: string; line?: string; dim?: boolean; marks?: boolean; children?: ReactNode }) {
+  const l = x - w / 2, r = x + w / 2, top = y - h, surf = r1(y - 3 - (h - 8) * level)
+  const outline = `M${l - 7} ${top - 5}Q${l - 1} ${top - 3} ${l} ${top + 6}V${y - 10}Q${l} ${y} ${l + 10} ${y}H${r - 10}Q${r} ${y} ${r} ${y - 10}V${top}`
+  return <g opacity={dim ? faded : 1}>
+    <path d={`M${l} ${top + 4}V${y - 10}Q${l} ${y} ${l + 10} ${y}H${r - 10}Q${r} ${y} ${r} ${y - 10}V${top}Z`} fill={W.glass} fillOpacity=".85" />
+    {level > 0 && <path d={`M${l + 1.5} ${surf}H${r - 1.5}V${y - 9}Q${r - 1.5} ${y - 1.5} ${r - 9} ${y - 1.5}H${l + 9}Q${l + 1.5} ${y - 1.5} ${l + 1.5} ${y - 9}Z`} fill={fill} />}
+    {level > 0 && <path d={`M${l + 1.5} ${surf}H${r - 1.5}`} stroke={line} strokeWidth="1.8" />}
+    {children}
+    {marks && [0.3, 0.5, 0.7].map(f => <path key={f} d={`M${l} ${r1(y - h * f)}h${f === 0.5 ? 10 : 6}`} stroke={W.glassLine} strokeWidth="1.2" />)}
+    <path d={`M${r - 9} ${top + 14}V${y - 14}`} stroke="white" strokeWidth="3" opacity=".8" />
+    <path d={outline} fill="none" stroke={W.glassLine} strokeWidth="2.4" />
+  </g>
+}
+/** A test tube standing upright; (x, y) is the bottom of its round end. `level` 0–1 is how full it is. */
+export function TestTube({ x, y, w = 26, h = 110, level = 0, fill = P.water, line = P.waterLine, dim = false, children }: { x: number; y: number; w?: number; h?: number; level?: number; fill?: string; line?: string; dim?: boolean; children?: ReactNode }) {
+  const clip = useId().replace(/:/g, '')
+  const l = x - w / 2, r = x + w / 2, top = y - h, surf = r1(y - (h - 10) * level)
+  const d = `M${l} ${top}V${y - w / 2}A${w / 2} ${w / 2} 0 0 0 ${r} ${y - w / 2}V${top}`
+  return <g opacity={dim ? faded : 1}>
+    <defs><clipPath id={clip}><path d={d + 'Z'} /></clipPath></defs>
+    <path d={d + 'Z'} fill={W.glass} fillOpacity=".85" />
+    <g clipPath={`url(#${clip})`}>
+      {level > 0 && <path d={`M${l - 2} ${surf}H${r + 2}V${y + 2}H${l - 2}Z`} fill={fill} />}
+      {level > 0 && <path d={`M${l} ${surf}H${r}`} stroke={line} strokeWidth="1.8" />}
+      {children}
+    </g>
+    <path d={`M${r - 6} ${top + 10}V${y - w / 2}`} stroke="white" strokeWidth="2.6" opacity=".8" />
+    <path d={d} fill="none" stroke={W.glassLine} strokeWidth="2.2" />
+    <path d={`M${l - 4} ${top - 1}Q${x} ${top - 3} ${r + 4} ${top - 1}`} fill="none" stroke={W.glassLine} strokeWidth="2.6" />
+  </g>
+}
+/** A dropping pipette hanging tip-down; (x, y) is the tip. The rubber bulb sits on top. */
+export function DropPipette({ x, y, h = 96, dim = false, squeezed = false }: { x: number; y: number; h?: number; dim?: boolean; squeezed?: boolean }) {
+  const top = y - h, bw = squeezed ? 10 : 13
+  return <g opacity={dim ? faded : 1}>
+    <path d={`M${x - 1.8} ${y}L${x - 5} ${top + 44}V${top + 30}H${x + 5}V${top + 44}L${x + 1.8} ${y}Z`} fill={W.glass} stroke={W.glassLine} strokeWidth="1.8" />
+    <path d={`M${x - 7} ${top + 32}C${x - bw} ${top + 14} ${x - bw} ${top} ${x} ${top}C${x + bw} ${top} ${x + bw} ${top + 14} ${x + 7} ${top + 32}Z`} fill={rubber.fill} stroke={rubber.line} strokeWidth="2" />
+  </g>
+}
+/** A drop of liquid; (x, y) is its round bottom. */
+export function Drop({ x, y, s = 1, fill = P.water, line = P.waterLine }: { x: number; y: number; s?: number; fill?: string; line?: string }) {
+  return <path transform={`translate(${x} ${y}) scale(${s})`} d="M0 -13C3 -7 6 -4 6 0A6 6 0 0 1 -6 0C-6 -4 -3 -7 0 -13Z" fill={fill} stroke={line} strokeWidth="1.5" />
+}
+/** An eye seen from the front, looking in direction `look` (degrees: 0 right, 90 down, 180 left). */
+export function Eye({ x, y, look = 0, s = 1, dim = false }: { x: number; y: number; look?: number; s?: number; dim?: boolean }) {
+  const a = look * Math.PI / 180, ix = r1(Math.cos(a) * 6), iy = r1(Math.sin(a) * 3.5)
+  return <g transform={`translate(${x} ${y}) scale(${s})`} opacity={dim ? faded : 1}>
+    <path d="M-12 -10Q0 -18 12 -10" fill="none" stroke={muted} strokeWidth="1.6" />
+    <path d="M-17 0C-9 -11.5 9 -11.5 17 0C9 11.5 -9 11.5 -17 0Z" fill="white" stroke={ink} strokeWidth="2" />
+    <circle cx={ix} cy={iy} r="6.8" fill="#7b9cba" stroke={ink} strokeWidth="1.3" />
+    <circle cx={ix} cy={iy} r="3" fill={ink} />
+    <circle cx={r1(ix + 2)} cy={r1(iy - 2)} r="1.3" fill="white" />
+  </g>
+}
+/** A dashed line of sight from an eye to what it reads. */
+export function Sight({ from, to, tone = 'plain', dim = false }: { from: Pt; to: Pt; tone?: Tone; dim?: boolean }) {
+  const c = tone === 'plain' ? muted : tones[tone].line
+  return <path d={`M${from[0]} ${from[1]}L${to[0]} ${to[1]}`} stroke={c} strokeWidth="2" strokeDasharray="5 5" fill="none" opacity={dim ? faded : 1} />
+}
+
+/* ---------- Worked examples (added for the calculation lessons, WS 20 and 22) ---------- */
+
+/** One line of working: plain text; `answer` shades it green; `note` sits at the right in muted text. */
+export type WorkingLine = { text: string; answer?: boolean; note?: string }
+/** A working card: numbered lines of working, one step per line, the answer line in green. */
+export function WorkingCard({ x, y, w, lines, rowH = 50, size = 19 }: { x: number; y: number; w: number; lines: WorkingLine[]; rowH?: number; size?: number }) {
+  return <g>
+    <rect x={x} y={y} width={w} height={lines.length * rowH + 14} rx="16" fill={P.panel} stroke={P.panelLine} strokeWidth="1.6" />
+    {lines.map((l, i) => {
+      const cy = y + 7 + i * rowH + rowH / 2
+      return <g key={i}>
+        {l.answer && <rect x={x + 7} y={r1(cy - rowH / 2 + 3)} width={w - 14} height={rowH - 6} rx="12" fill={tones.good.fill} stroke={tones.good.line} strokeWidth="2" />}
+        <circle cx={x + 27} cy={cy} r="11" fill="white" stroke={ink} strokeWidth="1.8" />
+        <text x={x + 27} y={r1(cy + 4.5)} textAnchor="middle" fontSize="12.5" fontWeight="750" fill={ink}>{i + 1}</text>
+        <text x={x + 50} y={r1(cy + size * 0.36)} fontSize={size} fontWeight="700" fill={l.answer ? tones.good.text : ink}>{l.text}</text>
+        {l.note && <text x={x + w - 14} y={r1(cy + 4.5)} textAnchor="end" fontSize="13" fontWeight="650" fill={muted}>{l.note}</text>}
+      </g>
+    })}
+  </g>
+}

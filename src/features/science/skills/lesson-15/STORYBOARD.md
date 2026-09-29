@@ -24,12 +24,12 @@ Judgement calls for the teacher:
 Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the same hue, organic and slightly refined, text at least 12px, readable on 360px.
 
 - `wsphcell-indicator`: a dropping pipette adding two drops of dye to a test tube of colourless solution; a second tube shows the colour turned to one colour. Labels "a couple of drops" and "colour changes".
-- `wsphcell-universal`: a test tube of universal indicator colours and a strip of colour boxes from red to purple, with a bracket "gradual change, estimate the pH". No pH numbers needed.
+- `wsphcell-universal`: a test tube of universal indicator (orange) beside a chart of colour boxes from red to purple, labelled "acid", "neutral", "alkali", with a bracket "gradual change: estimate the pH" and the matching box ringed. No pH numbers needed.
 - `wsphcell-paper`: a strip of indicator paper with a drop of coloured solution being spotted on it from a glass rod, the spot changing colour. Labels "spot a drop on the paper" and "solution is already coloured".
 - `wsphcell-litmus`: two litmus paper strips: one red beside a label "acid", one blue beside "alkali"; a small jar with damp paper held in a gas sample. Labels "red in acid", "blue in alkali", "damp paper in a gas".
 - `wsphcell-probe`: a pH probe dipping into a beaker, wire to a meter showing a number (e.g. 7.0). Labels "pH probe", "meter", "electronic and more accurate".
 - `wsphcell-setup`: a microscope stage from the side with a slide and a clear ruler clipped on, and a small circle showing the cells seen through the eyepiece with the ruler on top. Labels "clear ruler", "clip to the stage", "×100".
-- `wsphcell-count`: a field of view with a ruler; a row of cells lined up along a marked 1 mm, numbered 1 to 5. Label "count the cells along 1 mm".
+- `wsphcell-count`: a field of view with a ruler; a row of cells lined up along a marked 1 mm, numbered 1 to 5, with faded neighbours either side. Labels "count the cells along 1 mm" and "5 cells".
 - `wsphcell-units`: a short bar labelled "1 mm" broken into a scale labelled "= 1000 µm", with the symbol µm explained as "micrometre".
 - `wsphcell-formula`: the formula "length of a cell (µm) = 1000 µm ÷ number of cells counted in 1 mm" in a rounded box, with a small picture of a bar of 1000 µm shared between cells.
 - `wsphcell-worked-cell` (worked example, teaching view): five cells along a 1 mm ruler bar, with the working "1000 ÷ 5 = 200 µm".
