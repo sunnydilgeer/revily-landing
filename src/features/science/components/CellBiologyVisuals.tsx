@@ -105,6 +105,35 @@ import { GasParticleVisual } from './GasParticleVisuals'
 import { DensityVisual } from './DensityVisuals'
 import { InternalEnergyVisual } from './InternalEnergyVisuals'
 import { LatentVisual } from './LatentVisuals'
+import { VtGraphVisual } from './VtGraphVisuals'
+import { NewtonLawVisual } from './NewtonLawVisuals'
+import { NewtonThirdVisual } from './NewtonThirdVisuals'
+import { MotionPracVisual } from './MotionPracVisuals'
+import { StoppingVisual } from './StoppingVisuals'
+import { HalfLifeVisual } from './HalfLifeVisuals'
+import { IrradiationVisual } from './IrradiationVisuals'
+import { ContactForceVisual } from './ContactForceVisuals'
+import { WeightVisual } from './WeightVisuals'
+import { ResultantVisual } from './ResultantVisuals'
+import { RefractionVisual } from './RefractionVisuals'
+import { EmSpectrumVisual } from './EmSpectrumVisuals'
+import { EmUseVisual } from './EmUseVisuals'
+import { EmMoreVisual } from './EmMoreVisuals'
+import { BrakingVisual } from './BrakingVisuals'
+import { ReactionTimeVisual } from './ReactionTimeVisuals'
+import { WaveTypeVisual } from './WaveTypeVisuals'
+import { WaveSpeedVisual } from './WaveSpeedVisuals'
+import { WavePracVisual } from './WavePracVisuals'
+import { NuclearModelVisual } from './NuclearModelVisuals'
+import { AtomStructureVisual } from './AtomStructureVisuals'
+import { IsotopeVisual } from './IsotopeVisuals'
+import { NuclearRadiationVisual } from './NuclearRadiationVisuals'
+import { NuclearEquationVisual } from './NuclearEquationVisuals'
+import { ElasticVisual } from './ElasticVisuals'
+import { SpringPracVisual } from './SpringPracVisuals'
+import { VelocityVisual } from './VelocityVisuals'
+import { AccelerationVisual } from './AccelerationVisuals'
+import { DtGraphVisual } from './DtGraphVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -317,6 +346,35 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('density-')) return <DensityVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('internal-')) return <InternalEnergyVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('latent-')) return <LatentVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('vtgraph-')) return <VtGraphVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('newton12-')) return <NewtonLawVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('newton3-')) return <NewtonThirdVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('motionprac-')) return <MotionPracVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('stopdist-')) return <StoppingVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('halflife-')) return <HalfLifeVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('irrad-')) return <IrradiationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('contact-')) return <ContactForceVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('weight-')) return <WeightVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('resultant-')) return <ResultantVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('refract-')) return <RefractionVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('emspec-')) return <EmSpectrumVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('emuse-')) return <EmUseVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('emmore-')) return <EmMoreVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('braking-')) return <BrakingVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rtime-')) return <ReactionTimeVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wavetype-')) return <WaveTypeVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wavespeed-')) return <WaveSpeedVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('waveprac-')) return <WavePracVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('nucmodel-')) return <NuclearModelVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('nucatom-')) return <AtomStructureVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('isotope-')) return <IsotopeVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('nrad-')) return <NuclearRadiationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('nucleq-')) return <NuclearEquationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('elastic-')) return <ElasticVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('springprac-')) return <SpringPracVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('velocity-')) return <VelocityVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('accel-')) return <AccelerationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('dtgraph-')) return <DtGraphVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('profile-')) return <ProfileVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('calor-')) return <EnergyMeasureVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('exo-')) return <ExoEndoVisual focus={focus} assessment={assessment} />
