@@ -224,12 +224,72 @@ import { lessonC54, waterTestSections } from './chemistry/lesson-54/lesson'
 import { waterTestFrames } from './chemistry/lesson-54/teachingFrames'
 import { lessonC55, sewageSections } from './chemistry/lesson-55/lesson'
 import { sewageFrames } from './chemistry/lesson-55/teachingFrames'
+import { lessonP1, storeSections } from './physics/lesson-1/lesson'
+import { storeFrames } from './physics/lesson-1/teachingFrames'
+import { lessonP2, conserveSections } from './physics/lesson-2/lesson'
+import { conserveFrames } from './physics/lesson-2/teachingFrames'
+import { lessonP3, kineticSections } from './physics/lesson-3/lesson'
+import { kineticFrames } from './physics/lesson-3/teachingFrames'
+import { lessonP4, potentialSections } from './physics/lesson-4/lesson'
+import { potentialFrames } from './physics/lesson-4/teachingFrames'
+import { lessonP5, heatCapacitySections } from './physics/lesson-5/lesson'
+import { heatCapacityFrames } from './physics/lesson-5/teachingFrames'
+import { lessonP6, powerSections } from './physics/lesson-6/lesson'
+import { powerFrames } from './physics/lesson-6/teachingFrames'
+import { lessonP7, shcPracticalSections } from './physics/lesson-7/lesson'
+import { shcPracticalFrames } from './physics/lesson-7/teachingFrames'
+import { lessonP8, insulationSections } from './physics/lesson-8/lesson'
+import { insulationFrames } from './physics/lesson-8/teachingFrames'
+import { lessonP9, efficiencySections } from './physics/lesson-9/lesson'
+import { efficiencyFrames } from './physics/lesson-9/teachingFrames'
+import { lessonP10, energyResourceSections } from './physics/lesson-10/lesson'
+import { energyResourceFrames } from './physics/lesson-10/teachingFrames'
+import { lessonP11, windSolarSections } from './physics/lesson-11/lesson'
+import { windSolarFrames } from './physics/lesson-11/teachingFrames'
+import { lessonP12, waterPowerSections } from './physics/lesson-12/lesson'
+import { waterPowerFrames } from './physics/lesson-12/teachingFrames'
+import { lessonP13, biofuelSections } from './physics/lesson-13/lesson'
+import { biofuelFrames } from './physics/lesson-13/teachingFrames'
+import { lessonP14, energyTrendSections } from './physics/lesson-14/lesson'
+import { energyTrendFrames } from './physics/lesson-14/teachingFrames'
+import { lessonP15, circuitSections } from './physics/lesson-15/lesson'
+import { circuitFrames } from './physics/lesson-15/teachingFrames'
+import { lessonP16, ohmSections } from './physics/lesson-16/lesson'
+import { ohmFrames } from './physics/lesson-16/teachingFrames'
+import { lessonP17, wireResistSections } from './physics/lesson-17/lesson'
+import { wireResistFrames } from './physics/lesson-17/teachingFrames'
+import { lessonP18, ivSections } from './physics/lesson-18/lesson'
+import { ivFrames } from './physics/lesson-18/teachingFrames'
+import { lessonP19, sensorSections } from './physics/lesson-19/lesson'
+import { sensorFrames } from './physics/lesson-19/teachingFrames'
+import { lessonP20, seriesSections } from './physics/lesson-20/lesson'
+import { seriesFrames } from './physics/lesson-20/teachingFrames'
+import { lessonP21, parallelSections } from './physics/lesson-21/lesson'
+import { parallelFrames } from './physics/lesson-21/teachingFrames'
+import { lessonP22, resistorPracSections } from './physics/lesson-22/lesson'
+import { resistorPracFrames } from './physics/lesson-22/teachingFrames'
+import { lessonP23, mainsSections } from './physics/lesson-23/lesson'
+import { mainsFrames } from './physics/lesson-23/teachingFrames'
+import { lessonP24, appliancePowerSections } from './physics/lesson-24/lesson'
+import { appliancePowerFrames } from './physics/lesson-24/teachingFrames'
+import { lessonP25, chargeEnergySections } from './physics/lesson-25/lesson'
+import { chargeEnergyFrames } from './physics/lesson-25/teachingFrames'
+import { lessonP26, gridSections } from './physics/lesson-26/lesson'
+import { gridFrames } from './physics/lesson-26/teachingFrames'
+import { lessonP27, gasParticleSections } from './physics/lesson-27/lesson'
+import { gasParticleFrames } from './physics/lesson-27/teachingFrames'
+import { lessonP28, densitySections } from './physics/lesson-28/lesson'
+import { densityFrames } from './physics/lesson-28/teachingFrames'
+import { lessonP29, internalSections } from './physics/lesson-29/lesson'
+import { internalFrames } from './physics/lesson-29/teachingFrames'
+import { lessonP30, latentSections } from './physics/lesson-30/lesson'
+import { latentFrames } from './physics/lesson-30/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
 
 /*
- * Science lessons are numbered per subject: Biology Lesson 1…58, Chemistry Lesson 1, 2, 3 … (see NAVIGATION.md).
+ * Science lessons are numbered per subject: Biology Lesson 1…58, Chemistry Lesson 1, 2, 3 …, Physics Lesson 1, 2, 3 … (see NAVIGATION.md).
  * `LessonNumber`, `scienceChapters`, `scienceLessons`, `scienceLessonHref` and `parseScienceLesson` are the
  * Biology catalogue and keep their original meaning, URLs and saved progress. Subject-aware code uses
  * `getScienceLesson(subject, number)`, `scienceSubjectLessonHref` and `parseScienceLessonRef`, and keys
@@ -317,7 +377,7 @@ export const scienceLessons = [
 export type ScienceCatalogueEntry = {
   readonly subject: ScienceSubject
   readonly number: number
-  /** Source folder under the subject's directory: Biology `lesson-<folder>`, Chemistry `chemistry/lesson-<folder>`. */
+  /** Source folder under the subject's directory: Biology `lesson-<folder>`, Chemistry `chemistry/lesson-<folder>`, Physics `physics/lesson-<folder>`. */
   readonly folder: string
   readonly title: string
   readonly detail: string
@@ -402,11 +462,53 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 55, folder: '55', title: 'Waste water treatment', detail: 'How sewage is cleaned', lesson: lessonC55, sections: sewageSections, frames: sewageFrames },
 ]
 
+// Physics restarts at Lesson 1. Chapters list the planned lesson numbers; a lesson appears once it is in physicsLessons.
+// Lesson ids: P-<TOPIC>-<NNN>-P (e.g. P-ENE-001-P, P-ELE-015-P), NNN = the Physics lesson number when first built.
+export const physicsChapters = [
+  { subject: 'physics', code: 'P1', title: 'Energy', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] },
+  { subject: 'physics', code: 'P2', title: 'Electricity', lessonNumbers: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26] },
+  { subject: 'physics', code: 'P3', title: 'Particle model of matter', lessonNumbers: [27, 28, 29, 30] },
+] as const
+/** Register a Physics lesson here: { subject: 'physics', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
+export const physicsLessons: readonly ScienceCatalogueEntry[] = [
+  { subject: 'physics', number: 1, folder: '1', title: 'Energy stores and systems', detail: 'The eight energy stores and four ways energy moves', lesson: lessonP1, sections: storeSections, frames: storeFrames },
+  { subject: 'physics', number: 2, folder: '2', title: 'Conservation of energy', detail: 'Energy is never made or destroyed, only moved', lesson: lessonP2, sections: conserveSections, frames: conserveFrames },
+  { subject: 'physics', number: 3, folder: '3', title: 'Kinetic energy', detail: 'Energy in moving things and E = ½mv²', lesson: lessonP3, sections: kineticSections, frames: kineticFrames },
+  { subject: 'physics', number: 4, folder: '4', title: 'Gravitational and elastic potential energy', detail: 'Raised objects, falling and stretched springs', lesson: lessonP4, sections: potentialSections, frames: potentialFrames },
+  { subject: 'physics', number: 5, folder: '5', title: 'Specific heat capacity', detail: 'Heating materials and ΔE = mcΔθ', lesson: lessonP5, sections: heatCapacitySections, frames: heatCapacityFrames },
+  { subject: 'physics', number: 6, folder: '6', title: 'Power', detail: 'How fast energy is transferred, in watts', lesson: lessonP6, sections: powerSections, frames: powerFrames },
+  { subject: 'physics', number: 7, folder: '7', title: 'Investigating specific heat capacity', detail: 'Measuring specific heat capacity in the lab', lesson: lessonP7, sections: shcPracticalSections, frames: shcPracticalFrames },
+  { subject: 'physics', number: 8, folder: '8', title: 'Reducing unwanted energy transfers', detail: 'Lubrication, insulation and keeping homes warm', lesson: lessonP8, sections: insulationSections, frames: insulationFrames },
+  { subject: 'physics', number: 9, folder: '9', title: 'Efficiency', detail: 'How much energy ends up where you want it', lesson: lessonP9, sections: efficiencySections, frames: efficiencyFrames },
+  { subject: 'physics', number: 10, folder: '10', title: 'Energy resources and their uses', detail: 'Renewable and non-renewable resources', lesson: lessonP10, sections: energyResourceSections, frames: energyResourceFrames },
+  { subject: 'physics', number: 11, folder: '11', title: 'Wind, solar and geothermal power', detail: 'Pros and cons of wind, solar and geothermal', lesson: lessonP11, sections: windSolarSections, frames: windSolarFrames },
+  { subject: 'physics', number: 12, folder: '12', title: 'Hydro-electricity, waves and tides', detail: 'Using water to generate electricity', lesson: lessonP12, sections: waterPowerSections, frames: waterPowerFrames },
+  { subject: 'physics', number: 13, folder: '13', title: 'Bio-fuels and fossil fuels', detail: 'Bio-fuels, reliability and environmental problems', lesson: lessonP13, sections: biofuelSections, frames: biofuelFrames },
+  { subject: 'physics', number: 14, folder: '14', title: 'Trends in energy resource use', detail: 'How and why our energy use is changing', lesson: lessonP14, sections: energyTrendSections, frames: energyTrendFrames },
+  { subject: 'physics', number: 15, folder: '15', title: 'Current, charge and circuit symbols', detail: 'Current, potential difference, resistance and symbols', lesson: lessonP15, sections: circuitSections, frames: circuitFrames },
+  { subject: 'physics', number: 16, folder: '16', title: 'Resistance and V = IR', detail: 'Linking potential difference, current and resistance', lesson: lessonP16, sections: ohmSections, frames: ohmFrames },
+  { subject: 'physics', number: 17, folder: '17', title: 'Investigating resistance in a wire', detail: 'How the length of a wire affects resistance', lesson: lessonP17, sections: wireResistSections, frames: wireResistFrames },
+  { subject: 'physics', number: 18, folder: '18', title: 'I–V characteristics', detail: 'Current–pd graphs for three components', lesson: lessonP18, sections: ivSections, frames: ivFrames },
+  { subject: 'physics', number: 19, folder: '19', title: 'LDRs, thermistors and sensing circuits', detail: 'Resistors that respond to light and temperature', lesson: lessonP19, sections: sensorSections, frames: sensorFrames },
+  { subject: 'physics', number: 20, folder: '20', title: 'Series circuits', detail: 'One loop: shared pd, same current', lesson: lessonP20, sections: seriesSections, frames: seriesFrames },
+  { subject: 'physics', number: 21, folder: '21', title: 'Parallel circuits', detail: 'Separate branches: same pd, shared current', lesson: lessonP21, sections: parallelSections, frames: parallelFrames },
+  { subject: 'physics', number: 22, folder: '22', title: 'Investigating resistors in series and parallel', detail: 'Adding resistors in series and in parallel', lesson: lessonP22, sections: resistorPracSections, frames: resistorPracFrames },
+  { subject: 'physics', number: 23, folder: '23', title: 'Electricity in the home', detail: 'ac, dc and the three wires in a plug', lesson: lessonP23, sections: mainsSections, frames: mainsFrames },
+  { subject: 'physics', number: 24, folder: '24', title: 'Power of electrical appliances', detail: 'Energy transferred depends on power and time', lesson: lessonP24, sections: appliancePowerSections, frames: appliancePowerFrames },
+  { subject: 'physics', number: 25, folder: '25', title: 'Energy, charge and power', detail: 'E = QV, P = VI and P = I²R', lesson: lessonP25, sections: chargeEnergySections, frames: chargeEnergyFrames },
+  { subject: 'physics', number: 26, folder: '26', title: 'The National Grid', detail: 'Getting electricity from power stations to homes', lesson: lessonP26, sections: gridSections, frames: gridFrames },
+  { subject: 'physics', number: 27, folder: '27', title: 'The particle model and gas pressure', detail: 'Solids, liquids, gases and gas pressure', lesson: lessonP27, sections: gasParticleSections, frames: gasParticleFrames },
+  { subject: 'physics', number: 28, folder: '28', title: 'Density', detail: 'Mass per volume and measuring it', lesson: lessonP28, sections: densitySections, frames: densityFrames },
+  { subject: 'physics', number: 29, folder: '29', title: 'Internal energy and changes of state', detail: 'Heating, internal energy and changing state', lesson: lessonP29, sections: internalSections, frames: internalFrames },
+  { subject: 'physics', number: 30, folder: '30', title: 'Specific latent heat', detail: 'Energy needed to change state', lesson: lessonP30, sections: latentSections, frames: latentFrames },
+]
+
 export const scienceSubjects = [
   { subject: 'biology', title: 'Biology', code: 'B', chapters: scienceChapters as readonly ScienceChapter[], lessons: scienceLessons as readonly ScienceCatalogueEntry[] },
   { subject: 'chemistry', title: 'Chemistry', code: 'C', chapters: chemistryChapters as readonly ScienceChapter[], lessons: chemistryLessons },
+  { subject: 'physics', title: 'Physics', code: 'P', chapters: physicsChapters as readonly ScienceChapter[], lessons: physicsLessons },
 ] as const satisfies readonly { subject: ScienceSubject; title: string; code: string; chapters: readonly ScienceChapter[]; lessons: readonly ScienceCatalogueEntry[] }[]
-/** Every built lesson, Biology first, then Chemistry. */
+/** Every built lesson, Biology first, then Chemistry, then Physics. */
 export const allScienceLessons: readonly ScienceCatalogueEntry[] = scienceSubjects.flatMap(item => item.lessons)
 export const allScienceChapters: readonly ScienceChapter[] = scienceSubjects.flatMap(item => item.chapters)
 
