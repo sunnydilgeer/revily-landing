@@ -134,6 +134,23 @@ import { SpringPracVisual } from './SpringPracVisuals'
 import { VelocityVisual } from './VelocityVisuals'
 import { AccelerationVisual } from './AccelerationVisuals'
 import { DtGraphVisual } from './DtGraphVisuals'
+import { IrEmitVisual } from './IrEmitVisuals'
+import { IrAbsorbVisual } from './IrAbsorbVisuals'
+import { EmDangerVisual } from './EmDangerVisuals'
+import { MagnetVisual } from './MagnetVisuals'
+import { ElectromagVisual } from './ElectromagVisuals'
+import { WsMethodVisual } from './WsMethodVisuals'
+import { WsIssueVisual } from './WsIssueVisuals'
+import { WsRiskVisual } from './WsRiskVisuals'
+import { WsDesignVisual } from './WsDesignVisuals'
+import { WsCollectVisual } from './WsCollectVisuals'
+import { WsProcessVisual } from './WsProcessVisuals'
+import { WsPresentVisual } from './WsPresentVisuals'
+import { WsGraphVisual } from './WsGraphVisuals'
+import { WsUnitVisual } from './WsUnitVisuals'
+import { WsMathsVisual } from './WsMathsVisuals'
+import { WsConcludeVisual } from './WsConcludeVisuals'
+import { WsEvalVisual } from './WsEvalVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -375,6 +392,23 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('velocity-')) return <VelocityVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('accel-')) return <AccelerationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('dtgraph-')) return <DtGraphVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('iremit-')) return <IrEmitVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('irabsorb-')) return <IrAbsorbVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('emdanger-')) return <EmDangerVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('magnet-')) return <MagnetVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('emag-')) return <ElectromagVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsmethod-')) return <WsMethodVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsissue-')) return <WsIssueVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsrisk-')) return <WsRiskVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsdesign-')) return <WsDesignVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wscollect-')) return <WsCollectVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsprocess-')) return <WsProcessVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wspresent-')) return <WsPresentVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsgraph-')) return <WsGraphVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsunit-')) return <WsUnitVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsmaths-')) return <WsMathsVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wsconclude-')) return <WsConcludeVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wseval-')) return <WsEvalVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('profile-')) return <ProfileVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('calor-')) return <EnergyMeasureVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('exo-')) return <ExoEndoVisual focus={focus} assessment={assessment} />

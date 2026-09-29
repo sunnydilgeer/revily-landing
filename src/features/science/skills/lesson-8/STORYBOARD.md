@@ -32,7 +32,7 @@ Worked example share one drawing: axes "Time (s)" 0 to 40 (marks every 10) and "
 - `wsgraph-work-3`: adds "18 − 6 = 12 cm³" beside the upright side and "30 − 10 = 20 s" beside the bottom side.
 - `wsgraph-work-4`: the sum "12 ÷ 20 = 0.6" and the highlighted answer "0.6 cm³/s".
 - `wsgraph-positive`: scatter of about ten crosses rising left to right with a faint rising line; caption "positive correlation: both increase".
-- `wsgraph-negative`: scatter falling left to right with faint falling line; caption "negative correlation: one increases, the other decreases".
+- `wsgraph-negative`: scatter falling left to right with faint falling line (bubbles per minute from pondweed against distance from a lamp, so it does not repeat the question graph); caption "negative correlation: one increases, the other decreases".
 - `wsgraph-none`: scatter with no pattern; caption "no correlation: no relationship".
 Question visuals (assessment view):
 - `wsgraph-q-line`: graph, x "Time (s)" 0 to 80 (ticks every 20, faint gridlines every 10), y "Volume of gas (cm³)" 0 to 60 (ticks every 10, minor every 5). Straight line from the origin through A (20 s, 15 cm³) and B (60 s, 45 cm³); A and B are marked with dots and letters only, with no coordinates and no triangle. Accessible description: "A straight-line graph with two marked points A and B."

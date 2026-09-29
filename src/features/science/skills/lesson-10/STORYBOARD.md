@@ -4,22 +4,22 @@ Strand skills, chapter WS1 "Working scientifically". Folder `skills/lesson-10`, 
 
 Big idea: a few maths habits (standard form, doing the same to both sides, brackets, spotting proportion) make science calculations reliable.
 
-Flow note: standard form first because it is pure number sense and links back to the units lesson (prefixes). Rearranging follows, with a worked example (kinetic energy, a fraction) then a near-identical guided practice, then an independent one. Calculator habits come next because they matter once formulas have several steps. Proportion comes last: it describes how two variables move together, and it is read from a table. Examples: Sun distance, cell width, virus size (Biology), gas mass (Chemistry), speed, force, kinetic energy, spring stretch (Physics).
+Flow note: standard form first because it is pure number sense and links back to the units lesson (prefixes). Rearranging follows: do the same to both sides, a first example with s = v × t, then a worked example finding mass from weight (m = W ÷ g, g = 9.8 N/kg), a near-identical guided practice with new numbers, and an independent one in On your own. Calculator habits come next because they matter once formulas have several steps. Proportion comes last: it describes how two variables move together, and it is read from a table. Examples: Sun distance, cell width, virus size (Biology), gas mass (Chemistry), speed, force, weight of a dog, a bag of sand and a crate, spring stretch (Physics).
 
 Sections:
 1. Start here (W10-01): why huge numbers need a shorter way to be written.
 2. How do you write big and small numbers? (W10-02–04): big, small, the A × 10ⁿ pattern, going back. Checks: two conversions.
-3. How do you rearrange a formula? (W10-05–07): do the same to both sides, s = v × t, Ek = ½mv² worked, formula triangles. Checks: rearrange for t; guided calculation of mass (near-identical).
+3. How do you rearrange a formula? (W10-05–07): do the same to both sides, s = v × t, W = m × g worked (find m = W ÷ g), formula triangles. Checks: rearrange for t; guided calculation of mass from weight (near-identical).
 4. How do you use a calculator well? (W10-08–09): brackets around the top, exact values. Check: key presses.
 5. How are two variables related? (W10-10–11): direct, inverse, the symbol ∝. Check: doubling.
 6. On your own (W10-12–16): standard form calculation, rearranging calculation, proportion from a table (assessment view), brackets error, written explanation of a wrong rearrangement.
 
-Out of scope: rearranging with squares and square roots beyond the one worked example; logs; significant figures (the processing-data lesson); graph shapes for proportion beyond a straight line and a simple curve.
+Out of scope: rearranging formulas with squares, square roots or fractions (too hard for Foundation here); logs; significant figures (the processing-data lesson); graph shapes for proportion beyond a straight line and a simple curve.
 
 Source boundary: supplied revision-guide page 243 (scope only); AQA 8464 WS 4.6 and maths skills. All wording, examples, numbers and diagrams are original. Draft pending teacher review.
 
 Judgement calls for the teacher:
-- Rearranging is shown for Ek = ½mv² (multiply by 2, divide by v²) because the page does; the guided and independent items give the rearranged form m = 2 × Ek ÷ v² so learners practise substitution and arithmetic.
+- The page rearranges a kinetic energy formula; that is too hard for Foundation, so rearranging is taught with s = v × t and W = m × g instead. The worked example (98 N → 10 kg), guided item (49 N → 5 kg) and independent item (294 N → 30 kg) all divide by g = 9.8 N/kg to give whole numbers.
 - The temperature and reaction time table in W10-14 is invented and simplified to show inverse proportion.
 - Formula triangles are mentioned as an optional tool, with the point that proper rearranging is needed.
 
@@ -30,9 +30,9 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - `wsmaths-small`: 0.00045 m in digit boxes; four hops right, counted 1 to 4, landing after the 4; below "4.5 × 10⁻⁴ m". Small cell outline labelled "cell width".
 - `wsmaths-form`: large "A × 10ⁿ" with two callouts: "A: at least 1, less than 10" and "n: how many places the point moves; negative for numbers below 1". Below, a small tick row "3.2 × 10⁴" with a tick and "32 × 10³" with a cross labelled "A too big".
 - `wsmaths-back`: two rows: "7.2 × 10³ → 7200" with three hops right, and "3 × 10⁻² → 0.03" with two hops left. Arrow directions labelled "positive: right" and "negative: left".
-- `wsmaths-balance`: a balance scale, level, with "F" on the left and "m × a" on the right; a hand on each side adding "÷ m" to both pans. Label "Do the same to both sides".
+- `wsmaths-balance`: a balance scale, level, with "W" on the left pan and "m × g" on the right; "÷ g" added to both pans. Label "do the same to both sides".
 - `wsmaths-divide`: three-line working: "s = v × t", "÷ t on both sides", "v = s ÷ t", with the "÷ t" highlighted on each side.
-- `wsmaths-fraction`: five-line working for Ek = ½ × m × v² with values: "Ek = ½ × m × v²", "× 2: 2 × Ek = m × v²", "÷ v²: m = 2 × Ek ÷ v²", "m = 2 × 16 ÷ 16", "m = 2 kg". Highlight the step being done.
+- `wsmaths-weight`: a small dog on a scale reading 98 N beside a worked-example card: "W = m × g", "÷ g on both sides", "m = W ÷ g", "m = 98 ÷ 9.8", "m = 10 kg", with g = 9.8 N/kg noted. The "÷ g" step highlighted.
 - `wsmaths-triangle`: two formula triangles: s over v and t (s at top), and a finger covering s, with "v × t" left showing. Small note "Cover what you want".
 - `wsmaths-brackets`: a calculator display drawn simply with two rows: "(11.5 + 6.8) ÷ 3 = 6.1" with a tick, and "11.5 + 6.8 ÷ 3 = 13.77" with a cross. Brackets highlighted in the first.
 - `wsmaths-ans`: a three-step chain of small boxes with an "Ans" button between steps, the exact value carried forward, and "round only at the end" beside the last box.
@@ -70,7 +70,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 ### W10-05 Teach: How do you rearrange a formula?
 - **Do the same to both sides** (`wsmaths-balance`): Sometimes a formula gives you the wrong quantity. You may need to rearrange it. This means getting the quantity you want on its own. Whatever you do to one side of the equals sign, you must do to the other. This keeps the formula balanced.
 - **A first example** (`wsmaths-divide`): Take distance = speed × time, or s = v × t. Suppose you want the speed v. Time is multiplying v, so divide both sides by t. This gives s ÷ t = v. So v = s ÷ t. You met this when you worked out speed in Physics.
-- **A worked example with a fraction** (`wsmaths-fraction`): Kinetic energy is Ek = ½ × m × v². Find m when Ek = 16 J and v = 4 m/s. Multiply both sides by 2: 2 × Ek = m × v². Divide both sides by v²: m = 2 × Ek ÷ v². So m = 2 × 16 ÷ 16 = 2 kg.
+- **A worked example** (`wsmaths-weight`): Weight = mass × gravitational field strength, or W = m × g. On Earth g = 9.8 N/kg. A dog weighs 98 N. What is its mass? Divide both sides by g: W ÷ g = m. So m = 98 ÷ 9.8 = 10 kg.
 - **Formula triangles** (`wsmaths-triangle`): For simple formulas you can use a formula triangle. Cover up the quantity you want to find. What is left shows how to work it out. For example, cover s in the s, v, t triangle and you see v × t. Learn to rearrange properly too, because bigger formulas do not fit in triangles.
 
 ### W10-06 Guided choice: The formula is s = v × t. Which is the correct rearrangement to find t?
@@ -79,11 +79,11 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Divide both sides by the quantity that multiplies t.
 - Why: Divide both sides by v to get s ÷ v = t. So t = s ÷ v.
 
-### W10-07 Guided choice: A ball has Ek = 45 J and v = 3 m/s. Find m using m = 2 × Ek ÷ v².
-- Options: 5 kg | 10 kg | 30 kg | 15 kg
-- Answer: 10 kg
-- Hint: Work out v² first, then double Ek and divide.
-- Why: v² = 3 × 3 = 9. m = 2 × 45 ÷ 9 = 90 ÷ 9 = 10 kg.
+### W10-07 Guided choice: A bag of sand weighs 49 N. Rearrange W = m × g to find its mass (g = 9.8 N/kg).
+- Options: 0.2 kg | 5 kg | 480 kg | 50 kg
+- Answer: 5 kg
+- Hint: Divide both sides by g, so m = W ÷ g.
+- Why: m = W ÷ g. m = 49 ÷ 9.8 = 5 kg.
 
 ### W10-08 Teach: How do you use a calculator well?
 - **Brackets on the calculator** (`wsmaths-brackets`): Your calculator follows the order of operations. Take (11.5 + 6.8) ÷ 3, which is 18.3 ÷ 3 = 6.1. If you type 11.5 + 6.8 ÷ 3 it divides only the 6.8. You would get 13.77 instead. Always put brackets around the top of a fraction. You can also use the fraction button.
@@ -112,11 +112,11 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Move the decimal point until the number is between 1 and 10, then count the places.
 - Why: The point moves 4 places to the right to give 3.2. It is a number less than 1, so the power is −4: 3.2 × 10⁻⁴ kg.
 
-### W10-13 Independent choice: A cyclist has Ek = 24 J and v = 2 m/s. Find m using m = 2 × Ek ÷ v².
-- Options: 6 kg | 24 kg | 12 kg | 48 kg
-- Answer: 12 kg
-- Hint: Work out v² first, then use the formula.
-- Why: v² = 2 × 2 = 4. m = 2 × 24 ÷ 4 = 48 ÷ 4 = 12 kg.
+### W10-13 Independent choice: A crate weighs 294 N on Earth (g = 9.8 N/kg). Use W = m × g to find its mass.
+- Options: 3 kg | 300 kg | 30 kg | 2881 kg
+- Answer: 30 kg
+- Hint: Rearrange first: do the same to both sides to get m on its own.
+- Why: Divide both sides by g: m = W ÷ g. m = 294 ÷ 9.8 = 30 kg.
 
 ### W10-14 Independent choice: The table shows how the time for a reaction changes with temperature. Which describes the pattern?
 - Options: Direct proportion | Inverse proportion | Neither, the time is constant | Neither, the time is random

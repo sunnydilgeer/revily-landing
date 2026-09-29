@@ -19,7 +19,7 @@ export const wsGraphFrames: Record<string, TeachingFrame[]> = {
   ],
   'W8-08': [
     f('Positive correlation', 'If one variable increases as the other increases, there is positive correlation.', 'both go up', 'Points on a graph are often scattered but still show a trend. If one variable increases as the other increases, this is positive correlation. For example, a spring stretches more as the force on it grows.', 'wsgraph-positive'),
-    f('Negative correlation', 'If one variable increases as the other decreases, there is negative (inverse) correlation.', 'one up, one down', 'If one variable increases as the other decreases, this is negative correlation. It is also called inverse correlation. For example, the hotter the water, the less time a tablet takes to dissolve.', 'wsgraph-negative'),
+    f('Negative correlation', 'If one variable increases as the other decreases, there is negative (inverse) correlation.', 'one up, one down', 'If one variable increases as the other decreases, this is negative correlation. It is also called inverse correlation. For example, the further a lamp is from some pondweed, the fewer bubbles it gives off.', 'wsgraph-negative'),
     f('No correlation', 'If the points show no pattern, there is no relationship between the variables.', 'no pattern at all', 'If the points are scattered with no pattern, there is no correlation. The two variables have no relationship. Shoe size and test mark are like this. Correlation alone does not prove that one variable causes the other.', 'wsgraph-none'),
   ],
 }

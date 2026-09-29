@@ -10,6 +10,7 @@ export const facts: ScienceFactSet = {
     'W10-05': [
       ['What is the rule for rearranging a formula?', 'Do the same thing to both sides until the quantity you want is on its own.'],
       ['How do you rearrange s = v × t to find v?', 'Divide both sides by t, so v = s ÷ t.'],
+      ['How do you find mass from weight?', 'Divide both sides of W = m × g by g, so m = W ÷ g.', 'On Earth g = 9.8 N/kg.'],
     ],
     'W10-08': [
       ['How do you type a fraction such as (11.5 + 6.8) ÷ 3?', 'Put brackets around the top: (11.5 + 6.8) ÷ 3.'],
