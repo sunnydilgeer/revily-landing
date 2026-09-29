@@ -284,6 +284,64 @@ import { lessonP29, internalSections } from './physics/lesson-29/lesson'
 import { internalFrames } from './physics/lesson-29/teachingFrames'
 import { lessonP30, latentSections } from './physics/lesson-30/lesson'
 import { latentFrames } from './physics/lesson-30/teachingFrames'
+import { lessonP31, nucModelSections } from './physics/lesson-31/lesson'
+import { nucModelFrames } from './physics/lesson-31/teachingFrames'
+import { lessonP32, atomStructureSections } from './physics/lesson-32/lesson'
+import { atomStructureFrames } from './physics/lesson-32/teachingFrames'
+import { lessonP33, isotopeSections } from './physics/lesson-33/lesson'
+import { isotopeFrames } from './physics/lesson-33/teachingFrames'
+import { lessonP34, nuclearRadiationSections } from './physics/lesson-34/lesson'
+import { nuclearRadiationFrames } from './physics/lesson-34/teachingFrames'
+import { lessonP35, nuclearEquationSections } from './physics/lesson-35/lesson'
+import { nuclearEquationFrames } from './physics/lesson-35/teachingFrames'
+import { lessonP36, halfLifeSections } from './physics/lesson-36/lesson'
+import { halfLifeFrames } from './physics/lesson-36/teachingFrames'
+import { lessonP37, irradiationSections } from './physics/lesson-37/lesson'
+import { irradiationFrames } from './physics/lesson-37/teachingFrames'
+import { lessonP38, contactForceSections } from './physics/lesson-38/lesson'
+import { contactForceFrames } from './physics/lesson-38/teachingFrames'
+import { lessonP39, weightSections } from './physics/lesson-39/lesson'
+import { weightFrames } from './physics/lesson-39/teachingFrames'
+import { lessonP40, resultantSections } from './physics/lesson-40/lesson'
+import { resultantFrames } from './physics/lesson-40/teachingFrames'
+import { lessonP41, elasticSections } from './physics/lesson-41/lesson'
+import { elasticFrames } from './physics/lesson-41/teachingFrames'
+import { lessonP42, springPracSections } from './physics/lesson-42/lesson'
+import { springPracFrames } from './physics/lesson-42/teachingFrames'
+import { lessonP43, velocitySections } from './physics/lesson-43/lesson'
+import { velocityFrames } from './physics/lesson-43/teachingFrames'
+import { lessonP44, accelerationSections } from './physics/lesson-44/lesson'
+import { accelerationFrames } from './physics/lesson-44/teachingFrames'
+import { lessonP45, dtGraphSections } from './physics/lesson-45/lesson'
+import { dtGraphFrames } from './physics/lesson-45/teachingFrames'
+import { lessonP46, vtGraphSections } from './physics/lesson-46/lesson'
+import { vtGraphFrames } from './physics/lesson-46/teachingFrames'
+import { lessonP47, newtonLawSections } from './physics/lesson-47/lesson'
+import { newtonLawFrames } from './physics/lesson-47/teachingFrames'
+import { lessonP48, newtonThirdSections } from './physics/lesson-48/lesson'
+import { newtonThirdFrames } from './physics/lesson-48/teachingFrames'
+import { lessonP49, motionPracSections } from './physics/lesson-49/lesson'
+import { motionPracFrames } from './physics/lesson-49/teachingFrames'
+import { lessonP50, stoppingSections } from './physics/lesson-50/lesson'
+import { stoppingFrames } from './physics/lesson-50/teachingFrames'
+import { lessonP51, brakingSections } from './physics/lesson-51/lesson'
+import { brakingFrames } from './physics/lesson-51/teachingFrames'
+import { lessonP52, reactionTimeSections as physicsReactionSections } from './physics/lesson-52/lesson'
+import { reactionTimeFrames as physicsReactionFrames } from './physics/lesson-52/teachingFrames'
+import { lessonP53, waveTypeSections } from './physics/lesson-53/lesson'
+import { waveTypeFrames } from './physics/lesson-53/teachingFrames'
+import { lessonP54, waveSpeedSections } from './physics/lesson-54/lesson'
+import { waveSpeedFrames } from './physics/lesson-54/teachingFrames'
+import { lessonP55, wavePracSections } from './physics/lesson-55/lesson'
+import { wavePracFrames } from './physics/lesson-55/teachingFrames'
+import { lessonP56, refractionSections } from './physics/lesson-56/lesson'
+import { refractionFrames } from './physics/lesson-56/teachingFrames'
+import { lessonP57, emSpectrumSections } from './physics/lesson-57/lesson'
+import { emSpectrumFrames } from './physics/lesson-57/teachingFrames'
+import { lessonP58, emUseSections } from './physics/lesson-58/lesson'
+import { emUseFrames } from './physics/lesson-58/teachingFrames'
+import { lessonP59, emMoreSections } from './physics/lesson-59/lesson'
+import { emMoreFrames } from './physics/lesson-59/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -468,6 +526,9 @@ export const physicsChapters = [
   { subject: 'physics', code: 'P1', title: 'Energy', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] },
   { subject: 'physics', code: 'P2', title: 'Electricity', lessonNumbers: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26] },
   { subject: 'physics', code: 'P3', title: 'Particle model of matter', lessonNumbers: [27, 28, 29, 30] },
+  { subject: 'physics', code: 'P4', title: 'Atomic structure', lessonNumbers: [31, 32, 33, 34, 35, 36, 37] },
+  { subject: 'physics', code: 'P5', title: 'Forces', lessonNumbers: [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52] },
+  { subject: 'physics', code: 'P6', title: 'Waves', lessonNumbers: [53, 54, 55, 56, 57, 58, 59] },
 ] as const
 /** Register a Physics lesson here: { subject: 'physics', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const physicsLessons: readonly ScienceCatalogueEntry[] = [
@@ -501,6 +562,35 @@ export const physicsLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'physics', number: 28, folder: '28', title: 'Density', detail: 'Mass per volume and measuring it', lesson: lessonP28, sections: densitySections, frames: densityFrames },
   { subject: 'physics', number: 29, folder: '29', title: 'Internal energy and changes of state', detail: 'Heating, internal energy and changing state', lesson: lessonP29, sections: internalSections, frames: internalFrames },
   { subject: 'physics', number: 30, folder: '30', title: 'Specific latent heat', detail: 'Energy needed to change state', lesson: lessonP30, sections: latentSections, frames: latentFrames },
+  { subject: 'physics', number: 31, folder: '31', title: 'Developing the model of the atom', detail: 'From plum pudding to the nuclear model', lesson: lessonP31, sections: nucModelSections, frames: nucModelFrames },
+  { subject: 'physics', number: 32, folder: '32', title: 'The structure of the atom', detail: 'Protons, neutrons, electrons and energy levels', lesson: lessonP32, sections: atomStructureSections, frames: atomStructureFrames },
+  { subject: 'physics', number: 33, folder: '33', title: 'Isotopes', detail: 'Atomic number, mass number and isotopes', lesson: lessonP33, sections: isotopeSections, frames: isotopeFrames },
+  { subject: 'physics', number: 34, folder: '34', title: 'Alpha, beta and gamma radiation', detail: 'Alpha, beta and gamma: power and range', lesson: lessonP34, sections: nuclearRadiationSections, frames: nuclearRadiationFrames },
+  { subject: 'physics', number: 35, folder: '35', title: 'Nuclear equations', detail: 'Balancing alpha and beta decay', lesson: lessonP35, sections: nuclearEquationSections, frames: nuclearEquationFrames },
+  { subject: 'physics', number: 36, folder: '36', title: 'Half-life', detail: 'Activity, count-rate and half-life', lesson: lessonP36, sections: halfLifeSections, frames: halfLifeFrames },
+  { subject: 'physics', number: 37, folder: '37', title: 'Irradiation and contamination', detail: 'Staying safe from radioactive sources', lesson: lessonP37, sections: irradiationSections, frames: irradiationFrames },
+  { subject: 'physics', number: 38, folder: '38', title: 'Contact and non-contact forces', detail: 'Vectors, scalars and types of force', lesson: lessonP38, sections: contactForceSections, frames: contactForceFrames },
+  { subject: 'physics', number: 39, folder: '39', title: 'Weight, mass and gravity', detail: 'W = mg and the centre of mass', lesson: lessonP39, sections: weightSections, frames: weightFrames },
+  { subject: 'physics', number: 40, folder: '40', title: 'Resultant forces and work done', detail: 'Adding forces and W = Fs', lesson: lessonP40, sections: resultantSections, frames: resultantFrames },
+  { subject: 'physics', number: 41, folder: '41', title: 'Forces and elasticity', detail: 'Stretching springs and F = ke', lesson: lessonP41, sections: elasticSections, frames: elasticFrames },
+  { subject: 'physics', number: 42, folder: '42', title: 'Investigating springs', detail: 'The springs required practical', lesson: lessonP42, sections: springPracSections, frames: springPracFrames },
+  { subject: 'physics', number: 43, folder: '43', title: 'Distance, displacement, speed and velocity', detail: 'Scalars, vectors and s = vt', lesson: lessonP43, sections: velocitySections, frames: velocityFrames },
+  { subject: 'physics', number: 44, folder: '44', title: 'Acceleration', detail: 'a = Δv ÷ t and uniform acceleration', lesson: lessonP44, sections: accelerationSections, frames: accelerationFrames },
+  { subject: 'physics', number: 45, folder: '45', title: 'Distance-time graphs', detail: 'Reading journeys and finding speed', lesson: lessonP45, sections: dtGraphSections, frames: dtGraphFrames },
+  { subject: 'physics', number: 46, folder: '46', title: 'Velocity-time graphs and terminal velocity', detail: 'Gradient, drag and terminal velocity', lesson: lessonP46, sections: vtGraphSections, frames: vtGraphFrames },
+  { subject: 'physics', number: 47, folder: '47', title: 'Newton\'s First and Second Laws', detail: 'Balanced forces and F = ma', lesson: lessonP47, sections: newtonLawSections, frames: newtonLawFrames },
+  { subject: 'physics', number: 48, folder: '48', title: 'Newton\'s Third Law', detail: 'Equal and opposite forces', lesson: lessonP48, sections: newtonThirdSections, frames: newtonThirdFrames },
+  { subject: 'physics', number: 49, folder: '49', title: 'Investigating motion', detail: 'The acceleration required practical', lesson: lessonP49, sections: motionPracSections, frames: motionPracFrames },
+  { subject: 'physics', number: 50, folder: '50', title: 'Stopping distance and thinking distance', detail: 'Thinking distance and safety', lesson: lessonP50, sections: stoppingSections, frames: stoppingFrames },
+  { subject: 'physics', number: 51, folder: '51', title: 'Braking distance', detail: 'Brakes, grip and stopping safely', lesson: lessonP51, sections: brakingSections, frames: brakingFrames },
+  { subject: 'physics', number: 52, folder: '52', title: 'Reaction times', detail: 'The ruler drop test', lesson: lessonP52, sections: physicsReactionSections, frames: physicsReactionFrames },
+  { subject: 'physics', number: 53, folder: '53', title: 'Transverse and longitudinal waves', detail: 'Energy, not matter, moves along', lesson: lessonP53, sections: waveTypeSections, frames: waveTypeFrames },
+  { subject: 'physics', number: 54, folder: '54', title: 'Frequency, period and wave speed', detail: 'T = 1/f and v = fλ', lesson: lessonP54, sections: waveSpeedSections, frames: waveSpeedFrames },
+  { subject: 'physics', number: 55, folder: '55', title: 'Investigating waves', detail: 'Ripple tanks and vibrating strings', lesson: lessonP55, sections: wavePracSections, frames: wavePracFrames },
+  { subject: 'physics', number: 56, folder: '56', title: 'Refraction', detail: 'Waves changing direction at a boundary', lesson: lessonP56, sections: refractionSections, frames: refractionFrames },
+  { subject: 'physics', number: 57, folder: '57', title: 'Electromagnetic waves', detail: 'The spectrum from radio to gamma', lesson: lessonP57, sections: emSpectrumSections, frames: emSpectrumFrames },
+  { subject: 'physics', number: 58, folder: '58', title: 'Uses of radio waves, microwaves and infrared', detail: 'Communication, cooking and heating', lesson: lessonP58, sections: emUseSections, frames: emUseFrames },
+  { subject: 'physics', number: 59, folder: '59', title: 'Uses of light, UV, X-rays and gamma rays', detail: 'Fibres, fluorescence and medicine', lesson: lessonP59, sections: emMoreSections, frames: emMoreFrames },
 ]
 
 export const scienceSubjects = [
