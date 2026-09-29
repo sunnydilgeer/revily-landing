@@ -25,10 +25,10 @@ Judgement calls for the teacher:
 ## Diagram specs
 Same look as Science Lessons 17 and 18 (organic, slightly refined, soft flat fills with a darker stroke of the same hue), built with PhysicsKit: `physicsPalette`, energy-store badges, transfer arrows. Text in the SVG ≥ 12px, readable on a 360px phone. Use the same store names and colours as the other Physics lessons.
 
-- `power-rate`: two identical crates lifted by two motors side by side to the same height on a simple frame. Motor A finishes (crate at the top, small stopwatch "5 s"); motor B is only half way (stopwatch "10 s"). Labels "same box, same height, same energy" and "A is faster: more power".
+- `power-rate`: two identical crates lifted by two motors side by side to the same height on a simple frame. One stopwatch "after 5 s": motor A has finished ("takes 5 s"); motor B is only half way ("takes 10 s"). Labels "same box, same height, same energy" and "A is faster: more power".
 - `power-watt`: a lamp with a row of small joule "sparks" leaving it, labelled "1 second" with the badge "60 W = 60 J every second". Beside it a large "1 W = 1 J per second" card.
 - `power-work`: a person or motor pushing a box with a force arrow; a two-way label "work done = energy transferred (J)". Two speech-like cards: "rate of energy transfer" and "rate of doing work" joined by an equals sign.
-- `power-powerful`: two cranes lifting identical loads up the same tower. The powerful crane's load is higher at the same moment; a bar of transferred energy fills faster. Label "more energy in each second".
+- `power-powerful`: the same two-motor scene as `power-rate` (one drawing for the section), now with an energy bar beside each crate: A's bar full, B's half full after 5 s. Card "A: more energy in each second, so it is more powerful".
 - `power-eq-words`: a fraction card "power = energy transferred ÷ time", energy on top (amber), time underneath (blue), power on the left (green).
 - `power-eq-symbols`: the same card as "P = E ÷ t" with three unit tags: "P: watts, W", "E: joules, J", "t: seconds, s". Same colours as the previous frame.
 - `power-eq-work`: two fraction cards stacked: "P = E ÷ t" and "P = W ÷ t", joined by "same, because work done = energy transferred". A small note "W (work) is not W (watts)".

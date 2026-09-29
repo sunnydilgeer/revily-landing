@@ -23,7 +23,7 @@ Judgement calls for the teacher:
 - The page's vine picture is not reused; the junction is drawn as a simple splitting wire.
 
 ## Diagram specs
-Same look as Lessons 17 and 18: soft, rounded, gentle tints, hand-drawn feeling, generous white space. Import symbols and colours from `components/PhysicsKit.tsx` (`physicsPalette`, circuit symbols, energy-store badges). Circuit diagrams use the AQA symbols, straight wires and closed loops, ammeters in series and voltmeters across a component. Text in the SVG at least 12px; it must read on a 360px phone. Battery on the left, branches to the right; lamps are the AQA lamp symbol with a soft yellow glow only when lit. Currents are shown by small arrows on the wire, in the same blue as the physics kit's current colour.
+Same look as Lessons 17 and 18: soft, rounded, gentle tints, hand-drawn feeling, generous white space. Import symbols and colours from `components/PhysicsKit.tsx` (`physicsPalette`, circuit symbols, energy-store badges). Circuit diagrams use the AQA symbols, straight wires and closed loops, ammeters in series and voltmeters across a component. Text in the SVG at least 12px; it must read on a 360px phone. Battery on the left, branches to the right; lamps are the AQA lamp symbol with a soft yellow glow only when lit. Currents are shown by small arrows on the wire, in the physics kit's current colour (vermilion).
 
 - `parallel-branches`: cell with two lamps on two separate loops. Each loop softly tinted a different pale shade and labelled "branch 1" and "branch 2". Label "each branch is joined separately to the cell".
 - `parallel-remove`: the same circuit with branch 2's lamp removed (a gap with a small dashed outline and a cross), branch 1's lamp glowing. Label "the other branch still works".

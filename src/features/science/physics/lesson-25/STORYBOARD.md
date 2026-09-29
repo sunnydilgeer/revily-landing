@@ -35,6 +35,6 @@ Same look as Lessons 17 and 18: soft, rounded, gentle tints, hand-drawn feeling,
 - `qv-pvi-compare`: two appliances X and Y with the same pd, "same V", and different current bars; the one with the longer current bar has the longer power bar. Label "same pd, larger current: larger power".
 - `qv-no-pd`: an appliance with an ammeter reading and a resistance label "R", and a big "?" over the voltmeter position. Label "pd unknown".
 - `qv-i2r-equation`: equation card "power (W) = current² (A²) × resistance (Ω)" and "P = I² × R", with unit tags.
-- `qv-squared`: a small tile showing "3.0²  =  3.0 × 3.0  =  9.0" with two identical squares of side 3 drawn beside it. Label "squared means multiplied by itself".
+- `qv-squared`: a small tile showing "3.0²  =  3.0 × 3.0  =  9.0" with a 3 by 3 grid of nine small squares beside it. Label "squared means multiplied by itself".
 - `qv-i2r-worked`: heating element silhouette with "3.0 A" and "4.0 Ω"; two step chips "Step 1: 3.0 × 3.0 = 9.0" and "Step 2: 9.0 × 4.0 = 36 W".
 No question visuals in this lesson.

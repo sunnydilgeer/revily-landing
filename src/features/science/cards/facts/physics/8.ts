@@ -8,7 +8,7 @@ export const facts: ScienceFactSet = {
       ['Is wasted energy destroyed?', 'No. Energy is never destroyed. Wasted energy still exists, but it is spread out and not stored in a useful way.'],
     ],
     'P8-05': [
-      ['How does lubrication reduce wasted energy?', 'A lubricant, such as oil, reduces friction between moving parts, so less energy is dissipated as heat.'],
+      ['How does lubrication reduce wasted energy?', 'A lubricant, such as oil, reduces friction between moving parts, so less energy is dissipated to thermal stores.'],
     ],
     'P8-07': [
       ['What is thermal conductivity?', 'A measure of how quickly energy is transferred through a material by conduction.'],

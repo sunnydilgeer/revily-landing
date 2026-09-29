@@ -29,13 +29,13 @@ Same look as Lessons 17 and 18 (Science): soft, rounded, gentle tints. Circuit s
 - `series-break`: the same circuit with one lamp removed (dashed gap), both lamps drawn dim; label "one gap: all stop".
 - `series-voltmeter`: the same circuit with a voltmeter V across one lamp on its own branch, the branch highlighted; label "voltmeter: in parallel, not part of the series loop".
 - `series-uses`: a small test circuit with an ammeter and voltmeter on a component, tag "used for measuring and testing".
-- `series-current`: the loop with three ammeters A1, A2, A3 in different places, all reading 0.40 A; the same-current arrow the same width all the way round; note "I₁ = I₂ = I₃".
-- `series-pd`: the loop with a 12 V battery, two lamps and voltmeters across each: 5 V and 7 V, and a bar above splitting 12 V into a 5 V and a 7 V segment; note "V total = V₁ + V₂".
+- `series-current`: the loop with three ammeters A1, A2, A3 in different places, all reading 0.30 A (not 0.40 A, which is the answer to a guided question); the same-current arrow the same width all the way round; note "I₁ = I₂ = I₃".
+- `series-pd`: the loop with a 9 V battery, two lamps and voltmeters across each: 4 V and 5 V, and a bar above splitting 9 V into a 4 V and a 5 V segment (not 12 V = 5 V + 7 V, which is the answer to a guided question); note "V total = V₁ + V₂".
 - `series-resistance`: two resistors 2 Ω and 3 Ω drawn end to end, joined by a bracket to one resistor 5 Ω; note "R total = R₁ + R₂".
 - `series-why`: two loops one above the other with the same battery; top: one resistor, thick current arrow; bottom: two resistors, thin current arrow; label "more resistance, less current".
 - `series-wk-total`: the 24 V battery loop with 4.0 Ω and 8.0 Ω resistors; card "R total = 4.0 + 8.0 = 12 Ω".
 - `series-wk-eq`: the same circuit faded; card with "V = IR" then "I = V ÷ R".
 - `series-wk-sub`: the circuit with an ammeter shown "2.0 A"; card "I = 24 ÷ 12 = 2.0 A".
-- `series-cells`: two 1.5 V cells drawn in a row, both with the longer plate on the same side, joined by a bracket to a 3.0 V label; a small second picture with three cells and 4.5 V.
+- `series-cells`: two 1.5 V cells drawn in a row, both with the longer plate on the same side, joined by a bracket to a 3.0 V label; a small second picture with four cells and 6.0 V (not three cells and 4.5 V, which is the answer to a guided question).
 - `series-q-circuit` (question, assessment view): closed loop with a battery labelled "?", resistors 3.0 Ω, 4.0 Ω and 5.0 Ω in series and an ammeter A reading 0.50 A. Neutral description: "A series circuit with a battery, three resistors and an ammeter."
 - `series-q-voltmeters` (question, assessment view): 12 V battery with three resistors in series; voltmeters across the first two reading 2.0 V and 4.0 V; a voltmeter across the third with reading "?". Neutral description: "A series circuit with three resistors and three voltmeters."

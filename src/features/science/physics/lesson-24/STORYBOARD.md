@@ -30,7 +30,7 @@ Same look as Lessons 17 and 18: soft, rounded, gentle tints, hand-drawn feeling,
 - `appower-fan`: handheld fan silhouette. A transfer arrow labelled "electrically" from the "chemical store" badge (battery) to the "kinetic store" badge (motor).
 - `appower-depends`: an appliance with a clock icon and a power label; two boxes "how powerful (W)" and "how long (s)" joined by "×" to "energy transferred (J)".
 - `appower-equation`: the equation card "energy transferred (J) = power (W) × time (s)" and "E = P × t", with unit tags coloured to match the three quantities.
-- `appower-worked-time`: toaster silhouette labelled "800 W", a clock showing 2 minutes and a conversion card "2 × 60 = 120 s" highlighted. Step chip "Step 1".
+- `appower-worked-time`: toaster silhouette labelled "800 W", a timer showing 2:00 and a conversion card "2 × 60 = 120 s" highlighted. Step chip "Step 1".
 - `appower-worked-sub`: the equation card filled in: "E = 800 × 120 = 96 000 J" with the toaster faded to the side. Step chip "Step 2".
 - `appower-rating`: a small rating plate on an appliance reading "2000 W" with the label "maximum safe power".
 - `appower-cost`: two microwaves labelled "600 W" and "850 W" with equal 5-minute timers; the 850 W one has a longer energy bar. Label "same time: more power, more energy".

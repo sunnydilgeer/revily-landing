@@ -11,7 +11,7 @@ Sections:
 2. What is kinetic energy? (P3-02–04): moving means kinetic energy, more mass, more speed, speeding up and slowing down. Checks: faster identical car; slowing cyclist.
 3. What is the equation? (P3-05–07): the equation in words, symbols and units, square the speed first. Checks: what to do first; the units.
 4. How do you work one out? (P3-08–10): write it down, square the speed, answer with joules; two guided calculations.
-5. On your own (P3-11–14): two balls, an independent calculation, a numbered two-car diagram, a written calculation.
+5. On your own (P3-11–14): two balls of different mass, an independent calculation, a numbered two-car diagram, a written calculation.
 
 Out of scope: rearranging the equation to find speed or mass; calculating speed from height (too hard for Foundation); Higher-tier ideas. The exam question on the page was not reused.
 

@@ -48,3 +48,6 @@ Section 5:
 - `density-liquid`: a measuring cylinder standing on a balance showing 0.0, with liquid being poured; label "zero the balance first".
 - `density-liquid-calc`: the balance showing "40 g" beside the cylinder reading "50 cm³"; card "40 ÷ 50 = 0.8 g/cm³".
 - `density-care`: a cylinder with the eye at the level of the curved surface (line of sight dashed), a small "repeat and take a mean" tag, a tissue wiping a spill.
+
+Question visual (assessment view):
+- `density-q-eureka` (P28-14): the eureka can with the stone lowered in, water collected in the measuring cylinder labelled "12 cm³", and the stone's mass "30.0 g" on a balance. The values match the question text; no volume or density of the stone is given. Neutral description.
