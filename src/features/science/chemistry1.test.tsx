@@ -210,7 +210,7 @@ check('Chemistry is its own section: Lesson 1 opens at /preview/science?subject=
   // The curriculum shows every subject with a lesson as real units, and lists the rest under "Coming later".
   assert.ok(!scienceSubjects.filter(item => item.lessons.length === 0).some(item => item.subject === 'chemistry'), 'Chemistry is no longer "Coming later"')
   const units = scienceUnits.filter(unit => unit.subject === 'chemistry')
-  assert.deepEqual(units.map(unit => [unit.code, unit.subjectTitle, unit.lessons.length]), [['C1a', 'Chemistry', 4], ['C1b', 'Chemistry', 7], ['C2', 'Chemistry', 6], ['C3', 'Chemistry', 4], ['C4', 'Chemistry', 6], ['C5', 'Chemistry', 3]])
+  assert.deepEqual(units.map(unit => [unit.code, unit.subjectTitle, unit.lessons.length]), [['C1a', 'Chemistry', 4], ['C1b', 'Chemistry', 7], ['C2', 'Chemistry', 6], ['C3', 'Chemistry', 4], ['C4', 'Chemistry', 6], ['C5', 'Chemistry', 3], ['C6', 'Chemistry', 6], ['C7', 'Chemistry', 4]])
   // Revision cards: one Chemistry deck, keyed on the lesson id, with its own key facts and recall questions.
   const facts = scienceFacts[lessonC1.id]
   assert.ok(facts)

@@ -1,0 +1,45 @@
+import type { ScienceLesson, ScienceState } from '../../types'
+import { author, sampledRequirements } from '../../lessonAuthoring'
+import { reversibleFrames as frames } from './teachingFrames'
+
+const source = { id: 'aqa-chemistry', title: 'AQA 8464 Chemistry subject content', url: 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/chemistry-subject-content', locator: '5.6.2.1 Reversible reactions; 5.6.2.2 Energy changes and reversible reactions; 5.6.2.3 Equilibrium (closed system, equal rates, overall direction); Foundation tier, no Le Chatelier' }
+const skill = 'C-REVERSIBLE'
+const idea = author(skill, ['5.6.2.1'], ['aqa-chemistry'])
+const eq = author(skill, ['5.6.2.3'], ['aqa-chemistry'])
+const direction = author(skill, ['5.6.2.1', '5.6.2.3'], ['aqa-chemistry'])
+const energy = author(skill, ['5.6.2.2'], ['aqa-chemistry'])
+const t = (a: ReturnType<typeof author>, id: keyof typeof frames, title: string) => a.teach(id, title, frames[id])
+
+export const reversibleSections = [
+  { id: 'C36-01', label: 'Start here', detail: 'Changes that can be undone' },
+  { id: 'C36-02', label: 'What is a reversible reaction?', detail: 'Forwards, backwards and the ⇌ symbol' },
+  { id: 'C36-05', label: 'How does a reaction reach equilibrium?', detail: 'Rates, amounts and closed systems' },
+  { id: 'C36-09', label: 'Which way is it going?', detail: 'Overall direction and ammonium chloride' },
+  { id: 'C36-11', label: 'What happens to the energy?', detail: 'Endothermic one way, exothermic the other' },
+  { id: 'C36-13', label: 'On your own', detail: 'Copper sulfate, data and equilibrium' },
+]
+
+const states: ScienceState[] = [
+  { ...idea.choice('C36-01', 'Which of these changes can be undone by cooling?', ['Frying an egg', 'Burning a piece of paper', 'Melting wax into a liquid', 'Baking a cake'], 2, 'Which change makes something that turns back into what it was?', ['Melted wax turns back into solid wax when it cools.', 'Frying, burning and baking make new substances that do not simply turn back.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  t(idea, 'C36-02', 'What is a reversible reaction?'),
+  idea.choice('C36-03', 'What is a reversible reaction?', ['A reaction where the products can react to make the reactants again', 'A reaction that only goes forwards until the reactants run out', 'A reaction that has to be done twice before it works', 'A reaction that gives out heat in both directions'], 0, 'Can the products turn back into the reactants?', ['In a reversible reaction, the products can react together to make the reactants again.', 'So the reaction can go both forwards and backwards.']),
+  idea.choice('C36-04', 'In the reversible reaction P + Q ⇌ R + S, which is the backward reaction?', ['P and Q reacting to make R and S', 'P and S reacting to make Q and R', 'R changing into S', 'R and S reacting to make P and Q'], 3, 'The forward reaction reads left to right. Which way does the backward one read?', ['The forward reaction is P + Q → R + S.', 'The backward reaction goes the other way: R + S → P + Q.']),
+  t(eq, 'C36-05', 'How does a reaction reach equilibrium?'),
+  eq.choice('C36-06', 'A reversible reaction is at equilibrium in a closed system. What is true about its two reactions?', ['The forward reaction has stopped', 'They happen at exactly the same rate', 'The backward reaction is faster', 'The backward reaction has stopped'], 1, 'Think about how fast the reactants are used up and made again.', ['At equilibrium, the forward and backward reactions carry on at exactly the same rate.', 'Neither has stopped. That is why the amounts stay the same.']),
+  eq.choice('C36-07', 'A reaction is at equilibrium. What does this tell you about the amounts of reactants and products?', ['They are exactly equal', 'All the reactants have been used up', 'They are not changing any more', 'They are still changing quickly'], 2, 'Does equilibrium mean equal amounts, or steady amounts?', ['Equilibrium means the amounts of reactants and products are not changing any more.', 'They do not have to be equal. There can be more of either side.']),
+  eq.choice('C36-08', 'Why must a reversible reaction be in a closed system to reach equilibrium?', ['Because none of the substances can escape and nothing else can get in', 'Because a closed system makes the reaction go faster', 'Because reversible reactions only work with solids', 'Because it needs extra heat from outside'], 0, 'What would happen to a gas made in an open beaker?', ['In a closed system, none of the reactants or products can escape, and nothing else can get in.', 'In an open beaker a gas could escape, so the backward reaction could not keep up with the forward one.']),
+  t(direction, 'C36-09', 'Which way is it going?'),
+  direction.choice('C36-10', 'Ammonium chloride breaks down into ammonia and hydrogen chloride when heated. What do you get more of when you heat it?', ['More ammonium chloride', 'More ammonia and hydrogen chloride', 'No change in the amounts', 'Only ammonia'], 1, 'Which direction does heating make this reaction go?', ['Heating makes the forward reaction go, so ammonium chloride breaks down.', 'You get more ammonia and hydrogen chloride. Cooling would make the backward reaction go instead.']),
+  t(energy, 'C36-11', 'What happens to the energy?'),
+  energy.choice('C36-12', 'A reversible reaction is endothermic in the forward direction. What is true of the backward reaction?', ['It is also endothermic, and takes in the same energy', 'It is exothermic, and gives out more energy', 'It does not involve any energy change', 'It is exothermic, and gives out the same amount of energy'], 3, 'If one direction takes in heat, what does the other do?', ['The two directions have opposite energy changes, so the backward reaction is exothermic.', 'The energy given out is exactly the same amount as the energy taken in.']),
+  idea.choice('C36-13', 'Blue copper sulfate crystals turn white when heated. The white powder turns blue again when water is added. What does this show?', ['The change is not a chemical reaction', 'The reaction is reversible', 'The reaction only goes forwards', 'The reaction needs no energy'], 1, 'Can the change be undone?', ['The change goes one way when heated and the other way when water is added.', 'A reaction that can go in both directions is a reversible reaction.'], 'application', true),
+  eq.choice('C36-14', 'The table shows the mass of product in a closed flask over time. Which conclusion do the data support?', ['The reaction stopped at 40 s', 'All the reactant was used up by 40 s', 'The amount of product stopped changing from 40 s, which fits equilibrium', 'The forward reaction was faster than the backward reaction at 60 s'], 2, 'What does the mass do after 40 s, and what does that not tell you?', ['From 40 s the mass of product stays at 3.5 g. In a closed flask, this fits a reaction at equilibrium.', 'The reaction has not stopped, because both reactions carry on. And the data cannot show that all the reactant was used up.'], 'dataInterpretation', true, 'rev-question-data'),
+  direction.choice('C36-15', 'At equilibrium, a mixture has much more product than reactant. In which direction is the reaction said to be going?', ['The backwards direction', 'It is not going in either direction', 'The forwards direction', 'Both directions at once'], 2, 'Which side has more?', ['More products than reactants means the reaction is going in the forwards direction.', 'More reactants than products would mean the backwards direction.'], 'application', true),
+  eq.written('C36-16', 'Explain how a reversible reaction reaches equilibrium in a closed system.', 'Start with only reactants. Say what happens to the forward reaction, then the backward reaction, then what is true at the end.', 'At the start there are only reactants, and the forward reaction is fast. As the reactants are used up, their concentrations fall and the forward reaction slows down. As products build up, the backward reaction speeds up. Eventually both reactions go at exactly the same rate. The system is at equilibrium, and the amounts of reactants and products stop changing.', ['The forward reaction slows down as the reactants are used up and their concentrations fall.', 'The backward reaction speeds up as more products are made.', 'Eventually the forward and backward reactions have exactly the same rate.', 'At equilibrium the amounts of reactants and products are not changing (in a closed system).'], ['Saying the reaction stops at equilibrium.', 'Saying the amounts of reactants and products are equal.', 'Only saying that the reaction goes both ways, with no idea of rates changing.']),
+]
+
+export const lessonC36: ScienceLesson = {
+  id: 'C-RAT-036-C', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'chemistry',
+  title: 'Reversible reactions and equilibrium', prerequisites: [], reviewStatus: 'draftNeedsTeacherReview',
+  sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
+}

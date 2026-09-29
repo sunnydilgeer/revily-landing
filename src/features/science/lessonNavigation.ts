@@ -174,6 +174,26 @@ import { lessonC29, energyMeasureSections } from './chemistry/lesson-29/lesson'
 import { energyMeasureFrames } from './chemistry/lesson-29/teachingFrames'
 import { lessonC30, profileSections } from './chemistry/lesson-30/lesson'
 import { profileFrames } from './chemistry/lesson-30/teachingFrames'
+import { lessonC31, ratesSections } from './chemistry/lesson-31/lesson'
+import { ratesFrames } from './chemistry/lesson-31/teachingFrames'
+import { lessonC32, rateFactorSections } from './chemistry/lesson-32/lesson'
+import { rateFactorFrames } from './chemistry/lesson-32/teachingFrames'
+import { lessonC33, gasRateSections } from './chemistry/lesson-33/lesson'
+import { gasRateFrames } from './chemistry/lesson-33/teachingFrames'
+import { lessonC34, crossSections } from './chemistry/lesson-34/lesson'
+import { crossFrames } from './chemistry/lesson-34/teachingFrames'
+import { lessonC35, rateGraphSections } from './chemistry/lesson-35/lesson'
+import { rateGraphFrames } from './chemistry/lesson-35/teachingFrames'
+import { lessonC36, reversibleSections } from './chemistry/lesson-36/lesson'
+import { reversibleFrames } from './chemistry/lesson-36/teachingFrames'
+import { lessonC37, hydrocarbonSections } from './chemistry/lesson-37/lesson'
+import { hydrocarbonFrames } from './chemistry/lesson-37/teachingFrames'
+import { lessonC38, crudeOilSections } from './chemistry/lesson-38/lesson'
+import { crudeOilFrames } from './chemistry/lesson-38/teachingFrames'
+import { lessonC39, fractionSections } from './chemistry/lesson-39/lesson'
+import { fractionFrames } from './chemistry/lesson-39/teachingFrames'
+import { lessonC40, crackingSections } from './chemistry/lesson-40/lesson'
+import { crackingFrames } from './chemistry/lesson-40/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -287,6 +307,8 @@ export const chemistryChapters = [
   { subject: 'chemistry', code: 'C3', title: 'Quantitative chemistry', lessonNumbers: [18, 19, 20, 21] },
   { subject: 'chemistry', code: 'C4', title: 'Chemical changes', lessonNumbers: [22, 23, 24, 25, 26, 27] },
   { subject: 'chemistry', code: 'C5', title: 'Energy changes', lessonNumbers: [28, 29, 30] },
+  { subject: 'chemistry', code: 'C6', title: 'The rate and extent of chemical change', lessonNumbers: [31, 32, 33, 34, 35, 36] },
+  { subject: 'chemistry', code: 'C7', title: 'Organic chemistry', lessonNumbers: [37, 38, 39, 40] },
 ] as const satisfies readonly ScienceChapter[]
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
@@ -320,6 +342,16 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 28, folder: '28', title: 'Exothermic and endothermic reactions', detail: 'Energy given out or taken in', lesson: lessonC28, sections: exoEndoSections, frames: exoEndoFrames },
   { subject: 'chemistry', number: 29, folder: '29', title: 'Measuring energy changes', detail: 'The polystyrene cup practical', lesson: lessonC29, sections: energyMeasureSections, frames: energyMeasureFrames },
   { subject: 'chemistry', number: 30, folder: '30', title: 'Reaction profiles', detail: 'Activation energy and energy level diagrams', lesson: lessonC30, sections: profileSections, frames: profileFrames },
+  { subject: 'chemistry', number: 31, folder: '31', title: 'Rates of reaction and collision theory', detail: 'What rate means and why particles must collide', lesson: lessonC31, sections: ratesSections, frames: ratesFrames },
+  { subject: 'chemistry', number: 32, folder: '32', title: 'What changes the rate of a reaction', detail: 'Temperature, concentration, surface area and catalysts', lesson: lessonC32, sections: rateFactorSections, frames: rateFactorFrames },
+  { subject: 'chemistry', number: 33, folder: '33', title: 'Measuring rates using gas', detail: 'Collecting gas and using a mass balance', lesson: lessonC33, sections: gasRateSections, frames: gasRateFrames },
+  { subject: 'chemistry', number: 34, folder: '34', title: 'The disappearing cross', detail: 'Timing a cloudy precipitate', lesson: lessonC34, sections: crossSections, frames: crossFrames },
+  { subject: 'chemistry', number: 35, folder: '35', title: 'Rate graphs and mean rate', detail: 'Plotting results and calculating mean rate', lesson: lessonC35, sections: rateGraphSections, frames: rateGraphFrames },
+  { subject: 'chemistry', number: 36, folder: '36', title: 'Reversible reactions and equilibrium', detail: 'Reactions that go both ways', lesson: lessonC36, sections: reversibleSections, frames: reversibleFrames },
+  { subject: 'chemistry', number: 37, folder: '37', title: 'Hydrocarbons and alkanes', detail: 'Alkane formulae and complete combustion', lesson: lessonC37, sections: hydrocarbonSections, frames: hydrocarbonFrames },
+  { subject: 'chemistry', number: 38, folder: '38', title: 'Crude oil', detail: 'How it formed and why chain length matters', lesson: lessonC38, sections: crudeOilSections, frames: crudeOilFrames },
+  { subject: 'chemistry', number: 39, folder: '39', title: 'Fractional distillation', detail: 'Separating crude oil into fractions', lesson: lessonC39, sections: fractionSections, frames: fractionFrames },
+  { subject: 'chemistry', number: 40, folder: '40', title: 'Cracking', detail: 'Splitting long chains and testing for alkenes', lesson: lessonC40, sections: crackingSections, frames: crackingFrames },
 ]
 
 export const scienceSubjects = [

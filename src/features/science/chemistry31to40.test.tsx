@@ -10,30 +10,26 @@ import { evidenceProfile, gradeResponse, progress, recommendedNext } from './eng
 import { chemistryLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceLessonDir, scienceSubjectLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { scienceUnits } from './scienceProgress'
-import { lessonC19, massConservationSections } from './chemistry/lesson-19/lesson'
-import { massConservationFrames } from './chemistry/lesson-19/teachingFrames'
-import { lessonC20, gasMassSections } from './chemistry/lesson-20/lesson'
-import { gasMassFrames } from './chemistry/lesson-20/teachingFrames'
-import { lessonC21, concentrationSections } from './chemistry/lesson-21/lesson'
-import { concentrationFrames } from './chemistry/lesson-21/teachingFrames'
-import { lessonC22, acidSections } from './chemistry/lesson-22/lesson'
-import { acidFrames } from './chemistry/lesson-22/teachingFrames'
-import { lessonC23, saltSections } from './chemistry/lesson-23/lesson'
-import { saltFrames } from './chemistry/lesson-23/teachingFrames'
-import { lessonC24, reactivitySections } from './chemistry/lesson-24/lesson'
-import { reactivityFrames } from './chemistry/lesson-24/teachingFrames'
-import { lessonC25, metalReactionSections } from './chemistry/lesson-25/lesson'
-import { metalReactionFrames } from './chemistry/lesson-25/teachingFrames'
-import { lessonC26, electrolysisSections } from './chemistry/lesson-26/lesson'
-import { electrolysisFrames } from './chemistry/lesson-26/teachingFrames'
-import { lessonC27, aqueousSections } from './chemistry/lesson-27/lesson'
-import { aqueousFrames } from './chemistry/lesson-27/teachingFrames'
-import { lessonC28, exoEndoSections } from './chemistry/lesson-28/lesson'
-import { exoEndoFrames } from './chemistry/lesson-28/teachingFrames'
-import { lessonC29, energyMeasureSections } from './chemistry/lesson-29/lesson'
-import { energyMeasureFrames } from './chemistry/lesson-29/teachingFrames'
-import { lessonC30, profileSections } from './chemistry/lesson-30/lesson'
-import { profileFrames } from './chemistry/lesson-30/teachingFrames'
+import { lessonC31, ratesSections } from './chemistry/lesson-31/lesson'
+import { ratesFrames } from './chemistry/lesson-31/teachingFrames'
+import { lessonC32, rateFactorSections } from './chemistry/lesson-32/lesson'
+import { rateFactorFrames } from './chemistry/lesson-32/teachingFrames'
+import { lessonC33, gasRateSections } from './chemistry/lesson-33/lesson'
+import { gasRateFrames } from './chemistry/lesson-33/teachingFrames'
+import { lessonC34, crossSections } from './chemistry/lesson-34/lesson'
+import { crossFrames } from './chemistry/lesson-34/teachingFrames'
+import { lessonC35, rateGraphSections } from './chemistry/lesson-35/lesson'
+import { rateGraphFrames } from './chemistry/lesson-35/teachingFrames'
+import { lessonC36, reversibleSections } from './chemistry/lesson-36/lesson'
+import { reversibleFrames } from './chemistry/lesson-36/teachingFrames'
+import { lessonC37, hydrocarbonSections } from './chemistry/lesson-37/lesson'
+import { hydrocarbonFrames } from './chemistry/lesson-37/teachingFrames'
+import { lessonC38, crudeOilSections } from './chemistry/lesson-38/lesson'
+import { crudeOilFrames } from './chemistry/lesson-38/teachingFrames'
+import { lessonC39, fractionSections } from './chemistry/lesson-39/lesson'
+import { fractionFrames } from './chemistry/lesson-39/teachingFrames'
+import { lessonC40, crackingSections } from './chemistry/lesson-40/lesson'
+import { crackingFrames } from './chemistry/lesson-40/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { EvidenceDimension, ScienceLesson, ScienceState } from './types'
@@ -45,20 +41,18 @@ const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
-type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C3' | 'C4' | 'C5' }
+type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C6' | 'C7' }
 const cases: Case[] = [
-  { number: 19, lesson: lessonC19, sections: massConservationSections, frames: massConservationFrames, title: 'Conservation of mass', chapter: 'C3' },
-  { number: 20, lesson: lessonC20, sections: gasMassSections, frames: gasMassFrames, title: 'When mass seems to change', chapter: 'C3' },
-  { number: 21, lesson: lessonC21, sections: concentrationSections, frames: concentrationFrames, title: 'Concentration of solutions', chapter: 'C3' },
-  { number: 22, lesson: lessonC22, sections: acidSections, frames: acidFrames, title: 'Acids, alkalis and pH', chapter: 'C4' },
-  { number: 23, lesson: lessonC23, sections: saltSections, frames: saltFrames, title: 'Reactions of acids and making salts', chapter: 'C4' },
-  { number: 24, lesson: lessonC24, sections: reactivitySections, frames: reactivityFrames, title: 'The reactivity series and extracting metals', chapter: 'C4' },
-  { number: 25, lesson: lessonC25, sections: metalReactionSections, frames: metalReactionFrames, title: 'Reactions of metals', chapter: 'C4' },
-  { number: 26, lesson: lessonC26, sections: electrolysisSections, frames: electrolysisFrames, title: 'Electrolysis', chapter: 'C4' },
-  { number: 27, lesson: lessonC27, sections: aqueousSections, frames: aqueousFrames, title: 'Electrolysis of aqueous solutions', chapter: 'C4' },
-  { number: 28, lesson: lessonC28, sections: exoEndoSections, frames: exoEndoFrames, title: 'Exothermic and endothermic reactions', chapter: 'C5' },
-  { number: 29, lesson: lessonC29, sections: energyMeasureSections, frames: energyMeasureFrames, title: 'Measuring energy changes', chapter: 'C5' },
-  { number: 30, lesson: lessonC30, sections: profileSections, frames: profileFrames, title: 'Reaction profiles', chapter: 'C5' },
+  { number: 31, lesson: lessonC31, sections: ratesSections, frames: ratesFrames, title: 'Rates of reaction and collision theory', chapter: 'C6' },
+  { number: 32, lesson: lessonC32, sections: rateFactorSections, frames: rateFactorFrames, title: 'What changes the rate of a reaction', chapter: 'C6' },
+  { number: 33, lesson: lessonC33, sections: gasRateSections, frames: gasRateFrames, title: 'Measuring rates using gas', chapter: 'C6' },
+  { number: 34, lesson: lessonC34, sections: crossSections, frames: crossFrames, title: 'The disappearing cross', chapter: 'C6' },
+  { number: 35, lesson: lessonC35, sections: rateGraphSections, frames: rateGraphFrames, title: 'Rate graphs and mean rate', chapter: 'C6' },
+  { number: 36, lesson: lessonC36, sections: reversibleSections, frames: reversibleFrames, title: 'Reversible reactions and equilibrium', chapter: 'C6' },
+  { number: 37, lesson: lessonC37, sections: hydrocarbonSections, frames: hydrocarbonFrames, title: 'Hydrocarbons and alkanes', chapter: 'C7' },
+  { number: 38, lesson: lessonC38, sections: crudeOilSections, frames: crudeOilFrames, title: 'Crude oil', chapter: 'C7' },
+  { number: 39, lesson: lessonC39, sections: fractionSections, frames: fractionFrames, title: 'Fractional distillation', chapter: 'C7' },
+  { number: 40, lesson: lessonC40, sections: crackingSections, frames: crackingFrames, title: 'Cracking', chapter: 'C7' },
 ]
 
 for (const { number, lesson, sections, frames, title, chapter } of cases) {
@@ -74,9 +68,9 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
     const contexts = lesson.states.flatMap(state => state.kind === 'teaching' ? [] : [state.contextId])
     assert.equal(new Set(contexts).size, contexts.length)
     const sourceIds = lesson.sources.map(source => source.id)
-    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.[3-5]\.\d\.\d/.test(source.locator)))
+    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.[6-7]\.\d\.\d/.test(source.locator)))
     lesson.states.forEach(state => {
-      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.[3-5]\./.test(ref)), `${state.id}: spec refs`)
+      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.[6-7]\./.test(ref)), `${state.id}: spec refs`)
       state.sourceIds.forEach(sourceId => assert.ok(sourceIds.includes(sourceId)))
     })
     assert.equal(sections[0].id, lesson.states[0].id)
@@ -217,9 +211,13 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
   })
 }
 
-check('Chemistry catalogue: C3 holds 18–21, C4 holds 22–27, C5 holds 28–30, Lesson 30 leads to Lesson 31', () => {
-  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]).slice(3, 6), [['C3', 4], ['C4', 6], ['C5', 3]])
-  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 30)!), getScienceLesson('chemistry', 31))
+check('Chemistry catalogue: Lessons 1–40, C6 holds 31–36, C7 holds 37–40, Lesson 40 is the last', () => {
+  assert.deepEqual(chemistryLessons.map(item => item.number), Array.from({ length: 40 }, (_, i) => i + 1))
+  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]), [['C1a', 4], ['C1b', 7], ['C2', 6], ['C3', 4], ['C4', 6], ['C5', 3], ['C6', 6], ['C7', 4]])
+  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 40)!), null)
+  assert.equal(parseScienceLessonRef('chemistry', '41'), null)
+  const cards = buildScienceDecks().flatMap(item => item.cards.map(card => card.id))
+  assert.equal(new Set(cards).size, cards.length)
 })
 
-console.log(`${checks} Chemistry Lessons 19–30 checks passed`)
+console.log(`${checks} Chemistry Lessons 31–40 checks passed`)
