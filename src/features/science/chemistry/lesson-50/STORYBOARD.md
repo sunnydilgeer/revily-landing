@@ -20,7 +20,7 @@ Source boundary: supplied revision-guide page 159 (scope only); AQA 8464 Chemist
 Judgement calls for the teacher: the chart supports only the energy claim; the question tests that students do not claim cost or waste from it.
 
 ## Diagram specs
-Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18. Yellow = energy, green = recycling arrows, glass in pale blue-green, metal in soft grey. Text in the SVG at least 12px.
+Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18. Yellow lightning bolts = energy, green = recycling arrows, glass in pale blue-green, metal in soft grey. Text in the SVG at least 12px.
 
 - `recycle-sustain`: a balance or two-person scene: "people today" and "people in the future" both under one umbrella arrow labelled "needs of both".
 - `recycle-unsustain`: three small panels with numbers: 1 "finite raw materials" (a shrinking pile), 2 "extraction: energy and waste" (digger, energy spark, waste heap), 3 "processing: energy from finite fuels" (furnace, fuel drum).

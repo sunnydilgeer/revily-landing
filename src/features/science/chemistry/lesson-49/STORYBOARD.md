@@ -22,18 +22,18 @@ Judgement calls for the teacher: the table example uses invented resources, not 
 ## Diagram specs
 Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18. Course colours: green = plants/timber, blue = water, yellow = Sun/energy. Finite resources in a warm grey-brown tint, renewable in green. Text in the SVG at least 12px.
 
-- `resource-natural`: three panels, Earth (rock and a hill), sea (waves), air (clouds) under a bracket "natural resources". A few small items sit beside each: wood, cotton, water, oil drop.
+- `resource-natural`: three panels under a bracket "natural resources": Earth (ground with a tree, a cotton plant and oil in the rock; "wood, cotton, oil"), sea (waves, fish, a water drop; "water, fish"), air (clouds and teal oxygen pairs; "gases such as oxygen").
 - `resource-use`: four small rounded pictures with labels: cotton plant to T-shirt "clothing", logs to house "shelter", oil to car "fuel", wheat to bread "food".
 - `resource-replace`: two rows. "Rubber tree sap → natural rubber → tyre" and "Man-made polymer → tyre" with a "replaces" arrow; second row "sheep wool" and "synthetic fibres" both to a jumper.
 - `resource-agri`: a small field. Left: a few crops. Right: more crops with a fertiliser bag labelled "fertiliser: more crop in the same area".
 - `resource-renewable`: a tree cycle: felled tree, sapling planted, grown tree, with a clock label "a few years". Label "renewable: replaced fairly quickly".
-- `resource-finite`: a full tank/pile that shrinks over three steps, with a slow drip refilling label "remade very slowly, or not at all". Label "finite: will eventually run out".
+- `resource-finite`: a store of crude oil in three tanks, "now", "later", "much later", emptying with "used" arrows; one slow drip into the first labelled "remade very slowly, or not at all". Label "finite: will eventually run out".
 - `resource-process`: two short flows: "crude oil → fractional distillation → petrol" and "metal ore → reduced → pure metal".
 - `resource-sorted`: two boxes, green "Renewable" (water, food, timber) and warm "Finite" (fossil fuels, nuclear fuels, metals, minerals), each with small icons.
-- `resource-table-setup`: a three-row table titled "Time to form": rows "Resource 1 / 2 / 3" with times 60 days, 25 years, 10⁷ years. A note: "read the time column".
-- `resource-table-std`: "10⁶" large, an arrow to "1 000 000" and "one million years"; a small timeline bar showing days/years/million years growing.
+- `resource-table-setup`: a three-row table titled "Forming times" (columns Resource, Time to form): rows "Resource 1 / 2 / 3" with times 60 days, 25 years, 10⁷ years. A note: "read the time column".
+- `resource-table-std`: "10⁶" large, an arrow to "1 000 000" and "one million years"; three bars, days, years and a million years, the last broken and marked "not to scale".
 - `resource-table-answer`: the same table with the 10⁷ years row highlighted and labelled "far longest: finite"; the other two rows labelled "renewable".
-- `resource-q-table` (question, assessment view): a table "Time to form" with X 3 months, Y 10⁷ years, Z 25 years. No renewable/finite words. Description: "A table of three resources with the time each takes to form."
+- `resource-q-table` (question, assessment view): a table "Forming times" with X 3 months, Y 10⁷ years, Z 25 years. No renewable/finite words. Description: "A table of three resources with the time each takes to form."
 - `resource-q-table-guided` (guided question, assessment view): a table with A 40 days, B 10⁶ years, C 15 years. Same rules. Description: "A table of three resources with the time each takes to form."
 
 ## States in full
