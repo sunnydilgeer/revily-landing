@@ -37,6 +37,11 @@ import { GiantVisual } from './GiantVisuals'
 import { MetallicVisual } from './MetallicVisuals'
 import { StateVisual } from './StateVisuals'
 import { FormulaMassVisual } from './FormulaMassVisuals'
+import { SaltVisual } from './SaltVisuals'
+import { AcidVisual } from './AcidVisuals'
+import { ConcentrationVisual } from './ConcentrationVisuals'
+import { GasMassVisual } from './GasMassVisuals'
+import { MassConservationVisual } from './MassConservationVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -192,6 +197,11 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('metal-')) return <MetallicVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('state-')) return <StateVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('mr-')) return <FormulaMassVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('salt-')) return <SaltVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('acid-')) return <AcidVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('conc-')) return <ConcentrationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('gasmass-')) return <GasMassVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('cons-')) return <MassConservationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('cmpd-')) return <CompoundVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />

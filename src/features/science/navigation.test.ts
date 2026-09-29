@@ -76,13 +76,13 @@ for (const invalid of [undefined, '', '0', '59', '01', ['1']]) assert.equal(pars
 for (const subject of ['physics', 'maths', '', ['chemistry']]) assert.equal(parseScienceLessonRef(subject, '1'), null)
 // Chemistry: its own chapters, even before any lesson is built; hrefs carry subject=chemistry.
 assert.deepEqual(chemistryChapters.map(chapter => [chapter.subject, chapter.code, [...chapter.lessonNumbers]]),
-  [['chemistry', 'C1a', [1, 2, 3, 4]], ['chemistry', 'C1b', [5, 6, 7, 8, 9, 10, 11]], ['chemistry', 'C2', [12, 13, 14, 15, 16, 17]], ['chemistry', 'C3', [18]]])
+  [['chemistry', 'C1a', [1, 2, 3, 4]], ['chemistry', 'C1b', [5, 6, 7, 8, 9, 10, 11]], ['chemistry', 'C2', [12, 13, 14, 15, 16, 17]], ['chemistry', 'C3', [18, 19, 20, 21]], ['chemistry', 'C4', [22, 23]]])
 assert.equal(chemistryChapters[0].title, 'Atoms, elements, compounds and mixtures')
 assert.equal(chemistryChapters[1].title, 'The periodic table')
 assert.deepEqual(scienceChaptersFor('chemistry'), chemistryChapters)
 assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]),
   chemistryChapters.map(chapter => [chapter.code, chemistryLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).length]))
-assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b', 'C2', 'C3'])
+assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b', 'C2', 'C3', 'C4'])
 assert.equal(scienceSubjectLessonHref('chemistry', 1), '/preview/science?subject=chemistry&lesson=1')
 assert.equal(scienceSubjectLessonHref('chemistry', 3, 'C3-02'), '/preview/science?subject=chemistry&lesson=3&activity=C3-02')
 assert.equal(encodeScienceLastLesson({ subject: 'chemistry', number: 1 }), 'chemistry:1')

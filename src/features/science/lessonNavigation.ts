@@ -150,6 +150,16 @@ import { lessonC17, stateSections } from './chemistry/lesson-17/lesson'
 import { stateFrames } from './chemistry/lesson-17/teachingFrames'
 import { lessonC18, formulaMassSections } from './chemistry/lesson-18/lesson'
 import { formulaMassFrames } from './chemistry/lesson-18/teachingFrames'
+import { lessonC19, massConservationSections } from './chemistry/lesson-19/lesson'
+import { massConservationFrames } from './chemistry/lesson-19/teachingFrames'
+import { lessonC20, gasMassSections } from './chemistry/lesson-20/lesson'
+import { gasMassFrames } from './chemistry/lesson-20/teachingFrames'
+import { lessonC21, concentrationSections } from './chemistry/lesson-21/lesson'
+import { concentrationFrames } from './chemistry/lesson-21/teachingFrames'
+import { lessonC22, acidSections } from './chemistry/lesson-22/lesson'
+import { acidFrames } from './chemistry/lesson-22/teachingFrames'
+import { lessonC23, saltSections } from './chemistry/lesson-23/lesson'
+import { saltFrames } from './chemistry/lesson-23/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -260,7 +270,8 @@ export const chemistryChapters = [
   { subject: 'chemistry', code: 'C1a', title: 'Atoms, elements, compounds and mixtures', lessonNumbers: [1, 2, 3, 4] },
   { subject: 'chemistry', code: 'C1b', title: 'The periodic table', lessonNumbers: [5, 6, 7, 8, 9, 10, 11] },
   { subject: 'chemistry', code: 'C2', title: 'Bonding, structure and properties of matter', lessonNumbers: [12, 13, 14, 15, 16, 17] },
-  { subject: 'chemistry', code: 'C3', title: 'Quantitative chemistry', lessonNumbers: [18] },
+  { subject: 'chemistry', code: 'C3', title: 'Quantitative chemistry', lessonNumbers: [18, 19, 20, 21] },
+  { subject: 'chemistry', code: 'C4', title: 'Chemical changes', lessonNumbers: [22, 23] },
 ] as const satisfies readonly ScienceChapter[]
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
@@ -282,6 +293,11 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 16, folder: '16', title: 'Metallic bonding and alloys', detail: 'Delocalised electrons and why alloys are harder', lesson: lessonC16, sections: metallicSections, frames: metallicFrames },
   { subject: 'chemistry', number: 17, folder: '17', title: 'States of matter and changing state', detail: 'Particles in solids, liquids and gases, and state symbols', lesson: lessonC17, sections: stateSections, frames: stateFrames },
   { subject: 'chemistry', number: 18, folder: '18', title: 'Relative formula mass', detail: 'Adding up relative atomic masses', lesson: lessonC18, sections: formulaMassSections, frames: formulaMassFrames },
+  { subject: 'chemistry', number: 19, folder: '19', title: 'Conservation of mass', detail: 'Atoms and mass are never lost or made', lesson: lessonC19, sections: massConservationSections, frames: massConservationFrames },
+  { subject: 'chemistry', number: 20, folder: '20', title: 'When mass seems to change', detail: 'Gases entering or leaving an unsealed container', lesson: lessonC20, sections: gasMassSections, frames: gasMassFrames },
+  { subject: 'chemistry', number: 21, folder: '21', title: 'Concentration of solutions', detail: 'Grams per decimetre cubed and finding a mass', lesson: lessonC21, sections: concentrationSections, frames: concentrationFrames },
+  { subject: 'chemistry', number: 22, folder: '22', title: 'Acids, alkalis and pH', detail: 'The pH scale, indicators and neutralisation', lesson: lessonC22, sections: acidSections, frames: acidFrames },
+  { subject: 'chemistry', number: 23, folder: '23', title: 'Reactions of acids and making salts', detail: 'Salts from oxides, hydroxides and carbonates', lesson: lessonC23, sections: saltSections, frames: saltFrames },
 ]
 
 export const scienceSubjects = [
