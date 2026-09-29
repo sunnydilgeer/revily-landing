@@ -7,4 +7,5 @@ import { scienceLessons, type LessonNumber } from './lessonNavigation'
 
 export type ScienceSection = { id: string; label: string; detail?: string }
 
+// Biology only, keyed by Biology lesson number (used by scripts/check-science-lesson.cjs as a fallback).
 export const scienceLessonSections = Object.fromEntries(scienceLessons.map(item => [item.number, item.sections])) as unknown as Record<LessonNumber, readonly ScienceSection[]>

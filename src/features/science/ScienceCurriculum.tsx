@@ -8,37 +8,41 @@ import { useEffect, useState } from 'react'
 import { Button } from '../../ui'
 import TodayCard from '../maths/TodayCard'
 import type { StudySummary } from '../maths/useStudy'
-import { scienceLessonHref, type LessonNumber } from './lessonNavigation'
-import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceCatalogue, scienceUnits, sectionStatus, type ScienceLessonStatus } from './scienceProgress'
+import { scienceSubjectLessonHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
+import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceCatalogue, scienceUnits, sectionStatus, type ScienceProgressMap } from './scienceProgress'
 import '../maths/Curriculum.css'
 import './ScienceCurriculum.css'
 
 // Science lessons still open in the Science lesson player for now.
-function onOpenLesson(number: LessonNumber) {
-  saveScienceLastLesson(number)
-  window.location.assign(scienceLessonHref(number))
+function onOpenLesson(entry: ScienceCatalogueEntry) {
+  saveScienceLastLesson(entry)
+  window.location.assign(scienceSubjectLessonHref(entry.subject, entry.number))
 }
 
-const LATER = [{ code: 'C', title: 'Chemistry' }, { code: 'P', title: 'Physics' }]
+// A subject becomes a real section of the curriculum as soon as it has one lesson; until then it is listed here.
+const LATER = [
+  ...scienceSubjects.filter(item => item.lessons.length === 0).map(item => ({ code: item.code, title: item.title })),
+  { code: 'P', title: 'Physics' },
+]
+const shownUnits = scienceUnits.filter(unit => scienceSubjects.some(item => item.subject === unit.subject && item.lessons.length > 0))
 
 const Lock = () => <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-label="Not built yet"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
 
 export default function ScienceCurriculum({ study }: { study: StudySummary }) {
-  const [progress, setProgress] = useState<Partial<Record<LessonNumber, ScienceLessonStatus>>>({})
-  const [lastLesson, setLastLesson] = useState<LessonNumber | null>(null)
+  const [progress, setProgress] = useState<ScienceProgressMap>({})
+  const [last, setLast] = useState<ScienceCatalogueEntry | null>(null)
   useEffect(() => {
     setProgress(readScienceProgress())
-    setLastLesson(readScienceLastLesson())
+    setLast(readScienceLastLesson())
   }, [])
-  const last = scienceCatalogue.find(item => item.number === lastLesson)
-  const nextIncomplete = scienceCatalogue.find(item => !progress[item.number]?.completed)
-  const upNext = last && progress[last.number]?.started && !progress[last.number]?.completed ? last : nextIncomplete ?? last ?? scienceCatalogue[0]
-  const upNextStatus = progress[upNext.number]
-  const upNextSections = upNextStatus?.sections ?? sectionStatus(upNext.lesson, upNext.number, null)
+  const nextIncomplete = scienceCatalogue.find(item => !progress[item.lesson.id]?.completed)
+  const upNext = last && progress[last.lesson.id]?.started && !progress[last.lesson.id]?.completed ? last : nextIncomplete ?? last ?? scienceCatalogue[0]
+  const upNextStatus = progress[upNext.lesson.id]
+  const upNextSections = upNextStatus?.sections ?? sectionStatus(upNext.lesson, upNext.sections, null)
   const current = upNextSections.findIndex(section => section.current && !section.done)
   const upNextIndex = current >= 0 ? current : Math.max(0, upNextSections.findIndex(section => !section.done))
-  const doneLessons = scienceCatalogue.filter(item => progress[item.number]?.completed).length
-  const upNextUnit = scienceUnits.find(unit => unit.lessons.some(item => item.number === upNext.number))!.code
+  const doneLessons = scienceCatalogue.filter(item => progress[item.lesson.id]?.completed).length
+  const upNextUnit = scienceUnits.find(unit => unit.lessons.includes(upNext))!.code
   // The unit you're in is open unless you fold it; others stay folded until you open them.
   const [folds, setFolds] = useState<Record<string, boolean>>({})
   const isOpen = (code: string) => folds[code] ?? code === upNextUnit
@@ -62,7 +66,7 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
           <span className="cur-kicker cur-kicker--night">{upNextStatus?.started ? 'Up next' : 'Start here'}</span>
           <h2 id="up-next-title">{upNext.title}</h2>
           {upNextSections.length > 0 && <p>Section {upNextIndex + 1} of {upNextSections.length} · {upNextSections[upNextIndex]?.title}</p>}
-          <Button size="lg" className="cur-next__go" onClick={() => onOpenLesson(upNext.number)}>
+          <Button size="lg" className="cur-next__go" onClick={() => onOpenLesson(upNext)}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>
             {upNextStatus?.started ? 'Continue' : 'Start lesson'}
           </Button>
@@ -74,10 +78,10 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
       <TodayCard study={study} />
     </div>
 
-    {scienceUnits.map(unit => {
+    {shownUnits.map(unit => {
       const open = isOpen(unit.code)
-      const doneInUnit = unit.lessons.filter(item => progress[item.number]?.completed).length
-      const summary = `${unit.lessons.length} lesson${unit.lessons.length === 1 ? '' : 's'}${doneInUnit ? ` · ${doneInUnit} done` : ''}`
+      const doneInUnit = unit.lessons.filter(item => progress[item.lesson.id]?.completed).length
+      const summary = unit.lessons.length === 0 ? 'Coming soon' : `${unit.lessons.length} lesson${unit.lessons.length === 1 ? '' : 's'}${doneInUnit ? ` · ${doneInUnit} done` : ''}`
       if (!open) return <button key={unit.code} type="button" className="sci-unit-row" aria-expanded={false} onClick={() => toggle(unit.code)}>
         <span className="cur-chapter__num" aria-hidden="true">{unit.code}</span>
         <span className="sci-unit-row__title">{unit.title}</span>
@@ -88,7 +92,7 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
           <span className="cur-chapter__num" aria-hidden="true">{unit.code}</span>
           <div>
             <h2 id={`unit-${unit.code}`}>{unit.title}</h2>
-            <p>{summary} · Biology</p>
+            <p>{summary} · {unit.subjectTitle}</p>
           </div>
           <button type="button" className="sci-unit-fold" aria-expanded={true} onClick={() => toggle(unit.code)}>
             <span className="sr-only">Fold {unit.title}</span>
@@ -97,12 +101,12 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
         </header>
         <ol className="cur-path">
           {unit.lessons.map(item => {
-            const record = progress[item.number]
-            const sections = record?.sections ?? sectionStatus(item.lesson, item.number, null)
+            const record = progress[item.lesson.id]
+            const sections = record?.sections ?? sectionStatus(item.lesson, item.sections, null)
             const doneSections = sections.filter(section => section.done).length
-            const status = record?.completed ? 'done' : item.number === upNext.number ? 'next' : record?.started ? 'progress' : 'todo'
+            const status = record?.completed ? 'done' : item === upNext ? 'next' : record?.started ? 'progress' : 'todo'
             const action = status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'
-            return <li className={`cur-lesson is-${status}`} key={item.number}>
+            return <li className={`cur-lesson is-${status}`} key={item.lesson.id}>
               <span className="cur-lesson__node" aria-hidden="true">{status === 'done' ? '✓' : item.number}</span>
               <div className="cur-lesson__body">
                 <h3>{item.title}</h3>
@@ -112,7 +116,7 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
                   <small>{doneSections} / {sections.length} sections</small>
                 </div>
               </div>
-              <Button variant={status === 'next' ? 'primary' : 'secondary'} onClick={() => onOpenLesson(item.number)} aria-label={`${action} ${item.title}`}>{action}</Button>
+              <Button variant={status === 'next' ? 'primary' : 'secondary'} onClick={() => onOpenLesson(item)} aria-label={`${action} ${item.title}`}>{action}</Button>
             </li>
           })}
         </ol>

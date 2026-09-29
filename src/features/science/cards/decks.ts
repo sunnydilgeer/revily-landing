@@ -1,9 +1,9 @@
 /*
  * Science revision decks: one per lesson, in course order. Each section contributes its authored key
- * facts (facts/<folder>.ts), and each lesson adds a few of its own questions that work as flashcards.
+ * facts (facts/<folder>.ts; Chemistry facts/chemistry/<folder>.ts), and each lesson adds a few of its own questions that work as flashcards.
  * A section's cards join Today's cards once the student has finished that section.
  */
-import { scienceLessons } from '../lessonNavigation'
+import { allScienceLessons, type ScienceSubject } from '../lessonNavigation'
 import type { ChoiceState } from '../types'
 import { scienceFacts } from './facts'
 
@@ -19,10 +19,11 @@ export type ScienceCard = {
   note?: string
 }
 
-export type ScienceDeck = { lessonId: string; number: number; title: string; cards: ScienceCard[] }
+/** `number` is the lesson's number within its subject; key on `lessonId`. */
+export type ScienceDeck = { lessonId: string; subject: ScienceSubject; number: number; title: string; cards: ScienceCard[] }
 
 export function buildScienceDecks(): ScienceDeck[] {
-  return scienceLessons.map(entry => {
+  return allScienceLessons.map(entry => {
     const set = scienceFacts[entry.lesson.id]
     const states = entry.lesson.states
     const sectionOf = (stateId: string) => {
@@ -37,6 +38,6 @@ export function buildScienceDecks(): ScienceDeck[] {
       const section = sectionOf(id)
       return { id: `sq-${id}`, lessonId: entry.lesson.id, section: section.id, sectionTitle: section.label, kind: 'recall', front: state.title, back: state.explanation.answer, note: set?.recallNotes?.[id] ?? state.explanation.steps.join(' ') }
     })
-    return { lessonId: entry.lesson.id, number: entry.number, title: entry.title, cards: [...facts, ...recall] }
+    return { lessonId: entry.lesson.id, subject: entry.subject, number: entry.number, title: entry.title, cards: [...facts, ...recall] }
   })
 }

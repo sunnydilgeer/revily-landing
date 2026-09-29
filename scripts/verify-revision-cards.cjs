@@ -88,7 +88,7 @@ assert.deepEqual(legacyCompleted(sections, 9, 3), ['a'])
 
 // ---------- Science decks: separate from Maths, one per lesson, every taught section covered ----------
 module.paths.unshift(path.join(root, 'node_modules'))
-const { scienceLessons } = require(path.join(root, 'src/features/science/lessonNavigation.ts'))
+const { allScienceLessons: scienceLessons } = require(path.join(root, 'src/features/science/lessonNavigation.ts'))
 const { buildScienceDecks } = require(path.join(root, 'src/features/science/cards/decks.ts'))
 const { scienceFacts } = require(path.join(root, 'src/features/science/cards/facts/index.ts'))
 const { CARDS_KEY, SCIENCE_CARDS_KEY } = require(path.join(root, 'src/features/cards/schedule.ts'))

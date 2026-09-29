@@ -6,13 +6,14 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { progress } from './engine'
-import { scienceChapters, scienceHubHref, scienceLessonHref, scienceLessonNumberById, scienceLessons, TRANSPORT_EXAM_LESSON_ID, type LessonNumber } from './lessonNavigation'
+import { getScienceLesson, scienceChaptersFor, scienceHubHref, scienceLessonHref, scienceLessonNumberById, scienceLessonsFor, scienceSubjectLessonHref, scienceSubjectTitle, TRANSPORT_EXAM_LESSON_ID, type ScienceSubject } from './lessonNavigation'
 import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
 
 type Props = {
   open: boolean
-  lessonNumber: LessonNumber
+  subject: ScienceSubject
+  lessonNumber: number
   chapterTitle: string
   session: PreviewSession
   storageAvailable: boolean
@@ -31,7 +32,7 @@ const TRANSPORT_STORY = [
 
 const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
 
-export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle, session, storageAvailable, onClose, onJump, onRestart }: Props) {
+export default function ScienceContentsDrawer({ open, subject, lessonNumber, chapterTitle, session, storageAvailable, onClose, onJump, onRestart }: Props) {
   const drawerRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const [confirmRestart, setConfirmRestart] = useState(false)
@@ -59,9 +60,10 @@ export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle
   }, [onClose, open])
 
   if (!open) return null
-  const entry = scienceLessons.find(item => item.number === lessonNumber)!
+  const entry = getScienceLesson(subject, lessonNumber)!
   const lesson = entry.lesson
-  const sections = sectionStatus(lesson, lessonNumber, session)
+  const sections = sectionStatus(lesson, entry.sections, session)
+  const subjectLessons = scienceLessonsFor(subject)
   const completion = progress(lesson, session.completedIds)
   const percent = Math.round(completion.fraction * 100)
 
@@ -69,20 +71,20 @@ export default function ScienceContentsDrawer({ open, lessonNumber, chapterTitle
     <aside className="maths-contents-drawer" id="science-contents" ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="science-contents-title">
       <header className="maths-drawer-header">
         <div>
-          <p>AQA Combined Science · Biology</p>
+          <p>AQA Combined Science · {scienceSubjectTitle(subject)}</p>
           <h2 id="science-contents-title">Contents</h2>
         </div>
         <button ref={closeButtonRef} className="maths-drawer-close" type="button" onClick={onClose} aria-label="Close contents">×</button>
       </header>
 
       <div className="maths-drawer-body">
-        {scienceChapters.map(chapter => <section className="maths-drawer-chapter" key={chapter.code} aria-labelledby={`drawer-unit-${chapter.code}`}>
+        {scienceChaptersFor(subject).map(chapter => <section className="maths-drawer-chapter" key={chapter.code} aria-labelledby={`drawer-unit-${chapter.code}`}>
           <h3 id={`drawer-unit-${chapter.code}`}>{chapter.code} · {chapter.title}</h3>
           <ol>
-            {scienceLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).map(item => {
+            {subjectLessons.filter(item => chapter.lessonNumbers.includes(item.number)).map(item => {
               const isCurrent = item.number === lessonNumber
               return <li className={isCurrent ? 'is-current' : ''} key={item.number}>
-                <a className="maths-drawer-lesson" href={isCurrent ? undefined : scienceLessonHref(item.number)} aria-current={isCurrent ? 'page' : undefined} onClick={event => { if (isCurrent) event.preventDefault() }}>
+                <a className="maths-drawer-lesson" href={isCurrent ? undefined : scienceSubjectLessonHref(item.subject, item.number)} aria-current={isCurrent ? 'page' : undefined} onClick={event => { if (isCurrent) event.preventDefault() }}>
                   <span className="maths-drawer-number" aria-hidden="true">{item.number}</span>
                   <span>{item.title}</span>
                   {isCurrent && <small>{percent}%</small>}

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { scienceChapters, scienceHubHref, scienceLessons, scienceLessonHref, scienceLessonHrefById, scienceLessonNumberById, parseScienceLesson, TRANSPORT_EXAM_LESSON_ID } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
+import { allScienceChapters, allScienceLessons, chemistryChapters, chemistryLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceChaptersFor, scienceEntryById, scienceLessonDir, scienceLessonsFor, scienceSubjectLessonHref } from './lessonNavigation'
+import { decodeScienceLastLesson, encodeScienceLastLesson, scienceUnits } from './scienceProgress'
 
 assert.deepEqual(scienceLessons.map(item => item.number), Array.from({ length: 58 }, (_, i) => i + 1))
 assert.equal(new Set(scienceLessons.map(item => item.lesson.id)).size, 58)
@@ -50,4 +52,60 @@ for (const item of scienceLessons) {
     : [s.title, s.hint, ...s.explanation.steps, s.explanation.answer, ...(s.kind === 'choice' ? s.options.map(o => o.label + ' ' + (o.feedback || '')) : [s.instruction || '', s.placeholder || ''])].join(' '))
   for (const text of [...frames, ...states]) assert.doesNotMatch(text, /\b[Ll]essons? \d/, `${item.lesson.id}: refer to other lessons by topic, not number`)
 }
-console.log('PASS one science catalogue, lesson routes, invalid query fallback and isolated saved-progress records')
+
+// ---------- Per-subject numbering: Biology unchanged, Chemistry restarts at Lesson 1 ----------
+// Biology: same numbers, same URLs, same parser, same last-lesson value as before subjects existed.
+assert.equal(scienceLessonsFor('biology'), scienceLessons)
+for (const item of scienceLessons) {
+  assert.equal(item.subject, 'biology')
+  assert.equal(item.lesson.strand, 'biology')
+  assert.equal(getScienceLesson('biology', item.number), item)
+  assert.equal(scienceSubjectLessonHref('biology', item.number), scienceLessonHref(item.number))
+  assert.equal(scienceSubjectLessonHref('biology', item.number, 'X-01'), scienceLessonHref(item.number, 'X-01'))
+  assert.deepEqual(parseScienceLessonRef(undefined, String(item.number)), { subject: 'biology', number: item.number })
+  assert.deepEqual(parseScienceLessonRef('biology', String(item.number)), { subject: 'biology', number: item.number })
+  assert.equal(scienceChapterFor(item)?.code, scienceChapters.find(chapter => (chapter.lessonNumbers as readonly number[]).includes(item.number))?.code)
+  assert.equal(scienceLessonDir(item), `lesson-${item.folder}`)
+  assert.equal(encodeScienceLastLesson(item), String(item.number))
+  assert.equal(decodeScienceLastLesson(String(item.number)), item)
+}
+assert.equal(scienceLessonHref(1), '/preview/science?lesson=1')
+assert.equal(nextScienceLesson(scienceLessons[0])?.number, 2)
+assert.equal(nextScienceLesson(scienceLessons[57]), null, 'The next-lesson chain stops at the end of a subject')
+for (const invalid of [undefined, '', '0', '59', '01', ['1']]) assert.equal(parseScienceLessonRef(undefined, invalid), null)
+for (const subject of ['physics', 'maths', '', ['chemistry']]) assert.equal(parseScienceLessonRef(subject, '1'), null)
+// Chemistry: its own chapters, even before any lesson is built; hrefs carry subject=chemistry.
+assert.deepEqual(chemistryChapters.map(chapter => [chapter.subject, chapter.code, [...chapter.lessonNumbers]]),
+  [['chemistry', 'C1a', [1, 2, 3, 4]], ['chemistry', 'C1b', [5, 6, 7]]])
+assert.equal(chemistryChapters[0].title, 'Atoms, elements, compounds and mixtures')
+assert.equal(chemistryChapters[1].title, 'The periodic table')
+assert.deepEqual(scienceChaptersFor('chemistry'), chemistryChapters)
+assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]),
+  chemistryChapters.map(chapter => [chapter.code, chemistryLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).length]))
+assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b'])
+assert.equal(scienceSubjectLessonHref('chemistry', 1), '/preview/science?subject=chemistry&lesson=1')
+assert.equal(scienceSubjectLessonHref('chemistry', 3, 'C3-02'), '/preview/science?subject=chemistry&lesson=3&activity=C3-02')
+assert.equal(encodeScienceLastLesson({ subject: 'chemistry', number: 1 }), 'chemistry:1')
+assert.equal(scienceLessonDir({ subject: 'chemistry', folder: '1' }), 'chemistry/lesson-1')
+for (const bad of [null, '', 'abc', '0', 'physics:1', 'chemistry:0', 'chemistry:99']) assert.equal(decodeScienceLastLesson(bad), null)
+// Rules every Chemistry lesson must keep once registered (they hold for an empty list too).
+assert.deepEqual(chemistryLessons.map(item => item.number), chemistryLessons.map((_, i) => i + 1), 'Chemistry lessons are numbered 1, 2, 3 … in order')
+for (const item of chemistryLessons) {
+  assert.equal(item.subject, 'chemistry')
+  assert.equal(item.lesson.strand, 'chemistry')
+  assert.match(item.lesson.id, /^C-[A-Z]+-\d{3}[A-Z]?-C$/, `${item.lesson.id} must follow C-<TOPIC>-<NNN>-C`)
+  assert.ok(scienceChapterFor(item), `Chemistry Lesson ${item.number} must be in a chemistry chapter`)
+  assert.equal(getScienceLesson('chemistry', item.number), item)
+  assert.deepEqual(parseScienceLessonRef('chemistry', String(item.number)), { subject: 'chemistry', number: item.number })
+  assert.equal(decodeScienceLastLesson(`chemistry:${item.number}`), item)
+  for (const state of item.lesson.states) assert.match(state.id, /^C\d+-\d{2}$/, `${state.id}: Chemistry screen ids are C<lesson>-NN`)
+}
+assert.equal(getScienceLesson('chemistry', 1), chemistryLessons[0] ?? null)
+assert.equal(parseScienceLessonRef('chemistry', String(chemistryLessons.length + 1)), null, 'Unbuilt Chemistry lessons fall back to the hub')
+// Across subjects: lesson ids, storage keys and screen ids never collide (numbers may).
+assert.equal(new Set(allScienceLessons.map(item => item.lesson.id)).size, allScienceLessons.length)
+assert.equal(new Set(allScienceLessons.map(item => createPreviewSessionEngine(item.lesson).storageKey)).size, allScienceLessons.length)
+for (const item of allScienceLessons) assert.equal(scienceEntryById(item.lesson.id), item)
+const allStateIds = allScienceLessons.flatMap(item => item.lesson.states.map(state => state.id))
+assert.equal(new Set(allStateIds).size, allStateIds.length, 'Screen ids are unique across every Science lesson (revision card ids use them)')
+console.log('PASS per-subject numbering (Biology unchanged, Chemistry C1a/C1b from Lesson 1), one science catalogue, lesson routes, invalid query fallback and isolated saved-progress records')
