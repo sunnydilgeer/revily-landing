@@ -128,6 +128,28 @@ import { lessonC6, electronSections } from './chemistry/lesson-6/lesson'
 import { electronFrames } from './chemistry/lesson-6/teachingFrames'
 import { lessonC7, periodicSections } from './chemistry/lesson-7/lesson'
 import { periodicFrames } from './chemistry/lesson-7/teachingFrames'
+import { lessonC8, modernTableSections } from './chemistry/lesson-8/lesson'
+import { modernTableFrames } from './chemistry/lesson-8/teachingFrames'
+import { lessonC9, alkaliSections } from './chemistry/lesson-9/lesson'
+import { alkaliFrames } from './chemistry/lesson-9/teachingFrames'
+import { lessonC10, halogenSections } from './chemistry/lesson-10/lesson'
+import { halogenFrames } from './chemistry/lesson-10/teachingFrames'
+import { lessonC11, nobleSections } from './chemistry/lesson-11/lesson'
+import { nobleFrames } from './chemistry/lesson-11/teachingFrames'
+import { lessonC12, ionSections } from './chemistry/lesson-12/lesson'
+import { ionFrames } from './chemistry/lesson-12/teachingFrames'
+import { lessonC13, ionicSections } from './chemistry/lesson-13/lesson'
+import { ionicFrames } from './chemistry/lesson-13/teachingFrames'
+import { lessonC14, covalentSections } from './chemistry/lesson-14/lesson'
+import { covalentFrames } from './chemistry/lesson-14/teachingFrames'
+import { lessonC15, giantSections } from './chemistry/lesson-15/lesson'
+import { giantFrames } from './chemistry/lesson-15/teachingFrames'
+import { lessonC16, metallicSections } from './chemistry/lesson-16/lesson'
+import { metallicFrames } from './chemistry/lesson-16/teachingFrames'
+import { lessonC17, stateSections } from './chemistry/lesson-17/lesson'
+import { stateFrames } from './chemistry/lesson-17/teachingFrames'
+import { lessonC18, formulaMassSections } from './chemistry/lesson-18/lesson'
+import { formulaMassFrames } from './chemistry/lesson-18/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -236,7 +258,9 @@ export type ScienceLessonRef = { subject: ScienceSubject; number: number }
 // Lesson ids: C-<TOPIC>-<NNN>-C (e.g. C-ATM-001-C, C-PER-005-C), NNN = the Chemistry lesson number when first built.
 export const chemistryChapters = [
   { subject: 'chemistry', code: 'C1a', title: 'Atoms, elements, compounds and mixtures', lessonNumbers: [1, 2, 3, 4] },
-  { subject: 'chemistry', code: 'C1b', title: 'The periodic table', lessonNumbers: [5, 6, 7] },
+  { subject: 'chemistry', code: 'C1b', title: 'The periodic table', lessonNumbers: [5, 6, 7, 8, 9, 10, 11] },
+  { subject: 'chemistry', code: 'C2', title: 'Bonding, structure and properties of matter', lessonNumbers: [12, 13, 14, 15, 16, 17] },
+  { subject: 'chemistry', code: 'C3', title: 'Quantitative chemistry', lessonNumbers: [18] },
 ] as const satisfies readonly ScienceChapter[]
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
@@ -247,6 +271,17 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 5, folder: '5', title: 'How the model of the atom changed', detail: 'From plum pudding to the nuclear model', lesson: lessonC5, sections: historySections, frames: historyFrames },
   { subject: 'chemistry', number: 6, folder: '6', title: 'Electronic structure', detail: 'Electrons in shells for the first 20 elements', lesson: lessonC6, sections: electronSections, frames: electronFrames },
   { subject: 'chemistry', number: 7, folder: '7', title: 'Building the periodic table', detail: 'Mendeleev, gaps, predictions and isotopes', lesson: lessonC7, sections: periodicSections, frames: periodicFrames },
+  { subject: 'chemistry', number: 8, folder: '8', title: 'The modern periodic table', detail: 'Groups, periods, metals and non-metals', lesson: lessonC8, sections: modernTableSections, frames: modernTableFrames },
+  { subject: 'chemistry', number: 9, folder: '9', title: 'Group 1: the alkali metals', detail: 'Soft, reactive metals and the trend down the group', lesson: lessonC9, sections: alkaliSections, frames: alkaliFrames },
+  { subject: 'chemistry', number: 10, folder: '10', title: 'Group 7: the halogens', detail: 'Halides, trends and displacement reactions', lesson: lessonC10, sections: halogenSections, frames: halogenFrames },
+  { subject: 'chemistry', number: 11, folder: '11', title: 'Group 0: the noble gases', detail: 'Full outer shells and rising boiling points', lesson: lessonC11, sections: nobleSections, frames: nobleFrames },
+  { subject: 'chemistry', number: 12, folder: '12', title: 'How ions form', detail: 'Losing and gaining electrons to make charged particles', lesson: lessonC12, sections: ionSections, frames: ionFrames },
+  { subject: 'chemistry', number: 13, folder: '13', title: 'Ionic bonding and ionic compounds', detail: 'Dot-and-cross diagrams, lattices and formulae', lesson: lessonC13, sections: ionicSections, frames: ionicFrames },
+  { subject: 'chemistry', number: 14, folder: '14', title: 'Covalent bonding and simple molecules', detail: 'Shared electron pairs and weak forces between molecules', lesson: lessonC14, sections: covalentSections, frames: covalentFrames },
+  { subject: 'chemistry', number: 15, folder: '15', title: 'Polymers, giant covalent structures and carbon', detail: 'Polymers, diamond, graphite, graphene and fullerenes', lesson: lessonC15, sections: giantSections, frames: giantFrames },
+  { subject: 'chemistry', number: 16, folder: '16', title: 'Metallic bonding and alloys', detail: 'Delocalised electrons and why alloys are harder', lesson: lessonC16, sections: metallicSections, frames: metallicFrames },
+  { subject: 'chemistry', number: 17, folder: '17', title: 'States of matter and changing state', detail: 'Particles in solids, liquids and gases, and state symbols', lesson: lessonC17, sections: stateSections, frames: stateFrames },
+  { subject: 'chemistry', number: 18, folder: '18', title: 'Relative formula mass', detail: 'Adding up relative atomic masses', lesson: lessonC18, sections: formulaMassSections, frames: formulaMassFrames },
 ]
 
 export const scienceSubjects = [

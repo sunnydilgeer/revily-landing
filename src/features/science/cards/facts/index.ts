@@ -65,5 +65,16 @@ import { facts as c4 } from './chemistry/4'
 import { facts as c5 } from './chemistry/5'
 import { facts as c6 } from './chemistry/6'
 import { facts as c7 } from './chemistry/7'
+import { facts as c8 } from './chemistry/8'
+import { facts as c9 } from './chemistry/9'
+import { facts as c10 } from './chemistry/10'
+import { facts as c11 } from './chemistry/11'
+import { facts as c12 } from './chemistry/12'
+import { facts as c13 } from './chemistry/13'
+import { facts as c14 } from './chemistry/14'
+import { facts as c15 } from './chemistry/15'
+import { facts as c16 } from './chemistry/16'
+import { facts as c17 } from './chemistry/17'
+import { facts as c18 } from './chemistry/18'
 
-export const scienceFacts: Record<string, ScienceFactSet> = Object.fromEntries([f1, f1b, f2, f2b, f3, f4, f5, f5b, f6, f6b, f6c, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36, f37, f38, f39, f40, f41, f42, f43, f44, f45, f46, f47, f48, f49, f50, f51, f52, f53, c1, c2, c3, c4, c5, c6, c7].map(set => [set.lessonId, set]))
+export const scienceFacts: Record<string, ScienceFactSet> = Object.fromEntries([f1, f1b, f2, f2b, f3, f4, f5, f5b, f6, f6b, f6c, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36, f37, f38, f39, f40, f41, f42, f43, f44, f45, f46, f47, f48, f49, f50, f51, f52, f53, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18].map(set => [set.lessonId, set]))

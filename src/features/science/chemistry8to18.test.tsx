@@ -10,18 +10,28 @@ import { evidenceProfile, gradeResponse, progress, recommendedNext } from './eng
 import { chemistryLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceLessonDir, scienceSubjectLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { scienceUnits } from './scienceProgress'
-import { lessonC2, compoundSections } from './chemistry/lesson-2/lesson'
-import { compoundFrames } from './chemistry/lesson-2/teachingFrames'
-import { lessonC3, mixtureSections } from './chemistry/lesson-3/lesson'
-import { mixtureFrames } from './chemistry/lesson-3/teachingFrames'
-import { lessonC4, separationSections } from './chemistry/lesson-4/lesson'
-import { separationFrames } from './chemistry/lesson-4/teachingFrames'
-import { lessonC5, historySections } from './chemistry/lesson-5/lesson'
-import { historyFrames } from './chemistry/lesson-5/teachingFrames'
-import { lessonC6, electronSections } from './chemistry/lesson-6/lesson'
-import { electronFrames } from './chemistry/lesson-6/teachingFrames'
-import { lessonC7, periodicSections } from './chemistry/lesson-7/lesson'
-import { periodicFrames } from './chemistry/lesson-7/teachingFrames'
+import { lessonC8, modernTableSections } from './chemistry/lesson-8/lesson'
+import { modernTableFrames } from './chemistry/lesson-8/teachingFrames'
+import { lessonC9, alkaliSections } from './chemistry/lesson-9/lesson'
+import { alkaliFrames } from './chemistry/lesson-9/teachingFrames'
+import { lessonC10, halogenSections } from './chemistry/lesson-10/lesson'
+import { halogenFrames } from './chemistry/lesson-10/teachingFrames'
+import { lessonC11, nobleSections } from './chemistry/lesson-11/lesson'
+import { nobleFrames } from './chemistry/lesson-11/teachingFrames'
+import { lessonC12, ionSections } from './chemistry/lesson-12/lesson'
+import { ionFrames } from './chemistry/lesson-12/teachingFrames'
+import { lessonC13, ionicSections } from './chemistry/lesson-13/lesson'
+import { ionicFrames } from './chemistry/lesson-13/teachingFrames'
+import { lessonC14, covalentSections } from './chemistry/lesson-14/lesson'
+import { covalentFrames } from './chemistry/lesson-14/teachingFrames'
+import { lessonC15, giantSections } from './chemistry/lesson-15/lesson'
+import { giantFrames } from './chemistry/lesson-15/teachingFrames'
+import { lessonC16, metallicSections } from './chemistry/lesson-16/lesson'
+import { metallicFrames } from './chemistry/lesson-16/teachingFrames'
+import { lessonC17, stateSections } from './chemistry/lesson-17/lesson'
+import { stateFrames } from './chemistry/lesson-17/teachingFrames'
+import { lessonC18, formulaMassSections } from './chemistry/lesson-18/lesson'
+import { formulaMassFrames } from './chemistry/lesson-18/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { EvidenceDimension, ScienceLesson, ScienceState } from './types'
@@ -33,19 +43,24 @@ const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
-type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C1a' | 'C1b' }
+type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C1b' | 'C2' | 'C3' }
 const cases: Case[] = [
-  { number: 2, lesson: lessonC2, sections: compoundSections, frames: compoundFrames, title: 'Compounds and chemical equations', chapter: 'C1a' },
-  { number: 3, lesson: lessonC3, sections: mixtureSections, frames: mixtureFrames, title: 'Mixtures and chromatography', chapter: 'C1a' },
-  { number: 4, lesson: lessonC4, sections: separationSections, frames: separationFrames, title: 'Filtration, crystallisation and distillation', chapter: 'C1a' },
-  { number: 5, lesson: lessonC5, sections: historySections, frames: historyFrames, title: 'How the model of the atom changed', chapter: 'C1b' },
-  { number: 6, lesson: lessonC6, sections: electronSections, frames: electronFrames, title: 'Electronic structure', chapter: 'C1b' },
-  { number: 7, lesson: lessonC7, sections: periodicSections, frames: periodicFrames, title: 'Building the periodic table', chapter: 'C1b' },
+  { number: 8, lesson: lessonC8, sections: modernTableSections, frames: modernTableFrames, title: 'The modern periodic table', chapter: 'C1b' },
+  { number: 9, lesson: lessonC9, sections: alkaliSections, frames: alkaliFrames, title: 'Group 1: the alkali metals', chapter: 'C1b' },
+  { number: 10, lesson: lessonC10, sections: halogenSections, frames: halogenFrames, title: 'Group 7: the halogens', chapter: 'C1b' },
+  { number: 11, lesson: lessonC11, sections: nobleSections, frames: nobleFrames, title: 'Group 0: the noble gases', chapter: 'C1b' },
+  { number: 12, lesson: lessonC12, sections: ionSections, frames: ionFrames, title: 'How ions form', chapter: 'C2' },
+  { number: 13, lesson: lessonC13, sections: ionicSections, frames: ionicFrames, title: 'Ionic bonding and ionic compounds', chapter: 'C2' },
+  { number: 14, lesson: lessonC14, sections: covalentSections, frames: covalentFrames, title: 'Covalent bonding and simple molecules', chapter: 'C2' },
+  { number: 15, lesson: lessonC15, sections: giantSections, frames: giantFrames, title: 'Polymers, giant covalent structures and carbon', chapter: 'C2' },
+  { number: 16, lesson: lessonC16, sections: metallicSections, frames: metallicFrames, title: 'Metallic bonding and alloys', chapter: 'C2' },
+  { number: 17, lesson: lessonC17, sections: stateSections, frames: stateFrames, title: 'States of matter and changing state', chapter: 'C2' },
+  { number: 18, lesson: lessonC18, sections: formulaMassSections, frames: formulaMassFrames, title: 'Relative formula mass', chapter: 'C3' },
 ]
 
 for (const { number, lesson, sections, frames, title, chapter } of cases) {
   check(`${lesson.id}: metadata, source links, sections and sampled requirements`, () => {
-    assert.match(lesson.id, new RegExp(`^C-[A-Z]{3}-00${number}-C$`))
+    assert.match(lesson.id, new RegExp(`^C-[A-Z]{3}-${String(number).padStart(3, '0')}-C$`))
     assert.equal(lesson.title, title)
     assert.equal(lesson.strand, 'chemistry')
     assert.equal(lesson.contentVersion, '0.1.0')
@@ -56,9 +71,9 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
     const contexts = lesson.states.flatMap(state => state.kind === 'teaching' ? [] : [state.contextId])
     assert.equal(new Set(contexts).size, contexts.length)
     const sourceIds = lesson.sources.map(source => source.id)
-    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.1\.\d\.\d/.test(source.locator)))
+    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.[1-3]\.\d\.\d/.test(source.locator)))
     lesson.states.forEach(state => {
-      assert.ok(state.specRefs.length && state.specRefs.every(ref => ref.startsWith('5.1.')), `${state.id}: spec refs`)
+      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.[1-3]\./.test(ref)), `${state.id}: spec refs`)
       state.sourceIds.forEach(sourceId => assert.ok(sourceIds.includes(sourceId)))
     })
     assert.equal(sections[0].id, lesson.states[0].id)
@@ -199,12 +214,13 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
   })
 }
 
-check('Chemistry catalogue: Lessons 1–7 open the course, C1a holds 1–4, Lesson 7 leads on to Lesson 8', () => {
-  assert.deepEqual(chemistryLessons.slice(0, 7).map(item => item.number), [1, 2, 3, 4, 5, 6, 7])
-  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => unit.code).slice(0, 2), ['C1a', 'C1b'])
-  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 7)!)?.number, 8)
+check('Chemistry catalogue: Lessons 1–18, C1b holds 5–11, C2 holds 12–17, C3 holds 18, Lesson 18 is the last', () => {
+  assert.deepEqual(chemistryLessons.map(item => item.number), Array.from({ length: 18 }, (_, i) => i + 1))
+  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]), [['C1a', 4], ['C1b', 7], ['C2', 6], ['C3', 1]])
+  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 18)!), null)
+  assert.equal(parseScienceLessonRef('chemistry', '19'), null)
   const cards = buildScienceDecks().flatMap(item => item.cards.map(card => card.id))
   assert.equal(new Set(cards).size, cards.length)
 })
 
-console.log(`${checks} Chemistry Lessons 2–7 checks passed`)
+console.log(`${checks} Chemistry Lessons 8–18 checks passed`)
