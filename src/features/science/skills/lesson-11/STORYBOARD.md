@@ -50,7 +50,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - **No further than the data** (`wsconclude-limit`): Your conclusion must match the data you have. It must not go any further. The ball test used one ball and three surfaces. You cannot conclude that every ball bounces higher on wood than on grass. Other balls and other surfaces might give different results.
 - **Back it up with numbers** (`wsconclude-justify`): You should also use your results to justify your conclusion. This means backing it up with the data. Here the ball bounced 21 cm higher on average on wood than on carpet, because 62 − 41 = 21. Numbers make a conclusion much more convincing.
 
-### W11-03 Guided choice: Bean plants given plant food A grew a mean of 14 mm. Plants given food B grew a mean of 9 mm. Which conclusion matches this data?
+### W11-03 Guided choice: Bean plants grew a mean of 14 mm with food A and 9 mm with food B. Which conclusion matches?
 - Options: Food A makes every type of plant grow more | These bean plants grew more with food A than with food B | Food B stops plants growing | Plant food is good for people
 - Answer: These bean plants grew more with food A than with food B
 - Hint: Only say what the data shows, about these plants.
@@ -67,7 +67,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - **Supports** (`wsconclude-support`): The bounce heights fell from wood to carpet to sand, so the data matches the hypothesis. We say the data supports the hypothesis for these surfaces. The word supports is careful. One investigation does not prove a hypothesis for ever.
 - **Does not support** (`wsconclude-notsupport`): Now imagine the ball had bounced highest on sand. The data would not match the hypothesis. You would say the data does not support it. You should still report what you found and suggest a reason.
 
-### W11-06 Guided choice: Hypothesis: warmer water dissolves sugar faster. Times were 90 s at 20 °C, 45 s at 40 °C and 20 s at 60 °C. What is the conclusion?
+### W11-06 Guided choice: Warmer water should dissolve sugar faster. Times were 90 s, 45 s and 20 s at 20, 40 and 60 °C. Conclusion?
 - Options: The data supports the hypothesis for these temperatures | The data does not support the hypothesis | The data proves that all solids dissolve faster in warm water | The data shows the temperature had no effect
 - Answer: The data supports the hypothesis for these temperatures
 - Hint: Compare the pattern in the times with what the hypothesis says.
@@ -85,7 +85,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Ask what could be affecting both things.
 - Why: Sunny weather makes people buy ice cream and spend time in the sun. The two are correlated, but ice cream does not cause sunburn.
 
-### W11-09 Guided choice: A small study finds a link between birth month and running speed. Other scientists repeat it and find no link. What is the explanation?
+### W11-09 Guided choice: A study finds a link between birth month and running speed. Repeats find no link. What is the explanation?
 - Options: A third variable | It was probably chance | Birth month causes speed | The runners were cheating
 - Answer: It was probably chance
 - Hint: If others cannot repeat the correlation, it may have been a fluke.
@@ -104,26 +104,26 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Why: Sandpaper had the highest time, 3.4 s. The other statements go beyond this data.
 - Visual: `wsconclude-q-table` (assessment view)
 
-### W11-12 Independent choice: The graph shows a correlation between shoe size and reading score in children aged 5 to 12. What is the most likely explanation?
+### W11-12 Independent choice: The graph shows a correlation between the shoe size of children and reading score. What is the most likely explanation?
 - Options: Big feet cause better reading | Age affects both shoe size and reading score | Reading makes feet grow | It is only chance
 - Answer: Age affects both shoe size and reading score
 - Hint: Think about what changes for both variables as children get older.
 - Why: Older children have bigger feet and have also learned more reading. Age is the third variable behind both.
 - Visual: `wsconclude-q-scatter` (assessment view)
 
-### W11-13 Independent choice: A student changes only the voltage across a wire, keeps everything else the same, and finds that more voltage gives more current. What can they conclude?
+### W11-13 Independent choice: A student changes only the voltage across a wire. More voltage gives more current. Everything else was controlled. What can they conclude?
 - Options: The result is only chance | A third variable caused the change | No conclusion is possible | The increase in voltage caused the increase in current
 - Answer: The increase in voltage caused the increase in current
 - Hint: The other variables were controlled.
 - Why: Because all other variables were controlled, the change in voltage can be linked to the change in current. This is the situation in which you can conclude a cause.
 
-### W11-14 Independent choice: Hypothesis: adding salt lowers the freezing point of water. Water froze at 0 °C, then at −3 °C with 5 g of salt and −6 °C with 10 g. Which is the best conclusion?
+### W11-14 Independent choice: Salt should lower water freezing points. Freezing points: 0 °C, −3 °C with 5 g salt, −6 °C with 10 g. Conclusion?
 - Options: The data supports the hypothesis for the amounts of salt tested | The data proves salt lowers the freezing point of every liquid | The data does not support the hypothesis | Salt makes water hotter
 - Answer: The data supports the hypothesis for the amounts of salt tested
 - Hint: Say whether the data supports the idea, but stay inside the data.
 - Why: The freezing point falls as more salt is added, so the data supports the hypothesis. The data covers water and these amounts of salt only.
 
-### W11-15 Written task (teacher marked): A school finds that pupils with higher attendance get higher test scores. A student says attending more causes higher scores. Is this the only conclusion?
+### W11-15 Written task (teacher marked): Pupils with higher attendance get higher test scores. A student says attendance causes this. Is that the only possible conclusion?
 - Hint: Think about the three reasons for a correlation.
 - Model answer: It is a correlation, but a correlation does not always mean cause. Another factor, such as how motivated the pupils are, could affect both attendance and scores. It could also be chance. To show that attendance causes higher scores, the school would need to control other variables and test it fairly.
 - Points: Says there is a correlation between attendance and scores. / Says a correlation does not always mean one variable causes the other. / Gives a possible third variable, such as motivation or health. / Says other variables would need to be controlled to show a cause.

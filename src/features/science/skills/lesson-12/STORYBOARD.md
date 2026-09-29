@@ -40,7 +40,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 
 ## States in full
 
-### W12-01 Guided choice: You time a falling ball three times with a stopwatch. The times are 1.2 s, 1.3 s and 1.2 s. Why do they differ?
+### W12-01 Guided choice: You time a falling ball three times: 1.2 s, 1.3 s and 1.2 s. Why do the times differ?
 - Options: The ball changed its mass | Measurements always have a little uncertainty | The stopwatch is broken | Gravity changed
 - Answer: Measurements always have a little uncertainty
 - Hint: Think about reaction time when you press the button.
@@ -58,7 +58,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Find the range first, then halve it.
 - Why: Range = 18.6 − 18.0 = 0.6 °C. Uncertainty = 0.6 ÷ 2 = 0.3 °C, so the mean is 18.3 ± 0.3 °C.
 
-### W12-04 Guided choice: Two students time the same trolley. Student X’s repeats are close together. Student Y’s are spread out. Whose mean has the higher uncertainty?
+### W12-04 Guided choice: Student X’s repeat times are close together. Student Y’s are spread out. Whose mean has the higher uncertainty?
 - Options: Student Y, whose results are less precise | Student X, whose results are close together | They are the same | Neither has any uncertainty
 - Answer: Student Y, whose results are less precise
 - Hint: The less precise the results, the higher the uncertainty.
@@ -99,7 +99,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: An evaluation looks back over the whole investigation.
 - Why: An evaluation comments on the method and the quality of the results. It also says how confident you are and how to improve.
 
-### W12-11 Independent choice: Three readings of gas volume are 48, 52 and 50 cm³. The mean is 50 cm³. What is the uncertainty of the mean?
+### W12-11 Independent choice: Gas volume readings are 48, 52 and 50 cm³, with a mean of 50 cm³. What is the uncertainty?
 - Options: ± 4 cm³ | ± 2 cm³ | ± 1 cm³ | ± 8 cm³
 - Answer: ± 2 cm³
 - Hint: Find the range first, then halve it.
@@ -124,7 +124,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: A good evaluation gives reasons and says how confident you are.
 - Why: This comment refers to the results, the uncertainty and the method. It also says how confident the student is and why.
 
-### W12-15 Written task (teacher marked): A student tests plants at 10, 20 and 30 °C, with one plant per temperature. The tallest grew at 20 °C. Evaluate this and suggest two improvements.
+### W12-15 Written task (teacher marked): One plant grew at each of 10, 20 and 30 °C. The tallest was at 20 °C. Evaluate and suggest two improvements.
 - Hint: Comment on the number of repeats, the intervals and the fair test.
 - Model answer: There is only one plant at each temperature, so the results cannot be checked for repeatability or anomalous results. Two improvements are to use several plants at each temperature and take a mean, and to test more temperatures close to 20 °C, such as 16, 18, 20, 22 and 24 °C. I should also keep light and water the same. I am not very confident that 20 °C is best.
 - Points: Says one plant per temperature is not enough, or cannot check for anomalous results. / Suggests repeating with more plants and using the mean. / Suggests more temperatures around 20 °C, or narrower intervals. / Says how confident they are in the conclusion, or mentions controlling other variables.

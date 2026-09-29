@@ -79,7 +79,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Divide both sides by the quantity that multiplies t.
 - Why: Divide both sides by v to get s ÷ v = t. So t = s ÷ v.
 
-### W10-07 Guided choice: A moving ball has Ek = 45 J and v = 3 m/s. Use m = 2 × Ek ÷ v² to find its mass.
+### W10-07 Guided choice: A ball has Ek = 45 J and v = 3 m/s. Find m using m = 2 × Ek ÷ v².
 - Options: 5 kg | 10 kg | 30 kg | 15 kg
 - Answer: 10 kg
 - Hint: Work out v² first, then double Ek and divide.
@@ -100,7 +100,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - **Inverse proportion** (`wsmaths-inverse`): In inverse proportion, when one variable increases the other decreases in the same ratio. Double one and the other halves. Take a journey of 60 km. At double the speed the journey takes half the time. Speed and time are inversely proportional.
 - **The proportional symbol** (`wsmaths-symbol`): The symbol ∝ means is proportional to. For direct proportion write A ∝ B. For inverse proportion write A ∝ 1 ÷ B. In a table, check how the numbers change. If B doubles and A doubles, it is direct. If B doubles and A halves, it is inverse.
 
-### W10-11 Guided choice: A trolley journey is 24 m long. The speed is doubled. What happens to the time, if speed and time are inversely proportional?
+### W10-11 Guided choice: Speed and time are inversely proportional. If the speed of a trolley is doubled, what happens to the time?
 - Options: It doubles | It stays the same | It is four times bigger | It halves
 - Answer: It halves
 - Hint: In inverse proportion, one goes up as the other goes down.
@@ -112,7 +112,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Move the decimal point until the number is between 1 and 10, then count the places.
 - Why: The point moves 4 places to the right to give 3.2. It is a number less than 1, so the power is −4: 3.2 × 10⁻⁴ kg.
 
-### W10-13 Independent choice: A moving cyclist has Ek = 24 J and v = 2 m/s. Use m = 2 × Ek ÷ v² to find the mass.
+### W10-13 Independent choice: A cyclist has Ek = 24 J and v = 2 m/s. Find m using m = 2 × Ek ÷ v².
 - Options: 6 kg | 24 kg | 12 kg | 48 kg
 - Answer: 12 kg
 - Hint: Work out v² first, then use the formula.
@@ -131,7 +131,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: The calculator divides before it adds unless brackets tell it not to.
 - Why: Without brackets, 6 ÷ 3 is worked out first, giving 12 + 2 = 14. With brackets, 18 ÷ 3 = 6, so the answers differ.
 
-### W10-16 Written task (teacher marked): A student rearranges F = m × a and writes a = m ÷ F. Explain the mistake and give the correct rearrangement.
+### W10-16 Written task (teacher marked): A student rearranges F = m × a as a = m ÷ F. Explain the mistake and give the correct rearrangement.
 - Hint: Say what to do to both sides to get a on its own.
 - Model answer: The student has not done the same thing to both sides. Because m is multiplying a, both sides should be divided by m. This gives F ÷ m = a. So the correct rearrangement is a = F ÷ m.
 - Points: Says that you must do the same to both sides. / Says to divide both sides by m, as m multiplies a. / Gives the correct rearrangement a = F ÷ m. / Explains that a = m ÷ F is wrong.
