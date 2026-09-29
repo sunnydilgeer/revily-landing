@@ -112,8 +112,10 @@ import { lesson51, biodiversitySections } from './lesson-51/lesson'
 import { biodiversityFrames } from './lesson-51/teachingFrames'
 import { lesson52, warmingSections } from './lesson-52/lesson'
 import { warmingFrames } from './lesson-52/teachingFrames'
+import { lesson53, protectSections } from './lesson-53/lesson'
+import { protectFrames } from './lesson-53/teachingFrames'
 
-export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57
+export type LessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58
 export const scienceChapters = [
   { code: 'B1', title: 'Cell biology', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
   { code: 'B2', title: 'Organisation', lessonNumbers: [12, 13, 14, 15, 16, 17] },
@@ -124,9 +126,9 @@ export const scienceChapters = [
   { code: 'B5', title: 'Homeostasis and response', lessonNumbers: [35, 36, 37, 38, 39, 40, 41] },
   { code: 'B6', title: 'Inheritance', lessonNumbers: [42, 43, 44, 45] },
   { code: 'B6b', title: 'Variation and evolution', lessonNumbers: [46, 47, 48, 49, 50] },
-  { code: 'B7', title: 'Ecology', lessonNumbers: [51, 52, 53, 54, 55, 56, 57] },
+  { code: 'B7', title: 'Ecology', lessonNumbers: [51, 52, 53, 54, 55, 56, 57, 58] },
 ] as const
-// The Science catalogue: 57 Biology lessons in teaching order. `number` is the position students see;
+// The Science catalogue: 58 Biology lessons in teaching order. `number` is the position students see;
 // `folder` is the source folder (e.g. lesson-1b). Code about one particular lesson should key on `lesson.id`.
 export const scienceLessons = [
   { number: 1, folder: '1', title: 'Animal and plant cells', detail: 'Cell parts, and what is new in a plant cell', lesson: lesson1, sections: cellsSections, frames: cellsFrames },
@@ -186,6 +188,7 @@ export const scienceLessons = [
   { number: 55, folder: '50', title: 'The water and carbon cycles', detail: 'How water and carbon are recycled, and the role of decay', lesson: lesson50, sections: cyclesSections, frames: cyclesFrames },
   { number: 56, folder: '51', title: 'Biodiversity and waste', detail: 'Why variety matters, and how people and pollution reduce it', lesson: lesson51, sections: biodiversitySections, frames: biodiversityFrames },
   { number: 57, folder: '52', title: 'Global warming and land use', detail: 'Greenhouse gases, their effects, and deforestation', lesson: lesson52, sections: warmingSections, frames: warmingFrames },
+  { number: 58, folder: '53', title: 'Protecting ecosystems and biodiversity', detail: 'Breeding programmes, hedgerows, habitats, recycling and rules', lesson: lesson53, sections: protectSections, frames: protectFrames },
 ] as const
 export function scienceLessonNumberById(id: string): LessonNumber | null {
   return (scienceLessons.find(item => item.lesson.id === id)?.number as LessonNumber | undefined) ?? null

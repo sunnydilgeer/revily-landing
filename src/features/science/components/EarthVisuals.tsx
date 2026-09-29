@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react'
 import { Diagram, Arrow, Label, Badge, blob, seeded } from './InfectionVisuals'
 
-// Chapter B7 (Lessons 55–57): the water and carbon cycles, biodiversity, waste, global warming and land use. Original, code-native schematics. Not to scale.
+// Chapter B7 (Lessons 55–58): the water and carbon cycles, biodiversity, waste, global warming, land use and protecting biodiversity. Original, code-native schematics. Not to scale.
 // Focus ids start with 'earth-'.
 // Colour code (same as the rest of the course): yellow = energy from the Sun, blue = water, purple = carbon dioxide,
 // amber = food and carbon compounds, green = plants, olive = decay microorganisms, brown = soil and mineral ions, orange = energy given off by the Earth, grey = smoke.
@@ -681,6 +681,244 @@ function Forest({ focus, assessment }: { focus: string; assessment: boolean }) {
   </Diagram>
 }
 
+// ---------- Lesson 58: protecting ecosystems and biodiversity ----------
+const help = leafLine, risk = '#c8505a', people = '#3f6f93'
+// A generic endangered tortoise, facing right, standing on y = 0.
+function Tortoise({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return <g transform={`translate(${x} ${y}) scale(${s})`} strokeLinejoin="round">
+    <path d="M-14 -2V4M8 -2V4" stroke="#6f7d45" strokeWidth="5" strokeLinecap="round" />
+    <path d="M-20 -4L-26 -2L-20 0Z" fill="#b7c48a" stroke="#6f7d45" strokeWidth="1.2" />
+    <path d="M18 -8Q24 -16 30 -12Q34 -6 28 -3Q22 -2 18 -4Z" fill="#b7c48a" stroke="#6f7d45" strokeWidth="1.5" /><circle cx="27" cy="-10" r="1.5" fill={ink} />
+    <path d="M-20 -2Q-18 -26 0 -26Q18 -26 20 -2Z" fill="#d6b877" stroke="#8a6a3a" strokeWidth="1.8" />
+    <path d="M-8 -2L-5 -14L5 -14L8 -2M-5 -14L-11 -20M5 -14L11 -20M0 -26V-20" fill="none" stroke="#8a6a3a" strokeWidth="1.4" />
+  </g>
+}
+const BREED_STAGE: Record<string, number> = { 'earth-breed-wild': 1, 'earth-breed-captive': 2, 'earth-breed-backup': 3, 'earth-breed-release': 4, 'earth-breed-all': 0 }
+const BREED_KEY: KeyItem[] = [{ n: 1, lines: ['only a few left', 'in the wild'], colour: risk }, { n: 2, lines: ['bred in', 'captivity'], colour: help }, { n: 3, lines: ['released', 'into the wild'], colour: help }]
+function BreedPanel({ x, n, mode, colour, label, children }: { x: number; n: number; mode: Mode; colour: string; label: string; children: ReactNode }) {
+  const active = mode === 'active'
+  return <g opacity={mode === 'off' ? .35 : 1}>
+    <rect x={x} y={70} width="114" height="176" rx="10" fill={sky} />
+    <path d={`M${x} 200H${x + 114}V236Q${x + 114} 246 ${x + 104} 246H${x + 10}Q${x} 246 ${x} 236Z`} fill={grass} />
+    {children}
+    <rect x={x} y={70} width="114" height="176" rx="10" fill="none" stroke={active ? colour : '#cfdde7'} strokeWidth={active ? 2.5 : 1.5} />
+    <Num n={n} x={x + 18} y={88} mode={mode === 'off' ? 'on' : mode} colour={colour} />
+    <text x={x + 57} y={266} textAnchor="middle" fontSize="13" fontWeight="700" fill={active ? colour : ink}>{label}</text>
+  </g>
+}
+function Breeding({ focus }: { focus: string }) {
+  const stage = BREED_STAGE[focus] ?? 0
+  const m = (n: number): Mode => stage === 0 ? 'on' : (stage === 3 ? 2 : stage === 4 ? 3 : stage) === n ? 'active' : 'off'
+  const panel = (n: number): Mode => stage === 3 && n === 1 ? 'on' : m(n)
+  const titles: Record<number, string> = {
+    1: 'An endangered tortoise: only a few individuals are left in the wild, so the species is at risk of dying out.',
+    2: 'Some tortoises are kept in captivity, behind a fence, where they breed and their young are protected.',
+    3: 'The wild tortoises have died out, but tortoises in captivity are still alive, so the species survives.',
+    4: 'Tortoises bred in captivity are released into the wild, making the wild population bigger again.',
+    0: 'A breeding programme: an endangered species with few left in the wild is bred in captivity, then some are released into the wild.',
+  }
+  return <Diagram viewBox="0 36 540 244" title={titles[stage]}>
+    <g opacity={stage === 2 || stage === 0 ? 1 : .35}><Arrow x1={66} y1={54} x2={176} y2={54} colour={help} width={3} /></g>
+    <g opacity={stage === 4 || stage === 0 ? 1 : .35}><Arrow x1={200} y1={54} x2={306} y2={54} colour={help} width={3} /></g>
+    <BreedPanel x={8} n={1} mode={panel(1)} colour={risk} label="in the wild">
+      <Tree x={46} y={200} s={.72} seed={81} /><path d={blob(98, 194, 14, 10, 82, .12)} fill={leafFill} stroke={leafLine} strokeWidth="1.6" />
+      {stage === 3 ? <text x="65" y="226" textAnchor="middle" fontSize="13" fontWeight="700" fill={risk}>none left</text>
+        : <><Tortoise x={44} y={224} s={1} /><Tortoise x={90} y={238} s={.85} /></>}
+    </BreedPanel>
+    <BreedPanel x={130} n={2} mode={m(2)} colour={help} label="captivity">
+      {[140, 162, 184, 206, 228].map(x => <path key={x} d={`M${x + 4} 202V172`} stroke={trunkLine} strokeWidth="3" strokeLinecap="round" />)}
+      <path d="M134 180H240M134 192H240" stroke={trunk} strokeWidth="2.5" />
+      <Tortoise x={160} y={222} s={.95} /><Tortoise x={212} y={226} s={.95} />
+      {[150, 184, 220].map(x => <Tortoise key={x} x={x} y={241} s={.5} />)}
+      {stage === 3 && <text x="187" y="126" textAnchor="middle" fontSize="13" fontWeight="700" fill={help}><tspan x="187">the species</tspan><tspan x="187" dy="16">survives</tspan></text>}
+    </BreedPanel>
+    <BreedPanel x={252} n={3} mode={m(3)} colour={help} label="back in the wild">
+      <Tree x={330} y={200} s={.72} seed={83} /><path d={blob(274, 194, 14, 10, 84, .12)} fill={leafFill} stroke={leafLine} strokeWidth="1.6" />
+      {(stage === 4 || stage === 0) && <><Tortoise x={282} y={222} s={.85} /><Tortoise x={332} y={228} s={.85} /><Tortoise x={302} y={240} s={.65} /></>}
+    </BreedPanel>
+    <Key items={BREED_KEY} modes={[1, 2, 3].map(m)} y={100} gap={60} />
+  </Diagram>
+}
+
+// One field edge, seen from the side: a crop, then a field margin and a hedgerow are added.
+function Wheat({ x, h = 62 }: { x: number; h?: number }) {
+  return <g><path d={`M${x} 210V${210 - h}M${x} ${214 - h * .5}l-6 -8M${x} ${210 - h * .3}l6 -8`} stroke="#b8963c" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+    <ellipse cx={x} cy={204 - h} rx="3.8" ry="9" fill="#ecd08a" stroke="#b8963c" strokeWidth="1.4" /></g>
+}
+const MARGIN_FLOWERS: Array<[string, string]> = [['#f4b8cc', '#c7668a'], [yellow, sunLine], ['#ffffff', '#9fb3c2'], ['#f09a7c', '#b84a35']]
+function Margin({ x0, x1 }: { x0: number; x1: number }) {
+  const rand = seeded(91), items: ReactNode[] = []
+  for (let x = x0 + 5, i = 0; x < x1 - 3; x += 7, i++) {
+    const h = r1(24 + rand() * 30)
+    if (i % 2) { const [fill, line] = MARGIN_FLOWERS[i % 4 === 1 ? Math.floor(rand() * 4) : (i >> 1) % 4]
+      items.push(<g key={i}><path d={`M${x} 210V${210 - h}`} stroke={leafLine} strokeWidth="1.8" />{[0, 90, 180, 270].map(a => <circle key={a} cx={r1(x + Math.cos(a * Math.PI / 180) * 4)} cy={r1(210 - h + Math.sin(a * Math.PI / 180) * 4)} r="3.6" fill={fill} stroke={line} strokeWidth="1" />)}<circle cx={x} cy={210 - h} r="2.2" fill={sunLine} /></g>)
+    } else items.push(<path key={i} d={`M${x} 210Q${x - 4} ${210 - h * .6} ${x - 2} ${210 - h}M${x + 2} 210Q${x + 6} ${210 - h * .5} ${x + 5} ${214 - h}`} stroke="#6f9f55" strokeWidth="2" fill="none" strokeLinecap="round" />)
+  }
+  return <g>{items}</g>
+}
+function Hedge() {
+  return <g>
+    {[26, 50, 74].map(x => <path key={x} d={`M${x} 210V180`} stroke={trunkLine} strokeWidth="3.5" />)}
+    {[[30, 150, 22, 34], [56, 128, 24, 38], [78, 156, 18, 34], [40, 186, 26, 22], [70, 190, 20, 18], [48, 108, 18, 20]].map(([cx, cy, rx, ry], i) => <path key={i} d={blob(cx, cy, rx, ry, 92 + i, .14)} fill={i % 2 ? '#8fc27f' : leafFill} stroke={leafLine} strokeWidth="1.8" />)}
+    {[[34, 140], [60, 118], [80, 164], [44, 184], [24, 166], [66, 150]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="2.6" fill="#c8505a" />)}
+  </g>
+}
+function Bee({ x, y }: { x: number; y: number }) {
+  return <g transform={`translate(${x} ${y})`}><ellipse cx="-2" cy="-7" rx="4.5" ry="6" fill="white" stroke="#9fb3c2" strokeWidth="1" /><ellipse cx="4" cy="-7" rx="4.5" ry="6" fill="white" stroke="#9fb3c2" strokeWidth="1" />
+    <ellipse cx="0" cy="0" rx="8" ry="5.5" fill={yellow} stroke="#6b5220" strokeWidth="1.3" /><path d="M-2 -5V5M3 -5V5" stroke="#4a4540" strokeWidth="2" /></g>
+}
+const FARM_STAGE: Record<string, number> = { 'earth-farm-crop': 1, 'earth-farm-margin': 2, 'earth-farm-hedge': 3, 'earth-farm-all': 4, 'earth-farm-question': 0 }
+const FARM_KEY: KeyItem[] = [{ n: 1, lines: ['one crop: very', 'few species'], colour: amber }, { n: 2, lines: ['field margin'], colour: help }, { n: 3, lines: ['hedgerow'], colour: help }, { n: 4, lines: ['homes for', 'many species'], colour: help }]
+function Farm({ focus, assessment }: { focus: string; assessment: boolean }) {
+  const stage = assessment ? 0 : FARM_STAGE[focus] ?? 4
+  const q = stage === 0
+  const margin = q || stage >= 2, hedge = q || stage >= 3, animals = q || stage === 4
+  const on = (n: number) => q || stage === 4 || stage === n ? 1 : .45
+  const titles: Record<number, string> = {
+    1: 'The edge of a field that grows only wheat, right up to a fence. Very few species can live there.',
+    2: 'A strip at the edge of the field is left for wild flowers and grasses to grow. This is a field margin.',
+    3: 'Bushes planted along the edge of the field have grown into a hedgerow.',
+    4: 'The hedgerow and field margin give food and shelter to many species, such as birds, bees, butterflies and mice.',
+    0: 'The side view of the edge of a farm field, with three numbered areas.',
+  }
+  const lead = (x1: number, y1: number, x2: number, y2: number) => <g><path d={`M${x1} ${y1}L${x2} ${y2}`} stroke={ink} strokeWidth="1.5" /><circle cx={x2} cy={y2} r="2.5" fill={ink} /></g>
+  return <Diagram viewBox="0 40 540 212" title={titles[stage]}>
+    <rect x="4" y="44" width="366" height="204" rx="12" fill={sky} />
+    <Sun x={338} y={78} r={16} />
+    <path d="M4 210H370V236Q370 248 358 248H16Q4 248 4 236Z" fill={soil} stroke={soilLine} strokeWidth="1.5" />
+    <path d="M4 210H370" stroke={leafLine} strokeWidth="4" opacity=".55" />
+    <g opacity={on(1)}>{Array.from({ length: 32 }, (_, i) => 100 + i * 9).filter(x => !margin || x > 172).filter(x => x < 364).map((x, i) => <Wheat key={x} x={x} h={58 + (i % 3) * 4} />)}</g>
+    {!hedge && <g>{[22, 50, 78].map(x => <path key={x} d={`M${x} 210V178`} stroke={trunkLine} strokeWidth="3.5" strokeLinecap="round" />)}<path d="M16 186H86M16 198H86" stroke="#9aa5ae" strokeWidth="1.6" /></g>}
+    {margin && <g opacity={on(2)}><Margin x0={96} x1={172} /></g>}
+    {hedge && <g opacity={on(3)}><Hedge /></g>}
+    {animals && <g opacity={stage === 4 || q ? 1 : .45}>
+      <g transform="translate(80 110) scale(.8)"><SpeciesIcon kind="bird" /></g>
+      <g transform="translate(100 204) scale(.7)"><SpeciesIcon kind="mouse" /></g>
+      <g transform="translate(160 122) scale(.8)"><Butterfly x={0} y={0} /></g>
+      <Bee x={112} y={142} />
+    </g>}
+    {(q || hedge) && <g opacity={q || stage >= 3 ? 1 : .45}>{lead(34, 90, 44, 118)}</g>}
+    {(q || margin) && <g opacity={q || stage === 2 || stage === 4 ? 1 : .45}>{lead(134, 112, 128, 180)}</g>}
+    <g opacity={q || stage === 1 || stage === 4 ? 1 : .45}>{lead(270, 124, 262, 172)}</g>
+    {q ? <>
+      <Num n={1} x={26} y={80} mode="on" /><Num n={2} x={270} y={112} mode="on" /><Num n={3} x={134} y={100} mode="on" />
+    </> : <>
+      <Num n={1} x={270} y={112} mode={stage === 4 ? 'on' : stage === 1 ? 'active' : 'off'} colour={amber} />
+      {margin && <Num n={2} x={134} y={100} mode={stage === 4 ? 'on' : stage === 2 ? 'active' : 'off'} colour={help} />}
+      {hedge && <Num n={3} x={26} y={80} mode={stage === 4 ? 'on' : stage === 3 ? 'active' : 'off'} colour={help} />}
+      {animals && <Num n={4} x={196} y={84} mode="active" colour={help} />}
+      <Key items={FARM_KEY} modes={[1, 2, 3, 4].map(n => stage === 4 ? (n === 4 ? 'active' : 'on') : n === stage ? 'active' : 'off')} y={80} gap={46} />
+    </>}
+  </Diagram>
+}
+
+// One landscape: a rare wetland, a damaged wood and the edge of a town.
+function RecycleBin({ x, y }: { x: number; y: number }) {
+  return <g><path d={`M${x - 10} ${y - 26}H${x + 10}L${x + 8} ${y}H${x - 8}Z`} fill="#8cc47e" stroke="#3f7f36" strokeWidth="1.6" /><rect x={x - 12} y={y - 31} width="24" height="6" rx="2" fill="#6aa84f" stroke="#3f7f36" strokeWidth="1.5" />
+    <path d={`M${x - 5} ${y - 9}A6 6 0 0 1 ${x + 4} ${y - 18}M${x + 5} ${y - 16}A6 6 0 0 1 ${x - 3} ${y - 7}`} fill="none" stroke="white" strokeWidth="2.2" />
+    <path d={`M${x + 1} ${y - 21}l4 3l-5 2Z`} fill="white" /><path d={`M${x - 1} ${y - 4}l-4 -3l5 -2Z`} fill="white" /></g>
+}
+const HAB_STAGE: Record<string, number> = { 'earth-habitat-rare': 1, 'earth-habitat-protect': 2, 'earth-habitat-regrow': 3, 'earth-habitat-recycle': 4, 'earth-habitat-all': 0 }
+const HAB_KEY: KeyItem[] = [{ n: 1, lines: ['rare habitat'], colour: help }, { n: 2, lines: ['protected: a', 'nature reserve'], colour: help }, { n: 3, lines: ['habitat', 'regenerated'], colour: help }, { n: 4, lines: ['recycling: less', 'land for landfill'], colour: people }]
+function Habitats({ focus }: { focus: string }) {
+  const stage = HAB_STAGE[focus] ?? 0
+  const all = stage === 0
+  const o = (n: number) => all || stage === n ? 1 : n === 1 && stage === 2 ? 1 : faded
+  const titles: Record<number, string> = {
+    1: 'A wetland with a pond, reeds and old trees. Habitats like this are only found in a few places.',
+    2: 'The wetland is protected as a nature reserve, so it is not built on or farmed.',
+    3: 'Young trees are planted where a wood was cut down, so the habitat grows back.',
+    4: 'Homes recycle their waste, so the landfill site takes up less land and the rest is left alone.',
+    0: 'Protecting a rare wetland, regenerating a damaged wood and recycling to need less landfill all leave more habitat for other species.',
+  }
+  return <Diagram viewBox="0 50 540 222" title={titles[stage]}>
+    <rect x="4" y="54" width="366" height="192" rx="12" fill={sky} />
+    <path d="M4 200H370V234Q370 246 358 246H16Q4 246 4 234Z" fill={soil} stroke={soilLine} strokeWidth="1.5" />
+    <path d="M4 200H370" stroke={leafLine} strokeWidth="4" opacity=".55" />
+    <g opacity={o(1)}>
+      <Tree x={42} y={200} s={.9} seed={71} /><Tree x={124} y={200} s={.75} seed={72} />
+      <path d="M20 201Q82 238 148 201Z" fill={sea} stroke={waterDeep} strokeWidth="1.5" />
+      {[24, 30, 36, 132, 138, 144].map((x, i) => <path key={x} d={`M${x} 204Q${x + (i % 2 ? 2 : -2)} 186 ${x + (i % 2 ? 4 : -3)} ${166 + (i % 3) * 6}`} stroke="#6f9f55" strokeWidth="2.2" fill="none" strokeLinecap="round" />)}
+      <g transform="translate(84 186) scale(.9)"><SpeciesIcon kind="bird" /></g>
+      <Butterfly x={84} y={154} />
+    </g>
+    {(all || stage === 2) && <g><rect x="10" y="62" width="144" height="170" rx="14" fill="none" stroke={help} strokeWidth="2.5" strokeDasharray="7 5" />
+      <rect x="22" y="70" width="120" height="24" rx="6" fill="white" stroke={help} strokeWidth="1.5" /><text x="82" y="87" textAnchor="middle" fontSize="13" fontWeight="700" fill={help}>nature reserve</text></g>}
+    <g opacity={o(3)}>
+      <Tree x={174} y={200} s={.9} stump /><Tree x={238} y={200} s={.9} stump />
+      {(all || stage === 3) ? <><Tree x={200} y={200} s={.5} seed={73} /><Tree x={222} y={200} s={.42} seed={74} /><Tree x={252} y={200} s={.38} seed={75} />
+        <Arrow x1={212} y1={138} x2={212} y2={104} colour={help} width={3} /></>
+        : <path d="M190 200q10 -5 20 0t20 0" stroke={soilLine} strokeWidth="2" fill="none" />}
+    </g>
+    <g opacity={o(4)}>
+      <House x={282} y={200} w={34} />
+      {(all || stage === 4) ? <><RecycleBin x={316} y={200} />
+        <path d="M300 200Q334 132 368 200" fill="none" stroke="#83735c" strokeWidth="1.5" strokeDasharray="5 4" opacity=".7" />
+        <path d="M338 200Q353 172 368 200Z" fill="#b9a88f" stroke="#83735c" strokeWidth="1.5" />
+        {[[348, 194], [358, 193]].map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx="5" ry="3.5" fill="#3f4a52" />)}
+        {[330, 336].map(x => <path key={x} d={`M${x} 200V186`} stroke={leafLine} strokeWidth="2" />)}<circle cx="330" cy="184" r="3.6" fill="#f4b8cc" stroke="#c7668a" /><circle cx="336" cy="180" r="3.6" fill={yellow} stroke={sunLine} /></>
+        : <><path d="M300 200Q334 132 368 200Z" fill="#b9a88f" stroke="#83735c" strokeWidth="1.5" />
+          {[[316, 190], [330, 178], [344, 186], [334, 194], [354, 192]].map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx="6.5" ry="5" fill={i % 2 ? '#5b6770' : '#3f4a52'} />)}</>}
+      <text x="336" y="222" textAnchor="middle" fontSize="12" fontWeight="700" fill="#83735c">landfill</text>
+    </g>
+    <Num n={1} x={84} y={118} mode={all ? 'on' : stage === 1 ? 'active' : 'off'} colour={help} />
+    {(all || stage === 2) && <Num n={2} x={154} y={62} mode={all ? 'on' : 'active'} colour={help} />}
+    <Num n={3} x={188} y={100} mode={all ? 'on' : stage === 3 ? 'active' : 'off'} colour={help} />
+    <Num n={4} x={318} y={146} mode={all ? 'on' : stage === 4 ? 'active' : 'off'} colour={people} />
+    <Key items={HAB_KEY} modes={[1, 2, 3, 4].map(n => all ? 'on' : stage === n ? 'active' : 'off')} y={76} gap={50} />
+    {all && <text x="392" y="262" fontSize="13" fontWeight="700" fill={help}>more habitat left</text>}
+  </Diagram>
+}
+
+// Rules made by governments: fewer trees cut down, less carbon dioxide from a factory, and people who object.
+function LawNote({ x, y }: { x: number; y: number }) {
+  return <g><path d={`M${x - 13} ${y - 18}H${x + 7}L${x + 13} ${y - 12}V${y + 18}H${x - 13}Z`} fill="white" stroke={people} strokeWidth="1.8" />
+    {[-8, -2, 4].map(d => <path key={d} d={`M${x - 8} ${y + d}H${x + 8}`} stroke="#9fb3c2" strokeWidth="1.6" />)}<circle cx={x + 4} cy={y + 12} r="3.5" fill="#c8505a" /></g>
+}
+const RULES_STAGE: Record<string, number> = { 'earth-rules-forest': 1, 'earth-rules-carbon': 2, 'earth-rules-object': 3, 'earth-rules-all': 0 }
+const RULES_KEY: KeyItem[] = [{ n: 1, lines: ['law: fewer', 'trees cut down'], colour: help }, { n: 2, lines: ['law: less', 'carbon dioxide', 'released'], colour: purple }, { n: 3, lines: ['some people', 'object: cost', 'and jobs'], colour: people }]
+function Rules({ focus }: { focus: string }) {
+  const stage = RULES_STAGE[focus] ?? 0
+  const all = stage === 0
+  const o = (n: number) => all || stage === n ? 1 : faded
+  const md = (n: number): Mode => all ? 'on' : stage === n ? 'active' : 'off'
+  const titles: Record<number, string> = {
+    1: 'A law limits how many trees can be cut down, so most of the forest stays standing and keeps taking in carbon dioxide.',
+    2: 'A law limits the carbon dioxide a factory releases. The factory now releases less carbon dioxide into the air.',
+    3: 'Some people object to these rules, for example because of the cost, or because people paid to cut down trees could lose their jobs.',
+    0: 'Laws to reduce deforestation and carbon dioxide from businesses could help slow global warming, but some people object because of the cost and jobs.',
+  }
+  return <Diagram viewBox="0 0 540 272" title={titles[stage]}>
+    <rect x="4" y="4" width="366" height="262" rx="12" fill={sky} />
+    <rect x="4" y="8" width="366" height="36" rx="10" fill={purpleFill} stroke={purple} strokeWidth="1.5" />
+    <text x="187" y="31" textAnchor="middle" fontSize="14" fontWeight="700" fill={purple}>carbon dioxide in the air</text>
+    <path d="M4 236H370V256Q370 266 360 266H14Q4 266 4 256Z" fill={soil} stroke={soilLine} strokeWidth="1.5" />
+    <path d="M4 236H370" stroke={leafLine} strokeWidth="4" opacity=".55" />
+    <g opacity={o(1)}>
+      <Tree x={40} y={236} s={.9} seed={76} /><Tree x={84} y={236} s={1} seed={77} /><Tree x={128} y={236} s={.9} seed={78} /><Tree x={164} y={236} s={.8} stump />
+      <Arrow x1={62} y1={48} x2={62} y2={126} colour={purple} width={4} />
+      <LawNote x={140} y={78} /><text x="140" y="112" textAnchor="middle" fontSize="12" fontWeight="700" fill={people}>law</text>
+    </g>
+    <g opacity={o(2)}>
+      <rect x="252" y="186" width="84" height="50" fill="#d5dbe0" stroke="#7d8a95" strokeWidth="1.5" /><path d="M252 186L270 172V186L288 172V186" fill="#d5dbe0" stroke="#7d8a95" strokeWidth="1.5" />
+      <rect x="310" y="136" width="14" height="50" fill="#c3cad0" stroke="#7d8a95" strokeWidth="1.5" />
+      <Arrow x1={317} y1={132} x2={317} y2={50} colour="#e3d9f2" width={10} />
+      <Arrow x1={317} y1={132} x2={317} y2={50} colour={purple} width={2.5} />
+      <text x="330" y="100" fontSize="12" fontWeight="700" fill={purple}>less</text>
+      <LawNote x={234} y={78} /><text x="234" y="112" textAnchor="middle" fontSize="12" fontWeight="700" fill={people}>law</text>
+    </g>
+    <g opacity={o(3)}>
+      <Pictogram x={196} y={236} s={1.1} colour="#8fb3cc" /><Pictogram x={222} y={236} s={1.1} colour="#8fb3cc" />
+      <circle cx="232" cy="190" r="11" fill={amberFill} stroke={amber} strokeWidth="1.8" /><text x="232" y="195" textAnchor="middle" fontSize="13" fontWeight="700" fill={amber}>£</text>
+    </g>
+    <Num n={1} x={110} y={78} mode={md(1)} colour={help} />
+    <Num n={2} x={264} y={78} mode={md(2)} colour={purple} />
+    <Num n={3} x={188} y={180} mode={md(3)} colour={people} />
+    <Key items={RULES_KEY} modes={[1, 2, 3].map(md)} y={52} gap={68} />
+    {all && <text x="392" y="240" fontSize="13" fontWeight="700" fill={purple}><tspan x="392">could slow</tspan><tspan x="392" dy="16">global warming</tspan></text>}
+  </Diagram>
+}
+
 // ---------- Simple bar chart for invented data ----------
 function BarChart({ title, bars, yMax, yStep, yLabel, xLabel, colour = amber, fill = amberFill }: { title: string; bars: Array<[string, number]>; yMax: number; yStep: number; yLabel: string; xLabel: string; colour?: string; fill?: string }) {
   const left = 90, right = 510, top = 24, bottom = 220, h = bottom - top
@@ -714,6 +952,11 @@ export function EarthVisual({ focus, assessment = false }: { focus: string; asse
   if (focus.startsWith('earth-bog-')) return <Bog focus={focus} />
   if (focus.startsWith('earth-forest-')) return <Forest focus={focus} assessment={assessment || focus === 'earth-forest-question'} />
   if (focus === 'earth-bird-data') return <BarChart title="Bar chart: number of kinds of bird found in three areas of one forest. Untouched forest: 42; partly cleared: 25; cleared for farming: 8. Invented data." bars={[['untouched forest', 42], ['partly cleared', 25], ['cleared for farming', 8]]} yMax={50} yStep={10} yLabel="kinds of bird found" xLabel="area of the forest" colour={leafLine} fill="#dcefd3" />
+  if (focus.startsWith('earth-breed-')) return <Breeding focus={focus} />
+  if (focus.startsWith('earth-farm-')) return <Farm focus={focus} assessment={assessment || focus === 'earth-farm-question'} />
+  if (focus.startsWith('earth-habitat-')) return <Habitats focus={focus} />
+  if (focus.startsWith('earth-rules-')) return <Rules focus={focus} />
+  if (focus === 'earth-insect-data') return <BarChart title="Bar chart: number of kinds of insect found at the edges of three wheat fields. No margin or hedgerow: 5; margin only: 14; margin and hedgerow: 23. Invented data." bars={[['no margin or hedgerow', 5], ['margin only', 14], ['margin and hedgerow', 23]]} yMax={25} yStep={5} yLabel="kinds of insect found" xLabel="edge of the wheat field" colour={leafLine} fill="#dcefd3" />
   void Label; void Badge; void Tree
   return null
 }
