@@ -96,6 +96,9 @@
 .rung-lesson .rung-expression__input { width: min(11em, 62vw); text-align: left; }
 .rung-expression__key { min-width: 48px; height: 48px; border: 2px solid var(--rv-line); border-radius: 12px; background: var(--rv-surface); color: var(--rv-ink); font: 600 1.15rem var(--rv-font-body); cursor: pointer; }
 .rung-expression__key:hover:not(:disabled) { border-color: var(--rv-biro); color: var(--rv-biro); }
+.rung-expression__key sup { font-size: .7em; }
+.rung-expression__key.is-on { border-color: var(--rv-biro); background: var(--rv-biro); color: var(--rv-surface); }
+.rung-power .rung-sf__a { width: 3.2em; }
 
 /* ---------- Choices ---------- */
 .rung-lesson .pvb-choices { gap: 12px; }
@@ -148,6 +151,8 @@
   .rung-lesson .rung-card .pvb-stage { padding: 16px 10px; }
   .rung-answer { font-size: 1.6rem; gap: 10px; }
   .rung-lesson .rung-answer__input { width: 4.6em; }
+  /* Algebra answers are longer than numbers: keep the box as wide as the row allows beside its key. */
+  .rung-lesson .rung-answer__input.rung-expression__input { width: min(11em, calc(100vw - 132px)); }
   .rung-done__actions { width: 100%; }
   .rung-done__actions .rv-btn { flex: 1 1 100%; }
 }

@@ -14,8 +14,9 @@ import { tutorEstimatingLesson } from '../estimating/tutor/estimatingLesson'
 import { tutorBoundsLesson } from '../bounds/tutor/boundsLesson'
 import { tutorStandardFormLesson } from '../standard-form/tutor/standardFormLesson'
 import { tutorLikeTermsLesson } from '../like-terms/tutor/likeTermsLesson'
+import { tutorIndicesLesson } from '../indices/tutor/indicesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
 
 export type MathsSection = {
   id: MicroSkillId
@@ -97,6 +98,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(13, tutorBoundsLesson, 'Bounds and truncation', 'Find upper and lower bounds, write error intervals and truncate numbers.', tutorBoundsLesson.labels),
   entry(14, tutorStandardFormLesson, 'Standard form', 'Convert to and from standard form, and multiply and divide in standard form.', tutorStandardFormLesson.labels),
   entry(15, tutorLikeTermsLesson, 'Collecting like terms', 'Simplify expressions by collecting terms with the same letters and powers.', tutorLikeTermsLesson.labels, 'algebra'),
+  entry(16, tutorIndicesLesson, 'Powers and roots', 'Use the laws of indices, and work out square, cube and other roots.', tutorIndicesLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

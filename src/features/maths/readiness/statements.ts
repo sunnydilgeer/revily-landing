@@ -88,5 +88,14 @@ export const canStatements: Record<string, string> = {
   '15:like-terms-different-letters': 'I can tell like terms apart when they use different letters, like ab and a',
   '15:like-terms-powers': 'I can collect like terms with powers, like x²y and xy²',
   '15:like-terms-mixed': 'I can simplify expressions with several letters and powers',
+
+  '16:indices-power-one': 'I can use a power of 1, like 9¹ = 9 and x = x¹',
+  '16:indices-multiply': 'I can multiply powers of the same base, like 3⁴ × 3⁵ = 3⁹ and 5a⁴ × 3a² = 15a⁶',
+  '16:indices-divide': 'I can divide powers of the same base, like 3⁷ ÷ 3⁴ = 3³, including negative answers',
+  '16:indices-power-zero': 'I can use a power of 0, like 9⁰ = 1',
+  '16:indices-one': 'I can work out 1 to any power, like 1¹⁰⁰ = 1',
+  '16:indices-power-of-power': 'I can raise a power to a power, like (5²)³ = 5⁶',
+  '16:indices-fraction': 'I can raise a fraction to a power, like (2/3)² = 4/9',
+  '16:roots': 'I can work out square roots, cube roots and other roots, like √49 = 7 and ∛27 = 3',
 }
 

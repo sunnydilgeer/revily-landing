@@ -25,7 +25,7 @@ for (const deck of decks) {
     assert.ok(!ids.has(card.id), `Duplicate card id ${card.id}`); ids.add(card.id)
     assert.ok(card.front.trim().length > 3 && card.back.trim().length > 0, `${card.id} needs a front and a back`)
     assert.ok(rungIds.has(card.rung), `${card.id} must belong to a real rung`)
-    if (card.kind === 'recall') assert.ok(/\d/.test(card.front) || card.frontMath, `${card.id} "${card.front}" has no sum to answer`)
+    if (card.kind === 'recall') assert.ok(/[\d⁰¹²³⁴⁵⁶⁷⁸⁹√∛]/.test(card.front) || card.frontMath, `${card.id} "${card.front}" has no sum to answer`)
     if (card.kind === 'fact') facts++; else recall++
   }
 }

@@ -86,8 +86,10 @@ export const paperTopics: PaperTopic[] = [
   { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [] },
   { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: [] },
   { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [] },
-  { id: 'simplifying', title: 'Simplifying expressions', short: 'Simplifying', area: 'algebra', marks30: 43, sittings: 9, statements: lesson(15,
-    'like-terms-one-letter', 'like-terms-different-letters', 'like-terms-powers', 'like-terms-mixed') },
+  { id: 'simplifying', title: 'Simplifying expressions', short: 'Simplifying', area: 'algebra', marks30: 43, sittings: 9, statements: [...lesson(15,
+    'like-terms-one-letter', 'like-terms-different-letters', 'like-terms-powers', 'like-terms-mixed'),
+    ...lesson(16, 'indices-power-one', 'indices-multiply', 'indices-divide', 'indices-power-zero', 'indices-one', 'indices-power-of-power', 'indices-fraction', 'roots'),
+  ] },
   { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [] },
 
   // Ratio, proportion and rates of change

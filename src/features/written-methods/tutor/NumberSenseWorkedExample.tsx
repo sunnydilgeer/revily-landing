@@ -4,6 +4,8 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
+import { SquaresVisual, TilesVisual } from './PowerPictures'
+import { Powers } from './Powers'
 import type { HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
@@ -77,7 +79,7 @@ function HopVisual({ frame, plain, heading, headingAtAnswer }: { frame: HopFrame
     </div>
     {moved && <p className="ns-hop-note" aria-hidden="true">{left ? `← ${direction}` : `${direction} →`}</p>}
     {stage === 'result' && headingAtAnswer && heading}
-    {stage === 'result' && frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
+    {stage === 'result' && frame.answer && <p className="ns-hop-answer" aria-hidden="true"><Powers text={frame.answer} /></p>}
   </div>
 }
 
@@ -101,14 +103,14 @@ function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boo
   return <div className="ns-terms" role="img" aria-label={`${label}${frame.answer ? `. ${frame.answer}` : ''}`}>
     {!frame.groups && heading}
     <p className="ns-terms-row" aria-hidden="true">{chunks(frame.terms).map((chunk, c) => <span key={c} className="ns-term-chunk">{chunk.map(({ term, i }) => term.op
-      ? <span key={i} className={`ns-term-op${/[()]/.test(term.text) ? ' is-bracket' : ''}`}>{term.text}</span>
-      : <span key={i} className={`ns-term ${plain ? 'is-plain' : `is-f${term.family % 4}`}`}>{term.text}</span>)}</span>)}</p>
+      ? <span key={i} className={`ns-term-op${/[()]/.test(term.text) ? ' is-bracket' : ''}`}><Powers text={term.text} /></span>
+      : <span key={i} className={`ns-term ${plain ? 'is-plain' : `is-f${term.family % 4}`}`}><Powers text={term.text} /></span>)}</span>)}</p>
     {frame.groups && <ul className="ns-term-groups" aria-hidden="true">{frame.groups.map((group, i) => [
       i === (frame.newFrom ?? 0) && !frame.answer && heading && <li key="heading" className="ns-term-groups__heading">{heading}</li>,
-      <li key={i} className={`is-f${group.family % 4}`}><span>{group.parts}</span><span aria-hidden="true">→</span><strong>{group.total}</strong></li>,
+      <li key={i} className={`is-f${group.family % 4}`}><span><Powers text={group.parts} /></span><span aria-hidden="true">→</span><strong><Powers text={group.total} /></strong></li>,
     ])}</ul>}
     {frame.answer && heading}
-    {frame.answer && <p className="ns-hop-answer" aria-hidden="true">{frame.answer}</p>}
+    {frame.answer && <p className="ns-hop-answer" aria-hidden="true"><Powers text={frame.answer} /></p>}
   </div>
 }
 
@@ -119,13 +121,13 @@ function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boo
 function PictureStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
   const [open, setOpen] = useState(false)
   const heading = <p className="ns-step" aria-live="polite">
-    <span className="ns-step__title">{step.title}</span>
+    <span className="ns-step__title"><Powers text={step.title} /></span>
     {step.tag && <span className="ns-step__tag">{step.tag}</span>}
     <button type="button" className={`ns-step__info${open ? ' is-open' : ''}`} aria-label="Why?" aria-expanded={open} onClick={() => setOpen(!open)}>i</button>
   </p>
   return <>
     {children(heading)}
-    {open && <p className="ns-step__why">{step.instruction}</p>}
+    {open && <p className="ns-step__why"><Powers text={step.instruction} /></p>}
   </>
 }
 
@@ -133,18 +135,22 @@ function PictureStep({ step, children }: { step: MethodStep; children: (heading:
 function WorkingLines({ lines, newFrom, heading }: { lines: WorkingLine[]; newFrom?: number; heading?: ReactNode }) {
   return <ul className="ns-term-groups" aria-label={lines.map(line => line.parts ? `${line.parts} gives ${line.total}` : line.total).join('. ')}>{lines.map((line, i) => [
     i === newFrom && heading && <li key="heading" className="ns-term-groups__heading">{heading}</li>,
-    <li key={i} className={`is-f${line.family % 4}`} aria-hidden="true">{line.parts && <><span>{line.parts}</span><span>→</span></>}<strong>{line.total}</strong></li>,
+    <li key={i} className={`is-f${line.family % 4}`} aria-hidden="true">{line.parts && <><span><Powers text={line.parts} /></span><span>→</span></>}<strong><Powers text={line.total} /></strong></li>,
   ])}</ul>
 }
 
 /**
- * A picture-only step drawn from a number line or a cut-off, lines of working and an answer.
+ * A picture-only step drawn from a number line, a cut-off, term tiles, copies of a power or an area square,
+ * then lines of working and an answer.
  * The picture and lines from earlier steps stay; the heading sits above whatever this step adds.
  */
 function LinesStep({ example, index, heading }: { example: MethodExample; index: number; heading: ReactNode }) {
   const upTo = example.steps.slice(0, index + 1), own = example.steps[index].frame
   const interval = upTo.findLast(step => step.frame.interval)?.frame.interval
   const rounding = upTo.findLast(step => step.frame.rounding)?.frame.rounding
+  const terms = upTo.findLast(step => step.frame.terms)?.frame.terms
+  const tiles = upTo.findLast(step => step.frame.tiles)?.frame.tiles
+  const squares = upTo.findLast(step => step.frame.squares)?.frame.squares
   const lines = upTo.findLast(step => step.frame.sums)?.frame.sums ?? []
   const before = example.steps.slice(0, index).findLast(step => step.frame.sums)?.frame.sums?.length ?? 0
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
@@ -153,6 +159,9 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const at = own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
   return <>
     {at === 'picture' && heading}
+    {terms && <TermsVisual frame={{ terms: terms.terms }} />}
+    {tiles && <TilesVisual frame={tiles} />}
+    {squares && <SquaresVisual frame={squares} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
     {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
@@ -160,12 +169,12 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {values && <OrderingVisual frame={values} />}
     {at === 'answer' && heading}
     {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
-    {answer && <p className="ns-hop-answer">{answer}</p>}
+    {answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
   </>
 }
 
 function OrderingVisual({ frame }: { frame: OrderingFrame }) {
-  if (frame.answer) return <p className="ns-order-answer">{frame.answer}</p>
+  if (frame.answer) return <p className="ns-order-answer"><Powers text={frame.answer} /></p>
   if (frame.comparison) {
     const parts = frame.comparison.split(/([<>])/)
     return <div className="ns-comparison" role="img" aria-label={frame.comparison.replaceAll('\\,', ' ').replaceAll('<', ' is less than ').replaceAll('>', ' is greater than ')}>
@@ -195,6 +204,8 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.terms) return <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: first.terms.terms }} plain /></div>
         if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
         if (first?.interval) return <div className="ns-visual rung-worked__visual"><IntervalVisual frame={{ ...first.interval, stage: 'value' }} /></div>
+        if (first?.tiles) return <div className="ns-visual rung-worked__visual"><TilesVisual frame={{ ...first.tiles, plain: true, note: undefined, rows: first.tiles.rows.map(row => ({ groups: row.groups.map(group => ({ ...group, crossed: undefined })) })) }} /></div>
+        if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null
       }

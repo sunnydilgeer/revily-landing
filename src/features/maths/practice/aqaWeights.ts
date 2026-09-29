@@ -77,6 +77,15 @@ export const aqaMarks: Record<string, number> = {
   '15:like-terms-different-letters': 3,
   '15:like-terms-powers': 2,
   '15:like-terms-mixed': 3,
+  // Estimates, not yet counted from the 18 papers: index laws and roots come up most sittings, usually for 1–2 marks.
+  '16:indices-power-one': 1,
+  '16:indices-multiply': 3,
+  '16:indices-divide': 3,
+  '16:indices-power-zero': 2,
+  '16:indices-one': 1,
+  '16:indices-power-of-power': 2,
+  '16:indices-fraction': 1,
+  '16:roots': 4,
 }
 
 /**

@@ -194,4 +194,14 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'like-terms-powers': [['Are x²y and xy² like terms?', 'No. The letters match, but the powers don’t: x is squared in one and y in the other.']],
     'like-terms-mixed': [['Simplify 5w + 5w + 5w.', '15w, not 5w³. Adding only changes the number in front; the letters and powers stay the same.']],
   },
+  16: {
+    'indices-power-one': [['What is 9¹?', '9. A power of 1 is one copy of the number, with nothing to multiply it by.']],
+    'indices-multiply': [['Write 3⁴ × 3² as a single power of 3.', '3⁶. Same base, so add the powers: 4 + 2 = 6. The base stays as 3, not 9.']],
+    'indices-divide': [['Write 4⁷ ÷ 4² as a single power of 4.', '4⁵. Same base, so subtract the powers: 7 − 2 = 5. The base stays as 4.']],
+    'indices-power-zero': [['What is 5⁰?', '1, not 0. Any number except 0 to the power 0 is 1: 5¹ = 5, and one step down is 5 ÷ 5 = 1.']],
+    'indices-one': [['What is 1⁹⁹?', '1. Multiplying 1 by itself any number of times is still 1.']],
+    'indices-power-of-power': [['Write (2³)² as a single power of 2.', '2⁶. A power of a power: multiply the powers, 3 × 2 = 6. Adding is for two powers multiplied together.']],
+    'indices-fraction': [['Work out (2/3)².', '4/9. Square the top and the bottom: 2² = 4 and 3² = 9.']],
+    'roots': [['Work out √49 and ∛27.', '7 and 3. 7 × 7 = 49, and 3 × 3 × 3 = 27. A square root is not half.']],
+  },
 }

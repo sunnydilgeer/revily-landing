@@ -132,6 +132,11 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     return actual.length === wanted.length && actual.every((value, index) => value === wanted[index])
   }
   if (interaction.acceptanceRule === 'collectedExpression') return sameCollectedExpression(response, expected)
+  if (interaction.acceptanceRule === 'power') {
+    // One power, base and index both as written: 3^6 is right for 3⁶; 729 or 9^3 is not the power asked for.
+    const actual = parsePower(response), wanted = parsePower(expected)
+    return actual !== null && wanted !== null && actual.base === wanted.base && actual.power === wanted.power
+  }
   if (interaction.acceptanceRule === 'standardForm') {
     // A must be at least 1 and less than 10. With bounds, any such number strictly between them is right.
     const actual = parseStandardForm(response)
@@ -277,6 +282,14 @@ function parseFormattedNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
+/** A single power such as "10^7", "10⁷", "x^1" or "7^-3": its base and its whole-number power. */
+export function parsePower(value: unknown): { base: string; power: number } | null {
+  const text = plainPowers(String(value ?? '').toLowerCase().replace(/[−–]/g, '-')).replace(/\s/g, '')
+  const match = text.match(/^(\d+|[a-z])\^(-?\d+)$/)
+  if (!match) return null
+  return { base: match[1].replace(/^0+(?=\d)/, ''), power: Number(match[2]) }
+}
+
 export function formatExpression(value: string): string {
   return value.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−')
 }
@@ -294,21 +307,34 @@ function keyOf(powers: Map<string, number>) {
   return [...powers].sort(([a], [b]) => a.localeCompare(b)).map(([letter, power]) => power === 1 ? letter : `${letter}^${power}`).join('')
 }
 
-/** The terms exactly as written, in order, or null if the text is not a sum of terms. */
+const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
+/** Typed powers in one spelling: x² and x^2 both become x^2, and a⁻⁴ becomes a^-4. */
+function plainPowers(text: string) {
+  return text.replace(/[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, run => `^${[...run].map(c => c === '⁻' ? '-' : String(SUPERSCRIPT_DIGITS.indexOf(c))).join('')}`)
+}
+
+/**
+ * The terms exactly as written, in order, or null if the text is not a sum of terms.
+ * A power may be negative (a^-4, a⁻⁴), and a term may be over a whole number (x²/9, 8x³/125).
+ */
 export function readTerms(value: unknown): Term[] | null {
-  const text = String(value ?? '').toLowerCase()
-    .replace(/[−–]/g, '-').replace(/²/g, '^2').replace(/³/g, '^3').replace(/⁴/g, '^4')
+  const text = plainPowers(String(value ?? '').toLowerCase().replace(/[−–]/g, '-'))
     .replace(/[()\s×*·]/g, '')
+    // A minus straight after ^ belongs to the power, not to the next term.
+    .replace(/\^-/g, '^~')
   if (!text || !/^[+-]?[^+-]+([+-][^+-]+)*$/.test(text)) return null
   const terms: Term[] = []
   for (const match of text.matchAll(/([+-]?)([^+-]+)/g)) {
     const [, sign, body] = match
-    const parts = body.match(/^(\d*)((?:[a-z](?:\^\d+)?)*)$/)
+    const parts = body.match(/^(\d*)((?:[a-z](?:\^~?\d+)?)*)(?:\/(\d+))?$/)
     if (!parts || (!parts[1] && !parts[2])) return null
+    const over = parts[3] ? Number(parts[3]) : 1
+    if (!over) return null
     const powers = new Map<string, number>()
-    for (const [, letter, power] of parts[2].matchAll(/([a-z])(?:\^(\d+))?/g)) powers.set(letter, (powers.get(letter) ?? 0) + Number(power ?? 1))
+    for (const [, letter, power] of parts[2].matchAll(/([a-z])(?:\^(~?\d+))?/g)) powers.set(letter, (powers.get(letter) ?? 0) + (power ? Number(power.replace('~', '-')) : 1))
+    for (const [letter, power] of powers) if (power === 0) powers.delete(letter)
     const size = parts[1] ? Number(parts[1]) : 1
-    terms.push({ coefficient: (sign === '-' ? -1 : 1) * size, key: keyOf(powers) })
+    terms.push({ coefficient: (sign === '-' ? -1 : 1) * size / over, key: keyOf(powers) })
   }
   return terms
 }
@@ -328,12 +354,12 @@ export function sameCollectedExpression(response: unknown, expected: unknown) {
   if (new Set(keys).size !== keys.length || actual.some(term => term.coefficient === 0)) return false
   const a = collect(actual), b = collect(wanted)
   for (const [key, value] of b) if (value === 0) b.delete(key)
-  return a.size === b.size && [...b].every(([key, value]) => a.get(key) === value)
+  // Numbers in front can be fractions (x²/9), so compare them to within rounding.
+  return a.size === b.size && [...b].every(([key, value]) => Math.abs((a.get(key) ?? NaN) - value) < 1e-9)
 }
 
-const SUPERSCRIPT: Record<string, string> = { '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶' }
-/** "x^2y" → "x²y". */
-export const prettyKey = (key: string) => key.replace(/\^(\d)/g, (_, d: string) => SUPERSCRIPT[d] ?? `^${d}`)
+/** "x^2y" → "x²y", "a^-4b" → "a⁻⁴b". */
+export const prettyKey = (key: string) => key.replace(/\^(-?\d+)/g, (_, power: string) => [...power].map(c => c === '-' ? '⁻' : SUPERSCRIPT_DIGITS[Number(c)]).join(''))
 /** One term as written: 1x → x, −1x → −x. */
 export function prettyTerm({ coefficient, key }: Term, first = true) {
   const size = Math.abs(coefficient)
