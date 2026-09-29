@@ -142,12 +142,13 @@ function Big() {
     <path d="M40 70H500" stroke="white" strokeWidth="2" strokeDasharray="14 10" />
     {Array.from({ length: 11 }, (_, i) => <path key={i} d={`M${40 + i * 46} 52v36`} stroke={ink} strokeWidth={i % 10 === 0 ? 2.4 : 1.4} />)}
     <text x={63} y={108} textAnchor="middle" fontSize="12" fontWeight="650" fill={muted}>100 m</text>
-    <Bike x={430} y={57} s={0.36} />
+    <Bike x={262} y={57} s={0.36} />
     <UnitBox x={150} y={170} text="kilo (k)" w={150} fill={bigFill} line={big} colour={big} />
     <text x={150} y={214} textAnchor="middle" fontSize="18" fontWeight="800" fill={mul}>× 1000</text>
     <UnitBox x={390} y={170} text="mega (M)" w={150} fill={bigFill} line={big} colour={big} />
     <text x={390} y={214} textAnchor="middle" fontSize="18" fontWeight="800" fill={mul}>× 1 000 000</text>
-    <Lines x={270} y={262} anchor="middle" lines={['1 kg = 1000 g     1 MW = 1 000 000 W']} size={14} weight={700} colour={muted} />
+    <text x={150} y={262} textAnchor="middle" fontSize="14" fontWeight="700" fill={muted}>1 kg = 1000 g</text>
+    <text x={390} y={262} textAnchor="middle" fontSize="14" fontWeight="700" fill={muted}>1 MW = 1 000 000 W</text>
   </PhysicsDiagram>
 }
 function Small() {
@@ -180,7 +181,7 @@ function Direction() {
     <text x={380} y={254} textAnchor="middle" fontSize="13" fontWeight="700" fill={small}>smaller unit</text>
     <Curve from={[200, 60]} to={[378, 170]} bend={60} colour={mul} width={3.2} />
     <text x={346} y={62} fontSize="16" fontWeight="800" fill={mul}>× multiply</text>
-    <Curve from={[334, 206]} to={[150, 110]} bend={-40} colour={div} width={3.2} />
+    <Curve from={[334, 214]} to={[204, 100]} bend={-40} colour={div} width={3.2} />
     <text x={150} y={196} fontSize="16" fontWeight="800" fill={div}>÷ divide</text>
     <Lines x={400} y={100} lines={['more small units,', 'so the number', 'gets bigger']} size={13} weight={650} colour={muted} />
   </PhysicsDiagram>
@@ -189,8 +190,8 @@ function Chains() {
   return <PhysicsDiagram schematic={false} title="Three conversion chains, each step × 1000 going to the smaller unit and ÷ 1000 going back: kilograms and grams; metres, millimetres and micrometres; cubic metres, cubic decimetres and cubic centimetres.">
     <text x={20} y={30} fontSize="13" fontWeight="700" fill={muted}>mass</text>
     <Chain x={90} y={62} units={['kg', 'g']} gap={130} />
-    <text x={280} y={30} fontSize="13" fontWeight="700" fill={muted}>length</text>
-    <Chain x={300} y={62} units={['m', 'mm', 'µm']} gap={110} />
+    <text x={262} y={30} fontSize="13" fontWeight="700" fill={muted}>length</text>
+    <Chain x={290} y={62} units={['m', 'mm', 'µm']} gap={100} />
     <text x={20} y={176} fontSize="13" fontWeight="700" fill={muted}>volume</text>
     <Chain x={120} y={210} units={['m³', 'dm³', 'cm³']} gap={150} />
     <Lines x={500} y={204} anchor="middle" lines={['1 dm³', '= 1 litre']} size={12.5} weight={650} colour={muted} />
@@ -212,9 +213,10 @@ function Work({ step }: { step: 1 | 2 }) {
     </g>}
     {step === 2 && <g>
       <Card x={70} y={164} w={400} h={60}>
-        <Eq x={270} y={202} size={22} pieces={[['2.5 km × 1000 = '], ['2500 m', ws.fit]]} />
+        <Eq x={318} y={202} size={22} anchor="end" pieces={[['2.5 km × 1000 =']]} />
+        <rect x={330} y={176} width={110} height={36} rx="14" fill={ws.fitFill} stroke={ws.fit} strokeWidth="2.4" />
+        <text x={385} y={202} textAnchor="middle" fontSize="22" fontWeight="800" fill={ws.fit}>2500 m</text>
       </Card>
-      <rect x={336} y={176} width={110} height={36} rx="14" fill="none" stroke={ws.fit} strokeWidth="2.4" />
       <Lines x={270} y={262} anchor="middle" lines={['check: smaller unit, bigger number']} size={14} weight={650} colour={muted} />
     </g>}
   </PhysicsDiagram>
@@ -232,7 +234,7 @@ function Eq1() {
     <Tag x={410} y={160} text="v in m/s" colour={ws.fit} fill={ws.fitFill} size={15} w={100} />
     <UnitBox x={130} y={236} text="cm, km…" w={110} size={16} />
     <Arrow from={[192, 236]} to={[262, 236]} colour={mul} width={3} />
-    <text x={228} y={222} textAnchor="middle" fontSize="13" fontWeight="750" fill={mul}>convert first</text>
+    <text x={228} y={212} textAnchor="middle" fontSize="13" fontWeight="750" fill={mul}>convert first</text>
     <UnitBox x={300} y={236} text="m" w={64} fill={smallFill} line={small} colour={small} />
     <Arrow from={[340, 236]} to={[400, 236]} colour={ink} width={3} />
     <text x={418} y={242} fontSize="15" fontWeight="750" fill={ink}>substitute</text>
@@ -244,7 +246,7 @@ function Toy({ step }: { step: 2 | 3 }) {
     <StepStrip steps={['convert', 'substitute']} active={step - 1} gap={170} y={22} />
     <Ruler x={x0} y={104} w={w} marks={60} />
     {[0, 20, 40, 60].map(v => <text key={v} x={x0 + v * 5} y={144} textAnchor="middle" fontSize="12" fontWeight="650" fill={muted}>{v}</text>)}
-    <text x={x0 + w + 8} y={144} fontSize="12" fontWeight="650" fill={muted}>cm</text>
+    <text x={x0 + w + 14} y={144} fontSize="12" fontWeight="650" fill={muted}>cm</text>
     <g opacity=".35"><Car x={x0 + 18} y={102} s={0.36} /></g>
     <Car x={x0 + w - 16} y={102} s={0.36} />
     <path d={`M${x0} 60H${x0 + w}`} stroke={ws.y} strokeWidth="2.4" />
@@ -257,9 +259,10 @@ function Toy({ step }: { step: 2 | 3 }) {
     {step === 2 && <Lines x={270} y={272} anchor="middle" lines={['cm is smaller than m, so divide']} size={14} weight={650} colour={muted} />}
     {step === 3 && <g>
       <Card x={40} y={170} w={460} h={60}>
-        <Eq x={260} y={208} size={21} pieces={[['v = s ÷ t = '], ['0.6', ws.y], [' ÷ '], ['2', ws.x], [' = '], ['0.3 m/s', ws.fit]]} />
+        <Eq x={350} y={208} size={21} anchor="end" pieces={[['v = s ÷ t = '], ['0.6', ws.y], [' ÷ '], ['2', ws.x], [' =']]} />
+        <rect x={362} y={183} width={110} height={34} rx="14" fill={ws.fitFill} stroke={ws.fit} strokeWidth="2.4" />
+        <text x={417} y={207} textAnchor="middle" fontSize="21" fontWeight="800" fill={ws.fit}>0.3 m/s</text>
       </Card>
-      <rect x={370} y={186} width={96} height={32} rx="12" fill="none" stroke={ws.fit} strokeWidth="2.4" />
       <Lines x={270} y={268} anchor="middle" lines={['same idea: W = m × g needs the mass in kg']} size={13.5} weight={650} colour={muted} />
     </g>}
   </PhysicsDiagram>

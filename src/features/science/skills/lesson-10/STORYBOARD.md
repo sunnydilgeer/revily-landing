@@ -20,7 +20,7 @@ Source boundary: supplied revision-guide page 243 (scope only); AQA 8464 WS 4.6 
 
 Judgement calls for the teacher:
 - The page rearranges a kinetic energy formula; that is too hard for Foundation, so rearranging is taught with s = v × t and W = m × g instead. The worked example (98 N → 10 kg), guided item (49 N → 5 kg) and independent item (294 N → 30 kg) all divide by g = 9.8 N/kg to give whole numbers.
-- The temperature and reaction time table in W10-14 is invented and simplified to show inverse proportion.
+- W10-14 uses a cyclist riding a fixed 120 m: doubling the speed halves the time, a true inverse proportion.
 - Formula triangles are mentioned as an optional tool, with the point that proper rearranging is needed.
 
 ## Diagram specs
@@ -39,7 +39,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - `wsmaths-direct`: a straight-line graph through the origin, both axes labelled "A" and "B" (no numbers), dotted markers showing B doubling gives A doubling. Label "direct: A ∝ B".
 - `wsmaths-inverse`: a simple downward curve on the same axes, dotted markers showing B doubling gives A halving. Label "inverse: A ∝ 1 ÷ B".
 - `wsmaths-symbol`: a two-row table: Direct / Inverse, with "B doubles, A doubles" / "B doubles, A halves" and the ∝ forms.
-- `wsmaths-q-table` (question, assessment view): a table titled "Reaction time at different temperatures" with columns Temperature (°C) 10, 20, 40 and Time (s) 120, 60, 30. No pattern labels, no arrows, no ratios shown.
+- `wsmaths-q-table` (question, assessment view): a table titled "Time to cycle 120 m at different speeds" with columns Speed (m/s) 2, 4, 8 and Time (s) 60, 30, 15. No pattern labels, no arrows, no ratios shown.
 
 ## States in full
 
@@ -118,11 +118,11 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - Hint: Rearrange first: do the same to both sides to get m on its own.
 - Why: Divide both sides by g: m = W ÷ g. m = 294 ÷ 9.8 = 30 kg.
 
-### W10-14 Independent choice: The table shows how the time for a reaction changes with temperature. Which describes the pattern?
+### W10-14 Independent choice: The table shows how long a cyclist takes to ride 120 m at different speeds. Which describes the pattern?
 - Options: Direct proportion | Inverse proportion | Neither, the time is constant | Neither, the time is random
 - Answer: Inverse proportion
-- Hint: Check what happens to the time each time the temperature doubles.
-- Why: The temperature doubles from 20 to 40 °C and the time halves from 60 s to 30 s. One variable doubles as the other halves, so it is inverse proportion.
+- Hint: Check what happens to the time each time the speed doubles.
+- Why: The speed doubles from 2 to 4 m/s and the time halves from 60 s to 30 s. One variable doubles as the other halves, so it is inverse proportion.
 - Visual: `wsmaths-q-table` (assessment view)
 
 ### W10-15 Independent choice: A student types 12 + 6 ÷ 3 to find (12 + 6) ÷ 3. What is the problem?

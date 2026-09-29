@@ -357,12 +357,12 @@ function Symbol() {
   </WsDiagram>
 }
 function QTable() {
-  return <WsDiagram schematic={false} title="A table titled Reaction time at different temperatures. Temperature 10 °C: time 120 s. 20 °C: 60 s. 40 °C: 30 s.">
-    <DataTable x={60} y={70} cols={[200, 160]} rowH={48} headH={50} size={18} title="Reaction time at different temperatures" rows={[
-      ['Temperature (°C)', 'Time (s)'],
-      ['10', '120'],
-      ['20', '60'],
-      ['40', '30'],
+  return <WsDiagram schematic={false} title="A table titled Time to cycle 120 m at different speeds. Speed 2 m/s: time 60 s. 4 m/s: 30 s. 8 m/s: 15 s.">
+    <DataTable x={60} y={70} cols={[200, 160]} rowH={48} headH={50} size={18} title="Time to cycle 120 m at different speeds" rows={[
+      ['Speed (m/s)', 'Time (s)'],
+      ['2', '60'],
+      ['4', '30'],
+      ['8', '15'],
     ]} />
     <Stopwatch x={474} y={160} r={34} />
   </WsDiagram>

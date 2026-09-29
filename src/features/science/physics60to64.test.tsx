@@ -7,67 +7,19 @@ import { TeachingChunk, WorkedReasoning } from './components/TeachingChunk'
 import { buildScienceDecks } from './cards/decks'
 import { scienceFacts } from './cards/facts'
 import { evidenceProfile, gradeResponse, progress, recommendedNext } from './engine'
-import { physicsLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceLessonDir, scienceSubjectLessonHref } from './lessonNavigation'
+import { physicsLessons, physicsChapters, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceLessonDir, scienceSubjectLessonHref } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
 import { scienceUnits } from './scienceProgress'
-import { lessonP31, nucModelSections } from './physics/lesson-31/lesson'
-import { nucModelFrames } from './physics/lesson-31/teachingFrames'
-import { lessonP32, atomStructureSections } from './physics/lesson-32/lesson'
-import { atomStructureFrames } from './physics/lesson-32/teachingFrames'
-import { lessonP33, isotopeSections } from './physics/lesson-33/lesson'
-import { isotopeFrames } from './physics/lesson-33/teachingFrames'
-import { lessonP34, nuclearRadiationSections } from './physics/lesson-34/lesson'
-import { nuclearRadiationFrames } from './physics/lesson-34/teachingFrames'
-import { lessonP35, nuclearEquationSections } from './physics/lesson-35/lesson'
-import { nuclearEquationFrames } from './physics/lesson-35/teachingFrames'
-import { lessonP36, halfLifeSections } from './physics/lesson-36/lesson'
-import { halfLifeFrames } from './physics/lesson-36/teachingFrames'
-import { lessonP37, irradiationSections } from './physics/lesson-37/lesson'
-import { irradiationFrames } from './physics/lesson-37/teachingFrames'
-import { lessonP38, contactForceSections } from './physics/lesson-38/lesson'
-import { contactForceFrames } from './physics/lesson-38/teachingFrames'
-import { lessonP39, weightSections } from './physics/lesson-39/lesson'
-import { weightFrames } from './physics/lesson-39/teachingFrames'
-import { lessonP40, resultantSections } from './physics/lesson-40/lesson'
-import { resultantFrames } from './physics/lesson-40/teachingFrames'
-import { lessonP41, elasticSections } from './physics/lesson-41/lesson'
-import { elasticFrames } from './physics/lesson-41/teachingFrames'
-import { lessonP42, springPracSections } from './physics/lesson-42/lesson'
-import { springPracFrames } from './physics/lesson-42/teachingFrames'
-import { lessonP43, velocitySections } from './physics/lesson-43/lesson'
-import { velocityFrames } from './physics/lesson-43/teachingFrames'
-import { lessonP44, accelerationSections } from './physics/lesson-44/lesson'
-import { accelerationFrames } from './physics/lesson-44/teachingFrames'
-import { lessonP45, dtGraphSections } from './physics/lesson-45/lesson'
-import { dtGraphFrames } from './physics/lesson-45/teachingFrames'
-import { lessonP46, vtGraphSections } from './physics/lesson-46/lesson'
-import { vtGraphFrames } from './physics/lesson-46/teachingFrames'
-import { lessonP47, newtonLawSections } from './physics/lesson-47/lesson'
-import { newtonLawFrames } from './physics/lesson-47/teachingFrames'
-import { lessonP48, newtonThirdSections } from './physics/lesson-48/lesson'
-import { newtonThirdFrames } from './physics/lesson-48/teachingFrames'
-import { lessonP49, motionPracSections } from './physics/lesson-49/lesson'
-import { motionPracFrames } from './physics/lesson-49/teachingFrames'
-import { lessonP50, stoppingSections } from './physics/lesson-50/lesson'
-import { stoppingFrames } from './physics/lesson-50/teachingFrames'
-import { lessonP51, brakingSections } from './physics/lesson-51/lesson'
-import { brakingFrames } from './physics/lesson-51/teachingFrames'
-import { lessonP52, reactionTimeSections } from './physics/lesson-52/lesson'
-import { reactionTimeFrames } from './physics/lesson-52/teachingFrames'
-import { lessonP53, waveTypeSections } from './physics/lesson-53/lesson'
-import { waveTypeFrames } from './physics/lesson-53/teachingFrames'
-import { lessonP54, waveSpeedSections } from './physics/lesson-54/lesson'
-import { waveSpeedFrames } from './physics/lesson-54/teachingFrames'
-import { lessonP55, wavePracSections } from './physics/lesson-55/lesson'
-import { wavePracFrames } from './physics/lesson-55/teachingFrames'
-import { lessonP56, refractionSections } from './physics/lesson-56/lesson'
-import { refractionFrames } from './physics/lesson-56/teachingFrames'
-import { lessonP57, emSpectrumSections } from './physics/lesson-57/lesson'
-import { emSpectrumFrames } from './physics/lesson-57/teachingFrames'
-import { lessonP58, emUseSections } from './physics/lesson-58/lesson'
-import { emUseFrames } from './physics/lesson-58/teachingFrames'
-import { lessonP59, emMoreSections } from './physics/lesson-59/lesson'
-import { emMoreFrames } from './physics/lesson-59/teachingFrames'
+import { lessonP60, irEmitSections } from './physics/lesson-60/lesson'
+import { irEmitFrames } from './physics/lesson-60/teachingFrames'
+import { lessonP61, irAbsorbSections } from './physics/lesson-61/lesson'
+import { irAbsorbFrames } from './physics/lesson-61/teachingFrames'
+import { lessonP62, emDangerSections } from './physics/lesson-62/lesson'
+import { emDangerFrames } from './physics/lesson-62/teachingFrames'
+import { lessonP63, magnetSections } from './physics/lesson-63/lesson'
+import { magnetFrames } from './physics/lesson-63/teachingFrames'
+import { lessonP64, electromagSections } from './physics/lesson-64/lesson'
+import { electromagFrames } from './physics/lesson-64/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { EvidenceDimension, ScienceLesson, ScienceState } from './types'
@@ -79,37 +31,13 @@ const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
-type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'P4' | 'P5' | 'P6' }
+type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'P6' | 'P7' }
 const cases: Case[] = [
-  { number: 31, lesson: lessonP31, sections: nucModelSections, frames: nucModelFrames, title: 'Developing the model of the atom', chapter: 'P4' },
-  { number: 32, lesson: lessonP32, sections: atomStructureSections, frames: atomStructureFrames, title: 'The structure of the atom', chapter: 'P4' },
-  { number: 33, lesson: lessonP33, sections: isotopeSections, frames: isotopeFrames, title: 'Isotopes', chapter: 'P4' },
-  { number: 34, lesson: lessonP34, sections: nuclearRadiationSections, frames: nuclearRadiationFrames, title: 'Alpha, beta and gamma radiation', chapter: 'P4' },
-  { number: 35, lesson: lessonP35, sections: nuclearEquationSections, frames: nuclearEquationFrames, title: 'Nuclear equations', chapter: 'P4' },
-  { number: 36, lesson: lessonP36, sections: halfLifeSections, frames: halfLifeFrames, title: 'Half-life', chapter: 'P4' },
-  { number: 37, lesson: lessonP37, sections: irradiationSections, frames: irradiationFrames, title: 'Irradiation and contamination', chapter: 'P4' },
-  { number: 38, lesson: lessonP38, sections: contactForceSections, frames: contactForceFrames, title: 'Contact and non-contact forces', chapter: 'P5' },
-  { number: 39, lesson: lessonP39, sections: weightSections, frames: weightFrames, title: 'Weight, mass and gravity', chapter: 'P5' },
-  { number: 40, lesson: lessonP40, sections: resultantSections, frames: resultantFrames, title: 'Resultant forces and work done', chapter: 'P5' },
-  { number: 41, lesson: lessonP41, sections: elasticSections, frames: elasticFrames, title: 'Forces and elasticity', chapter: 'P5' },
-  { number: 42, lesson: lessonP42, sections: springPracSections, frames: springPracFrames, title: 'Investigating springs', chapter: 'P5' },
-  { number: 43, lesson: lessonP43, sections: velocitySections, frames: velocityFrames, title: 'Distance, displacement, speed and velocity', chapter: 'P5' },
-  { number: 44, lesson: lessonP44, sections: accelerationSections, frames: accelerationFrames, title: 'Acceleration', chapter: 'P5' },
-  { number: 45, lesson: lessonP45, sections: dtGraphSections, frames: dtGraphFrames, title: 'Distance-time graphs', chapter: 'P5' },
-  { number: 46, lesson: lessonP46, sections: vtGraphSections, frames: vtGraphFrames, title: 'Velocity-time graphs and terminal velocity', chapter: 'P5' },
-  { number: 47, lesson: lessonP47, sections: newtonLawSections, frames: newtonLawFrames, title: 'Newton\'s First and Second Laws', chapter: 'P5' },
-  { number: 48, lesson: lessonP48, sections: newtonThirdSections, frames: newtonThirdFrames, title: 'Newton\'s Third Law', chapter: 'P5' },
-  { number: 49, lesson: lessonP49, sections: motionPracSections, frames: motionPracFrames, title: 'Investigating motion', chapter: 'P5' },
-  { number: 50, lesson: lessonP50, sections: stoppingSections, frames: stoppingFrames, title: 'Stopping distance and thinking distance', chapter: 'P5' },
-  { number: 51, lesson: lessonP51, sections: brakingSections, frames: brakingFrames, title: 'Braking distance', chapter: 'P5' },
-  { number: 52, lesson: lessonP52, sections: reactionTimeSections, frames: reactionTimeFrames, title: 'Reaction times', chapter: 'P5' },
-  { number: 53, lesson: lessonP53, sections: waveTypeSections, frames: waveTypeFrames, title: 'Transverse and longitudinal waves', chapter: 'P6' },
-  { number: 54, lesson: lessonP54, sections: waveSpeedSections, frames: waveSpeedFrames, title: 'Frequency, period and wave speed', chapter: 'P6' },
-  { number: 55, lesson: lessonP55, sections: wavePracSections, frames: wavePracFrames, title: 'Investigating waves', chapter: 'P6' },
-  { number: 56, lesson: lessonP56, sections: refractionSections, frames: refractionFrames, title: 'Refraction', chapter: 'P6' },
-  { number: 57, lesson: lessonP57, sections: emSpectrumSections, frames: emSpectrumFrames, title: 'Electromagnetic waves', chapter: 'P6' },
-  { number: 58, lesson: lessonP58, sections: emUseSections, frames: emUseFrames, title: 'Uses of radio waves, microwaves and infrared', chapter: 'P6' },
-  { number: 59, lesson: lessonP59, sections: emMoreSections, frames: emMoreFrames, title: 'Uses of light, UV, X-rays and gamma rays', chapter: 'P6' },
+  { number: 60, lesson: lessonP60, sections: irEmitSections, frames: irEmitFrames, title: 'Investigating infrared emission', chapter: 'P6' },
+  { number: 61, lesson: lessonP61, sections: irAbsorbSections, frames: irAbsorbFrames, title: 'Investigating infrared absorption', chapter: 'P6' },
+  { number: 62, lesson: lessonP62, sections: emDangerSections, frames: emDangerFrames, title: 'Dangers of electromagnetic waves', chapter: 'P6' },
+  { number: 63, lesson: lessonP63, sections: magnetSections, frames: magnetFrames, title: 'Magnets and magnetic fields', chapter: 'P7' },
+  { number: 64, lesson: lessonP64, sections: electromagSections, frames: electromagFrames, title: 'Electromagnetism', chapter: 'P7' },
 ]
 
 for (const { number, lesson, sections, frames, title, chapter } of cases) {
@@ -125,9 +53,9 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
     const contexts = lesson.states.flatMap(state => state.kind === 'teaching' ? [] : [state.contextId])
     assert.equal(new Set(contexts).size, contexts.length)
     const sourceIds = lesson.sources.map(source => source.id)
-    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /6\.[456]\.\d/.test(source.locator)))
+    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /6\.[67]\.\d/.test(source.locator)))
     lesson.states.forEach(state => {
-      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^6\.[456]\./.test(ref)), `${state.id}: spec refs`)
+      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^6\.[67]\./.test(ref)), `${state.id}: spec refs`)
       state.sourceIds.forEach(sourceId => assert.ok(sourceIds.includes(sourceId)))
     })
     assert.equal(sections[0].id, lesson.states[0].id)
@@ -268,12 +196,14 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
   })
 }
 
-check('Physics catalogue: Lessons 31–59 follow 1–30 in order, P4 holds 31–37, P5 holds 38–52, P6 starts at 53 and Lesson 59 leads on to 60', () => {
-  assert.deepEqual(physicsLessons.slice(0, 59).map(item => item.number), Array.from({ length: 59 }, (_, i) => i + 1))
-  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'physics').slice(0, 5).map(unit => [unit.code, unit.lessons.length]), [['P1', 14], ['P2', 12], ['P3', 4], ['P4', 7], ['P5', 15]])
-  assert.equal(nextScienceLesson(getScienceLesson('physics', 59)!)?.number, 60)
+check('Physics catalogue: Lessons 1–64, P6 holds 53–62, P7 holds 63–64, Lesson 64 is the last', () => {
+  assert.deepEqual(physicsLessons.map(item => item.number), Array.from({ length: 64 }, (_, i) => i + 1))
+  assert.deepEqual(physicsChapters.slice(-2).map(chapter => [chapter.code, chapter.title, [...chapter.lessonNumbers]]), [['P6', 'Waves', [53, 54, 55, 56, 57, 58, 59, 60, 61, 62]], ['P7', 'Magnetism and electromagnetism', [63, 64]]])
+  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'physics').map(unit => [unit.code, unit.lessons.length]), [['P1', 14], ['P2', 12], ['P3', 4], ['P4', 7], ['P5', 15], ['P6', 10], ['P7', 2]])
+  assert.equal(nextScienceLesson(getScienceLesson('physics', 64)!), null)
+  assert.equal(parseScienceLessonRef('physics', '65'), null)
   const cards = buildScienceDecks().flatMap(item => item.cards.map(card => card.id))
   assert.equal(new Set(cards).size, cards.length)
 })
 
-console.log(`${checks} Physics Lessons 31–59 checks passed`)
+console.log(`${checks} Physics Lessons 60–64 checks passed`)

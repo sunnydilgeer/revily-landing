@@ -131,7 +131,7 @@ function Categoric() {
       <Flower x={170 + i * 100} y={210} petals={n} />
       <text x={170 + i * 100} y={250} textAnchor="middle" fontSize="14" fontWeight="750" fill={ink}>{n}</text>
     </g>)}
-    <Tag x={270} y={282} text="separate groups: nothing in between" colour={ws.x} fill={ws.xFill} size={14} w={300} />
+    <Tag x={270} y={282} text="separate groups: nothing in between" colour={ws.x} fill={ws.xFill} size={14} w={326} />
   </PhysicsDiagram>
 }
 
@@ -249,7 +249,7 @@ function BarKey() {
       <rect x={414} y={86 + i * 24} width={22} height={16} rx="3" fill={set.fill} stroke={set.line} strokeWidth="1.6" />
       <text x={444} y={99 + i * 24} fontSize="13.5" fontWeight="700" fill={ink}>{set.name}</text>
     </g>)}
-    <Tag x={462} y={180} text="gaps between groups" colour="#9a6c12" fill={ws.hi} size={13} w={172} />
+    <Tag x={450} y={180} text="gaps between groups" colour="#9a6c12" fill={ws.hi} size={13} w={170} />
     <Lines x={462} y={214} anchor="middle" lines={['two sets of data:', 'add a key']} size={13} weight={650} colour={muted} />
   </PhysicsDiagram>
 }

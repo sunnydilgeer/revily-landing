@@ -134,7 +134,7 @@ function Worked({ step }: { step: number }) {
       <rect x={366} y={244} width={158} height={36} rx="14" fill={ws.fitFill} stroke={ws.fit} strokeWidth="2.2" />
       <text x={445} y={268} textAnchor="middle" fontSize="15" fontWeight="800" fill={ws.fit}>rate = 0.6 cm³/s</text>
     </g>}
-    {step <= 2 && <Lines x={368} y={112} lines={step === 1 ? ['pick two points', 'on the line:', 'easy to read,', 'far apart'] : ['down from the', 'higher point,', 'across from the', 'lower one']} size={14} weight={650} colour={muted} />}
+    {step <= 2 && <Lines x={390} y={112} lines={step === 1 ? ['pick two points', 'on the line:', 'easy to read,', 'far apart'] : ['down from the', 'higher point,', 'across from the', 'lower one']} size={14} weight={650} colour={muted} />}
   </PhysicsDiagram>
 }
 

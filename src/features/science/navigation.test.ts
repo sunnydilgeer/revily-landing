@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { scienceChapters, scienceHubHref, scienceLessons, scienceLessonHref, scienceLessonHrefById, scienceLessonNumberById, parseScienceLesson, TRANSPORT_EXAM_LESSON_ID } from './lessonNavigation'
 import { createPreviewSessionEngine } from './previewSession'
-import { allScienceChapters, allScienceLessons, chemistryChapters, chemistryLessons, physicsChapters, physicsLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceChaptersFor, scienceEntryById, scienceLessonDir, scienceLessonsFor, scienceSubjectLessonHref } from './lessonNavigation'
+import { allScienceChapters, allScienceLessons, chemistryChapters, chemistryLessons, physicsChapters, physicsLessons, skillsChapters, skillsLessons, getScienceLesson, nextScienceLesson, parseScienceLessonRef, scienceChapterFor, scienceChaptersFor, scienceEntryById, scienceLessonDir, scienceLessonsFor, scienceSubjectLessonHref } from './lessonNavigation'
 import { decodeScienceLastLesson, encodeScienceLastLesson, scienceUnits } from './scienceProgress'
 
 assert.deepEqual(scienceLessons.map(item => item.number), Array.from({ length: 58 }, (_, i) => i + 1))
@@ -82,7 +82,7 @@ assert.equal(chemistryChapters[1].title, 'The periodic table')
 assert.deepEqual(scienceChaptersFor('chemistry'), chemistryChapters)
 assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]),
   chemistryChapters.map(chapter => [chapter.code, chemistryLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).length]))
-assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6'])
+assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'WS1', 'WS2'])
 assert.equal(scienceSubjectLessonHref('chemistry', 1), '/preview/science?subject=chemistry&lesson=1')
 assert.equal(scienceSubjectLessonHref('chemistry', 3, 'C3-02'), '/preview/science?subject=chemistry&lesson=3&activity=C3-02')
 assert.equal(encodeScienceLastLesson({ subject: 'chemistry', number: 1 }), 'chemistry:1')
@@ -102,9 +102,9 @@ for (const item of chemistryLessons) {
 }
 assert.equal(getScienceLesson('chemistry', 1), chemistryLessons[0] ?? null)
 assert.equal(parseScienceLessonRef('chemistry', String(chemistryLessons.length + 1)), null, 'Unbuilt Chemistry lessons fall back to the hub')
-// Physics: restarts at Lesson 1 in P1 Energy, P2 Electricity, P3 Particle model of matter, P4 Atomic structure, P5 Forces, P6 Waves; hrefs carry subject=physics.
+// Physics: restarts at Lesson 1 in P1 Energy, P2 Electricity, P3 Particle model of matter, P4 Atomic structure, P5 Forces, P6 Waves (53–62), P7 Magnetism and electromagnetism (63–64); hrefs carry subject=physics.
 assert.deepEqual(physicsChapters.map(chapter => [chapter.subject, chapter.code, chapter.title, [...chapter.lessonNumbers]]),
-  [['physics', 'P1', 'Energy', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]], ['physics', 'P2', 'Electricity', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]], ['physics', 'P3', 'Particle model of matter', [27, 28, 29, 30]], ['physics', 'P4', 'Atomic structure', [31, 32, 33, 34, 35, 36, 37]], ['physics', 'P5', 'Forces', [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]], ['physics', 'P6', 'Waves', [53, 54, 55, 56, 57, 58, 59]]])
+  [['physics', 'P1', 'Energy', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]], ['physics', 'P2', 'Electricity', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]], ['physics', 'P3', 'Particle model of matter', [27, 28, 29, 30]], ['physics', 'P4', 'Atomic structure', [31, 32, 33, 34, 35, 36, 37]], ['physics', 'P5', 'Forces', [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]], ['physics', 'P6', 'Waves', [53, 54, 55, 56, 57, 58, 59, 60, 61, 62]], ['physics', 'P7', 'Magnetism and electromagnetism', [63, 64]]])
 assert.deepEqual(scienceChaptersFor('physics'), physicsChapters)
 assert.equal(scienceLessonsFor('physics'), physicsLessons)
 assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'physics').map(unit => [unit.code, unit.lessons.length]),
@@ -127,6 +127,31 @@ for (const item of physicsLessons) {
 assert.equal(getScienceLesson('physics', 1), physicsLessons[0] ?? null)
 assert.equal(decodeScienceLastLesson('physics:1'), physicsLessons[0] ?? null)
 assert.equal(parseScienceLessonRef('physics', String(physicsLessons.length + 1)), null, 'Unbuilt Physics lessons fall back to the hub')
+// Working Scientifically (subject 'skills'): restarts at Lesson 1 in WS1 Working scientifically and WS2 Practical skills; hrefs carry subject=skills.
+assert.deepEqual(skillsChapters.map(chapter => [chapter.subject, chapter.code, chapter.title, [...chapter.lessonNumbers]]),
+  [['skills', 'WS1', 'Working scientifically', Array.from({ length: 12 }, (_, i) => i + 1)], ['skills', 'WS2', 'Practical skills', Array.from({ length: 10 }, (_, i) => i + 13)]])
+assert.deepEqual(scienceChaptersFor('skills'), skillsChapters)
+assert.equal(scienceLessonsFor('skills'), skillsLessons)
+assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'skills').map(unit => [unit.code, unit.lessons.length]),
+  skillsChapters.map(chapter => [chapter.code, skillsLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).length]))
+assert.equal(scienceSubjectLessonHref('skills', 2, 'W2-03'), '/preview/science?subject=skills&lesson=2&activity=W2-03')
+assert.equal(new URL(scienceSubjectLessonHref('skills', 1), 'http://localhost:3000').searchParams.get('subject'), 'skills')
+assert.equal(encodeScienceLastLesson({ subject: 'skills', number: 1 }), 'skills:1')
+assert.equal(scienceLessonDir({ subject: 'skills', folder: '1' }), 'skills/lesson-1')
+for (const bad of ['skills:0', 'skills:99']) assert.equal(decodeScienceLastLesson(bad), null)
+assert.deepEqual(skillsLessons.map(item => item.number), skillsLessons.map((_, i) => i + 1), 'Working Scientifically lessons are numbered 1, 2, 3 … in order')
+for (const item of skillsLessons) {
+  assert.equal(item.subject, 'skills')
+  assert.equal(item.lesson.strand, 'skills')
+  assert.match(item.lesson.id, /^W-[A-Z]+-\d{3}[A-Z]?-W$/, `${item.lesson.id} must follow W-<TOPIC>-<NNN>-W`)
+  assert.ok(scienceChapterFor(item), `Working Scientifically Lesson ${item.number} must be in a skills chapter`)
+  assert.equal(getScienceLesson('skills', item.number), item)
+  assert.deepEqual(parseScienceLessonRef('skills', String(item.number)), { subject: 'skills', number: item.number })
+  assert.equal(decodeScienceLastLesson(`skills:${item.number}`), item)
+  for (const state of item.lesson.states) assert.match(state.id, /^W\d+-\d{2}$/, `${state.id}: Working Scientifically screen ids are W<lesson>-NN`)
+}
+assert.equal(decodeScienceLastLesson('skills:1'), skillsLessons[0] ?? null)
+assert.equal(parseScienceLessonRef('skills', String(skillsLessons.length + 1)), null, 'Unbuilt Working Scientifically lessons fall back to the hub')
 // Across subjects: lesson ids, storage keys and screen ids never collide (numbers may).
 assert.equal(new Set(allScienceLessons.map(item => item.lesson.id)).size, allScienceLessons.length)
 assert.equal(new Set(allScienceLessons.map(item => createPreviewSessionEngine(item.lesson).storageKey)).size, allScienceLessons.length)
