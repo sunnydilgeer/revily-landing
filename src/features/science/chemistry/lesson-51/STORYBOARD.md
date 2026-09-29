@@ -38,5 +38,10 @@ Same look as Lessons 17 and 18: soft rounded shapes, gentle tints, hand-drawn fe
 - `lca-cycle`: the full ring with all four stages full colour and, under each, one short effect word: "energy, damage", "energy, waste", "fuel, uses", "landfill, burning". Centre text "total environmental cost".
 - `lca-q-cycle` (question, assessment view): the ring of four panels with numbers 1 to 4 only and small unlabelled icons (rock, factory, person, bin) that do not name the stages; arrows show the direction. Nothing gives away which stage a landfill lorry belongs to beyond the order. Neutral accessible description: "A ring of four numbered stages joined by arrows, in order from 1 to 4."
 
+## As drawn (diagram worker)
+- `lca-four`, `lca-cycle` and `lca-q-cycle` use the big ring (1 top, clockwise). Stage frames use a scene on the left and a small ring in the corner with the current stage bold, as in Lesson 18's step list.
+- `lca-q-cycle` in assessment view shows numbered panels only, with no stage icons, because a bin icon at stage 4 would give the answer away.
+- `lca-cycle` stage 3 effect reads "fuel, lifespan".
+
 ## States in full
 Read the states in `lesson.ts` and the frames in `teachingFrames.ts`; they are the single source for wording, answers and hints.

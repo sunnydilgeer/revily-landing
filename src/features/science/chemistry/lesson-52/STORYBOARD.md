@@ -39,5 +39,10 @@ Same look as Lessons 17 and 18: soft rounded shapes, gentle tints, hand-drawn fe
 - `lcause-selective`: a report with four impact bars of which only two are shown in full colour and the rest greyed out or hidden by a sheet; a company logo shape (generic, not a real brand) with a speech bubble "our product is green". Labels "selective LCA: only some impacts shown", "can support a company's claims".
 - `lcause-q-table` (question, assessment view): a small table with column headings "Stage", "Cup P", "Cup Q" and rows: "Energy to make (units)" 3 | 8; "Number of uses" 1 | 40; "Recycled after use?" No | Yes. Plain table, no conclusion text, no highlighting. Neutral accessible description: "A table comparing two cups on energy to make, number of uses and whether they are recycled."
 
+## As drawn (diagram worker)
+- Table frames share one table and the same short cell text; row labels use the Lesson 51 stage colours and badges. Row 2 plastic reads "cracking and polymerisation; little waste" (the less-energy point is kept for the verdict frame, as on the page).
+- `lcause-weigh`: +/− tags on rows 2 to 4 and a level balance; `lcause-verdict` shows the plastic bag with three stage-badged reason pills (two good, one bad) and the paper bag faded, instead of a tilted balance (a tilted pan is ambiguous about which side "wins").
+- `lcause-q-table`: the first column heading is left blank (rows are measures, not stages).
+
 ## States in full
 Read the states in `lesson.ts` and the frames in `teachingFrames.ts`; they are the single source for wording, answers and hints.
