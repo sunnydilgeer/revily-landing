@@ -20,6 +20,20 @@ import { lessonC22, acidSections } from './chemistry/lesson-22/lesson'
 import { acidFrames } from './chemistry/lesson-22/teachingFrames'
 import { lessonC23, saltSections } from './chemistry/lesson-23/lesson'
 import { saltFrames } from './chemistry/lesson-23/teachingFrames'
+import { lessonC24, reactivitySections } from './chemistry/lesson-24/lesson'
+import { reactivityFrames } from './chemistry/lesson-24/teachingFrames'
+import { lessonC25, metalReactionSections } from './chemistry/lesson-25/lesson'
+import { metalReactionFrames } from './chemistry/lesson-25/teachingFrames'
+import { lessonC26, electrolysisSections } from './chemistry/lesson-26/lesson'
+import { electrolysisFrames } from './chemistry/lesson-26/teachingFrames'
+import { lessonC27, aqueousSections } from './chemistry/lesson-27/lesson'
+import { aqueousFrames } from './chemistry/lesson-27/teachingFrames'
+import { lessonC28, exoEndoSections } from './chemistry/lesson-28/lesson'
+import { exoEndoFrames } from './chemistry/lesson-28/teachingFrames'
+import { lessonC29, energyMeasureSections } from './chemistry/lesson-29/lesson'
+import { energyMeasureFrames } from './chemistry/lesson-29/teachingFrames'
+import { lessonC30, profileSections } from './chemistry/lesson-30/lesson'
+import { profileFrames } from './chemistry/lesson-30/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { EvidenceDimension, ScienceLesson, ScienceState } from './types'
@@ -31,13 +45,20 @@ const learnerText = (state: ScienceState) => state.kind === 'teaching'
   ? [state.title, state.body || '', ...(state.steps || [])].join(' ')
   : [state.title, state.hint, ...state.explanation.steps, state.explanation.answer, ...(state.kind === 'choice' ? state.options.map(o => o.label) : [])].join(' ')
 
-type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C3' | 'C4' }
+type Case = { number: number; lesson: ScienceLesson; sections: readonly ScienceSection[]; frames: Record<string, TeachingFrame[]>; title: string; chapter: 'C3' | 'C4' | 'C5' }
 const cases: Case[] = [
   { number: 19, lesson: lessonC19, sections: massConservationSections, frames: massConservationFrames, title: 'Conservation of mass', chapter: 'C3' },
   { number: 20, lesson: lessonC20, sections: gasMassSections, frames: gasMassFrames, title: 'When mass seems to change', chapter: 'C3' },
   { number: 21, lesson: lessonC21, sections: concentrationSections, frames: concentrationFrames, title: 'Concentration of solutions', chapter: 'C3' },
   { number: 22, lesson: lessonC22, sections: acidSections, frames: acidFrames, title: 'Acids, alkalis and pH', chapter: 'C4' },
   { number: 23, lesson: lessonC23, sections: saltSections, frames: saltFrames, title: 'Reactions of acids and making salts', chapter: 'C4' },
+  { number: 24, lesson: lessonC24, sections: reactivitySections, frames: reactivityFrames, title: 'The reactivity series and extracting metals', chapter: 'C4' },
+  { number: 25, lesson: lessonC25, sections: metalReactionSections, frames: metalReactionFrames, title: 'Reactions of metals', chapter: 'C4' },
+  { number: 26, lesson: lessonC26, sections: electrolysisSections, frames: electrolysisFrames, title: 'Electrolysis', chapter: 'C4' },
+  { number: 27, lesson: lessonC27, sections: aqueousSections, frames: aqueousFrames, title: 'Electrolysis of aqueous solutions', chapter: 'C4' },
+  { number: 28, lesson: lessonC28, sections: exoEndoSections, frames: exoEndoFrames, title: 'Exothermic and endothermic reactions', chapter: 'C5' },
+  { number: 29, lesson: lessonC29, sections: energyMeasureSections, frames: energyMeasureFrames, title: 'Measuring energy changes', chapter: 'C5' },
+  { number: 30, lesson: lessonC30, sections: profileSections, frames: profileFrames, title: 'Reaction profiles', chapter: 'C5' },
 ]
 
 for (const { number, lesson, sections, frames, title, chapter } of cases) {
@@ -53,9 +74,9 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
     const contexts = lesson.states.flatMap(state => state.kind === 'teaching' ? [] : [state.contextId])
     assert.equal(new Set(contexts).size, contexts.length)
     const sourceIds = lesson.sources.map(source => source.id)
-    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.[3-4]\.\d\.\d/.test(source.locator)))
+    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.[3-5]\.\d\.\d/.test(source.locator)))
     lesson.states.forEach(state => {
-      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.[3-4]\./.test(ref)), `${state.id}: spec refs`)
+      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.[3-5]\./.test(ref)), `${state.id}: spec refs`)
       state.sourceIds.forEach(sourceId => assert.ok(sourceIds.includes(sourceId)))
     })
     assert.equal(sections[0].id, lesson.states[0].id)
@@ -196,13 +217,13 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
   })
 }
 
-check('Chemistry catalogue: Lessons 1–23, C3 holds 18–21, C4 holds 22–23, Lesson 23 is the last', () => {
-  assert.deepEqual(chemistryLessons.map(item => item.number), Array.from({ length: 23 }, (_, i) => i + 1))
-  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]), [['C1a', 4], ['C1b', 7], ['C2', 6], ['C3', 4], ['C4', 2]])
-  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 23)!), null)
-  assert.equal(parseScienceLessonRef('chemistry', '24'), null)
+check('Chemistry catalogue: Lessons 1–30, C3 holds 18–21, C4 holds 22–27, C5 holds 28–30, Lesson 30 is the last', () => {
+  assert.deepEqual(chemistryLessons.map(item => item.number), Array.from({ length: 30 }, (_, i) => i + 1))
+  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]), [['C1a', 4], ['C1b', 7], ['C2', 6], ['C3', 4], ['C4', 6], ['C5', 3]])
+  assert.equal(nextScienceLesson(getScienceLesson('chemistry', 30)!), null)
+  assert.equal(parseScienceLessonRef('chemistry', '31'), null)
   const cards = buildScienceDecks().flatMap(item => item.cards.map(card => card.id))
   assert.equal(new Set(cards).size, cards.length)
 })
 
-console.log(`${checks} Chemistry Lessons 19–23 checks passed`)
+console.log(`${checks} Chemistry Lessons 19–30 checks passed`)

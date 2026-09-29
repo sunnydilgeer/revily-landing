@@ -38,6 +38,13 @@ import { MetallicVisual } from './MetallicVisuals'
 import { StateVisual } from './StateVisuals'
 import { FormulaMassVisual } from './FormulaMassVisuals'
 import { SaltVisual } from './SaltVisuals'
+import { ProfileVisual } from './ProfileVisuals'
+import { EnergyMeasureVisual } from './EnergyMeasureVisuals'
+import { ExoEndoVisual } from './ExoEndoVisuals'
+import { AqueousVisual } from './AqueousVisuals'
+import { ElectrolysisVisual } from './ElectrolysisVisuals'
+import { MetalReactionVisual } from './MetalReactionVisuals'
+import { ReactivityVisual } from './ReactivityVisuals'
 import { AcidVisual } from './AcidVisuals'
 import { ConcentrationVisual } from './ConcentrationVisuals'
 import { GasMassVisual } from './GasMassVisuals'
@@ -198,6 +205,13 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('state-')) return <StateVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('mr-')) return <FormulaMassVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('salt-')) return <SaltVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('profile-')) return <ProfileVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('calor-')) return <EnergyMeasureVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('exo-')) return <ExoEndoVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('aqel-')) return <AqueousVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('elec-')) return <ElectrolysisVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('mrx-')) return <MetalReactionVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('react-')) return <ReactivityVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('acid-')) return <AcidVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('conc-')) return <ConcentrationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('gasmass-')) return <GasMassVisual focus={focus} assessment={assessment} />

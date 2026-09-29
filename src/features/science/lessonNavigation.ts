@@ -160,6 +160,20 @@ import { lessonC22, acidSections } from './chemistry/lesson-22/lesson'
 import { acidFrames } from './chemistry/lesson-22/teachingFrames'
 import { lessonC23, saltSections } from './chemistry/lesson-23/lesson'
 import { saltFrames } from './chemistry/lesson-23/teachingFrames'
+import { lessonC24, reactivitySections } from './chemistry/lesson-24/lesson'
+import { reactivityFrames } from './chemistry/lesson-24/teachingFrames'
+import { lessonC25, metalReactionSections } from './chemistry/lesson-25/lesson'
+import { metalReactionFrames } from './chemistry/lesson-25/teachingFrames'
+import { lessonC26, electrolysisSections } from './chemistry/lesson-26/lesson'
+import { electrolysisFrames } from './chemistry/lesson-26/teachingFrames'
+import { lessonC27, aqueousSections } from './chemistry/lesson-27/lesson'
+import { aqueousFrames } from './chemistry/lesson-27/teachingFrames'
+import { lessonC28, exoEndoSections } from './chemistry/lesson-28/lesson'
+import { exoEndoFrames } from './chemistry/lesson-28/teachingFrames'
+import { lessonC29, energyMeasureSections } from './chemistry/lesson-29/lesson'
+import { energyMeasureFrames } from './chemistry/lesson-29/teachingFrames'
+import { lessonC30, profileSections } from './chemistry/lesson-30/lesson'
+import { profileFrames } from './chemistry/lesson-30/teachingFrames'
 import type { ScienceSection } from './lessonSections'
 import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
@@ -271,7 +285,8 @@ export const chemistryChapters = [
   { subject: 'chemistry', code: 'C1b', title: 'The periodic table', lessonNumbers: [5, 6, 7, 8, 9, 10, 11] },
   { subject: 'chemistry', code: 'C2', title: 'Bonding, structure and properties of matter', lessonNumbers: [12, 13, 14, 15, 16, 17] },
   { subject: 'chemistry', code: 'C3', title: 'Quantitative chemistry', lessonNumbers: [18, 19, 20, 21] },
-  { subject: 'chemistry', code: 'C4', title: 'Chemical changes', lessonNumbers: [22, 23] },
+  { subject: 'chemistry', code: 'C4', title: 'Chemical changes', lessonNumbers: [22, 23, 24, 25, 26, 27] },
+  { subject: 'chemistry', code: 'C5', title: 'Energy changes', lessonNumbers: [28, 29, 30] },
 ] as const satisfies readonly ScienceChapter[]
 /** Register a Chemistry lesson here: { subject: 'chemistry', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
 export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
@@ -298,6 +313,13 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 21, folder: '21', title: 'Concentration of solutions', detail: 'Grams per decimetre cubed and finding a mass', lesson: lessonC21, sections: concentrationSections, frames: concentrationFrames },
   { subject: 'chemistry', number: 22, folder: '22', title: 'Acids, alkalis and pH', detail: 'The pH scale, indicators and neutralisation', lesson: lessonC22, sections: acidSections, frames: acidFrames },
   { subject: 'chemistry', number: 23, folder: '23', title: 'Reactions of acids and making salts', detail: 'Salts from oxides, hydroxides and carbonates', lesson: lessonC23, sections: saltSections, frames: saltFrames },
+  { subject: 'chemistry', number: 24, folder: '24', title: 'The reactivity series and extracting metals', detail: 'Oxidation, reduction and extracting metals with carbon', lesson: lessonC24, sections: reactivitySections, frames: reactivityFrames },
+  { subject: 'chemistry', number: 25, folder: '25', title: 'Reactions of metals', detail: 'Metals with acids and water, and displacement', lesson: lessonC25, sections: metalReactionSections, frames: metalReactionFrames },
+  { subject: 'chemistry', number: 26, folder: '26', title: 'Electrolysis', detail: 'Splitting molten compounds and extracting aluminium', lesson: lessonC26, sections: electrolysisSections, frames: electrolysisFrames },
+  { subject: 'chemistry', number: 27, folder: '27', title: 'Electrolysis of aqueous solutions', detail: 'Predicting products at each electrode', lesson: lessonC27, sections: aqueousSections, frames: aqueousFrames },
+  { subject: 'chemistry', number: 28, folder: '28', title: 'Exothermic and endothermic reactions', detail: 'Energy given out or taken in', lesson: lessonC28, sections: exoEndoSections, frames: exoEndoFrames },
+  { subject: 'chemistry', number: 29, folder: '29', title: 'Measuring energy changes', detail: 'The polystyrene cup practical', lesson: lessonC29, sections: energyMeasureSections, frames: energyMeasureFrames },
+  { subject: 'chemistry', number: 30, folder: '30', title: 'Reaction profiles', detail: 'Activation energy and energy level diagrams', lesson: lessonC30, sections: profileSections, frames: profileFrames },
 ]
 
 export const scienceSubjects = [
