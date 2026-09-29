@@ -83,9 +83,9 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
     const contexts = lesson.states.flatMap(state => state.kind === 'teaching' ? [] : [state.contextId])
     assert.equal(new Set(contexts).size, contexts.length)
     const sourceIds = lesson.sources.map(source => source.id)
-    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.[6-7]\.\d\.\d/.test(source.locator)))
+    lesson.sources.forEach(source => assert.ok(source.url.startsWith('https://') && /5\.(8|9|10)\.\d\.\d/.test(source.locator)))
     lesson.states.forEach(state => {
-      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.[6-7]\./.test(ref)), `${state.id}: spec refs`)
+      assert.ok(state.specRefs.length && state.specRefs.every(ref => /^5\.(8|9|10)\./.test(ref)), `${state.id}: spec refs`)
       state.sourceIds.forEach(sourceId => assert.ok(sourceIds.includes(sourceId)))
     })
     assert.equal(sections[0].id, lesson.states[0].id)

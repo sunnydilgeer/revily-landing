@@ -29,16 +29,16 @@ Soft, rounded, hand-drawn-feeling shapes, gentle tints, as in Lessons 17 and 18.
 - `pure-sort`: three small beakers side by side. "Pure water": one particle type. "Tap water": water particles plus a few dissolved specks. "Orange juice": several types. Each labelled "pure" or "mixture".
 - `pure-impure`: a flask of a pale solid with a few odd-coloured specks mixed in, labelled "wanted compound" and "impurity".
 - `pure-fixed`: a thermometer beside a beaker of ice melting at 0 °C and one boiling at 100 °C, labelled "pure water: melts at 0 °C, boils at 100 °C".
-- `pure-compare`: a small data book page with "melting point: 136 °C" arrow to a thermometer reading of a measured value; label "compare".
-- `pure-gap`: a number line of temperatures with the pure value marked; two measured samples: one very close, one far away, labelled "purer" and "less pure".
-- `pure-melting`: a simple temperature-against-time line: pure sample as a flat step at one temperature; impure as a lower, sloping, wider step. Labels "pure: one temperature" and "impure: lower, across a range".
-- `pure-boiling`: same idea for boiling: pure flat at 100 °C; impure higher and sloping. Labels "impure: higher, across a range".
+- `pure-compare`: an open data book page "melting point 136 °C" and a thermometer in the sample reading "measured: 134 °C", joined by a double arrow labelled "compare".
+- `pure-gap`: a 120–140 °C number line with the data book value 136 °C marked; sample A at 134 °C (small gap, "purer") and sample B at 125 °C (big gap, "less pure").
+- `pure-melting`: temperature (°C) against time, no numbers. Pure line flat at one temperature; impure line lower and sloping across a range. Labels "pure: one temperature", "impure: lower, across a range"; small key; note "impurities lower the melting point".
+- `pure-boiling`: same axes for boiling: pure water flat at 100 °C; impure liquid higher and sloping. Labels "pure water: one temperature", "impure: higher, across a range"; note "impurities raise the boiling point".
 - `pure-formulation`: a tube of hand cream, a paint tin and a tablet blister, each with a small mixture bubble; label "mixtures designed for a job".
-- `pure-recipe`: a recipe card "formula" listing three measured parts with balance scale and measuring spoon; arrow to a finished product.
-- `pure-properties`: two paint tins: one with correct amounts (smooth brush) and one with too much solvent (runny); labels "right amounts: right properties".
-- `pure-paint`: a paint pot cut-away with four labelled parts: pigment (colour), solvent (dissolves, makes it runny), binder (holds pigment on), additives (change properties).
-- `pure-everyday-formulations`: a tidy row of small icons with labels: cleaning spray, fuel, medicine, cosmetics, fertiliser, alloy, food and drink.
-- `pure-q-melting` (question, assessment view): three thermometers or a small table, numbered Sample: "melts 118 to 124 °C", data book "128 °C". No words like "pure" or "impure". Neutral description: "A small table comparing a sample's melting range with a data book value."
+- `pure-recipe`: a "formula" card for a hand cream (water 60 g, oil 30 g, wax 10 g), a balance reading 60 g and a spoon ("measure each part"), arrow to a jar of cream.
+- `pure-properties`: two panels of paint on a wall with their tins: "right amounts" gives a smooth, even coat; "too much solvent" runs and drips. Caption "Right amounts give the right properties".
+- `pure-paint`: a paint tin with a magnified view of the paint (pigment particles, binder strands and additive specks in pale-blue solvent), numbered pointers 1–4 and a key: pigment (gives the colour), solvent (dissolves the parts, makes it runny), binder (holds the pigment on the surface), additives (change the properties).
+- `pure-everyday-formulations`: seven round icons in two rows: cleaning products, fuels, medicines, cosmetics, fertilisers, alloys, food and drink.
+- `pure-q-melting` (question, assessment view): a two-row table ("sample: melts from 118 °C to 124 °C"; "data book value: melts at 128 °C") and a 110–130 °C number line with the sample range as a bar and the data book value as a dot. No words like "pure" or "impure". Neutral description: "A small table and number line comparing the melting range of a sample with a data book value."
 
 ## States in full
 Read the states in `lesson.ts` and the frames in `teachingFrames.ts`; they are the single source for wording, answers and hints.

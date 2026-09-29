@@ -11,7 +11,7 @@ export const facts: ScienceFactSet = {
       ['What is distribution in chromatography?', 'The amount of time a chemical spends dissolved in the solvent.'],
       ['Why do chemicals move different distances?', 'The more soluble a chemical is, the more time it spends dissolved and the further it moves up the paper.'],
     ],
-    'C42-09': [
+    'C42-08': [
       ['What does the number of spots tell you?', 'The smallest possible number of chemicals in the mixture, because two chemicals can make one spot.'],
       ['What does one spot in many solvents suggest?', 'The substance probably contains one chemical, so it is likely to be pure.'],
     ],

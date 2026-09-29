@@ -18,7 +18,7 @@ export const chromaFrames: Record<string, TeachingFrame[]> = {
     f('Different chemicals, different distances', 'Different chemicals spend different amounts of time dissolved, so they move different distances.', 'different times, different distances', 'Different chemicals are dissolved for different amounts of time. So different chemicals move different distances up the paper.', 'chroma-different'),
     f('They separate into spots', 'Because they move different distances, the chemicals separate into different spots.', 'each chemical, its own spot', 'A chemical that travels a different distance ends up in a different place. So the chemicals in the mixture separate into different spots. You cannot see this movement, but the spots show what happened.', 'chroma-spots'),
   ],
-  'C42-09': [
+  'C42-08': [
     f('The solvent front', 'The solvent front is the furthest point the solvent reaches up the paper.', 'the top of the wet paper', 'The result of chromatography is called a chromatogram. On it, the solvent front is the furthest point the solvent reached. You mark it with a pencil line when the paper comes out.', 'chroma-front'),
     f('Spots show chemicals', 'Chemicals move different distances, so different spots show different chemicals.', 'spot = chemical', 'Different chemicals move different distances up the paper. So on a chromatogram, different spots show different chemicals.', 'chroma-gram'),
     f('Counting the spots', 'The number of spots is the smallest possible number of chemicals in the mixture.', 'at least this many', 'Count the spots. There cannot be fewer chemicals than spots. So the number of spots is the smallest number of chemicals the mixture could contain.', 'chroma-count'),
