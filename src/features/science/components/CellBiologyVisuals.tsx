@@ -26,6 +26,17 @@ import { AtomHistoryVisual } from './AtomHistoryVisuals'
 import { SeparationVisual } from './SeparationVisuals'
 import { MixtureVisual } from './MixtureVisuals'
 import { CompoundVisual } from './CompoundVisuals'
+import { TableVisual } from './TableVisuals'
+import { AlkaliVisual } from './AlkaliVisuals'
+import { HalogenVisual } from './HalogenVisuals'
+import { NobleGasVisual } from './NobleGasVisuals'
+import { IonVisual } from './IonVisuals'
+import { IonicVisual } from './IonicVisuals'
+import { CovalentVisual } from './CovalentVisuals'
+import { GiantVisual } from './GiantVisuals'
+import { MetallicVisual } from './MetallicVisuals'
+import { StateVisual } from './StateVisuals'
+import { FormulaMassVisual } from './FormulaMassVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -170,6 +181,17 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('hist-')) return <AtomHistoryVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('sep-')) return <SeparationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('mix-')) return <MixtureVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('mtab-')) return <TableVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('alk-')) return <AlkaliVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hal-')) return <HalogenVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('noble-')) return <NobleGasVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('ion-')) return <IonVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('ionic-')) return <IonicVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('cov-')) return <CovalentVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('giant-')) return <GiantVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('metal-')) return <MetallicVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('state-')) return <StateVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('mr-')) return <FormulaMassVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('cmpd-')) return <CompoundVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />

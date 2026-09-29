@@ -1,0 +1,47 @@
+import type { ScienceLesson, ScienceState } from '../../types'
+import { author, sampledRequirements } from '../../lessonAuthoring'
+import { stateFrames as frames } from './teachingFrames'
+
+const source = { id: 'aqa-chemistry', title: 'AQA 8464 Chemistry subject content', url: 'https://www.aqa.org.uk/subjects/science/gcse/science-8464/specification/chemistry-subject-content', locator: '5.2.2.1 The three states of matter; 5.2.2.2 State symbols (Foundation: the Higher-only limitations of the particle model are left out)' }
+const skill = 'C-STATES-OF-MATTER'
+const states3 = author(skill, ['5.2.2.1'], ['aqa-chemistry'])
+const change = author(skill, ['5.2.2.1'], ['aqa-chemistry'])
+const points = author(skill, ['5.2.2.1'], ['aqa-chemistry'])
+const symbols = author(skill, ['5.2.2.2'], ['aqa-chemistry'])
+const t = (a: ReturnType<typeof author>, id: keyof typeof frames, title: string) => a.teach(id, title, frames[id])
+
+export const stateSections = [
+  { id: 'C17-01', label: 'Start here', detail: 'Things that keep their shape' },
+  { id: 'C17-02', label: 'How are the particles arranged?', detail: 'Solids, liquids and gases in the particle model' },
+  { id: 'C17-06', label: 'What happens when a state changes?', detail: 'Melting, boiling, condensing and freezing' },
+  { id: 'C17-09', label: 'Which state at a given temperature?', detail: 'Forces, melting points and boiling points' },
+  { id: 'C17-12', label: 'How do equations show state?', detail: 'State symbols (s), (l), (g) and (aq)' },
+  { id: 'C17-15', label: 'On your own', detail: 'Particle boxes, white phosphorus and an equation' },
+]
+
+const states: ScienceState[] = [
+  { ...states3.choice('C17-01', 'You move each of these into a different container. Which one keeps its own shape?', ['Orange juice', 'The air in a balloon', 'A wooden block'], 2, 'Which one could you pick up and it would stay the same?', ['Juice flows to fill the bottom of a container, and air spreads out to fill all of it.', 'A wooden block is a solid, so it keeps its own shape wherever you put it.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  t(states3, 'C17-02', 'How are the particles arranged?'),
+  states3.choice('C17-03', 'A substance has a fixed volume, but it takes the shape of the bottom of its container. What state is it in?', ['Solid', 'Liquid', 'Gas', 'It could be any state'], 1, 'Which state flows but does not spread out to fill the whole container?', ['A solid keeps its own shape, and a gas has no fixed volume.', 'A liquid has a fixed volume but flows to fill the bottom of its container.']),
+  states3.choice('C17-04', 'Why does a gas spread out to fill any container?', ['Its particles get bigger when it spreads', 'Its particles are held in a regular pattern', 'Its particles are close together and touching', 'Its particles move freely, with very weak forces between them'], 3, 'How strong are the forces between gas particles?', ['The forces between gas particles are very weak, and the particles are far apart.', 'So they move in straight lines in random directions until they fill the container. The particles themselves do not get bigger.']),
+  states3.choice('C17-05', 'Which sentence describes the particles in a solid?', ['They vibrate in fixed positions', 'They do not move at all', 'They are far apart from each other', 'They slide past each other'], 0, 'Strong forces hold them in place. Can they still move a little?', ['Strong forces hold the particles of a solid in fixed positions in a regular pattern.', 'They cannot move around, but they do vibrate on the spot.']),
+  t(change, 'C17-06', 'What happens when a state changes?'),
+  change.choice('C17-07', 'Steam hits a cold window and turns into water droplets. What is this change of state called?', ['Boiling', 'Freezing', 'Condensing', 'Melting'], 2, 'Steam is a gas. What does it turn into?', ['The steam cools, so its particles lose energy and the forces pull them together.', 'A gas turning into a liquid is called condensing.']),
+  change.choice('C17-08', 'When ice melts, what happens to its particles?', ['They melt and get smaller', 'They gain energy and break free from fixed positions', 'They turn into a new substance', 'They lose energy and slow down'], 1, 'Is energy going in or out when ice melts?', ['Melting needs heat, so the particles gain energy and vibrate more.', 'At the melting point they break free from their fixed positions. The particles themselves stay the same.']),
+  t(points, 'C17-09', 'Which state at a given temperature?'),
+  points.choice('C17-10', 'The forces between particles are stronger in substance A than in substance B. What does this tell you?', ['A has a higher boiling point than B', 'A has a lower melting point than B', 'A is always a gas', 'A needs less energy to melt than B'], 0, 'Stronger forces need more or less energy to overcome?', ['Stronger forces need more energy to overcome.', 'So substance A has to be heated to a higher temperature to melt or boil: it has the higher melting and boiling points.']),
+  points.choice('C17-11', 'Use the table. Which substance is a liquid at room temperature (25 °C)?', ['Ammonia', 'Iodine', 'None of them', 'Propanone'], 3, 'For each substance, is 25 °C below, between or above its two points?', ['Ammonia boils at −33 °C, so it is a gas at 25 °C. Iodine melts at 114 °C, so it is a solid.', 'Propanone melts at −95 °C and boils at 56 °C. 25 °C is between these, so propanone is a liquid.'], 'dataInterpretation', false, 'state-predict-guided'),
+  t(symbols, 'C17-12', 'How do equations show state?'),
+  symbols.choice('C17-13', 'What does the state symbol (aq) tell you about a substance?', ['It is dissolved in water', 'It is a pure liquid', 'It is water', 'It is a gas'], 0, 'What does aqueous mean?', ['(aq) stands for aqueous, which means dissolved in water.', 'A pure liquid has the symbol (l) instead.']),
+  symbols.choice('C17-14', 'Sugar is dissolved in a cup of tea. Which state symbol should the sugar have in an equation?', ['(s)', '(l)', '(g)', '(aq)'], 3, 'The sugar is not a solid lump any more. Where is it?', ['The sugar has dissolved in the water in the tea.', 'A substance dissolved in water has the state symbol (aq).']),
+  states3.choice('C17-15', 'Which numbered box shows particles with a fixed volume but no fixed shape?', ['Box 1', 'Box 2', 'Box 3'], 2, 'Look for particles that touch but are not in a pattern.', ['Box 1 is a solid: a regular block. Box 2 is a gas: particles far apart.', 'Box 3 is a liquid: its particles touch in a random order and fill the bottom of the box. A liquid has a fixed volume but no fixed shape.'], 'understanding', true, 'state-question-boxes'),
+  points.choice('C17-16', 'White phosphorus melts at 44 °C and boils at 280 °C. What state is it in at 100 °C?', ['Solid', 'Liquid', 'Gas, because 100 °C is a boiling point', 'A mix of solid and gas'], 1, 'Is 100 °C below, between or above its two points?', ['100 °C is above the melting point (44 °C) but below the boiling point (280 °C).', 'So white phosphorus is a liquid at 100 °C. 100 °C is the boiling point of water, not of phosphorus.'], 'dataInterpretation', true, 'state-question-phosphorus'),
+  symbols.choice('C17-17', 'Hydrogen burns in oxygen: 2H₂(g) + O₂(g) → 2H₂O(l). What do the state symbols tell you?', ['Both reactants are gases, and the water made is a liquid', 'The water made is dissolved in hydrogen', 'All three substances are liquids', 'The water made is steam'], 0, 'Read the symbol straight after each formula.', ['H₂ and O₂ both have (g), so both reactants are gases.', 'H₂O has (l), so the water made is a liquid, not steam.'], 'application', true),
+  change.written('C17-18', 'Describe what happens to the particles when ice is heated until it melts, and then until the water boils.', 'Use the words energy, forces, melting point and boiling point. Say how the particles are arranged and how they move.', 'In ice, strong forces hold the particles in fixed positions, and they vibrate on the spot. When the ice is heated, the particles gain energy and vibrate more. At the melting point, they have enough energy to break free from their fixed positions, and the ice becomes liquid water. The particles are still close together but move past each other. Further heating gives them more energy, so they move faster and the forces weaken. At the boiling point, they have enough energy to overcome the forces, and the water becomes a gas, with particles far apart and moving randomly.', ['Heating gives the particles more energy, so they vibrate / move more.', 'At the melting point the particles break free from their fixed positions, and the solid becomes a liquid.', 'In the liquid the particles are still close together but move past each other.', 'At the boiling point the particles have enough energy to overcome the forces between them, and the liquid becomes a gas with particles far apart.'], ['Saying the particles themselves melt, expand or change into a new substance.', 'Saying the particles in ice do not move at all.', 'Saying the particles lose energy when they are heated.']),
+]
+
+export const lessonC17: ScienceLesson = {
+  id: 'C-BND-017-C', contentVersion: '0.1.0', qualification: 'AQA-8464F', strand: 'chemistry',
+  title: 'States of matter and changing state', prerequisites: [], reviewStatus: 'draftNeedsTeacherReview',
+  sources: [source], misconceptions: [], states, retrieval: [], requirements: sampledRequirements(states),
+}
