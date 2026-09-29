@@ -229,7 +229,7 @@ import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
 
 /*
- * Science lessons are numbered per subject: Biology Lesson 1…58, Chemistry Lesson 1, 2, 3 … (see NAVIGATION.md).
+ * Science lessons are numbered per subject: Biology Lesson 1…58, Chemistry Lesson 1, 2, 3 …, Physics Lesson 1, 2, 3 … (see NAVIGATION.md).
  * `LessonNumber`, `scienceChapters`, `scienceLessons`, `scienceLessonHref` and `parseScienceLesson` are the
  * Biology catalogue and keep their original meaning, URLs and saved progress. Subject-aware code uses
  * `getScienceLesson(subject, number)`, `scienceSubjectLessonHref` and `parseScienceLessonRef`, and keys
@@ -317,7 +317,7 @@ export const scienceLessons = [
 export type ScienceCatalogueEntry = {
   readonly subject: ScienceSubject
   readonly number: number
-  /** Source folder under the subject's directory: Biology `lesson-<folder>`, Chemistry `chemistry/lesson-<folder>`. */
+  /** Source folder under the subject's directory: Biology `lesson-<folder>`, Chemistry `chemistry/lesson-<folder>`, Physics `physics/lesson-<folder>`. */
   readonly folder: string
   readonly title: string
   readonly detail: string
@@ -402,11 +402,23 @@ export const chemistryLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 55, folder: '55', title: 'Waste water treatment', detail: 'How sewage is cleaned', lesson: lessonC55, sections: sewageSections, frames: sewageFrames },
 ]
 
+// Physics restarts at Lesson 1. Chapters list the planned lesson numbers; a lesson appears once it is in physicsLessons.
+// Lesson ids: P-<TOPIC>-<NNN>-P (e.g. P-ENE-001-P, P-ELE-015-P), NNN = the Physics lesson number when first built.
+export const physicsChapters = [
+  { subject: 'physics', code: 'P1', title: 'Energy', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] },
+  { subject: 'physics', code: 'P2', title: 'Electricity', lessonNumbers: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26] },
+  { subject: 'physics', code: 'P3', title: 'Particle model of matter', lessonNumbers: [27, 28, 29, 30] },
+] as const
+/** Register a Physics lesson here: { subject: 'physics', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
+export const physicsLessons: readonly ScienceCatalogueEntry[] = [
+]
+
 export const scienceSubjects = [
   { subject: 'biology', title: 'Biology', code: 'B', chapters: scienceChapters as readonly ScienceChapter[], lessons: scienceLessons as readonly ScienceCatalogueEntry[] },
   { subject: 'chemistry', title: 'Chemistry', code: 'C', chapters: chemistryChapters as readonly ScienceChapter[], lessons: chemistryLessons },
+  { subject: 'physics', title: 'Physics', code: 'P', chapters: physicsChapters as readonly ScienceChapter[], lessons: physicsLessons },
 ] as const satisfies readonly { subject: ScienceSubject; title: string; code: string; chapters: readonly ScienceChapter[]; lessons: readonly ScienceCatalogueEntry[] }[]
-/** Every built lesson, Biology first, then Chemistry. */
+/** Every built lesson, Biology first, then Chemistry, then Physics. */
 export const allScienceLessons: readonly ScienceCatalogueEntry[] = scienceSubjects.flatMap(item => item.lessons)
 export const allScienceChapters: readonly ScienceChapter[] = scienceSubjects.flatMap(item => item.chapters)
 

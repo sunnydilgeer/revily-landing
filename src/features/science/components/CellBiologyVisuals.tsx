@@ -74,6 +74,37 @@ import { AcidVisual } from './AcidVisuals'
 import { ConcentrationVisual } from './ConcentrationVisuals'
 import { GasMassVisual } from './GasMassVisuals'
 import { MassConservationVisual } from './MassConservationVisuals'
+// Physics (Lessons 1–30)
+import { EnergyStoreVisual } from './EnergyStoreVisuals'
+import { ConserveVisual } from './ConserveVisuals'
+import { KineticVisual } from './KineticVisuals'
+import { PotentialVisual } from './PotentialVisuals'
+import { HeatCapacityVisual } from './HeatCapacityVisuals'
+import { PowerVisual } from './PowerVisuals'
+import { ShcPracticalVisual } from './ShcPracticalVisuals'
+import { InsulationVisual } from './InsulationVisuals'
+import { EfficiencyVisual } from './EfficiencyVisuals'
+import { EnergyResourceVisual } from './EnergyResourceVisuals'
+import { WindSolarVisual } from './WindSolarVisuals'
+import { WaterPowerVisual } from './WaterPowerVisuals'
+import { BiofuelVisual } from './BiofuelVisuals'
+import { EnergyTrendVisual } from './EnergyTrendVisuals'
+import { CircuitVisual } from './CircuitVisuals'
+import { OhmVisual } from './OhmVisuals'
+import { WireResistVisual } from './WireResistVisuals'
+import { IvVisual } from './IvVisuals'
+import { SensorVisual } from './SensorVisuals'
+import { SeriesVisual } from './SeriesVisuals'
+import { ParallelVisual } from './ParallelVisuals'
+import { ResistorPracVisual } from './ResistorPracVisuals'
+import { MainsVisual } from './MainsVisuals'
+import { AppliancePowerVisual } from './AppliancePowerVisuals'
+import { ChargeEnergyVisual } from './ChargeEnergyVisuals'
+import { GridVisual } from './GridVisuals'
+import { GasParticleVisual } from './GasParticleVisuals'
+import { DensityVisual } from './DensityVisuals'
+import { InternalEnergyVisual } from './InternalEnergyVisuals'
+import { LatentVisual } from './LatentVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -255,6 +286,37 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('potable-')) return <PotableVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('wtest-')) return <WaterTestVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('sewage-')) return <SewageVisual focus={focus} assessment={assessment} />
+  // Physics
+  if (focus.startsWith('estore-')) return <EnergyStoreVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('conserve-')) return <ConserveVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('kinetic-')) return <KineticVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('gpe-')) return <PotentialVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('shc-')) return <HeatCapacityVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('power-')) return <PowerVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('shcprac-')) return <ShcPracticalVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('insul-')) return <InsulationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('effic-')) return <EfficiencyVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('eres-')) return <EnergyResourceVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('windsol-')) return <WindSolarVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('waterpow-')) return <WaterPowerVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('biofuel-')) return <BiofuelVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('etrend-')) return <EnergyTrendVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('circuit-')) return <CircuitVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('ohm-')) return <OhmVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('wirer-')) return <WireResistVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('ivchar-')) return <IvVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('sensor-')) return <SensorVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('series-')) return <SeriesVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('parallel-')) return <ParallelVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rprac-')) return <ResistorPracVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('mains-')) return <MainsVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('appower-')) return <AppliancePowerVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('qv-')) return <ChargeEnergyVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('grid-')) return <GridVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('gaspart-')) return <GasParticleVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('density-')) return <DensityVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('internal-')) return <InternalEnergyVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('latent-')) return <LatentVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('profile-')) return <ProfileVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('calor-')) return <EnergyMeasureVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('exo-')) return <ExoEndoVisual focus={focus} assessment={assessment} />

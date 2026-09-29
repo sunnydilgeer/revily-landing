@@ -42,7 +42,7 @@ assert.ok(shell.includes('data-subject={subject}'), 'The shell must carry the su
 assert.ok(app.includes('saveLastSubject') && app.includes('readLastSubject'), 'The app must reopen on the last subject')
 assert.ok(tokens.includes('[data-subject="science"]') && tokens.includes('--rv-accent:'), 'Science must override the accent tokens')
 assert.ok(science.includes("'Coming later'") || science.includes('Coming later'), 'Chemistry and Physics must show as coming later')
-assert.ok(science.includes("'Chemistry'") && science.includes("'Physics'"))
+assert.ok(science.includes('scienceSubjects.filter(item => item.lessons.length === 0)'), 'Science subjects with no lesson yet (e.g. Physics) must be listed as coming later')
 assert.ok(sciencePage.includes("redirect('/preview?subject=science')"), 'The old Science hub must redirect into the app')
 
 assert.ok(app.includes('aria-label="Breadcrumb"'))

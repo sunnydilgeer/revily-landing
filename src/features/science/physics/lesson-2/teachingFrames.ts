@@ -1,0 +1,25 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// The conservation of energy principle, forces doing work (work done = energy transferred), then describing store changes in four situations.
+// Dissipation is met as one idea here; the detail on wasted energy comes in the lesson on reducing unwanted transfers.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const conserveFrames: Record<string, TeachingFrame[]> = {
+  'P2-02': [
+    f('Energy is never destroyed', 'Energy can be transferred, stored or dissipated, but it can never be created or destroyed.', 'never created, never destroyed', 'Here is the most important fact about energy. Energy can never be created, and it can never be destroyed. It can only move from one store to another. This is called the conservation of energy.', 'conserve-principle'),
+    f('Three things can happen', 'Energy can be transferred usefully, stored, or dissipated.', 'useful, stored, dissipated', 'When a system changes, energy can be transferred usefully to where we want it. It can be stored. Or it can be dissipated. Dissipated is a word that means spread out and wasted.', 'conserve-three'),
+    f('Dissipated is not gone', 'Dissipated energy is not destroyed. It has been transferred to stores we do not want, usually by heating the surroundings.', 'wasted, but still there', 'Dissipated energy has not vanished. It has been transferred to stores that we do not want or cannot use. Usually this is the thermal store of the surroundings. It is spread out, so it is very hard to get back.', 'conserve-dissipated'),
+    f('True every time', 'Whenever a system changes, all the energy is simply moved between stores. This is true for every energy transfer.', 'energy in = energy out', 'The conservation of energy is true for every energy transfer. Whenever a system changes, all the energy is moved between stores. The energy at the end always adds up to the energy at the start.', 'conserve-every-time'),
+  ],
+  'P2-05': [
+    f('A force moving an object', 'When a force moves an object, work is done on it.', 'push or pull that moves something', 'A force is a push or a pull. If a force moves an object, we say that work is done on the object. Pushing a sledge across snow is an example. Your push is the force and the sledge is the object.', 'conserve-work'),
+    f('Work done is energy transferred', 'Work done is the same as the energy transferred. Both are measured in joules (J).', 'work done = energy transferred', 'Work done is exactly the same as the energy transferred. If you do 50 joules of work, then 50 joules of energy are transferred. Energy and work are both measured in joules, which we write as J.', 'conserve-work-energy'),
+    f('Transferred mechanically', 'Energy transferred by a force moving an object is transferred mechanically.', 'force means mechanically', 'So a force moving an object transfers energy mechanically. When you pull a sledge, energy is transferred mechanically from your chemical store to the kinetic store of the sledge.', 'conserve-mechanical'),
+  ],
+  'P2-08': [
+    f('A ball thrown upwards', 'A thrower transfers energy mechanically from their chemical store to the kinetic and gravitational potential stores of the ball.', 'chemical to kinetic and g.p.e.', 'A person throws a ball into the air. The person pushes on the ball with a force. Energy is transferred mechanically from the chemical store of the thrower to the kinetic store and the gravitational potential store of the ball.', 'conserve-thrown'),
+    f('A ball dropped', 'A falling ball is pulled by gravity. Energy is transferred mechanically from its gravitational potential store to its kinetic store.', 'height store to movement store', 'A ball is dropped from a height. Gravity is a force that pulls the ball down. As the ball speeds up, energy is transferred mechanically from its gravitational potential store to its kinetic store.', 'conserve-dropped'),
+    f('A bike braking', 'Friction between brakes and wheels transfers energy mechanically from the kinetic store to the thermal stores of the brakes, wheels and surroundings.', 'kinetic to thermal by friction', 'A cyclist squeezes the brakes. Friction acts between the brake pads and the wheel. Energy is transferred mechanically from the kinetic store of the bike to the thermal stores of the brakes, the wheels and the surroundings.', 'conserve-braking'),
+    f('A car hitting a wall', 'A crash transfers energy from the kinetic store of the car into many other stores, including the thermal and elastic potential stores of the car and wall.', 'kinetic to many stores', 'A car hits a wall, and the two push on each other with a force. Energy is transferred mechanically from the kinetic store of the car to many other stores. Some goes to the elastic potential and thermal stores of the car and the wall.', 'conserve-crash'),
+  ],
+}

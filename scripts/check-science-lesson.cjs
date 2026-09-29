@@ -1,7 +1,7 @@
 // Checks one Science lesson against the grading rules and the lesson 13–26 flow rules
 // (see src/features/science/LESSONS-1-12-FLOW-AUDIT.md).
 // Usage: node scripts/check-science-lesson.cjs <lesson folder> [--quiet]
-//   Biology: the folder suffix (53 → lesson-53, 1b → lesson-1b). Chemistry: c1 or chemistry/1 → chemistry/lesson-1.
+//   Biology: the folder suffix (53 → lesson-53, 1b → lesson-1b). Chemistry: c1 or chemistry/1 → chemistry/lesson-1. Physics: p1 or physics/1 → physics/lesson-1.
 // Prints the lesson's flow, then every failure. Exit code 1 if anything fails.
 const fs = require('node:fs')
 const path = require('node:path')
@@ -18,7 +18,7 @@ for (const ext of ['.ts', '.tsx']) {
 module.paths.unshift(path.join(root, 'node_modules'))
 
 const folder = process.argv[2]
-if (!folder) { console.error('Usage: node scripts/check-science-lesson.cjs <lesson folder, e.g. 53 or c1>'); process.exit(2) }
+if (!folder) { console.error('Usage: node scripts/check-science-lesson.cjs <lesson folder, e.g. 53, c1 or p1>'); process.exit(2) }
 const { subject, dir } = require('./science-lesson-dir.cjs')(folder)
 if (!fs.existsSync(path.join(science, dir, 'lesson.ts'))) { console.error(`No lesson at src/features/science/${dir}/lesson.ts`); process.exit(2) }
 const lessonModule = require(path.join(science, `${dir}/lesson.ts`))
@@ -40,6 +40,14 @@ const index = new Map(states.map((state, i) => [state.id, i]))
 
 /* ---------- Grading and content rules (must always pass) ---------- */
 if (new Set(states.map(s => s.id)).size !== states.length) fail('ids', 'State ids must be unique')
+// Chemistry and Physics: strand, screen ids C<N>-NN / P<N>-NN and key facts in cards/facts/<subject>/<N>.ts.
+if (subject !== 'biology') {
+  const number = dir.replace(/^.*lesson-/, '')
+  const prefix = subject === 'chemistry' ? 'C' : 'P'
+  if (lesson.strand !== subject) fail('subject', `strand must be '${subject}'`)
+  for (const state of states) if (!new RegExp(`^${prefix}${number}-\\d{2}$`).test(state.id)) fail('ids', `${state.id}: ${subject} screen ids are ${prefix}${number}-NN`)
+  if (!fs.existsSync(path.join(science, `cards/facts/${subject}/${number}.ts`))) fail('facts', `No key facts at cards/facts/${subject}/${number}.ts`)
+}
 if (lesson.reviewStatus !== 'draftNeedsTeacherReview') fail('draft', 'Lesson must stay a draft awaiting teacher review')
 const sourceIds = lesson.sources.map(s => s.id)
 for (const state of states) {
@@ -87,7 +95,7 @@ try {
     const html = render(f.focus, false)
     if (html.length <= 20 || html.includes('NaN')) fail('visuals', `${id} frame "${f.label}" focus "${f.focus}" does not render a diagram`)
   }
-  for (const state of states) if (state.visual && /^(?:B(?:[4-9]|[1-9]\d)|C\d+)-/.test(state.id)) {
+  for (const state of states) if (state.visual && /^(?:B(?:[4-9]|[1-9]\d)|[CP]\d+)-/.test(state.id)) {
     const html = render(state.visual.id, state.kind !== 'teaching')
     if (html.length <= 20 || html.includes('NaN')) fail('visuals', `${state.id} visual "${state.visual.id}" does not render`)
   }

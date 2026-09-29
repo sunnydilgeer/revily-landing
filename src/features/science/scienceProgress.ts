@@ -8,7 +8,7 @@ import type { ScienceSection } from './lessonSections'
 import { createPreviewSessionEngine, type PreviewSession } from './previewSession'
 import type { ScienceLesson } from './types'
 
-// Biology is stored as a bare number ("12"), as it always was; other subjects as "<subject>:<number>" ("chemistry:1").
+// Biology is stored as a bare number ("12"), as it always was; other subjects as "<subject>:<number>" ("chemistry:1", "physics:1").
 export const SCIENCE_LAST_LESSON_KEY = 'revily:science-last-lesson:v1'
 
 /** Every built lesson, all subjects. Progress maps are keyed by lesson id, which is unique across subjects. */
@@ -102,7 +102,7 @@ export function saveScienceLastLesson(ref: ScienceLessonRef) {
   try { window.localStorage.setItem(SCIENCE_LAST_LESSON_KEY, encodeScienceLastLesson(ref)) } catch { /* storage unavailable */ }
 }
 
-/** The AQA units as curriculum chapters (Biology, then Chemistry), each with its built lessons. */
+/** The AQA units as curriculum chapters (Biology, then Chemistry, then Physics), each with its built lessons. */
 export const scienceUnits = scienceSubjects.flatMap(item => item.chapters.map(chapter => ({
   subject: item.subject,
   subjectTitle: item.title,
