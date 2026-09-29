@@ -16,7 +16,7 @@ export const wsPercentSections = [
 ]
 
 const states: ScienceState[] = [
-  { ...a.choice('W22-01', 'Two cylinders each gain 2 g. One started at 4 g, the other at 20 g. Which changed more?', ['The 4 g cylinder', 'The 20 g cylinder', 'They changed by the same amount', 'You cannot tell'], 0, 'Compare the gain with the size of the start.', ['A gain of 2 g is half of 4 g, but only a tenth of 20 g.', 'So the 4 g cylinder changed more compared with its start.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
+  { ...a.choice('W22-01', 'Two cylinders each gain 2 g, one from 4 g and one from 20 g. Which changed more compared with its start?', ['The 4 g cylinder', 'The 20 g cylinder', 'They changed by the same amount', 'You cannot tell'], 0, 'Compare the gain with the size of the start.', ['A gain of 2 g is half of 4 g, but only a tenth of 20 g.', 'So the 4 g cylinder changed more compared with its start.']), phase: 'priorKnowledge', evidenceRole: 'diagnostic' },
   t('W22-02', 'How do you work out a percentage change?'),
   a.worked('W22-03', 'Work out a percentage change', 'A potato cylinder has a mass of 8.0 g before an investigation and 10.0 g after it. Find the percentage change.', ['Change = final value − original value = 10.0 − 8.0 = 2.0 g.', 'Divide by the original value: 2.0 ÷ 8.0 = 0.25.', 'Multiply by 100: 0.25 × 100 = 25.', 'The percentage change is +25%.'], 'wspercent-worked-increase'),
   a.choice('W22-04', 'A potato cylinder goes from 50 g to 60 g. What is its percentage change?', ['10%', '20%', '17%', '120%'], 1, 'Change = 60 − 50. Divide by the original value, 50, then multiply by 100.', ['Change = 60 − 50 = 10 g.', '10 ÷ 50 = 0.2, and 0.2 × 100 = 20%.'], 'calculation'),

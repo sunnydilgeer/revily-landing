@@ -4,7 +4,7 @@ Strand skills, chapter WS2 "Practical skills". Folder `skills/lesson-20`, id `W-
 
 Big idea: the way you connect a meter or a light gate decides what it measures, and the right connection gives better data.
 
-Flow note: voltmeter and ammeter first (the connections students most often confuse); then the multimeter, which reuses the same two rules with ports and a dial; then light gates, which need a calculation (speed = length ÷ time). Calculation flow: worked example → near-identical guided item → independent item on your own. Links back: series and parallel circuits (Physics) in one clause; reaction-time errors (measuring lesson) in a frame.
+Flow note: voltmeter and ammeter first (the connections students most often confuse); then the multimeter, which reuses the same two rules with ports and a dial; then light gates, which need a calculation (speed = length ÷ time). Calculation flow: worked example → near-identical guided item → independent item on your own. Links back: series and parallel circuits (Physics) in one clause; reaction-time (random) errors (collecting data) in a frame.
 
 Sections:
 1. Start here (W20-01): how to connect a meter across a bulb.
@@ -31,6 +31,7 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - `wselec-multimeter`: a multimeter body with a dial (sections V, A and Ω), two ports and a screen. Labels "dial", "screen", "ports".
 - `wselec-multi-v`: the multimeter with its dial on V, the red lead in the V port, drawn beside a lamp circuit with the multimeter across the lamp. Label "volts: in parallel".
 - `wselec-multi-a`: the multimeter with its dial on A, the red lead in the A port, drawn beside a circuit with it in the main loop. Label "amps: in series".
+- Light gates are drawn seen from above (a post each side of the track, the crossbar dashed over it), so the card's length and the beam crossing the track are both visible.
 - `wselec-gate`: a light gate as a U-shaped frame with a dotted beam across the gap and a detector on one side. Labels "light gate", "beam of light", "detector".
 - `wselec-speed`: a trolley with a card passing through the gate, the card length marked "length of card" and a computer symbol; label "speed = length ÷ time".
 - `wselec-accel`: a card with a gap in the middle passing through the gate, the two blocked parts shaded and the gap left clear; label "beam interrupted twice".

@@ -1,6 +1,6 @@
 import type { TeachingFrame } from '../../teachingFrame'
 
-// Working Scientifically: random sampling. Examples come from Biology, Chemistry and Physics.
+// Working Scientifically: random sampling. Examples come from ecology (daisies in a field) and health (hospital records).
 const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
 
 export const wsSampleFrames: Record<string, TeachingFrame[]> = {
@@ -12,14 +12,14 @@ export const wsSampleFrames: Record<string, TeachingFrame[]> = {
   ],
   'W21-05': [
     f('Divide the field into a grid', 'Split the field into a grid, and number the sides from 1 up to the end.', 'a grid of squares', 'You met quadrats when you learned about ecology. To sample plants at random, first divide the field into a grid. Label the grid along the bottom and up the side with numbers.', 'wssample-grid'),
-    f('Pick random coordinates', 'Use a random number generator to choose a pair of numbers, such as (2, 7).', 'numbers from a generator', 'Use a random number generator, for example on a calculator or computer, to pick coordinates. Each pair of numbers, such as (2, 7), points to one square in the grid.', 'wssample-coords'),
+    f('Pick random coordinates', 'Use a random number generator to choose a pair of numbers, such as (3, 8).', 'numbers from a generator', 'Use a random number generator, for example on a calculator or computer, to pick coordinates. Each pair of numbers, such as (3, 8), points to one square: 3 along the bottom, then 8 up the side.', 'wssample-coords'),
     f('Place the quadrats and count', 'Put a quadrat at each pair of coordinates. Count the plants in it to take your sample.', 'quadrat at each pair', 'Place a quadrat at each pair of coordinates. Count the plants inside it. Each quadrat is one sample from the field. Then find the mean of your quadrats.', 'wssample-place'),
     f('Non-random sampling is biased', 'Sampling only one corner, or the easy patch, gives a biased sample that does not represent the whole field.', 'one corner only', 'If you only sample one corner, or only the patches that look best, your sample is biased. It does not represent the whole field. Random squares from all over the grid give a fairer picture.', 'wssample-bias'),
   ],
   'W21-08': [
     f('Sampling people', 'Health scientists also need a random sample, because they cannot study every person.', 'people, not plants', 'Scientists studying health in a country cannot test everybody. They take a random sample of people. The same rule applies as for plants in a field: everyone must have an equal chance of being chosen.', 'wssample-people'),
     f('Use the records', 'Records list the whole population. Give every person a number.', 'a list, then numbers', 'Suppose hospital records list everybody with a condition. Give each person a number, starting from 1. This list is the whole population you are interested in.', 'wssample-records'),
-    f('Pick the sample group', 'A random number generator picks numbers, and the people with those numbers form the sample group.', 'generator picks the group', 'A random number generator then chooses numbers, such as 72, 11 and 193. The people with those numbers form your sample group. You did not choose them, so the group is not biased.', 'wssample-generator'),
+    f('Pick the sample group', 'A random number generator picks numbers, and the people with those numbers form the sample group.', 'generator picks the group', 'A random number generator then chooses numbers, such as 27, 418 and 903. The people with those numbers form your sample group. You did not choose them, so the group is not biased.', 'wssample-generator'),
     f('Use the sample to estimate', 'Find the proportion of the sample with a feature. Use it to estimate the proportion in the whole population.', 'sample tells you about everyone', 'Look at the records of the sample group. Work out the proportion who have a second condition. This gives an estimate for the whole population. The estimate is only as good as the sample is random.', 'wssample-estimate'),
   ],
 }

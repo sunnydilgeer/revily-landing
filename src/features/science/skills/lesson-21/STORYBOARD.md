@@ -29,11 +29,11 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - `wssample-represent`: two small panels: left, sample squares spread all over a field with a tick "represents the field"; right, squares in one corner with a faded cross "does not".
 - `wssample-random`: a bag or bowl of numbered tokens with one being drawn; label "equal chance for every member".
 - `wssample-grid`: a field divided into a 10 by 10 grid with numbers 1 to 10 along the bottom and up the left side. Label "grid, numbered along the bottom and up the side".
-- `wssample-coords`: the same grid with a calculator/generator icon showing (2, 7) and a highlighted square at (2, 7).
+- `wssample-coords`: the same grid with a calculator/generator icon showing (3, 8) and a highlighted square at (3, 8).
 - `wssample-place`: the grid with four quadrats placed at scattered coordinates and small plant counts inside each.
 - `wssample-bias`: the grid with quadrats all bunched in one corner, and a cross beside "biased: not the whole field".
 - `wssample-people`: a crowd of small person icons with a few highlighted and a label "random sample of people".
 - `wssample-records`: a list of records numbered 1, 2, 3 … with "numbers" highlighted and a note "the whole population".
-- `wssample-generator`: the numbered records list with a random number generator icon and three numbers (72, 11, 193) highlighted, leading to a "sample group" box.
+- `wssample-generator`: the numbered records list with a random number generator icon and three numbers (27, 418, 903) highlighted, leading to a "sample group" box.
 - `wssample-estimate`: the sample group box with 1 in 4 people highlighted, an arrow to a larger population box marked "estimate for everyone".
 - `wssample-q-grids` (question, assessment view): two 10 by 10 grids side by side, numbered 1 and 2. Grid 1: nine squares in a 3 by 3 block in one corner. Grid 2: about ten squares scattered across the whole grid. No titles beyond the numbers, no ticks or crosses. Neutral description: "Two numbered grids with dark squares showing where quadrats were placed."

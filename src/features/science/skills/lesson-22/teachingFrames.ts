@@ -1,6 +1,6 @@
 import type { TeachingFrame } from '../../teachingFrame'
 
-// Working Scientifically: percentage change. Examples come from Biology, Chemistry and Physics.
+// Working Scientifically: percentage change. Examples come from Biology (potato cylinders, seedlings) and Chemistry (crystals).
 const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
 
 export const wsPercentFrames: Record<string, TeachingFrame[]> = {

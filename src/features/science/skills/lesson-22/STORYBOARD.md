@@ -11,7 +11,7 @@ Sections:
 2. How do you work out a percentage change? (W22-02–05): compare change fairly → the equation → which value is original. Worked: 8.0 g to 10.0 g = +25%. Guided: 50 g to 60 g = 20%. Check: what to divide by.
 3. What does a negative change mean? (W22-06–09): positive = increase → negative = decrease. Worked: 5.0 g to 4.0 g = −20%. Guided: 20 g to 15 g = −25%. Check: meaning of −8%.
 4. How do you compare two results? (W22-10–12): compare percentages → bigger gain is not always a bigger percentage. Worked: 6.0→7.2 g (+20%) against 10.0→11.5 g (+15%). Guided: 4.0→5.0 (+25%) against 20.0→24.0 (+20%).
-5. On your own (W22-13–15): crystals 50 g to 40 g = −20%; a numbered-free table question comparing two cylinders (+20% against +15%); written task on two seedlings (20% against 15%).
+5. On your own (W22-13–15): crystals 50 g to 40 g = −20%; a table question comparing two cylinders (+20% against +15%); written task on two seedlings (20% against 15%).
 
 Out of scope: percentage error, reverse percentages, compound change, graphs of percentage change.
 

@@ -1,6 +1,6 @@
 import type { TeachingFrame } from '../../teachingFrame'
 
-// Working Scientifically: electrical meters and light gates. Examples come from Physics, Chemistry and Biology.
+// Working Scientifically: electrical meters and light gates. Examples come from Physics circuits and motion.
 const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
 
 export const wsElecFrames: Record<string, TeachingFrame[]> = {
@@ -19,6 +19,6 @@ export const wsElecFrames: Record<string, TeachingFrame[]> = {
     f('A beam that gets interrupted', 'A light gate sends a beam of light across the gate to a detector. Something passing through interrupts the beam.', 'beam across a gap', 'A light gate sends a beam of light from one side of the gate to a detector on the other side. When something passes through the gate, the beam is interrupted. The gate records when this happened and for how long.', 'wselec-gate'),
     f('Finding a speed', 'Type the length of the object into the computer. It works out the speed from the time the beam was interrupted.', 'length ÷ time', 'Light gates can be connected to a computer. To find speed, type in the length of the object. The computer divides the length by the time the beam was interrupted. So speed = length ÷ time.', 'wselec-speed'),
     f('Finding an acceleration', 'A card with a gap in the middle interrupts the beam twice. The gate measures the speed for each part.', 'two interruptions', 'To measure acceleration, use an object that interrupts the beam twice. A piece of card with a gap cut into the middle does this. The gate measures the speed for each section of the card. The computer uses these to work out the acceleration.', 'wselec-accel'),
-    f('Fewer timing errors', 'A light gate can replace a stopwatch. It reduces errors from reaction time.', 'no slow fingers', 'A light gate can be used instead of a stopwatch. A person may press the stopwatch too early or too late. The gate does not, so your timing errors are smaller.', 'wselec-errors'),
+    f('Fewer timing errors', 'A light gate can replace a stopwatch. It reduces errors from reaction time.', 'no slow fingers', 'A light gate can be used instead of a stopwatch. A person may press the stopwatch too early or too late. You met this kind of random error when you learned about collecting data. The gate does not react late, so your timing errors are smaller.', 'wselec-errors'),
   ],
 }
