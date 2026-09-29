@@ -36,4 +36,4 @@ Like things share a colour across the tiles, the sums and the answer (`is-f0`…
 
 ## Rolling out
 
-Done: Collecting like terms (A1), Standard form (14), Bounds (13), Powers and roots (A2: powers written out as copies, area squares and lines of working, in `PowerPictures.tsx`). Lessons 4–12 still use the older step chain (serif lines, every heading stacked, explanations open). Convert them one lesson at a time. Show Sunny one example in the Vercel preview first, then do the rest of that lesson.
+Done: Collecting like terms (A1), Standard form (14), Bounds (13), Powers and roots (A2: powers written out as copies, area squares and lines of working, in `PowerPictures.tsx`), Expanding brackets (A3: the grid method, `GridPictures.tsx`). Lessons 4–12 still use the older step chain (serif lines, every heading stacked, explanations open). Convert them one lesson at a time. Show Sunny one example in the Vercel preview first, then do the rest of that lesson.

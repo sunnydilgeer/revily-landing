@@ -88,6 +88,8 @@ export type MicroSkillId =
   | 'indices-power-of-power'
   | 'indices-fraction'
   | 'roots'
+  | 'expand-single'
+  | 'expand-double'
   | 'mixed'
 
 export type LessonPhase =
