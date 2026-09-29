@@ -144,7 +144,7 @@ export function recommendedNext(profile: Profile, retrievalDue: boolean, lesson?
     'B-GEN-040': 'B-GEN-041', 'B-GEN-041': 'B-GEN-042', 'B-GEN-042': 'B-GEN-043', 'B-GEN-043': 'B-GEN-044',
     'B-GEN-044': 'B-GEN-045',
     'B-GEN-045': 'B-ECO-046', 'B-ECO-046': 'B-ECO-047', 'B-ECO-047': 'B-ECO-048', 'B-ECO-048': 'B-ECO-049', 'B-ECO-049': 'B-ECO-050',
-    'B-ECO-050': 'B-ECO-051', 'B-ECO-051': 'B-ECO-052' }
+    'B-ECO-050': 'B-ECO-051', 'B-ECO-051': 'B-ECO-052', 'B-ECO-052': 'B-ECO-053' }
   const isVariantB = currentLessonId.endsWith('-B')
   const baseLessonId = isVariantB ? currentLessonId.slice(0, -2) : currentLessonId
   const baseNextLessonId = (isVariantB ? easierOnlyNextIds : nextLessonIds)[baseLessonId]
