@@ -14,7 +14,7 @@ export const facts: ScienceFactSet = {
     ],
     'W16-09': [
       ['How should animals be treated in experiments?', 'Handle them carefully and look after them well. Return wild animals to their habitat afterwards.'],
-      ['What about people who take part?', 'They should be happy to take part in the experiment.'],
+      ['What about people who take part?', 'They should be happy to take part, and anyone can say no.'],
     ],
   },
   recall: ['W16-03', 'W16-05', 'W16-10'],

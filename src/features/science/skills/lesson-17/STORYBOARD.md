@@ -23,6 +23,7 @@ Judgement calls for the teacher:
 ## Diagram specs
 Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the same hue, organic and slightly refined, text at least 12px, readable on 360px. Colours: teal for oxygen, blue for water, green for plant, as elsewhere in the course.
 
+- Drawn: the electrodes come up through the base of the beaker so each upturned tube can sit over one; the potometer is drawn with the beaker on the left and the shoot on the right, so the bubble moves left to right along the scale.
 - `wssetup-elec-rig`: a beaker of electrolyte with two electrodes, each with an upside-down test tube of solution over it, wires to a power supply. Labels "electrolyte", "electrodes", "test tube of solution, upside down", "power supply".
 - `wssetup-cathode`: the same rig with the negative electrode highlighted and marked "−"; on it a metal coating or hydrogen bubbles rising into the tube. Labels "cathode (negative)", "pure metal coating or hydrogen bubbles".
 - `wssetup-anode`: the same rig with the positive electrode highlighted and marked "+", bubbles rising into its tube. Labels "anode (positive)", "oxygen or a halogen such as chlorine".

@@ -4,7 +4,7 @@ Strand skills, chapter WS2 "Practical skills". Folder `skills/lesson-18`, id `W-
 
 Big idea: a gas can only be measured or tested if you trap it, so the system must be sealed, and your method should be shown in a clear, flat drawing.
 
-Flow note: the measuring method first because it is the main skill (with a worked example, a near-identical guided calculation and an independent one on your own); then the choice between a cylinder and a test tube, which builds on the same picture; last, drawing, because it needs the apparatus to be understood first. Links back: gas syringe (measuring lesson) in one clause; test-tube collection in electrolysis in one clause.
+Flow note: the measuring method first because it is the main skill (with a worked example, a near-identical guided calculation and an independent one on your own); then the choice between a cylinder and a test tube, which builds on the same picture; last, drawing, because it needs the apparatus to be understood first. Links back: gas syringe (measuring lesson) in one clause, in the choose-the-tool frame; test-tube collection in electrolysis in one clause.
 
 Sections:
 1. Start here (W18-01): how to catch and measure a gas.
@@ -24,6 +24,7 @@ Judgement calls for the teacher:
 ## Diagram specs
 Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the same hue, text at least 12px, readable on 360px. Apparatus drawn as flat side views. Use the water/gas colours of the course.
 
+- Drawn: the upturned cylinder's scale reads downwards (0 near its closed end), so the level moves from 5 cm³ to 47 cm³ as gas collects.
 - `wsgas-setup`: a conical flask with a bung and a delivery tube leading into a measuring cylinder standing upside down, full of water, in a beaker/trough of water. Labels: "reaction flask", "delivery tube", "upturned measuring cylinder", "water".
 - `wsgas-start`: the same set-up with the cylinder full of water; a marker arrow at the water level with "starting level".
 - `wsgas-push`: the same set-up with bubbles rising in the cylinder and the water level lower; small arrows "gas in", "water pushed out".
@@ -33,8 +34,8 @@ Same look as Science Lessons 17 and 18: soft flat fills, darker stroke of the sa
 - `wsgas-bung`: the test tube, full of gas, being lifted with the mouth still under water and a bung being placed in it; label "bung stops gas escaping".
 - `wsgas-choose`: two panels: measuring cylinder with a scale "need a volume" and test tube "need a sample to test". A small note "gas syringe: most accurate".
 - `wsgas-side`: a beaker drawn as a flat side view with a small eye icon at the side; label "look from the side, flat, no shading".
-- `wsgas-shapes`: four flat outlines in a row: beaker, test tube, tripod, Bunsen burner, each labelled.
+- `wsgas-shapes`: four flat outlines in a row: beaker, test tube, tripod (flat top on two legs, as seen from the side), Bunsen burner (chimney on a base, gas inlet at the side), each labelled.
 - `wsgas-gauzemat`: a dashed line labelled "gauze" and a single flat line labelled "heat-proof mat", with a ruler.
 - `wsgas-drawsealed`: a test tube with a bung in the top and a labelled line to the bung; beside it, an open tube faded.
 - `wsgas-worked-volume` (worked example, teaching view): the cylinder with start level 5 cm³ and final level 47 cm³ and the four steps ending "42 cm³".
-- `wsgas-q-collect` (question, assessment view): the full set-up with numbered pointers 1 = reaction flask, 2 = upturned measuring cylinder, 3 = delivery tube, 4 = beaker of water. Numbers only, no name labels. Neutral description: "A gas collection set-up with four numbered parts."
+- `wsgas-q-collect` (question, assessment view): the full set-up with numbered pointers 1 = reaction flask, 2 = upturned measuring cylinder, 3 = delivery tube, 4 = trough of water. Numbers only, no name labels. Neutral description: "A gas collection set-up with four numbered parts."
