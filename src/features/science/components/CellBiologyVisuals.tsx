@@ -20,6 +20,12 @@ import { EvolutionVisual } from './EvolutionVisuals'
 import { EcologyVisual } from './EcologyVisuals'
 import { EarthVisual } from './EarthVisuals'
 import { AtomVisual } from './AtomVisuals'
+import { PeriodicVisual } from './PeriodicVisuals'
+import { ElectronVisual } from './ElectronVisuals'
+import { AtomHistoryVisual } from './AtomHistoryVisuals'
+import { SeparationVisual } from './SeparationVisuals'
+import { MixtureVisual } from './MixtureVisuals'
+import { CompoundVisual } from './CompoundVisuals'
 
 const ink = '#37627b', blue = '#54afd2', purple = '#a68bd0', yellow = '#efc75d', green = '#68ae92'
 const descriptions: Record<string, string> = {
@@ -159,6 +165,12 @@ function SpecialisedCell({ focus, assessment }: { focus: string; assessment: boo
 
 export function CellBiologyVisual({ focus, assessment = false }: { focus: string; assessment?: boolean }) {
   if (focus.startsWith('atom-')) return <AtomVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('ptable-')) return <PeriodicVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('shell-')) return <ElectronVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hist-')) return <AtomHistoryVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('sep-')) return <SeparationVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('mix-')) return <MixtureVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('cmpd-')) return <CompoundVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
