@@ -1,0 +1,25 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// Working Scientifically: designing an investigation. Examples come from Biology, Chemistry and Physics.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const wsDesignFrames: Record<string, TeachingFrame[]> = {
+  'W4-02': [
+    f('An observation', 'An observation is something you notice. It often leads to a question.', 'notice, then ask why', 'Science often starts with something you notice. This is called an observation. Suppose you see that an ice cube melts faster on a metal tray than on a wooden board. You start to wonder why.', 'wsdesign-observation'),
+    f('A hypothesis', 'A hypothesis is an idea that could explain what you noticed.', 'an idea to explain it', 'A hypothesis is an idea that could explain your observation. Here it could be that metal moves energy to the ice faster than wood does. A hypothesis is an idea that can be tested. It is not yet known to be true.', 'wsdesign-hypothesis'),
+    f('A prediction', 'A prediction says what you expect to happen if the hypothesis is right.', 'if I am right, then…', 'A prediction says what you expect to see if your hypothesis is right, and you can check it. For example, an ice cube on the metal tray will melt in less time than one on the wooden board. Notice that a prediction is more specific than a hypothesis.', 'wsdesign-prediction'),
+    f('Testing it', 'An investigation gathers evidence. Evidence can support a hypothesis or show that it is wrong.', 'evidence decides', 'You now carry out an investigation to collect evidence. If the results match your prediction, they support the hypothesis. If they do not, the hypothesis may be wrong. Many investigations look for a pattern between two variables, such as the fertiliser given to a plant and its height.', 'wsdesign-evidence'),
+  ],
+  'W4-05': [
+    f('A fair test', 'In a fair test you change one thing, measure one thing and keep everything else the same.', 'one change only', 'To find out if one thing affects another, you must run a fair test. You change one thing and measure what happens. You keep everything else the same. Then you know the change is what caused the result.', 'wsdesign-fair'),
+    f('The variable you change', 'The independent variable is the one thing you choose to change.', 'you change it', 'A variable is anything that can change or be measured. The variable you choose to change is called the independent variable. If you test how the height of a ramp affects a trolley, the ramp height is the independent variable.', 'wsdesign-independent'),
+    f('The variable you measure', 'The dependent variable is what you measure. It depends on the change you made.', 'you measure it', 'The variable you measure is called the dependent variable. Its value depends on the change you made. In the ramp test, you would measure the time the trolley takes to reach the bottom. That time is the dependent variable.', 'wsdesign-dependent'),
+    f('The variables you keep the same', 'Control variables are everything else that could affect the result. You keep them the same.', 'keep them fixed', 'Everything else that could affect the result must stay the same. These are called control variables. For the ramp, they include the trolley, the length of the ramp and the surface. If a control variable changes, you cannot tell what caused the result.', 'wsdesign-controlvars'),
+    f('A control experiment', 'A control experiment is kept in the same conditions, but you change nothing in it.', 'change nothing', 'You cannot always control every variable, for example in a field of plants. So you also set up a control experiment. It is kept in the same conditions as the rest, but you do not change anything in it. It shows what happens when the independent variable is not changed.', 'wsdesign-controlexp'),
+  ],
+  'W4-09': [
+    f('Repeatable', 'Results are repeatable if the same person gets similar results when they repeat the experiment.', 'same person, again', 'Results are repeatable if the same person does the experiment again and gets similar results. To check this, repeat your readings at least three times. Then see whether the repeats are close together.', 'wsdesign-repeatable'),
+    f('Reproducible', 'Results are reproducible if someone else gets similar results using the same method.', 'someone else', 'Results are reproducible if someone else does the experiment and gets similar results. To check this, ask another person or another group to run it too. Scientists trust a result more when others can reproduce it.', 'wsdesign-reproducible'),
+    f('Valid', 'Valid results are repeatable and reproducible, and they answer the original question.', 'trustworthy and on target', 'Valid results are both repeatable and reproducible. They also answer the question you set out to ask. That only happens if the investigation was a fair test. If a control variable changes, the results are not valid.', 'wsdesign-valid'),
+  ],
+}
