@@ -82,7 +82,7 @@ assert.equal(chemistryChapters[1].title, 'The periodic table')
 assert.deepEqual(scienceChaptersFor('chemistry'), chemistryChapters)
 assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'chemistry').map(unit => [unit.code, unit.lessons.length]),
   chemistryChapters.map(chapter => [chapter.code, chemistryLessons.filter(item => (chapter.lessonNumbers as readonly number[]).includes(item.number)).length]))
-assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'P1', 'P2', 'P3'])
+assert.deepEqual(allScienceChapters.map(chapter => chapter.code), [...scienceChapters.map(chapter => chapter.code), 'C1a', 'C1b', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6'])
 assert.equal(scienceSubjectLessonHref('chemistry', 1), '/preview/science?subject=chemistry&lesson=1')
 assert.equal(scienceSubjectLessonHref('chemistry', 3, 'C3-02'), '/preview/science?subject=chemistry&lesson=3&activity=C3-02')
 assert.equal(encodeScienceLastLesson({ subject: 'chemistry', number: 1 }), 'chemistry:1')
@@ -102,9 +102,9 @@ for (const item of chemistryLessons) {
 }
 assert.equal(getScienceLesson('chemistry', 1), chemistryLessons[0] ?? null)
 assert.equal(parseScienceLessonRef('chemistry', String(chemistryLessons.length + 1)), null, 'Unbuilt Chemistry lessons fall back to the hub')
-// Physics: restarts at Lesson 1 in P1 Energy, P2 Electricity, P3 Particle model of matter; hrefs carry subject=physics.
+// Physics: restarts at Lesson 1 in P1 Energy, P2 Electricity, P3 Particle model of matter, P4 Atomic structure, P5 Forces, P6 Waves; hrefs carry subject=physics.
 assert.deepEqual(physicsChapters.map(chapter => [chapter.subject, chapter.code, chapter.title, [...chapter.lessonNumbers]]),
-  [['physics', 'P1', 'Energy', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]], ['physics', 'P2', 'Electricity', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]], ['physics', 'P3', 'Particle model of matter', [27, 28, 29, 30]]])
+  [['physics', 'P1', 'Energy', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]], ['physics', 'P2', 'Electricity', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]], ['physics', 'P3', 'Particle model of matter', [27, 28, 29, 30]], ['physics', 'P4', 'Atomic structure', [31, 32, 33, 34, 35, 36, 37]], ['physics', 'P5', 'Forces', [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]], ['physics', 'P6', 'Waves', [53, 54, 55, 56, 57, 58, 59]]])
 assert.deepEqual(scienceChaptersFor('physics'), physicsChapters)
 assert.equal(scienceLessonsFor('physics'), physicsLessons)
 assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'physics').map(unit => [unit.code, unit.lessons.length]),
