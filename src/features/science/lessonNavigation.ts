@@ -289,7 +289,7 @@ import type { TeachingFrame } from './teachingFrame'
 import type { ScienceLesson } from './types'
 
 /*
- * Science lessons are numbered per subject: Biology Lesson 1…58, Chemistry Lesson 1, 2, 3 …, Physics Lesson 1, 2, 3 … (see NAVIGATION.md).
+ * Science lessons are numbered per subject: Biology Lesson 1…58, Chemistry Lesson 1, 2, 3 …, Physics Lesson 1, 2, 3 …, Working Scientifically Lesson 1, 2, 3 … (see NAVIGATION.md).
  * `LessonNumber`, `scienceChapters`, `scienceLessons`, `scienceLessonHref` and `parseScienceLesson` are the
  * Biology catalogue and keep their original meaning, URLs and saved progress. Subject-aware code uses
  * `getScienceLesson(subject, number)`, `scienceSubjectLessonHref` and `parseScienceLessonRef`, and keys
@@ -503,20 +503,31 @@ export const physicsLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'physics', number: 30, folder: '30', title: 'Specific latent heat', detail: 'Energy needed to change state', lesson: lessonP30, sections: latentSections, frames: latentFrames },
 ]
 
+// Working Scientifically (subject 'skills') restarts at Lesson 1: the cross-science method and practical skills pages.
+// Lesson ids: W-<TOPIC>-<NNN>-W (e.g. W-MTH-001-W, W-DAT-005-W, W-PRC-013-W); screens W<N>-NN; folders skills/lesson-N.
+export const skillsChapters = [
+  { subject: 'skills', code: 'WS1', title: 'Working scientifically', lessonNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+  { subject: 'skills', code: 'WS2', title: 'Practical skills', lessonNumbers: [13, 14, 15, 16, 17, 18, 19, 20, 21, 22] },
+] as const
+/** Register a Working Scientifically lesson here: { subject: 'skills', number: 1, folder: '1', title, detail, lesson, sections, frames }. */
+export const skillsLessons: readonly ScienceCatalogueEntry[] = [
+]
+
 export const scienceSubjects = [
   { subject: 'biology', title: 'Biology', code: 'B', chapters: scienceChapters as readonly ScienceChapter[], lessons: scienceLessons as readonly ScienceCatalogueEntry[] },
   { subject: 'chemistry', title: 'Chemistry', code: 'C', chapters: chemistryChapters as readonly ScienceChapter[], lessons: chemistryLessons },
   { subject: 'physics', title: 'Physics', code: 'P', chapters: physicsChapters as readonly ScienceChapter[], lessons: physicsLessons },
+  { subject: 'skills', title: 'Working Scientifically', code: 'WS', chapters: skillsChapters as readonly ScienceChapter[], lessons: skillsLessons },
 ] as const satisfies readonly { subject: ScienceSubject; title: string; code: string; chapters: readonly ScienceChapter[]; lessons: readonly ScienceCatalogueEntry[] }[]
-/** Every built lesson, Biology first, then Chemistry, then Physics. */
+/** Every built lesson, Biology first, then Chemistry, Physics and Working Scientifically. */
 export const allScienceLessons: readonly ScienceCatalogueEntry[] = scienceSubjects.flatMap(item => item.lessons)
 export const allScienceChapters: readonly ScienceChapter[] = scienceSubjects.flatMap(item => item.chapters)
 
 export function isScienceSubject(value: unknown): value is ScienceSubject {
-  return value === 'biology' || value === 'chemistry' || value === 'physics'
+  return value === 'biology' || value === 'chemistry' || value === 'physics' || value === 'skills'
 }
 export function scienceSubjectTitle(subject: ScienceSubject) {
-  return subject === 'biology' ? 'Biology' : subject === 'chemistry' ? 'Chemistry' : 'Physics'
+  return subject === 'biology' ? 'Biology' : subject === 'chemistry' ? 'Chemistry' : subject === 'physics' ? 'Physics' : 'Working Scientifically'
 }
 export function scienceLessonsFor(subject: ScienceSubject): readonly ScienceCatalogueEntry[] {
   return scienceSubjects.find(item => item.subject === subject)?.lessons ?? []

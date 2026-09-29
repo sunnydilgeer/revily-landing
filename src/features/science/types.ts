@@ -84,7 +84,7 @@ export interface ScienceLesson {
   id: string
   contentVersion: string
   qualification: 'AQA-8464F'
-  strand: 'biology' | 'chemistry' | 'physics'
+  strand: 'biology' | 'chemistry' | 'physics' | 'skills'
   title: string
   prerequisites: string[]
   reviewStatus: 'draftNeedsTeacherReview'
