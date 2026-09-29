@@ -5,6 +5,7 @@ import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
+import { ExpandVisual } from './GridPictures'
 import { Powers } from './Powers'
 import type { HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
@@ -151,6 +152,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const terms = upTo.findLast(step => step.frame.terms)?.frame.terms
   const tiles = upTo.findLast(step => step.frame.tiles)?.frame.tiles
   const squares = upTo.findLast(step => step.frame.squares)?.frame.squares
+  const expand = upTo.findLast(step => step.frame.expand)?.frame.expand
   const lines = upTo.findLast(step => step.frame.sums)?.frame.sums ?? []
   const before = example.steps.slice(0, index).findLast(step => step.frame.sums)?.frame.sums?.length ?? 0
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
@@ -162,6 +164,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {terms && <TermsVisual frame={{ terms: terms.terms }} />}
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
+    {expand && <ExpandVisual frame={expand} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
     {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
@@ -205,6 +208,7 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
         if (first?.interval) return <div className="ns-visual rung-worked__visual"><IntervalVisual frame={{ ...first.interval, stage: 'value' }} /></div>
         if (first?.tiles) return <div className="ns-visual rung-worked__visual"><TilesVisual frame={{ ...first.tiles, plain: true, note: undefined, rows: first.tiles.rows.map(row => ({ groups: row.groups.map(group => ({ ...group, crossed: undefined })) })) }} /></div>
+        if (first?.expand) return <div className="ns-visual rung-worked__visual"><ExpandVisual frame={{ grids: first.expand.grids.map(grid => ({ ...grid, cells: undefined })) }} /></div>
         if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null
