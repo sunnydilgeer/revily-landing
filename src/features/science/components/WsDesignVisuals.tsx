@@ -122,8 +122,11 @@ function Fair() {
 const BENCH = 256, RX = 100, RF = 400
 const rampTop = (h: number) => BENCH - h
 const slopeAt = (h: number, t: number): Pt => [r1(RX + (RF - RX) * t), r1(rampTop(h) + h * t)]
+/** The ramp at height h, keeping the same slope length as the main ramp (it tips up about its foot). */
+const SLOPE = Math.hypot(RF - RX, 110)
 function Wedge({ h, ghost = false }: { h: number; ghost?: boolean }) {
-  const d = `M${RX} ${BENCH}V${rampTop(h)}L${RF} ${BENCH}Z`
+  const bx = r1(RF - Math.sqrt(SLOPE * SLOPE - h * h))
+  const d = `M${bx} ${BENCH}V${rampTop(h)}L${RF} ${BENCH}Z`
   return ghost ? <path d={d} fill="none" stroke={tones.change.line} strokeWidth="1.8" strokeDasharray="5 5" opacity=".7" />
     : <path d={d} fill={W.wood} stroke={W.woodLine} strokeWidth="2.2" />
 }
@@ -241,7 +244,7 @@ function Valid() {
 function QPlants() {
   const plants: [number, number, string][] = [[120, 44, '0 g'], [250, 62, '5 g'], [380, 80, '10 g']]
   return <WsDiagram title="Three plants in pots with a ruler and a lamp, four numbered parts.">
-    <Lampshade x={250} y={58} w={92} />
+    <Lampshade x={250} y={58} w={150} />
     <Bench x1={50} x2={440} y={264} />
     {plants.map(([x, h, g]) => <g key={x}>
       <Ruler x={x - 34} y={262} h={130} />
@@ -251,7 +254,7 @@ function QPlants() {
     <Numbered n={1} at={[40, 112]} to={[80, 150]} />
     <Numbered n={2} at={[490, 284]} to={[406, 284]} />
     <Numbered n={3} at={[490, 214]} to={[400, 240]} />
-    <Numbered n={4} at={[490, 60]} to={[296, 56]} />
+    <Numbered n={4} at={[490, 60]} to={[320, 52]} />
   </WsDiagram>
 }
 function QRepeats() {

@@ -54,10 +54,10 @@ function Repeats() {
   return <WsDiagram schematic={false} title="A table with columns Height (cm), Repeat 1 (s), Repeat 2 (s), Repeat 3 (s) and Mean (s). The mean column is highlighted.">
     <DataTable x={36} y={62} cols={[100, 92, 92, 92, 92]} headH={58} rowH={50} size={16} hiCol={4}
       rows={[['Height\n(cm)', 'Repeat 1\n(s)', 'Repeat 2\n(s)', 'Repeat 3\n(s)', 'Mean\n(s)'], ['20', '2.4', '2.6', '2.5', '2.5'], ['40', '1.8', '1.7', '1.9', '1.8']]} />
-    <Bracket x1={140} x2={410} y={186} dir={-1} />
-    <Lines x={275} y={222} anchor="middle" lines={['one column for each repeat']} size={14} weight={650} colour={muted} />
-    <Lines x={458} y={222} anchor="middle" lines={['then the mean']} size={14} colour={tones.mark.text} />
-    <Arrow from={[458, 204]} to={[458, 180]} colour={tones.mark.line} width={2.4} />
+    <Bracket x1={140} x2={410} y={238} dir={-1} />
+    <Lines x={275} y={266} anchor="middle" lines={['one column for each repeat']} size={14} weight={650} colour={muted} />
+    <Lines x={458} y={270} anchor="middle" lines={['then the mean']} size={14} colour={tones.mark.text} />
+    <Arrow from={[458, 252]} to={[458, 226]} colour={tones.mark.line} width={2.4} />
   </WsDiagram>
 }
 
@@ -166,7 +166,7 @@ function SfFinal() {
     <Panel x={30} y={28} w={480} h={64} />
     <Lines x={50} y={67} lines={['Step 1']} size={14} colour={muted} />
     <text x={124} y={68} fontSize="20" fontWeight="700" fill={ink}>2.5 ÷ 0.60 = <tspan fill={tones.measure.text}>4.1666…</tspan></text>
-    <Tag x={434} y={60} text="keep all digits" tone="measure" size={12} />
+    <Tag x={448} y={60} text="keep all digits" tone="measure" size={12} />
     <Arrow from={[270, 96]} to={[270, 118]} width={2.4} />
     <Panel x={30} y={122} w={480} h={64} />
     <Lines x={50} y={161} lines={['Step 2']} size={14} colour={muted} />
@@ -202,11 +202,11 @@ function WorkedSf() {
     <Tag x={200} y={126} text="2 s.f." size={12} />
     <Tag x={322} y={126} text="2 s.f." size={12} />
     <g opacity={faded + 0.25}>
-      <text x={160} y={196} textAnchor="middle" fontSize="24" fontWeight="700" fill={ink}>4.1666… m/s</text>
+      <text x={146} y={196} textAnchor="middle" fontSize="24" fontWeight="700" fill={ink}>4.1666… m/s</text>
     </g>
-    <Lines x={160} y={228} anchor="middle" lines={['calculator']} size={13} weight={650} colour={muted} />
-    <Arrow from={[248, 188]} to={[312, 188]} width={2.6} />
-    <Lines x={280} y={172} anchor="middle" lines={['round']} size={12} weight={650} colour={muted} />
+    <Lines x={146} y={228} anchor="middle" lines={['calculator']} size={13} weight={650} colour={muted} />
+    <Arrow from={[254, 188]} to={[314, 188]} width={2.6} />
+    <Lines x={284} y={172} anchor="middle" lines={['round']} size={12} weight={650} colour={muted} />
     <Panel x={322} y={156} w={176} h={56} tone="mark" strong />
     <text x={410} y={193} textAnchor="middle" fontSize="24" fontWeight="750" fill={ink}>4.2 m/s</text>
     <Lines x={410} y={236} anchor="middle" lines={['2 s.f.']} size={14} colour={tones.mark.text} />

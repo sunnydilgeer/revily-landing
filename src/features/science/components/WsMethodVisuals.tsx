@@ -181,8 +181,8 @@ function Garden({ stage }: { stage: 'observe' | 'predict' | 'test' }) {
     <path d="M259 102V206" stroke="#9a7550" strokeWidth="1.2" opacity=".6" />
     <text x={130} y={GROUND + 14} textAnchor="middle" fontSize="12" fontWeight="700" fill="#8a6a2a">sunny side</text>
     <text x={400} y={GROUND + 14} textAnchor="middle" fontSize="12" fontWeight="700" fill={muted}>shady side</text>
-    {tall.map((x, i) => stage === 'predict' && i === 2
-      ? <PotPlant key={x} x={x} y={GROUND} s={PS} h={stemTo(170)} dim />
+    {tall.map((x, i) => stage !== 'observe' && i === 2
+      ? stage === 'predict' ? <PotPlant key={x} x={x} y={GROUND} s={PS} h={stemTo(170)} dim /> : null
       : <PotPlant key={x} x={x} y={GROUND} s={PS} h={stemTo(98 + i * 6)} />)}
     {stage === 'observe' && <PotPlant x={214} y={GROUND} s={PS} h={stemTo(104)} />}
     {shady.map(x => <PotPlant key={x} x={x} y={GROUND} s={PS} h={stemTo(166 + (x % 3) * 3)} />)}
@@ -203,7 +203,7 @@ function Garden({ stage }: { stage: 'observe' | 'predict' | 'test' }) {
 function Observe() {
   return <PhysicsDiagram title="A garden fence with the Sun on the left. Plants in pots on the sunny side are taller than those on the shady side. Observation: plants on the sunny side are taller. A gardener thinks of a hypothesis: they get more sunlight.">
     <Garden stage="observe" />
-    <Note x={402} y={40} lines={['observation', 'sunny-side plants are taller']} tone={wsTone.observe} icon="eye" head />
+    <Note x={392} y={40} lines={['observation', 'sunny-side plants are taller']} tone={wsTone.observe} icon="eye" head />
     <Leader from={[290, 58]} to={[222, 92]} colour={wsTone.observe.line} />
     <g opacity=".85">
       <Note x={420} y={108} lines={['hypothesis', 'they get more sunlight']} tone={wsTone.hypothesis} icon="bulb" head soft />
@@ -250,10 +250,10 @@ function Chain({ numbers = false }: { numbers?: boolean }) {
     })}
     {!numbers && <g>
       <Arrow from={[xs[3] + w / 2, top + h + 4]} to={[xs[3] + w / 2, 208]} colour={muted} width={2.6} />
-      <rect x={xs[3] + 4} y={212} width={w - 8} height={46} rx="16" fill={wsTone.evidence.fill} stroke={wsTone.evidence.line} strokeWidth="2.2" />
-      <Icon kind="tick" x={xs[3] + 26} y={235} colour={wsTone.evidence.line} />
-      <text x={xs[3] + 42} y={240} fontSize="14.5" fontWeight="800" fill={ink}>evidence</text>
-      <Lines x={xs[3] - 12} y={228} anchor="end" lines={['the result of the test', 'is the evidence']} size={13} weight={650} colour={muted} />
+      <rect x={xs[3] - 4} y={212} width={w + 8} height={46} rx="16" fill={wsTone.evidence.fill} stroke={wsTone.evidence.line} strokeWidth="2.2" />
+      <Icon kind="tick" x={xs[3] + 16} y={235} colour={wsTone.evidence.line} />
+      <text x={xs[3] + 32} y={240} fontSize="14" fontWeight="800" fill={ink}>evidence</text>
+      <Lines x={xs[3] - 16} y={228} anchor="end" lines={['the result of the test', 'is the evidence']} size={13} weight={650} colour={muted} />
     </g>}
   </PhysicsDiagram>
 }
@@ -410,7 +410,7 @@ function ModelWater() {
     {/* real life */}
     <rect x={16} y={40} width={220} height={200} rx="18" fill="#f2f8fc" stroke="#c9d8e2" strokeWidth="1.6" />
     <path d="M16 196Q70 186 120 196T236 190V222Q236 240 218 240H34Q16 240 16 222Z" fill={P.water} stroke={P.waterLine} strokeWidth="1.8" />
-    <path d="M110 196L162 110L200 150L236 120V190Q180 196 110 196Z" fill={P.plant} stroke={P.plantLine} strokeWidth="1.8" />
+    <path d="M104 196C124 150 148 112 166 112C184 112 190 140 204 140C216 140 224 124 236 122V190Q180 196 104 196Z" fill={P.plant} stroke={P.plantLine} strokeWidth="1.8" />
     <path d="M120 86q-4 -20 16 -22q8 -16 26 -8q18 -6 22 12q14 4 8 18H126q-10 0 -6 0Z" fill="white" stroke="#9fb3c2" strokeWidth="1.8" />
     {[136, 152, 168, 184].map(x => <path key={x} d={`M${x} 100l-4 12`} stroke={P.waterLine} strokeWidth="2" />)}
     <Sun x={52} y={76} r={14} />
@@ -463,7 +463,7 @@ function Computational() {
     <path d="M252 170V70M252 170H328" stroke={ink} strokeWidth="1.6" />
     <path d="M254 166Q276 164 288 140T326 80" stroke={P.thermalLine} strokeWidth="2.6" fill="none" />
     </g>
-    <Note x={446} y={112} lines={['computational model', 'a computer simulation', 'of a real process']} tone={wsTone.test} head />
+    <Note x={436} y={112} lines={['computational model', 'a computer simulation', 'of a real process']} tone={wsTone.test} head />
     <Lines x={200} y={250} anchor="middle" lines={['e.g. how a flu virus might spread']} size={13} weight={650} colour={muted} />
   </PhysicsDiagram>
 }
