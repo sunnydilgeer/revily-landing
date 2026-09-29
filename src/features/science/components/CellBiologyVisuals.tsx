@@ -38,6 +38,16 @@ import { MetallicVisual } from './MetallicVisuals'
 import { StateVisual } from './StateVisuals'
 import { FormulaMassVisual } from './FormulaMassVisuals'
 import { SaltVisual } from './SaltVisuals'
+import { RatesVisual } from './RatesVisuals'
+import { RateFactorVisual } from './RateFactorVisuals'
+import { GasRateVisual } from './GasRateVisuals'
+import { CrossVisual } from './CrossVisuals'
+import { RateGraphVisual } from './RateGraphVisuals'
+import { ReversibleVisual } from './ReversibleVisuals'
+import { HydrocarbonVisual } from './HydrocarbonVisuals'
+import { CrudeOilVisual } from './CrudeOilVisuals'
+import { FractionVisual } from './FractionVisuals'
+import { CrackingVisual } from './CrackingVisuals'
 import { ProfileVisual } from './ProfileVisuals'
 import { EnergyMeasureVisual } from './EnergyMeasureVisuals'
 import { ExoEndoVisual } from './ExoEndoVisuals'
@@ -205,6 +215,16 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('state-')) return <StateVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('mr-')) return <FormulaMassVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('salt-')) return <SaltVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rates-')) return <RatesVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rfac-')) return <RateFactorVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('gasrate-')) return <GasRateVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('cross-')) return <CrossVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rgraph-')) return <RateGraphVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('rev-')) return <ReversibleVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hydro-')) return <HydrocarbonVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('crude-')) return <CrudeOilVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('frac-')) return <FractionVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('crack-')) return <CrackingVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('profile-')) return <ProfileVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('calor-')) return <EnergyMeasureVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('exo-')) return <ExoEndoVisual focus={focus} assessment={assessment} />

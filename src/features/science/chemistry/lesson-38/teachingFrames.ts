@@ -1,0 +1,28 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// One picture per section. How crude oil forms and why it runs out first, then what it is used for (fuels, then raw
+// material), then how the hydrocarbons in it change with chain length, ending with the short and long chains side by side.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const crudeOilFrames: Record<string, TeachingFrame[]> = {
+  'C38-02': [
+    f('A fuel from the rocks', 'Crude oil is a fossil fuel: a natural fuel found in rocks.', 'fossil fuel → in the rocks → energy', 'Crude oil is a thick liquid found in rocks under the ground or under the sea. It is a fossil fuel. Fossil fuels are natural substances that we use as a source of energy. Coal and natural gas are fossil fuels too.', 'crude-fossil'),
+    f('Made from tiny sea life', 'Crude oil formed mainly from the remains of plankton that were buried in mud.', 'plankton dies → mud buries it → millions of years', 'Plankton are tiny living things that float in the sea. Millions of years ago, plankton and other sea life died and sank. Layers of mud buried their remains. Over a very long time, the remains changed into crude oil.', 'crude-formed'),
+    f('Used faster than it forms', 'Crude oil is non-renewable because it is used up much faster than it forms.', 'slow to make, quick to use', 'Crude oil takes millions of years to form. We burn it in only a few minutes. So we are using it much faster than new oil is being made. A resource like this is called non-renewable.', 'crude-rate'),
+    f('One day it runs out', 'A finite resource is one that will run out one day.', 'non-renewable → finite', 'Because crude oil is being used up faster than it forms, the amount left is limited. We say it is a finite resource. One day it will run out. That is one reason we want to use it carefully.', 'crude-finite'),
+  ],
+  'C38-06': [
+    f('Fuel for transport', 'Crude oil provides fuel for most modern transport.', 'oil → fuel → moving vehicles', 'Most cars, trains, ships and planes run on fuels from crude oil. Petrol, diesel oil, kerosene, heavy fuel oil and liquefied petroleum gas (LPG) all come from it. Kerosene is the fuel for jet planes.', 'crude-fuels'),
+    f('Raw material for new things', 'Petrochemicals are compounds that come from crude oil. The petrochemical industry uses them as a feedstock.', 'a feedstock is a raw material', 'Some compounds from crude oil are not burned. The petrochemical industry uses them as a feedstock, which means a raw material for a chemical process. They are used to make new compounds.', 'crude-feedstock'),
+    f('What gets made', 'Feedstocks are turned into polymers such as plastics, solvents, lubricants and detergents.', 'plastics, solvents, lubricants, detergents', 'Polymers, such as plastics, are made from crude oil compounds. So are solvents, lubricants and detergents. A lubricant is an oily liquid that helps moving parts slide past each other.', 'crude-products'),
+    f('Organic compounds', 'Organic compounds are compounds that contain carbon atoms. Most of the ones in crude oil are hydrocarbons.', 'carbon atoms → organic', 'All the compounds you get from crude oil are organic compounds. Most of them are hydrocarbons, which you have met as alkanes. Carbon atoms can join together in many ways, so there are many different products.', 'crude-organic'),
+    f('Families of compounds', 'A homologous series is a family of similar compounds. Alkanes are one example.', 'similar compounds, similar properties', 'Carbon atoms bond together to make different families of compounds. Each family is called a homologous series. The members of a family are similar and share many properties. Alkanes are one series. Alkenes are another.', 'crude-homologous'),
+  ],
+  'C38-09': [
+    f('Different sizes', 'Crude oil is a mixture of hydrocarbons with chains of different lengths.', 'a mixture: short chains and long chains', 'The hydrocarbons in crude oil come in a range of sizes. Some have short carbon chains of just a few atoms. Others have very long chains. Crude oil is a mixture of all of these.', 'crude-range'),
+    f('Short chains flow easily', 'The shorter the chain, the more runny the hydrocarbon. It is less viscous.', 'shorter chain → runnier', 'Viscosity tells you how thick and gloopy a liquid is. Hydrocarbons with short chains are runny, so they are less viscous. Hydrocarbons with long chains are thick and gloopy, so they are more viscous.', 'crude-viscosity'),
+    f('Short chains boil at low temperatures', 'The shorter the chain, the lower the boiling point.', 'shorter chain → lower boiling point', 'The boiling point is the temperature at which a liquid turns into a gas. Short-chain hydrocarbons boil at low temperatures. Long-chain hydrocarbons need much higher temperatures to boil.', 'crude-boiling'),
+    f('Short chains catch fire easily', 'The shorter the chain, the more flammable the hydrocarbon.', 'shorter chain → easier to ignite', 'Flammable means easy to set alight. Hydrocarbons with short chains are the most flammable. Long-chain hydrocarbons are much harder to ignite.', 'crude-flammable'),
+    f('Short against long', 'Short chains are runny, low boiling point and flammable. Long chains are the opposite.', 'the pattern follows the chain length', 'Put the three properties together. A short chain is runny, boils at a low temperature and is easy to ignite. A long chain is thick, boils at a high temperature and is hard to ignite. These differences decide how each hydrocarbon is used as a fuel.', 'crude-compare'),
+  ],
+}
