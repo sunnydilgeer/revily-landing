@@ -162,7 +162,10 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const interval = upTo.findLast(step => step.frame.interval)?.frame.interval
   const rounding = upTo.findLast(step => step.frame.rounding)?.frame.rounding
   const terms = upTo.findLast(step => step.frame.terms)?.frame.terms
-  const tiles = upTo.findLast(step => step.frame.tiles)?.frame.tiles
+  // Terms workings (5a⁴ × 3a²) draw each letter's copies only on that letter's step; other pictures keep theirs.
+  const sorted = example.steps.some(step => step.frame.terms)
+  const tiles = sorted ? own.tiles : upTo.findLast(step => step.frame.tiles)?.frame.tiles
+  const newTiles = sorted && Boolean(own.tiles)
   const squares = upTo.findLast(step => step.frame.squares)?.frame.squares
   const expand = upTo.findLast(step => step.frame.expand)?.frame.expand
   const board = upTo.findLast(step => step.frame.equation)?.frame.equation
@@ -173,10 +176,11 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
   const answer = own.ordering?.answer ?? (own.rounding?.stage === 'result' ? own.rounding.answer : undefined)
   const rule = own.rounding && own.rounding.stage !== 'identify' && !own.rounding.chop
-  const at = own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
+  const at = newTiles ? 'tiles' : own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
   return <>
     {at === 'picture' && heading}
     {terms && <TermsVisual frame={{ terms: terms.terms }} />}
+    {at === 'tiles' && heading}
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
     {expand && <ExpandVisual frame={expand} />}
@@ -224,6 +228,8 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
         if (first?.interval) return <div className="ns-visual rung-worked__visual"><IntervalVisual frame={{ ...first.interval, stage: 'value' }} /></div>
         if (first?.tiles?.opening) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number"><Powers text={first.tiles.opening} /></p></div>
+        // Powers named on their groups start as blocks (3⁴ × 3⁵), and open into copies on the first step.
+        if (first?.tiles?.rows.every(row => row.groups.every(group => group.label))) return <div className="ns-visual rung-worked__visual"><TilesVisual frame={{ ...first.tiles, folded: true, plain: true, note: undefined }} /></div>
         if (first?.tiles) return <div className="ns-visual rung-worked__visual"><TilesVisual frame={{ ...first.tiles, plain: true, note: undefined, rows: first.tiles.rows.map(row => ({ groups: row.groups.map(group => ({ ...group, crossed: undefined })) })) }} /></div>
         if (first?.expand) return <div className="ns-visual rung-worked__visual"><ExpandVisual frame={first.expand.given
           ? { given: true, grids: first.expand.grids.map(grid => ({ side: grid.side.map(() => '?'), top: grid.top.map(() => '?'), cells: grid.cells?.map(row => row.map(cell => ({ text: cell.text }))) })) }

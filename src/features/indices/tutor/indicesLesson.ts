@@ -58,10 +58,11 @@ const copies = (base: string | number, n: number) => Array.from({ length: n }, (
 
 /** base^a × base^b: both powers written out as copies, then counted. */
 function multiplyModel(base: string | number, a: number, b: number, answer = pow(base, a + b)): TutorWorking {
-  const tiles: TilesFrame = { rows: [{ groups: [{ tiles: copies(base, a), family: 0 }, { tiles: copies(base, b), family: 1 }] }] }
+  // Each power opens from its block (the plain opening shows 3⁴ × 3⁵) into its copies, labelled underneath.
+  const tiles: TilesFrame = { rows: [{ groups: [{ tiles: copies(base, a), family: 0, label: pow(base, a) }, { tiles: copies(base, b), family: 1, label: pow(base, b) }] }] }
   const count: WorkingLine = { parts: `${a} + ${b}`, total: `${a + b} copies`, family: 2 }
   return lines(`${pow(base, a)} × ${pow(base, b)}`,
-    { title: 'Write out the copies', math: `${tp(base, a)}\\times${tp(base, b)}`, say: `The power says how many ${base}s are multiplied together. Each colour is one of the powers.`, tiles },
+    { title: 'Write out each power', math: `${tp(base, a)}\\times${tp(base, b)}`, say: `The power says how many copies of ${base} are multiplied together: ${pow(base, a)} is ${a} of them, and ${pow(base, b)} is ${b}.`, tiles },
     { title: 'Count them', math: `${a}+${b}=${a + b}`, say: 'All the tiles are the same base, so count them all. That’s adding the powers.', tiles, sums: [count] },
     { title: 'The answer', math: tp(base, a + b), say: 'The base stays the same. Only the power changes.', answer },
   )
@@ -69,11 +70,11 @@ function multiplyModel(base: string | number, a: number, b: number, answer = pow
 
 /** base^a ÷ base^b as a fraction of copies; matching pairs cancel. `value` adds a step that works the power out. */
 function divideModel(base: string | number, a: number, b: number, value?: { parts: string; total: number }): TutorWorking {
-  const tiles = (crossed?: number): TilesFrame => ({ over: true, rows: [{ groups: [{ tiles: copies(base, a), family: 0, crossed }] }, { groups: [{ tiles: copies(base, b), family: 1, crossed }] }] })
+  const tiles = (crossed?: number): TilesFrame => ({ over: true, rows: [{ groups: [{ tiles: copies(base, a), family: 0, crossed, label: pow(base, a) }] }, { groups: [{ tiles: copies(base, b), family: 1, crossed, label: pow(base, b) }] }] })
   const left = a - b
   const count: WorkingLine = { parts: `${a} − ${b}`, total: left > 0 ? `${left} left on top` : `${-left} left on the bottom`, family: 2 }
   const steps: Step[] = [
-    { title: 'Write it as a fraction', math: `\\frac{${tp(base, a)}}{${tp(base, b)}}`, say: `Dividing is a fraction: the copies of ${base} on top, over the copies on the bottom.`, tiles: tiles() },
+    { title: 'Write out each power', math: `\\frac{${tp(base, a)}}{${tp(base, b)}}`, say: `Dividing is a fraction, ${pow(base, a)} over ${pow(base, b)}. Each power opens into its copies of ${base}: ${a} on top and ${b} on the bottom.`, tiles: tiles() },
     { title: 'Cancel matching pairs', math: `${a}-${b}=${left}`, say: `Each ${base} on top cancels with a ${base} on the bottom, because ${base} ÷ ${base} is 1. That’s subtracting the powers.`, tiles: tiles(Math.min(a, b)), sums: [count] },
   ]
   if (value) {
@@ -135,7 +136,13 @@ function termsModel(first: string, second: string, law: 'multiply' | 'divide', a
     const lone = (a && a.whole.length === 1) || (b && b.whole.length === 1)
     const say = !(a && b) ? `Nothing to ${law === 'multiply' ? 'multiply' : 'divide'} ${letter} by, so it stays as it is.`
       : `${lone ? `On its own, ${letter} means ${letter}¹. ` : ''}Same letter, so ${law === 'multiply' ? 'add' : 'subtract'} the powers.${result < 0 || pa < 0 || pb < 0 ? ' Keep each minus sign with its power.' : ''}`
-    steps.push({ title: `Powers of ${letter}`, math: `${tp(letter, pa)}${law === 'multiply' ? '\\times ' : '\\div '}${tp(letter, pb)}=${tp(letter, result)}`, say, terms, sums: [...sums] })
+    // Positive powers open into their copies, like the number questions: a⁴ × a² is a a a a × a a.
+    const drawn = a && b && pa > 0 && pb > 0
+    const tiles: TilesFrame | undefined = !drawn ? undefined : law === 'multiply'
+      ? { rows: [{ groups: [{ tiles: copies(letter, pa), family: family(letter), label: a.whole }, { tiles: copies(letter, pb), family: family(letter), label: b.whole }] }] }
+      : { over: true, rows: [{ groups: [{ tiles: copies(letter, pa), family: family(letter), label: a.whole, crossed: Math.min(pa, pb) }] }, { groups: [{ tiles: copies(letter, pb), family: family(letter), label: b.whole, crossed: Math.min(pa, pb) }] }] }
+    const counted = drawn ? ` ${law === 'multiply' ? `Count the copies of ${letter}` : `Matching pairs of ${letter} cancel`}.` : ''
+    steps.push({ title: `Powers of ${letter}`, math: `${tp(letter, pa)}${law === 'multiply' ? '\\times ' : '\\div '}${tp(letter, pb)}=${tp(letter, result)}`, say: say + counted, terms, tiles, sums: [...sums] })
   }
   steps.push({ title: 'The answer', math: tex(answer), say: 'Write the number, then the letters.', answer })
   return lines(`${first} ${op} ${second}`, ...steps)
@@ -496,7 +503,7 @@ practice(fractionLaw, 'Write your answer to (1¾)², 49/16, as a mixed number.',
   { title: 'The answer', math: '3\\tfrac{1}{16}', say: 'The remainder stays over 16.', answer: '3 1/16' },
 ), known([['4 1/16', '16 × 4 = 64, more than 49. 16 goes into 49 three times, with 1 left: 3 1/16.'], ['3 1/49', 'The bottom stays as 16: 3 1/16.'], ['3 1/3', 'The remainder is over 16: 3 1/16.']]))
 practice(fractionLaw, 'Simplify (2x/5)³.', 'A2.7 Q5c', expression('8x³/125'), 'Cube the top (the 2 and the x), then cube the bottom. Type it like 8x³/125.', built('(2x/5)³',
-  { title: 'Cube the top', math: '2^{3}x^{3}=8x^{3}', say: 'Both the 2 and the x are cubed.', line: line('2³ × x³', '8x³', 1) },
+  { title: 'Cube the top', math: '2x\\times 2x\\times 2x=8x^{3}', say: 'Cubed means three copies multiplied. 2 × 2 × 2 is 8, and x × x × x is x³.', line: line('2x × 2x × 2x', '8x³', 1) },
   { title: 'Cube the bottom', math: '5^{3}=125', say: 'And the bottom.', line: line('5 × 5 × 5', '125', 0) },
   { title: 'The answer', math: '\\frac{8x^{3}}{125}', say: 'The top over the bottom.', answer: '8x³/125' },
 ), known([['2x^3/125', 'Cube the 2 as well: 2³ = 8.'], ['2x³/125', 'Cube the 2 as well: 2³ = 8.'], ['8x^3/5', 'Cube the bottom too: 5³ = 125.'], ['8x³/5', 'Cube the bottom too: 5³ = 125.'], ['6x^3/15', 'Cubing means multiplying by itself three times, not by 3: 2³ = 8 and 5³ = 125.'], ['6x³/15', 'Cubing means multiplying by itself three times, not by 3: 2³ = 8 and 5³ = 125.'], ['8x/125', 'Cube the x too: x³.']]))
