@@ -36,16 +36,25 @@ const number = (n: number) => n < 0 ? `−${-n}` : String(n)
 /**
  * A term split into the common factor's number, what's left of the number, then each letter: 6x² → 3 × 2 × x × x.
  * With `mark`, the parts of the common factor are in [brackets], which the working draws boxed: [3] × 2 × [x] × x.
+ * With 'out' they are in {braces}, drawn boxed and crossed out: they have been taken outside the bracket.
  */
-export function split(term: Term, factor: Term, mark = false) {
+export function split(term: Term, factor: Term, mark: boolean | 'out' = false) {
   const rest = term.coefficient / factor.coefficient
-  const box = (part: string) => mark ? `[${part}]` : part
+  const box = (part: string) => mark === 'out' ? `{${part}}` : mark ? `[${part}]` : part
   const numbers = factor.coefficient === 1 ? [number(term.coefficient)] : [box(number(factor.coefficient)), number(rest)]
   const shared = powersOf(factor.key)
   const letters = lettersOf(term.key).map(letter => { const left = shared.get(letter) ?? 0; shared.set(letter, left - 1); return left > 0 ? box(letter) : letter })
   // A lone 1 only shows when there are no letters: 5 = 5 × 1, but 4xy = 4 × x × y.
   const shown = letters.length ? numbers.filter(n => n !== '1') : numbers
   return [...(shown.length ? shown : [number(term.coefficient)]), ...letters].join(' × ')
+}
+
+/** What is left of a term once the common factor's parts are crossed out: "2 × x" for 6x² ÷ 3x, "" when nothing is. */
+export function leftover(term: Term, factor: Term) {
+  const rest = term.coefficient / factor.coefficient
+  const shared = powersOf(factor.key)
+  const letters = lettersOf(term.key).filter(letter => { const left = shared.get(letter) ?? 0; shared.set(letter, left - 1); return left <= 0 })
+  return [...(rest !== 1 || !letters.length ? [number(rest)] : []), ...letters].filter(part => part !== '1' || !letters.length).join(' × ')
 }
 
 /** How one box is divided, numbers then letters: "6 ÷ 3 and x² ÷ x". */

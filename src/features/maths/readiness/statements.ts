@@ -103,5 +103,11 @@ export const canStatements: Record<string, string> = {
 
   '18:factorise-two-terms': 'I can factorise two terms fully, like 6x² + 9x = 3x(2x + 3)',
   '18:factorise-three-terms': 'I can factorise three terms fully, like 10x + 15y + 5 = 5(2x + 3y + 1)',
+
+  '19:equations-one-unknown': 'I can solve an equation like 5x − 3 = 27 by doing the same to both sides',
+  '19:equations-squares': 'I can solve x² = 49 (x = 7 or −7) and √x = 5 (x = 25)',
+  '19:equations-both-sides': 'I can solve an equation with the unknown on both sides, like 9x + 4 = 4x + 29',
+  '19:equations-brackets': 'I can solve an equation with brackets, like 2(3x + 1) = x + 22',
+  '19:equations-fractions': 'I can solve an equation with fractions, like (2x + 1)/3 = 5',
 }
 

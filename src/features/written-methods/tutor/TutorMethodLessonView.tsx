@@ -98,6 +98,25 @@ function ExpressionAnswerInput({ id, value, disabled, anyPower, onChange }: { id
   </div>
 }
 
+/**
+ * A squared unknown has two answers: "x = ☐ or x = ☐", in either order. Each box opens the full keyboard, because a
+ * number pad has no minus key. Either box alone can be checked, so an answer with only the positive root is caught.
+ */
+function RootsAnswerInput({ id, letter, disabled, onChange }: { id: string; letter: string; disabled: boolean; onChange: (value: string) => void }) {
+  const [first, setFirst] = useState(''), [second, setSecond] = useState('')
+  const update = (a: string, b: string) => onChange([a, b].map(value => value.trim().replace(/^[−–]/, '-')).filter(Boolean).join(', '))
+  const box = (which: 'a' | 'b', value: string, set: (value: string) => void) => <label htmlFor={`root-${which}-${id}`}>
+    <span className="sr-only">{which === 'a' ? 'First answer' : 'Second answer'} (type − first if it is negative)</span>
+    <input id={`root-${which}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value}
+      onChange={event => { set(event.target.value); update(which === 'a' ? event.target.value : first, which === 'a' ? second : event.target.value) }} />
+  </label>
+  return <div className="rung-roots" role="group" aria-label={`Enter both values of ${letter}`}>
+    <span className="rung-roots__pair"><span className="rung-answer__eq" aria-hidden="true">{letter} =</span>{box('a', first, setFirst)}</span>
+    <span className="rung-roots__or">or</span>
+    <span className="rung-roots__pair"><span className="rung-answer__eq" aria-hidden="true">{letter} =</span>{box('b', second, setSecond)}</span>
+  </div>
+}
+
 /** One power, as a base with its power box raised beside it (like the power box in standard form). */
 function PowerAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
   const [base, setBase] = useState(''), [power, setPower] = useState('')
@@ -131,7 +150,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.type === 'multiSelect') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -167,6 +186,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const standardForm = numeric && state.interaction.responseShape === 'standardForm'
   const expression = numeric && state.interaction.responseShape === 'expression'
   const power = numeric && state.interaction.responseShape === 'power'
+  const roots = numeric && state.interaction.responseShape === 'roots'
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
@@ -193,8 +213,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          {!standardForm && !expression && !power && <span className="rung-answer__eq" aria-hidden="true">=</span>}
-          {expression
+          {!standardForm && !expression && !power && !roots && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
+          {roots
+            ? <RootsAnswerInput id={state.id} letter={state.answerPrefix?.replace(/\s*=$/, '') ?? 'x'} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : expression
             ? <ExpressionAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} anyPower={state.interaction.anyPower} onChange={engine.setInputValue} />
             : power
             ? <PowerAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />

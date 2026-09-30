@@ -5,7 +5,7 @@ import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../wr
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { readFactorised } from '../../number-types/lessonMath'
 import { show, terms, times } from '../../expanding/tutor/expandingDiagnosis'
-import { commonFactor, diagnoseFactorise, divide, division, factorParts, split } from './factorisingDiagnosis'
+import { commonFactor, diagnoseFactorise, divide, factorParts, leftover, split } from './factorisingDiagnosis'
 
 const { add, finish } = author(18)
 const two = 'factorise-two-terms'
@@ -31,18 +31,22 @@ function factoriseModel(expression: string): TutorWorking {
   const inside = question.map(term => divide(term, factor))
   const answer = `${show(factor)}(${inside.map((term, i) => show(term, i === 0)).join(' ')})`
   const cells = [question.map((term, i) => ({ text: show(term), family: i }))]
-  const grid = (side: string, top: string[]): ExpandFrame => ({ given: true, grids: [{ side: [side], top, cells }] })
+  const grid = (side: string, top: string[], coloured = false): ExpandFrame => ({ given: true, coloured, grids: [{ side: [side], top, cells }] })
   const gaps = question.map(() => '?')
-  const splits = (mark: boolean): WorkingLine[] => question.map((term, i) => ({ parts: show(term), total: split(term, factor, mark), family: i }))
+  const splits = (mark: boolean | 'out'): WorkingLine[] => question.map((term, i) => ({ parts: show(term), total: split(term, factor, mark), family: i }))
   const parts = factorParts(factor)
   const common: WorkingLine = { parts: parts === show(factor) ? undefined : parts, total: show(factor), family: 3 }
-  const divided: WorkingLine[] = question.map((term, i) => ({ parts: division(term, factor), total: show(inside[i]), family: i }))
+  // What is left of each term once the common factor is crossed out; a term that was all common factor leaves 1.
+  const left: WorkingLine[] = question.map((term, i) => {
+    const rest = leftover(term, factor), total = show(inside[i])
+    return { parts: rest === '1' ? 'All crossed out' : rest === total ? undefined : rest, total, family: i }
+  })
   const several = question.length > 2 ? 'every term' : 'both terms'
   const steps: MethodStep[] = [
     { title: 'Split each term', operation: tex(expression), equation: question.map(term => `${tex(show(term))}=${tex(split(term, factor))}`).join(',\\ '), instruction: 'Write each term as its numbers and letters multiplied together, so you can see what they share.', frame: { expand: grid('?', gaps), sums: splits(false) } },
-    { title: 'The common factor', operation: tex(expression), equation: tex(show(factor)), instruction: `Box what ${several} share: the biggest number that goes into ${several}, and every letter that is in ${several}. Together they are the common factor, and it goes outside, down the side of the grid.`, frame: { expand: grid(show(factor), gaps), sums: [...splits(true), common] } },
-    { title: 'Divide each box', operation: tex(expression), equation: question.map((term, i) => `${tex(show(term))}\\div ${tex(show(factor))}=${tex(show(inside[i]))}`).join(',\\ '), instruction: 'Divide the numbers, then the letters. A letter divided by itself leaves nothing behind. Keep each sign.', frame: { expand: grid(show(factor), inside.map(term => show(term))), sums: [...splits(true), common, ...divided] } },
-    { title: 'The answer', operation: tex(expression), equation: tex(answer), instruction: 'The common factor outside, what is left of every term inside the bracket.', frame: { ordering: { answer } } },
+    { title: 'The common factor', operation: tex(expression), equation: tex(show(factor)), instruction: `Box what ${several} share: the biggest number that goes into ${several}, and every letter that is in ${several}. Together they are the common factor, and it goes outside, down the side of the grid.`, frame: { expand: grid(show(factor), gaps, true), sums: [...splits(true), common] } },
+    { title: 'Take it out of each term', operation: tex(expression), equation: question.map((term, i) => `${tex(show(term))}\\div ${tex(show(factor))}=${tex(show(inside[i]))}`).join(',\\ '), instruction: `Dividing by ${show(factor)} takes its boxed parts out of every term: cross them out. What is left of each term goes along the top of the grid, into the bracket.`, frame: { expand: grid(show(factor), inside.map(term => show(term)), true), sums: [...splits('out'), common, ...left] } },
+    { title: 'The answer', operation: tex(expression), equation: tex(answer), instruction: 'The side of the grid goes outside the bracket, and the top of the grid goes inside it, each with its sign.', frame: { ordering: { answer }, bracket: { outside: show(factor), inside: inside.map((term, i) => ({ text: show(term, i === 0), family: i, from: show(question[i]) })) } } },
   ]
   return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(expression), label: 'Factorise', first: 0, second: 0, steps, pictureOnly: true }] }
 }

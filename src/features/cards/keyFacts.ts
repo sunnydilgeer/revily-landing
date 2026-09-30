@@ -212,4 +212,11 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'factorise-two-terms': [['Factorise fully 6x² + 9x.', '3x(2x + 3). 3 is the biggest number in 6 and 9, and both terms have an x. Then 6x² ÷ 3x = 2x and 9x ÷ 3x = 3.']],
     'factorise-three-terms': [['Factorise fully 10x + 15y + 5.', '5(2x + 3y + 1). Only 5 goes into all three terms, and 5 ÷ 5 = 1, so the 1 keeps its place in the bracket.']],
   },
+  19: {
+    'equations-one-unknown': [['Solve 5x − 3 = 27.', 'x = 6. Add 3 to both sides: 5x = 30. Then divide both sides by 5.']],
+    'equations-squares': [['Solve x² = 49.', 'x = 7 or x = −7. Square root both sides, and remember −7 × −7 = 49 too.']],
+    'equations-both-sides': [['Solve 9x + 4 = 4x + 29.', 'x = 5. Subtract 4x from both sides: 5x + 4 = 29. Then 5x = 25.']],
+    'equations-brackets': [['Solve 2(3x + 1) = x + 22.', 'x = 4. Multiply out: 2 × 3x = 6x and 2 × 1 = 2, so 6x + 2 = x + 22. Then 5x = 20.']],
+    'equations-fractions': [['Solve (2x + 1)/3 = 5.', 'x = 7. Multiply both sides by 3: 2x + 1 = 15. Then 2x = 14.']],
+  },
 }

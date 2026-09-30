@@ -32,6 +32,7 @@ function normaliseList(value: unknown): string[] {
 function parseNumericList(value: unknown): number[] {
   if (Array.isArray(value)) return value.map(Number).filter(Number.isFinite)
   return String(value ?? '')
+    .replace(/[−–]/g, '-')
     .match(/-?\d+(?:\.\d+)?/g)
     ?.map(Number)
     .filter(Number.isFinite) ?? []
@@ -273,8 +274,8 @@ export function parseStandardForm(value: unknown): { a: number; n: number; value
 }
 
 function parseFormattedNumber(value: unknown): number | null {
-  // A leading £ is harmless: students often type the unit shown beside the box.
-  const text = String(value ?? '').trim().replace(/^£\s?/, '')
+  // A leading £ is harmless: students often type the unit shown beside the box. So is "x =" before a solution.
+  const text = String(value ?? '').trim().replace(/^[a-z]\s*=\s*/i, '').replace(/^£\s?/, '').replace(/^[−–]/, '-')
   const plain = /^[+-]?\d+(?:\.\d+)?$/
   const commaGrouped = /^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/
   const spaceGrouped = /^[+-]?\d{1,3}(?: \d{3})+(?:\.\d+)?$/

@@ -14,3 +14,13 @@ export function Powers({ text }: { text: ReactNode }) {
     ? <sup key={i} className="rv-pow">{[...part].map(c => c === '⁻' ? '−' : c === 'ⁿ' ? 'n' : String(SUP.indexOf(c))).join('')}</sup>
     : part)}</span><span className="sr-only">{text}</span></>
 }
+
+/**
+ * Text with parts in [brackets] drawn boxed, like the parts every term shares when factorising: [3] × 2 × [x] × x.
+ * Parts in {braces} are boxed and crossed out: taken outside the bracket.
+ */
+export function Boxed({ text }: { text: string }) {
+  return <>{text.split(/(\[[^\]]*\]|\{[^}]*\})/).map((part, i) => part.startsWith('[') || part.startsWith('{')
+    ? <span key={i} className={`ns-shared${part.startsWith('{') ? ' is-out' : ''}`}><Powers text={part.slice(1, -1)} /></span>
+    : <Powers key={i} text={part} />)}</>
+}

@@ -92,6 +92,12 @@ export const aqaMarks: Record<string, number> = {
   // Estimates, not yet counted from the 18 papers: factorising into a single bracket comes up most sittings, usually for 1–2 marks.
   '18:factorise-two-terms': 4,
   '18:factorise-three-terms': 2,
+  // Estimates, not yet counted from the 18 papers: solving linear equations comes up every sitting, usually for 2–3 marks.
+  '19:equations-one-unknown': 4,
+  '19:equations-squares': 2,
+  '19:equations-both-sides': 3,
+  '19:equations-brackets': 3,
+  '19:equations-fractions': 2,
 }
 
 /**
