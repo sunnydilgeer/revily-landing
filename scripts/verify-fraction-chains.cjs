@@ -55,6 +55,15 @@ for (const [id, working] of workings) {
     if (index === 0) return
     steps++
     assert.ok(step.op && step.why, `${label}: every step needs an operation and a why`)
+    // The ⓘ is words, not maths (src/features/EXPLANATIONS.md): the sums are on the lines and in the notes.
+    assert.ok(!/=|\d\s*[×÷+−-]\s*\d/.test(step.why), `${label}: the ⓘ is words (${step.why})`)
+    assert.ok(step.op === 'Work out' || step.op.split(' ').length <= 4, `${label}: short heading (${step.op})`)
+    for (const note of step.note ?? []) {
+      const [sum, result] = note.split(' → ')
+      const whole = /^(\d+) ÷ (\d+)$/.exec(sum), remainder = /^(\d+) r (\d+)$/.exec(result ?? '')
+      if (whole && remainder) assert.ok(Math.floor(whole[1] / whole[2]) === Number(remainder[1]) && whole[1] % whole[2] === Number(remainder[2]), `${label}: ${note}`)
+      else assert.equal(Function(`return ${sum.replace(/×/g, '*').replace(/÷/g, '/')}`)(), Number(result), `${label}: ${note}`)
+    }
     const above = new Set(keysOf(chain[index - 1].line))
     for (const [result, sources] of Object.entries(step.merge ?? {})) {
       assert.ok(keys.includes(result), `${label}: merge result ${result} is not on the line`)

@@ -8,7 +8,8 @@ import type { FractionFrame } from './fractionWorking'
  */
 
 /** A line of working, optionally with the fraction picture to show from this step on. */
-export type FractionChainStep = ChainStep & { frame?: FractionFrame }
+/** `note`: lines of working shown before the step's line ("17 ÷ 6 → 2 r 5"), so no number appears from nowhere. */
+export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[] }
 
 type Term = { nk: string; dk: string; n: number; d: number }
 export type WholeFraction = { whole?: number; numerator: number; denominator: number }
@@ -31,14 +32,14 @@ function simplifyTail(term: Term, mixedAnswer: boolean): FractionChainStep[] {
   if (factor > 1) {
     steps.push({
       line: `= ${frac(`${k(nk, n)} ${k('sp', `\\div ${factor}`)}`, `${k(dk, d)} ${k('sq', `\\div ${factor}`)}`)}`,
-      op: `÷ ${factor} top and bottom`,
-      why: `${factor} is the biggest number that goes into both ${n} and ${d}. Dividing the top and bottom by the same number keeps the fraction the same size.`,
+      op: 'Divide top and bottom',
+      why: `${factor} is the biggest number that goes into both. Dividing the top and bottom by the same number keeps the fraction the same size.`,
     })
     const top = n / factor, bottom = d / factor
     steps.push({
       line: bottom === 1 ? `= ${k('sn', top)}` : `= ${frac(k('sn', top), k('sd', bottom))}`,
       op: 'Work out',
-      why: `${n} ÷ ${factor} = ${top} and ${d} ÷ ${factor} = ${bottom}.${bottom === 1 ? ` Anything over 1 is just itself, so it is ${top}.` : ` No number bigger than 1 goes into both ${top} and ${bottom}, so it is fully simplified.`}`,
+      why: bottom === 1 ? 'Anything over 1 is just itself.' : 'No number bigger than 1 goes into both, so it is fully simplified.',
       merge: bottom === 1 ? { sn: [nk, 'sp', dk, 'sq'] } : { sn: [nk, 'sp'], sd: [dk, 'sq'] },
     })
     if (bottom === 1) return steps
@@ -48,8 +49,9 @@ function simplifyTail(term: Term, mixedAnswer: boolean): FractionChainStep[] {
     const whole = Math.floor(n / d), remainder = n % d
     steps.push({
       line: `= ${k('mw', whole)}${frac(k('mr', remainder), k(dk, d))}`,
-      op: 'Write as a mixed number',
-      why: `${d} goes into ${n} ${whole} time${whole === 1 ? '' : 's'} with ${remainder} left over. So it is ${whole} whole${whole === 1 ? '' : 's'} and ${said(remainder, d)}.`,
+      op: 'Write it mixed',
+      why: 'Find how many wholes fit, and what is left over.',
+      note: [`${n} ÷ ${d} → ${whole} r ${remainder}`],
       merge: { mw: [nk], mr: [nk] },
     })
   }
@@ -61,7 +63,7 @@ export function simplifyChain(n: number, d: number): FractionChainStep[] {
   return [{ line: frac(k('n', n), k('d', d)) }, ...(tail.length ? tail : [{
     line: `= ${frac(k('n', n), k('d', d))}`,
     op: 'Already fully simplified',
-    why: `No number bigger than 1 goes into both ${n} and ${d}, so it cannot be simplified.`,
+    why: 'No number bigger than 1 goes into both, so it cannot be simplified.',
   }])]
 }
 
@@ -71,13 +73,14 @@ export function equivalentChain(n: number, d: number, target: number): FractionC
     { line: frac(k('n', n), k('d', d)) },
     {
       line: `= ${frac(`${k('n', n)} ${k('p', `\\times ${scale}`)}`, `${k('d', d)} ${k('q', `\\times ${scale}`)}`)}`,
-      op: `× ${scale} top and bottom`,
-      why: `We need ${target} on the bottom, and ${d} × ${scale} = ${target}. Multiply the top by ${scale} too, so the fraction stays the same size.`,
+      op: 'Multiply top and bottom',
+      why: `We need ${target} on the bottom. Multiply the top by the same number, so the fraction stays the same size.`,
+      note: [`${target} ÷ ${d} → ${scale}`],
     },
     {
       line: `= ${frac(k('a', n * scale), k('b', target))}`,
       op: 'Work out',
-      why: `${n} × ${scale} = ${n * scale} and ${d} × ${scale} = ${target}.`,
+      why: 'Multiply out the top and the bottom.',
       merge: { a: ['n', 'p'], b: ['d', 'q'] },
     },
   ]
@@ -90,12 +93,13 @@ export function mixedToImproperChain(whole: number, n: number, d: number): Fract
     {
       line: `= ${frac(`${k('w', whole)} ${k('x', '\\times')} ${k('e', d)} ${k('pl', '+')} ${k('n', n)}`, k('d', d))}`,
       op: 'Count the parts',
-      why: `Each whole is ${d} parts, so ${whole} whole${whole === 1 ? ' is' : 's are'} ${whole} × ${d} parts. Then add the ${n} part${n === 1 ? '' : 's'} left over. The parts stay the same size, so the bottom stays ${d}.`,
+      why: 'Each whole is made of parts the size of the bottom number. Count the parts in the wholes, then add the parts left over. The bottom stays the same.',
     },
     {
       line: `= ${frac(k('i', improper), k('d', d))}`,
       op: 'Work out',
-      why: `${whole} × ${d} = ${parts}, and ${parts} + ${n} = ${improper}.`,
+      why: 'Multiply, then add.',
+      note: [`${whole} × ${d} → ${parts}`, `${parts} + ${n} → ${improper}`],
       merge: { i: ['w', 'x', 'e', 'pl', 'n'] },
     },
   ]
@@ -107,8 +111,9 @@ export function improperToMixedChain(n: number, d: number): FractionChainStep[] 
     { line: frac(k('n', n), k('d', d)) },
     {
       line: `= ${k('w', whole)}${frac(k('r', remainder), k('d', d))}`,
-      op: `${n} ÷ ${d} = ${whole} r ${remainder}`,
-      why: `${d} goes into ${n} ${whole} time${whole === 1 ? '' : 's'} with ${remainder} left over. That is ${whole} whole${whole === 1 ? '' : 's'} and ${remainder} part${remainder === 1 ? '' : 's'} out of ${d}.`,
+      op: 'Find the wholes',
+      note: [`${n} ÷ ${d} → ${whole} r ${remainder}`],
+      why: 'Divide the top by the bottom: that gives the wholes, and what is left over stays as a fraction.',
       merge: { w: ['n'], r: ['n'] },
     },
   ]
@@ -135,8 +140,8 @@ export function addSubtractChain(values: { numerator: number; denominator: numbe
     const bottomsSaid = terms.map(term => term.d)
     steps.push({
       line: `= ${join(terms.map((term, i) => scaled(term, scales[i], `mt${i}`, `mb${i}`)))}`,
-      op: 'Make the bottoms the same',
-      why: `You can only ${words} parts that are the same size. ${common} is the smallest number that ${bottomsSaid.slice(0, -1).join(', ')} and ${bottomsSaid.at(-1)} ${values.length === 2 ? 'both' : 'all'} go into, so turn ${changing.length > 1 ? 'the fractions' : 'the fraction'} into ${common}ths. Multiply the top by the same number as the bottom so the size doesn't change.`,
+      op: 'Make bottoms the same',
+      why: `You can only ${words} parts that are the same size. ${common} is the smallest number the bottoms all go into. Multiply the top by the same number as the bottom so the size doesn't change.`,
     })
     const merge: Record<string, string[]> = {}
     terms.forEach((term, i) => {
@@ -146,7 +151,7 @@ export function addSubtractChain(values: { numerator: number; denominator: numbe
     steps.push({
       line: `= ${join(terms.map((term, i) => frac(k(`u${i}`, term.n * scales[i]), k(`v${i}`, common))))}`,
       op: 'Work out',
-      why: `${terms.flatMap((term, i) => scales[i] > 1 ? [`${term.n} × ${scales[i]} = ${term.n * scales[i]} and ${term.d} × ${scales[i]} = ${common}`] : []).join('. ')}.`,
+      why: 'Multiply out the tops and the bottoms.',
       merge,
     })
     tops = terms.map((term, i) => ({ key: `u${i}`, n: term.n * scales[i] })); bottoms = terms.map((_, i) => `v${i}`)
@@ -157,13 +162,13 @@ export function addSubtractChain(values: { numerator: number; denominator: numbe
   steps.push({
     line: `= ${frac(tops.map((top, i) => `${i ? `${k(`s${i}`, sign)} ` : ''}${k(top.key, top.n)}`).join(' '), k('l', common))}`,
     op: operation === 'add' ? 'Add the tops' : 'Subtract the tops',
-    why: `The parts are the same size now, so just ${words} how many parts there are: ${sum}. The bottom stays ${common}, because the size of each part doesn't change.`,
+    why: `The parts are the same size now, so just ${words} how many parts there are. The bottom stays the same, because the size of each part doesn't change.`,
     merge: { l: bottoms },
   })
   steps.push({
     line: `= ${frac(k('t', total), k('l', common))}`,
     op: 'Work out',
-    why: `${sum} = ${total}.`,
+    why: operation === 'add' ? 'Add the tops.' : 'Subtract the tops.',
     merge: { t: tops.flatMap((top, i) => i ? [`s${i}`, top.key] : [top.key]) },
   })
   return [...steps, ...simplifyTail({ nk: 't', dk: 'l', n: total, d: common }, true)]
@@ -175,13 +180,13 @@ function multiplyTail(first: Term, second: Term, times: string): FractionChainSt
   return [
     {
       line: `= ${frac(`${k(first.nk, first.n)} ${k(times, '\\times')} ${k(second.nk, second.n)}`, `${k(first.dk, first.d)} ${k('x2', '\\times')} ${k(second.dk, second.d)}`)}`,
-      op: 'Top × top, bottom × bottom',
+      op: 'Multiply across',
       why: 'To multiply fractions, multiply the tops together and the bottoms together. The bottoms do not need to match first.',
     },
     {
       line: `= ${frac(k('p', top), k('q', bottom))}`,
       op: 'Work out',
-      why: `${first.n} × ${second.n} = ${top} and ${first.d} × ${second.d} = ${bottom}.`,
+      why: 'Multiply out the top and the bottom.',
       merge: { p: [first.nk, times, second.nk], q: [first.dk, 'x2', second.dk] },
     },
     ...simplifyTail({ nk: 'p', dk: 'q', n: top, d: bottom }, true),
@@ -194,8 +199,8 @@ function divideTail(first: Term, second: Term, sign: string, lead = '= '): Fract
   return [
     {
       line: `${lead}${frac(k(first.nk, first.n), k(first.dk, first.d))} ${k('m', '\\times')} ${frac(k(flipped.nk, flipped.n), k(flipped.dk, flipped.d))}`,
-      op: 'Flip the second fraction and multiply',
-      why: `Dividing by a fraction is the same as multiplying by it upside down. For example, ÷ 1/2 is the same as × 2, because there are 2 halves in every whole. So ÷ ${said(second.n, second.d)} becomes × ${said(second.d, second.n)}.`,
+      op: 'Flip and multiply',
+      why: 'Dividing by a fraction is the same as multiplying by it upside down: there are 2 halves in every whole, so dividing by a half doubles.',
       merge: { m: [sign] },
     },
     ...multiplyTail(first, flipped, 'm'),
@@ -229,13 +234,14 @@ export function mixedCalculationChain(first: WholeFraction, second: WholeFractio
   const top = (value: WholeFraction) => (value.whole ?? 0) * value.denominator + value.numerator
   const a: Term = { nk: 'a', dk: 'b', n: top(first), d: first.denominator }
   const b: Term = { nk: 'c', dk: 'e', n: top(second), d: second.denominator }
-  const conversions = [first, second].filter(value => value.whole).map(value => `${said(value.numerator, value.denominator, value.whole)} = ${value.whole} × ${value.denominator} + ${value.numerator} = ${top(value)}, so ${said(top(value), value.denominator)}`)
+  const conversions = [first, second].filter(value => value.whole).map(value => `${value.whole} × ${value.denominator} + ${value.numerator} → ${top(value)}`)
   const steps: FractionChainStep[] = [
     { line: `${mixedLatex(first, 'w1', 'n1', 'b')} ${k(key, sign)} ${mixedLatex(second, 'w2', 'n2', 'e')}` },
     {
       line: `= ${frac(k('a', a.n), k('b', a.d))} ${k(key, sign)} ${frac(k('c', b.n), k('e', b.d))}`,
       op: 'Make improper fractions',
-      why: `Mixed numbers can't be ${operation === 'multiply' ? 'multiplied' : 'divided'} straight away, so turn each one into a top-heavy fraction: whole × bottom + top. ${conversions.join('. ')}.`,
+      why: `Mixed numbers can't be ${operation === 'multiply' ? 'multiplied' : 'divided'} straight away, so turn each one into a top-heavy fraction: the wholes times the bottom, plus the top.`,
+      note: conversions,
       merge: { a: first.whole ? ['w1', 'n1'] : ['n1'], c: second.whole ? ['w2', 'n2'] : ['n2'] },
     },
   ]
@@ -252,23 +258,23 @@ export function fractionOfAmountChain(n: number, d: number, amount: number, curr
     {
       line: `${k('a', money(amount))} ${k('v', '\\div')} ${k('d', d)}`,
       op: 'Find one part',
-      why: `The bottom number is ${d}, so split ${say(amount)} into ${d} equal parts. Dividing by ${d} finds how much is in one part.`,
+      why: 'The bottom number says how many equal parts to split the amount into. Dividing finds one part.',
     },
     {
       line: `= ${k('u', money(unit))}`,
       op: 'Work out',
-      why: `${say(amount)} ÷ ${d} = ${say(unit)}. That is one part.`,
+      why: 'That is one part.',
       merge: { u: ['a', 'v', 'd'] },
     },
     {
       line: `${k('u', money(unit))} ${k('x', '\\times')} ${k('n', n)}`,
       op: `Take ${n} part${n === 1 ? '' : 's'}`,
-      why: `The top number is ${n}, so we want ${n} of those parts.`,
+      why: 'The top number says how many of those parts we want.',
     },
     {
       line: `= ${k('r', money(answer))}`,
       op: 'Work out',
-      why: `${say(unit)} × ${n} = ${say(answer)}. So ${said(n, d)} of ${say(amount)} is ${say(answer)}.`,
+      why: 'Multiply one part by how many parts we want.',
       merge: { r: ['u', 'x', 'n'] },
     },
   ]

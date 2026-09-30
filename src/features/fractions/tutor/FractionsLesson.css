@@ -35,3 +35,18 @@
   .fr-amount > div { gap: 2px; }
   .fr-amount span { padding-inline: 0; font-size: 9px; }
 }
+
+/* Fraction workings as a board (FractionWorkedExample.tsx): lines in the app font, fractions stacked, a move in purple,
+   earlier lines faded and the answer green. */
+.frm { gap: 10px; min-height: 0; padding: 4px 0 0; justify-items: center; }
+.frm-line { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .1em; margin: 0; font-size: clamp(21px, 6vw, 25px); font-weight: 600; color: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.frm-line.is-old { color: var(--rv-muted); font-size: clamp(17px, 4.8vw, 20px); font-weight: 500; }
+.frm-frac { display: inline-grid; justify-items: center; margin: 0 .15em; line-height: 1.2; vertical-align: middle; }
+.frm-frac > span:first-child { padding: 0 .25em 2px; border-bottom: 2px solid currentColor; }
+.frm-frac > span:last-child { padding: 2px .25em 0; }
+.frm-move { color: #7c3aed; }
+.frm-note { margin: 0; color: #7c3aed; font-size: 18px; font-weight: 600; }
+.frm-eq { margin-right: .3em; }
+.frm-answer { display: inline-flex; align-items: center; padding: 2px 16px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 18px; background: var(--rv-good-tint); color: var(--rv-good-ink); }
+.wc--picture:has(.frm) .wc-controls { gap: 12px; }
+.wc--picture:has(.frm) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }
