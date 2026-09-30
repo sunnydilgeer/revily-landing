@@ -85,10 +85,15 @@ function divideModel(base: string | number, a: number, b: number, value?: { part
 
 /** (base^a)^b: the inside power written out b times. */
 function powerModel(base: string | number, a: number, b: number, value?: { parts: string; total: number }): TutorWorking {
-  const tiles: TilesFrame = { rows: [{ groups: Array.from({ length: b }, (_, i) => ({ tiles: copies(base, a), family: i })) }] }
+  // First the outside power's meaning, (2³)² = 2³ × 2³ (like 7² = 7 × 7), then each 2³ written out, labelled, then counted.
+  const inside = pow(base, a), like = base === 7 ? 4 : 7
+  const groups = (folded: boolean): TilesFrame => ({ folded, rows: [{ groups: Array.from({ length: b }, (_, i) => ({ tiles: copies(base, a), family: i, label: inside })) }] })
+  const lots: TilesFrame = { ...groups(true), opening: `(${inside})${pow('', b)}`, note: `just like ${like}${pow('', b)} = ${copies(like, b).join(' × ')}` }
+  const tiles = groups(false)
   const count: WorkingLine = { parts: `${b} lots of ${a}`, total: `${a * b} copies`, family: 2 }
   const steps: Step[] = [
-    { title: 'Write out the copies', math: `(${tp(base, a)})^{${b}}`, say: `The outside power says how many times to write ${pow(base, a)}. Each colour is one of them.`, tiles },
+    { title: `${['', 'One', 'Two', 'Three', 'Four', 'Five'][b] ?? b} lots of ${inside}`, math: `(${tp(base, a)})^{${b}}=${Array(b).fill(tp(base, a)).join('\\times ')}`, say: `The outside power says how many copies of the inside to multiply together, the same as squaring or cubing an ordinary number.`, tiles: lots },
+    { title: `Write out each ${inside}`, math: `${tp(base, a)}=${copies(base, a).join('\\times ')}`, say: `Each ${inside} is ${a} copies of ${base} multiplied together, so each block opens into ${a} tiles.`, tiles },
     { title: 'Count them', math: `${a}\\times${b}=${a * b}`, say: 'Every group has the same number of tiles, so count the groups times the tiles in each. That’s multiplying the powers.', tiles, sums: [count] },
   ]
   if (value) {

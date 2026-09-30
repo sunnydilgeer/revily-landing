@@ -188,3 +188,8 @@
 .ns-eq__frac > span:last-child { padding-top: 2px; }
 .ns-solved { flex-wrap: wrap; row-gap: 6px; }
 .ns-eq .ns-shared { color: inherit; }
+
+/* Power of a power: each copy of the inside power as one block (2³ × 2³), then written out with its name under it. */
+.ns-tiles__stack { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+.ns-tile.ns-tile--folded { min-width: 2.2em; padding: 0 6px; }
+.ns-tiles__label { color: var(--f); font-size: 15px; font-weight: 700; }
