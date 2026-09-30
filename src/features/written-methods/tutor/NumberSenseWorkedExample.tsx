@@ -223,6 +223,7 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.terms) return <div className="ns-visual rung-worked__visual"><TermsVisual frame={{ terms: first.terms.terms }} plain /></div>
         if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
         if (first?.interval) return <div className="ns-visual rung-worked__visual"><IntervalVisual frame={{ ...first.interval, stage: 'value' }} /></div>
+        if (first?.tiles?.opening) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number"><Powers text={first.tiles.opening} /></p></div>
         if (first?.tiles) return <div className="ns-visual rung-worked__visual"><TilesVisual frame={{ ...first.tiles, plain: true, note: undefined, rows: first.tiles.rows.map(row => ({ groups: row.groups.map(group => ({ ...group, crossed: undefined })) })) }} /></div>
         if (first?.expand) return <div className="ns-visual rung-worked__visual"><ExpandVisual frame={first.expand.given
           ? { given: true, grids: first.expand.grids.map(grid => ({ side: grid.side.map(() => '?'), top: grid.top.map(() => '?'), cells: grid.cells?.map(row => row.map(cell => ({ text: cell.text }))) })) }

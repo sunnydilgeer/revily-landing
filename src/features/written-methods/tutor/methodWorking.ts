@@ -72,8 +72,13 @@ export type OrderingFrame = {
  * `over` stacks the first row above the second as a fraction, for division; `crossed` tiles cancel.
  */
 export type TilesFrame = {
-  rows: { groups: { tiles: string[]; family: number; crossed?: number }[] }[]
+  /** `label` names a group ("2³"), shown under its tiles, or as the whole group when `folded`. */
+  rows: { groups: { tiles: string[]; family: number; crossed?: number; label?: string }[] }[]
   over?: boolean
+  /** Each group drawn as one block with its label ("2³ × 2³") before it is written out as copies. */
+  folded?: boolean
+  /** The plain opening picture is this text ("(2³)²") instead of the tiles. */
+  opening?: string
   /** A short count under the tiles, e.g. "4 + 5 = 9 threes". */
   note?: string
   plain?: boolean
