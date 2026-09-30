@@ -1,7 +1,7 @@
 import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import { numberSenseWorking } from '../../written-methods/tutor/numberSenseWorking'
-import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
+import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
+import { line, part, sign, type StepLine, type StepWorking } from '../../written-methods/tutor/stepWorking'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 
 const { add, finish } = author(11)
@@ -30,27 +30,47 @@ type OrderModel = {
   conclusion?: string
 }
 
-function orderingModel(model: OrderModel): TutorWorking {
-  return numberSenseWorking(model.expression, model.label, [
-    {
-      title: 'Make the values comparable',
-      equation: model.expression,
-      instruction: model.method,
-      ordering: { values: model.comparable },
-    },
-    {
-      title: 'Compare the values',
-      equation: model.comparison,
-      instruction: model.conclusion ?? (model.comparison.includes('-') ? 'On a number line, values farther left are smaller. Read each comparison in the direction shown.' : 'Compare the greatest place value first. If the digits match, move one place to the right.'),
-      ordering: { comparison: model.comparison },
-    },
-    {
-      title: 'Write the answer',
-      equation: model.comparison,
-      instruction: 'Use the original forms and units, and check that your answer follows the question’s requested direction.',
-      ordering: { answer: model.answer },
-    },
-  ])
+// Keeps "12 750" and "3.7 kg" on one line: the gap inside a number, or before its unit, never wraps.
+const keep = (text: string) => text.replace(/(\d) (?=\d|kg|cm|m\b|s\b|L\b|°C)/g, '$1\u00a0').replace(/−/g, '−\u2060')
+const unit = /\s?(kg|cm|m|s|L|°C)$/
+const numeric = (text: string) => text.replace(/^[^:]*:\s*/, '').replace(/[£%]|\s?(kg|cm|m|s|L|°C)$/g, '').replace(/−/g, '-').replace(/\s/g, '')
+const words = (text: string) => !/[=→<>]|\d\s*[×÷+−-]\s*\d/.test(text)
+const firstTitle: Record<string, string> = {
+  [decimals]: 'Add zeros', [largeNumbers]: 'Count the digits', [negatives]: 'Split at zero', [mixedForms]: 'Change to decimals',
+}
+const firstMove: Record<string, string> = {
+  [decimals]: 'Add zeros so every number has the same number of decimal places. Then the columns line up.',
+  [largeNumbers]: 'Count the digits first. A whole number with fewer digits is smaller.',
+  [negatives]: 'Numbers below zero come first. The further below zero, the smaller the number.',
+  [mixedForms]: 'Change every value to a decimal, so they are all in the same form.',
+}
+const compareMove: Record<string, string> = {
+  [decimals]: 'Compare the biggest place value first. If the digits match, move one place to the right.',
+  [largeNumbers]: 'With the same number of digits, compare from the left, one place at a time.',
+  [negatives]: 'On a number line, further left is smaller.',
+  [mixedForms]: 'Compare the decimals one place at a time.',
+}
+
+/**
+ * The values plain, then one move a step (src/features/EXPLANATIONS.md): make them comparable (each value that changes
+ * form shown with what it becomes), compare them in the question's direction, and write the answer once, in green.
+ */
+function orderingModel(topic: MicroSkillId, model: OrderModel): StepWorking {
+  const changed = (value: string): StepLine => {
+    const sides = value.split(' = ')
+    if (sides.length > 1) return sides[0] === sides[sides.length - 1] ? line([part(keep(sides[0]))]) : line(sides.slice(0, -1).flatMap((side, i) => [...(i ? [sign('=')] : []), part(keep(side), 0)]), keep(sides[sides.length - 1]), { eq: true })
+    const from = model.original.find(original => numeric(original) !== numeric(value) && Number(numeric(original)) === Number(numeric(value)) && /^[\d.−-]+$/.test(numeric(value)))
+    return from ? line([part(keep(from.replace(/^[^:]*:\s*/, '').replace(unit, '')), 0)], keep(value.replace(/^[^:]*:\s*/, '')), { eq: true }) : line([part(keep(value))])
+  }
+  const chain = model.comparison.replaceAll('\\,', ' ').replaceAll('\\%', '%').replace(/-/g, '−').split(/([<>])/)
+  return {
+    kind: 'step-worked', start: keep(model.original.map(value => value.replace(/^[^:]*:\s*/, '')).join(', ')),
+    steps: [
+      { ...(model.answer.startsWith('for example') ? { title: 'Pick one between', why: 'The two end values are not allowed, so pick a value strictly between them.' } : model.comparable.every(value => value.endsWith('%')) ? { title: 'Change to percentages', why: 'Change both values to percentages, so they are in the same form.' } : { title: firstTitle[topic], why: words(model.method) ? model.method : firstMove[topic] }), lines: model.comparable.map(changed) },
+      { title: 'Compare them', why: model.conclusion ?? compareMove[topic], lines: [line(chain.map((piece, i) => i % 2 ? sign(piece) : part(keep(piece.trim()), 0)))] },
+      { title: 'Write the answer', why: 'Use the values as the question wrote them, in the order it asks for.', words: keep(model.answer) },
+    ],
+  }
 }
 
 function practice(
@@ -70,13 +90,13 @@ function practice(
     ['State the answer.', model.answer],
   ]
   const state = add(topic, title, sourceRef, text(title), interaction, explain(answer, ...steps), hint)
-  state.working = orderingModel(model)
+  state.working = orderingModel(topic, model)
   if (answerLabel) state.answerLabel = answerLabel
   return state
 }
 
 function worked(topic: MicroSkillId, title: string, sourceRef: string, model: OrderModel, body: string) {
-  return add(topic, title, sourceRef, orderingModel(model), undefined, undefined, undefined, body)
+  return add(topic, title, sourceRef, orderingModel(topic, model), undefined, undefined, undefined, body)
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 
