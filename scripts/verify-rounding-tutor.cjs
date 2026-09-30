@@ -61,3 +61,25 @@ const registry = read('src/features/maths/courseRegistry.ts')
 assert.ok(registry.includes("entry(10, tutorRoundingLesson, 'Rounding numbers'"), 'Lesson 10 must be appended to the canonical course order')
 
 console.log('Lesson 10 verified: 33 screens, 32 source-aligned examples and practice parts, 4 source-identical videos, exact half-up rounding and canonical course route.')
+
+// Every worked example and "See the working" is a step working (src/features/EXPLANATIONS.md): the number plain, then
+// the cut, the next digit, each carry, and the answer once in green; the working ends on its question's answer.
+{
+  const ts = require('typescript')
+  for (const ext of ['.ts', '.tsx']) require.extensions[ext] = (module, file) => module._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: 1, target: 99, esModuleInterop: true, jsx: 4 } }).outputText, file)
+  const { checkStepWorking } = require('./step-working-check.cjs')
+  const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
+  const { tutorRoundingLesson } = require('../src/features/rounding/tutor/roundingLesson.ts')
+  let workings = 0
+  for (const state of tutorRoundingLesson.states) {
+    const working = state.visual.kind === 'step-worked' ? state.visual : state.working
+    if (state.interaction.type === 'continue' && state.visual.kind !== 'step-worked') continue
+    assert.ok(working && working.kind === 'step-worked', `${state.id}: every worked example and answer is a step working`)
+    workings++
+    assert.ok(working.start, `${state.id}: the working opens on the plain number`)
+    const { answer } = checkStepWorking(working, state.id)
+    if (state.interaction.type === 'numericInput') assert.ok(checkAnswer(state.interaction, answer.replace(/ /g, '')), `${state.id}: the working ends on ${answer}`)
+  }
+  assert.equal(workings, 32)
+  console.log(`Lesson 10 workings: ${workings} step workings checked, each ending on its answer.`)
+}
