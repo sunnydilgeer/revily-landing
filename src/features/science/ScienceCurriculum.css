@@ -1,28 +1,17 @@
-/* Science curriculum: the Maths curriculum layout, plus folded unit rows and denser section pips. */
+/* Science curriculum: the Maths contents layout, with longer unit codes (B1, C2) and a draft note. */
 
-.sci-unit-row {
-  width: 100%; display: flex; align-items: center; gap: 14px; padding: 12px 16px; text-align: left; cursor: pointer;
-  border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); background: var(--rv-surface); color: var(--rv-ink);
-  font: inherit;
+.sci-draft-note { margin: 20px 0 0; color: var(--rv-muted); font-size: .85rem; }
+
+/* Subject switch above the unit list: one subject's units at a time keeps the list short. */
+.cur-toc__subjects { display: flex; gap: 4px; margin-bottom: 12px; padding: 4px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-pill); background: var(--rv-surface); }
+.cur-toc__subjects button {
+  flex: 1; min-height: 40px; padding: 0 10px; border: 0; border-radius: var(--rv-radius-pill); background: none; cursor: pointer;
+  color: var(--rv-ink-2); font: 700 .85rem var(--rv-font-body);
 }
-.sci-unit-row:hover { border-color: var(--rv-ink); }
-.sci-unit-row:focus-visible, .sci-unit-fold:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
-.sci-unit-row .cur-chapter__num { width: 36px; height: 36px; font-size: .8rem; }
-.sci-unit-row__title { flex: 1; min-width: 0; font-weight: 700; font-size: 1.05rem; }
-.sci-unit-row small { color: var(--rv-muted); font-size: .85rem; white-space: nowrap; }
+.cur-toc__subjects button[aria-pressed="true"] { background: var(--rv-ink); color: var(--rv-surface); }
+.cur-toc__subjects button:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
+.cur-toc__chapters .cur-toc__chapter { min-height: 52px; }
 
-.cur-chapter__head .cur-chapter__num { font-size: .85rem; }
-.sci-unit-fold {
-  margin-left: auto; width: 44px; height: 44px; flex: none; display: grid; place-items: center; cursor: pointer;
-  border: 2px solid var(--rv-line); border-radius: 12px; background: var(--rv-surface); color: var(--rv-ink-2);
-}
-
-/* Science lessons have more sections than Maths lessons have rungs. */
-.sci-pips span { width: 16px; height: 7px; }
-
-.sci-draft-note { margin: 0; color: var(--rv-muted); font-size: .85rem; }
-
-@media (max-width: 420px) {
-  .sci-unit-row { flex-wrap: wrap; }
-  .sci-unit-row small { width: 100%; padding-left: 50px; }
+@media (max-width: 799px) {
+  .cur-toc__subjects { margin: 0 16px 10px; }
 }
