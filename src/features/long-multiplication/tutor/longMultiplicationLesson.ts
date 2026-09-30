@@ -42,8 +42,8 @@ add('mixed', 'Split, multiply, carry and combine', 'N5.1 consolidation', text('G
 const states = finish({ videoFirst: true })
 const answerWorking = {
   'N5.1 Q2': methodWorking(columnWorking(213, 3)), 'N5.1 Q3': methodWorking(columnWorking(246, 3)),
-  'N5.1 Q4a': methodWorking(gridWorking(42, 18)), 'N5.1 Q4b': methodWorking(gridWorking(42, 18)),
-  'N5.1 Q5a': methodWorking(columnWorking(347, 4)), 'N5.1 Q5b': methodWorking(columnWorking(347, 4)),
+  'N5.1 Q4a': methodWorking(gridWorking(42, 18)), 'N5.1 Q4b': methodWorking(gridWorking(42, 18, { given: ['42 tickets', '£18'], unit: '£' })),
+  'N5.1 Q5a': methodWorking(columnWorking(347, 4)), 'N5.1 Q5b': methodWorking(columnWorking(347, 4, { upTo: 2 })),
   'N5.1 Q5c': methodWorking(gridWorking(34, 26), columnWorking(34, 26)),
 }
 states.forEach(state => { state.working = answerWorking[state.sourceRef.split(' (')[0]] })

@@ -108,9 +108,28 @@ export type EquationRow = { left: string; right: string } | { note: string; fami
 export type EquationFrame = { rows: EquationRow[] }
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
+/** A part of a written method's line: its text, colour (`is-f…`) and whether it is boxed in purple (the carry being added). */
+export type LinePart = { text: string; family?: number; boxed?: boolean }
+/**
+ * A line under a written method's picture: "3 × 4 → 12". `answer` draws the result in the green answer box (the working
+ * stops there); `mark` is a small verdict after it ("✓", "too big"); a line with no result is words ("5 won't go into 3").
+ */
+export type WrittenLine = { parts: LinePart[]; result?: string; resultFamily?: number; answer?: boolean; mark?: string }
+/** A carry in column multiplication: `boxed` while it is being added, `used` (struck out) after. */
+export type WrittenCarry = Carry & { boxed?: boolean; used?: boolean }
+export type BusCarry = { index: number; value: number }
 export type MethodFrame = {
   /** The lines of working so far; a step that adds lines has its heading above the new ones. */
   sums?: WorkingLine[]
+  /** A written method's lines for this step, under its picture. */
+  lines?: WrittenLine[]
+  /** Column multiplication: every carry so far, the digit just written, and the row that is the answer. */
+  carries?: WrittenCarry[]; written?: { row: 'ones' | 'tens' | 'total'; place: number; wide?: boolean }
+  answerRow?: 'ones' | 'tens' | 'total' | 'quotient'; answerCarry?: boolean
+  /** The grid's headings are shown once the numbers are split. */
+  split?: boolean
+  /** Bus stop: every carry so far; `carriesBoxed` boxes them all; `answerWords` is the answer in the question's words. */
+  busCarries?: BusCarry[]; carriesBoxed?: boolean; answerWords?: string
   tiles?: TilesFrame
   squares?: SquaresFrame
   expand?: ExpandFrame
@@ -150,154 +169,231 @@ export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`
 const value = (n: number) => n.toLocaleString('en-GB', { maximumFractionDigits: 10 })
 
-export function columnWorking(first: number, second: number): MethodExample {
+/*
+ * The written methods (grid, columns, bus stop, long division) are drawn as pictures, one move a step
+ * (src/features/EXPLANATIONS.md): the method's own layout on top, and under it the step's heading and the lines that
+ * show where its new numbers come from ("3 × 4 → 12", then "12 + 1 → 13" with the carried 1 boxed in purple).
+ * The last move writes the answer, so that row turns green and the working stops: no check line, no answer step.
+ */
+const part = (text: string | number, family?: number, boxed?: boolean): LinePart => ({ text: String(text), family, boxed })
+const sign = (text: string): LinePart => ({ text })
+const line = (parts: LinePart[], result?: string | number, extra: Partial<WrittenLine> = {}): WrittenLine => ({ parts, result: result === undefined ? undefined : String(result), ...extra })
+
+/** Column multiplication. `upTo` stops after that many digit steps and marks the latest carry as the answer. */
+export function columnWorking(first: number, second: number, options: { upTo?: number } = {}): MethodExample {
   const steps: MethodStep[] = []
-  let frame: MethodFrame = {}
+  let frame: MethodFrame = { carries: [] }
   const digits = String(first).split('').reverse().map(Number)
   const factors = String(second).split('').reverse().map(Number)
+  // Carries stay where they were written; the one a step adds is boxed, and struck out once it has been added.
+  const settle = (carries: WrittenCarry[] = []) => carries.map(carry => carry.boxed ? { ...carry, boxed: false, used: true } : carry)
   factors.forEach((factor, shift) => {
     let carry = 0, partial = 0
-    const row = shift ? 'tens' : 'ones'
+    const row: 'ones' | 'tens' = shift ? 'tens' : 'ones'
     if (shift) {
-      frame = { ...frame, carry: undefined, tens: '0' }
-      steps.push({ title: 'Why the second row starts with 0', operation: `${factor}\\times10`, equation: `${factor}\\times10=${factor * 10}`, instruction: `The underlined ${factor} is worth ${factor * 10}. Multiplying by ${factor * 10} means multiplying by ${factor}, then by 10. That ×10 moves every product digit one column to the left, leaving 0 in the rightmost column. Write 0 there, then calculate the rest of the second row.`, frame, focus: { factorPlace: shift } })
+      frame = { ...frame, carries: settle(frame.carries), carry: undefined, tens: '0', written: { row: 'tens', place: 0 } }
+      steps.push({
+        title: 'Put down a 0', tag: `× ${factor * 10}`, operation: `${factor}\\times10`, equation: `${factor}\\times10=${factor * 10}`,
+        instruction: `This row multiplies by ${factor * 10}, not ${factor}. Multiplying by 10 puts a 0 in the units, then you multiply by ${factor} as usual.`,
+        frame: { ...frame, lines: [line([part(factor * 10, 0)], `${factor} × 10`)] }, focus: { factorPlace: shift },
+      })
     }
     digits.forEach((digit, i) => {
-      const incoming = carry, product = digit * factor + incoming
+      const incoming = carry, base = digit * factor, product = base + incoming
       const last = i === digits.length - 1
       partial += (last ? product : product % 10) * 10 ** (i + shift)
       carry = last ? 0 : Math.floor(product / 10)
-      const operation = `${factor}\\times${digit}${incoming ? `+${incoming}` : ''}`
-      const written = last ? product : product % 10
-      const base = digit * factor
-      const instruction = `${factor} × ${digit} = ${base}.${incoming ? ` Now add the ${incoming} you carried over ${base} + ${incoming} = ${product}.` : ''} Write ${written}.${carry ? ` Carry over ${carry}.` : ''}${last ? ` So ${first} × ${factor * 10 ** shift} = ${value(partial)}.` : ''}`
-      frame = { ...frame, [row]: String(partial).padStart(i + shift + 1, '0'), carry: carry ? { place: i + shift + 1, value: carry, row } : undefined }
-      steps.push({ title: `Multiply by ${factor * 10 ** shift}`, operation, equation: `${operation}=${product}`, instruction, frame, focus: { topPlace: i, factorPlace: shift } })
+      const previous = settle(frame.carries).map(c => incoming && c.row === row && c.place === i + shift && !c.used ? { ...c, boxed: true } : c)
+      frame = {
+        ...frame,
+        [row]: String(partial).padStart(i + shift + 1, '0'),
+        carries: [...previous, ...(carry ? [{ place: i + shift + 1, value: carry, row }] : [])],
+        carry: carry ? { place: i + shift + 1, value: carry, row } : undefined,
+        written: { row, place: i + shift, wide: last && product > 9 },
+      }
+      const lines = [line([part(factor, 0), sign('×'), part(digit, 1)], base)]
+      if (incoming) lines.push(line([part(base), sign('+'), part(incoming, 3, true)], product))
+      const what = last ? 'This is the last digit, so write all of it.' : product > 9 ? 'Write the units digit here and carry the tens digit to the next column.' : 'Write it in this column.'
+      steps.push({
+        title: `Multiply the ${place(i)}`, tag: `× ${factor}`, operation: `${factor}\\times${digit}${incoming ? `+${incoming}` : ''}`, equation: `${factor}\\times${digit}${incoming ? `+${incoming}` : ''}=${product}`,
+        instruction: `${incoming ? 'Multiply, then add the number you carried. ' : ''}${what}`,
+        frame: { ...frame, lines }, focus: { topPlace: i, factorPlace: shift },
+      })
     })
   })
   if (factors.length > 1) {
-    const ones = Number(frame.ones), tens = Number(frame.tens)
-    const width = Math.max(String(ones).length, String(tens).length)
+    const ones = frame.ones!, tens = frame.tens!
+    const width = Math.max(ones.length, tens.length)
     let carry = 0, sum = 0
     for (let i = 0; i < width; i++) {
-      const a = Math.floor(ones / 10 ** i) % 10, b = Math.floor(tens / 10 ** i) % 10
-      const incoming = carry, base = a + b
-      const operation = `${a}+${b}${incoming ? `+${incoming}` : ''}`, n = base + incoming
+      const a = i < ones.length ? Number(ones[ones.length - 1 - i]) : undefined, b = Number(tens[tens.length - 1 - i])
+      const incoming = carry, base = (a ?? 0) + b, n = base + incoming
       const last = i === width - 1
       sum += (last ? n : n % 10) * 10 ** i
       carry = last ? 0 : Math.floor(n / 10)
-      frame = { ...frame, total: String(sum).padStart(i + 1, '0'), carry: carry ? { place: i + 1, value: carry, row: 'sum' } : undefined }
-      steps.push({ title: 'Add the two rows', operation, equation: `${operation}=${n}`, instruction: `${a} + ${b} = ${base}.${incoming ? ` Now add the ${incoming} you carried over ${base} + ${incoming} = ${n}.` : ''} Write ${last ? n : n % 10}.${carry ? ` Carry over ${carry}.` : ''}${last ? ` So ${first} × ${second} = ${value(sum)}.` : ''}`, frame })
+      const previous = settle(frame.carries).map(c => incoming && c.row === 'sum' && c.place === i && !c.used ? { ...c, boxed: true } : c)
+      frame = {
+        ...frame,
+        total: String(sum).padStart(i + 1, '0'),
+        carries: [...previous, ...(carry ? [{ place: i + 1, value: carry, row: 'sum' as const }] : [])],
+        carry: carry ? { place: i + 1, value: carry, row: 'sum' } : undefined,
+        written: { row: 'total', place: i, wide: last && n > 9 },
+        answerRow: last ? 'total' : undefined,
+      }
+      const lines = a === undefined
+        ? [incoming ? line([part(b, 0), sign('+'), part(incoming, 3, true)], n) : line([part(b, 0)], undefined, { mark: 'nothing to add' })]
+        : [line([part(a, 1), sign('+'), part(b, 0)], base)]
+      if (incoming && a !== undefined) lines.push(line([part(base), sign('+'), part(incoming, 3, true)], n))
+      steps.push({
+        title: `Add the ${place(i)}`, operation: `${a ?? 0}+${b}${incoming ? `+${incoming}` : ''}`, equation: `${a ?? 0}+${b}${incoming ? `+${incoming}` : ''}=${n}`,
+        instruction: last ? 'This is the last column, so write all of it. The bottom row is the answer.' : n > 9 ? 'Write the units digit and carry the tens digit to the next column.' : 'Add the digits in this column and write the result underneath.',
+        frame: { ...frame, lines },
+      })
     }
+  } else if (!options.upTo) {
+    steps[steps.length - 1].frame = { ...steps[steps.length - 1].frame, answerRow: 'ones' }
+    steps[steps.length - 1].instruction += ' The bottom row is the answer.'
+  }
+  if (options.upTo) {
+    steps.splice(options.upTo)
+    const end = steps[steps.length - 1]
+    end.frame = { ...end.frame, answerCarry: true }
+    end.instruction += ' The number you carry is the answer.'
   }
   return { method: 'column', expression: `${first}\\times${second}`, label: 'Column method', first, second, steps }
 }
 
-export function gridWorking(first: number, second: number): MethodExample {
+/** The grid method: split both numbers into the headings, fill one box a step, then add the boxes. */
+export function gridWorking(first: number, second: number, context?: { given: string[]; unit?: string }): MethodExample {
   const a = [Math.floor(first / 10) * 10, first % 10], b = [Math.floor(second / 10) * 10, second % 10]
-  const steps: MethodStep[] = [{ title: 'Split both numbers', operation: `${first}`, equation: `${first}=${a[0]}+${a[1]}`, instruction: `${first} = ${a[0]} + ${a[1]}; ${second} = ${b[0]} + ${b[1]}. Use these parts as the grid headings.`, frame: { cells: {} } }]
+  const unit = context?.unit ?? ''
+  const steps: MethodStep[] = []
+  if (context) steps.push({
+    title: 'Write the sum', operation: `${first}\\times${second}`, equation: `${first}\\times${second}=${first * second}`,
+    instruction: 'The total is the number of tickets times the price of one ticket.',
+    frame: { cells: {}, lines: [line([part(context.given[0], 1), sign('×'), part(context.given[1], 0)], `${first} × ${second}`)] },
+  })
+  steps.push({
+    title: 'Split both numbers', operation: `${first}`, equation: `${first}=${a[0]}+${a[1]}`,
+    instruction: 'Split each number into tens and units. These parts are the headings of the grid.',
+    frame: { cells: {}, split: true, lines: [line([part(first, 1)], `${a[0]} + ${a[1]}`, { resultFamily: 1 }), line([part(second, 0)], `${b[0]} + ${b[1]}`, { resultFamily: 0 })] },
+  })
   let cells: Record<string, number> = {}
   const products: number[] = []
+  const names = ['Top-left box', 'Top-right box', 'Bottom-left box', 'Bottom-right box']
   a.forEach((n, row) => b.forEach((m, col) => {
-    const result = n * m, key = `${row}-${col}`, operation = `${n}\\times${m}`
+    const result = n * m, key = `${row}-${col}`
     products.push(result); cells = { ...cells, [key]: result }
-    steps.push({ title: `Fill the ${n} × ${m} cell`, operation, equation: `${operation}=${result}`, instruction: `Write ${result} where row ${n} meets column ${m}.`, frame: { cells }, focus: { cell: key } })
+    steps.push({
+      title: names[row * 2 + col], operation: `${n}\\times${m}`, equation: `${n}\\times${m}=${result}`,
+      instruction: 'Multiply the heading of its row by the heading of its column.',
+      frame: { cells, split: true, lines: [line([part(n, 1), sign('×'), part(m, 0)], result)] }, focus: { cell: key },
+    })
   }))
-  steps.push({ title: 'Add the four products', operation: products.join('+'), equation: `${products.join('+')}=${first * second}`, instruction: `The four cells cover the whole multiplication. ${first} × ${second} = ${value(first * second)}.`, frame: { cells, total: String(first * second) } })
-  return { method: 'grid', expression: `${first}\\times${second}`, label: 'Grid method', first, second, grid: { first: a, second: b }, steps, chain: gridChain(first, second, a, b) }
+  steps.push({
+    title: 'Add the boxes', operation: products.join('+'), equation: `${products.join('+')}=${first * second}`,
+    instruction: 'Together the four boxes make the whole multiplication, so add them up.',
+    frame: { cells, split: true, total: String(first * second), lines: [line(products.map((p, i) => [...(i ? [sign('+')] : []), part(p)]).flat(), `${unit}${value(first * second)}`, { answer: true })] },
+  })
+  return { method: 'grid', expression: `${first}\\times${second}`, label: 'Grid method', first, second, grid: { first: a, second: b }, steps }
 }
 
 /**
- * 34 × 26 = (30 + 4) × (20 + 6) = 30 × 20 + 30 × 6 + 4 × 20 + 4 × 6 = 600 + 180 + 80 + 24 = 884, beside the grid.
- * The grid stops at its filled boxes: the chain's last line is the answer, so the grid does not repeat it.
+ * Short division (the bus stop). Each place: box what is being divided (with any carry), find the biggest multiple of
+ * the divisor that fits, and carry what's left. The quotient on top is the answer.
+ * `answer` changes the ending: 'remainder' (the last remainder is the answer), 'carries' (box every carry),
+ * { roundUp } (one more box for what's left over) or { words } (the answer in the question's own words).
  */
-function gridChain(first: number, second: number, a: number[], b: number[]): MethodChainStep[] {
-  const k = (key: string, latex: string | number) => `[[${key}:${latex}]]`
-  const pairs = a.flatMap((n, row) => b.map((m, col) => ({ n, m, row, col, i: row * b.length + col })))
-  const said = pairs.map(({ n, m }) => `${n} × ${m} = ${n * m}`)
-  return [
-    { line: `${k('a', first)} \\times ${k('b', second)}`, at: { step: -1 } },
-    {
-      line: `= (${k('a0', a[0])} + ${k('a1', a[1])}) \\times (${k('b0', b[0])} + ${k('b1', b[1])})`,
-      op: 'Split into tens and units',
-      why: `Big multiplications are easier in small pieces. ${first} is ${a[0]} + ${a[1]} and ${second} is ${b[0]} + ${b[1]}. These are the grid's headings.`,
-      merge: { a0: ['a'], a1: ['a'], b0: ['b'], b1: ['b'] },
-      at: { step: 0 },
-    },
-    {
-      line: `= ${pairs.map(({ n, m, i }) => k(`p${i}`, `${n} \\times ${m}`)).join(' + ')}`,
-      op: 'Multiply every part by every part',
-      why: `Each part of ${first} has to be multiplied by each part of ${second}, and each of those is one box of the grid: ${pairs.length} boxes, ${pairs.length} multiplications.`,
-      merge: Object.fromEntries(pairs.map(({ row, col, i }) => [`p${i}`, [`a${row}`, `b${col}`]])),
-    },
-    {
-      line: `= ${pairs.map(({ n, m, i }) => k(`q${i}`, n * m)).join(' + ')}`,
-      op: 'Work out each box',
-      why: `${said.join(', ')}.`,
-      merge: Object.fromEntries(pairs.map(({ i }) => [`q${i}`, [`p${i}`]])),
-      at: { step: pairs.length },
-    },
-    {
-      line: `= ${k('r', first * second)}`,
-      op: 'Add the boxes',
-      why: `Together the boxes make the whole of ${first} × ${second}, so add them: ${pairs.map(({ n, m }) => n * m).join(' + ')} = ${value(first * second)}.`,
-      merge: { r: pairs.map(({ i }) => `q${i}`) },
-    },
-  ]
-}
-
-export function divisionWorking(first: number, second: number): MethodExample {
+export function divisionWorking(first: number, second: number, answer?: 'remainder' | 'carries' | { roundUp: string } | { words: string }): MethodExample {
   const digits = String(first).split('').map(Number), steps: MethodStep[] = []
   let remainder = 0, quotient = '', begun = false
+  const carries: BusCarry[] = []
   digits.forEach((digit, index) => {
     const incoming = remainder, amount = incoming * 10 + digit, q = Math.floor(amount / second)
     remainder = amount % second
+    const zero = !q, leading = zero && !begun
     begun = begun || q > 0
     quotient += begun ? q : ' '
+    const last = index === digits.length - 1
     const p = digits.length - index - 1
-    const operation = `${amount}\\div${second}`
-    const equation = remainder ? `${amount}\\div${second}\\;\\longrightarrow\\;${q}\\;\\mathrm{r}\\,${remainder}` : `${operation}=${q}`
-    const nextAmount = remainder * 10 + (digits[index + 1] ?? 0)
-    let instruction = !begun ? `${second} does not fit into ${amount} ${place(p)}. Leave this quotient space blank.` : `Write ${q} above the ${place(p)}.`
-    if (remainder && index < digits.length - 1) instruction += ` Carry ${remainder} ${place(p)}: ${remainder * 10} + ${digits[index + 1]} = ${nextAmount} ${place(p - 1)} for the next step.`
-    else if (index === digits.length - 1) instruction += remainder ? ` ${remainder} left over is the final remainder.` : ' Nothing is left over.'
-    if (q && remainder) instruction = `${second} × ${q} = ${second * q}; ${amount} - ${second * q} = ${remainder}. ` + instruction
-    steps.push({ title: `Divide the ${place(p)}`, operation, equation, instruction, frame: { quotient, remainder: index === digits.length - 1 ? remainder : undefined, divisionCarry: remainder && index < digits.length - 1 ? { index: index + 1, value: remainder } : undefined }, focus: { dividendIndex: index } })
+    if (remainder && !last) carries.push({ index: index + 1, value: remainder })
+    const equation = remainder ? `${amount}\\div${second}\\;\\longrightarrow\\;${q}\\;\\mathrm{r}\\,${remainder}` : `${amount}\\div${second}=${q}`
+    const lines = zero
+      ? [line([part(second, 0), sign('won’t go into'), part(amount, 1)])]
+      : [line([part(second, 0), sign('×'), part(q)], second * q)]
+    if (!zero && (remainder || (last && answer === 'remainder'))) lines.push(line([part(amount, 1), sign('−'), part(second * q)], remainder, { answer: last && answer === 'remainder' }))
+    const instruction = zero
+      ? `It won’t go, so ${leading ? 'leave the space above empty' : 'write 0 above'}${last ? '.' : ' and carry it into the next place.'}`
+      : `Find the biggest multiple of ${second} that fits and write how many above.${remainder && !last ? ' Carry what’s left into the next place.' : remainder ? ' What’s left is the remainder.' : ''}`
+    steps.push({
+      title: `Divide the ${place(p)}`, operation: `${amount}\\div${second}`, equation, instruction,
+      frame: { quotient, busCarries: [...carries], divisionCarry: carries.at(-1), remainder: last ? remainder : undefined, lines }, focus: { dividendIndex: index },
+    })
   })
+  const end = steps[steps.length - 1]
   const q = Math.floor(first / second)
-  steps.push({ title: 'Read and check the answer', operation: `${q}\\times${second}${remainder ? `+${remainder}` : ''}`, equation: `${q}\\times${second}${remainder ? `+${remainder}` : ''}=${first}`, instruction: `${first} ÷ ${second} = ${q}${remainder ? ` remainder ${remainder}. The remainder is smaller than ${second}` : ', with no remainder'}.`, frame: { quotient, remainder } })
+  if (answer && typeof answer === 'object' && 'roundUp' in answer) {
+    steps.push({
+      title: 'One more box', operation: `${q}+1`, equation: `${q}+1=${q + 1}`, instruction: answer.roundUp,
+      frame: { ...end.frame, lines: [line([part(q), sign('+'), part(1, 3)], q + 1, { answer: true })] },
+    })
+  } else if (answer && typeof answer === 'object' && 'words' in answer) {
+    end.frame = { ...end.frame, answerWords: answer.words }
+  } else if (answer !== 'remainder') {
+    end.frame = { ...end.frame, answerRow: 'quotient', carriesBoxed: answer === 'carries' }
+  }
   return { method: 'division', expression: `${first}\\div${second}`, label: 'Bus-stop method', first, second, steps }
 }
 
+/** Long division: start with the first group the divisor fits, then try multiples, subtract and bring down. */
 export function longDivisionWorking(first: number, second: number): MethodExample {
   const digits = String(first).split('').map(Number), steps: MethodStep[] = []
   let end = 0, amount = digits[0]
   while (amount < second && end < digits.length - 1) amount = amount * 10 + digits[++end]
   let quotient = ' '.repeat(digits.length), rows: LongDivisionRow[] = [], frame: MethodFrame = { quotient, longRows: rows }
   const group = digits.slice(0, end + 1).map((digit, i) => `${digit}${end - i ? `\\times${10 ** (end - i)}` : ''}`).join('+')
-  steps.push({ title: 'Choose the first group of digits', operation: group, equation: `${group}=${amount}`, instruction: `${second} does not fit into ${digits[0]}${end > 1 ? ` or ${Number(digits.slice(0, end).join(''))}` : ''}. Start with ${amount}, the first ${end + 1} digits. The first quotient digit goes above the ${place(digits.length - end - 1)}.`, frame, focus: { dividendStart: 0, dividendIndex: end } })
+  const tooSmall = digits.slice(0, end).map((_, i) => Number(digits.slice(0, i + 1).join('')))
+  steps.push({
+    title: `Start with ${amount}`, operation: group, equation: `${group}=${amount}`,
+    instruction: `Start with the first group of digits that ${second} fits into. Its answer goes above the group’s last digit.`,
+    frame: { ...frame, lines: [line([part(second, 0), sign('won’t go into'), ...tooSmall.flatMap((n, i) => [...(i ? [sign('or')] : []), part(n, 1)])])] },
+    focus: { dividendStart: 0, dividendIndex: end },
+  })
   while (true) {
     const q = Math.floor(amount / second), product = second * q, remainder = amount - product
     quotient = quotient.slice(0, end) + q + quotient.slice(end + 1)
     frame = { ...frame, quotient }
-    steps.push({ title: `Divide ${amount} by ${second}`, operation: `${amount}\\div${second}`, equation: remainder ? `${amount}\\div${second}\\;\\longrightarrow\\;${q}\\;\\mathrm{r}\\,${remainder}` : `${amount}\\div${second}=${q}`, instruction: `${second} fits into ${amount} ${q === 1 ? 'once' : `${q} times`}: ${second} × ${q} = ${product}, while ${second} × ${q + 1} = ${second * (q + 1)} is too big. Write ${q} above the ${place(digits.length - end - 1)}.`, frame, focus: { dividendIndex: end } })
-    rows = [...rows, { number: String(product), end, kind: 'subtract' }]
-    frame = { ...frame, longRows: rows }
-    steps.push({ title: 'Multiply', operation: `${second}\\times${q}`, equation: `${second}\\times${q}=${product}`, instruction: `Write ${product} under ${amount}, lining up the final digits. This is the multiple to subtract.`, frame })
-    rows = [...rows, { number: String(remainder), end, kind: 'remainder' }]
-    frame = { ...frame, longRows: rows, remainder: end === digits.length - 1 ? remainder : undefined }
-    steps.push({ title: 'Subtract', operation: `${amount}-${product}`, equation: `${amount}-${product}=${remainder}`, instruction: `Subtract ${product} from ${amount}. Write ${remainder} below the line.${end === digits.length - 1 ? ` There are no digits left to bring down, so ${remainder} is the final remainder.` : ''}`, frame })
-    if (end === digits.length - 1) break
+    const tries = [
+      ...(q ? [line([part(second, 0), sign('×'), part(q)], product, { mark: '✓' })] : []),
+      line([part(second, 0), sign('×'), part(q + 1)], second * (q + 1), { mark: 'too big' }),
+    ]
+    steps.push({
+      title: `How many ${second}s?`, operation: `${amount}\\div${second}`, equation: remainder ? `${amount}\\div${second}\\;\\longrightarrow\\;${q}\\;\\mathrm{r}\\,${remainder}` : `${amount}\\div${second}=${q}`,
+      instruction: `Go up the ${second} times table until the next one is too big. Write how many above.`,
+      frame: { ...frame, lines: tries }, focus: { dividendStart: rows.length ? end : 0, dividendIndex: end },
+    })
+    const lastDigit = end === digits.length - 1
+    rows = [...rows, { number: String(product), end, kind: 'subtract' }, { number: String(remainder), end, kind: 'remainder' }]
+    frame = { ...frame, longRows: rows, remainder: lastDigit ? remainder : undefined, answerRow: lastDigit ? 'quotient' : undefined }
+    steps.push({
+      title: 'Subtract', operation: `${amount}-${product}`, equation: `${amount}-${product}=${remainder}`,
+      instruction: `Write the multiple under the group and take it away.${lastDigit ? ' No digits are left to bring down, so what’s left is the remainder.' : ''}`,
+      frame: { ...frame, lines: [line([part(amount, 1), sign('−'), part(product)], remainder)] },
+    })
+    if (lastDigit) break
     const nextDigit = digits[++end], nextAmount = remainder * 10 + nextDigit
     rows = [...rows.slice(0, -1), { number: String(nextAmount), end, kind: 'bring-down' }]
     frame = { ...frame, longRows: rows }
-    steps.push({ title: `Bring down ${nextDigit}`, operation: `${remainder}\\times10+${nextDigit}`, equation: `${remainder}\\times10+${nextDigit}=${nextAmount}`, instruction: `Bring down the next digit, ${nextDigit}, beside the ${remainder} to make ${nextAmount}. Now repeat: divide, multiply, subtract.`, frame, focus: { dividendIndex: end } })
+    steps.push({
+      title: `Bring down the ${nextDigit}`, operation: `${remainder}\\times10+${nextDigit}`, equation: `${remainder}\\times10+${nextDigit}=${nextAmount}`,
+      instruction: 'Bring the next digit down beside what’s left. That makes the next number to divide.',
+      frame: { ...frame, lines: [line([part(remainder * 10), sign('+'), part(nextDigit, 1)], nextAmount)] }, focus: { dividendIndex: end },
+    })
     amount = nextAmount
   }
-  const q = Math.floor(first / second), remainder = first % second
-  steps.push({ title: 'Read and check the answer', operation: `${q}\\times${second}+${remainder}`, equation: `${q}\\times${second}+${remainder}=${first}`, instruction: `${first} ÷ ${second} = ${q} remainder ${remainder}. The remainder ${remainder} is smaller than ${second}. Check: quotient × divisor + remainder = dividend.`, frame })
   return { method: 'long-division', expression: `${first}\\div${second}`, label: 'Long division', first, second, steps }
 }
+
 export const methodWorking = (...examples: MethodExample[]): MethodWorking => ({ kind: 'method-worked', examples })
 
 const decimalPlaces = (value: number) => {
