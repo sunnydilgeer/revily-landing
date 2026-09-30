@@ -12,6 +12,8 @@ import {
 import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 
+import type { StepWorking } from '../../written-methods/tutor/stepWorking'
+import { listWorking, multiplesList, ropesWorking, squareMakerWorking, squareWorking, treeWorking, vennStepsWorking } from './factorSteps'
 const { add, finish } = author(7)
 const prime = 'prime-factorisation', listing = 'hcf-lcm-listing', venn = 'hcf-lcm-venn'
 const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
@@ -94,6 +96,38 @@ practice(venn, 'A student claims HCF × LCM equals the product of the two number
 add('mixed', 'Split, list, match and multiply', 'N7.1-N7.3 consolidation', text('Prime factorisation: finish every branch on a prime', 'Listing: greatest shared factor, first shared multiple', 'Venn: intersection for HCF, every region for LCM'), undefined, undefined, undefined, 'Choose the representation that fits the question. Repeated prime factors must be matched copy by copy.')
 
 const states = finish()
+
+// Every worked example and answer as pictures and lines, one move a step (factorSteps.ts, src/features/EXPLANATIONS.md).
+const worked: Record<string, StepWorking> = {
+  'N7.1 Q4a example': treeWorking(60),
+  'N7.1 Q1 worked example': treeWorking(84),
+  'N7.1 Q2': treeWorking(20),
+  'N7.1 Q3': treeWorking(150),
+  'N7.1 Q4a': treeWorking(60),
+  'N7.1 Q4b': squareWorking(60),
+  'N7.1 Q5a': treeWorking(96),
+  'N7.1 Q5c': squareMakerWorking(96),
+  'N7.2 Q1': listWorking(12, 18, 'both'),
+  'N7.2 Q2': listWorking(8, 12, 'hcf'),
+  'N7.2 Q3': listWorking(15, 20, 'both'),
+  'N7.2 Q4a': multiplesList(14, 5),
+  'N7.2 Q4b': listWorking(14, 21, 'lcm', 'Every 14 minutes and every 21 minutes'),
+  'N7.2 Q5a': listWorking(24, 36, 'hcf'),
+  'N7.2 Q5c': ropesWorking(84, 126),
+  'N7.3 Q1': vennStepsWorking(36, 60, 'both'),
+  'N7.3 Q2': treeWorking(40),
+  'N7.3 Q3': vennStepsWorking(28, 42, 'both'),
+  'N7.3 Q4a': treeWorking(90),
+  'N7.3 Q4b': vennStepsWorking(90, 105, 'lcm'),
+  'N7.3 Q5a': vennStepsWorking(600, 540, 'hcf', ['p', 'q']),
+  'N7.3 Q5b': vennStepsWorking(600, 540, 'lcm', ['p', 'q']),
+}
+for (const state of states) {
+  const working = worked[state.sourceRef.split(/[;(]/)[0].trim()]
+  if (!working) continue
+  if (state.visual.kind === 'method-worked') state.visual = working
+  else state.working = working
+}
 export const tutorFactorsLesson: TutorMethodLesson = {
   id: 'L007', number: 7, title: 'Prime factors, HCF and LCM', level: 'GCSE Foundation',
   goal: 'Use prime factorisation, lists and Venn diagrams to find highest common factors and lowest common multiples.',
