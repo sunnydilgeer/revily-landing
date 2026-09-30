@@ -4,15 +4,13 @@ import { useState, type ReactNode } from 'react'
 import { Button } from '../../ui'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
-import type { StudySummary } from './useStudy'
-import TodayCard from './TodayCard'
+import { mathsLessonMinutes } from './lessonMinutes'
 import { rungStatus } from './rungProgress'
 import './Curriculum.css'
 
 type Props = {
   progress: LessonProgressMap
   lastLesson: MathsLessonNumber
-  study: StudySummary
   onOpenLesson: (lesson: MathsLessonNumber) => void
 }
 
@@ -22,9 +20,6 @@ const LATER_CHAPTERS = ['Ratio and proportion', 'Geometry and measures', 'Probab
 export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnapshot) {
   return rungStatus(entry.sections, entry.stateCount, snapshot)
 }
-
-/** A rough lesson length from its screen count (about half a minute a screen), until lessons carry a timed length. */
-export const estimateMinutes = (screens: number) => Math.max(3, Math.round(screens / 2))
 
 export type TocStatus = 'done' | 'next' | 'progress' | 'todo'
 
@@ -61,7 +56,7 @@ export function TocLesson({ status, title, minutes, detail, action, onOpen }: { 
   </li>
 }
 
-export default function Curriculum({ progress, lastLesson, study, onOpenLesson }: Props) {
+export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props) {
   const lastEntry = mathsLessons.find(entry => entry.number === lastLesson) ?? mathsLessons[0]
   const nextIncomplete = mathsLessons.find(entry => !progress[entry.lessonId]?.completed)
   const upNext = progress[lastEntry.lessonId] && !progress[lastEntry.lessonId].completed ? lastEntry : nextIncomplete ?? lastEntry
@@ -112,7 +107,7 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
             {chapter.lessons.map(entry => {
               const snapshot = progress[entry.lessonId]
               const status: TocStatus = snapshot?.completed ? 'done' : entry.lessonId === upNext.lessonId ? 'next' : snapshot ? 'progress' : 'todo'
-              const minutes = estimateMinutes(entry.stateCount)
+              const minutes = mathsLessonMinutes(entry.definition)
               const detail = upNextSnapshot
                 ? `Up next · section ${upNextRungIndex + 1} of ${upNextRungs.length} · ${upNextRungs[upNextRungIndex]?.title}`
                 : `Start here · ${upNextRungs.length} sections · ${minutes} min`
@@ -127,7 +122,6 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
         </div>}
       </section>
 
-      <div className="cur-toc__today"><TodayCard study={study} /></div>
     </div>
   </div>
 }

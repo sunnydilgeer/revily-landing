@@ -1,4 +1,4 @@
-/* Curriculum: a compact contents page (chapters on the left, the chosen chapter's lessons on a line) plus today's goal and streak. */
+/* Curriculum: a compact contents page (chapters on the left, the chosen chapter's lessons on a line) */
 
 .cur { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; color: var(--rv-ink); }
 .cur h1, .cur h2, .cur h3 { margin: 0; }
@@ -37,11 +37,7 @@
 /* Contents: chapters on the left, the chosen chapter's lessons on a line on the right. */
 .cur-toc {
   display: grid; grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); gap: 20px 24px; align-items: start;
-  grid-template-areas: "chapters panel" "today panel";
 }
-.cur-toc__chapters { grid-area: chapters; }
-.cur-toc__today { grid-area: today; }
-.cur-panel { grid-area: panel; }
 .cur-toc__chapters ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .cur-toc__group { margin: 8px 0 -2px 4px; color: var(--rv-muted); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .cur-toc__group:first-child { margin-top: 0; }
@@ -96,7 +92,7 @@
 .cur-lesson__go svg { width: 14px; height: 14px; }
 
 @media (max-width: 799px) {
-  .cur-toc { grid-template-columns: minmax(0, 1fr); grid-template-areas: "chapters" "panel" "today"; }
+  .cur-toc { grid-template-columns: minmax(0, 1fr); }
   /* Chapters become a strip you swipe along. */
   .cur-toc__chapters { margin: 0 -16px; overflow-x: auto; scrollbar-width: none; }
   .cur-toc__chapters ol { display: flex; align-items: center; gap: 8px; padding: 2px 16px 4px; width: max-content; }

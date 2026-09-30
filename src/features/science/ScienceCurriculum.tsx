@@ -6,10 +6,9 @@
  */
 import { useEffect, useState } from 'react'
 import { Button } from '../../ui'
-import TodayCard from '../maths/TodayCard'
-import { Lock, TocChapter, TocLesson, estimateMinutes, type TocStatus } from '../maths/Curriculum'
-import type { StudySummary } from '../maths/useStudy'
+import { Lock, TocChapter, TocLesson, type TocStatus } from '../maths/Curriculum'
 import { scienceSubjectLessonHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
+import { scienceLessonMinutes } from './lessonMinutes'
 import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceCatalogue, scienceUnits, sectionStatus, type ScienceProgressMap } from './scienceProgress'
 import '../maths/Curriculum.css'
 import './ScienceCurriculum.css'
@@ -25,7 +24,7 @@ const LATER = scienceSubjects.filter(item => item.lessons.length === 0).map(item
 const shownSubjects = scienceSubjects.filter(item => item.lessons.length > 0)
 const shownUnits = scienceUnits.filter(unit => shownSubjects.some(item => item.subject === unit.subject))
 
-export default function ScienceCurriculum({ study }: { study: StudySummary }) {
+export default function ScienceCurriculum() {
   const [progress, setProgress] = useState<ScienceProgressMap>({})
   const [last, setLast] = useState<ScienceCatalogueEntry | null>(null)
   useEffect(() => {
@@ -87,7 +86,7 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
             {unit.lessons.map(item => {
               const record = progress[item.lesson.id]
               const status: TocStatus = record?.completed ? 'done' : item === upNext ? 'next' : record?.started ? 'progress' : 'todo'
-              const minutes = estimateMinutes(item.lesson.states.length)
+              const minutes = scienceLessonMinutes(item.lesson)
               const detail = upNextStatus?.started
                 ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
                 : `Start here · ${upNextSections.length} sections · ${minutes} min`
@@ -103,7 +102,6 @@ export default function ScienceCurriculum({ study }: { study: StudySummary }) {
         <p className="sci-draft-note">Draft content, awaiting review by a qualified teacher.</p>
       </section>
 
-      <div className="cur-toc__today"><TodayCard study={study} /></div>
     </div>
   </div>
 }
