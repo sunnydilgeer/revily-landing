@@ -1,6 +1,6 @@
 /*
  * Science revision decks: one per lesson, in course order. Each section contributes its authored key
- * facts (facts/<folder>.ts; Chemistry facts/chemistry/<folder>.ts, Physics facts/physics/<folder>.ts), and each lesson adds a few of its own questions that work as flashcards.
+ * facts (facts/<folder>.ts; Chemistry facts/chemistry/<folder>.ts, Physics facts/physics/<folder>.ts, Working Scientifically facts/skills/<folder>.ts), and each lesson adds a few of its own questions that work as flashcards.
  * A section's cards join Today's cards once the student has finished that section.
  */
 import { allScienceLessons, type ScienceSubject } from '../lessonNavigation'

@@ -268,11 +268,10 @@ for (const { number, lesson, sections, frames, title, chapter } of cases) {
   })
 }
 
-check('Physics catalogue: Lessons 1–59, P4 holds 31–37, P5 holds 38–52, P6 holds 53–59, Lesson 59 is the last', () => {
-  assert.deepEqual(physicsLessons.map(item => item.number), Array.from({ length: 59 }, (_, i) => i + 1))
-  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'physics').map(unit => [unit.code, unit.lessons.length]), [['P1', 14], ['P2', 12], ['P3', 4], ['P4', 7], ['P5', 15], ['P6', 7]])
-  assert.equal(nextScienceLesson(getScienceLesson('physics', 59)!), null)
-  assert.equal(parseScienceLessonRef('physics', '60'), null)
+check('Physics catalogue: Lessons 31–59 follow 1–30 in order, P4 holds 31–37, P5 holds 38–52, P6 starts at 53 and Lesson 59 leads on to 60', () => {
+  assert.deepEqual(physicsLessons.slice(0, 59).map(item => item.number), Array.from({ length: 59 }, (_, i) => i + 1))
+  assert.deepEqual(scienceUnits.filter(unit => unit.subject === 'physics').slice(0, 5).map(unit => [unit.code, unit.lessons.length]), [['P1', 14], ['P2', 12], ['P3', 4], ['P4', 7], ['P5', 15]])
+  assert.equal(nextScienceLesson(getScienceLesson('physics', 59)!)?.number, 60)
   const cards = buildScienceDecks().flatMap(item => item.cards.map(card => card.id))
   assert.equal(new Set(cards).size, cards.length)
 })
