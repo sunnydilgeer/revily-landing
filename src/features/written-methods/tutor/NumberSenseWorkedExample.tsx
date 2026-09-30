@@ -7,7 +7,7 @@ import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
 import { ExpandVisual } from './GridPictures'
 import { Powers } from './Powers'
-import type { HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
+import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
   return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
@@ -132,9 +132,25 @@ function PictureStep({ step, children }: { step: MethodStep; children: (heading:
   </>
 }
 
-/** Text with parts in [brackets] drawn boxed, like the parts every term shares when factorising: [3] × 2 × [x] × x. */
+/**
+ * Text with parts in [brackets] drawn boxed, like the parts every term shares when factorising: [3] × 2 × [x] × x.
+ * Parts in {braces} are boxed and crossed out: taken outside the bracket.
+ */
 function Boxed({ text }: { text: string }) {
-  return <>{text.split(/(\[[^\]]*\])/).map((part, i) => part.startsWith('[') ? <span key={i} className="ns-shared"><Powers text={part.slice(1, -1)} /></span> : <Powers key={i} text={part} />)}</>
+  return <>{text.split(/(\[[^\]]*\]|\{[^}]*\})/).map((part, i) => part.startsWith('[') || part.startsWith('{')
+    ? <span key={i} className={`ns-shared${part.startsWith('{') ? ' is-out' : ''}`}><Powers text={part.slice(1, -1)} /></span>
+    : <Powers key={i} text={part} />)}</>
+}
+
+/** A factorised answer built from coloured pieces, each labelled with where it came from. */
+function BracketAnswer({ frame }: { frame: BracketFrame }) {
+  const words = `${frame.outside} outside the bracket, and inside ${frame.inside.map(piece => `${piece.text.replace(/^\+ /, 'plus ')} from ${piece.from}`).join(', ')}`
+  return <div className="ns-bracket" role="img" aria-label={words}>
+    <span className="ns-bracket__piece is-f3" aria-hidden="true"><b><Powers text={frame.outside} /></b><small>common factor</small></span>
+    <span className="ns-bracket__paren" aria-hidden="true">(</span>
+    {frame.inside.map((piece, i) => <span key={i} className={`ns-bracket__piece is-f${piece.family % 4}`} aria-hidden="true"><b><Powers text={piece.text} /></b><small>from <Powers text={piece.from} /></small></span>)}
+    <span className="ns-bracket__paren" aria-hidden="true">)</span>
+  </div>
 }
 
 /** Lines of working under a picture; the step's heading goes above the lines it adds (from `newFrom`). */
@@ -177,7 +193,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {values && <OrderingVisual frame={values} />}
     {at === 'answer' && heading}
     {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
-    {answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
+    {own.bracket ? <BracketAnswer frame={own.bracket} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
   </>
 }
 

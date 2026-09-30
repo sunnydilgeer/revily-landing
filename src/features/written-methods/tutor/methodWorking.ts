@@ -88,7 +88,11 @@ export type ExpandFrame = {
   grids: { side: string[]; top: string[]; cells?: { text: string; family?: number }[][] }[]
   /** Factorising runs the grid backwards: the boxes are given, and the side and top are found. The plain opening keeps the boxes. */
   given?: boolean
+  /** Colour the side like the common factor (purple) and each top box like its column's term. */
+  coloured?: boolean
 }
+/** A factorised answer built from its pieces: the common factor outside, and what is left of each term inside. */
+export type BracketFrame = { outside: string; inside: { text: string; family: number; from: string }[] }
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
@@ -97,6 +101,7 @@ export type MethodFrame = {
   tiles?: TilesFrame
   squares?: SquaresFrame
   expand?: ExpandFrame
+  bracket?: BracketFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

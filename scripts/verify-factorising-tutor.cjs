@@ -85,6 +85,10 @@ for (const state of typed) {
   const steps = state.working.examples[0].steps
   const grid = steps.findLast(step => step.frame.expand).frame.expand.grids[0]
   assert.equal(steps.at(-1).frame.ordering.answer, answer, `${state.id}: the working reaches the answer`)
+  // The answer is built from its pieces: the side of the grid outside, the top of the grid inside.
+  const built = steps.at(-1).frame.bracket
+  assert.equal(`${built.outside}(${built.inside.map(piece => piece.text).join(' ')})`, answer, `${state.id}: the answer's pieces make the answer`)
+  assert.deepEqual(built.inside.map(piece => piece.text.replace(/^\+ /, '').replace(/^− /, '−')), grid.top, `${state.id}: the bracket holds the top of the grid`)
   grid.top.forEach((top, c) => {
     for (const trial of [[2, 3, 5], [-3, 5, -2]]) {
       const values = Object.fromEntries(letters.map((letter, i) => [letter, trial[i]]))

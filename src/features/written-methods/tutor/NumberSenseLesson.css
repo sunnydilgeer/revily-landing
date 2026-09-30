@@ -161,3 +161,13 @@
 
 /* Factorising: the parts every term shares, boxed in the common factor's colour (purple) inside each split. */
 .ns-shared { padding: 0 3px; border: 2px solid #7c3aed; border-radius: 6px; color: #7c3aed; }
+
+/* Factorising: the shared parts crossed out once they're taken outside, the grid coloured to match, and the answer
+   built from its pieces, each labelled with where it came from. */
+.ns-shared.is-out { text-decoration: line-through 2px #7c3aed; opacity: .55; }
+.ns-expand__grid th[class*="is-f"] { color: var(--f); }
+.ns-bracket { display: flex; flex-wrap: nowrap; align-items: flex-start; justify-content: center; gap: 4px; font-size: clamp(19px, 5.6vw, 30px); font-weight: 700; }
+.ns-bracket__paren { color: var(--rv-ink); line-height: 1.2; }
+.ns-bracket__piece { display: inline-flex; flex-direction: column; align-items: center; color: var(--f); line-height: 1.2; }
+.ns-bracket__piece b { white-space: nowrap; }
+.ns-bracket__piece small { max-width: 5.5em; color: var(--rv-muted); font-size: 12px; font-weight: 600; line-height: 1.2; text-align: center; }
