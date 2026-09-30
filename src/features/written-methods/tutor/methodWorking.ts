@@ -84,7 +84,11 @@ export type SquaresFrame = { rows: number; cols: number; shaded: [number, number
  * Expanding brackets as a grid: the term outside (or each term of the first bracket) down the side, the terms
  * inside along the top, and each box the product of its row and column, coloured by its family of like terms.
  */
-export type ExpandFrame = { grids: { side: string[]; top: string[]; cells?: { text: string; family: number }[][] }[] }
+export type ExpandFrame = {
+  grids: { side: string[]; top: string[]; cells?: { text: string; family?: number }[][] }[]
+  /** Factorising runs the grid backwards: the boxes are given, and the side and top are found. The plain opening keeps the boxes. */
+  given?: boolean
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {

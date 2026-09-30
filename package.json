@@ -24,6 +24,7 @@
         "verify:lesson15:tutor": "node scripts/verify-like-terms-tutor.cjs",
         "verify:lesson16:tutor": "node scripts/verify-indices-tutor.cjs",
         "verify:lesson17:tutor": "node scripts/verify-expanding-tutor.cjs",
+        "verify:lesson18:tutor": "node scripts/verify-factorising-tutor.cjs",
         "verify:file-casing": "node scripts/verify-file-casing.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",

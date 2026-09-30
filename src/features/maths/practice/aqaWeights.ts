@@ -89,6 +89,9 @@ export const aqaMarks: Record<string, number> = {
   // Estimates, not yet counted from the 18 papers: expanding brackets comes up most sittings, usually for 1–2 marks.
   '17:expand-single': 4,
   '17:expand-double': 3,
+  // Estimates, not yet counted from the 18 papers: factorising into a single bracket comes up most sittings, usually for 1–2 marks.
+  '18:factorise-two-terms': 4,
+  '18:factorise-three-terms': 2,
 }
 
 /**
