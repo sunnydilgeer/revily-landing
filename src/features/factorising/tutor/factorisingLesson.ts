@@ -78,6 +78,8 @@ function worked(topic: MicroSkillId, title: string, sourceRef: string, model: Tu
   return add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
+/** Video 2: the same example done another way (dividing the whole expression by the common factor). */
+function video2(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video2 = definition }
 const media = (name: string, title: string, durationSeconds: number, sourceFile: string, textAlternative: string[]) => ({
   id: `lesson18-${name}`, src: `/media/lesson-18/${name}.mp4`, poster: `/media/lesson-18/${name}.svg`, title, durationSeconds, sourceFile, textAlternative,
 })
@@ -98,6 +100,13 @@ video(twoVideo, media('two-terms', 'Factorising 6x² + 9x', 53, 'A4.1_Factorisin
   'Write 3x outside the bracket, and what is left of each term goes inside: 6x² + 9x = 3x(2x + 3).',
   'Expand it back to check: 3x × 2x = 6x² and 3x × 3 = 9x.',
   'Where you see it: two flower beds share the same width, 3x, so 3x goes outside. Their lengths are 2x and 3.',
+]))
+video2(twoVideo, media('two-terms-another-way', 'Another way: factorising 6x² + 9x by dividing', 53, 'A4.1_Factorising_Two_Terms.mp4 (second version)', [
+  'Another way to do the same question. Split each term into its factors: 6x² = 3 × 2 × x × x and 9x = 3 × 3 × x. Both share 3 and x, so the common factor is 3x.',
+  'Divide the whole expression by 3x: (6x² + 9x) ÷ 3x = 6x² ÷ 3x + 9x ÷ 3x.',
+  'Write each term as its factors over 3 × x. What matches on the top and bottom cancels: 3 × 2 × x × x over 3 × x leaves 2x, and 3 × 3 × x over 3 × x leaves 3.',
+  'What is left goes inside the bracket: 6x² + 9x = 3x(2x + 3).',
+  'Where you see it: two beds share the same width, 3x, so 3x goes outside.',
 ]))
 factoriseQuestion(two, 'A4.1 Q2', '5a + 10', '5(a + 2)', 'Which number goes into 5 and 10? Divide each term by it.', `Factorise ${nb('5a + 10')}.`)
 factoriseQuestion(two, 'A4.1 Q3', '14y² − 21y', '7y(2y − 3)', 'The biggest number in 14 and 21, and the letter both terms have. Keep the minus sign.', `A rectangular patio has an area of ${nb('14y² − 21y')} square metres. Factorise fully the expression for the area.`)
@@ -130,6 +139,13 @@ video(threeVideo, media('three-terms', 'Factorising 10x + 15y + 5', 53, 'A4.2_Fa
   'Write 5 outside. The plain number 5 gives 1 inside the bracket: it does not vanish. 10x + 15y + 5 = 5(2x + 3y + 1).',
   'Expand it back to check all three: 5 × 2x = 10x, 5 × 3y = 15y and 5 × 1 = 5.',
   'Where you see it: three crates share a side of 5, so 5 goes outside. Their other sides are 2x, 3y and 1.',
+]))
+video2(threeVideo, media('three-terms-another-way', 'Another way: factorising 10x + 15y + 5 by dividing', 53, 'A4.2_Factorising_Three_Terms.mp4 (second version)', [
+  'Another way to do the same question. Split every term, even the plain number: 10x = 5 × 2 × x, 15y = 5 × 3 × y and 5 = 5 × 1. Only 5 fits all three terms.',
+  'Divide the whole expression by 5: (10x + 15y + 5) ÷ 5 = 10x ÷ 5 + 15y ÷ 5 + 5 ÷ 5.',
+  'The 5s cancel on the top and bottom of each term, leaving 2x, 3y and 1. Even 5 ÷ 5 leaves a 1.',
+  'What is left goes inside the bracket: 10x + 15y + 5 = 5(2x + 3y + 1).',
+  'Where you see it: three crates share a side of 5, so 5 goes outside.',
 ]))
 factoriseQuestion(three, 'A4.2 Q2', '3p + 6q + 9r', '3(p + 2q + 3r)', 'Which number goes into 3, 6 and 9? Divide every term by it.', `Factorise ${nb('3p + 6q + 9r')}.`)
 factoriseQuestion(three, 'A4.2 Q3', '6x² + 9x + 12xy', '3x(2x + 3 + 4y)', 'Find the biggest number in 6, 9 and 12. Is there a letter in every term?', `A garden has three beds with areas ${nb('6x²')}, ${nb('9x')} and ${nb('12xy')} square metres. Factorise fully the expression for the total area, ${nb('6x² + 9x + 12xy')}.`)
