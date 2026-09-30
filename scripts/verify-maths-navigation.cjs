@@ -20,10 +20,11 @@ for (const number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
   assert.ok(app.includes(`case ${number}:`), `Lesson ${number} must retain its preview route`)
 }
 
-// Curriculum home: up next, today's goal and streak, lessons as a ladder path with rungs
-assert.ok(overview.includes("'Up next'") && overview.includes("'Start here'"), 'Curriculum must show what to do next')
-assert.ok(overview.includes('className="cur-path"') && overview.includes('cur-rungs'), 'Lessons must show as a ladder path with rung progress')
-assert.ok(overview.includes('<TodayCard') && science.includes('<TodayCard'), 'Both subjects must show the shared Today card')
+// Curriculum home: a compact contents page, chapters on the left and the chosen chapter's lessons on a line
+assert.ok(overview.includes('Up next ·') && overview.includes('Start here ·'), 'Curriculum must show what to do next')
+assert.ok(overview.includes('className="cur-path"') && overview.includes('cur-toc__chapters'), 'Lessons must show as a chapter list and a lesson line')
+assert.ok(overview.includes('aria-pressed={selected}') && science.includes('<TocChapter') && science.includes('<TocLesson'), 'Both subjects must share the contents layout')
+assert.ok(!overview.includes('<TodayCard') && !science.includes('<TodayCard'), 'The curriculum is only the table of contents: no Today card')
 assert.ok(today.includes('GOAL_OPTIONS') && today.includes('aria-pressed'), 'The daily goal must be choosable')
 assert.ok(today.includes('streakLabel'), 'Curriculum must show the streak')
 assert.ok(today.includes('minutesBySubject'), 'Today must show the split between subjects')

@@ -178,12 +178,12 @@ function App() {
       <AppShell active={active} onNavigate={navigate} study={study} subject={subject} onSwitchSubject={switchSubject}>
         {subject === 'science'
           ? active === 'curriculum'
-            ? <ScienceCurriculum study={study} />
+            ? <ScienceCurriculum />
             : active === 'cards'
               ? <ScienceCards onOpenCurriculum={() => navigate('curriculum')} />
               : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
           : view === 'overview'
-            ? <Curriculum progress={progress} lastLesson={lastLesson} study={study} onOpenLesson={openLesson} />
+            ? <Curriculum progress={progress} lastLesson={lastLesson} onOpenLesson={openLesson} />
             : view === 'cards'
               ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
               : view === 'lab'

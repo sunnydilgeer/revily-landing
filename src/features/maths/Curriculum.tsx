@@ -1,19 +1,16 @@
 'use client'
 
+import { useState, type ReactNode } from 'react'
 import { Button } from '../../ui'
-import { TopicIcon } from '../../ui/icons'
-import { topicForLesson } from './readiness/paperTopics'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
-import type { StudySummary } from './useStudy'
-import TodayCard from './TodayCard'
+import { mathsLessonMinutes } from './lessonMinutes'
 import { rungStatus } from './rungProgress'
 import './Curriculum.css'
 
 type Props = {
   progress: LessonProgressMap
   lastLesson: MathsLessonNumber
-  study: StudySummary
   onOpenLesson: (lesson: MathsLessonNumber) => void
 }
 
@@ -24,7 +21,42 @@ export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnaps
   return rungStatus(entry.sections, entry.stateCount, snapshot)
 }
 
-export default function Curriculum({ progress, lastLesson, study, onOpenLesson }: Props) {
+export type TocStatus = 'done' | 'next' | 'progress' | 'todo'
+
+export const Lock = () => <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-label="Not built yet"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+const Play = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>
+
+/** One chapter in the left-hand contents list. */
+export function TocChapter({ code, title, meta, selected, locked, onSelect }: { code: string; title: string; meta: ReactNode; selected: boolean; locked?: boolean; onSelect: () => void }) {
+  return <li>
+    <button type="button" className={`cur-toc__chapter${locked ? ' is-locked' : ''}`} aria-pressed={selected} aria-controls="cur-panel" onClick={onSelect}>
+      <span className="cur-toc__num" aria-hidden="true">{code}</span>
+      <span className="cur-toc__title">{title}</span>
+      <small>{meta}</small>
+    </button>
+  </li>
+}
+
+/** One lesson on the chapter's line: the next lesson is a highlighted card with its button, every other lesson is a single row. */
+export function TocLesson({ status, title, minutes, detail, action, onOpen }: { status: TocStatus; title: string; minutes: number; detail: string; action: string; onOpen: () => void }) {
+  if (status === 'next') return <li className="cur-lesson is-next">
+    <span className="cur-lesson__dot" aria-hidden="true" />
+    <div className="cur-lesson__body">
+      <h3>{title}</h3>
+      <p>{detail}</p>
+    </div>
+    <Button variant="dark" className="cur-lesson__go" onClick={onOpen} aria-label={`${action} ${title}`}><Play />{action}</Button>
+  </li>
+  return <li className={`cur-lesson is-${status}`}>
+    <button type="button" className="cur-lesson__row" onClick={onOpen} aria-label={`${action} ${title}${status === 'done' ? ' (done)' : status === 'progress' ? ' (in progress)' : ''}`}>
+      <span className="cur-lesson__dot" aria-hidden="true">{status === 'done' ? '✓' : ''}</span>
+      <span className="cur-lesson__title">{title}</span>
+      <small>{minutes} min</small>
+    </button>
+  </li>
+}
+
+export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props) {
   const lastEntry = mathsLessons.find(entry => entry.number === lastLesson) ?? mathsLessons[0]
   const nextIncomplete = mathsLessons.find(entry => !progress[entry.lessonId]?.completed)
   const upNext = progress[lastEntry.lessonId] && !progress[lastEntry.lessonId].completed ? lastEntry : nextIncomplete ?? lastEntry
@@ -34,12 +66,19 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
   const currentRung = upNextRungs.findIndex(rung => rung.current)
   const upNextRungIndex = currentRung >= 0 ? currentRung : Math.max(0, upNextRungs.findIndex(rung => !rung.done))
   const doneLessons = mathsLessons.filter(entry => progress[entry.lessonId]?.completed).length
+  const chapterCount = mathsChapters.length + LATER_CHAPTERS.length
+
+  // The chapter you're in is open; pick another from the list on the left.
+  const [selected, setSelected] = useState<string>(upNext.chapterId)
+  const chapterIndex = mathsChapters.findIndex(chapter => chapter.id === selected)
+  const chapter = mathsChapters[chapterIndex]
+  const laterIndex = LATER_CHAPTERS.indexOf(selected)
 
   return <div className="cur">
     <header className="cur-head">
       <div>
         <h1>Curriculum</h1>
-        <p>GCSE Foundation Maths · climb one rung at a time</p>
+        <p>GCSE Foundation Maths · {chapterCount} chapters · pick up at the highlighted lesson</p>
       </div>
       <div className="cur-overall" aria-label={`${doneLessons} of ${mathsLessons.length} lessons complete`}>
         <div className="cur-overall__bar" aria-hidden="true"><span style={{ width: `${doneLessons / mathsLessons.length * 100}%` }} /></div>
@@ -47,69 +86,42 @@ export default function Curriculum({ progress, lastLesson, study, onOpenLesson }
       </div>
     </header>
 
-    <div className="cur-top">
-      <section className="cur-next" aria-labelledby="up-next-title">
-        <div className="cur-next__copy">
-          <span className="cur-kicker cur-kicker--night">{upNextSnapshot ? 'Up next' : 'Start here'}</span>
-          <h2 id="up-next-title">{upNext.title}</h2>
-          <p>{upNextRungIndex + 1} of {upNextRungs.length} · {upNextRungs[upNextRungIndex]?.title}</p>
-          <Button size="lg" className="cur-next__go" onClick={() => onOpenLesson(upNext.number)}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>
-            {upNextSnapshot ? 'Continue' : 'Start lesson'}
-          </Button>
-        </div>
-        <ol className="cur-next__ladder" aria-hidden="true">
-          {upNextRungs.slice(Math.max(0, upNextRungIndex - 1), upNextRungIndex + 3).map(rung => <li key={rung.id} className={rung.done ? 'is-done' : rung.id === upNextRungs[upNextRungIndex]?.id ? 'is-next' : ''}>{rung.title}</li>)}
+    <div className="cur-toc">
+      <nav className="cur-toc__chapters" aria-label="Chapters">
+        <ol>
+          {mathsChapters.map((item, index) => <TocChapter key={item.id} code={String(index + 1)} title={item.title}
+            meta={`${item.lessons.filter(entry => progress[entry.lessonId]?.completed).length} / ${item.lessons.length}`}
+            selected={item.id === selected} onSelect={() => setSelected(item.id)} />)}
+          {LATER_CHAPTERS.map((title, index) => <TocChapter key={title} code={String(mathsChapters.length + index + 1)} title={title}
+            meta={<Lock />} locked selected={title === selected} onSelect={() => setSelected(title)} />)}
         </ol>
+      </nav>
+
+      <section className="cur-panel" id="cur-panel" aria-labelledby="cur-panel-title">
+        {chapter ? <>
+          <header className="cur-panel__head">
+            <h2 id="cur-panel-title">Chapter {chapterIndex + 1} · {chapter.title}</h2>
+            <span>{chapter.lessons.length} {chapter.lessons.length === 1 ? 'lesson' : 'lessons'}</span>
+          </header>
+          <ol className="cur-path">
+            {chapter.lessons.map(entry => {
+              const snapshot = progress[entry.lessonId]
+              const status: TocStatus = snapshot?.completed ? 'done' : entry.lessonId === upNext.lessonId ? 'next' : snapshot ? 'progress' : 'todo'
+              const minutes = mathsLessonMinutes(entry.definition)
+              const detail = upNextSnapshot
+                ? `Up next · section ${upNextRungIndex + 1} of ${upNextRungs.length} · ${upNextRungs[upNextRungIndex]?.title}`
+                : `Start here · ${upNextRungs.length} sections · ${minutes} min`
+              return <TocLesson key={entry.lessonId} status={status} title={entry.title} minutes={minutes} detail={detail}
+                action={status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(entry.number)} />
+            })}
+          </ol>
+        </> : <div className="cur-panel__later">
+          <h2 id="cur-panel-title">Chapter {mathsChapters.length + laterIndex + 1} · {selected}</h2>
+          <p><Lock /> Coming later. This chapter isn’t built yet, so keep climbing in {mathsChapters.find(item => item.id === upNext.chapterId)?.title}.</p>
+          <Button variant="secondary" onClick={() => setSelected(upNext.chapterId)}>Back to where I’m up to</Button>
+        </div>}
       </section>
 
-      <TodayCard study={study} />
     </div>
-
-    {mathsChapters.map((chapter, chapterIndex) => <section className="cur-chapter" key={chapter.id} aria-labelledby={`chapter-${chapter.id}`}>
-      <header className="cur-chapter__head">
-        <span className="cur-chapter__num" aria-hidden="true">{chapterIndex + 1}</span>
-        <div>
-          <h2 id={`chapter-${chapter.id}`}>Chapter {chapterIndex + 1} · {chapter.title}</h2>
-          <p>{chapter.lessons.length} {chapter.lessons.length === 1 ? 'lesson' : 'lessons'} · {chapter.lessons.reduce((sum, entry) => sum + entry.sections.length, 0)} sections</p>
-        </div>
-      </header>
-      <ol className="cur-path">
-        {chapter.lessons.map(entry => {
-          const snapshot = progress[entry.lessonId]
-          const rungs = rungsFor(entry, snapshot)
-          const doneRungs = rungs.filter(rung => rung.done).length
-          const status = snapshot?.completed ? 'done' : entry.lessonId === upNext.lessonId ? 'next' : snapshot ? 'progress' : 'todo'
-          return <li className={`cur-lesson is-${status}`} key={entry.lessonId}>
-            <span className="cur-lesson__node" aria-hidden="true">
-              <TopicIcon id={topicForLesson(entry.number)?.id ?? ''} size={20} />
-              <span className="cur-lesson__num">{status === 'done' ? '✓' : entry.position}</span>
-            </span>
-            <div className="cur-lesson__body">
-              <h3>{entry.title}</h3>
-              <p>{entry.description}</p>
-              <div className="cur-rungs" role="img" aria-label={`${doneRungs} of ${rungs.length} sections done`}>
-                {rungs.map(rung => <span key={rung.id} title={rung.title} className={rung.done ? 'is-done' : rung.current ? 'is-current' : ''} />)}
-                <small>{doneRungs} / {rungs.length} sections</small>
-              </div>
-            </div>
-            <Button variant={status === 'next' ? 'primary' : 'secondary'} onClick={() => onOpenLesson(entry.number)} aria-label={`${status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} ${entry.title}`}>
-              {status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'}
-            </Button>
-          </li>
-        })}
-      </ol>
-    </section>)}
-
-    <section className="cur-later" aria-labelledby="later-title">
-      <h2 id="later-title">Coming later</h2>
-      <ul>
-        {LATER_CHAPTERS.map((title, index) => <li key={title}>
-          <span className="cur-chapter__num is-locked" aria-hidden="true">{mathsChapters.length + index + 1}</span>
-          <span>{title}</span>
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-label="Not built yet"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
-        </li>)}
-      </ul>
-    </section>
   </div>
 }
