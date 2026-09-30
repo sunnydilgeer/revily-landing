@@ -1,9 +1,9 @@
 import { working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import type { EquationRow, MethodStep, SolvedFrame, WorkingLine } from '../../written-methods/tutor/methodWorking'
+import type { EquationRow, MethodStep, WorkingLine } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
-import { diagnoseRoots, diagnoseSlips, evaluate, fmt, linearSlips, rootSlips, solve, substitute, type Linear, type Slip } from './equationsDiagnosis'
+import { diagnoseRoots, diagnoseSlips, fmt, linearSlips, rootSlips, solve, type Linear, type Slip } from './equationsDiagnosis'
 
 const { add, finish } = author(19)
 const one = 'equations-one-unknown'
@@ -15,15 +15,16 @@ const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
 
 /* ---------- The board: rows of left = right (EquationPictures.tsx) ---------- */
 
-/** "5x ~−3 ~+3^ = 27 +3^" → a row of the board; "> note" → a note across both sides. */
+/** "5x ~−3 ~+3^ = 27 +3^" → a row of the board; "> note" → a note across both sides; "! x = 6" → the answer. */
 const row = (line: string): EquationRow => {
   if (line.startsWith('> ')) return { note: line.slice(2) }
+  if (line.startsWith('! ')) return { answer: line.slice(2) }
   const at = line.indexOf(' = ')
   return { left: line.slice(0, at), right: line.slice(at + 3) }
 }
 /** The row as KaTeX, for the step chain: fractions stacked, roots drawn, markers gone. */
 function tex(line: EquationRow) {
-  const plain = 'note' in line ? line.note : `${line.left} = ${line.right}`
+  const plain = 'note' in line ? line.note : 'answer' in line ? line.answer : `${line.left} = ${line.right}`
   return plain.replace(/[~^]/g, '').replace(/\{([^|]*)\|([^}]*)\}/g, '\\frac{$1}{$2}').replace(/√(\d+|[a-z])/g, '\\sqrt{$1}')
     .replace(/²/g, '^{2}').replace(/−/g, '-').replace(/×/g, '\\times ').replace(/÷/g, '\\div ').replace(/ or /g, ',\\ ')
 }
@@ -56,9 +57,8 @@ const box = (onLeft: boolean, token: string, boxed = `[${token}]`) => (line: str
  * The moves that solve xl·s + nl = xr·s + nr, where s is x, x² or √x, one move at a time:
  * the smaller x term off both sides, then the number next to x, then the divide.
  */
-function linearMoves({ xl, nl, xr, nr }: Linear, sym: string): { moves: Move[]; value: number; how?: string } {
+function linearMoves({ xl, nl, xr, nr }: Linear, sym: string): { moves: Move[]; value: number } {
   const moves: Move[] = []
-  let how: string | undefined
   if (xl && xr) {
     const k = Math.min(xl, xr), leftLarger = xl >= xr
     const move = `${k < 0 ? '+' : '−'}${lots(Math.abs(k), sym)}^`
@@ -82,11 +82,9 @@ function linearMoves({ xl, nl, xr, nr }: Linear, sym: string): { moves: Move[]; 
       mark: box(onLeft, sgn(b)),
       rows: [put(`${lots(a, sym)} ~${sgn(b)} ~${sgn(-b)}^`, `${num(c)} ${sgn(-b)}^`), put(lots(a, sym), num(c - b))],
     })
-    how = `${fmt(c)} ${b > 0 ? '−' : '+'} ${fmt(Math.abs(b))}`
     c -= b
   }
   if (a !== 1) {
-    how = `${fmt(c)} ÷ ${fmt(a)}`
     moves.push({
       title: `Divide both sides by ${fmt(a)}`,
       say: `The boxed ${fmt(a)} multiplies ${sym}. Divide both sides by it to leave ${sym} on its own.`,
@@ -94,42 +92,38 @@ function linearMoves({ xl, nl, xr, nr }: Linear, sym: string): { moves: Move[]; 
       rows: [put(`${lots(a, sym)} ÷${fmt(a)}^`, `${num(c)} ÷${fmt(a)}^`)],
     })
   }
-  return { moves, value: c / a, how }
+  return { moves, value: c / a }
 }
 
-/** The working for an equation: the board, one move a step, then the check and the answer. Squares and roots finish with their own moves. */
+/**
+ * The working for an equation: the board, one move a step. The move that leaves the letter on its own ends in the
+ * answer, in its green box, so the working stops there: no separate answer step repeating it (Sunny, 30 Sep).
+ * Squares and roots finish with their own moves.
+ */
 function solveModel(problem: string, letter: string, equation: Linear, { before = [], sym = letter }: { before?: Move[]; sym?: string } = {}): TutorWorking {
-  const { moves, value, how } = linearMoves(equation, sym)
+  const { moves, value } = linearMoves(equation, sym)
+  const divided = moves.at(-1)?.title.startsWith('Divide')
   let answer = `${letter} = ${fmt(value)}`
-  let solved: SolvedFrame = { pieces: [{ text: letter, family: 0, label: 'on its own' }, { text: '=' }, { text: fmt(value), family: 1, label: how }] }
-  let check: string[] = []
   if (sym === `${letter}²`) {
-    // x² is now on its own: say so, then undo the square. The two answers are checked by squaring them.
-    if (moves.length && moves.at(-1)!.title.startsWith('Divide')) moves.at(-1)!.rows.push(`${sym} = ${fmt(value)}`)
+    // x² is now on its own: say so, then undo the square. Both roots square back to the same number.
+    if (divided) moves.at(-1)!.rows.push(`${sym} = ${fmt(value)}`)
     const root = Math.sqrt(value)
     moves.push({ title: 'Square root both sides', say: `The boxed ² squares ${letter}. Undo it with a square root, on both sides.`, rows: [`${letter} = √${fmt(value)}`], mark: box(true, sym, `${letter}[²]`) })
     moves.push({ title: 'Two answers', say: 'A negative times a negative is positive, so the negative number squares to the same answer.', rows: [`> ${fmt(root)} × ${fmt(root)} = ${fmt(value)}`, `> −${fmt(root)} × −${fmt(root)} = ${fmt(value)}`] })
     answer = `${letter} = ${fmt(root)} or ${letter} = −${fmt(root)}`
-    solved = { pieces: [{ text: letter, family: 0 }, { text: '=' }, { text: fmt(root), family: 1, label: `√${fmt(value)}` }, { text: 'or' }, { text: letter, family: 0 }, { text: '=' }, { text: `−${fmt(root)}`, family: 1, label: `−√${fmt(value)}` }] }
-  } else {
-    let final = value
-    if (sym !== letter) {
-      // √x is now on its own: undo the root by squaring.
-      if (moves.length && moves.at(-1)!.title.startsWith('Divide')) moves.at(-1)!.rows.push(`${sym} = ${fmt(value)}`)
-      moves.push({ title: 'Square both sides', say: 'The boxed √ is a square root. Undo it by squaring both sides.', rows: [`${letter} = ${fmt(value)}²`], mark: box(true, sym, `[√]${letter}`) })
-      final = value * value
-      answer = `${letter} = ${fmt(final)}`
-      solved = { pieces: [{ text: letter, family: 0, label: 'on its own' }, { text: '=' }, { text: fmt(final), family: 1, label: `${fmt(value)}²` }] }
-    }
-    // The check: the answer put back into each side of the question.
-    const at = problem.indexOf(' = '), sides = [problem.slice(0, at), problem.slice(at + 3)]
-    const worked = sides.map(side => substitute(side, letter, final))
-    const values = worked.map(evaluate)
-    if (Math.abs(values[0] - values[1]) > 1e-9) throw new Error(`${problem}: ${answer} does not check`)
-    check = sides[1].includes(letter) ? [`> ${worked[0]} = ${fmt(values[0])}`, `> ${worked[1]} = ${fmt(values[1])} ✓`] : [`> ${worked[0]} = ${worked[1]} ✓`]
+  } else if (sym !== letter) {
+    // √x is now on its own: undo the root by squaring.
+    if (divided) moves.at(-1)!.rows.push(`${sym} = ${fmt(value)}`)
+    moves.push({ title: 'Square both sides', say: 'The boxed √ is a square root. Undo it by squaring both sides.', rows: [`${letter} = ${fmt(value)}²`], mark: box(true, sym, `[√]${letter}`) })
+    answer = `${letter} = ${fmt(value * value)}`
   }
+  const all = [...before, ...moves]
+  // The last move ends on the answer. If its last row already says it (x = 19 after adding 7), that row becomes the answer.
+  const last = all.at(-1)!
+  if ([answer, `${fmt(value)} = ${letter}`].includes(last.rows.at(-1)!)) last.rows.pop()
+  last.rows.push(`! ${answer}`)
   const lines: string[] = [problem]
-  const steps: MethodStep[] = [...before, ...moves].map(move => {
+  const steps: MethodStep[] = all.map(move => {
     // The row above, with the part this move undoes boxed; the board keeps it plain once the move is done.
     const shown = lines.map(row)
     if (move.mark) shown[lines.length - 1] = row(move.mark(lines.at(-1)!))
@@ -137,9 +131,7 @@ function solveModel(problem: string, letter: string, equation: Linear, { before 
     const rows = [...shown, ...move.rows.map(row)]
     return { title: move.title, operation: tex(rows[0]), equation: tex(rows.at(-1)!), instruction: move.say, frame: { equation: { rows } } }
   })
-  const rows = [...lines, ...check].map(row)
-  steps.push({ title: 'The answer', operation: tex(rows[0]), equation: tex(row(answer)), instruction: check.length ? `Put ${answer} back into the question: both sides come out the same, so it’s right.` : 'Both answers square back to the same number, so both are right.', frame: { equation: { rows }, ordering: { answer }, solved } })
-  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(rows[0]), label: 'Solve', first: 0, second: 0, steps, pictureOnly: true }] }
+  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(row(problem)), label: 'Solve', first: 0, second: 0, steps, pictureOnly: true }] }
 }
 
 /** Working for a "put it back in" question: lines of arithmetic, then the answer. */
