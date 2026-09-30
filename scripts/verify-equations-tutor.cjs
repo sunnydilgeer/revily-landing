@@ -103,21 +103,23 @@ for (const state of states) {
   assert.ok(board, `${state.id} solves on the board`)
   const letter = letterOf(ref)
   for (const row of board.rows) {
-    const claims = 'note' in row ? row.note.replace(/ ✓$/, '').split(' and ').map(part => part.split(' = ')) : [[row.left.replace(/[[\]]/g, ''), row.right.replace(/[[\]]/g, '')]]
+    const claims = 'note' in row ? row.note.split(' and ').map(part => part.split(' = ')) : 'answer' in row ? [row.answer.split(' = ')] : [[row.left.replace(/[[\]]/g, ''), row.right.replace(/[[\]]/g, '')]]
     for (const [left, right] of claims) {
       if (/ or /.test(right)) continue
       assert.ok(near(value(left, letter, roots[0]), value(right, letter, roots[0])), `${state.id}: "${left} = ${right}" is true when ${letter} = ${roots[0]}`)
       rowsChecked++
     }
   }
-  const answer = steps.at(-1).frame.ordering.answer
-  assert.equal(answer, roots.length === 2 ? `x = ${roots[0]} or x = −${roots[0]}` : `${letter} = ${roots[0]}`.replace('-', '−'), `${state.id}: the working ends on the answer`)
-  // The answer shows where it came from, and (apart from squares, checked by squaring) is put back into the question.
-  const last = steps.at(-1).frame
-  assert.ok(last.solved.pieces.some(piece => piece.label), `${state.id}: the answer is labelled`)
-  if (roots.length === 1) assert.ok(board.rows.at(-1).note?.endsWith('✓'), `${state.id}: the answer is checked in the question`)
+  // The working ends on the answer, in its box, as the last row of the last move: no separate answer step, and no
+  // row repeating it just above.
+  const rowsText = board.rows.map(row => 'answer' in row ? row.answer : 'note' in row ? row.note : `${row.left} = ${row.right}`.replace(/[[\]~^]/g, ''))
+  const answer = roots.length === 2 ? `x = ${roots[0]} or x = −${roots[0]}` : `${letter} = ${roots[0]}`.replace('-', '−')
+  assert.deepEqual(board.rows.at(-1), { answer }, `${state.id}: the working ends on the answer, ${answer}`)
+  assert.equal(board.rows.filter(row => 'answer' in row).length, 1, `${state.id}: one answer`)
+  assert.ok(!steps.some(step => step.title === 'The answer'), `${state.id}: no separate answer step`)
+  assert.ok(!rowsText.slice(0, -1).some(text => text.replace(/\s/g, '') === answer.replace(/\s/g, '')), `${state.id}: the answer isn't written twice`)
   // Every move boxes the part of the row above that it undoes, and every box sits in that row.
-  for (const step of steps.slice(0, -1).filter(step => step.title !== 'Two answers')) assert.ok(step.frame.equation.rows.some(row => /\[/.test('note' in row ? '' : row.left + row.right)), `${state.id}: "${step.title}" boxes what it undoes`)
+  for (const step of steps.filter(step => step.title !== 'Two answers')) assert.ok(step.frame.equation.rows.some(row => /\[/.test('left' in row ? row.left + row.right : '')), `${state.id}: "${step.title}" boxes what it undoes`)
   // One move per step: a new heading for each thing done to both sides.
   assert.ok(steps.every(step => step.title.split(/\bthen\b/).length === 1), `${state.id}: one move per step`)
 }

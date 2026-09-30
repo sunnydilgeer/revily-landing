@@ -186,5 +186,6 @@
 .ns-eq__frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; }
 .ns-eq__frac > span:first-child { padding: 0 4px 2px; border-bottom: 2px solid currentColor; }
 .ns-eq__frac > span:last-child { padding-top: 2px; }
-.ns-solved { flex-wrap: wrap; row-gap: 6px; }
 .ns-eq .ns-shared { color: inherit; }
+/* The answer: the last row of an equation's working, in a green box like the videos. The working ends here. */
+.ns-eq__answer { grid-column: 1 / -1; justify-self: center; margin: 6px 0 0; padding: 4px 20px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-size: clamp(21px, 5.6vw, 26px); font-weight: 700; white-space: nowrap; }
