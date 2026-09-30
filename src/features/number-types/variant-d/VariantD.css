@@ -124,3 +124,14 @@
   .d-concept--factorRectangles .d-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .d-concept--factorRectangles .d-presets button { padding-inline: 8px; }
 }
+
+/* Workings one move a step (components/LinesWorking.tsx): earlier lines faded, results blue, the answer green. */
+.lw { gap: 10px; min-height: 0; padding: 4px 0 0; }
+.lw-lines li { color: var(--rv-ink); font-size: 20px; }
+.lw-lines.is-old li { color: var(--rv-muted); font-size: 17px; }
+.lw-lines.is-old .lw-result { color: inherit; }
+.lw-result { color: var(--rv-biro); }
+.lw-answer { justify-self: center; display: grid; justify-items: center; gap: 2px; max-width: 100%; box-sizing: border-box; margin: 4px 0 0; padding: 4px 18px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 18px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-size: 19px; font-weight: 700; text-align: center; }
+.lw-answer small { font-size: 12px; font-weight: 600; opacity: .8; }
+.wc--picture:has(.lw) .wc-controls { gap: 12px; }
+.wc--picture:has(.lw) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }
