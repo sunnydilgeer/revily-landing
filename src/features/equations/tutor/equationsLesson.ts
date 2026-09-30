@@ -193,7 +193,8 @@ function solveQuestion(topic: MicroSkillId, sourceRef: string, problem: string, 
 }
 /** Multiplying out a bracket, every product shown: "2×3x +2×1" → "6x +2" (Sunny's feedback on the A5.3 video). */
 const expand = (title: string, rows: string[]): Move => ({ title, say: 'The boxed number outside multiplies every term inside its bracket, keeping each sign.', rows, mark: line => line.replace(/(^| )(\d+)\(/g, '$1[$2](') })
-const clear = (by: number, rows: string[], say = `The boxed ${by} on the bottom divides. Multiply both sides by ${by}, so it cancels.`): Move => ({ title: `Multiply both sides by ${by}`, say, rows, mark: line => line.replace(/\|(\d+)\}/g, '|[$1]}') })
+/** Clearing a fraction: multiply both sides by its bottom number, boxed in the row above. One fraction at a time, like the textbook. */
+const clear = (by: number, rows: string[], say = `The boxed ${by} on the bottom divides. Multiply both sides by ${by}, so it cancels.`): Move => ({ title: `Multiply both sides by ${by}`, say, rows, mark: line => line.replace(`|${by}}`, `|[${by}]}`) })
 const line = (parts: string, total: string, family = 0): WorkingLine => ({ parts, total, family })
 
 /* ---------- Rung 1: one unknown (A5.1) ---------- */
@@ -343,19 +344,19 @@ solveQuestion(fractions, 'A5.4 Q2', '{x|4} = 6', { xl: 1, nl: 0, xr: 0, nr: 24 }
   before: [clear(4, ['{x|~4} ~×4^ = 6 ×4^'])],
   extra: [[6 / 4, 'x is divided by 4, so do the opposite: multiply both sides by 4. 6 × 4 = 24.'], [6 + 4, 'x is divided by 4, not added to 4: multiply both sides by 4.']],
 })
-solveQuestion(fractions, 'A5.4 Q3', '{x+2|3} = {x+4|5}', { xl: 5, nl: 10, xr: 3, nr: 12 }, 1, 'Multiply both sides by 15, the smallest number 3 and 5 both go into.', {
-  before: [clear(15, ['{x+2|3} ×15^ = {x+4|5} ×15^', '> 15 ÷ 3 = 5', '> 15 ÷ 5 = 3', '5(x+2) = 3(x+4)'], 'The boxed bottoms, 3 and 5, both go into 15, so multiply both sides by 15. Each bottom cancels, and what is left of the 15 multiplies the top.'), expand('Multiply out both brackets', ['5×x +5×2 = 3×x +3×4', '5x +10 = 3x +12'])],
-  extra: [[(20 - 6) / -2, 'The 15 ÷ 3 = 5 goes with the left top, and 15 ÷ 5 = 3 with the right: 5(x + 2) = 3(x + 4).'], [(12 - 2) / 2, 'The 5 multiplies both terms in the bracket: 5 × 2 = 10.']],
+solveQuestion(fractions, 'A5.4 Q3', '{x+2|3} = {x+4|5}', { xl: 5, nl: 10, xr: 3, nr: 12 }, 1, 'Clear one fraction at a time: multiply both sides by 3, then by 5.', {
+  before: [clear(3, ['{x+2|~3} ~×3^ = {x+4|5} ×3^', 'x +2 = {3(x+4)|5}'], 'Clear one fraction at a time. Multiply both sides by the boxed 3: it cancels on the left, and the top on the right is multiplied by 3.'), clear(5, ['(x+2) ×5^ = {3(x+4)|~5} ~×5^', '5(x+2) = 3(x+4)'], 'Now clear the other fraction. Multiply both sides by the boxed 5: it cancels on the right, and the left is multiplied by 5.'), expand('Multiply out both brackets', ['5×x +5×2 = 3×x +3×4', '5x +10 = 3x +12'])],
+  extra: [[(20 - 6) / -2, 'Each bottom number ends up on the other side. Multiplying by 3 clears the left and puts 3 on the right; multiplying by 5 clears the right and puts 5 on the left: 5(x + 2) = 3(x + 4).'], [(12 - 2) / 2, 'The 5 multiplies both terms in the bracket: 5 × 2 = 10.']],
 })
 solveQuestion(fractions, 'A5.4 Q4a', '{3x−1|4} = {x+5|2}', { xl: 3, nl: -1, xr: 2, nr: 10 }, 11, 'Multiply both sides by 4. The right side is over 2, so it becomes 2(x + 5).', {
   title: `A bill of ${nb('£(3x − 1)')} is shared between 4 people. A bill of ${nb('£(x + 5)')} is shared between 2 people. Each person pays the same. Solve ${nb('(3x − 1)/4 = (x + 5)/2')}.`,
-  before: [clear(4, ['{3x−1|~4} ~×4^ = {x+5|2} ×4^', '> 4 ÷ 2 = 2', '3x −1 = 2(x+5)'], 'The boxed bottoms, 4 and 2, both go into 4, so multiply both sides by 4. The 4 on the left cancels; on the right, 4 ÷ 2 = 2 is left to multiply the top.'), expand('Multiply out the bracket', ['3x −1 = 2×x +2×5', '3x −1 = 2x +10'])],
+  before: [clear(4, ['{3x−1|~4} ~×4^ = {x+5|2} ×4^', '3x −1 = {4(x+5)|2}', '> 4 ÷ 2 = 2', '3x −1 = 2(x+5)'], 'Multiply both sides by the boxed 4: it cancels on the left. The 2 on the right goes into 4, so that fraction clears too: 4 over 2 is 2.'), expand('Multiply out the bracket', ['3x −1 = 2×x +2×5', '3x −1 = 2x +10'])],
   extra: [[3, 'The bottoms are different, 4 and 2, so you can’t just drop them. Multiply both sides by 4: 4 ÷ 2 = 2 multiplies the right top, so 3x − 1 = 2(x + 5).']],
 })
 practice(fractions, 'The bill question gave x = 11. How much does each person pay?', 'A5.4 Q4b', number(8, '£8'), 'Put 11 into either fraction: (x + 5)/2 is the quicker one.', checkModel('{3x−1|4} = {x+5|2}', [line('11 + 5', '16', 0), line('16 ÷ 2', '£8', 1)], '£8 each', [['The bill', 'Put x = 11 into x + 5.'], ['Share it', 'Two people share the £16.']]), response => diagnoseSlips(response, 8, [[16, 'That’s the whole bill. It’s shared between 2 people: 16 ÷ 2 = 8.'], [32, 'That’s the other whole bill, 3 × 11 − 1. It’s shared between 4: 32 ÷ 4 = 8.'], [11, 'That’s x. Put it into the bill: (11 + 5) ÷ 2 = 8.']]), '£')
-solveQuestion(fractions, 'A5.4 Q5a', '{2x+3|5} = {x+6|3}', { xl: 6, nl: 9, xr: 5, nr: 30 }, 21, 'Multiply both sides by 15. The left top gets 3, the right top gets 5.', {
-  before: [clear(15, ['{2x+3|5} ×15^ = {x+6|3} ×15^', '> 15 ÷ 5 = 3', '> 15 ÷ 3 = 5', '3(2x+3) = 5(x+6)'], 'The boxed bottoms, 5 and 3, both go into 15, so multiply both sides by 15. Each bottom cancels, and what is left of the 15 multiplies the top.'), expand('Multiply out both brackets', ['3×2x +3×3 = 5×x +5×6', '6x +9 = 5x +30'])],
-  extra: [[(18 - 15) / (10 - 3), 'The 15 ÷ 5 = 3 goes with the left top, and 15 ÷ 3 = 5 with the right: 3(2x + 3) = 5(x + 6).']],
+solveQuestion(fractions, 'A5.4 Q5a', '{2x+3|5} = {x+6|3}', { xl: 6, nl: 9, xr: 5, nr: 30 }, 21, 'Clear one fraction at a time: multiply both sides by 5, then by 3.', {
+  before: [clear(5, ['{2x+3|~5} ~×5^ = {x+6|3} ×5^', '2x +3 = {5(x+6)|3}'], 'Clear one fraction at a time. Multiply both sides by the boxed 5: it cancels on the left, and the top on the right is multiplied by 5.'), clear(3, ['(2x+3) ×3^ = {5(x+6)|~3} ~×3^', '3(2x+3) = 5(x+6)'], 'Now clear the other fraction. Multiply both sides by the boxed 3: it cancels on the right, and the left is multiplied by 3.'), expand('Multiply out both brackets', ['3×2x +3×3 = 5×x +5×6', '6x +9 = 5x +30'])],
+  extra: [[(18 - 15) / (10 - 3), 'Each bottom number ends up on the other side. Multiplying by 5 clears the left and puts 5 on the right; multiplying by 3 clears the right and puts 3 on the left: 3(2x + 3) = 5(x + 6).']],
 })
 practice(fractions, `With x = 21, work out the value each fraction in ${nb('(2x + 3)/5 = (x + 6)/3')} is equal to.`, 'A5.4 Q5b', number(9, '9'), 'Put 21 into either fraction. Work out the top, then divide.', checkModel('{2x+3|5} = {x+6|3}', [line('2 × 21 + 3', '45', 0), line('45 ÷ 5', '9', 1)], '9', [['The top', 'Put x = 21 into 2x + 3.'], ['Divide', 'The fraction means divide by 5.']]), response => diagnoseSlips(response, 9, [[45, 'That’s the top. Divide by the bottom: 45 ÷ 5 = 9.'], [27, 'That’s the top of the other fraction. Divide by its bottom: 27 ÷ 3 = 9.'], [21, 'That’s x. Put it into the fraction: (2 × 21 + 3) ÷ 5 = 9.']]))
 practice(fractions, `Zac solves ${nb('(x + 1)/2 = (x + 7)/4')} by writing ${nb('x + 1 = x + 7')}. Is Zac correct?`, 'A5.4 Q5c', choose(
@@ -363,7 +364,7 @@ practice(fractions, `Zac solves ${nb('(x + 1)/2 = (x + 7)/4')} by writing ${nb('
   ['Yes: he removed both fractions', 'The bottoms are different, 2 and 4, so he can’t just drop them. Times both sides by 4: 2(x + 1) = x + 7, so x = 5.'],
   ['No: multiply by 2 to get x + 1 = 2(x + 7)', 'Multiply by 4, which 2 and 4 both go into. 4 ÷ 2 = 2 goes on the left: 2(x + 1) = x + 7.'],
   ['No: it should be x + 1 = 2x + 7', '4 ÷ 2 = 2 multiplies the left top, and all of it: 2(x + 1) = x + 7, so x = 5.'],
-), 'The bottoms are 2 and 4. What number do both go into?', solveModel('{x+1|2} = {x+7|4}', 'x', { xl: 2, nl: 2, xr: 1, nr: 7 }, { before: [clear(4, ['{x+1|2} ×4^ = {x+7|~4} ~×4^', '> 4 ÷ 2 = 2', '2(x+1) = x +7'], 'The boxed bottoms, 2 and 4, both go into 4, so multiply both sides by 4. The 4 on the right cancels; on the left, 4 ÷ 2 = 2 is left to multiply the top.'), expand('Multiply out the bracket', ['2×x +2×1 = x +7', '2x +2 = x +7'])] }))
+), 'The bottoms are 2 and 4. What number do both go into?', solveModel('{x+1|2} = {x+7|4}', 'x', { xl: 2, nl: 2, xr: 1, nr: 7 }, { before: [clear(4, ['{x+1|2} ×4^ = {x+7|~4} ~×4^', '{4(x+1)|2} = x +7', '> 4 ÷ 2 = 2', '2(x+1) = x +7'], 'Multiply both sides by the boxed 4: it cancels on the right. The 2 on the left goes into 4, so that fraction clears too: 4 over 2 is 2.'), expand('Multiply out the bracket', ['2×x +2×1 = x +7', '2x +2 = x +7'])] }))
 
 add('mixed', 'Solving equations', 'A5.1-A5.5 consolidation', text(
   'Do the same to both sides, using the opposite operation, until the letter is on its own: 5x − 3 = 27 gives x = 6.',
