@@ -6,7 +6,7 @@ import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
 import { ExpandVisual } from './GridPictures'
-import { EquationVisual, SolvedAnswer } from './EquationPictures'
+import { EquationVisual } from './EquationPictures'
 import { Boxed, Powers } from './Powers'
 import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
@@ -166,7 +166,8 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const squares = upTo.findLast(step => step.frame.squares)?.frame.squares
   const expand = upTo.findLast(step => step.frame.expand)?.frame.expand
   const board = upTo.findLast(step => step.frame.equation)?.frame.equation
-  const boardBefore = example.steps.slice(0, index).findLast(step => step.frame.equation)?.frame.equation?.rows.length ?? 0
+  // The question's own row is on the opening screen, so the first step's heading goes under it, above what the step adds.
+  const boardBefore = example.steps.slice(0, index).findLast(step => step.frame.equation)?.frame.equation?.rows.length ?? 1
   const lines = upTo.findLast(step => step.frame.sums)?.frame.sums ?? []
   const before = example.steps.slice(0, index).findLast(step => step.frame.sums)?.frame.sums?.length ?? 0
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
@@ -187,7 +188,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {values && <OrderingVisual frame={values} />}
     {at === 'answer' && heading}
     {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
-    {own.bracket ? <BracketAnswer frame={own.bracket} /> : own.solved ? <SolvedAnswer frame={own.solved} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
+    {own.bracket ? <BracketAnswer frame={own.bracket} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
   </>
 }
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { EquationFrame, EquationRow, SolvedFrame } from './methodWorking'
+import type { EquationFrame, EquationRow } from './methodWorking'
 import { Boxed, Powers } from './Powers'
 
 /*
@@ -40,6 +40,7 @@ function Side({ side, plain }: { side: string; plain?: boolean }) {
 /** Words for a screen reader: "5x − 3 + 3 = 27 + 3, with − 3 + 3 cancelling". */
 function spoken(row: EquationRow) {
   if ('note' in row) return row.note
+  if ('answer' in row) return `The answer: ${row.answer}`
   const words = (side: string) => readTokens(side).map((token, i) => token.bottom !== undefined ? `${spaced(token.text)} over ${token.bottom}` : signed(token.text, i === 0)).join(' ')
   const struck = [...readTokens(row.left), ...readTokens(row.right)].filter(token => token.struck).map(token => signed(token.text, false))
   return `${words(row.left)} = ${words(row.right)}${struck.length ? `, with ${struck.join(' and ')} cancelling` : ''}`.replace(/[[\]]/g, '')
@@ -50,7 +51,9 @@ export function EquationVisual({ frame, newFrom, heading, plain }: { frame: Equa
   return <div className={`ns-eq${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
     {frame.rows.map((row, i) => [
       i === newFrom && heading && <div key="heading" className="ns-eq__heading">{heading}</div>,
-      'note' in row
+      'answer' in row
+        ? <p key={i} className="ns-eq__answer" aria-hidden="true"><Powers text={row.answer} /></p>
+        : 'note' in row
         ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
         : <div key={i} className="ns-eq__row" aria-hidden="true">
           <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
@@ -61,12 +64,3 @@ export function EquationVisual({ frame, newFrom, heading, plain }: { frame: Equa
   </div>
 }
 
-/** The answer with where each part came from: "x" on its own, "6" from 30 ÷ 5. */
-export function SolvedAnswer({ frame }: { frame: SolvedFrame }) {
-  const words = frame.pieces.map(piece => piece.label ? `${piece.text}, ${piece.label}` : piece.text).join(' ')
-  return <div className="ns-bracket ns-solved" role="img" aria-label={words}>
-    {frame.pieces.map((piece, i) => piece.family === undefined
-      ? <span key={i} className="ns-bracket__paren" aria-hidden="true"><Powers text={piece.text} /></span>
-      : <span key={i} className={`ns-bracket__piece is-f${piece.family % 4}`} aria-hidden="true"><b><Powers text={piece.text} /></b>{piece.label && <small><Powers text={piece.label} /></small>}</span>)}
-  </div>
-}
