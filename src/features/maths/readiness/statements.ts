@@ -100,5 +100,8 @@ export const canStatements: Record<string, string> = {
 
   '17:expand-single': 'I can expand a single bracket, like −3(2p − 5) = −6p + 15',
   '17:expand-double': 'I can expand and simplify double brackets, like (x + 4)(x + 6) = x² + 10x + 24',
+
+  '18:factorise-two-terms': 'I can factorise two terms fully, like 6x² + 9x = 3x(2x + 3)',
+  '18:factorise-three-terms': 'I can factorise three terms fully, like 10x + 15y + 5 = 5(2x + 3y + 1)',
 }
 

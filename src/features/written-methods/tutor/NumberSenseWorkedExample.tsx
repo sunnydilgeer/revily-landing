@@ -132,11 +132,16 @@ function PictureStep({ step, children }: { step: MethodStep; children: (heading:
   </>
 }
 
+/** Text with parts in [brackets] drawn boxed, like the parts every term shares when factorising: [3] × 2 × [x] × x. */
+function Boxed({ text }: { text: string }) {
+  return <>{text.split(/(\[[^\]]*\])/).map((part, i) => part.startsWith('[') ? <span key={i} className="ns-shared"><Powers text={part.slice(1, -1)} /></span> : <Powers key={i} text={part} />)}</>
+}
+
 /** Lines of working under a picture; the step's heading goes above the lines it adds (from `newFrom`). */
 function WorkingLines({ lines, newFrom, heading }: { lines: WorkingLine[]; newFrom?: number; heading?: ReactNode }) {
-  return <ul className="ns-term-groups" aria-label={lines.map(line => line.parts ? `${line.parts} gives ${line.total}` : line.total).join('. ')}>{lines.map((line, i) => [
+  return <ul className="ns-term-groups" aria-label={lines.map(line => line.parts ? `${line.parts} gives ${line.total}` : line.total).join('. ').replace(/[[\]]/g, '')}>{lines.map((line, i) => [
     i === newFrom && heading && <li key="heading" className="ns-term-groups__heading">{heading}</li>,
-    <li key={i} className={`is-f${line.family % 4}`} aria-hidden="true">{line.parts && <><span><Powers text={line.parts} /></span><span>→</span></>}<strong><Powers text={line.total} /></strong></li>,
+    <li key={i} className={`is-f${line.family % 4}`} aria-hidden="true">{line.parts && <><span><Powers text={line.parts} /></span><span>→</span></>}<strong><Boxed text={line.total} /></strong></li>,
   ])}</ul>
 }
 
@@ -208,7 +213,9 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.hop?.stage === 'start') return <div className="ns-visual rung-worked__visual"><HopVisual frame={first.hop} plain /></div>
         if (first?.interval) return <div className="ns-visual rung-worked__visual"><IntervalVisual frame={{ ...first.interval, stage: 'value' }} /></div>
         if (first?.tiles) return <div className="ns-visual rung-worked__visual"><TilesVisual frame={{ ...first.tiles, plain: true, note: undefined, rows: first.tiles.rows.map(row => ({ groups: row.groups.map(group => ({ ...group, crossed: undefined })) })) }} /></div>
-        if (first?.expand) return <div className="ns-visual rung-worked__visual"><ExpandVisual frame={{ grids: first.expand.grids.map(grid => ({ ...grid, cells: undefined })) }} /></div>
+        if (first?.expand) return <div className="ns-visual rung-worked__visual"><ExpandVisual frame={first.expand.given
+          ? { given: true, grids: first.expand.grids.map(grid => ({ side: grid.side.map(() => '?'), top: grid.top.map(() => '?'), cells: grid.cells?.map(row => row.map(cell => ({ text: cell.text }))) })) }
+          : { grids: first.expand.grids.map(grid => ({ ...grid, cells: undefined })) }} /></div>
         if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null

@@ -91,7 +91,7 @@ function ExpressionAnswerInput({ id, value, disabled, anyPower, onChange }: { id
   }
   return <div className="rung-expression">
     <label className="sr-only" htmlFor={`answer-${id}`}>Your answer</label>
-    <input ref={input} id={`answer-${id}`} className="pvb-input rung-answer__input rung-expression__input" type="text" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} value={value} disabled={disabled} placeholder="?" onChange={event => type(event.target.value)} />
+    <input ref={input} id={`answer-${id}`} className={`pvb-input rung-answer__input rung-expression__input${value.length > 10 ? ' is-long' : ''}`} type="text" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} value={value} disabled={disabled} placeholder="?" onChange={event => type(event.target.value)} />
     {anyPower
       ? <button type="button" className={`rung-expression__key${raising ? ' is-on' : ''}`} onClick={power} disabled={disabled} aria-pressed={raising} aria-label="Type a power: the next digits are raised">x<sup>n</sup></button>
       : <button type="button" className="rung-expression__key" onClick={square} disabled={disabled} aria-label="Type a squared sign">x²</button>}

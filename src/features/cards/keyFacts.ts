@@ -208,4 +208,8 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'expand-single': [['Expand −3(2p − 5).', '−6p + 15. Multiply −3 by both terms: −3 × 2p = −6p, and −3 × −5 = +15 (negative × negative is positive).']],
     'expand-double': [['Expand and simplify (n − 4)².', 'n² − 8n + 16, not n² − 16. (n − 4)² is (n − 4)(n − 4): four products, n² − 4n − 4n + 16.']],
   },
+  18: {
+    'factorise-two-terms': [['Factorise fully 6x² + 9x.', '3x(2x + 3). 3 is the biggest number in 6 and 9, and both terms have an x. Then 6x² ÷ 3x = 2x and 9x ÷ 3x = 3.']],
+    'factorise-three-terms': [['Factorise fully 10x + 15y + 5.', '5(2x + 3y + 1). Only 5 goes into all three terms, and 5 ÷ 5 = 1, so the 1 keeps its place in the bracket.']],
+  },
 }

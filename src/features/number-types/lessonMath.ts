@@ -132,6 +132,7 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     return actual.length === wanted.length && actual.every((value, index) => value === wanted[index])
   }
   if (interaction.acceptanceRule === 'collectedExpression') return sameCollectedExpression(response, expected)
+  if (interaction.acceptanceRule === 'factorisedExpression') return sameFactorised(response, expected)
   if (interaction.acceptanceRule === 'power') {
     // One power, base and index both as written: 3^6 is right for 3⁶; 729 or 9^3 is not the power asked for.
     const actual = parsePower(response), wanted = parsePower(expected)
@@ -349,13 +350,42 @@ export function collect(terms: Term[]) {
 /** Right when it has the same terms as the answer and nothing is left to collect. */
 export function sameCollectedExpression(response: unknown, expected: unknown) {
   const actual = readTerms(response), wanted = readTerms(expected)
-  if (!actual || !wanted) return false
+  return Boolean(actual && wanted) && sameTerms(actual!, wanted!)
+}
+
+function sameTerms(actual: Term[], wanted: Term[]) {
   const keys = actual.map(term => term.key)
   if (new Set(keys).size !== keys.length || actual.some(term => term.coefficient === 0)) return false
   const a = collect(actual), b = collect(wanted)
   for (const [key, value] of b) if (value === 0) b.delete(key)
   // Numbers in front can be fractions (x²/9), so compare them to within rounding.
   return a.size === b.size && [...b].every(([key, value]) => Math.abs((a.get(key) ?? NaN) - value) < 1e-9)
+}
+
+/**
+ * A factorised answer, "3x(2x + 3)": the one term outside the bracket and the terms inside, or null.
+ * The bracket may come first, "(2x + 3)3x", and a bare bracket has 1 outside.
+ */
+export function readFactorised(value: unknown): { outside: Term; inside: Term[] } | null {
+  const text = plainPowers(String(value ?? '').toLowerCase().replace(/[−–]/g, '-')).replace(/[\s×*·]/g, '')
+  const before = text.match(/^([^()]*)\(([^()]+)\)$/), after = text.match(/^\(([^()]+)\)([^()]*)$/)
+  const [outsideText, insideText] = before ? [before[1], before[2]] : after ? [after[2], after[1]] : []
+  if (insideText === undefined) return null
+  const outside = outsideText === '' || outsideText === '+' ? [{ coefficient: 1, key: '' }] : outsideText === '-' ? [{ coefficient: -1, key: '' }] : readTerms(outsideText)
+  const inside = readTerms(insideText)
+  return outside && outside.length === 1 && inside ? { outside: outside[0], inside } : null
+}
+
+/**
+ * Right when the term outside is the one in the answer and the bracket holds the same terms, in any order.
+ * Taking out the negative of the factor, −3x(−2x − 3), is also fully factorised, so it is right too.
+ */
+export function sameFactorised(response: unknown, expected: unknown) {
+  const actual = readFactorised(response), wanted = readFactorised(expected)
+  if (!actual || !wanted || actual.outside.key !== wanted.outside.key) return false
+  const sign = Math.sign(actual.outside.coefficient) * Math.sign(wanted.outside.coefficient)
+  return Math.abs(actual.outside.coefficient - sign * wanted.outside.coefficient) < 1e-9
+    && sameTerms(actual.inside, wanted.inside.map(term => ({ ...term, coefficient: sign * term.coefficient })))
 }
 
 /** "x^2y" → "x²y", "a^-4b" → "a⁻⁴b". */

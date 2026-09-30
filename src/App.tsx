@@ -20,6 +20,7 @@ import TutorStandardFormLesson from './features/standard-form/tutor/StandardForm
 import TutorLikeTermsLesson from './features/like-terms/tutor/LikeTermsLessonView'
 import TutorIndicesLesson from './features/indices/tutor/IndicesLessonView'
 import TutorExpandingLesson from './features/expanding/tutor/ExpandingLessonView'
+import TutorFactorisingLesson from './features/factorising/tutor/FactorisingLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -258,6 +259,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorIndicesLesson />
     case 17:
       return <TutorExpandingLesson />
+    case 18:
+      return <TutorFactorisingLesson />
   }
 }
 
