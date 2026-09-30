@@ -150,7 +150,7 @@ const cases = [
   ['A5.2 Q2', '12/7', 'take it away from both sides'], ['A5.2 Q3', '4', 'add 4'], ['A5.2 Q5a', '36', 'Divide both sides by 6'],
   ['A5.3 Q2', '13/3', 'both terms in the bracket'], ['A5.3 Q3', '13/3', 'both terms in the bracket'], ['A5.3 Q4a', '3', 'every term in each bracket'],
   ['A5.3 Q4b', '16', 'whole bracket'], ['A5.3 Q4b', '6', 'one ticket'],
-  ['A5.4 Q2', '1.5', 'multiply both sides by 4'], ['A5.4 Q3', '-7', '15 ÷ 3 = 5'], ['A5.4 Q4a', '3', 'can’t just drop them'],
+  ['A5.4 Q2', '1.5', 'multiply both sides by 4'], ['A5.4 Q3', '-7', 'ends up on the other side'], ['A5.4 Q4a', '3', 'can’t just drop them'],
   ['A5.4 Q4b', '16', 'whole bill'], ['A5.4 Q5b', '45', 'Divide by the bottom'],
 ]
 for (const [ref, response, expected] of cases) {
