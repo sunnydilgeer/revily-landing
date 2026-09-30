@@ -1,6 +1,9 @@
 'use client'
 
-/* Today: minutes against the daily goal, the streak and the week strip. Shared by both subjects. */
+/*
+ * Today: minutes against the daily goal (with the goal picker), the streak and the week strip.
+ * Hidden for now: the curriculum page is only the table of contents, so nothing renders this card. Kept to reuse elsewhere.
+ */
 import { GOAL_OPTIONS, saveDailyGoal } from './studyLog'
 import type { StudySummary } from './useStudy'
 import { Bolt, streakLabel } from './AppShell'
