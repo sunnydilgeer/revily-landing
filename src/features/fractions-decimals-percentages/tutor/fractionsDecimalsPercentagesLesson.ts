@@ -2,6 +2,8 @@ import { numeric, select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
+import type { StepWorking, WorkedStep } from '../../written-methods/tutor/stepWorking'
+import * as fdp from './fdpSteps'
 import {
   decimalToFractionWorking,
   decimalToPercentageWorking,
@@ -178,6 +180,77 @@ add('mixed', 'Choose a route and check the size', 'N9.1-N9.6 consolidation', tex
 ), undefined, undefined, undefined, 'Use the direction of the conversion to choose the inverse operation. Check against the benchmarks 0, 1 and 100% so the final size makes sense.')
 
 const states = finish()
+
+/** A working that finds a reference value, then answers in words (the green box holds the answer, not the reference). */
+function thenWords(working: StepWorking, title: string, why: string, words: string): StepWorking {
+  const steps = working.steps.map(step => ({ ...step, lines: step.lines?.map(l => ({ ...l, answer: false })), picture: step.picture?.kind === 'bus-stop' ? { ...step.picture, done: false } : step.picture }))
+  return { ...working, steps: [...steps, { title, why, words }] }
+}
+const plainSteps = (steps: WorkedStep[]) => steps.map(step => ({ ...step, lines: step.lines?.map(l => ({ ...l, answer: false })) }))
+// Every worked example and answer as lines (and a bus stop for division), one move a step (fdpSteps.ts).
+const stepWorkings: Record<string, StepWorking> = {
+  'N9.1 Q1': fdp.fractionToDecimal(5, 8),
+  'N9.1 Q2': fdp.fractionToDecimal(3, 4),
+  'N9.1 Q3': fdp.fractionToDecimal(17, 40),
+  'N9.1 Q4a': fdp.fractionToDecimal(9, 16),
+  'N9.1 Q4b': fdp.fractionToDecimal(9, 16, 2),
+  'N9.1 Q5a': thenWords(fdp.decimalToFraction('0.125'), 'Read off n', 'The fraction is 1 over n, so n is the bottom.', 'n = 8'),
+  'N9.1 Q5b': thenWords(fdp.fractionToDecimal(5, 8), 'Pick a bigger top', 'With 8 on the bottom, a bigger top gives a bigger decimal.', '6/8 or 7/8'),
+  'N9.1 Q5c': { kind: 'step-worked', start: '1/2 and 9/10', trail: true, steps: [
+    { title: 'Work out 1/2', why: 'Make it out of 10.', lines: [fdp.says('10 ÷ 2 → 5'), fdp.line([fdp.part('1/2')], '5/10', { eq: true }), fdp.line([fdp.part('5/10')], '0.5')] },
+    { title: 'Work out 9/10', why: 'Out of 10 means tenths.', lines: [fdp.line([fdp.part('9/10')], '0.9')] },
+    { title: 'Compare them', why: 'The bigger denominator gave the bigger decimal, so Ben is wrong.', words: '0.9 is bigger than 0.5' },
+  ] },
+  'N9.2 Q1': fdp.decimalToFraction('0.84'),
+  'N9.2 Q2': fdp.decimalToFraction('0.6'),
+  'N9.2 Q3': fdp.decimalToFraction('0.35'),
+  'N9.2 Q4a': fdp.decimalToFraction('0.375'),
+  'N9.2 Q4b': fdp.fractionToDecimal(3, 8),
+  'N9.2 Q5a': fdp.findN('0.45', [{ title: 'Multiply by 20', why: 'n over 20 is the decimal, so n is the decimal times 20.', lines: [fdp.line([fdp.part('0.45'), fdp.sign('×'), fdp.part(20, 3)], 9, { answer: true })] }]),
+  'N9.2 Q5b': thenWords({ kind: 'step-worked', start: '9/20', steps: plainSteps(fdp.fractionToDecimalSteps(9, 20)) }, 'Pick a smaller top', 'With 20 on the bottom, a smaller top gives a smaller decimal.', 'For example, 8/20'),
+  'N9.2 Q5c': fdp.decimalToFraction('0.75'),
+  'N9.3 Q1': fdp.decimalToPercentage('0.68'),
+  'N9.3 Q2': fdp.decimalToPercentage('0.4'),
+  'N9.3 Q3': fdp.decimalToPercentage('0.056'),
+  'N9.3 Q4a': fdp.decimalToPercentage('1.25'),
+  'N9.3 Q4b': fdp.decimalToPercentage('1.25'),
+  'N9.3 Q5a': fdp.percentageToDecimal('4.5'),
+  'N9.3 Q5b': thenWords(fdp.decimalToPercentage('2.5'), 'Check it', 'Any decimal bigger than 2 is more than 200%.', 'For example, 2.5'),
+  'N9.3 Q5c': fdp.decimalToPercentage('1.5'),
+  'N9.4 Q1': fdp.percentageToDecimal('72'),
+  'N9.4 Q2': fdp.percentageToDecimal('9'),
+  'N9.4 Q3': fdp.percentageToDecimal('3.5'),
+  'N9.4 Q4a': fdp.percentageToDecimal('240'),
+  'N9.4 Q4b': fdp.percentageToDecimal('240'),
+  'N9.4 Q5a': { ...fdp.percentageToDecimal('12.5', fdp.says('25 ÷ 2 → 12.5')), start: '25/2%' },
+  'N9.4 Q5b': thenWords(fdp.percentageToDecimal('600'), 'Check it', 'Any percentage bigger than 500% is more than 5.', 'For example, 600%'),
+  'N9.4 Q5c': fdp.percentageToDecimal('50'),
+  'N9.5 Q1': fdp.fractionToPercentage(7, 20),
+  'N9.5 Q2': fdp.fractionToPercentage(1, 4),
+  'N9.5 Q3': fdp.fractionToPercentage(9, 25),
+  'N9.5 Q4a': fdp.fractionToPercentage(11, 8),
+  'N9.5 Q4b': fdp.fractionToPercentage(11, 8),
+  'N9.5 Q5a': fdp.findN('65%', [
+    { title: 'As a decimal', why: 'Per cent means out of 100, so divide by 100.', lines: [fdp.line([fdp.part('65%'), fdp.sign('÷'), fdp.part(100, 3)], '0.65')] },
+    { title: 'Multiply by 40', why: 'n over 40 is the decimal, so n is the decimal times 40.', lines: [fdp.line([fdp.part('0.65'), fdp.sign('×'), fdp.part(40, 3)], 26, { answer: true })] },
+  ]),
+  'N9.5 Q5b': thenWords(fdp.fractionToPercentage(9, 8), 'Check it', 'A top bigger than 8 makes more than one whole, so more than 100%.', 'For example, 9/8'),
+  'N9.5 Q5c': fdp.fractionToPercentage(3, 4),
+  'N9.6 Q1': fdp.percentageToFraction('65'),
+  'N9.6 Q2': fdp.percentageToFraction('40'),
+  'N9.6 Q3': fdp.percentageToFraction('28'),
+  'N9.6 Q4a': fdp.percentageToFraction('12.5'),
+  'N9.6 Q4b': fdp.fractionToPercentage(1, 8),
+  'N9.6 Q5a': fdp.fractionToPercentage(9, 20),
+  'N9.6 Q5b': thenWords(fdp.percentageToFraction('75'), 'Check it', 'It is bigger than 50% and simplifies to quarters.', 'For example, 75%'),
+  'N9.6 Q5c': fdp.percentageToFraction('50'),
+}
+for (const state of states) {
+  const working = stepWorkings[state.sourceRef.split(/[;(]/)[0].trim()]
+  if (!working) continue
+  if (state.visual.kind === 'conversion-worked') state.visual = working
+  else state.working = working
+}
 export const tutorFractionsDecimalsPercentagesLesson: TutorMethodLesson = {
   id: 'L009', number: 9, title: 'Fractions, decimals and percentages', level: 'GCSE Foundation',
   goal: 'Convert accurately between fractions, decimals and percentages and explain why the representations are equivalent.',
