@@ -6,7 +6,8 @@ import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
 import { ExpandVisual } from './GridPictures'
-import { Powers } from './Powers'
+import { EquationVisual, SolvedAnswer } from './EquationPictures'
+import { Boxed, Powers } from './Powers'
 import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
@@ -132,16 +133,6 @@ function PictureStep({ step, children }: { step: MethodStep; children: (heading:
   </>
 }
 
-/**
- * Text with parts in [brackets] drawn boxed, like the parts every term shares when factorising: [3] × 2 × [x] × x.
- * Parts in {braces} are boxed and crossed out: taken outside the bracket.
- */
-function Boxed({ text }: { text: string }) {
-  return <>{text.split(/(\[[^\]]*\]|\{[^}]*\})/).map((part, i) => part.startsWith('[') || part.startsWith('{')
-    ? <span key={i} className={`ns-shared${part.startsWith('{') ? ' is-out' : ''}`}><Powers text={part.slice(1, -1)} /></span>
-    : <Powers key={i} text={part} />)}</>
-}
-
 /** A factorised answer built from coloured pieces, each labelled with where it came from. */
 function BracketAnswer({ frame }: { frame: BracketFrame }) {
   const words = `${frame.outside} outside the bracket, and inside ${frame.inside.map(piece => `${piece.text.replace(/^\+ /, 'plus ')} from ${piece.from}`).join(', ')}`
@@ -174,18 +165,21 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const tiles = upTo.findLast(step => step.frame.tiles)?.frame.tiles
   const squares = upTo.findLast(step => step.frame.squares)?.frame.squares
   const expand = upTo.findLast(step => step.frame.expand)?.frame.expand
+  const board = upTo.findLast(step => step.frame.equation)?.frame.equation
+  const boardBefore = example.steps.slice(0, index).findLast(step => step.frame.equation)?.frame.equation?.rows.length ?? 0
   const lines = upTo.findLast(step => step.frame.sums)?.frame.sums ?? []
   const before = example.steps.slice(0, index).findLast(step => step.frame.sums)?.frame.sums?.length ?? 0
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
   const answer = own.ordering?.answer ?? (own.rounding?.stage === 'result' ? own.rounding.answer : undefined)
   const rule = own.rounding && own.rounding.stage !== 'identify' && !own.rounding.chop
-  const at = own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
+  const at = own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
   return <>
     {at === 'picture' && heading}
     {terms && <TermsVisual frame={{ terms: terms.terms }} />}
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
     {expand && <ExpandVisual frame={expand} />}
+    {board && <EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
     {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
@@ -193,7 +187,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {values && <OrderingVisual frame={values} />}
     {at === 'answer' && heading}
     {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
-    {own.bracket ? <BracketAnswer frame={own.bracket} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
+    {own.bracket ? <BracketAnswer frame={own.bracket} /> : own.solved ? <SolvedAnswer frame={own.solved} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
   </>
 }
 
@@ -232,6 +226,8 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.expand) return <div className="ns-visual rung-worked__visual"><ExpandVisual frame={first.expand.given
           ? { given: true, grids: first.expand.grids.map(grid => ({ side: grid.side.map(() => '?'), top: grid.top.map(() => '?'), cells: grid.cells?.map(row => row.map(cell => ({ text: cell.text }))) })) }
           : { grids: first.expand.grids.map(grid => ({ ...grid, cells: undefined })) }} /></div>
+        // The equation as the question writes it, before any move: the board's first row, in plain ink.
+        if (first?.equation) return <div className="ns-visual rung-worked__visual"><EquationVisual frame={{ rows: first.equation.rows.slice(0, 1) }} plain /></div>
         if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null

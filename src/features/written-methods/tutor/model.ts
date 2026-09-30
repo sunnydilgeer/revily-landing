@@ -15,13 +15,15 @@ export type TutorMethodState = LearningState & {
   visual: TutorMethodVisual
   hint?: string
   answerLabel?: string
+  /** Shown before the answer box in place of "=": "x =" for a solution, "£" for money. */
+  answerPrefix?: string
   working?: TutorWorking
   video?: LessonVideoDefinition
   /** Lesson-specific wrong-answer message, tried before the shared number diagnosis. */
   diagnose?: (response: string) => string | null
 }
 export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
-  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18
+  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19
   labels: Partial<Record<MicroSkillId, string>>
   states: TutorMethodState[]
 }

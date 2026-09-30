@@ -92,6 +92,11 @@ export type MicroSkillId =
   | 'expand-double'
   | 'factorise-two-terms'
   | 'factorise-three-terms'
+  | 'equations-one-unknown'
+  | 'equations-squares'
+  | 'equations-both-sides'
+  | 'equations-brackets'
+  | 'equations-fractions'
   | 'mixed'
 
 export type LessonPhase =
@@ -139,7 +144,7 @@ export type InteractionDefinition = {
   placeholder?: string
   submitLabel?: string
   acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots'
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
   anyPower?: boolean
   requiredDenominator?: number

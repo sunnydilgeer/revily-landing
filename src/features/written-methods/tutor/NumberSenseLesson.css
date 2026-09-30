@@ -171,3 +171,20 @@
 .ns-bracket__piece { display: inline-flex; flex-direction: column; align-items: center; color: var(--f); line-height: 1.2; }
 .ns-bracket__piece b { white-space: nowrap; }
 .ns-bracket__piece small { max-width: 5.5em; color: var(--rv-muted); font-size: 12px; font-weight: 600; line-height: 1.2; text-align: center; }
+/* Solving equations: a board with two sides (EquationPictures.tsx). The = signs line up down the middle. */
+/* Gutters either side take the spare width, so headings and notes (which span the whole board) never stretch the sides. */
+.ns-eq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto minmax(0, max-content) minmax(0, 1fr); align-items: center; column-gap: 8px; row-gap: 8px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; }
+.ns-eq__row { display: contents; }
+.ns-eq__left { grid-column: 2; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0 5px; text-align: right; }
+.ns-eq__right { grid-column: 4; display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 0 5px; }
+.ns-eq__equals { grid-column: 3; color: var(--rv-ink); }
+.ns-eq__token { color: var(--f, var(--rv-ink)); white-space: nowrap; }
+.ns-eq.is-plain .ns-eq__token { color: var(--rv-ink); }
+.ns-eq__heading, .ns-eq__note { grid-column: 1 / -1; margin: 0; text-align: center; contain: inline-size; }
+.ns-eq__note { color: var(--f); }
+.ns-eq .is-struck { text-decoration: line-through 2px #dc2626; opacity: .75; }
+.ns-eq__frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; }
+.ns-eq__frac > span:first-child { padding: 0 4px 2px; border-bottom: 2px solid currentColor; }
+.ns-eq__frac > span:last-child { padding-top: 2px; }
+.ns-solved { flex-wrap: wrap; row-gap: 6px; }
+.ns-eq .ns-shared { color: inherit; }

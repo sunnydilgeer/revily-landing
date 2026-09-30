@@ -8,7 +8,8 @@ const gcd = (a: number, b: number): number => b === 0 ? Math.abs(a) : gcd(b, a %
 
 /** A typed number, or null when it isn't one. Ignores £, %, commas and spaces; accepts the − sign. */
 export function readNumber(typed: string) {
-  const cleaned = typed.replace(/[£%,\s]/g, '').replace(/[−–]/g, '-')
+  // "x = 6" is fine: whatever comes before an = sign is the letter the box is for.
+  const cleaned = typed.replace(/[£%,\s]/g, '').replace(/^[^=]*=/, '').replace(/[−–]/g, '-')
   return /^-?\d*\.?\d+$/.test(cleaned) ? Number(cleaned) : null
 }
 

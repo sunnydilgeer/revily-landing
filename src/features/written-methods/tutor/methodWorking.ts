@@ -93,6 +93,15 @@ export type ExpandFrame = {
 }
 /** A factorised answer built from its pieces: the common factor outside, and what is left of each term inside. */
 export type BracketFrame = { outside: string; inside: { text: string; family: number; from: string }[] }
+/**
+ * Solving an equation on a board with two sides: each row is `left = right`, or a note across both sides.
+ * Each side is space-separated tokens: `~` in front strikes a token out (it cancels), `^` after it marks the move
+ * done to both sides (purple), and `{top|bottom}` is a fraction. Letters are blue, numbers amber. See EquationPictures.tsx.
+ */
+export type EquationRow = { left: string; right: string } | { note: string; family?: number }
+export type EquationFrame = { rows: EquationRow[] }
+/** A solved equation's answer in pieces, each number labelled with where it came from ("30 ÷ 5"). Pieces with no family are plain (=, or). */
+export type SolvedFrame = { pieces: { text: string; family?: number; label?: string }[] }
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
@@ -102,6 +111,8 @@ export type MethodFrame = {
   squares?: SquaresFrame
   expand?: ExpandFrame
   bracket?: BracketFrame
+  equation?: EquationFrame
+  solved?: SolvedFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

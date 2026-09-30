@@ -168,3 +168,9 @@
 .rung-lesson.rung-lesson--wide { max-width: 1120px; }
 .rung-lesson .lp { margin-top: 4px; }
 .lp.lp--loading { min-height: 240px; display: grid; place-items: center; padding: 16px; border-radius: 20px; background: var(--rv-night); color: var(--rv-on-night-muted); }
+
+/* Two answers for a squared unknown: x = ☐ or x = ☐ (RootsAnswerInput). */
+.rung-roots { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px; }
+.rung-roots__or { color: var(--rv-muted); font-weight: 600; }
+.rung-roots__pair { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.rung-lesson .rung-roots .rung-answer__input { width: 3.6em; }
