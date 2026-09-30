@@ -1,12 +1,15 @@
 import type { FeedbackDefinition, InteractionDefinition, LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
 import type { PlaceHint, PlaceLessonVisual } from './model'
 import type { LessonVideoDefinition, TutorOperationsVisualDefinition } from '../../order-of-operations/variant-c/variantCLesson'
+import { buildWorking, valueStep, valueWorking, type PlaceWorking } from './placeWorking'
 
 type Calculation = Extract<TutorOperationsVisualDefinition, { kind: 'stacked-worked' }>
 export type PlaceWorked = { kind: 'cumulative'; value?: string; highlights?: number[]; calculation: Calculation }
 export type TutorPlaceState = LearningState & {
   sourceRef: string
-  visual: Exclude<PlaceLessonVisual, { kind: 'worked' }> | PlaceWorked
+  visual: Exclude<PlaceLessonVisual, { kind: 'worked' }> | PlaceWorked | PlaceWorking
+  /** The answer's working as a place-value chart, one move a step (placeWorking.ts). */
+  working?: PlaceWorking
   hints?: PlaceHint[]
   video?: LessonVideoDefinition
 }
@@ -61,6 +64,64 @@ add(decimal, 'A decimal number has a 6 in the thousandths column and a 9 in the 
 add(decimal, 'What is the value of the 9 in the number you just wrote?', 'N3.2 Q5b', number('0.0069', 4), numeric(0.0009, '0.0009'), working('0.0009', ['Use the number from part a: 0.0069.', '9 is in the ten-thousandths column.'], ['Multiply by one ten-thousandth.', '9 × 0.0001 = 0.0009']), valueHint('0.0069', 4))
 add(decimal, 'Priya says: “The digit furthest to the right in a decimal is always worth the least.” Is Priya correct? Give a reason using an example.', 'N3.2 Q5c (reason and example choices)', number('0.08'), select(['No. In 0.08, the rightmost 8 is worth 0.08, more than the 0 in tenths.', 'Yes. The rightmost column is the smallest, so its digit always has the least value.', 'No. In 0.08, the 8 is worth 0.8.'], 0), working('No. The smallest column need not contain the least digit value.', ['Test 0.08.', 'The 0 in tenths is worth 0 × 0.1 = 0. The rightmost 8 is worth 8 × 0.01 = 0.08.'], ['Compare the actual values.', '0.08 > 0. A zero further left is worth less than the non-zero digit on the right.']), hint('Test a decimal that has zero in a column to the left of a non-zero digit. Zero times any column unit is still zero.'))
 add('mixed', 'Find the place, then calculate the value', 'Lesson 3 consolidation', { kind: 'parts', parts: ['Digit × column unit', 'Zero holds a place', 'Compare actual values'] }, undefined, undefined, undefined, 'Find the column, then multiply the digit by the column’s value. Zeros hold empty places.')
+// Every worked example and answer as a place-value chart, one move a step (src/features/EXPLANATIONS.md).
+const label = (value: string) => valueWorking(value).steps[0]
+const line = (parts: Array<[string, number?]>, result: string, answer = false) => ({ parts: parts.map(([text, family]) => ({ text, family })), result, answer })
+const worked: Record<string, PlaceWorking> = {
+  'N3.1 Q1': valueWorking('526,908', 1, 5),
+  'N3.1 Q2': valueWorking('7,364', 1),
+  'N3.1 Q3': { kind: 'place-worked', opening: { value: '812,047', labels: false }, steps: [label('812,047'), valueStep('812,047', 0, false), valueStep('812,047', 4, false), {
+    title: 'Divide the values', chart: { value: '812,047', labels: true },
+    instruction: 'How many times bigger means divide. Dividing by 40 is the same as dividing by 10, then by 4.',
+    lines: [line([['800,000', 3], ['÷'], ['10']], '80,000'), line([['80,000'], ['÷'], ['4']], '20,000', true)],
+  }] },
+  'Retained Lesson 3 placeholder teaching': buildWorking('5,070', ['5 thousands', '7 tens']),
+  'N3.1 Q4a': buildWorking('40,602', ['4 ten-thousands', '6 hundreds', '2 units']),
+  'N3.1 Q4b': valueWorking('40,602', 2),
+  'N3.1 Q5a': buildWorking('800,030', ['8 hundred-thousands', '3 tens']),
+  'N3.1 Q5b': valueWorking('800,030', 0),
+  'N3.1 Q5c': { kind: 'place-worked', opening: { value: '5,000', labels: false }, steps: [
+    { ...valueStep('5,000', 0, false), title: 'The 5 in 5,000' },
+    { ...valueStep('500', 0, false), title: 'The 5 in 500', words: 'Same digit, different values' },
+  ] },
+  'N3.2 Q1': valueWorking('0.428', 2),
+  'N3.2 Q2': valueWorking('0.37', 2),
+  'Video 12.45.27': valueWorking('0.6059', 3, 4),
+  'Bridge to N3.2 Q3': { kind: 'place-worked', opening: { value: '0.003', labels: false }, steps: [label('0.003'), valueStep('0.003', 3, false), {
+    title: 'Write it as a fraction', chart: { value: '0.003', labels: true, boxed: 3 },
+    instruction: 'One thousandth is one out of a thousand, so thousandths go over 1000.',
+    lines: [line([['0.001', 0]], '1/1000'), line([['3', 3], ['×'], ['1/1000', 0]], '3/1000', true)],
+  }] },
+  'N3.2 Q3': { kind: 'place-worked', opening: { value: '0.6059', labels: false }, steps: [label('0.6059'), valueStep('0.6059', 3, false), {
+    title: 'Write it as a fraction', chart: { value: '0.6059', labels: true, boxed: 3 },
+    instruction: 'Thousandths go over 1000.',
+    lines: [line([['5', 3], ['×'], ['1/1000', 0]], '5/1000')],
+  }, {
+    title: 'Simplify', chart: { value: '0.6059', labels: true, boxed: 3 },
+    instruction: 'Divide the top and the bottom by the same number. Both 5/1000 and 1/200 are right.',
+    lines: [line([['5'], ['÷'], ['5']], '1'), line([['1000'], ['÷'], ['5']], '200'), line([['5/1000']], '1/200', true)],
+  }] },
+  'N3.2 Q4a': valueWorking('0.20074', 4),
+  'Clarification for corrected N3.2 Q4b': { kind: 'place-worked', opening: { value: '0.00011', labels: false }, steps: [label('0.00011'), {
+    title: 'Compare the columns', chart: { value: '0.00011', labels: true },
+    instruction: 'Moving one column left makes a unit ten times as big.',
+    lines: [line([['0.00001', 0], ['×'], ['10']], '0.0001')], words: 'Ten times as big',
+  }] },
+  'N3.2 Q4b': { kind: 'place-worked', opening: { value: '0.20074', labels: false }, steps: [label('0.20074'), valueStep('0.20074', 4, false), valueStep('0.20074', 5, false), {
+    title: 'Compare them', chart: { value: '0.20074', labels: true },
+    instruction: 'Count both in hundred-thousandths, the smaller column, then divide.',
+    lines: [line([['0.0007', 3]], '70 hundred-thousandths'), line([['0.00004', 3]], '4 hundred-thousandths'), line([['70'], ['÷'], ['4']], '17.5', true)],
+  }] },
+  'N3.2 Q5a': buildWorking('0.0069', ['6 thousandths', '9 ten-thousandths']),
+  'N3.2 Q5b': valueWorking('0.0069', 4),
+  'N3.2 Q5c': { kind: 'place-worked', opening: { value: '0.08', labels: false }, steps: [label('0.08'), valueStep('0.08', 1, false), { ...valueStep('0.08', 2, false), words: 'The 8 on the right is worth more' }] },
+}
+for (const state of states) {
+  const key = Object.keys(worked).find(key => state.sourceRef.startsWith(key))
+  if (!key) continue
+  if (state.visual.kind === 'cumulative') state.visual = worked[key]
+  else state.working = worked[key]
+}
 states.forEach((state, index) => { state.transition.onComplete = states[index + 1]?.id })
 export const tutorPlaceValueLesson: LessonDefinition & { states: TutorPlaceState[] } = { id: 'L003', title: 'Place value', level: 'GCSE Foundation', goal: 'Read digit values in large numbers and decimals, use zero placeholders, and compare actual digit values.', states }
 export const tutorPlaceValueLabels: Partial<Record<MicroSkillId, string>> = { 'digit-place-value': 'Large numbers', 'decimal-places': 'Decimals', mixed: 'Review' }

@@ -3,8 +3,10 @@ import { NumberDisplay, PlaceValueVisual } from './PlaceValueVisuals'
 import { StackedWorkedExample } from '../../order-of-operations/variant-c/StackedWorkedExample'
 import { LessonVideo } from '../../order-of-operations/variant-c/TutorTeachingMedia'
 import type { TutorPlaceState } from './placeValueLesson'
+import { PlaceWorkingExample } from './PlaceWorkingExample'
 
 function TeachingVisual({ visual }: { visual: TutorPlaceState['visual'] }) {
+  if (visual.kind === 'place-worked') return <div className="pvb-stage"><PlaceWorkingExample working={visual} /></div>
   if (visual.kind !== 'cumulative') return <div className="pvb-stage"><PlaceValueVisual visual={visual} /></div>
   return <div className="pvb-stage pvt-working">
     {visual.value && <NumberDisplay value={visual.value} highlights={visual.highlights} />}
