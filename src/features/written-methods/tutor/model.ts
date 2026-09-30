@@ -17,6 +17,8 @@ export type TutorMethodState = LearningState & {
   answerLabel?: string
   working?: TutorWorking
   video?: LessonVideoDefinition
+  /** Another way of doing the same worked example, shown as "Video 2". */
+  video2?: LessonVideoDefinition
   /** Lesson-specific wrong-answer message, tried before the shared number diagnosis. */
   diagnose?: (response: string) => string | null
 }

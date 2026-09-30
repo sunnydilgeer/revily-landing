@@ -2,7 +2,7 @@
 
 A4 is written from the two PDF/video pairs `A4.1_Factorising_Two_Terms` and `A4.2_Factorising_Three_Terms`. It is lesson 18 in the course (`?lesson=18`, progress key `L018`), and students see it as lesson 4 of the Algebra chapter.
 
-Both videos work their PDF's own Q1, so each rung's worked screen is its video and Q1.
+Both videos work their PDF's own Q1, so each rung's worked screen is its video and Q1. Each worked screen also has a Video 2 (`two-terms-another-way.mp4`, `three-terms-another-way.mp4`): a second version of the same A4.1/A4.2 video, working the same Q1 another way, dividing the whole expression by the common factor as fractions so matching factors cancel.
 
 | Rung | Source PDF and video | App coverage |
 | --- | --- | --- |

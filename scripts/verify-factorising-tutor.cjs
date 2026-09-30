@@ -129,15 +129,19 @@ assert.ok(checkAnswer(at('A4.1 Q3').interaction, '−7y(−2y + 3)'), 'A4.1 Q3 a
 
 // ---------- Videos ----------
 assert.equal(states.filter(state => state.video).length, 2, 'One video per source PDF')
+assert.ok(states.filter(state => state.video2).every(state => state.video && state.video2.id !== state.video.id) && states.filter(state => state.video2).length === 2, 'Each worked screen also has Video 2, another way')
 const mediaHashes = {
   'two-terms.mp4': '8823437050cb07e6b35ce9564dd1aa02529ed3b74155daddcbf9c156ca99192f',
   'three-terms.mp4': 'd6de0629a625cb47c82d748b0cae759c1fb12ba06ef32eeb8da2e16d2771c301',
+  // Video 2 on each worked screen: the same example done another way.
+  'two-terms-another-way.mp4': 'be138633501204bfee8c874118bdfb78adb63cb5eb11597e21c7288e68a67a60',
+  'three-terms-another-way.mp4': '1c77a1a57331f551b90dfb1ba3c3f8439242e0d925b6dc6a0ab77da5ace070c2',
 }
 for (const [name, expected] of Object.entries(mediaHashes)) {
   const file = path.join(root, 'public/media/lesson-18', name)
   assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'), expected, `${name} must remain source-identical`)
   assert.ok(fs.readFileSync(file.replace(/\.mp4$/, '.svg'), 'utf8').startsWith('<svg'), `${name} poster must be an SVG`)
-  assert.ok(states.some(state => state.video?.src === `/media/lesson-18/${name}`), `${name} must be used`)
+  assert.ok(states.some(state => state.video?.src === `/media/lesson-18/${name}` || state.video2?.src === `/media/lesson-18/${name}`), `${name} must be used`)
 }
 
 // ---------- The course ----------
