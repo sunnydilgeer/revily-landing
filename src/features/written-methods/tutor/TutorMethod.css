@@ -132,7 +132,7 @@
 .sp-bus__row .is-focus { color: #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); border-radius: 5px; }
 .sp-bus__row sup { position: absolute; left: -.2em; top: .05em; font-size: 14px; color: #7c3aed; font-weight: 700; }
 .sp-bus__row .sp-point, .sp-bus__top .sp-point { min-width: .35em; }
-.sp-lines li { color: var(--rv-ink); }
+.sp-lines li { color: var(--rv-ink); gap: .4em; }
 .sp-lines.is-old li { color: var(--rv-muted); font-size: .85em; }
 .sp-lines.is-old .sp-result { color: inherit; }
 .sp-parts { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: .3em; }
