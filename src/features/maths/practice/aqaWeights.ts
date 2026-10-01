@@ -98,6 +98,11 @@ export const aqaMarks: Record<string, number> = {
   '19:equations-both-sides': 3,
   '19:equations-brackets': 3,
   '19:equations-fractions': 2,
+  // Estimates, not yet counted from the 18 papers: changing the subject comes up most sittings, usually for 1–2 marks.
+  '20:rearrange-linear': 3,
+  '20:rearrange-fractions': 2,
+  '20:rearrange-squares': 1,
+  '20:rearrange-roots': 1,
 }
 
 /**

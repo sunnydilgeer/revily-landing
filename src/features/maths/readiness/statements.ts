@@ -109,5 +109,10 @@ export const canStatements: Record<string, string> = {
   '19:equations-both-sides': 'I can solve an equation with the unknown on both sides, like 9x + 4 = 4x + 29',
   '19:equations-brackets': 'I can solve an equation with brackets, like 2(3x + 1) = x + 22',
   '19:equations-fractions': 'I can solve an equation with fractions, like (2x + 1)/3 = 5',
+
+  '20:rearrange-linear': 'I can make m the subject of a formula like C = 3m + 5',
+  '20:rearrange-fractions': 'I can rearrange a formula with a fraction, like M = (a + b)/2',
+  '20:rearrange-squares': 'I can rearrange a formula with a square, like A = 6s², to get s = √(A/6)',
+  '20:rearrange-roots': 'I can rearrange a formula with a square root, like t = √(h/5), to get h = 5t²',
 }
 

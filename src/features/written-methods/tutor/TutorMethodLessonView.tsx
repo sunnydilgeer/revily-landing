@@ -133,6 +133,58 @@ function PowerAnswerInput({ id, disabled, onChange }: { id: string; disabled: bo
   </div>
 }
 
+/**
+ * A rearranged formula, typed after "m =": one box, or a top and a bottom with the fraction key, and the √ key draws
+ * a square root over everything in the answer. The x² key types ² wherever the cursor is. Marked by trying numbers
+ * (sameFormula), so any correct form is right.
+ */
+function FormulaAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
+  const [plain, setPlain] = useState(''), [top, setTop] = useState(''), [bottom, setBottom] = useState('')
+  const [fraction, setFraction] = useState(false), [root, setRoot] = useState(false)
+  const last = useRef<HTMLInputElement | null>(null)
+  const update = (next: { plain?: string; top?: string; bottom?: string; fraction?: boolean; root?: boolean }) => {
+    const p = next.plain ?? plain, t = next.top ?? top, b = next.bottom ?? bottom, f = next.fraction ?? fraction, r = next.root ?? root
+    const inner = f ? (t.trim() && b.trim() ? `(${t.trim()})/(${b.trim()})` : '') : p.trim()
+    onChange(inner ? r ? `√(${inner})` : inner : '')
+  }
+  const field = (name: 'plain' | 'top' | 'bottom', value: string, set: (value: string) => void, label: string) => <label htmlFor={`formula-${name}-${id}`}>
+    <span className="sr-only">{label}</span>
+    <input id={name === 'plain' ? `answer-${id}` : `formula-${name}-${id}`} className={`pvb-input rung-answer__input rung-formula__input${value.length > 6 ? ' is-long' : ''}`} type="text" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value}
+      onFocus={event => { last.current = event.target }} onChange={event => { set(event.target.value); update({ [name]: event.target.value }) }} />
+  </label>
+  const toggleFraction = () => {
+    // The typed answer moves into the top when a fraction starts, and back out when it stops.
+    const nextFraction = !fraction
+    const nextPlain = nextFraction ? plain : bottom.trim() ? `${/[+−-]/.test(top) ? `(${top.trim()})` : top.trim()}/${bottom.trim()}` : top
+    const nextTop = nextFraction ? plain : top
+    setFraction(nextFraction); setPlain(nextPlain); setTop(nextTop); if (!nextFraction) setBottom('')
+    update({ fraction: nextFraction, plain: nextPlain, top: nextTop, bottom: nextFraction ? bottom : '' })
+    requestAnimationFrame(() => document.getElementById(nextFraction ? `formula-${nextTop ? 'bottom' : 'top'}-${id}` : `answer-${id}`)?.focus())
+  }
+  const toggleRoot = () => { setRoot(!root); update({ root: !root }) }
+  const square = () => {
+    const input = last.current ?? document.getElementById(fraction ? `formula-top-${id}` : `answer-${id}`) as HTMLInputElement | null
+    if (!input) return
+    const name = input.id.startsWith('formula-top') ? 'top' : input.id.startsWith('formula-bottom') ? 'bottom' : 'plain'
+    const value = { plain, top, bottom }[name], at = input.selectionStart ?? value.length, end = input.selectionEnd ?? at
+    const next = `${value.slice(0, at)}²${value.slice(end)}`
+    ;({ plain: setPlain, top: setTop, bottom: setBottom })[name](next)
+    update({ [name]: next })
+    requestAnimationFrame(() => { input.focus(); input.setSelectionRange(at + 1, at + 1) })
+  }
+  const body = fraction
+    ? <span className="rung-formula__frac">{field('top', top, setTop, 'Top of the fraction')}<span className="rung-fraction__bar" aria-hidden="true" />{field('bottom', bottom, setBottom, 'Bottom of the fraction')}</span>
+    : field('plain', plain, setPlain, 'Your answer')
+  return <div className="rung-formula" role="group" aria-label="Enter the formula">
+    {root ? <span className="rung-formula__root"><span className="rung-formula__radical" aria-hidden="true"><svg viewBox="0 0 10 20" preserveAspectRatio="none"><path d="M0.5 12.5 L3 11 L5.5 19.5 L9.5 1" fill="none" stroke="currentColor" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" /></svg></span><span className="rung-formula__under">{body}</span></span> : body}
+    <span className="rung-formula__keys">
+      <button type="button" className={`rung-expression__key${fraction ? ' is-on' : ''}`} onClick={toggleFraction} disabled={disabled} aria-pressed={fraction} aria-label="Write the answer as a fraction, with a top and a bottom"><span className="rung-formula__key-frac" aria-hidden="true"><span>a</span><span>b</span></span></button>
+      <button type="button" className={`rung-expression__key${root ? ' is-on' : ''}`} onClick={toggleRoot} disabled={disabled} aria-pressed={root} aria-label="Square root over the whole answer">√</button>
+      <button type="button" className="rung-expression__key" onClick={square} disabled={disabled} aria-label="Type a squared sign">x²</button>
+    </span>
+  </div>
+}
+
 function WorkingPanel({ visual, ref }: { visual: TutorWorking; ref?: Ref<HTMLDivElement> }) {
   return <div className="pvb-stage rung-working-panel" ref={ref}>
     {visual.kind === 'fraction-worked' ? <FractionWorkedExample visual={visual} />
@@ -150,7 +202,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.type === 'multiSelect') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -187,6 +239,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const expression = numeric && state.interaction.responseShape === 'expression'
   const power = numeric && state.interaction.responseShape === 'power'
   const roots = numeric && state.interaction.responseShape === 'roots'
+  const formula = numeric && state.interaction.responseShape === 'formula'
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
@@ -214,7 +267,9 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
           {!standardForm && !expression && !power && !roots && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
-          {roots
+          {formula
+            ? <FormulaAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : roots
             ? <RootsAnswerInput id={state.id} letter={state.answerPrefix?.replace(/\s*=$/, '') ?? 'x'} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : expression
             ? <ExpressionAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} anyPower={state.interaction.anyPower} onChange={engine.setInputValue} />
