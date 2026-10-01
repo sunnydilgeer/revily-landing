@@ -121,9 +121,11 @@ export function decimalMultiplication(first: string, second: string, given?: str
   steps[0].title = 'Count decimal places'
   if (b.length === 1) steps.push({ title: 'Multiply', why: 'Multiply the whole numbers.', lines: [says(`${a} × ${b} → ${product}`)] })
   else {
-    const rows = [...b].reverse().map((d, i) => ({ by: Number(d) * 10 ** i, value: Number(a) * Number(d) * 10 ** i }))
-    rows.forEach(row => steps.push({ title: `Multiply by ${row.by}`, why: 'Split the second number into tens and units, and multiply by each part.', lines: [says(`${a} × ${row.by} → ${row.value}`)] }))
-    steps.push({ title: 'Add the parts', why: 'The parts together make the whole multiplication.', lines: [says(`${rows.map(r => r.value).reverse().join(' + ')} → ${product}`)] })
+    // 12 → 10 + 2, then 34 × 10 and 34 × 2: the split is its own step, so each multiplication has a reason.
+    const rows = [...b].map((d, i) => ({ by: Number(d) * 10 ** (b.length - 1 - i), value: Number(a) * Number(d) * 10 ** (b.length - 1 - i) })).filter(row => row.by)
+    steps.push({ title: `Split ${b}`, why: 'Split the second number into its place values. Multiply by each part, then add.', lines: [says(`${b} → ${rows.map(r => r.by).join(' + ')}`)] })
+    rows.forEach(row => steps.push({ title: `Multiply ${a} by ${row.by}`, why: `This is the ${row.by} part of ${b}.`, lines: [says(`${a} × ${row.by} → ${row.value}`)] }))
+    steps.push({ title: 'Add the parts', why: 'The parts together make the whole multiplication.', lines: [says(`${rows.map(r => r.value).join(' + ')} → ${product}`)] })
   }
   const placed = withPoint(product, places), answer = tidy(placed)
   steps.push({
