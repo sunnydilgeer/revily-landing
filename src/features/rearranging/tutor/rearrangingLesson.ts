@@ -50,7 +50,7 @@ function board(formula: string, moves: Move[], answer: string, label = 'Rearrang
     const rows = [...shown, ...added.map(row)]
     return { title: move.title, operation: tex(rows[0]), equation: tex(rows.at(-1)!), instruction: move.say, frame: { equation: { rows } } }
   })
-  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(row(formula)), label, first: 0, second: 0, steps, pictureOnly: true }] }
+  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(row(formula)), label, first: 0, second: 0, steps, pictureOnly: true, focus: true }] }
 }
 
 /* The moves, each the same pattern: box what it undoes, do the opposite to both sides, cross out what cancels. */

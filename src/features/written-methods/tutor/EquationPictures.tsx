@@ -86,8 +86,12 @@ function spoken(row: EquationRow) {
   return `${said(row.left)} = ${said(row.right)}${struck.length ? `, with ${struck.join(' and ')} cancelling` : ''}`.replace(/[[\]]/g, '')
 }
 
-/** The board so far. A step's heading goes above the rows it adds (from `newFrom`); `plain` is the question before any working. */
-export function EquationVisual({ frame, newFrom, heading, plain }: { frame: EquationFrame; newFrom?: number; heading?: ReactNode; plain?: boolean }) {
+/**
+ * The board so far. A step's heading goes above the rows it adds (from `newFrom`); `plain` is the question before any
+ * working. With `focus`, rows above the one the step works on are greyed out.
+ */
+export function EquationVisual({ frame, newFrom, heading, plain, focus }: { frame: EquationFrame; newFrom?: number; heading?: ReactNode; plain?: boolean; focus?: boolean }) {
+  const done = (i: number) => focus && newFrom !== undefined && i < newFrom - 1 ? ' is-done' : ''
   return <div className={`ns-eq${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
     {frame.rows.map((row, i) => [
       i === newFrom && heading && <div key="heading" className="ns-eq__heading">{heading}</div>,
@@ -97,8 +101,8 @@ export function EquationVisual({ frame, newFrom, heading, plain }: { frame: Equa
           ? <><Powers text={row.answer.slice(0, row.answer.indexOf(' = '))} /> = <span className="ns-eq__answer-side"><Side side={row.answer.slice(row.answer.indexOf(' = ') + 3)} plain /></span></>
           : <Powers text={row.answer} />}</p>
         : 'note' in row
-        ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
-        : <div key={i} className="ns-eq__row" aria-hidden="true">
+        ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
+        : <div key={i} className={`ns-eq__row${done(i)}`} aria-hidden="true">
           <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
           <span className="ns-eq__equals">=</span>
           <span className="ns-eq__right"><Side side={row.right} plain={plain} /></span>

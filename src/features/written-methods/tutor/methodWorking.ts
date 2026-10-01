@@ -106,6 +106,28 @@ export type BracketFrame = { outside: string; inside: { text: string; family: nu
  */
 export type EquationRow = { left: string; right: string } | { note: string; family?: number } | { answer: string }
 export type EquationFrame = { rows: EquationRow[] }
+/**
+ * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far: the question with b boxed blue
+ * (the two numbers add to it) and c boxed amber (they multiply to it), the empty brackets and the two jobs, the signs,
+ * the pairs that multiply to c with their sums, and the answer built from the pair that works. A difference of two
+ * squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
+ */
+export type QuadraticFrame = {
+  letter: string; middle: number; last: number
+  /** From the first step: b and c boxed, the brackets with two empty boxes, and "☐ × ☐ = c", "☐ + ☐ = b". */
+  shape?: boolean
+  /** Short reasons for the signs: "+ 20: the same sign", "− 9x: both negative". */
+  signs?: string[]
+  /** Pairs that multiply to c, in order; `sums` fills in what each pair adds to, and `pick` is the one that works. */
+  pairs?: [number, number][]
+  sums?: boolean
+  pick?: number
+  /** A difference of two squares: each term as a square, "x² = x × x" and "49 = 7 × 7". */
+  squares?: boolean
+  /** The two numbers that go into the brackets, in order: (x + a)(x + b). */
+  answer?: [number, number]
+  adds: 'shape' | 'signs' | 'pairs' | 'sums' | 'squares' | 'answer'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
@@ -116,6 +138,7 @@ export type MethodFrame = {
   expand?: ExpandFrame
   bracket?: BracketFrame
   equation?: EquationFrame
+  quadratic?: QuadraticFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>
@@ -145,6 +168,11 @@ export type MethodExample = {
   chain?: MethodChainStep[]
   /** Draw the whole working in the picture, one step at a time (src/features/EXPLANATIONS.md). */
   pictureOnly?: boolean
+  /**
+   * Grey out the working a step has finished with, so the row it works on and what it adds stand out (Sunny, 1 Oct,
+   * for students who lose their place, from A6 on).
+   */
+  focus?: boolean
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`

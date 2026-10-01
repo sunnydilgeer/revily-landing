@@ -19,8 +19,9 @@ import { tutorExpandingLesson } from '../expanding/tutor/expandingLesson'
 import { tutorFactorisingLesson } from '../factorising/tutor/factorisingLesson'
 import { tutorEquationsLesson } from '../equations/tutor/equationsLesson'
 import { tutorRearrangingLesson } from '../rearranging/tutor/rearrangingLesson'
+import { tutorQuadraticsLesson } from '../quadratics/tutor/quadraticsLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21
 
 export type MathsSection = {
   id: MicroSkillId
@@ -107,6 +108,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(18, tutorFactorisingLesson, 'Factorising', 'Factorise expressions fully by taking out the highest common factor.', tutorFactorisingLesson.labels, 'algebra'),
   entry(19, tutorEquationsLesson, 'Solving equations', 'Solve equations with one unknown, including brackets, fractions, the unknown on both sides and squares.', tutorEquationsLesson.labels, 'algebra'),
   entry(20, tutorRearrangingLesson, 'Rearranging formulae', 'Change the subject of a formula, including formulae with fractions, squares and square roots.', tutorRearrangingLesson.labels, 'algebra'),
+  entry(21, tutorQuadraticsLesson, 'Factorising quadratics', 'Factorise quadratics like x² + 8x + 15 into two brackets, including the difference of two squares.', tutorQuadraticsLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

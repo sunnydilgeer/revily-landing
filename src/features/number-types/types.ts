@@ -101,6 +101,10 @@ export type MicroSkillId =
   | 'rearrange-fractions'
   | 'rearrange-squares'
   | 'rearrange-roots'
+  | 'quadratics-positive'
+  | 'quadratics-negative-middle'
+  | 'quadratics-negative-last'
+  | 'quadratics-difference-of-squares'
   | 'mixed'
 
 export type LessonPhase =
@@ -147,8 +151,8 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula' | 'brackets'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions'
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
   anyPower?: boolean
   requiredDenominator?: number
