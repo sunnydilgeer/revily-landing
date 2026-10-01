@@ -115,3 +115,10 @@ a.maths-all-lessons { display: block; text-align: center; text-decoration: none;
 .sl-drawer-story span { color: var(--rv-muted); }
 .sl-markscheme .sl-text { margin-top: 6px; }
 .sl-drawer-story a { color: inherit; text-decoration: none; }
+
+/* Higher-only sections: a small badge after the section title instead of a "Higher:" prefix. */
+.sl-higher-badge {
+  display: inline-block; margin-left: .5em; padding: 2px 10px; border-radius: 999px; vertical-align: .2em;
+  background: var(--rv-biro-tint); color: var(--rv-biro); border: 2px solid currentColor;
+  font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1.4; white-space: nowrap;
+}

@@ -10,6 +10,7 @@ import { getScienceLesson, scienceChaptersFor, scienceHubHref, scienceLessonHref
 import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
 import { forTier, type ScienceTier } from './tier'
+import { HigherBadge } from './higher/HigherBadge'
 
 type Props = {
   open: boolean
@@ -100,6 +101,7 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
                     <button type="button" aria-current={section.current ? 'step' : undefined} onClick={() => onJump(section.id)}>
                       <span aria-hidden="true">{section.done ? '✓' : '○'}</span>
                       {section.title.replace(/^Chapter \d+ · /, '')}
+                      {section.higher && <HigherBadge />}
                     </button>
                   </li>)}
                 </ol>}

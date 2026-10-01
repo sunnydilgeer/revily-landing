@@ -1,36 +1,19 @@
 /*
- * Higher-only sections, from the CGP AQA Combined Science Higher revision guide. Each one is inserted
+ * Higher-only sections, from the CGP AQA Combined Science Higher revision guide. Each one is marked `higher: true` (it shows a Higher badge) and is inserted
  * into an existing Foundation lesson, just before the screen named in `before`, and is shown only to
  * Higher students (see ../tier.ts). Foundation lessons are never edited for Higher content.
  * Ids use an H: B13-H01, B13-H02 … so they can never clash with Foundation ids.
  */
-import { author } from '../lessonAuthoring'
-import type { ScienceSection } from '../lessonSections'
-import type { TeachingFrame } from '../teachingFrame'
-import type { ScienceState } from '../types'
+import { addition, f, type HigherAddition } from './helpers'
+import { higherB4 } from './biology-b4'
+import { higherB5 } from './biology-b5'
+import { higherB5Fertility } from './biology-b5-fertility'
 
-export type HigherAddition = {
-  /** The Foundation lesson this section goes into. */
-  lessonId: string
-  /** The Foundation screen it goes just before. */
-  before: string
-  section: ScienceSection
-  states: ScienceState[]
-  frames: Record<string, TeachingFrame[]>
-}
-
-// One new word per frame. Plain meaning first, then the GCSE term. Diagrams reuse the lesson's own.
-const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
-
-function addition(lessonId: string, before: string, skillId: string, specRefs: string[], section: ScienceSection, frames: TeachingFrame[],
-  build: (a: ReturnType<typeof author>) => ScienceState[]): HigherAddition {
-  const a = author(skillId, specRefs)
-  return { lessonId, before, section, frames: { [section.id]: frames }, states: [a.teach(section.id, section.label.replace(/^Higher: /, ''), frames), ...build(a)] }
-}
+export type { HigherAddition } from './helpers'
 
 // Biology Lesson 11 · Higher p15: gill filaments, lamellae and blood and water flowing opposite ways.
 const gills = addition('B-CELL-006C-B', 'B6-38', 'B-HIGHER-GILLS', ['4.1.3.1'],
-  { id: 'B6-H01', label: 'Higher: gills up close', detail: 'Filaments, lamellae and opposite flows' },
+  { id: 'B6-H01', higher: true, label: 'Gills up close', detail: 'Filaments, lamellae and opposite flows' },
   [
     f('Gill filaments', 'Each gill is made of many thin plates called gill filaments.', 'many thin plates → big area', 'Water goes in through a fish’s mouth and passes out over its gills. Each gill is made of lots of thin plates. These are called gill filaments. Together they give a big surface area for gas exchange.', 'exchange-gill'),
     f('Even smaller plates', 'Gill filaments are covered in tiny plates called lamellae.', 'more plates → even more area', 'Each gill filament is covered in many tiny plates. These are called lamellae. They make the surface area even bigger. Lamellae have a thin layer of cells and lots of blood capillaries, so oxygen only has a short way to go.', 'exchange-gill'),
@@ -43,7 +26,7 @@ const gills = addition('B-CELL-006C-B', 'B6-38', 'B-HIGHER-GILLS', ['4.1.3.1'],
 
 // Biology Lesson 18 · Higher p26: oxyhaemoglobin.
 const oxyhaemoglobin = addition('B-ORG-013-B', 'B13-08', 'B-HIGHER-OXYHB', ['4.2.2.3'],
-  { id: 'B13-H01', label: 'Higher: oxyhaemoglobin', detail: 'Picking up and letting go of oxygen' },
+  { id: 'B13-H01', higher: true, label: 'Oxyhaemoglobin', detail: 'Picking up and letting go of oxygen' },
   [
     f('Joining on', 'In the lungs, haemoglobin joins with oxygen to make oxyhaemoglobin.', 'haemoglobin + oxygen → oxyhaemoglobin', 'In the lungs there is lots of oxygen. Haemoglobin joins with the oxygen there. Together they make a new substance called oxyhaemoglobin.', 'blood-red-haemoglobin'),
     f('Letting go', 'In body tissues, oxyhaemoglobin splits up to release oxygen.', 'oxyhaemoglobin → haemoglobin + oxygen', 'Body cells use up oxygen all the time. In body tissues, oxyhaemoglobin splits up into haemoglobin and oxygen. The oxygen is released to the cells. The haemoglobin goes back to the lungs to collect more.', 'blood-red-haemoglobin'),
@@ -55,7 +38,7 @@ const oxyhaemoglobin = addition('B-ORG-013-B', 'B13-08', 'B-HIGHER-OXYHB', ['4.2
 
 // Biology Lesson 19 · Higher p28: 'good' HDL cholesterol, and a clot near a stent is a thrombosis.
 const cholesterol = addition('B-ORG-014-B', 'B14-10', 'B-HIGHER-HDL', ['4.2.2.4'],
-  { id: 'B14-H01', label: 'Higher: good cholesterol and clots', detail: 'HDL cholesterol and thrombosis' },
+  { id: 'B14-H01', higher: true, label: 'Good cholesterol and clots', detail: 'HDL cholesterol and thrombosis' },
   [
     f('Two kinds of cholesterol', 'There is ‘bad’ LDL cholesterol and ‘good’ HDL cholesterol.', 'bad builds up, good helps clear', 'There are two kinds of cholesterol in the blood. ‘Bad’ cholesterol is called LDL cholesterol. Too much of it leads to fatty deposits in arteries. ‘Good’ cholesterol is called HDL cholesterol. It helps remove bad cholesterol from the blood.', 'cardio-cholesterol'),
     f('Statins do two jobs', 'Statins lower bad cholesterol and can raise good cholesterol.', 'less LDL, more HDL', 'Statins lower the amount of bad LDL cholesterol. They can also raise the amount of good HDL cholesterol. Both help slow down the build-up of fatty deposits.', 'cardio-statin'),
@@ -68,7 +51,7 @@ const cholesterol = addition('B-ORG-014-B', 'B14-10', 'B-HIGHER-HDL', ['4.2.2.4'
 
 // Biology Lesson 20 · Higher p30: hepatitis viruses and liver cancer, HPV and cervical cancer.
 const virusCancer = addition('B-ORG-015-B', 'B15-10', 'B-HIGHER-VIRUS-CANCER', ['4.2.2.5'],
-  { id: 'B15-H01', label: 'Higher: viruses that cause cancer', detail: 'Hepatitis and HPV' },
+  { id: 'B15-H01', higher: true, label: 'Viruses that cause cancer', detail: 'Hepatitis and HPV' },
   [
     f('Hepatitis and the liver', 'Some hepatitis viruses can lead to liver cancer.', 'long infection → higher risk', 'Some types of hepatitis virus cause a long-term infection of the liver. The virus lives inside the liver cells. This increases the risk of developing liver cancer.', 'health-virus-cancer'),
     f('HPV and the cervix', 'Infection with HPV can cause cervical cancer.', 'HPV → cancer of the cervix', 'HPV is short for human papillomavirus. Infection with HPV can cause cancer of the cervix in women. The cervix is the opening at the bottom of the womb.', 'health-virus-cancer'),
@@ -80,7 +63,7 @@ const virusCancer = addition('B-ORG-015-B', 'B15-10', 'B-HIGHER-VIRUS-CANCER', [
 
 // Biology Lesson 21 · Higher p31: substances in the body (asbestos) and more disease in deprived areas.
 const riskPlaces = addition('B-ORG-016-B', 'B16-10', 'B-HIGHER-RISK', ['4.2.2.6'],
-  { id: 'B16-H01', label: 'Higher: where risk comes from', detail: 'Asbestos and where people live' },
+  { id: 'B16-H01', higher: true, label: 'Where risk comes from', detail: 'Asbestos and where people live' },
   [
     f('Three kinds of risk factor', 'Risk factors can be in your lifestyle, your environment or your body.', 'lifestyle, environment, body', 'Risk factors come from three places. Some are part of how you live, like how much exercise you do. Some are substances in the environment, like air pollution. Some are substances in your body.', 'risk-types'),
     f('Asbestos', 'Asbestos fibres can build up in the airways and cause cancer later in life.', 'fibres in the body → cancer later', 'Asbestos is a material that was once used in buildings. Its tiny fibres can be breathed in and build up in the airways. Years later they can cause diseases such as cancer. This is why asbestos is no longer used.', 'risk-types'),
@@ -91,4 +74,4 @@ const riskPlaces = addition('B-ORG-016-B', 'B16-10', 'B-HIGHER-RISK', ['4.2.2.6'
     a.choice('B16-H03', 'Why are heart disease and type 2 diabetes more common in deprived areas?', ['People there are more likely to smoke, have a poor diet and not exercise', 'These diseases spread from person to person there', 'Everyone there has the same genes'], 0, 'Think about the risk factors for these diseases.', ['Heart disease and type 2 diabetes are not communicable, so they do not spread.', 'People in deprived areas are more likely to have risk factors such as smoking, a poor diet and no exercise.'], 'understanding', true),
   ])
 
-export const higherAdditions: readonly HigherAddition[] = [gills, oxyhaemoglobin, cholesterol, virusCancer, riskPlaces]
+export const higherAdditions: readonly HigherAddition[] = [gills, oxyhaemoglobin, cholesterol, virusCancer, riskPlaces, ...higherB4, ...higherB5, ...higherB5Fertility]
