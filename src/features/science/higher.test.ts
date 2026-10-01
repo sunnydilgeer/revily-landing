@@ -53,7 +53,7 @@ for (const add of higherAdditions) {
   }
   assert.equal(session.completedIds.length, higher.lesson.states.length)
 }
-assert.equal(higherAdditions.length, 18)
+assert.equal(higherAdditions.length, 20)
 
 // Higher-only lessons. Foundation never sees one: not in a catalogue, list, count, unit, deck, next link, saved last lesson or URL.
 const higherIds = new Set(higherLessons.map(item => item.lesson.id))
@@ -135,7 +135,7 @@ assert.ok(moles)
 assert.deepEqual([moles.subject, moles.number, moles.label, moles.title], ['chemistry', 20.5, '20H', 'Moles'])
 assert.deepEqual(scienceLessonsForTier('chemistry', 'foundation').map(scienceLessonLabel), chemistryLessons.map(item => String(item.number)))
 assert.deepEqual(scienceLessonsForTier('chemistry', 'higher').map(scienceLessonLabel).slice(18, 23), ['19', '20', '20H', '21', '22'])
-assert.equal(scienceLessonsForTier('chemistry', 'higher').length, chemistryLessons.length + 1)
+assert.equal(scienceLessonsForTier('chemistry', 'higher').length, chemistryLessons.length + higherLessons.filter(item => item.subject === 'chemistry').length)
 assert.equal(scienceCatalogueForTier('higher').length, allScienceLessons.length + higherLessons.length)
 assert.equal(nextScienceLessonForTier(getScienceLesson('chemistry', 20)!, 'foundation')?.number, 21)
 assert.equal(nextScienceLessonForTier(getScienceLesson('chemistry', 20)!, 'higher'), moles)
@@ -150,6 +150,14 @@ assert.equal(encodeScienceLastLesson(moles), 'chemistry:20H')
 for (const bad of ['chemistry:20H', 'chemistry:20h', 'chemistry:20.5', '20H']) assert.equal(decodeScienceLastLesson(bad, 'foundation'), null)
 assert.equal(parseScienceLessonRefForTier('chemistry', '20H', 'foundation'), null)
 assert.equal(parseScienceLessonRefForTier(undefined, '20H', 'higher'), null, 'Biology has no Lesson 20H')
+// C4 Higher-only lessons: 22H after 22 and 25H after 25; Foundation C4 unchanged.
+const c4 = (tier: 'foundation' | 'higher') => scienceUnitsForTier(tier).find(unit => unit.code === 'C4')!.lessons.map(scienceLessonLabel)
+assert.ok(!c4('foundation').some(label => label.endsWith('H')))
+assert.deepEqual(c4('higher').filter(label => ['22', '22H', '23', '25', '25H', '26'].includes(label)), ['22', '22H', '23', '25', '25H', '26'])
+for (const [label, number] of [['22H', 22.5], ['25H', 25.5]] as const) {
+  assert.equal(parseScienceLessonRefForTier('chemistry', label, 'foundation'), null)
+  assert.equal(parseScienceLessonRefForTier('chemistry', label, 'higher')?.number, number)
+}
 for (const bad of ['21H', '20HH', 'H', '20 H', '020H']) assert.equal(parseScienceLessonRefForTier('chemistry', bad, 'higher'), null)
 
 // Saved progress for the lesson is read for Higher only, even when a session is on this device.

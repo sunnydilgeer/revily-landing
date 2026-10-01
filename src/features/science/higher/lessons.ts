@@ -11,9 +11,17 @@
  */
 import { lessonC20H, moleSections } from '../chemistry/lesson-20h/lesson'
 import { moleFrames } from '../chemistry/lesson-20h/teachingFrames'
+import { lessonC22H, acidStrengthSections } from '../chemistry/lesson-22h/lesson'
+import { acidStrengthFrames } from '../chemistry/lesson-22h/teachingFrames'
+import { lessonC25H, redoxSections } from '../chemistry/lesson-25h/lesson'
+import { redoxFrames } from '../chemistry/lesson-25h/teachingFrames'
 import type { ScienceCatalogueEntry } from '../lessonNavigation'
 
 export const higherLessons: readonly ScienceCatalogueEntry[] = [
   // Chemistry C3, between Lesson 20 (When mass seems to change) and Lesson 21 (Concentration of solutions).
   { subject: 'chemistry', number: 20.5, label: '20H', higherOnly: true, folder: '20h', title: 'Moles', detail: 'Avogadro’s constant and the number of moles', lesson: lessonC20H, sections: moleSections, frames: moleFrames },
+  // Chemistry C4, between Lesson 22 (Acids, alkalis and pH) and Lesson 23 (salts).
+  { subject: 'chemistry', number: 22.5, label: '22H', higherOnly: true, folder: '22h', title: 'Strong and weak acids', detail: 'Ionisation, pH steps and strength versus concentration', lesson: lessonC22H, sections: acidStrengthSections, frames: acidStrengthFrames },
+  // Chemistry C4, between Lesson 25 (metals with acids and water, displacement) and Lesson 26 (electrolysis).
+  { subject: 'chemistry', number: 25.5, label: '25H', higherOnly: true, folder: '25h', title: 'Redox and ionic equations', detail: 'Electrons lost and gained, half equations and ionic equations', lesson: lessonC25H, sections: redoxSections, frames: redoxFrames },
 ]

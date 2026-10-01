@@ -21,6 +21,12 @@ import { HigherGeneticEngineeringVisual } from './HigherGeneticEngineeringVisual
 import { HigherParticleModelVisual } from './HigherParticleModelVisuals'
 import { HigherMolesVisual } from './HigherMolesVisuals'
 import { HigherFertilityVisual } from './HigherFertilityVisuals'
+import { HigherEquilibriumVisual } from './HigherEquilibriumVisuals'
+import { HigherRateTangentVisual } from './HigherRateTangentVisuals'
+import { HigherBondEnergyVisual } from './HigherBondEnergyVisuals'
+import { HigherElectrolysisVisual } from './HigherElectrolysisVisuals'
+import { HigherRedoxVisual } from './HigherRedoxVisuals'
+import { HigherAcidStrengthVisual } from './HigherAcidStrengthVisuals'
 import { InheritanceVisual } from './InheritanceVisuals'
 import { EvolutionVisual } from './EvolutionVisuals'
 import { EcologyVisual } from './EcologyVisuals'
@@ -455,6 +461,12 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('hgene-')) return <HigherGeneticEngineeringVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hpart-')) return <HigherParticleModelVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hmole-')) return <HigherMolesVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hequil-')) return <HigherEquilibriumVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hrate-')) return <HigherRateTangentVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hbond-')) return <HigherBondEnergyVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('helec-')) return <HigherElectrolysisVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hredox-')) return <HigherRedoxVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hacid-')) return <HigherAcidStrengthVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('inherit-')) return <InheritanceVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('evolve-')) return <EvolutionVisual focus={focus} assessment={assessment} />
