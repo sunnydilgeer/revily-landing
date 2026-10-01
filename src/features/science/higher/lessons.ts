@@ -19,6 +19,8 @@ import { lessonC36H, equilibriumSections } from '../chemistry/lesson-36h/lesson'
 import { equilibriumFrames } from '../chemistry/lesson-36h/teachingFrames'
 import { lessonC30H, bondEnergySections } from '../chemistry/lesson-30h/lesson'
 import { bondEnergyFrames } from '../chemistry/lesson-30h/teachingFrames'
+import { lessonP64H, motorEffectSections } from '../physics/lesson-64h/lesson'
+import { motorEffectFrames } from '../physics/lesson-64h/teachingFrames'
 import type { ScienceCatalogueEntry } from '../lessonNavigation'
 
 export const higherLessons: readonly ScienceCatalogueEntry[] = [
@@ -32,4 +34,6 @@ export const higherLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 30.5, label: '30H', higherOnly: true, folder: '30h', title: 'Bond energies', detail: 'Bonds broken minus bonds made', lesson: lessonC30H, sections: bondEnergySections, frames: bondEnergyFrames },
   // Chemistry C6, between Lesson 36 (reversible reactions and equilibrium) and Lesson 37 (hydrocarbons).
   { subject: 'chemistry', number: 36.5, label: '36H', higherOnly: true, folder: '36h', title: 'Le Chatelier’s principle', detail: 'How temperature, pressure and concentration move an equilibrium', lesson: lessonC36H, sections: equilibriumSections, frames: equilibriumFrames },
+  // Physics P7, after Lesson 64 (Electromagnetism), the last Physics lesson.
+  { subject: 'physics', number: 64.5, label: '64H', higherOnly: true, folder: '64h', title: 'The motor effect', detail: 'Fleming’s left-hand rule, F = B I l and the dc motor', lesson: lessonP64H, sections: motorEffectSections, frames: motorEffectFrames },
 ]

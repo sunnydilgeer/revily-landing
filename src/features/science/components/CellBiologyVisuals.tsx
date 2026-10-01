@@ -27,6 +27,9 @@ import { HigherBondEnergyVisual } from './HigherBondEnergyVisuals'
 import { HigherElectrolysisVisual } from './HigherElectrolysisVisuals'
 import { HigherRedoxVisual } from './HigherRedoxVisuals'
 import { HigherAcidStrengthVisual } from './HigherAcidStrengthVisuals'
+import { HigherMotorVisual } from './HigherMotorVisuals'
+import { HigherWaveVisual } from './HigherWaveVisuals'
+import { HigherGraphTangentVisual } from './HigherGraphTangentVisuals'
 import { InheritanceVisual } from './InheritanceVisuals'
 import { EvolutionVisual } from './EvolutionVisuals'
 import { EcologyVisual } from './EcologyVisuals'
@@ -467,6 +470,9 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('helec-')) return <HigherElectrolysisVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hredox-')) return <HigherRedoxVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hacid-')) return <HigherAcidStrengthVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hmotor-')) return <HigherMotorVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hwave-')) return <HigherWaveVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hgrad-')) return <HigherGraphTangentVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('inherit-')) return <InheritanceVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('evolve-')) return <EvolutionVisual focus={focus} assessment={assessment} />
