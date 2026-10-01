@@ -105,7 +105,7 @@
 .d-root-line b::after { content: ''; position: absolute; left: 50%; top: 25px; width: 13px; height: 13px; transform: translateX(-50%); border: 2px solid white; border-radius: 50%; background: var(--rv-biro); box-shadow: 0 0 0 2px var(--rv-biro); }
 .d-surd-steps { display: grid; gap: 9px; margin: 8px auto 12px; }
 .d-surd-steps span { color: var(--rv-ink); font-size: clamp(20px, 4vw, 30px); font-weight: 650; }
-.d-hop-line { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 520px; margin: 14px auto 20px; border-top: 4px solid var(--rv-muted); }
+.d-hop-line { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 520px; margin: 44px auto 20px; border-top: 4px solid var(--rv-muted); }
 .d-hop-line span { position: relative; padding-top: 18px; color: var(--rv-muted); font-weight: 650; }
 .d-hop-line span::before { content: ''; position: absolute; top: -9px; left: 50%; width: 3px; height: 14px; transform: translateX(-50%); background: var(--rv-muted); }
 .d-hop-line span.is-active { color: var(--rv-ink); }
