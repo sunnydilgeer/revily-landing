@@ -19,6 +19,10 @@ import { lessonC36H, equilibriumSections } from '../chemistry/lesson-36h/lesson'
 import { equilibriumFrames } from '../chemistry/lesson-36h/teachingFrames'
 import { lessonC30H, bondEnergySections } from '../chemistry/lesson-30h/lesson'
 import { bondEnergyFrames } from '../chemistry/lesson-30h/teachingFrames'
+import { lessonP40H, calcForceSections } from '../physics/lesson-40h/lesson'
+import { calcForceFrames } from '../physics/lesson-40h/teachingFrames'
+import { lessonP52H, momentumSections } from '../physics/lesson-52h/lesson'
+import { momentumFrames } from '../physics/lesson-52h/teachingFrames'
 import type { ScienceCatalogueEntry } from '../lessonNavigation'
 
 export const higherLessons: readonly ScienceCatalogueEntry[] = [
@@ -32,4 +36,8 @@ export const higherLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 30.5, label: '30H', higherOnly: true, folder: '30h', title: 'Bond energies', detail: 'Bonds broken minus bonds made', lesson: lessonC30H, sections: bondEnergySections, frames: bondEnergyFrames },
   // Chemistry C6, between Lesson 36 (reversible reactions and equilibrium) and Lesson 37 (hydrocarbons).
   { subject: 'chemistry', number: 36.5, label: '36H', higherOnly: true, folder: '36h', title: 'Le Chatelier’s principle', detail: 'How temperature, pressure and concentration move an equilibrium', lesson: lessonC36H, sections: equilibriumSections, frames: equilibriumFrames },
+  // Physics P5, between Lesson 40 (Resultant forces and work done) and Lesson 41 (Forces and elasticity).
+  { subject: 'physics', number: 40.5, label: '40H', higherOnly: true, folder: '40h', title: 'Calculating forces', detail: 'Scale drawings, equilibrium and components', lesson: lessonP40H, sections: calcForceSections, frames: calcForceFrames },
+  // Physics P5, between Lesson 52 (Reaction times) and Lesson 53 (waves, a new chapter).
+  { subject: 'physics', number: 52.5, label: '52H', higherOnly: true, folder: '52h', title: 'Momentum', detail: 'p = mv and momentum before = momentum after', lesson: lessonP52H, sections: momentumSections, frames: momentumFrames },
 ]
