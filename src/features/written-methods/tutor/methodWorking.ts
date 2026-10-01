@@ -170,7 +170,7 @@ export type MethodExample = {
   pictureOnly?: boolean
   /**
    * Grey out the working a step has finished with, so the row it works on and what it adds stand out (Sunny, 1 Oct,
-   * for students who lose their place, from A6 on).
+   * for students who lose their place: A5 on).
    */
   focus?: boolean
 }

@@ -203,3 +203,28 @@ assert.ok(app.includes('case 20:') && app.includes('return <TutorRearrangingLess
 assert.ok(read('src/features/cards/keyFacts.ts').includes('  20: {'), 'A6 needs key-fact cards')
 
 console.log(`Lesson 20 (A6) verified: ${states.length} screens, all 32 source questions, ${Object.keys(formulae).length} formulae rearranged by hand and put back in, ${formulaScreens.length} typed formulae (${Object.values(spellings).flat().length} other spellings), ${Object.keys(values).length} worked-out values, ${rowsChecked} board rows true, ${cases.length} wrong-answer messages, 4 source-identical videos and the route.`)
+
+// ---------- Finished working is greyed out, and only that (Sunny, 1 Oct) ----------
+// Every step's board: rows above the one the step works on are dimmed; that row, the rows the step adds and the
+// answer are not. The first step dims nothing.
+require.extensions['.tsx'] = require.extensions['.ts']
+const React = require('react')
+const { renderToStaticMarkup } = require('react-dom/server')
+const { EquationVisual } = require('../src/features/written-methods/tutor/EquationPictures.tsx')
+let dimChecked = 0
+for (const state of states) {
+  const visual = state.working ?? state.visual
+  if (visual.kind !== 'method-worked' || !visual.examples[0].steps[0]?.frame.equation) continue
+  assert.ok(visual.examples.every(example => example.focus), `${state.id}: finished working is greyed out`)
+  const steps = visual.examples[0].steps
+  steps.forEach((step, i) => {
+    const before = i ? steps[i - 1].frame.equation.rows.length : 1
+    const html = renderToStaticMarkup(React.createElement(EquationVisual, { frame: step.frame.equation, newFrom: before, focus: true }))
+    const rows = [...html.matchAll(/<(?:div|p) class="ns-eq__(row|note|answer)([^"]*)"/g)]
+    assert.equal(rows.length, step.frame.equation.rows.length, `${state.id} step ${i + 1}: every row drawn`)
+    rows.forEach(([, kind, classes], r) => assert.equal(/is-done/.test(classes), kind !== 'answer' && r < before - 1, `${state.id} step ${i + 1}, row ${r + 1}: ${r < before - 1 ? 'finished, so greyed out' : 'being worked on or new, so not greyed out'}`))
+    if (i === 0) assert.ok(!/is-done/.test(html), `${state.id}: the first step greys out nothing`)
+    dimChecked++
+  })
+}
+console.log(`Greying out checked on ${dimChecked} steps: only rows above the one being worked on.`)
