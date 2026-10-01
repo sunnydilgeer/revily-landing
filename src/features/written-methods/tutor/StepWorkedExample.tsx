@@ -3,7 +3,7 @@
 import type { CSSProperties } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
-import { PictureStep } from './NumberSenseWorkedExample'
+import { PictureStep, RoundingVisual } from './NumberSenseWorkedExample'
 import { Powers } from './Powers'
 import type { MethodExample, MethodStep } from './methodWorking'
 import { MethodPicture as MethodPictureView } from './MethodWorkedExample'
@@ -60,6 +60,7 @@ function BusStop({ picture }: { picture: BusStopPicture }) {
 }
 
 function Picture({ picture }: { picture: StepPicture }) {
+  if (picture.kind === 'rounding') return <div className="rung-worked__visual sp-picture"><RoundingVisual frame={picture.frame} /></div>
   if (picture.kind === 'method') return <div className="rung-worked__visual sp-picture"><MethodPictureView example={{ method: picture.method, first: picture.first } as MethodExample} frame={picture.frame} /></div>
   return <div className="rung-worked__visual sp-picture">{picture.kind === 'columns' ? <Columns picture={picture} /> : <BusStop picture={picture} />}</div>
 }

@@ -4,7 +4,7 @@
  * step's new numbers come from ("6 + 7 → 13", the carried 1 boxed in purple). The last move gives the answer, drawn once
  * in green, either as a line's result or as the picture's answer row. Used by lessons 6 onwards (StepWorkedExample.tsx).
  */
-import type { MethodFrame } from './methodWorking'
+import type { MethodFrame, RoundingFrame } from './methodWorking'
 
 /** Part of a line: its text, colour (`is-f0`… blue, amber, green, purple), boxed in purple, or struck out. */
 export type LinePart = { text: string; family?: number; boxed?: boolean; struck?: boolean }
@@ -43,7 +43,9 @@ export type BusStopPicture = {
 }
 /** A factor tree, number lists or a Venn diagram, drawn by the written-method pictures from a method frame. */
 export type MethodPicture = { kind: 'method'; method: 'factor-tree' | 'number-lists' | 'venn'; first: number; frame: MethodFrame }
-export type StepPicture = ColumnsPicture | BusStopPicture | MethodPicture
+/** A number with a cut after the last digit kept and the next digit marked (rounding). */
+export type RoundingPicture = { kind: 'rounding'; frame: RoundingFrame }
+export type StepPicture = ColumnsPicture | BusStopPicture | MethodPicture | RoundingPicture
 
 export type WorkedStep = { title: string; why: string; tag?: string; picture?: StepPicture; lines?: StepLine[]; words?: string }
 /**
