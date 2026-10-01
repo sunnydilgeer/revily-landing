@@ -107,18 +107,15 @@ export type BracketFrame = { outside: string; inside: { text: string; family: nu
 export type EquationRow = { left: string; right: string } | { note: string; family?: number } | { answer: string }
 export type EquationFrame = { rows: EquationRow[] }
 /**
- * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far: the question with b boxed blue
- * (the two numbers add to it) and c boxed amber (they multiply to it), the empty brackets and the two jobs, the signs,
- * the pairs that multiply to c with their sums, and the answer built from the pair that works. A difference of two
- * squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
+ * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
+ * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
+ * of two squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
  */
 export type QuadraticFrame = {
   letter: string; middle: number; last: number
-  /** From the first step: b and c boxed, the brackets with two empty boxes, and the table's first row: ☐ and ☐, × c, + b. */
-  shape?: boolean
-  /** Short reasons for the signs: "+ 20: the same sign", "− 9x: both negative". */
+  /** A line or two on the signs of the pairs, when there is a minus: "+ 20 and − 9x: both negative". */
   signs?: string[]
-  /** Pairs that multiply to c, in order; `sums` fills in what each pair adds to, and `pick` is the one that works. */
+  /** The factor pairs of c, in order; `sums` adds what each pair adds to, and `pick` is the one that works. */
   pairs?: [number, number][]
   sums?: boolean
   pick?: number
@@ -126,7 +123,7 @@ export type QuadraticFrame = {
   squares?: boolean
   /** The two numbers that go into the brackets, in order: (x + a)(x + b). */
   answer?: [number, number]
-  adds: 'shape' | 'signs' | 'pairs' | 'sums' | 'squares' | 'answer'
+  adds: 'pairs' | 'sums' | 'squares' | 'answer'
   /** What the step before added: it stays clear, with the question and this step; everything older is greyed out. */
   before?: QuadraticFrame['adds']
 }

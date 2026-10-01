@@ -3,10 +3,10 @@ import type { QuadraticFrame } from './methodWorking'
 import { Powers } from './Powers'
 
 /*
- * Factorising x² + bx + c into (x + p)(x + q), like the A7 videos, but with every job written down (Sunny, 1 Oct):
- * the two numbers go in the brackets, they multiply to c (amber) and add to b (blue). The pairs that multiply to c
- * are listed in a table, then each pair's sum is checked against b, and the pair that works (purple) goes into the
- * brackets. A difference of two squares writes each term as a square first. Colours as in EXPLANATIONS.md.
+ * Factorising x² + bx + c into (x + p)(x + q) in three steps (Sunny, 1 Oct): list the factor pairs of the last number
+ * (boxed amber), find the pair that adds to the middle number (boxed blue), and put it in the brackets (purple, like the
+ * ticked pair). A minus sign adds one line on the signs of the pairs. A difference of two squares writes each term as a
+ * square first. Colours as in EXPLANATIONS.md.
  */
 
 const minus = (n: number) => n < 0 ? `−${-n}` : String(n)
@@ -17,8 +17,8 @@ export const quadraticText = ({ letter, middle, last }: Pick<QuadraticFrame, 'le
 
 function Question({ frame, plain }: { frame: QuadraticFrame; plain?: boolean }) {
   const { letter, middle, last } = frame
-  const boxed = !plain && (frame.shape || frame.squares)
-  const box = (text: string, family: number) => boxed ? <span className={`ns-quad__job is-f${family}`}><Powers text={text} /></span> : <Powers text={text} />
+  // The last number is boxed from the factor pairs step, the middle one from the step that adds the pairs.
+  const box = (text: string, family: number) => !plain && (family === 1 ? frame.pairs || frame.squares : frame.sums) ? <span className={`ns-quad__job is-f${family}`}><Powers text={text} /></span> : <Powers text={text} />
   return <p className="ns-quad__question" aria-hidden="true">
     <Powers text={`${letter}²`} />
     {middle !== 0 && <> {middle < 0 ? '−' : '+'} {box(`${Math.abs(middle) === 1 ? '' : Math.abs(middle)}`, 0)}{letter}</>}
@@ -26,32 +26,13 @@ function Question({ frame, plain }: { frame: QuadraticFrame; plain?: boolean }) 
   </p>
 }
 
-const Gap = () => <span className="ns-quad__gap" />
-
-/** The brackets with two empty boxes for the two numbers. */
-function Brackets({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
-  return <div className={`ns-quad__shape${done}`} aria-hidden="true">
-    <p className="ns-quad__brackets">({frame.letter} + <Gap />)({frame.letter} + <Gap />)</p>
-  </div>
-}
-
-/**
- * One table for the whole search: its first row is the two jobs (☐ and ☐ must multiply to c and add to b), then the
- * pairs that multiply to c, then what each adds to once checked: the pair that works is ticked and purple.
- */
+/** The factor pairs of c, one a line, then what each adds to once checked: the pair that works is ticked and purple. */
 function Pairs({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
-  const pairs = frame.pairs ?? []
-  return <table className={`ns-quad__pairs${done}`} aria-hidden="true">
-    <thead><tr><th>The two numbers</th><th className="is-f1">×</th><th className="is-f0">+</th></tr></thead>
-    <tbody>
-      <tr className="ns-quad__target"><td><Gap /> <span className="ns-quad__and">and</span> <Gap /></td><td className="is-f1">{minus(frame.last)}</td><td className="is-f0">{minus(frame.middle)}</td></tr>
-      {pairs.map(([a, b], i) => <tr key={i} className={frame.sums && i === frame.pick ? 'is-pick' : undefined}>
-        <td>{minus(a)} <span className="ns-quad__and">and</span> {minus(b)}</td>
-        <td className="is-f1">{minus(a * b)}</td>
-        <td className="is-f0">{frame.sums ? <>{minus(a + b)} <span className={i === frame.pick ? 'ns-quad__yes' : 'ns-quad__no'}>{i === frame.pick ? '✓' : '✗'}</span></> : ''}</td>
-      </tr>)}
-    </tbody>
-  </table>
+  const bracket = (n: number) => n < 0 ? `(${minus(n)})` : String(n)
+  return <ul className={`ns-quad__pairs${done}`} aria-hidden="true">{(frame.pairs ?? []).map(([a, b], i) => <li key={i} className={frame.sums && i === frame.pick ? 'is-pick' : undefined}>
+    <span className="is-f1">{minus(a)} × {bracket(b)}</span>
+    {frame.sums && <span className="is-f0">{minus(a)} + {bracket(b)} = {minus(a + b)} <span className={i === frame.pick ? 'ns-quad__yes' : 'ns-quad__no'}>{i === frame.pick ? '✓' : '✗'}</span></span>}
+  </li>)}</ul>
 }
 
 /** A difference of two squares: each term written as a square, the part that is squared boxed in its colour. */
@@ -73,7 +54,6 @@ function Answer({ frame }: { frame: QuadraticFrame }) {
 
 function spoken(frame: QuadraticFrame) {
   const parts = [`The question: ${quadraticText(frame)}.`]
-  if (frame.shape) parts.push(`Two numbers go in the brackets. They multiply to ${minus(frame.last)} and add to ${minus(frame.middle)}.`)
   if (frame.signs) parts.push(...frame.signs.map(sign => `${sign}.`))
   if (frame.squares) parts.push(`${frame.letter} squared is ${frame.letter} times ${frame.letter}, and ${-frame.last} is ${Math.sqrt(-frame.last)} times ${Math.sqrt(-frame.last)}.`)
   for (const [i, [a, b]] of (frame.pairs ?? []).entries()) parts.push(`${minus(a)} and ${minus(b)} multiply to ${minus(a * b)}${frame.sums ? ` and add to ${minus(a + b)}${i === frame.pick ? ', which works' : ''}` : ''}.`)
@@ -84,22 +64,20 @@ function spoken(frame: QuadraticFrame) {
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
 export function QuadraticVisual({ frame, heading, plain }: { frame: QuadraticFrame; heading?: ReactNode; plain?: boolean }) {
   // Grey out what this step has finished with: only the question, what the step before added and what this step adds
-  // stay clear (Sunny, 1 Oct). The first step's brackets and the table's first row come together.
-  type Part = 'brackets' | 'signs' | 'table' | 'squares' | 'answer'
-  const partsOf = (adds?: QuadraticFrame['adds']): Part[] => adds === 'shape' ? ['brackets', 'table'] : adds === 'pairs' || adds === 'sums' ? ['table'] : adds ? [adds] : []
+  // stay clear (Sunny, 1 Oct).
+  type Part = 'signs' | 'pairs' | 'squares' | 'answer'
+  const partsOf = (adds?: QuadraticFrame['adds']): Part[] => adds === 'pairs' ? ['signs', 'pairs'] : adds ? [adds === 'sums' ? 'pairs' : adds] : []
   const clear = [...partsOf(frame.adds), ...partsOf(frame.before)]
   const done = (part: Part) => clear.includes(part) ? '' : ' is-done'
   if (plain) return <div className="ns-quad is-plain" role="img" aria-label={`The question: ${quadraticText(frame)}`}><Question frame={frame} plain /></div>
   return <div className="ns-quad" role="img" aria-label={spoken(frame)}>
     <Question frame={frame} />
-    {frame.adds === 'shape' && heading}
-    {frame.shape && <Brackets frame={frame} done={done('brackets')} />}
-    {frame.adds === 'signs' && heading}
+    {frame.adds === 'pairs' && heading}
     {frame.signs && <ul className={`ns-quad__signs${done('signs')}`} aria-hidden="true">{frame.signs.map(sign => <li key={sign}><Powers text={sign} /></li>)}</ul>}
     {frame.adds === 'squares' && heading}
     {frame.squares && <Squares frame={frame} done={done('squares')} />}
-    {(frame.adds === 'pairs' || frame.adds === 'sums') && heading}
-    {frame.shape && <Pairs frame={frame} done={done('table')} />}
+    {frame.adds === 'sums' && heading}
+    {frame.pairs && <Pairs frame={frame} done={done('pairs')} />}
     {frame.adds === 'answer' && heading}
     {frame.answer && <Answer frame={frame} />}
   </div>
