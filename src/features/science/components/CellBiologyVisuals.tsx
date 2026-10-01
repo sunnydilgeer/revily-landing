@@ -22,11 +22,13 @@ import { HigherParticleModelVisual } from './HigherParticleModelVisuals'
 import { HigherMolesVisual } from './HigherMolesVisuals'
 import { HigherFertilityVisual } from './HigherFertilityVisuals'
 import { HigherEquilibriumVisual } from './HigherEquilibriumVisuals'
+import { HigherCopperVisual } from './HigherCopperVisuals'
 import { HigherRateTangentVisual } from './HigherRateTangentVisuals'
 import { HigherBondEnergyVisual } from './HigherBondEnergyVisuals'
 import { HigherElectrolysisVisual } from './HigherElectrolysisVisuals'
 import { HigherRedoxVisual } from './HigherRedoxVisuals'
 import { HigherAcidStrengthVisual } from './HigherAcidStrengthVisuals'
+import { HigherTransformerVisual } from './HigherTransformerVisuals'
 import { HigherForceDrawingVisual } from './HigherForceDrawingVisuals'
 import { HigherMomentumVisual } from './HigherMomentumVisuals'
 import { HigherMotionGraphVisual } from './HigherMotionGraphVisuals'
@@ -466,11 +468,13 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('hpart-')) return <HigherParticleModelVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hmole-')) return <HigherMolesVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hequil-')) return <HigherEquilibriumVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hcopper-')) return <HigherCopperVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hrate-')) return <HigherRateTangentVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hbond-')) return <HigherBondEnergyVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('helec-')) return <HigherElectrolysisVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hredox-')) return <HigherRedoxVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hacid-')) return <HigherAcidStrengthVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('htrans-')) return <HigherTransformerVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hfdraw-')) return <HigherForceDrawingVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hmom-')) return <HigherMomentumVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hgraph-')) return <HigherMotionGraphVisual focus={focus} assessment={assessment} />

@@ -53,7 +53,7 @@ for (const add of higherAdditions) {
   }
   assert.equal(session.completedIds.length, higher.lesson.states.length)
 }
-assert.equal(higherAdditions.length, 26)
+assert.equal(higherAdditions.length, 27)
 
 // Higher-only lessons. Foundation never sees one: not in a catalogue, list, count, unit, deck, next link, saved last lesson or URL.
 const higherIds = new Set(higherLessons.map(item => item.lesson.id))
@@ -157,8 +157,9 @@ assert.deepEqual(c4('higher').filter(label => ['22', '22H', '23', '25', '25H', '
 const unit = (code: string, tier: 'foundation' | 'higher') => scienceUnitsForTier(tier).find(item => item.code === code)!.lessons.map(scienceLessonLabel)
 assert.deepEqual(unit('C5', 'higher').slice(-2), ['30', '30H'])
 assert.deepEqual(unit('C6', 'higher').filter(label => ['36', '36H'].includes(label)), ['36', '36H'])
-for (const code of ['C5', 'C6']) assert.ok(!unit(code, 'foundation').some(label => label.endsWith('H')))
-for (const [label, number] of [['22H', 22.5], ['25H', 25.5], ['30H', 30.5], ['36H', 36.5]] as const) {
+assert.deepEqual(unit('C10', 'higher').filter(label => ['50', '50H', '51'].includes(label)), ['50', '50H', '51'])
+for (const code of ['C5', 'C6', 'C10']) assert.ok(!unit(code, 'foundation').some(label => label.endsWith('H')))
+for (const [label, number] of [['22H', 22.5], ['25H', 25.5], ['30H', 30.5], ['36H', 36.5], ['50H', 50.5]] as const) {
   assert.equal(parseScienceLessonRefForTier('chemistry', label, 'foundation'), null)
   assert.equal(parseScienceLessonRefForTier('chemistry', label, 'higher')?.number, number)
 }
