@@ -145,6 +145,11 @@ export type MethodExample = {
   chain?: MethodChainStep[]
   /** Draw the whole working in the picture, one step at a time (src/features/EXPLANATIONS.md). */
   pictureOnly?: boolean
+  /**
+   * Grey out the working a step has finished with, so the row it works on and what it adds stand out (Sunny, 1 Oct,
+   * for students who lose their place: A5 on).
+   */
+  focus?: boolean
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`

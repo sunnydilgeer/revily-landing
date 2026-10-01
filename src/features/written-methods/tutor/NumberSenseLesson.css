@@ -208,3 +208,5 @@
 .ns-eq__answer-side { display: inline-flex; align-items: center; gap: 0 5px; vertical-align: middle; }
 .ns-eq__answer .ns-eq__token { color: inherit; }
 .ns-eq__answer:has(.ns-eq__frac) { border-radius: 22px; }
+/* Working a step has finished with, greyed out so the current step stands out (MethodExample.focus: A5 on). */
+.ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done { opacity: .35; transition: opacity .2s ease; }

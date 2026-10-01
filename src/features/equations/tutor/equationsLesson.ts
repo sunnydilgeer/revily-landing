@@ -131,7 +131,7 @@ function solveModel(problem: string, letter: string, equation: Linear, { before 
     const rows = [...shown, ...move.rows.map(row)]
     return { title: move.title, operation: tex(rows[0]), equation: tex(rows.at(-1)!), instruction: move.say, frame: { equation: { rows } } }
   })
-  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(row(problem)), label: 'Solve', first: 0, second: 0, steps, pictureOnly: true }] }
+  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: tex(row(problem)), label: 'Solve', first: 0, second: 0, steps, pictureOnly: true, focus: true }] }
 }
 
 /** Working for a "put it back in" question: lines of arithmetic, then the answer. */
