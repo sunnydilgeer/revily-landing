@@ -33,36 +33,29 @@ function pairsOf(middle: number, last: number): [number, number][] {
   return pairs
 }
 
-/** The reasons for the signs, shown on the "Pick the signs" step. */
-function signReasons(middle: number, last: number): { notes: string[]; say: string } | null {
+/** The signs of the pairs when there is a minus: a line or two in the picture, and why, for the ⓘ. */
+function signsOf(middle: number, last: number): { lines: string[]; say: string } | null {
   if (last > 0 && middle > 0) return null
   const x = `${middle < 0 ? '−' : '+'} ${Math.abs(middle)}x`
-  if (last > 0) return { notes: [`+ ${last}: the same sign`, `${x}: both negative`], say: 'The last number is positive, so the two numbers have the same sign. The middle term is negative, so both are negative.' }
-  return {
-    notes: [`− ${-last}: one minus, one plus`, `${x}: the bigger one is ${middle < 0 ? 'minus' : 'plus'}`],
-    say: `The last number is negative, so one number is negative and one is positive. They add to the middle number, which is ${middle < 0 ? 'negative' : 'positive'}, so the bigger one is ${middle < 0 ? 'negative' : 'positive'}.`,
-  }
+  if (last > 0) return { lines: [`+ ${last} and ${x}: both negative`], say: ' The last number is plus and the middle minus, so both are negative.' }
+  return { lines: [`− ${-last}: one is negative`, `${x}: the bigger one is ${middle < 0 ? 'negative' : 'positive'}`], say: ' The last number is minus, so one is negative. The bigger one takes the middle’s sign.' }
 }
 
-/** x² + bx + c: the two jobs, the signs, the pairs that multiply to c, each one's sum, then the brackets. */
+/** x² + bx + c in three steps: the factor pairs of c, the pair that adds to b, then the brackets. */
 function pairsModel(middle: number, last: number, letter = 'x'): TutorWorking {
   const pairs = pairsOf(middle, last), pick = pairs.findIndex(([a, b]) => a + b === middle)
   if (pick < 0) throw new Error(`${quadratic(letter, middle, last)} doesn't factorise`)
-  const base = { letter, middle, last }
   const question = tex(quadratic(letter, middle, last))
+  const signs = signsOf(middle, last)
   const steps: MethodStep[] = []
   // Each frame says what the step before added, so that stays clear while older working is greyed out.
   const step = (title: string, equation: string, instruction: string, frame: QuadraticFrame) => steps.push({ title, operation: question, equation, instruction, frame: { quadratic: { ...frame, before: steps.at(-1)?.frame.quadratic?.adds } } })
-  let frame: QuadraticFrame = { ...base, shape: true, adds: 'shape' }
-  step('What the numbers do', `a\\times b=${signed(last)},\\ a+b=${signed(middle)}`.replace(/−/g, '-'), 'Two numbers go in the brackets. The first row of the table says what they must do: multiply to make the last number and add to make the number in front of x.', frame)
-  const signs = signReasons(middle, last)
-  if (signs) { frame = { ...frame, signs: signs.notes, adds: 'signs' }; step('Pick the signs', '\\text{signs}', signs.say, frame) }
-  frame = { ...frame, pairs, adds: 'pairs' }
-  step(`Pairs that make ${signed(last)}`, pairs.map(([a, b]) => `${a}\\times ${b}`).join(',\\ '), 'List every pair of whole numbers that multiply to make the last number, with the signs picked.', frame)
+  let frame: QuadraticFrame = { letter, middle, last, signs: signs?.lines, pairs, adds: 'pairs' }
+  step(`Factor pairs of ${signed(last)}`, pairs.map(([a, b]) => `${a}\times ${b}`).join(',\ '), `List every pair that multiplies to make the last number.${signs?.say ?? ''}`, frame)
   frame = { ...frame, sums: true, pick, adds: 'sums' }
-  step('Check each sum', pairs.map(([a, b]) => `${a}+${b}=${a + b}`).join(',\\ '), `Add each pair. Only one pair adds to the number in front of x: that is the pair to use.`, frame)
+  step(`Which pair adds to ${signed(middle)}?`, pairs.map(([a, b]) => `${a}+${b}=${a + b}`).join(',\ '), 'Add each pair. The one that makes the middle number is your pair.', frame)
   frame = { ...frame, answer: pairs[pick], adds: 'answer' }
-  step('Into the brackets', tex(brackets(letter, pairs[pick])), `Each number of the pair goes into its own bracket after ${letter}, with its sign. Adding a negative number is the same as taking it away.`, frame)
+  step('Into the brackets', tex(brackets(letter, pairs[pick])), `Each number goes into its own bracket after ${letter}, with its sign.`, frame)
   return { kind: 'method-worked', examples: [{ method: 'ordering', expression: question, label: 'Factorise', first: 0, second: 0, steps, pictureOnly: true }] }
 }
 

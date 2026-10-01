@@ -85,7 +85,7 @@ for (const [ref, [letter, b, c, [p, q]]] of Object.entries(quadratics)) {
   assert.equal(frames.filter(frame => frame.adds === 'answer').length, 1, `${state.id}: one answer`)
   assert.ok(!steps.some(step => step.title === 'The answer'), `${state.id}: no separate answer step`)
   for (const step of steps) {
-    assert.ok(step.title.split(' ').length <= 4, `${state.id}: "${step.title}" is a short heading`)
+    assert.ok(step.title.split(' ').length <= 5, `${state.id}: "${step.title}" is a short heading`)
     assert.ok(step.instruction.trim() && !/=/.test(step.instruction), `${state.id}: "${step.title}" explains in words, not maths`)
   }
   if (b === 0) {
@@ -95,7 +95,9 @@ for (const [ref, [letter, b, c, [p, q]]] of Object.entries(quadratics)) {
   }
   // Each step adds one part of the picture, in order, and the signs step comes only when a sign is negative.
   const order = frames.map(frame => frame.adds)
-  assert.deepEqual(order, b > 0 && c > 0 ? ['shape', 'pairs', 'sums', 'answer'] : ['shape', 'signs', 'pairs', 'sums', 'answer'], `${state.id}: one thing a step`)
+  assert.deepEqual(order, ['pairs', 'sums', 'answer'], `${state.id}: three steps, the factor pairs, the one that adds up, then the brackets`)
+  assert.equal(Boolean(last.signs), !(b > 0 && c > 0), `${state.id}: a line on the signs only when there is a minus`)
+  assert.deepEqual(steps.map(step => step.title), [`Factor pairs of ${String(c).replace('-', '−')}`, `Which pair adds to ${String(b).replace('-', '−')}?`, 'Into the brackets'], `${state.id}: the headings name the numbers`)
   const { pairs, pick } = last
   for (const [m, n] of pairs) { assert.equal(m * n, c, `${state.id}: ${m} and ${n} multiply to ${c}`); pairsChecked++ }
   assert.equal(pairs.filter(([m, n]) => m + n === b).length, 1, `${state.id}: exactly one pair adds to ${b}`)
@@ -150,8 +152,8 @@ for (const [ref, response, expected] of cases) {
 const React = require('react')
 const { renderToStaticMarkup } = require('react-dom/server')
 const { QuadraticVisual } = require('../src/features/written-methods/tutor/QuadraticPictures.tsx')
-const partsOf = adds => adds === 'shape' ? ['brackets', 'table'] : adds === 'pairs' || adds === 'sums' ? ['table'] : adds ? [adds] : []
-const classOf = { brackets: 'ns-quad__shape', squares: 'ns-quad__shape', signs: 'ns-quad__signs', table: 'ns-quad__pairs' }
+const partsOf = adds => adds === 'pairs' ? ['signs', 'pairs'] : adds ? [adds === 'sums' ? 'pairs' : adds] : []
+const classOf = { squares: 'ns-quad__shape', signs: 'ns-quad__signs', pairs: 'ns-quad__pairs' }
 let dimChecked = 0
 for (const ref of Object.keys(quadratics)) {
   const steps = (at(ref).working ?? at(ref).visual).examples[0].steps
@@ -159,7 +161,7 @@ for (const ref of Object.keys(quadratics)) {
     const frame = step.frame.quadratic
     const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame }))
     const dimmed = [...html.matchAll(/class="(ns-quad__\w+)[^"]*is-done/g)].map(match => match[1]).sort()
-    const shown = steps.slice(0, i + 1).flatMap(s => partsOf(s.frame.quadratic.adds)).filter(part => part !== 'answer')
+    const shown = steps.slice(0, i + 1).flatMap(s => partsOf(s.frame.quadratic.adds)).filter(part => part !== 'answer' && (part !== 'signs' || frame.signs))
     const clear = [...partsOf(frame.adds), ...partsOf(steps[i - 1]?.frame.quadratic.adds)]
     const expected = [...new Set(shown)].filter(part => !clear.includes(part)).map(part => classOf[part]).sort()
     assert.deepEqual(dimmed, expected, `${ref} step ${i + 1}: only what the steps before the last one added is greyed out`)
@@ -167,11 +169,13 @@ for (const ref of Object.keys(quadratics)) {
     assert.ok(!/ns-quad__question[^"]*is-done|ns-eq__answer[^"]*is-done/.test(html), `${ref} step ${i + 1}: the question and the answer stay clear`)
     dimChecked++
   })
-  // The two jobs are the table's first row, under its × and + columns, from the first step.
+  // The question boxes the last number (amber) from the factor pairs step, and the middle one (blue) from the sums step.
   if (quadratics[ref][1] !== 0) {
-    const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps[0].frame.quadratic }))
-    const [, , b, c] = [null, ...quadratics[ref]]
-    assert.ok(new RegExp(`ns-quad__target.*?is-f1">${String(c).replace('-', '−')}<.*?is-f0">${String(b).replace('-', '−')}<`).test(html), `${ref}: the table's first row is the two jobs`)
+    const [, b, c] = quadratics[ref]
+    const n = v => String(Math.abs(v))
+    const html = steps.map(step => renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: step.frame.quadratic })).match(/ns-quad__question.*?<\/p>/)[0])
+    assert.ok(html[0].includes(`ns-quad__job is-f1">${n(c)}<`) && !html[0].includes('is-f0'), `${ref}: step 1 boxes ${c}, the number the pairs multiply to`)
+    assert.ok(html[1].includes(`ns-quad__job is-f0">${n(b)}<`), `${ref}: step 2 boxes ${b}, the number the pair adds to`)
   }
 }
 
