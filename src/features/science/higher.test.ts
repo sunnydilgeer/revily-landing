@@ -49,5 +49,5 @@ for (const add of higherAdditions) {
   }
   assert.equal(session.completedIds.length, higher.lesson.states.length)
 }
-assert.equal(higherAdditions.length, 16)
+assert.equal(higherAdditions.length, 17)
 console.log('Higher tier tests passed')
