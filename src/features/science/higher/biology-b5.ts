@@ -1,3 +1,57 @@
-import type { HigherAddition } from './helpers'
+/*
+ * Higher-only sections for chapter B5 (hormones), from the CGP AQA Combined Science Higher guide pages 59 and 63 (scope only;
+ * all wording, examples, questions and diagrams are original). AQA 8464 HT content: 4.5.3.2 (glucagon) and 4.5.3.6
+ * (adrenaline and thyroxine). Diagrams: components/HigherHormoneVisuals.tsx ('hhorm-').
+ */
+import { addition, f, type HigherAddition } from './helpers'
 
-export const higherB5: HigherAddition[] = []
+// Controlling blood glucose · Higher p59: glucagon, and insulin and glucagon as a negative feedback cycle.
+// Same character (Sam) as the Foundation lesson, so the low-glucose story mirrors the breakfast story.
+const glucagon = addition('B-HOM-034-B', 'B34-13', 'B-HIGHER-GLUCAGON', ['4.5.3.2'],
+  { id: 'B34-H01', higher: true, label: 'When glucose is too low', detail: 'Glucagon and negative feedback' },
+  [
+    f('Too low', 'Blood glucose can fall below normal.', 'no food + exercise → level falls', 'Sam skips lunch and then plays a long game of tennis. His muscles keep using glucose for respiration, but no new glucose arrives from food. So his blood glucose level falls too low. The pancreas detects this.', 'hhorm-glucagon-low'),
+    f('A second hormone', 'When glucose is too low, the pancreas releases glucagon.', 'too low → glucagon released', 'As well as insulin, the pancreas makes a second hormone. When blood glucose is too low, the pancreas releases it into the blood. This hormone is called glucagon.', 'hhorm-glucagon-release'),
+    f('Glycogen back to glucose', 'Glucagon makes the liver turn glycogen back into glucose.', 'glucagon → glycogen turned into glucose', 'The liver is a target organ for glucagon. Earlier, you saw that liver cells store extra glucose as glycogen. Glucagon makes liver cells turn this glycogen back into glucose.', 'hhorm-glucagon-liver'),
+    f('Back up to normal', 'The liver releases the glucose, so the level rises.', 'glucose released → level rises', 'The liver releases the new glucose into the blood. So the blood glucose level rises back up to normal. The pancreas then releases less glucagon.', 'hhorm-glucagon-rise'),
+    f('Put it together', 'Insulin and glucagon keep blood glucose steady.', 'too high → insulin; too low → glucagon', 'If the level is too high, the pancreas releases insulin to bring it down. If it is too low, the pancreas releases glucagon to bring it up. So as blood glucose rises, more insulin and less glucagon are released. A system where a change triggers a response that reverses it is called negative feedback.', 'hhorm-glucagon-all'),
+  ],
+  a => [
+    a.choice('B34-H02', 'What does glucagon do?', ['It makes glucose move from the blood into cells', 'It makes the liver turn glycogen into glucose and release it into the blood', 'It makes liver cells store glucose as glycogen', 'It breaks down starch into glucose in the gut'], 1, 'Glucagon is released when blood glucose is too low.', ['Moving glucose into cells and storing it as glycogen is what insulin does.', 'Glucagon makes the liver turn glycogen back into glucose and release it, so the level rises.']),
+    a.choice('B34-H03', 'The graph shows how fast the pancreas releases insulin and glucagon at different blood glucose levels. Which line shows glucagon?', ['Line 2, because glucagon is released when blood glucose is high', 'Line 1, because glucagon makes blood glucose fall', 'Line 1, because less glucagon is released as blood glucose rises', 'Line 2, because it ends at the highest point'], 2, 'When does the pancreas release glucagon: when glucose is low, or when it is high?', ['Glucagon is released when blood glucose is too low, to bring it back up.', 'So most glucagon is released at low glucose levels, and less as the level rises. That is line 1.'], 'dataInterpretation', false, 'hhorm-secretion-question'),
+    a.choice('B34-H04', 'Nadia has not eaten for several hours, and her blood glucose has fallen below normal. How does her body bring it back up?', ['Her pancreas releases glucagon, so her liver turns glycogen into glucose and releases it into the blood', 'Her pancreas releases insulin, so glucose moves from her blood into her liver', 'Her liver releases glucagon, which is turned into glucose in the blood', 'Her muscles release insulin, which turns glycogen into glucose'], 0, 'Which hormone is released when the level is too low, and where is glycogen stored?', ['Insulin would lower the level even more, and glucagon is made by the pancreas, not the liver.', 'The pancreas releases glucagon, which makes the liver turn glycogen into glucose and release it into the blood.'], 'application', true),
+  ])
+
+// Hormones and the endocrine system · Higher p63 (part 1): what adrenaline does. The Foundation lesson already names the
+// adrenal glands and "fight or flight"; this adds fear or stress, heart rate, and oxygen and glucose to the brain and muscles.
+const adrenaline = addition('B-HOM-033-B', 'B33-H04', 'B-HIGHER-ADRENALINE', ['4.5.3.6'],
+  { id: 'B33-H01', higher: true, label: 'Adrenaline at work', detail: 'Heart rate, oxygen and glucose' },
+  [
+    f('Fear or stress', 'In fear or stress, the adrenal glands release adrenaline.', 'scared → adrenaline released', 'Imagine a dog suddenly barks right behind you. You feel a jolt of fear. In moments of fear or stress, your adrenal glands release adrenaline into the blood.', 'hhorm-adrenaline-glands'),
+    f('A faster heart', 'Adrenaline makes the heart beat faster.', 'adrenaline → faster heart rate', 'The heart is one of adrenaline’s target organs. Adrenaline makes it beat faster. The number of times your heart beats in one minute is called your heart rate.', 'hhorm-adrenaline-heart'),
+    f('More oxygen and glucose', 'More oxygen and glucose reach the brain and muscles.', 'more blood → more oxygen and glucose', 'A faster heart pumps more blood each minute. So more oxygen and glucose are delivered to the brain and muscles. Muscle cells use them for respiration, which transfers the energy they need to move.', 'hhorm-adrenaline-deliver'),
+    f('Put it together', 'Adrenaline gets the body ready for fight or flight.', 'fear → adrenaline → heart → oxygen + glucose', 'Fear or stress makes the adrenal glands release adrenaline. Adrenaline raises the heart rate, so more oxygen and glucose reach the brain and muscles. The body is ready to fight or to run away.', 'hhorm-adrenaline-all'),
+  ],
+  a => [
+    a.choice('B33-H02', 'How does adrenaline get the body ready for fight or flight?', ['It slows the heart so the body can rest', 'It makes the liver store glucose as glycogen', 'It raises the heart rate, so more oxygen and glucose reach the brain and muscles', 'It makes the thyroid gland release thyroxine'], 2, 'Think about what your heart does when you get a fright.', ['The heart is a target organ for adrenaline, and it beats faster.', 'More blood is pumped, so more oxygen and glucose reach the brain and muscles.']),
+    a.choice('B33-H03', 'Ellie hears a loud crash downstairs late at night. Her heart starts to pound. How does this help her muscles?', ['More oxygen and glucose reach her muscle cells for respiration', 'Her muscles get more insulin, so they store more glycogen', 'Her muscles stop needing energy', 'Less blood reaches her muscles, so they can rest'], 0, 'What does the blood carry to muscle cells?', ['A pounding heart pumps more blood to her muscles each minute.', 'So more oxygen and glucose reach her muscle cells, which use them for respiration to transfer energy.'], 'application', true),
+  ])
+
+// Hormones and the endocrine system · Higher p63 (part 2): thyroxine, basal metabolic rate, TSH and negative feedback.
+const thyroxine = addition('B-HOM-033-B', 'B33-12', 'B-HIGHER-THYROXINE', ['4.5.3.6'],
+  { id: 'B33-H04', higher: true, label: 'Thyroxine and feedback', detail: 'Metabolic rate, TSH and negative feedback' },
+  [
+    f('Metabolic rate at rest', 'Thyroxine controls the basal metabolic rate.', 'thyroxine → speed of reactions at rest', 'You met thyroxine, from the thyroid gland, earlier in this lesson. Even when you rest, reactions in your cells keep going. How fast they happen at rest is called the basal metabolic rate. Thyroxine helps control it, and it is also important for growth and development.', 'hhorm-thyroxine-thyroid'),
+    f('TSH', 'The pituitary gland releases TSH, which makes the thyroid release thyroxine.', 'pituitary → TSH → thyroid', 'The thyroid gland does not decide on its own how much thyroxine to release. The pituitary gland releases a hormone that makes it release thyroxine. This hormone is called thyroid stimulating hormone, or TSH.', 'hhorm-thyroxine-tsh'),
+    f('Too much thyroxine', 'If thyroxine is too high, TSH release is stopped.', 'too high → less TSH → less thyroxine', 'Say the thyroxine level in the blood rises above normal. This is detected, and the pituitary gland releases less TSH. Stopping a release like this is called inhibiting it. With less TSH, the thyroid releases less thyroxine, so the level falls.', 'hhorm-thyroxine-high'),
+    f('Too little thyroxine', 'If thyroxine is too low, more TSH is released.', 'too low → more TSH → more thyroxine', 'If the thyroxine level falls below normal, the pituitary gland releases more TSH. The extra TSH makes the thyroid release more thyroxine. So the level rises back towards normal.', 'hhorm-thyroxine-low'),
+    f('Put it together', 'Negative feedback keeps thyroxine close to normal.', 'change → response that reverses it', 'Each time the level moves away from normal, the response pushes it back. A control system that reverses a change like this is called negative feedback. So the thyroxine level rises and falls, but stays close to normal.', 'hhorm-thyroxine-all'),
+  ],
+  a => [
+    a.choice('B33-H05', 'What does TSH do?', ['It controls the blood glucose level', 'It gets the body ready for fight or flight', 'It makes the thyroid gland release thyroxine', 'It is a hormone released by the thyroid gland'], 2, 'Its full name is thyroid stimulating hormone.', ['TSH is released by the pituitary gland, and the thyroid gland is its target organ.', 'TSH makes the thyroid gland release thyroxine.']),
+    a.choice('B33-H06', 'A blood test shows that a person’s thyroxine level is above normal. What happens next?', ['The pituitary gland releases less TSH, so the thyroid releases less thyroxine', 'The pituitary gland releases more TSH, so the thyroid releases more thyroxine', 'The thyroid gland starts to release TSH', 'The adrenal glands release thyroxine instead'], 0, 'In negative feedback, the response reverses the change.', ['The level is too high, so the response must bring it down.', 'TSH release is inhibited, so the thyroid releases less thyroxine and the level falls.'], 'application'),
+    a.choice('B33-H07', 'The graph shows the thyroxine level in a person’s blood over time. At which numbered point is the pituitary gland most likely to be releasing less TSH?', ['Point 1', 'Point 2', 'Point 3'], 1, 'When is the thyroxine level furthest above normal?', ['Point 1 is at the normal level, and at point 3 the level is below normal, so more TSH is released there.', 'At point 2 the level is highest above normal, so TSH release is inhibited.'], 'dataInterpretation', true, 'hhorm-thyroxine-question'),
+  ])
+
+// The thyroxine section comes first in this list so the adrenaline section can be placed just before it.
+export const higherB5: HigherAddition[] = [glucagon, thyroxine, adrenaline]
