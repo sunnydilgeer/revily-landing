@@ -2,7 +2,7 @@
 
 /*
  * Science lesson Contents: the same open book as Maths. Every subject, unit, lesson and section is one or two
- * taps away, nothing locked and no progress tracking. Units fold, each lesson's sections fold, and search covers
+ * taps away, nothing locked and no progress tracking. Units fold, tapping a lesson folds its sections open, and search covers
  * every subject. Then the details that used to sit under each screen (sources, restart, draft status).
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -170,20 +170,13 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
                   const sectionsOpen = openSections[item.lesson.id] ?? isCurrent
                   const itemSections = isCurrent ? sections : sectionStatus(item.lesson, item.sections, null)
                   return <li className={`toc-lesson${isCurrent ? ' is-current' : ''}`} key={item.lesson.id}>
-                    <div className="toc-lesson__row">
-                      <a className="toc-lesson__open" href={isCurrent ? undefined : scienceEntryHref(item)} aria-current={isCurrent ? 'page' : undefined}
-                        role={isCurrent ? 'button' : undefined} tabIndex={isCurrent ? 0 : undefined}
-                        onClick={event => { if (isCurrent) { event.preventDefault(); onClose() } }}
-                        onKeyDown={event => { if (isCurrent && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onClose() } }}>
-                        <span className="toc-lesson__num" aria-hidden="true">{scienceLessonLabel(item)}</span>
-                        <span className="toc-lesson__title">{item.title}{item.higherOnly && <HigherBadge />}</span>
-                      </a>
-                      <button type="button" className="toc-lesson__fold" aria-expanded={sectionsOpen} aria-controls={`toc-sections-${item.lesson.id}`}
-                        aria-label={`${sectionsOpen ? 'Hide' : 'Show'} sections in ${item.title}`}
-                        onClick={() => setOpenSections(current => ({ ...current, [item.lesson.id]: !sectionsOpen }))}>
-                        <Chevron />
-                      </button>
-                    </div>
+                    <button type="button" className="toc-lesson__open" aria-current={isCurrent ? 'page' : undefined}
+                      aria-expanded={sectionsOpen} aria-controls={`toc-sections-${item.lesson.id}`}
+                      onClick={() => setOpenSections(current => ({ ...current, [item.lesson.id]: !sectionsOpen }))}>
+                      <span className="toc-lesson__num" aria-hidden="true">{scienceLessonLabel(item)}</span>
+                      <span className="toc-lesson__title">{item.title}{item.higherOnly && <HigherBadge />}</span>
+                      <Chevron />
+                    </button>
                     {sectionsOpen && <ol className="toc-skills" id={`toc-sections-${item.lesson.id}`} aria-label={`${item.title} sections`}>
                       {itemSections.map(section => <li key={section.id}>
                         {isCurrent

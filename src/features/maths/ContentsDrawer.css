@@ -57,17 +57,16 @@
 .toc-lessons { padding-bottom: 6px; }
 .toc-lesson { border-radius: 14px; }
 .toc-lesson.is-current { background: var(--rv-accent-tint, #fff4d1); }
-.toc-lesson__row { display: flex; align-items: center; }
 .toc-lesson__open {
-  flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 8px 4px 8px 10px; text-align: left; cursor: pointer;
+  flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 10px; text-align: left; cursor: pointer;
+  width: 100%;
   border: 0; border-radius: 14px; background: none;
 }
-.toc-lesson__open:hover, .toc-lesson__fold:hover { background: rgb(19 28 48 / 5%); }
+.toc-lesson__open:hover { background: rgb(19 28 48 / 5%); }
 .toc-lesson__num { width: 22px; flex: none; color: var(--rv-muted, #5d6679); font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
 .toc-lesson__title { flex: 1; min-width: 0; font-size: 1.02rem; font-weight: 650; line-height: 1.3; }
 .toc-lesson.is-current .toc-lesson__title { font-weight: 800; }
 .toc-lesson__open small { flex: none; color: var(--rv-muted, #5d6679); font-size: .8rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.toc-lesson__fold { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border: 0; border-radius: 12px; background: none; cursor: pointer; }
 
 /* Skills */
 .toc-skills { position: relative; margin: 0 0 8px 22px; padding: 2px 0 4px 18px; border-left: 2px solid var(--rv-line, #dfe4ec); }

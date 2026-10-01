@@ -5,7 +5,7 @@ import './ContentsDrawer.css'
 
 /*
  * Contents: an open book. Every lesson and every skill is one or two taps away, nothing locked and no progress
- * tracking. Chapters fold, each lesson's skills fold, and search jumps straight to a lesson or skill. Open/closed
+ * tracking. Chapters fold, and tapping a lesson folds its skills open (a skill opens the lesson), and search jumps straight to a lesson or skill. Open/closed
  * chapters are remembered. Progress is only read to know which skill you're on.
  */
 type Props = {
@@ -151,17 +151,13 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
                   const isCurrent = entry.lessonId === currentLesson.lessonId
                   const skillsOpen = openSkills[entry.lessonId] ?? false
                   return <li className={`toc-lesson${isCurrent ? ' is-current' : ''}`} key={entry.lessonId}>
-                    <div className="toc-lesson__row">
-                      <button type="button" className="toc-lesson__open" aria-current={isCurrent ? 'page' : undefined} onClick={() => pickLesson(entry)}>
-                        <span className="toc-lesson__num" aria-hidden="true">{entry.position}</span>
-                        <span className="toc-lesson__title">{entry.title}</span>
-                      </button>
-                      <button type="button" className="toc-lesson__fold" aria-expanded={skillsOpen} aria-controls={`toc-skills-${entry.lessonId}`}
-                        aria-label={`${skillsOpen ? 'Hide' : 'Show'} skills in ${entry.title}`}
-                        onClick={() => setOpenSkills(current => ({ ...current, [entry.lessonId]: !skillsOpen }))}>
-                        <Chevron />
-                      </button>
-                    </div>
+                    <button type="button" className="toc-lesson__open" aria-current={isCurrent ? 'page' : undefined}
+                      aria-expanded={skillsOpen} aria-controls={`toc-skills-${entry.lessonId}`}
+                      onClick={() => setOpenSkills(current => ({ ...current, [entry.lessonId]: !skillsOpen }))}>
+                      <span className="toc-lesson__num" aria-hidden="true">{entry.position}</span>
+                      <span className="toc-lesson__title">{entry.title}</span>
+                      <Chevron />
+                    </button>
                     {skillsOpen && <ol className="toc-skills" id={`toc-skills-${entry.lessonId}`} aria-label={`${entry.title} skills`}>
                       {entry.sections.map(section => {
                         const isCurrentSection = isCurrent && currentSnapshot?.currentSectionId === section.id
