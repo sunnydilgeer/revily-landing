@@ -114,7 +114,7 @@ export type EquationFrame = { rows: EquationRow[] }
  */
 export type QuadraticFrame = {
   letter: string; middle: number; last: number
-  /** From the first step: b and c boxed, the brackets with two empty boxes, and "☐ × ☐ = c", "☐ + ☐ = b". */
+  /** From the first step: b and c boxed, the brackets with two empty boxes, and the table's first row: ☐ and ☐, × c, + b. */
   shape?: boolean
   /** Short reasons for the signs: "+ 20: the same sign", "− 9x: both negative". */
   signs?: string[]
@@ -127,6 +127,8 @@ export type QuadraticFrame = {
   /** The two numbers that go into the brackets, in order: (x + a)(x + b). */
   answer?: [number, number]
   adds: 'shape' | 'signs' | 'pairs' | 'sums' | 'squares' | 'answer'
+  /** What the step before added: it stays clear, with the question and this step; everything older is greyed out. */
+  before?: QuadraticFrame['adds']
 }
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }

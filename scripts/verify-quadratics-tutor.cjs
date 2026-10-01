@@ -145,22 +145,34 @@ for (const [ref, response, expected] of cases) {
 }
 
 // ---------- Finished working is greyed out, and only that (Sunny, 1 Oct) ----------
-// The question, the part just before this step and what this step adds stay clear; older parts are greyed out.
+// The question, what the step before added and what this step adds stay clear; everything older is greyed out.
+// The first step greys out nothing, and the answer is never greyed out.
 const React = require('react')
 const { renderToStaticMarkup } = require('react-dom/server')
 const { QuadraticVisual } = require('../src/features/written-methods/tutor/QuadraticPictures.tsx')
+const partsOf = adds => adds === 'shape' ? ['brackets', 'table'] : adds === 'pairs' || adds === 'sums' ? ['table'] : adds ? [adds] : []
+const classOf = { brackets: 'ns-quad__shape', squares: 'ns-quad__shape', signs: 'ns-quad__signs', table: 'ns-quad__pairs' }
 let dimChecked = 0
 for (const ref of Object.keys(quadratics)) {
   const steps = (at(ref).working ?? at(ref).visual).examples[0].steps
   steps.forEach((step, i) => {
-    const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: step.frame.quadratic }))
-    const dimmed = [...html.matchAll(/class="(ns-quad__\w+)[^"]*is-done/g)].map(match => match[1])
-    const order = steps.slice(0, i + 1).map(s => s.frame.quadratic.adds).filter(adds => adds !== 'sums')
-    const expected = order.slice(0, -2).map(adds => ({ shape: 'ns-quad__shape', signs: 'ns-quad__signs', squares: 'ns-quad__shape', pairs: 'ns-quad__pairs' })[adds])
-    assert.deepEqual(dimmed, expected, `${ref} step ${i + 1}: only parts before the one being worked on are greyed out`)
+    const frame = step.frame.quadratic
+    const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame }))
+    const dimmed = [...html.matchAll(/class="(ns-quad__\w+)[^"]*is-done/g)].map(match => match[1]).sort()
+    const shown = steps.slice(0, i + 1).flatMap(s => partsOf(s.frame.quadratic.adds)).filter(part => part !== 'answer')
+    const clear = [...partsOf(frame.adds), ...partsOf(steps[i - 1]?.frame.quadratic.adds)]
+    const expected = [...new Set(shown)].filter(part => !clear.includes(part)).map(part => classOf[part]).sort()
+    assert.deepEqual(dimmed, expected, `${ref} step ${i + 1}: only what the steps before the last one added is greyed out`)
+    if (i === 0) assert.deepEqual(dimmed, [], `${ref}: the first step greys out nothing`)
     assert.ok(!/ns-quad__question[^"]*is-done|ns-eq__answer[^"]*is-done/.test(html), `${ref} step ${i + 1}: the question and the answer stay clear`)
     dimChecked++
   })
+  // The two jobs are the table's first row, under its × and + columns, from the first step.
+  if (quadratics[ref][1] !== 0) {
+    const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps[0].frame.quadratic }))
+    const [, , b, c] = [null, ...quadratics[ref]]
+    assert.ok(new RegExp(`ns-quad__target.*?is-f1">${String(c).replace('-', '−')}<.*?is-f0">${String(b).replace('-', '−')}<`).test(html), `${ref}: the table's first row is the two jobs`)
+  }
 }
 
 // ---------- Videos ----------
