@@ -122,3 +122,21 @@ assert.ok(read('src/features/maths/courseRegistry.ts').includes("entry(12, tutor
 assert.ok(read('src/features/cards/keyFacts.ts').includes('  12: {'), 'Lesson 12 needs key-fact cards')
 
 console.log(`Lesson 12 verified: ${states.length} screens, all 16 source questions, ${numeric.length} numeric answers, ${cases.length} wrong-answer messages, 2 source-identical videos and the course route.`)
+
+// Every worked example and "See the working" is a step working (src/features/EXPLANATIONS.md): the question plain,
+// one move a step, and the estimate (or the verdict in words) once, in green, matching the question's answer.
+{
+  const { checkStepWorking } = require('./step-working-check.cjs')
+  let workings = 0
+  for (const state of states) {
+    const working = state.visual.kind === 'step-worked' ? state.visual : state.working
+    if (state.interaction.type === 'continue' && state.visual.kind !== 'step-worked') continue
+    assert.ok(working && working.kind === 'step-worked', `${state.id}: every worked example and answer is a step working`)
+    workings++
+    assert.ok(working.start, `${state.id}: the working opens on the plain question`)
+    const { answer } = checkStepWorking(working, state.id)
+    if (state.interaction.type === 'numericInput') assert.equal(Number(answer.replace(/[£\s ]/g, '').match(/^[\d.]+/)[0]), state.interaction.correctAnswer, `${state.id}: the working ends on ${answer}`)
+  }
+  assert.equal(workings, 27)
+  console.log(`Lesson 12 workings: ${workings} step workings checked, each ending on its answer.`)
+}

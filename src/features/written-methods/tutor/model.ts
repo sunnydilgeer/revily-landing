@@ -1,11 +1,12 @@
 import type { LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
 import type { LessonVideoDefinition } from '../../order-of-operations/variant-c/variantCLesson'
 import type { MethodWorking } from './methodWorking'
+import type { StepWorking } from './stepWorking'
 import type { FractionWorking } from '../../fractions/tutor/fractionWorking'
 import type { ConversionWorking } from '../../fractions-decimals-percentages/tutor/conversionWorking'
 import type { Diagram } from '../model'
 
-export type TutorWorking = MethodWorking | FractionWorking | ConversionWorking
+export type TutorWorking = MethodWorking | FractionWorking | ConversionWorking | StepWorking
 export type TutorMethodVisual = TutorWorking
   | { kind: 'diagram'; diagram: Diagram }
   | { kind: 'grid'; first: number[]; second: number[] }

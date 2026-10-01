@@ -14,7 +14,7 @@ export function isNumberSenseWorking(visual: MethodWorking) {
   return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
 }
 
-function RoundingVisual({ frame }: { frame: RoundingFrame }) {
+export function RoundingVisual({ frame }: { frame: RoundingFrame }) {
   if (frame.stage === 'result') return <div className="ns-result"><span className="ns-original">{frame.original}</span><span aria-hidden="true">→</span><strong>{frame.answer}</strong></div>
   return <>
     <div className="ns-rounding" role="img" aria-label={frame.chop ? `${frame.original}. Keep ${frame.kept}. Chop off the rest.` : `${frame.original}. Keep ${frame.kept}. The decision digit is ${frame.decisionDigit}.`}>
@@ -120,7 +120,7 @@ function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boo
  * One step of a picture-only working (see src/features/EXPLANATIONS.md): its heading sits just above what the
  * step adds, and its explanation (closed until the student taps ⓘ) just below. Earlier steps' headings go.
  */
-function PictureStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
+export function PictureStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
   const [open, setOpen] = useState(false)
   const heading = <p className="ns-step" aria-live="polite">
     <span className="ns-step__title"><Powers text={step.title} /></span>

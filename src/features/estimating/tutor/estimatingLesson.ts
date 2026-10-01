@@ -1,7 +1,7 @@
 import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import type { MethodStep } from '../../written-methods/tutor/methodWorking'
-import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
+import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
+import { line, part, sign, type StepLine, type StepPicture, type StepWorking, type WorkedStep } from '../../written-methods/tutor/stepWorking'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { diagnoseEstimate, type EstimateCheck } from './estimateDiagnosis'
 
@@ -27,15 +27,36 @@ const number = (answer: number, displayAnswer: string): InteractionDefinition =>
 
 /* ---------- Working models ---------- */
 
-type Step = { title: string; math: string; say: string; values?: string[]; answer?: string }
 
-/** Steps shown one at a time. 'estimate' puts the final value in the ≈ box; 'ordering' leaves it out. */
-function lines(question: string, method: 'estimate' | 'ordering', ...list: Step[]): TutorWorking {
-  const steps: MethodStep[] = list.map(step => ({
-    title: step.title, operation: question, equation: step.math, instruction: step.say,
-    frame: { ordering: step.answer ? { answer: step.answer } : { values: step.values ?? [] } },
-  }))
-  return { kind: 'method-worked', examples: [{ method, expression: question, label: 'Estimate', first: 0, second: 0, steps }] }
+/** LaTeX from the old chains as plain text: "\\text{speed}=300\\div3" → "speed = 300 ÷ 3". */
+const plain = (math: string) => math
+  .replace(/\\dfrac\{([^}]*)\}\{([^}]*)\}/g, '($1) ÷ $2').replace(/\\text\{([^}]*)\}/g, '$1')
+  .replaceAll('\\times', ' × ').replaceAll('\\div', ' ÷ ').replaceAll('\\to', ' → ').replaceAll('\\mid', ' | ').replaceAll('\\,', '\u00a0').replaceAll('\\;', ' ')
+  .replace(/([=+<>])/g, ' $1 ').replace(/\s+/g, ' ').trim()
+/** "4 × £3 = £12" or "£2.85 → £3: up" as a line: the sum, then what it gives. */
+function toLine(text: string, answer = false): StepLine {
+  const [sum, result] = text.includes(' → ') ? text.split(' → ') : text.includes(' = ') ? [text.slice(0, text.lastIndexOf(' = ')), text.slice(text.lastIndexOf(' = ') + 3)] : [text]
+  const [value, mark] = result?.split(': ') ?? []
+  return line(sum.split(' ').map(t => /^[×÷+−<>=|]$/.test(t) ? sign(t) : part(t, /\d/.test(t) ? 0 : undefined)), value, { ...(mark ? { mark } : {}), ...(answer ? { answer } : {}) })
+}
+
+type Step = { title: string; math: string; say: string; values?: string[]; answer?: string; lines?: StepLine[] }
+
+/**
+ * The question plain, then one move a step (src/features/EXPLANATIONS.md). 'estimate' ends on the sum that gives the
+ * estimate, drawn once in green; 'ordering' ends on its answer in words.
+ */
+function lines(question: string, method: 'estimate' | 'ordering', ...list: Step[]): StepWorking {
+  const sums = (step: Step) => step.lines ?? (step.values ?? plain(step.math).split(', ')).map(value => toLine(value))
+  const steps: WorkedStep[] = list.map((step, i) => {
+    const last = i === list.length - 1
+    if (!last || !step.answer) return { title: step.title, why: step.say, lines: sums(step) }
+    // An answer in words that already shows its sum ("…: 50 × 3 = 150") is not written twice.
+    if (method === 'ordering') return { title: step.title, why: step.say, ...(/[×÷]/.test(step.answer) ? {} : { lines: sums(step) }), words: step.answer }
+    const final = plain(step.math).split(' = ')
+    return { title: step.title, why: step.say, lines: [toLine(`${final.slice(0, -1).join(' = ')} = ${step.answer}`, true)] }
+  })
+  return { kind: 'step-worked', start: plain(question), steps }
 }
 
 /** [label, from, to, unit]. A unit of '£' goes in front; anything else goes after. */
@@ -48,12 +69,12 @@ function roundStep(rounds: Round[], say = 'Round each number to 1 significant fi
     title: 'Round to 1 s.f.',
     math: rounds.map(([, from, to]) => `${tex(from)}\\to${tex(to)}`).join(',\\;'),
     say,
-    values: rounds.map(([label, from, to, unit]) => `${label ? `${label}: ` : ''}${withUnit(from, unit)} → ${withUnit(to, unit)}`),
+    lines: rounds.map(([label, from, to, unit]) => line([...(label ? [part(`${label}:`)] : []), part(unit === '£' ? withUnit(from, unit) : from, 0)], unit === '£' ? withUnit(to, unit) : to)),
   }
 }
 
 /** The usual two-step estimate: round everything, then do the easy calculation. */
-function estimate(question: string, rounds: Round[], calc: string, answer: string, say?: { round?: string; calc?: string }): TutorWorking {
+function estimate(question: string, rounds: Round[], calc: string, answer: string, say?: { round?: string; calc?: string }): StepWorking {
   return lines(question, 'estimate', roundStep(rounds, say?.round), {
     title: 'Work it out', math: calc, say: say?.calc ?? 'Now the numbers are easy to work with.', answer,
   })
@@ -61,8 +82,8 @@ function estimate(question: string, rounds: Round[], calc: string, answer: strin
 
 /* ---------- Screens ---------- */
 
-function workingSteps(visual: TutorWorking) {
-  return visual.kind === 'method-worked' ? visual.examples.flatMap(example => example.steps).map(step => [step.title, step.instruction] as [string, string]) : []
+function workingSteps(visual: StepWorking) {
+  return visual.steps.map(step => [step.title, step.why] as [string, string])
 }
 
 function practice(
@@ -72,7 +93,7 @@ function practice(
   interaction: InteractionDefinition,
   answer: string,
   hint: string,
-  model: TutorWorking,
+  model: StepWorking,
   options: { given?: string[]; unit?: string; check?: EstimateCheck } = {},
 ) {
   const state = add(topic, title, sourceRef, options.given ? text(...options.given) : text(title), interaction, working(answer, ...workingSteps(model)), hint)
@@ -83,40 +104,23 @@ function practice(
   return state
 }
 
-function worked(topic: MicroSkillId, title: string, sourceRef: string, model: TutorWorking, body?: string) {
+function worked(topic: MicroSkillId, title: string, sourceRef: string, model: StepWorking, body?: string) {
   return add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 
 /** Rounding one number to 1 significant figure, shown with the shared kept-digit / decision-digit picture. */
 type SigFig = { original: string; kept: string; decision: string; rest?: string; point?: boolean; answer: string; keptDigit: string; carry?: string; fill?: string }
-function sigFig(model: SigFig): TutorWorking {
+function sigFig(model: SigFig): StepWorking {
   const up = Number(model.decision) >= 5
-  const frame = (stage: 'identify' | 'decide' | 'result') => ({
-    original: model.original, target: '1 significant figure', kept: model.kept, decisionDigit: model.decision, remaining: model.rest ?? '',
-    pointAfterKept: model.point, stage, roundsUp: up, answer: stage === 'result' ? model.answer : undefined,
-  })
-  const steps: MethodStep[] = [
-    {
-      title: 'Find the first significant figure', operation: model.original,
-      equation: `${model.kept}\\mid${model.point ? '.' : ''}${model.decision}${tex(model.rest ?? '')}`,
-      instruction: `The first digit that isn’t zero is ${model.keptDigit}. The digit after it decides the rounding.`,
-      frame: { rounding: frame('identify') },
-    },
-    {
-      title: 'Use the next digit', operation: model.original,
-      equation: up ? `${model.decision}\\geq5` : `${model.decision}<5`,
-      instruction: `${model.decision} is ${up ? '5 or more, so round up' : 'less than 5, so the digit stays the same'}.${model.carry ? ` ${model.carry}` : ''}`,
-      frame: { rounding: frame('decide') },
-    },
-    {
-      title: 'Write the rounded number', operation: model.original,
-      equation: `${tex(model.original)}\\to${tex(model.answer)}`,
-      instruction: model.fill ?? 'Leave out the digits after it.',
-      frame: { rounding: frame('result') },
-    },
-  ]
-  return { kind: 'method-worked', examples: [{ method: 'rounding', expression: tex(model.original), label: 'Round to 1 significant figure', first: 0, second: 0, steps }] }
+  const picture: StepPicture = { kind: 'rounding', frame: { original: model.original, target: '1 significant figure', kept: model.kept, decisionDigit: model.decision, remaining: model.rest ?? '', pointAfterKept: model.point, stage: 'identify', roundsUp: up } }
+  const digit = Number(model.kept.slice(-1))
+  return { kind: 'step-worked', start: model.original, steps: [
+    { title: 'Draw the cut', why: `The first digit that is not zero is ${model.keptDigit}. Keep it and cut after it.`, picture },
+    { title: 'Check the next digit', why: '5 or more rounds up. Less than 5 keeps the digit the same.', lines: [line([part(model.decision, 1), sign(up ? '≥' : '<'), part(5)], undefined, { mark: up ? 'round up' : 'keep' })] },
+    ...(up ? [{ title: `Round the ${digit} up`, why: 'Add 1 to the digit you kept.', lines: [line([part(digit, 0), sign('+'), part(1, 3)], digit + 1)] }] : []),
+    { title: 'Write the answer', why: model.fill ?? 'Leave out the digits after it.', lines: [line([part(model.original)], model.answer, { answer: true })] },
+  ] }
 }
 
 /* ---------- Rung 1: round to 1 significant figure ---------- */
@@ -163,20 +167,20 @@ practice(calculations, 'A school trip costs £412.50. It is shared equally betwe
   { calc: 'Sharing equally means dividing.' },
 ), { unit: 'Each (£)', check: { estimate: 20, exact: 412.5 / 19, traps: [[400 * 20, 'Sharing equally means dividing, not multiplying.']] } })
 practice(calculations, 'Priya buys 4 notebooks at £2.85 each and 6 pens at 46p each. Work out an estimate for the total cost.', 'N12.1 Q4a', number(15, '£15'), '£15', 'Round each price to 1 significant figure. Then work out each cost and add.', lines('4\\times2.85+6\\times0.46', 'estimate',
-  roundStep([['Notebook', '2.85', '3', '£'], ['Pen', '46p', '50p = £0.50']], 'Round each price to 1 significant figure. 4 and 6 already are.'),
-  { title: 'Work out each cost', math: '4\\times3=12,\\;6\\times0.5=3', say: 'Notebooks cost about £12 and pens about £3.', values: ['Notebooks: 4 × £3 = £12', 'Pens: 6 × £0.50 = £3'] },
+  roundStep([['', '2.85', '3', '£'], ['', '46p', '50p = £0.50']], 'Round each price to 1 significant figure. 4 and 6 already are.'),
+  { title: 'Work out each cost', math: '4\\times3=12,\\;6\\times0.5=3', say: 'Notebooks cost about £12 and pens about £3.', values: ['4 × £3 = £12', '6 × £0.50 = £3'] },
   { title: 'Add', math: '12+3=15', say: 'The total is about £15.', answer: '£15' },
 ), { unit: 'Total (£)', check: { estimate: 15, exact: 4 * 2.85 + 6 * 0.46, traps: [[312, 'Change 50p to £0.50 before you add it to pounds.'], [12, 'Add the cost of the pens as well.']] } })
 practice(calculations, 'A screen protector is 0.0648 cm thick. Work out an estimate for the height of a pile of 312 screen protectors.', 'N12.1 Q5b', number(18, '18 cm'), '18 cm', 'Round 0.0648 and 312 to 1 significant figure, then multiply.', estimate(
   '0.0648\\times312', [['Thickness', '0.0648', '0.06', 'cm'], ['Protectors', '312', '300']], '0.06\\times300=18', '18 cm',
-  { calc: '6 × 300 = 1800, and 0.06 is 100 times smaller, so the answer is 18.' },
+  { calc: 'Work it out with 6 instead of 0.06, then make the answer 100 times smaller.' },
 ), { unit: 'Height (cm)', check: { estimate: 18, exact: 0.0648 * 312, traps: [[21, 'Round 0.0648 to 1 significant figure: 0.06, not 0.07.']] } })
 practice(calculations, 'Work out an estimate for 38 × 5.2', 'N12 extra practice', number(200, '200'), '200', 'Round 38 and 5.2 to 1 significant figure.', estimate(
   '38\\times5.2', [['', '38', '40'], ['', '5.2', '5']], '40\\times5=200', '200',
 ), { check: { estimate: 200, exact: 38 * 5.2 } })
 practice(calculations, 'Work out an estimate for 612 ÷ 29', 'N12 extra practice', number(20, '20'), '20', 'Round 612 and 29 to 1 significant figure.', estimate(
   '612\\div29', [['', '612', '600'], ['', '29', '30']], '600\\div30=20', '20',
-  { calc: '600 ÷ 30 is the same as 60 ÷ 3.' },
+  { calc: 'Take a zero off both numbers first. The answer stays the same.' },
 ), { check: { estimate: 20, exact: 612 / 29 } })
 practice(calculations, 'Work out an estimate for (21.4 × 3.9) ÷ 0.49', 'N12 extra practice', number(160, '160'), '160', 'Dividing by 0.5 is the same as doubling.', lines('\\dfrac{21.4\\times3.9}{0.49}', 'estimate',
   roundStep([['', '21.4', '20'], ['', '3.9', '4'], ['', '0.49', '0.5']]),
@@ -188,7 +192,7 @@ practice(calculations, 'Work out an estimate for (21.4 × 3.9) ÷ 0.49', 'N12 ex
 
 const formulaVideo = worked(formulas, 'A train travels 296 km in 3.1 hours. Work out an estimate for its average speed.', 'N12.2 Q1; video N12.2', estimate(
   '\\text{speed}=296\\div3.1', [['Distance', '296', '300', 'km'], ['Time', '3.1', '3', 'hours']], '\\text{speed}=300\\div3=100', '100 km/h',
-  { calc: 'Put the rounded values into speed = distance ÷ time.' },
+  { calc: 'Put the rounded values into the formula: distance divided by time.' },
 ), 'Round the values first, then put them into the formula.')
 video(formulaVideo, {
   id: 'lesson12-estimating-with-equations', src: '/media/lesson-12/estimating-with-equations.mp4', poster: '/media/lesson-12/estimating-with-equations.svg', title: 'Estimating a train’s average speed', durationSeconds: 54, sourceFile: 'N12.2_Estimating_with_Equations.mp4',
@@ -202,8 +206,8 @@ practice(formulas, 'A car does 9.8 miles on each litre of fuel. Work out an esti
 ), { given: ['litres = distance ÷ miles per litre'], unit: 'Fuel (litres)', check: { estimate: 40, exact: 412 / 9.8, traps: [[4000, 'The formula divides the distance by the miles per litre.']] } })
 practice(formulas, 'A fish tank is 61.2 cm long, 29.8 cm wide and 40.3 cm high. Work out an estimate for its volume.', 'N12.2 Q4a', number(72000, '72 000 cm³'), '72 000 cm³', 'Round all three lengths, then multiply two at a time.', lines('V=61.2\\times29.8\\times40.3', 'estimate',
   roundStep([['Length', '61.2', '60', 'cm'], ['Width', '29.8', '30', 'cm'], ['Height', '40.3', '40', 'cm']]),
-  { title: 'Multiply two lengths', math: '60\\times30=1800', say: '6 × 3 = 18, then add the two zeros.', values: ['60 × 30 = 1800'] },
-  { title: 'Multiply by the third', math: 'V=1800\\times40=72\\,000', say: '18 × 4 = 72, then add the three zeros.', answer: '72 000 cm³' },
+  { title: 'Multiply two lengths', math: '60\\times30=1800', say: 'Multiply the first digits, then put the two zeros back on.', values: ['60 × 30 = 1800'] },
+  { title: 'Multiply by the third', math: 'V=1800\\times40=72\\,000', say: 'Multiply the first digits, then put the three zeros back on.', answer: '72 000 cm³' },
 ), { given: ['V = l × w × h'], unit: 'Volume (cm³)', check: { estimate: 72000, exact: 61.2 * 29.8 * 40.3 } })
 practice(formulas, 'A fish tank holds about 72 000 cm³. Estimate how many litres it holds.', 'N12.2 Q4b', number(72, '72 litres'), '72 litres', 'There are 1000 cm³ in a litre, so divide by 1000.', lines('72\\,000\\div1000', 'estimate',
   { title: 'Change cm³ to litres', math: '72\\,000\\div1000=72', say: 'Every 1000 cm³ makes 1 litre, so divide by 1000.', answer: '72 litres' },
@@ -257,7 +261,7 @@ practice(checking, 'Sara is estimating 0.0812 ÷ 0.00398. She rounds 0.00398 to 
   '0.00398 rounds to 1 to 1 significant figure',
   'There is no mistake. You can’t estimate with small decimals',
 ]), '0.00398 rounds to 0.004 to 1 significant figure, not to 0', 'Significant figures start at the first digit that isn’t zero.', lines('0.00398', 'ordering',
-  { title: 'Find the first significant figure', math: '0.003\\mid98', say: 'Zeros at the front don’t count. The first significant figure is the 3.', values: ['First significant figure: 3'] },
+  { title: 'First significant figure', math: '0.003\\mid98', say: 'Zeros at the front don’t count. The first significant figure is the 3.', values: ['First figure: 3'] },
   { title: 'Round', math: '0.00398\\to0.004', say: 'The next digit is 9, so the 3 rounds up to 4.', answer: '0.00398 rounds to 0.004, not to 0' },
 ))
 
