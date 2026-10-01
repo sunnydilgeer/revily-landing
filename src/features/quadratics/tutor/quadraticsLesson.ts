@@ -54,7 +54,7 @@ function pairsModel(middle: number, last: number, letter = 'x'): TutorWorking {
   // Each frame says what the step before added, so that stays clear while older working is greyed out.
   const step = (title: string, equation: string, instruction: string, frame: QuadraticFrame) => steps.push({ title, operation: question, equation, instruction, frame: { quadratic: { ...frame, before: steps.at(-1)?.frame.quadratic?.adds } } })
   let frame: QuadraticFrame = { ...base, shape: true, adds: 'shape' }
-  step('What the numbers do', `a\\times b=${signed(last)},\\ a+b=${signed(middle)}`.replace(/−/g, '-'), 'Two numbers go in the brackets. The first row of the table says what they must do: multiply to make the last number and add to make the number in front of x.', frame)
+  step('Find their factors', `a\\times b=${signed(last)},\\ a+b=${signed(middle)}`.replace(/−/g, '-'), 'Two numbers go in the gaps of the diamond. They must multiply to make the last number, on top, and add to make the number in front of x, underneath.', frame)
   const signs = signReasons(middle, last)
   if (signs) { frame = { ...frame, signs: signs.notes, adds: 'signs' }; step('Pick the signs', '\\text{signs}', signs.say, frame) }
   frame = { ...frame, pairs, adds: 'pairs' }
@@ -62,7 +62,7 @@ function pairsModel(middle: number, last: number, letter = 'x'): TutorWorking {
   frame = { ...frame, sums: true, pick, adds: 'sums' }
   step('Check each sum', pairs.map(([a, b]) => `${a}+${b}=${a + b}`).join(',\\ '), `Add each pair. Only one pair adds to the number in front of x: that is the pair to use.`, frame)
   frame = { ...frame, answer: pairs[pick], adds: 'answer' }
-  step('Into the brackets', tex(brackets(letter, pairs[pick])), `Each number of the pair goes into its own bracket after ${letter}, with its sign. Adding a negative number is the same as taking it away.`, frame)
+  step('Into the brackets', tex(brackets(letter, pairs[pick])), `The pair that works fills the gaps in the diamond. Each number goes into its own bracket after ${letter}, with its sign. Adding a negative number is the same as taking it away.`, frame)
   return { kind: 'method-worked', examples: [{ method: 'ordering', expression: question, label: 'Factorise', first: 0, second: 0, steps, pictureOnly: true }] }
 }
 

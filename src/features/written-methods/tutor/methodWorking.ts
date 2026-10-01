@@ -114,7 +114,7 @@ export type EquationFrame = { rows: EquationRow[] }
  */
 export type QuadraticFrame = {
   letter: string; middle: number; last: number
-  /** From the first step: b and c boxed, the brackets with two empty boxes, and the table's first row: ☐ and ☐, × c, + b. */
+  /** From the first step: b and c boxed, and the diamond with c on top, b underneath and two gaps for the numbers. */
   shape?: boolean
   /** Short reasons for the signs: "+ 20: the same sign", "− 9x: both negative". */
   signs?: string[]

@@ -150,8 +150,8 @@ for (const [ref, response, expected] of cases) {
 const React = require('react')
 const { renderToStaticMarkup } = require('react-dom/server')
 const { QuadraticVisual } = require('../src/features/written-methods/tutor/QuadraticPictures.tsx')
-const partsOf = adds => adds === 'shape' ? ['brackets', 'table'] : adds === 'pairs' || adds === 'sums' ? ['table'] : adds ? [adds] : []
-const classOf = { brackets: 'ns-quad__shape', squares: 'ns-quad__shape', signs: 'ns-quad__signs', table: 'ns-quad__pairs' }
+const partsOf = adds => adds === 'shape' ? ['diamond'] : adds === 'pairs' || adds === 'sums' ? ['pairs'] : adds === 'answer' ? ['answer', 'diamond'] : adds ? [adds] : []
+const classOf = { diamond: 'ns-quad__diamond', squares: 'ns-quad__shape', signs: 'ns-quad__signs', pairs: 'ns-quad__pairs' }
 let dimChecked = 0
 for (const ref of Object.keys(quadratics)) {
   const steps = (at(ref).working ?? at(ref).visual).examples[0].steps
@@ -167,11 +167,17 @@ for (const ref of Object.keys(quadratics)) {
     assert.ok(!/ns-quad__question[^"]*is-done|ns-eq__answer[^"]*is-done/.test(html), `${ref} step ${i + 1}: the question and the answer stay clear`)
     dimChecked++
   })
-  // The two jobs are the table's first row, under its × and + columns, from the first step.
+  // The diamond: the last number on top (multiply to), the middle one underneath (add to), and its gaps filled with
+  // the pair that works only on the last step.
   if (quadratics[ref][1] !== 0) {
-    const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps[0].frame.quadratic }))
-    const [, , b, c] = [null, ...quadratics[ref]]
-    assert.ok(new RegExp(`ns-quad__target.*?is-f1">${String(c).replace('-', '−')}<.*?is-f0">${String(b).replace('-', '−')}<`).test(html), `${ref}: the table's first row is the two jobs`)
+    const [, b, c, pair] = quadratics[ref]
+    const n = v => String(v).replace('-', '−')
+    const first = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps[0].frame.quadratic }))
+    assert.ok(new RegExp(`is-top is-f1"><small>multiply to</small>${n(c)}<.*is-bottom is-f0">${n(b)}<small>add to`).test(first) && (first.match(/ns-quad__gap/g) ?? []).length === 2, `${ref}: the diamond has ${c} on top, ${b} underneath and two gaps`)
+    const last = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps.at(-1).frame.quadratic }))
+    const found = [...last.matchAll(/ns-quad__found">([^<]*)</g)].map(m => m[1]).sort()
+    assert.deepEqual(found, pair.map(n).sort(), `${ref}: the last step fills the gaps with ${pair}`)
+    assert.ok(steps.slice(0, -1).every(step => !step.frame.quadratic.answer), `${ref}: the gaps stay empty until the last step`)
   }
 }
 

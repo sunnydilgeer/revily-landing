@@ -218,18 +218,26 @@
 .ns-quad__brackets { color: var(--rv-ink); }
 .ns-quad__gap { display: inline-block; width: 1.1em; height: 1.1em; margin: 0 2px; border: 2px dashed currentColor; border-radius: 5px; vertical-align: -.2em; opacity: .7; }
 .ns-quad__signs { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: #7c3aed; font-size: .9em; }
-.ns-quad__pairs { border-collapse: collapse; }
-.ns-quad__pairs th { padding: 0 8px 4px; font-size: .75em; font-weight: 600; color: var(--f, var(--rv-muted)); }
-.ns-quad__pairs td { padding: 4px 8px; white-space: nowrap; color: var(--f, var(--rv-ink)); border-top: 1px solid var(--rv-line); }
-.ns-quad__pairs tr.is-pick td { color: #7c3aed; background: color-mix(in srgb, #7c3aed 10%, transparent); }
-.ns-quad__pairs tr.is-pick td.is-f0, .ns-quad__pairs tr.is-pick td.is-f1 { color: var(--f); }
-.ns-quad__target td { padding-bottom: 6px; font-weight: 700; }
-.ns-quad__target .ns-quad__gap { width: .95em; height: .95em; }
+.ns-quad__diamond { position: relative; display: grid; grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; width: 9.5em; height: 7.5em; color: var(--rv-line-strong, #94a3b8); }
+.ns-quad__diamond svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ns-quad__corner { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; color: var(--f, var(--rv-ink)); }
+.ns-quad__corner small { font-size: .6em; font-weight: 600; color: var(--rv-muted); white-space: nowrap; }
+.ns-quad__corner.is-top { grid-area: 1 / 2; }
+.ns-quad__corner.is-left { grid-area: 2 / 1; }
+.ns-quad__corner.is-right { grid-area: 2 / 3; }
+.ns-quad__corner.is-bottom { grid-area: 3 / 2; }
+.ns-quad__found { color: #7c3aed; }
+.ns-quad__pairs { display: grid; grid-template-columns: max-content max-content; gap: 6px 18px; margin: 0; padding: 0; list-style: none; }
+.ns-quad__pairs li { display: contents; }
+.ns-quad__pairs li > span { padding: 2px 6px; border-radius: 8px; text-align: left; white-space: nowrap; color: var(--f); }
+.ns-quad__pairs li > span:only-child { grid-column: 1; }
+.ns-quad__pairs li.is-pick > span { background: color-mix(in srgb, #7c3aed 10%, transparent); }
+.ns-quad__pairs li.is-pick > span.is-f1 { color: #7c3aed; }
 .ns-quad__and { font-size: .75em; font-weight: 500; color: var(--rv-muted); }
 .ns-quad__yes { color: var(--rv-good); }
 .ns-quad__no { color: #dc2626; }
 .ns-quad__answer { justify-self: auto; margin: 0; }
-@media (max-width: 360px) { .ns-quad__pairs td, .ns-quad__pairs th { padding-left: 5px; padding-right: 5px; } }
+@media (max-width: 360px) { .ns-quad__pairs { column-gap: 8px; } }
 /* Working a step has finished with, greyed out so the current step stands out (MethodExample.focus: A5 on). */
 .ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done { opacity: .35; transition: opacity .2s ease; }
 .ns-quad__answer .is-f1, .ns-quad__answer .is-f3 { color: var(--f); }
