@@ -38,11 +38,11 @@ export function TocChapter({ code, title, meta, selected, locked, onSelect }: { 
 }
 
 /** One lesson on the chapter's line: the next lesson is a highlighted card with its button, every other lesson is a single row. */
-export function TocLesson({ status, title, minutes, detail, action, onOpen }: { status: TocStatus; title: string; minutes: number; detail: string; action: string; onOpen: () => void }) {
+export function TocLesson({ status, title, badge, minutes, detail, action, onOpen }: { status: TocStatus; title: string; badge?: ReactNode; minutes: number; detail: string; action: string; onOpen: () => void }) {
   if (status === 'next') return <li className="cur-lesson is-next">
     <span className="cur-lesson__dot" aria-hidden="true" />
     <div className="cur-lesson__body">
-      <h3>{title}</h3>
+      <h3>{title}{badge}</h3>
       <p>{detail}</p>
     </div>
     <Button variant="dark" className="cur-lesson__go" onClick={onOpen} aria-label={`${action} ${title}`}><Play />{action}</Button>
@@ -50,7 +50,7 @@ export function TocLesson({ status, title, minutes, detail, action, onOpen }: { 
   return <li className={`cur-lesson is-${status}`}>
     <button type="button" className="cur-lesson__row" onClick={onOpen} aria-label={`${action} ${title}${status === 'done' ? ' (done)' : status === 'progress' ? ' (in progress)' : ''}`}>
       <span className="cur-lesson__dot" aria-hidden="true">{status === 'done' ? '✓' : ''}</span>
-      <span className="cur-lesson__title">{title}</span>
+      <span className="cur-lesson__title">{title}{badge}</span>
       <small>{minutes} min</small>
     </button>
   </li>

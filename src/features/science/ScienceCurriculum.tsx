@@ -7,23 +7,24 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../ui'
 import { Lock, TocChapter, TocLesson, type TocStatus } from '../maths/Curriculum'
-import { scienceSubjectLessonHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
+import { scienceEntryHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
 import { scienceLessonMinutes } from './lessonMinutes'
-import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceCatalogue, scienceUnits, sectionStatus, type ScienceProgressMap } from './scienceProgress'
-import { forTier, readScienceTier, saveScienceTier, type ScienceTier } from './tier'
+import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceUnitsForTier, sectionStatus, type ScienceProgressMap } from './scienceProgress'
+import { forTier, readScienceTier, saveScienceTier, scienceCatalogueForTier, type ScienceTier } from './tier'
+import { HigherBadge } from './higher/HigherBadge'
 import '../maths/Curriculum.css'
 import './ScienceCurriculum.css'
 
 // Science lessons still open in the Science lesson player for now.
 function onOpenLesson(entry: ScienceCatalogueEntry) {
   saveScienceLastLesson(entry)
-  window.location.assign(scienceSubjectLessonHref(entry.subject, entry.number))
+  window.location.assign(scienceEntryHref(entry))
 }
 
 // A subject becomes a real section of the curriculum as soon as it has one lesson; until then it is listed under Coming later.
 const LATER = scienceSubjects.filter(item => item.lessons.length === 0).map(item => ({ code: item.code, title: item.title }))
 const shownSubjects = scienceSubjects.filter(item => item.lessons.length > 0)
-const shownUnits = scienceUnits.filter(unit => shownSubjects.some(item => item.subject === unit.subject))
+const shownUnitsFor = (tier: ScienceTier) => scienceUnitsForTier(tier).filter(unit => shownSubjects.some(item => item.subject === unit.subject))
 
 export default function ScienceCurriculum() {
   const [progress, setProgress] = useState<ScienceProgressMap>({})
@@ -33,13 +34,17 @@ export default function ScienceCurriculum() {
     const saved = readScienceTier()
     setTier(saved)
     setProgress(readScienceProgress(saved))
-    setLast(readScienceLastLesson())
+    setLast(readScienceLastLesson(saved))
   }, [])
   function chooseTier(next: ScienceTier) {
     saveScienceTier(next)
     setTier(next)
     setProgress(readScienceProgress(next))
+    setLast(readScienceLastLesson(next))
   }
+  // Foundation never gets a Higher-only lesson: not in the list, the counts, the progress or Up next.
+  const scienceCatalogue = scienceCatalogueForTier(tier)
+  const shownUnits = shownUnitsFor(tier)
   const nextIncomplete = scienceCatalogue.find(item => !progress[item.lesson.id]?.completed)
   const upNext = last && progress[last.lesson.id]?.started && !progress[last.lesson.id]?.completed ? last : nextIncomplete ?? last ?? scienceCatalogue[0]
   const upNextStatus = progress[upNext.lesson.id]
@@ -48,7 +53,7 @@ export default function ScienceCurriculum() {
   const current = upNextSections.findIndex(section => section.current && !section.done)
   const upNextIndex = current >= 0 ? current : Math.max(0, upNextSections.findIndex(section => !section.done))
   const doneLessons = scienceCatalogue.filter(item => progress[item.lesson.id]?.completed).length
-  const upNextUnit = scienceUnits.find(unit => unit.lessons.includes(upNext))!.code
+  const upNextUnit = shownUnits.find(unit => unit.lessons.includes(upNext))!.code
   // The unit you're in is shown until you pick another; the saved last lesson arrives after the first render.
   const [picked, setPicked] = useState<string | null>(null)
   const selected = picked ?? upNextUnit
@@ -104,7 +109,7 @@ export default function ScienceCurriculum() {
               const detail = upNextStatus?.started
                 ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
                 : `Start here · ${upNextSections.length} sections · ${minutes} min`
-              return <TocLesson key={item.lesson.id} status={status} title={item.title} minutes={minutes} detail={detail}
+              return <TocLesson key={item.lesson.id} status={status} title={item.title} badge={item.higherOnly && <HigherBadge />} minutes={minutes} detail={detail}
                 action={status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(item)} />
             })}
           </ol>

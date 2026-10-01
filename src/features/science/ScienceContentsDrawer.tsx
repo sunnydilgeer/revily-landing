@@ -6,10 +6,10 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { progress } from './engine'
-import { getScienceLesson, scienceChaptersFor, scienceHubHref, scienceLessonHref, scienceLessonNumberById, scienceLessonsFor, scienceSubjectLessonHref, scienceSubjectTitle, TRANSPORT_EXAM_LESSON_ID, type ScienceSubject } from './lessonNavigation'
+import { scienceChaptersFor, scienceEntryHref, scienceHubHref, scienceLessonHref, scienceLessonLabel, scienceLessonNumberById, scienceSubjectTitle, TRANSPORT_EXAM_LESSON_ID, type ScienceSubject } from './lessonNavigation'
 import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
-import { forTier, type ScienceTier } from './tier'
+import { chapterLessonsForTier, forTier, getScienceLessonForTier, type ScienceTier } from './tier'
 import { HigherBadge } from './higher/HigherBadge'
 
 type Props = {
@@ -63,10 +63,9 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
   }, [onClose, open])
 
   if (!open) return null
-  const entry = forTier(getScienceLesson(subject, lessonNumber)!, tier)
+  const entry = forTier(getScienceLessonForTier(subject, lessonNumber, tier)!, tier)
   const lesson = entry.lesson
   const sections = sectionStatus(lesson, entry.sections, session)
-  const subjectLessons = scienceLessonsFor(subject)
   const completion = progress(lesson, session.completedIds)
   const percent = Math.round(completion.fraction * 100)
 
@@ -84,12 +83,12 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
         {scienceChaptersFor(subject).map(chapter => <section className="maths-drawer-chapter" key={chapter.code} aria-labelledby={`drawer-unit-${chapter.code}`}>
           <h3 id={`drawer-unit-${chapter.code}`}>{chapter.code} · {chapter.title}</h3>
           <ol>
-            {subjectLessons.filter(item => chapter.lessonNumbers.includes(item.number)).map(item => {
+            {chapterLessonsForTier(chapter, tier).map(item => {
               const isCurrent = item.number === lessonNumber
-              return <li className={isCurrent ? 'is-current' : ''} key={item.number}>
-                <a className="maths-drawer-lesson" href={isCurrent ? undefined : scienceSubjectLessonHref(item.subject, item.number)} aria-current={isCurrent ? 'page' : undefined} onClick={event => { if (isCurrent) event.preventDefault() }}>
-                  <span className="maths-drawer-number" aria-hidden="true">{item.number}</span>
-                  <span>{item.title}</span>
+              return <li className={isCurrent ? 'is-current' : ''} key={item.lesson.id}>
+                <a className="maths-drawer-lesson" href={isCurrent ? undefined : scienceEntryHref(item)} aria-current={isCurrent ? 'page' : undefined} onClick={event => { if (isCurrent) event.preventDefault() }}>
+                  <span className="maths-drawer-number" aria-hidden="true">{scienceLessonLabel(item)}</span>
+                  <span>{item.title}{item.higherOnly && <HigherBadge />}</span>
                   {isCurrent && <small>{percent}%</small>}
                 </a>
                 {isCurrent && <div className="maths-drawer-current-progress">
@@ -125,7 +124,7 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
         <details className="maths-lesson-options">
           <summary>Lesson information and options</summary>
           <div>
-            <p><strong>Course</strong><span>AQA Combined Science Trilogy · Foundation</span></p>
+            <p><strong>Course</strong><span>AQA Combined Science Trilogy · {tier === 'higher' ? 'Higher' : 'Foundation'}</span></p>
             <p><strong>Unit</strong><span>{chapterTitle}</span></p>
             <p><strong>Status</strong><span>Draft, awaiting review by a qualified teacher</span></p>
             <p><strong>Progress</strong><span>{storageAvailable ? 'Saved on this device' : 'Not saved: this browser is blocking storage'}</span></p>
