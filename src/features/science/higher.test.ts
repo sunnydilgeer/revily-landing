@@ -53,7 +53,7 @@ for (const add of higherAdditions) {
   }
   assert.equal(session.completedIds.length, higher.lesson.states.length)
 }
-assert.equal(higherAdditions.length, 27)
+assert.equal(higherAdditions.length, 30)
 
 // Higher-only lessons. Foundation never sees one: not in a catalogue, list, count, unit, deck, next link, saved last lesson or URL.
 const higherIds = new Set(higherLessons.map(item => item.lesson.id))

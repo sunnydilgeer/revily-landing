@@ -25,6 +25,8 @@ import { lessonP40H, calcForceSections } from '../physics/lesson-40h/lesson'
 import { calcForceFrames } from '../physics/lesson-40h/teachingFrames'
 import { lessonP52H, momentumSections } from '../physics/lesson-52h/lesson'
 import { momentumFrames } from '../physics/lesson-52h/teachingFrames'
+import { lessonP64H, motorEffectSections } from '../physics/lesson-64h/lesson'
+import { motorEffectFrames } from '../physics/lesson-64h/teachingFrames'
 import type { ScienceCatalogueEntry } from '../lessonNavigation'
 
 export const higherLessons: readonly ScienceCatalogueEntry[] = [
@@ -44,4 +46,6 @@ export const higherLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'physics', number: 40.5, label: '40H', higherOnly: true, folder: '40h', title: 'Calculating forces', detail: 'Scale drawings, equilibrium and components', lesson: lessonP40H, sections: calcForceSections, frames: calcForceFrames },
   // Physics P5, between Lesson 52 (Reaction times) and Lesson 53 (waves, a new chapter).
   { subject: 'physics', number: 52.5, label: '52H', higherOnly: true, folder: '52h', title: 'Momentum', detail: 'p = mv and momentum before = momentum after', lesson: lessonP52H, sections: momentumSections, frames: momentumFrames },
+  // Physics P7, after Lesson 64 (Electromagnetism), the last Physics lesson.
+  { subject: 'physics', number: 64.5, label: '64H', higherOnly: true, folder: '64h', title: 'The motor effect', detail: 'Fleming’s left-hand rule, F = B I l and the dc motor', lesson: lessonP64H, sections: motorEffectSections, frames: motorEffectFrames },
 ]
