@@ -24,7 +24,10 @@ for (const add of higherAdditions) {
   assert.equal(ids.indexOf(add.before), ids.indexOf(add.states[add.states.length - 1].id) + 1)
   for (const state of add.states) assert.ok(!allFoundationIds.has(state.id), `${state.id} clashes with a Foundation id`)
   assert.equal(add.states[0].id, add.section.id)
-  assert.ok(add.section.label.startsWith('Higher: '))
+  // Marked with the Higher badge, not a "Higher:" title.
+  assert.equal(add.section.higher, true)
+  assert.ok(!/higher/i.test(add.section.label), `${add.section.id} names Higher in its title; the badge does that`)
+  assert.ok(sectionRanges(higher.lesson, higher.sections).find(range => range.id === add.section.id)?.higher)
   assert.ok(higher.frames[add.section.id]?.length > 0)
   assert.ok(sectionRanges(higher.lesson, higher.sections).some(range => range.id === add.section.id))
   // Its own version, so its own saved session: switching tier never invalidates either one.
@@ -46,5 +49,5 @@ for (const add of higherAdditions) {
   }
   assert.equal(session.completedIds.length, higher.lesson.states.length)
 }
-assert.equal(higherAdditions.length, 5)
+assert.equal(higherAdditions.length, 16)
 console.log('Higher tier tests passed')

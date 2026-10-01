@@ -23,12 +23,12 @@ function engineFor(lesson: ScienceLesson) {
   return engine
 }
 
-export type ScienceSectionStatus = { id: string; title: string; done: boolean; current: boolean }
+export type ScienceSectionStatus = { id: string; title: string; done: boolean; current: boolean; higher?: true }
 export type ScienceLessonStatus = { started: boolean; completed: boolean; sections: ScienceSectionStatus[] }
 /** Lesson status keyed by lesson id. */
 export type ScienceProgressMap = Partial<Record<string, ScienceLessonStatus>>
 
-export type SectionRange = { id: string; title: string; start: number; end: number }
+export type SectionRange = { id: string; title: string; start: number; end: number; higher?: true }
 
 /** Each section's span of screens [start, end), ordered by where it starts in the lesson. */
 export function sectionRanges(lesson: ScienceLesson, sections: readonly ScienceSection[]): SectionRange[] {
@@ -39,6 +39,7 @@ export function sectionRanges(lesson: ScienceLesson, sections: readonly ScienceS
   return ordered.map((section, i) => ({
     id: section.id,
     title: section.label,
+    ...(section.higher ? { higher: true as const } : {}),
     start: index.get(section.id)!,
     end: i + 1 < ordered.length ? index.get(ordered[i + 1].id)! : lesson.states.length,
   }))
@@ -53,6 +54,7 @@ export function sectionStatus(lesson: ScienceLesson, sections: readonly ScienceS
     return {
       id: range.id,
       title: range.title,
+      ...(range.higher ? { higher: true as const } : {}),
       done: ids.length > 0 && ids.every(id => done.has(id)),
       current: currentIndex >= range.start && currentIndex < range.end,
     }

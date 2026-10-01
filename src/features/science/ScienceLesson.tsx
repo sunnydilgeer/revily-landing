@@ -13,6 +13,7 @@ import { getScienceLesson, nextScienceLesson, scienceChapterFor, scienceHubHref,
 import { createPreviewSessionEngine, type PreviewSession, type SessionAction } from './previewSession'
 import { forTier, readScienceTier, type ScienceTier } from './tier'
 import { sectionRanges } from './scienceProgress'
+import { HigherBadge } from './higher/HigherBadge'
 import { WalkthroughDiagram, WorkedVisual } from './components/TeachingChunk'
 import { LessonVisual } from './components/LessonVisual'
 import ScienceContentsDrawer from './ScienceContentsDrawer'
@@ -56,7 +57,7 @@ const newSessionId = () => window.crypto.randomUUID()
 const now = () => new Date().toISOString()
 const sectionTitle = (title: string) => title.replace(/^Chapter \d+ · /, '')
 
-type SectionSummary = { index: number; title: string; nextTitle: string; questions: number; firstTry: number }
+type SectionSummary = { index: number; title: string; higher?: true; nextTitle: string; questions: number; firstTry: number }
 
 const Tick = () => <div className="rung-done__badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
 
@@ -155,6 +156,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
     setSectionDone({
       index: sectionIndex,
       title: sectionTitle(range.title),
+      higher: range.higher,
       nextTitle: sectionTitle(ranges[sectionIndex + 1].title),
       questions: choices.length,
       firstTry: choices.filter(item => session.answers[item.id]?.result === 'correct').length,
@@ -177,7 +179,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
   }, [])
 
   const header = <header className="rung-head">
-    <h2 id="science-section-title">{sectionTitle(range.title)}</h2>
+    <h2 id="science-section-title">{sectionTitle(range.title)}{range.higher && <HigherBadge />}</h2>
     <div className="rung-head__progress">
       <div className="rung-head__bar" role="progressbar" aria-label={`${entry.title}, section ${sectionIndex + 1} of ${ranges.length}: progress through ${sectionTitle(range.title)}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={sectionProgress}>
         <span style={{ width: `${Math.max(4, Math.min(100, sectionProgress))}%` }} />
@@ -193,7 +195,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
       <div className="rung-done rv-paper" role="status">
         <Tick />
         <p className="rung-done__kicker">Section {sectionDone.index + 1} of {ranges.length} complete</p>
-        <h3 id="rung-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{sectionDone.title}</h3>
+        <h3 id="rung-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{sectionDone.title}{sectionDone.higher && <HigherBadge />}</h3>
         {sectionDone.questions > 0 && <p className="rung-done__score"><strong>{sectionDone.firstTry} of {sectionDone.questions}</strong> right first time</p>}
         <p className="rung-done__next">Next section: <strong>{sectionDone.nextTitle}</strong></p>
         <div className="rung-done__actions">

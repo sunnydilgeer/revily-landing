@@ -15,6 +15,9 @@ import { PlantDiseaseVisual } from './PlantDiseaseVisuals'
 import { RespirationVisual } from './RespirationVisuals'
 import { NervousVisual } from './NervousVisuals'
 import { HormoneVisual } from './HormoneVisuals'
+import { HigherPhotosynthesisVisual } from './HigherPhotosynthesisVisuals'
+import { HigherHormoneVisual } from './HigherHormoneVisuals'
+import { HigherFertilityVisual } from './HigherFertilityVisuals'
 import { InheritanceVisual } from './InheritanceVisuals'
 import { EvolutionVisual } from './EvolutionVisuals'
 import { EcologyVisual } from './EcologyVisuals'
@@ -443,6 +446,9 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('cmpd-')) return <CompoundVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hphoto-')) return <HigherPhotosynthesisVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hfert-')) return <HigherFertilityVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hhorm-')) return <HigherHormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('inherit-')) return <InheritanceVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('evolve-')) return <EvolutionVisual focus={focus} assessment={assessment} />
