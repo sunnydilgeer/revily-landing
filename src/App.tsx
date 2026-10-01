@@ -36,11 +36,12 @@ import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from '
 import dynamic from 'next/dynamic'
 import { RevilyLogo } from './ui'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
-import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber } from './features/maths/courseRegistry'
+import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber, type MathsSection } from './features/maths/courseRegistry'
 import {
   MATHS_LAST_LESSON_STORAGE_KEY,
   MATHS_PROGRESS_EVENT,
   readMathsProgress,
+  requestMathsState,
   type LessonProgressMap,
   type LessonProgressSnapshot,
 } from './features/maths/lessonProgress'
@@ -61,12 +62,14 @@ function lessonFromUrl() {
   return isMathsLessonNumber(value) ? value : null
 }
 
-function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice') {
+function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice', skill?: string) {
   const url = new URL(window.location.href)
   url.searchParams.delete('view')
   url.searchParams.delete('subject')
   if (lesson) url.searchParams.set('lesson', String(lesson))
   else url.searchParams.delete('lesson')
+  // The lesson opens at this skill (its engine reads ?section= once, then removes it).
+  if (skill) url.searchParams.set('section', skill)
   if (section) url.searchParams.set('view', section)
   window.history.pushState({}, '', `${url.pathname}${url.search}${url.hash}`)
 }
@@ -138,13 +141,13 @@ function App() {
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [])
 
-  const openLesson = useCallback((number: MathsLessonNumber) => {
+  const openLesson = useCallback((number: MathsLessonNumber, skill?: string) => {
     setLesson(number)
     setLastLesson(number)
     setView('lesson')
     setDrawerOpen(false)
     window.localStorage.setItem(MATHS_LAST_LESSON_STORAGE_KEY, String(number))
-    pushLessonQuery(number)
+    pushLessonQuery(number, undefined, skill)
   }, [])
 
   const showOverview = useCallback(() => {
@@ -173,6 +176,13 @@ function App() {
     openLesson(number)
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [openLesson])
+
+  // A skill in the open lesson moves within it; a skill in another lesson opens that lesson at the skill.
+  const selectSkillFromDrawer = useCallback((number: MathsLessonNumber, section: MathsSection) => {
+    if (number === lesson) requestMathsState(getMathsLesson(number).lessonId, section.startStateId)
+    else openLesson(number, section.id)
+    window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
+  }, [lesson, openLesson])
 
   if (subject === 'science' || view !== 'lesson') {
     const active: AppSection = view === 'overview' || view === 'lesson' ? 'curriculum' : view
@@ -221,7 +231,7 @@ function App() {
       progress={progress}
       onClose={closeDrawer}
       onSelectLesson={selectLessonFromDrawer}
-      onShowAll={showOverview}
+      onSelectSkill={selectSkillFromDrawer}
     />
   </div>
 }
