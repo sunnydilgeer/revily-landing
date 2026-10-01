@@ -208,5 +208,27 @@
 .ns-eq__answer-side { display: inline-flex; align-items: center; gap: 0 5px; vertical-align: middle; }
 .ns-eq__answer .ns-eq__token { color: inherit; }
 .ns-eq__answer:has(.ns-eq__frac) { border-radius: 22px; }
+/* Factorising a quadratic into two brackets (lesson 21, QuadraticPictures.tsx). */
+.ns-quad { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-quad p { margin: 0; }
+.ns-quad__question { color: var(--rv-ink); white-space: nowrap; }
+.ns-quad__job { padding: 0 4px; border: 2px solid var(--f); border-radius: 6px; color: var(--f); }
+.ns-quad__shape { display: grid; gap: 6px; justify-items: center; }
+.ns-quad__shape > p { color: var(--f, var(--rv-ink)); white-space: nowrap; }
+.ns-quad__brackets { color: var(--rv-ink); }
+.ns-quad__gap { display: inline-block; width: 1.1em; height: 1.1em; margin: 0 2px; border: 2px dashed currentColor; border-radius: 5px; vertical-align: -.2em; opacity: .7; }
+.ns-quad__signs { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: #7c3aed; font-size: .9em; }
+.ns-quad__pairs { border-collapse: collapse; }
+.ns-quad__pairs th { padding: 0 8px 4px; font-size: .75em; font-weight: 600; color: var(--f, var(--rv-muted)); }
+.ns-quad__pairs td { padding: 4px 8px; white-space: nowrap; color: var(--f, var(--rv-ink)); border-top: 1px solid var(--rv-line); }
+.ns-quad__pairs tr.is-pick td { color: #7c3aed; background: color-mix(in srgb, #7c3aed 10%, transparent); }
+.ns-quad__pairs tr.is-pick td.is-f0, .ns-quad__pairs tr.is-pick td.is-f1 { color: var(--f); }
+.ns-quad__heading-row td { padding: 8px 0 4px; border: 0; }
+.ns-quad__and { font-size: .75em; font-weight: 500; color: var(--rv-muted); }
+.ns-quad__yes { color: var(--rv-good); }
+.ns-quad__no { color: #dc2626; }
+.ns-quad__answer { justify-self: auto; margin: 0; }
+@media (max-width: 360px) { .ns-quad__pairs td, .ns-quad__pairs th { padding-left: 5px; padding-right: 5px; } }
 /* Working a step has finished with, greyed out so the current step stands out (MethodExample.focus: A5 on). */
 .ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done { opacity: .35; transition: opacity .2s ease; }
+.ns-quad__answer .is-f1, .ns-quad__answer .is-f3 { color: var(--f); }

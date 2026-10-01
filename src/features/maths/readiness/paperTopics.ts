@@ -93,6 +93,7 @@ export const paperTopics: PaperTopic[] = [
     ...lesson(16, 'indices-power-one', 'indices-multiply', 'indices-divide', 'indices-power-zero', 'indices-one', 'indices-power-of-power', 'indices-fraction', 'roots'),
     ...lesson(17, 'expand-single', 'expand-double'),
     ...lesson(18, 'factorise-two-terms', 'factorise-three-terms'),
+    ...lesson(21, 'quadratics-positive', 'quadratics-negative-middle', 'quadratics-negative-last', 'quadratics-difference-of-squares'),
   ] },
   { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [] },
 

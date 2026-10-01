@@ -101,15 +101,21 @@ function ExpressionAnswerInput({ id, value, disabled, anyPower, onChange }: { id
 /**
  * A squared unknown has two answers: "x = ☐ or x = ☐", in either order. Each box opens the full keyboard, because a
  * number pad has no minus key. Either box alone can be checked, so an answer with only the positive root is caught.
+ * With a `unit` it is a length and a width instead: "☐ m by ☐ m", in either order.
  */
-function RootsAnswerInput({ id, letter, disabled, onChange }: { id: string; letter: string; disabled: boolean; onChange: (value: string) => void }) {
+function RootsAnswerInput({ id, letter, unit, disabled, onChange }: { id: string; letter: string; unit?: string; disabled: boolean; onChange: (value: string) => void }) {
   const [first, setFirst] = useState(''), [second, setSecond] = useState('')
   const update = (a: string, b: string) => onChange([a, b].map(value => value.trim().replace(/^[−–]/, '-')).filter(Boolean).join(', '))
   const box = (which: 'a' | 'b', value: string, set: (value: string) => void) => <label htmlFor={`root-${which}-${id}`}>
-    <span className="sr-only">{which === 'a' ? 'First answer' : 'Second answer'} (type − first if it is negative)</span>
+    <span className="sr-only">{unit !== undefined ? `${which === 'a' ? 'One length' : 'The other length'}, in ${unit}` : `${which === 'a' ? 'First answer' : 'Second answer'} (type − first if it is negative)`}</span>
     <input id={`root-${which}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value}
       onChange={event => { set(event.target.value); update(which === 'a' ? event.target.value : first, which === 'a' ? second : event.target.value) }} />
   </label>
+  if (unit !== undefined) return <div className="rung-roots" role="group" aria-label="Enter the length and the width">
+    <span className="rung-roots__pair">{box('a', first, setFirst)}<span className="rung-answer__eq" aria-hidden="true">{unit}</span></span>
+    <span className="rung-roots__or">by</span>
+    <span className="rung-roots__pair">{box('b', second, setSecond)}<span className="rung-answer__eq" aria-hidden="true">{unit}</span></span>
+  </div>
   return <div className="rung-roots" role="group" aria-label={`Enter both values of ${letter}`}>
     <span className="rung-roots__pair"><span className="rung-answer__eq" aria-hidden="true">{letter} =</span>{box('a', first, setFirst)}</span>
     <span className="rung-roots__or">or</span>
@@ -202,7 +208,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.type === 'multiSelect') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -240,6 +246,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const power = numeric && state.interaction.responseShape === 'power'
   const roots = numeric && state.interaction.responseShape === 'roots'
   const formula = numeric && state.interaction.responseShape === 'formula'
+  const dimensions = numeric && state.interaction.responseShape === 'dimensions'
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
@@ -266,8 +273,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          {!standardForm && !expression && !power && !roots && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
-          {formula
+          {!standardForm && !expression && !power && !roots && !dimensions && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
+          {dimensions
+            ? <RootsAnswerInput id={state.id} letter="" unit={state.answerPrefix ?? ''} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : formula
             ? <FormulaAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : roots
             ? <RootsAnswerInput id={state.id} letter={state.answerPrefix?.replace(/\s*=$/, '') ?? 'x'} disabled={Boolean(feedback)} onChange={engine.setInputValue} />

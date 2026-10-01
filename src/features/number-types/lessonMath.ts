@@ -135,6 +135,7 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
   if (interaction.acceptanceRule === 'collectedExpression') return sameCollectedExpression(response, expected)
   if (interaction.acceptanceRule === 'factorisedExpression') return sameFactorised(response, expected)
   if (interaction.acceptanceRule === 'formula') return sameFormula(response, expected)
+  if (interaction.acceptanceRule === 'brackets') return sameBrackets(response, expected)
   if (interaction.acceptanceRule === 'power') {
     // One power, base and index both as written: 3^6 is right for 3⁶; 729 or 9^3 is not the power asked for.
     const actual = parsePower(response), wanted = parsePower(expected)
@@ -488,4 +489,33 @@ export function sameFormula(response: unknown, expected: unknown) {
     const a = actual.at(values), b = wanted.at(values)
     return Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b))
   })
+}
+
+/**
+ * A quadratic factorised into two brackets, "(x + 3)(x − 5)": each bracket's number of x and number, or null.
+ * A × or * between the brackets is fine.
+ */
+export function readBrackets(value: unknown): { letter: string; brackets: [number, number][] } | null {
+  const text = plainPowers(String(value ?? '').toLowerCase().replace(/[−–]/g, '-')).replace(/[\s×*·]/g, '')
+  const match = text.match(/^\(([^()]+)\)\(([^()]+)\)$/)
+  if (!match) return null
+  let letter = ''
+  const brackets: [number, number][] = []
+  for (const inside of [match[1], match[2]]) {
+    const terms = readTerms(inside)
+    if (!terms || terms.some(term => term.key !== '' && !/^[a-z]$/.test(term.key))) return null
+    for (const term of terms) if (term.key) { if (letter && term.key !== letter) return null; letter = term.key }
+    const totals = collect(terms)
+    brackets.push([totals.get(letter) ?? 0, totals.get('') ?? 0])
+  }
+  return letter && brackets.every(([x]) => x !== 0) ? { letter, brackets } : null
+}
+
+/** Right when the two brackets multiply out to the same quadratic as the answer's, in either order. */
+export function sameBrackets(response: unknown, expected: unknown) {
+  const actual = readBrackets(response), wanted = readBrackets(expected)
+  if (!actual || !wanted || actual.letter !== wanted.letter) return false
+  const expand = ([[a, b], [c, d]]: [number, number][]) => [a * c, a * d + b * c, b * d]
+  const [p, q] = [expand(actual.brackets), expand(wanted.brackets)]
+  return p.every((n, i) => Math.abs(n - q[i]) < 1e-9)
 }

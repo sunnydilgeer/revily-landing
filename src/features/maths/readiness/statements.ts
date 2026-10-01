@@ -114,5 +114,10 @@ export const canStatements: Record<string, string> = {
   '20:rearrange-fractions': 'I can rearrange a formula with a fraction, like M = (a + b)/2',
   '20:rearrange-squares': 'I can rearrange a formula with a square, like A = 6s², to get s = √(A/6)',
   '20:rearrange-roots': 'I can rearrange a formula with a square root, like t = √(h/5), to get h = 5t²',
+
+  '21:quadratics-positive': 'I can factorise a quadratic like x² + 8x + 15 = (x + 3)(x + 5)',
+  '21:quadratics-negative-middle': 'I can factorise a quadratic with a negative middle term, like x² − 9x + 20 = (x − 4)(x − 5)',
+  '21:quadratics-negative-last': 'I can factorise a quadratic with a negative last term, like x² + 2x − 15 = (x − 3)(x + 5)',
+  '21:quadratics-difference-of-squares': 'I can factorise the difference of two squares, like x² − 49 = (x + 7)(x − 7)',
 }
 
