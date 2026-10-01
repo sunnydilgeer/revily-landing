@@ -145,4 +145,5 @@
 .sp-words { justify-self: center; margin: 0; max-width: 100%; box-sizing: border-box; border-radius: 18px; font-size: 18px; line-height: 1.3; text-align: center; white-space: normal; }
 .wc--picture:has(.sp-working) .wc-controls { gap: 12px; }
 .wc--picture:has(.sp-working) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }
+.ns-visual:has(.wms-venn-wrap) { flex: 1 1 auto; min-width: 0; }
 .sp-picture .wms-venn-wrap { zoom: .78; }
