@@ -10,6 +10,7 @@ import { Lock, TocChapter, TocLesson, type TocStatus } from '../maths/Curriculum
 import { scienceSubjectLessonHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
 import { scienceLessonMinutes } from './lessonMinutes'
 import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceCatalogue, scienceUnits, sectionStatus, type ScienceProgressMap } from './scienceProgress'
+import { forTier, readScienceTier, saveScienceTier, type ScienceTier } from './tier'
 import '../maths/Curriculum.css'
 import './ScienceCurriculum.css'
 
@@ -27,14 +28,23 @@ const shownUnits = scienceUnits.filter(unit => shownSubjects.some(item => item.s
 export default function ScienceCurriculum() {
   const [progress, setProgress] = useState<ScienceProgressMap>({})
   const [last, setLast] = useState<ScienceCatalogueEntry | null>(null)
+  const [tier, setTier] = useState<ScienceTier>('foundation')
   useEffect(() => {
-    setProgress(readScienceProgress())
+    const saved = readScienceTier()
+    setTier(saved)
+    setProgress(readScienceProgress(saved))
     setLast(readScienceLastLesson())
   }, [])
+  function chooseTier(next: ScienceTier) {
+    saveScienceTier(next)
+    setTier(next)
+    setProgress(readScienceProgress(next))
+  }
   const nextIncomplete = scienceCatalogue.find(item => !progress[item.lesson.id]?.completed)
   const upNext = last && progress[last.lesson.id]?.started && !progress[last.lesson.id]?.completed ? last : nextIncomplete ?? last ?? scienceCatalogue[0]
   const upNextStatus = progress[upNext.lesson.id]
-  const upNextSections = upNextStatus?.sections ?? sectionStatus(upNext.lesson, upNext.sections, null)
+  const upNextTiered = forTier(upNext, tier)
+  const upNextSections = upNextStatus?.sections ?? sectionStatus(upNextTiered.lesson, upNextTiered.sections, null)
   const current = upNextSections.findIndex(section => section.current && !section.done)
   const upNextIndex = current >= 0 ? current : Math.max(0, upNextSections.findIndex(section => !section.done))
   const doneLessons = scienceCatalogue.filter(item => progress[item.lesson.id]?.completed).length
@@ -52,7 +62,11 @@ export default function ScienceCurriculum() {
     <header className="cur-head">
       <div>
         <h1>Curriculum</h1>
-        <p>AQA Combined Science Trilogy · Foundation · {shownUnits.length} units</p>
+        <p>AQA Combined Science Trilogy · {tier === 'higher' ? 'Higher' : 'Foundation'} · {shownUnits.length} units</p>
+        <div className="cur-tier" role="group" aria-label="Tier">
+          {(['foundation', 'higher'] as const).map(option => <button key={option} type="button" aria-pressed={tier === option}
+            onClick={() => chooseTier(option)}>{option === 'higher' ? 'Higher' : 'Foundation'}</button>)}
+        </div>
       </div>
       <div className="cur-overall" aria-label={`${doneLessons} of ${scienceCatalogue.length} lessons complete`}>
         <div className="cur-overall__bar" aria-hidden="true"><span style={{ width: `${doneLessons / scienceCatalogue.length * 100}%` }} /></div>
@@ -86,7 +100,7 @@ export default function ScienceCurriculum() {
             {unit.lessons.map(item => {
               const record = progress[item.lesson.id]
               const status: TocStatus = record?.completed ? 'done' : item === upNext ? 'next' : record?.started ? 'progress' : 'todo'
-              const minutes = scienceLessonMinutes(item.lesson)
+              const minutes = scienceLessonMinutes(forTier(item, tier).lesson)
               const detail = upNextStatus?.started
                 ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
                 : `Start here · ${upNextSections.length} sections · ${minutes} min`

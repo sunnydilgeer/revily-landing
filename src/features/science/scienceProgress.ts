@@ -6,6 +6,7 @@ import { progress } from './engine'
 import { allScienceLessons, getScienceLesson, isScienceSubject, scienceSubjects, type ScienceCatalogueEntry, type ScienceLessonRef } from './lessonNavigation'
 import type { ScienceSection } from './lessonSections'
 import { createPreviewSessionEngine, type PreviewSession } from './previewSession'
+import { forTier, readScienceTier, type ScienceTier } from './tier'
 import type { ScienceLesson } from './types'
 
 // Biology is stored as a bare number ("12"), as it always was; other subjects as "<subject>:<number>" ("chemistry:1", "physics:1").
@@ -13,7 +14,14 @@ export const SCIENCE_LAST_LESSON_KEY = 'revily:science-last-lesson:v1'
 
 /** Every built lesson, all subjects. Progress maps are keyed by lesson id, which is unique across subjects. */
 export const scienceCatalogue = allScienceLessons
-const engines = new Map(scienceCatalogue.map(item => [item.lesson.id, createPreviewSessionEngine(item.lesson)] as const))
+// One engine per lesson version (a lesson with Higher sections has its own version and saved session).
+const engines = new Map<string, ReturnType<typeof createPreviewSessionEngine>>()
+function engineFor(lesson: ScienceLesson) {
+  const key = `${lesson.id}:${lesson.contentVersion}`
+  let engine = engines.get(key)
+  if (!engine) { engine = createPreviewSessionEngine(lesson); engines.set(key, engine) }
+  return engine
+}
 
 export type ScienceSectionStatus = { id: string; title: string; done: boolean; current: boolean }
 export type ScienceLessonStatus = { started: boolean; completed: boolean; sections: ScienceSectionStatus[] }
@@ -51,9 +59,8 @@ export function sectionStatus(lesson: ScienceLesson, sections: readonly ScienceS
   })
 }
 
-function readSession(lessonId: string): PreviewSession | null {
-  const engine = engines.get(lessonId)
-  if (!engine) return null
+function readSession(lesson: ScienceLesson): PreviewSession | null {
+  const engine = engineFor(lesson)
   try {
     const raw = window.localStorage.getItem(engine.storageKey)
     return raw ? engine.restorePreviewSession(JSON.parse(raw)) : null
@@ -62,10 +69,12 @@ function readSession(lessonId: string): PreviewSession | null {
   }
 }
 
-export function readScienceProgress(): ScienceProgressMap {
+/** Progress for the student's tier, keyed by lesson id (the same ids on both tiers). */
+export function readScienceProgress(tier: ScienceTier = readScienceTier()): ScienceProgressMap {
   const result: ScienceProgressMap = {}
-  for (const item of scienceCatalogue) {
-    const session = readSession(item.lesson.id)
+  for (const foundation of scienceCatalogue) {
+    const item = forTier(foundation, tier)
+    const session = readSession(item.lesson)
     if (!session) continue
     const lesson = item.lesson
     const started = session.currentId !== lesson.states[0].id || session.completedIds.length > 0
