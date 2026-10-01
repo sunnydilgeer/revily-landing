@@ -1,7 +1,7 @@
-/* Contents drawer: search, where you are, then chapters that fold open to lessons, and lessons that fold open to skills. */
+/* Contents drawer (Maths and Science): an open book. Search, where you are, then chapters that fold open to lessons, and lessons that fold open to skills. No progress tracking. */
 
 .toc { background: var(--rv-surface, #fff); color: var(--rv-ink, #131c30); }
-.toc button { font: inherit; color: inherit; }
+.toc button, .toc a { font: inherit; color: inherit; text-decoration: none; }
 .toc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .toc-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 22px 20px 12px; }
@@ -32,15 +32,9 @@
 .toc-here__kicker { color: var(--rv-accent, #ffd35c); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .toc-here strong { font-size: 1.15rem; line-height: 1.25; }
 .toc-here__skill { color: rgb(255 255 255 / 75%); font-size: .9rem; }
-.toc-here__bar { height: 6px; margin-top: 10px; border-radius: 999px; background: rgb(255 255 255 / 18%); overflow: hidden; }
-.toc-here__bar span { display: block; height: 100%; border-radius: inherit; background: var(--rv-accent, #ffd35c); }
-.toc-here__meta { margin-top: 6px; color: rgb(255 255 255 / 70%); font-size: .8rem; font-weight: 600; }
+.toc-here__meta { margin-top: 8px; color: rgb(255 255 255 / 70%); font-size: .8rem; font-weight: 600; }
 
-/* Rings and chevrons */
-.toc-ring { flex: none; display: block; }
-.toc-ring__track { fill: none; stroke: var(--rv-line, #dfe4ec); stroke-width: 3; }
-.toc-ring__fill { fill: none; stroke: var(--rv-good, #15925a); stroke-width: 3; stroke-linecap: round; }
-span.toc-ring.is-done { display: grid; place-items: center; border-radius: 50%; background: var(--rv-good, #15925a); color: #fff; }
+/* Chevrons */
 .toc-chevron { flex: none; color: var(--rv-muted, #5d6679); transition: transform .2s ease; }
 [aria-expanded="false"] > .toc-chevron { transform: rotate(-90deg); }
 
@@ -54,6 +48,7 @@ span.toc-ring.is-done { display: grid; place-items: center; border-radius: 50%; 
 .toc-chapter__head:hover { background: var(--rv-grid, #eef1f6); }
 .toc-chapter__copy { flex: 1; min-width: 0; display: grid; }
 .toc-chapter__eyebrow { color: var(--rv-curriculum, #6d3fd8); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.toc-chapter__eyebrow--code { text-transform: none; letter-spacing: .04em; }
 .toc-chapter__title { font-size: 1.45rem; font-weight: 800; letter-spacing: -.015em; line-height: 1.2; }
 .toc-chapter__meta { color: var(--rv-muted, #5d6679); font-size: .85rem; font-weight: 500; }
 
@@ -76,27 +71,34 @@ span.toc-ring.is-done { display: grid; place-items: center; border-radius: 50%; 
 
 /* Skills */
 .toc-skills { position: relative; margin: 0 0 8px 22px; padding: 2px 0 4px 18px; border-left: 2px solid var(--rv-line, #dfe4ec); }
-.toc-skills button {
+.toc-skills button, .toc-skills a {
   width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 6px 10px; text-align: left; cursor: pointer;
   border: 0; border-radius: 10px; background: none; color: var(--rv-ink-2, #3a4357); font-size: .93rem; line-height: 1.3;
 }
-.toc-skills button:hover { background: rgb(19 28 48 / 5%); }
+.toc-skills button:hover, .toc-skills a:hover { background: rgb(19 28 48 / 5%); }
 .toc-skill__dot { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 2px solid var(--rv-line, #c9d0dc); }
-.toc-skills button.is-done .toc-skill__dot { border-color: var(--rv-good, #15925a); background: var(--rv-good, #15925a); }
 .toc-skills button[aria-current="step"] { color: var(--rv-ink, #131c30); font-weight: 700; background: rgb(255 255 255 / 70%); }
 .toc-skills button[aria-current="step"] .toc-skill__dot { border-color: var(--rv-ink, #131c30); background: var(--rv-accent, #ffd35c); }
 
 /* Search results */
 .toc-results-count { margin: 4px 10px 8px; color: var(--rv-muted, #5d6679); font-size: .85rem; }
 .toc-results { margin: 0; padding: 0; list-style: none; }
-.toc-results button {
+.toc-results button, .toc-results a {
   width: 100%; display: grid; gap: 1px; padding: 10px 12px; text-align: left; cursor: pointer; border: 0; border-radius: 12px; background: none;
 }
-.toc-results button:hover { background: var(--rv-grid, #eef1f6); }
+.toc-results button:hover, .toc-results a:hover { background: var(--rv-grid, #eef1f6); }
 .toc-results strong { font-size: 1rem; }
 .toc-results span { color: var(--rv-muted, #5d6679); font-size: .82rem; }
 
-.toc button:focus-visible { outline: 3px solid var(--rv-biro, #3b5bdb); outline-offset: -3px; }
+/* Subject switch (Science) */
+.toc-subjects { display: flex; gap: 4px; margin: 0 8px 10px; padding: 4px; border-radius: 999px; background: var(--rv-grid, #eef1f6); }
+.toc-subjects button {
+  flex: 1; min-height: 38px; padding: 0 8px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  color: var(--rv-ink-2, #3a4357) !important; font-size: .85rem !important; font-weight: 700 !important;
+}
+.toc-subjects button[aria-pressed="true"] { background: var(--rv-surface, #fff); color: var(--rv-ink, #131c30) !important; box-shadow: 0 1px 4px rgb(19 28 48 / 14%); }
+
+.toc a:focus-visible, .toc button:focus-visible { outline: 3px solid var(--rv-biro, #3b5bdb); outline-offset: -3px; }
 
 @media (prefers-reduced-motion: reduce) {
   .toc-chevron { transition: none; }

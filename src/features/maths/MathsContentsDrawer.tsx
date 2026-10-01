@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { mathsChapters, type MathsLessonEntry, type MathsLessonNumber, type MathsSection } from './courseRegistry'
-import { lessonPercent, type LessonProgressMap, type LessonProgressSnapshot } from './lessonProgress'
+import type { LessonProgressMap } from './lessonProgress'
 import './ContentsDrawer.css'
 
 /*
- * Contents: every lesson and every skill is one or two taps away, nothing locked. Chapters fold, each
- * lesson's skills fold, and search jumps straight to a lesson or skill. Open/closed chapters are remembered.
+ * Contents: an open book. Every lesson and every skill is one or two taps away, nothing locked and no progress
+ * tracking. Chapters fold, each lesson's skills fold, and search jumps straight to a lesson or skill. Open/closed
+ * chapters are remembered. Progress is only read to know which skill you're on.
  */
 type Props = {
   open: boolean
@@ -21,21 +22,6 @@ const FOLDS_KEY = 'revily:maths-contents-folds:v1'
 
 function readFolds(): Record<string, boolean> {
   try { return JSON.parse(window.localStorage.getItem(FOLDS_KEY) ?? '{}') } catch { return {} }
-}
-
-const skillDone = (snapshot: LessonProgressSnapshot | undefined, section: MathsSection) =>
-  Boolean(snapshot?.completed || snapshot?.completedSections?.includes(section.id))
-
-/** A small progress ring: empty, part-filled, or a tick when done. */
-function Ring({ percent, size = 26 }: { percent: number; size?: number }) {
-  if (percent >= 100) return <span className="toc-ring is-done" style={{ width: size, height: size }} aria-hidden="true">
-    <svg viewBox="0 0 24 24" width={size * .55} height={size * .55} fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-  </span>
-  const r = 10, c = 2 * Math.PI * r
-  return <svg className="toc-ring" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-    <circle cx="12" cy="12" r={r} className="toc-ring__track" />
-    {percent > 0 && <circle cx="12" cy="12" r={r} className="toc-ring__fill" strokeDasharray={`${c * percent / 100} ${c}`} transform="rotate(-90 12 12)" />}
-  </svg>
 }
 
 const Chevron = () => <svg className="toc-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
@@ -144,12 +130,10 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
             <span className="toc-here__kicker">You’re here</span>
             <strong>{currentLesson.title}</strong>
             <span className="toc-here__skill">{currentSkill?.title}</span>
-            <span className="toc-here__bar" aria-hidden="true"><span style={{ width: `${lessonPercent(currentSnapshot)}%` }} /></span>
-            <span className="toc-here__meta">{lessonPercent(currentSnapshot)}% · Back to lesson</span>
+            <span className="toc-here__meta">Back to lesson →</span>
           </button>
 
           {mathsChapters.map((chapter, index) => {
-            const doneLessons = chapter.lessons.filter(entry => progress[entry.lessonId]?.completed).length
             const chapterOpen = isChapterOpen(chapter.id)
             return <section className="toc-chapter" key={chapter.id}>
               <h3>
@@ -157,25 +141,20 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
                   <span className="toc-chapter__copy">
                     <span className="toc-chapter__eyebrow">Chapter {index + 1}</span>
                     <span className="toc-chapter__title">{chapter.title}</span>
-                    <span className="toc-chapter__meta">{doneLessons} of {chapter.lessons.length} lessons done</span>
+                    <span className="toc-chapter__meta">{chapter.lessons.length} lessons</span>
                   </span>
-                  <Ring percent={Math.round(doneLessons / chapter.lessons.length * 100)} size={34} />
                   <Chevron />
                 </button>
               </h3>
               {chapterOpen && <ol className="toc-lessons" id={`toc-chapter-${chapter.id}`}>
                 {chapter.lessons.map(entry => {
-                  const snapshot = progress[entry.lessonId]
                   const isCurrent = entry.lessonId === currentLesson.lessonId
                   const skillsOpen = openSkills[entry.lessonId] ?? false
-                  const percent = lessonPercent(snapshot)
                   return <li className={`toc-lesson${isCurrent ? ' is-current' : ''}`} key={entry.lessonId}>
                     <div className="toc-lesson__row">
                       <button type="button" className="toc-lesson__open" aria-current={isCurrent ? 'page' : undefined} onClick={() => pickLesson(entry)}>
-                        <Ring percent={percent} />
                         <span className="toc-lesson__num" aria-hidden="true">{entry.position}</span>
                         <span className="toc-lesson__title">{entry.title}</span>
-                        {percent > 0 && percent < 100 && <small>{percent}%</small>}
                       </button>
                       <button type="button" className="toc-lesson__fold" aria-expanded={skillsOpen} aria-controls={`toc-skills-${entry.lessonId}`}
                         aria-label={`${skillsOpen ? 'Hide' : 'Show'} skills in ${entry.title}`}
@@ -186,12 +165,10 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
                     {skillsOpen && <ol className="toc-skills" id={`toc-skills-${entry.lessonId}`} aria-label={`${entry.title} skills`}>
                       {entry.sections.map(section => {
                         const isCurrentSection = isCurrent && currentSnapshot?.currentSectionId === section.id
-                        const done = skillDone(snapshot, section)
                         return <li key={section.id}>
-                          <button type="button" aria-current={isCurrentSection ? 'step' : undefined} className={done ? 'is-done' : ''} onClick={() => pickSkill(entry, section)}>
+                          <button type="button" aria-current={isCurrentSection ? 'step' : undefined} onClick={() => pickSkill(entry, section)}>
                             <span className="toc-skill__dot" aria-hidden="true" />
                             {section.title}
-                            {done && <span className="toc-sr"> (done)</span>}
                           </button>
                         </li>
                       })}
