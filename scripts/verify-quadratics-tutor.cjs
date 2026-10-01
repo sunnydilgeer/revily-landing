@@ -144,6 +144,25 @@ for (const [ref, response, expected] of cases) {
   assert.ok(message && message.includes(expected), `${ref} → ${response} should mention "${expected}", got: ${message}`)
 }
 
+// ---------- Finished working is greyed out, and only that (Sunny, 1 Oct) ----------
+// The question, the part just before this step and what this step adds stay clear; older parts are greyed out.
+const React = require('react')
+const { renderToStaticMarkup } = require('react-dom/server')
+const { QuadraticVisual } = require('../src/features/written-methods/tutor/QuadraticPictures.tsx')
+let dimChecked = 0
+for (const ref of Object.keys(quadratics)) {
+  const steps = (at(ref).working ?? at(ref).visual).examples[0].steps
+  steps.forEach((step, i) => {
+    const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: step.frame.quadratic }))
+    const dimmed = [...html.matchAll(/class="(ns-quad__\w+)[^"]*is-done/g)].map(match => match[1])
+    const order = steps.slice(0, i + 1).map(s => s.frame.quadratic.adds).filter(adds => adds !== 'sums')
+    const expected = order.slice(0, -2).map(adds => ({ shape: 'ns-quad__shape', signs: 'ns-quad__signs', squares: 'ns-quad__shape', pairs: 'ns-quad__pairs' })[adds])
+    assert.deepEqual(dimmed, expected, `${ref} step ${i + 1}: only parts before the one being worked on are greyed out`)
+    assert.ok(!/ns-quad__question[^"]*is-done|ns-eq__answer[^"]*is-done/.test(html), `${ref} step ${i + 1}: the question and the answer stay clear`)
+    dimChecked++
+  })
+}
+
 // ---------- Videos ----------
 assert.equal(states.filter(state => state.video).length, 4, 'One video per source PDF')
 const mediaHashes = {
@@ -169,4 +188,5 @@ const app = read('src/App.tsx')
 assert.ok(app.includes('case 21:') && app.includes('return <TutorQuadraticsLesson />'), 'Lesson 21 must open from the course and its direct route')
 assert.ok(read('src/features/cards/keyFacts.ts').includes('  21: {'), 'A7 needs key-fact cards')
 
+console.log(`Greying out checked on ${dimChecked} steps.`)
 console.log(`Lesson 21 (A7) verified: ${states.length} screens, all 32 source questions (A7.4 Q5a asked at Foundation), ${Object.keys(quadratics).length} quadratics multiplied back out, ${typed.length} typed answers (other orders and spellings too), ${pairsChecked} pairs in the workings, ${cases.length} wrong-answer messages, 4 source-identical videos and the route.`)
