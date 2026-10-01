@@ -15,7 +15,7 @@ function load(relative) {
 const { checkAnswer } = load('src/features/number-types/lessonMath.ts')
 const { tutorPlaceValueLesson: lesson } = load('src/features/place-value/tutor/placeValueLesson.ts')
 const states = lesson.states
-assert.equal(states.length, 23)
+assert.equal(states.length, 25)
 assert.equal(new Set(states.map(s => s.id)).size, states.length)
 for (const [i, s] of states.entries()) {
   assert.equal(s.id, `L3-${String(i + 1).padStart(2, '0')}`)
@@ -60,12 +60,15 @@ assert.equal((6 * 10 + 9) / 10000, .0069)
 const corrected = questions.find(s => s.sourceRef.startsWith('N3.2 Q4b'))
 assert.ok(corrected.feedback.correct.workedExplanation.answer.includes('17.5'))
 const videos = states.filter(s => s.video)
-assert.deepEqual(videos.map(s => s.id), ['L3-02', 'L3-14'])
+assert.deepEqual(videos.map(s => s.id), ['L3-02', 'L3-15'])
 assert.deepEqual(videos.map(s => s.visual.opening.value), ['526,908', '0.6059'])
 for (const s of videos) {
   assert.equal(s.interaction.type, 'continue')
   assert.equal(s.visual.kind, 'place-worked')
-  assert.equal(s.visual.steps.filter(step => step.lines?.length).length, 2, 'Both digits of the video are worked out')
+  // The video's two digits are two screens: this one works out the first, the next screen the second.
+  const next = states[states.indexOf(s) + 1]
+  assert.equal(s.visual.steps.filter(step => step.lines?.length).length, 1, 'One digit a screen')
+  assert.ok(next.sourceRef.startsWith('Second example') && next.visual.kind === 'place-worked' && next.visual.opening.value === s.visual.opening.value, 'The video’s second digit is the next screen')
   for (const asset of [s.video.src, s.video.poster]) assert.ok(fs.statSync(path.join(root, 'public', asset)).size > 1000)
   assert.ok(s.video.textAlternative.length >= 3)
 }
@@ -122,7 +125,7 @@ for (const s of states) {
   const final = end.chart.answer ? end.chart.value : end.lines?.find(line => line.answer)?.result
   if (s.interaction.type === 'numericInput' && final) assert.ok(checkAnswer(s.interaction, final.replace(/,/g, '')), s.id + ': the working ends on the answer ' + final)
 }
-assert.equal(charts, 20)
+assert.equal(charts, 22)
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(!app.includes('placeValueVariant'))
 assert.ok(app.includes('case 3:') && app.includes('return <TutorPlaceValueLesson />'))
