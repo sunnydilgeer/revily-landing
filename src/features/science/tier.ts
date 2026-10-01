@@ -6,10 +6,18 @@
  *
  * A lesson with Higher sections gets its own content version ("0.2.0-higher"), which gives it its own
  * saved session. Switching tier never mixes the two sessions or makes one invalid.
+ *
+ * Whole Higher-only lessons (`higher/lessons.ts`, e.g. Chemistry Lesson 20H) are added by the `…ForTier` lookups below.
+ * On Foundation each one returns exactly what the Foundation lookup in lessonNavigation.ts returns, so a Higher-only
+ * lesson never appears there: no list row, count, progress, next-lesson link, contents entry or URL.
  */
 import { sampledRequirements } from './lessonAuthoring'
 import { higherAdditions } from './higher/additions'
-import type { ScienceCatalogueEntry } from './lessonNavigation'
+import { higherLessons } from './higher/lessons'
+import {
+  allScienceLessons, chapterHasLesson, getScienceLesson, isScienceSubject, nextScienceLesson, parseScienceLessonRef, scienceLessonsFor, scienceSubjects,
+  type ScienceCatalogueEntry, type ScienceChapter, type ScienceLessonRef, type ScienceSubject,
+} from './lessonNavigation'
 
 export type ScienceTier = 'foundation' | 'higher'
 export const SCIENCE_TIER_KEY = 'revily:science-tier:v1'
@@ -49,4 +57,46 @@ export function forTier(entry: ScienceCatalogueEntry, tier: ScienceTier): Scienc
   }
   higherEntries.set(entry, higher)
   return higher
+}
+
+const higherSubjectLessons = new Map<ScienceSubject, readonly ScienceCatalogueEntry[]>()
+
+/** A subject's lessons in teaching order. Foundation: the subject catalogue unchanged. Higher: plus its Higher-only lessons in place (20, 20H, 21). */
+export function scienceLessonsForTier(subject: ScienceSubject, tier: ScienceTier): readonly ScienceCatalogueEntry[] {
+  if (tier !== 'higher') return scienceLessonsFor(subject)
+  let lessons = higherSubjectLessons.get(subject)
+  if (!lessons) {
+    lessons = [...scienceLessonsFor(subject), ...higherLessons.filter(entry => entry.subject === subject)].sort((a, b) => a.number - b.number)
+    higherSubjectLessons.set(subject, lessons)
+  }
+  return lessons
+}
+const higherCatalogue = scienceSubjects.flatMap(item => scienceLessonsForTier(item.subject, 'higher'))
+/** Every lesson the tier gets, all subjects, in course order. Foundation is `allScienceLessons`. */
+export function scienceCatalogueForTier(tier: ScienceTier): readonly ScienceCatalogueEntry[] {
+  return tier === 'higher' ? higherCatalogue : allScienceLessons
+}
+export function getScienceLessonForTier(subject: ScienceSubject, number: number, tier: ScienceTier): ScienceCatalogueEntry | null {
+  if (tier !== 'higher') return getScienceLesson(subject, number)
+  return scienceLessonsForTier(subject, tier).find(item => item.number === number) ?? null
+}
+/** The next lesson in the same subject for the tier (Higher: 20 → 20H → 21; Foundation: 20 → 21), or null at the end. */
+export function nextScienceLessonForTier(entry: ScienceLessonRef, tier: ScienceTier): ScienceCatalogueEntry | null {
+  if (tier !== 'higher') return nextScienceLesson(entry)
+  const lessons = scienceLessonsForTier(entry.subject, tier)
+  const at = lessons.findIndex(item => item.number === entry.number)
+  return at < 0 ? null : lessons[at + 1] ?? null
+}
+/** A chapter's lessons for the tier, in order. */
+export function chapterLessonsForTier(chapter: ScienceChapter, tier: ScienceTier): readonly ScienceCatalogueEntry[] {
+  return scienceLessonsForTier(chapter.subject, tier).filter(item => chapterHasLesson(chapter, item))
+}
+/** `parseScienceLessonRef`, plus Higher-only labels (`lesson=20H`, any case) when the tier is Higher. */
+export function parseScienceLessonRefForTier(subjectValue: string | string[] | undefined, lessonValue: string | string[] | undefined, tier: ScienceTier): ScienceLessonRef | null {
+  const ref = parseScienceLessonRef(subjectValue, lessonValue)
+  if (ref || tier !== 'higher') return ref
+  const subject = subjectValue === undefined ? 'biology' : subjectValue
+  if (!isScienceSubject(subject) || typeof lessonValue !== 'string') return null
+  const entry = higherLessons.find(item => item.subject === subject && item.label === lessonValue.toUpperCase())
+  return entry ? { subject, number: entry.number } : null
 }

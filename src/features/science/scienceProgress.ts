@@ -3,16 +3,17 @@
  * Sections play the part Maths rungs do: a section is done when every screen in it is complete.
  */
 import { progress } from './engine'
-import { allScienceLessons, getScienceLesson, isScienceSubject, scienceSubjects, type ScienceCatalogueEntry, type ScienceLessonRef } from './lessonNavigation'
+import { allScienceLessons, scienceLessonLabel, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
 import type { ScienceSection } from './lessonSections'
 import { createPreviewSessionEngine, type PreviewSession } from './previewSession'
-import { forTier, readScienceTier, type ScienceTier } from './tier'
+import { chapterLessonsForTier, forTier, getScienceLessonForTier, parseScienceLessonRefForTier, readScienceTier, scienceCatalogueForTier, type ScienceTier } from './tier'
 import type { ScienceLesson } from './types'
 
 // Biology is stored as a bare number ("12"), as it always was; other subjects as "<subject>:<number>" ("chemistry:1", "physics:1").
+// A Higher-only lesson is stored by its label ("chemistry:20H") and only ever decodes for a Higher student.
 export const SCIENCE_LAST_LESSON_KEY = 'revily:science-last-lesson:v1'
 
-/** Every built lesson, all subjects. Progress maps are keyed by lesson id, which is unique across subjects. */
+/** Every built Foundation lesson, all subjects (Higher students: `scienceCatalogueForTier`). Progress maps are keyed by lesson id, which is unique across subjects. */
 export const scienceCatalogue = allScienceLessons
 // One engine per lesson version (a lesson with Higher sections has its own version and saved session).
 const engines = new Map<string, ReturnType<typeof createPreviewSessionEngine>>()
@@ -71,10 +72,10 @@ function readSession(lesson: ScienceLesson): PreviewSession | null {
   }
 }
 
-/** Progress for the student's tier, keyed by lesson id (the same ids on both tiers). */
+/** Progress for the student's tier, keyed by lesson id (the same ids on both tiers). Higher-only lessons are read only for Higher. */
 export function readScienceProgress(tier: ScienceTier = readScienceTier()): ScienceProgressMap {
   const result: ScienceProgressMap = {}
-  for (const foundation of scienceCatalogue) {
+  for (const foundation of scienceCatalogueForTier(tier)) {
     const item = forTier(foundation, tier)
     const session = readSession(item.lesson)
     if (!session) continue
@@ -90,34 +91,44 @@ export function readScienceProgress(tier: ScienceTier = readScienceTier()): Scie
   return result
 }
 
-/** The stored last-lesson value: a bare number for Biology (unchanged format), "<subject>:<number>" otherwise. */
-export function encodeScienceLastLesson(ref: ScienceLessonRef) {
-  return ref.subject === 'biology' ? String(ref.number) : `${ref.subject}:${ref.number}`
+type LastLessonRef = Pick<ScienceCatalogueEntry, 'subject' | 'number' | 'label'>
+/** The stored last-lesson value: a bare number for Biology (unchanged format), "<subject>:<number>" otherwise ("chemistry:20H" for a Higher-only lesson). */
+export function encodeScienceLastLesson(ref: LastLessonRef) {
+  return ref.subject === 'biology' ? scienceLessonLabel(ref) : `${ref.subject}:${scienceLessonLabel(ref)}`
 }
-export function decodeScienceLastLesson(value: string | null): ScienceCatalogueEntry | null {
-  const match = /^(?:([a-z]+):)?([1-9]\d*)$/.exec(value ?? '')
-  if (!match) return null
-  const subject = match[1] ?? 'biology'
-  return isScienceSubject(subject) ? getScienceLesson(subject, Number(match[2])) : null
+/** The saved last lesson, if the tier has it (Foundation never decodes a Higher-only lesson). */
+export function decodeScienceLastLesson(value: string | null, tier: ScienceTier = 'foundation'): ScienceCatalogueEntry | null {
+  const match = /^(?:([a-z]+):)?([1-9]\d*H?)$/.exec(value ?? '')
+  const ref = match && parseScienceLessonRefForTier(match[1], match[2], tier)
+  return ref ? getScienceLessonForTier(ref.subject, ref.number, tier) : null
 }
 
-export function readScienceLastLesson(): ScienceCatalogueEntry | null {
+export function readScienceLastLesson(tier: ScienceTier = readScienceTier()): ScienceCatalogueEntry | null {
   try {
-    return decodeScienceLastLesson(window.localStorage.getItem(SCIENCE_LAST_LESSON_KEY))
+    return decodeScienceLastLesson(window.localStorage.getItem(SCIENCE_LAST_LESSON_KEY), tier)
   } catch {
     return null
   }
 }
 
-export function saveScienceLastLesson(ref: ScienceLessonRef) {
+export function saveScienceLastLesson(ref: LastLessonRef) {
   try { window.localStorage.setItem(SCIENCE_LAST_LESSON_KEY, encodeScienceLastLesson(ref)) } catch { /* storage unavailable */ }
 }
 
-/** The AQA units as curriculum chapters (Biology, then Chemistry, then Physics), each with its built lessons. */
-export const scienceUnits = scienceSubjects.flatMap(item => item.chapters.map(chapter => ({
-  subject: item.subject,
-  subjectTitle: item.title,
-  code: chapter.code,
-  title: chapter.title,
-  lessons: item.lessons.filter(entry => chapter.lessonNumbers.includes(entry.number)),
-})))
+export type ScienceUnit = { subject: ScienceCatalogueEntry['subject']; subjectTitle: string; code: string; title: string; lessons: readonly ScienceCatalogueEntry[] }
+function unitsFor(tier: ScienceTier): ScienceUnit[] {
+  return scienceSubjects.flatMap(item => item.chapters.map(chapter => ({
+    subject: item.subject,
+    subjectTitle: item.title,
+    code: chapter.code,
+    title: chapter.title,
+    lessons: chapterLessonsForTier(chapter, tier),
+  })))
+}
+/** The AQA units as curriculum chapters (Biology, then Chemistry, then Physics), each with its built Foundation lessons. */
+export const scienceUnits = unitsFor('foundation')
+const higherUnits = unitsFor('higher')
+/** The units as a student on `tier` sees them: Higher units also hold their Higher-only lessons, in order. */
+export function scienceUnitsForTier(tier: ScienceTier): readonly ScienceUnit[] {
+  return tier === 'higher' ? higherUnits : scienceUnits
+}

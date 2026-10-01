@@ -18,6 +18,7 @@ import { HormoneVisual } from './HormoneVisuals'
 import { HigherPhotosynthesisVisual } from './HigherPhotosynthesisVisuals'
 import { HigherHormoneVisual } from './HigherHormoneVisuals'
 import { HigherGeneticEngineeringVisual } from './HigherGeneticEngineeringVisuals'
+import { HigherMolesVisual } from './HigherMolesVisuals'
 import { HigherFertilityVisual } from './HigherFertilityVisuals'
 import { InheritanceVisual } from './InheritanceVisuals'
 import { EvolutionVisual } from './EvolutionVisuals'
@@ -451,6 +452,7 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('hfert-')) return <HigherFertilityVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hhorm-')) return <HigherHormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hgene-')) return <HigherGeneticEngineeringVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hmole-')) return <HigherMolesVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('inherit-')) return <InheritanceVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('evolve-')) return <EvolutionVisual focus={focus} assessment={assessment} />
