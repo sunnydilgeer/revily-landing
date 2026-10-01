@@ -5,7 +5,8 @@ const assert = require('node:assert/strict')
 
 const number = text => Number(String(text).replace(/[£,\s]/g, '').replace(/−/g, '-'))
 function evaluate(expression) {
-  const js = expression.replace(/[£,]/g, '').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')
+  if (!/[×÷+−]/.test(expression)) return undefined
+  const js = expression.replace(/(\d) (?=\d)/g, '$1').replace(/[£,]/g, '').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')
   if (!/^[\d.\s+\-*/()]+$/.test(js)) return undefined
   return Function(`return ${js}`)()
 }
@@ -32,7 +33,7 @@ function checkStepWorking(working, label) {
       }
     }
     const shown = [...(step.lines ?? []).filter(l => l.answer).map(l => l.result), ...(step.words ? [step.words] : []),
-      ...(step.picture?.done ? [step.picture.kind === 'columns' ? columnsAnswer(step.picture) : step.picture.quotient.trim()] : [])]
+      ...(step.picture?.done ? [step.picture.kind === 'columns' ? columnsAnswer(step.picture) : step.picture.quotient?.trim()] : [])]
     assert.equal(shown.length, last ? 1 : 0, `${label} step ${i + 1}: the answer is shown once, by the last move`)
     if (last) answer = shown[0]
   })

@@ -4,6 +4,7 @@
  * step's new numbers come from ("6 + 7 → 13", the carried 1 boxed in purple). The last move gives the answer, drawn once
  * in green, either as a line's result or as the picture's answer row. Used by lessons 6 onwards (StepWorkedExample.tsx).
  */
+import type { MethodFrame, RoundingFrame } from './methodWorking'
 
 /** Part of a line: its text, colour (`is-f0`… blue, amber, green, purple), boxed in purple, or struck out. */
 export type LinePart = { text: string; family?: number; boxed?: boolean; struck?: boolean }
@@ -40,14 +41,19 @@ export type BusStopPicture = {
   focus?: number
   done?: boolean
 }
-export type StepPicture = ColumnsPicture | BusStopPicture
+/** A factor tree, number lists or a Venn diagram, drawn by the written-method pictures from a method frame. */
+export type MethodPicture = { kind: 'method'; method: 'factor-tree' | 'number-lists' | 'venn'; first: number; frame: MethodFrame }
+/** A number with a cut after the last digit kept and the next digit marked (rounding). */
+export type RoundingPicture = { kind: 'rounding'; frame: RoundingFrame }
+export type StepPicture = ColumnsPicture | BusStopPicture | MethodPicture | RoundingPicture
 
 export type WorkedStep = { title: string; why: string; tag?: string; picture?: StepPicture; lines?: StepLine[]; words?: string }
 /**
  * `trail` keeps earlier steps' lines on screen (faded) for a working with no picture to hold its results.
  * `given` is the sum written from a word problem, above the picture.
+ * `start` is what the working starts from ("5/8", "0.68"), shown plainly on the opening screen when it has no picture.
  */
-export type StepWorking = { kind: 'step-worked'; opening?: StepPicture; given?: string; trail?: boolean; steps: WorkedStep[] }
+export type StepWorking = { kind: 'step-worked'; opening?: StepPicture; given?: string; start?: string; trail?: boolean; steps: WorkedStep[] }
 
 export const part = (text: string | number, family?: number, extra: Partial<LinePart> = {}): LinePart => ({ text: String(text), family, ...extra })
 export const sign = (text: string): LinePart => ({ text })

@@ -3,9 +3,10 @@
 import type { CSSProperties } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
-import { PictureStep } from './NumberSenseWorkedExample'
+import { PictureStep, RoundingVisual } from './NumberSenseWorkedExample'
 import { Powers } from './Powers'
-import type { MethodStep } from './methodWorking'
+import type { MethodExample, MethodStep } from './methodWorking'
+import { MethodPicture as MethodPictureView } from './MethodWorkedExample'
 import type { BusStopPicture, ColumnsPicture, StepLine, StepPicture, StepWorking } from './stepWorking'
 
 const cls = (...names: Array<string | false | undefined>) => names.filter(Boolean).join(' ')
@@ -59,6 +60,8 @@ function BusStop({ picture }: { picture: BusStopPicture }) {
 }
 
 function Picture({ picture }: { picture: StepPicture }) {
+  if (picture.kind === 'rounding') return <div className="rung-worked__visual sp-picture"><RoundingVisual frame={picture.frame} /></div>
+  if (picture.kind === 'method') return <div className="rung-worked__visual sp-picture"><MethodPictureView example={{ method: picture.method, first: picture.first } as MethodExample} frame={picture.frame} /></div>
   return <div className="rung-worked__visual sp-picture">{picture.kind === 'columns' ? <Columns picture={picture} /> : <BusStop picture={picture} />}</div>
 }
 
@@ -81,7 +84,7 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
   const given = working.given && <p className="sp-given"><Powers text={working.given} /></p>
   const picture = (revealed: number) => {
     const index = revealed - 2
-    if (index < 0) return <div className="ns-visual sp-working">{given}{working.opening && <Picture picture={working.opening} />}</div>
+    if (index < 0) return <div className="ns-visual sp-working">{given}{working.opening ? <Picture picture={working.opening} /> : working.start && <p className="sp-start"><Powers text={working.start} /></p>}</div>
     const step = working.steps[index]
     const shown = working.steps.slice(0, index + 1).findLast(s => s.picture)?.picture ?? working.opening
     const earlier = working.trail ? working.steps.slice(0, index).flatMap(s => s.lines ?? []) : []

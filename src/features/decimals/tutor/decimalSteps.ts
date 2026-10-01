@@ -156,6 +156,8 @@ export function decimalDivision(first: string, second: string, given?: string): 
   chars.forEach((c, index) => {
     const last = index === chars.length - 1
     if (c === '.') {
+      // Nothing above the units yet means the answer is less than 1: write the 0 before the point.
+      if (!begun) quotient = `${quotient.slice(0, -1)}0`
       quotient += '.'
       steps.push({ title: 'Point goes straight up', why: 'The point in the answer sits above the point in the number you divide.', picture: { kind: 'bus-stop', divisor, dividend, quotient, carries: [...carries], focus: index } })
       return
