@@ -4,10 +4,10 @@
  * Science curriculum home. Same contents layout as Maths: the AQA units down the left, one subject at a time,
  * and the chosen unit's lessons on a line on the right. The unit you're in is chosen to start with.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../ui'
-import { Lock, TocChapter, TocLesson, type TocStatus } from '../maths/Curriculum'
-import { scienceEntryHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
+import { CurriculumSearch, Lock, TocChapter, TocLesson, type SearchResult, type TocStatus } from '../maths/Curriculum'
+import { scienceEntryHref, scienceSubjects, scienceSubjectTitle, type ScienceCatalogueEntry } from './lessonNavigation'
 import { scienceLessonMinutes } from './lessonMinutes'
 import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceUnitsForTier, sectionStatus, type ScienceProgressMap } from './scienceProgress'
 import { forTier, readScienceTier, saveScienceTier, scienceCatalogueForTier, type ScienceTier } from './tier'
@@ -16,10 +16,11 @@ import '../maths/Curriculum.css'
 import './ScienceCurriculum.css'
 
 // Science lessons still open in the Science lesson player for now.
-function onOpenLesson(entry: ScienceCatalogueEntry) {
+function onOpenLesson(entry: ScienceCatalogueEntry, section?: string) {
   saveScienceLastLesson(entry)
-  window.location.assign(scienceEntryHref(entry))
+  window.location.assign(scienceEntryHref(entry, section))
 }
+const stripChapter = (title: string) => title.replace(/^Chapter \d+ · /, '')
 
 // A subject becomes a real section of the curriculum as soon as it has one lesson; until then it is listed under Coming later.
 const LATER = scienceSubjects.filter(item => item.lessons.length === 0).map(item => ({ code: item.code, title: item.title }))
@@ -63,6 +64,22 @@ export default function ScienceCurriculum() {
   const [pickedSubject, setListSubject] = useState<string | null>(null)
   const listSubject = pickedSubject ?? unit?.subject ?? upNext.subject
 
+  // Search matches lesson and section titles in every subject; a section opens its lesson at that section.
+  const [query, setQuery] = useState('')
+  const results = useMemo<SearchResult[] | null>(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return null
+    return shownUnitsFor(tier).flatMap(item => item.lessons.flatMap(raw => {
+      const entry = forTier(raw, tier)
+      const where = `${scienceSubjectTitle(entry.subject)} · ${item.code}`
+      return [
+        ...(entry.title.toLowerCase().includes(q) ? [{ key: entry.lesson.id, title: entry.title, label: `Lesson · ${where} ${item.title}`, onPick: () => onOpenLesson(entry) }] : []),
+        ...sectionStatus(entry.lesson, entry.sections, null).filter(section => stripChapter(section.title).toLowerCase().includes(q))
+          .map(section => ({ key: `${entry.lesson.id}-${section.id}`, title: stripChapter(section.title), label: `Section · ${where} · ${entry.title}`, onPick: () => onOpenLesson(entry, section.id) })),
+      ]
+    }))
+  }, [query, tier])
+
   return <div className="cur">
     <header className="cur-head">
       <div>
@@ -79,7 +96,9 @@ export default function ScienceCurriculum() {
       </div>
     </header>
 
-    <div className="cur-toc">
+    <CurriculumSearch query={query} onQuery={setQuery} placeholder="Search lessons and sections" results={results} />
+
+    {!results && <div className="cur-toc">
       <nav className="cur-toc__chapters" aria-label="Units">
         <div className="cur-toc__subjects" role="group" aria-label="Subject">
           {shownSubjects.map(subject => <button key={subject.code} type="button" aria-pressed={subject.subject === listSubject}
@@ -121,6 +140,6 @@ export default function ScienceCurriculum() {
         <p className="sci-draft-note">Draft content, awaiting review by a qualified teacher.</p>
       </section>
 
-    </div>
+    </div>}
   </div>
 }
