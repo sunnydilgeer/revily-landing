@@ -28,30 +28,30 @@ function Question({ frame, plain }: { frame: QuadraticFrame; plain?: boolean }) 
 
 const Gap = () => <span className="ns-quad__gap" />
 
-/** The brackets with two empty boxes, and the two jobs the numbers in them must do. */
-function Shape({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
+/** The brackets with two empty boxes for the two numbers. */
+function Brackets({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
   return <div className={`ns-quad__shape${done}`} aria-hidden="true">
     <p className="ns-quad__brackets">({frame.letter} + <Gap />)({frame.letter} + <Gap />)</p>
-    <p className="is-f1"><Gap /> × <Gap /> = {minus(frame.last)}</p>
-    <p className="is-f0"><Gap /> + <Gap /> = {minus(frame.middle)}</p>
   </div>
 }
 
-/** The pairs that multiply to c, with what each adds to once checked: the pair that works is ticked and purple. */
-function Pairs({ frame, heading, done = '' }: { frame: QuadraticFrame; heading?: ReactNode; done?: string }) {
+/**
+ * One table for the whole search: its first row is the two jobs (☐ and ☐ must multiply to c and add to b), then the
+ * pairs that multiply to c, then what each adds to once checked: the pair that works is ticked and purple.
+ */
+function Pairs({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
   const pairs = frame.pairs ?? []
-  return <>
-    {frame.adds === 'pairs' && heading}
-    <table className={`ns-quad__pairs${done}`} aria-hidden="true">
-      <thead><tr><th>The two numbers</th><th className="is-f1">×</th><th className="is-f0">+</th></tr></thead>
-      {frame.adds === 'sums' && heading && <tbody className="ns-quad__heading-row"><tr><td colSpan={3}>{heading}</td></tr></tbody>}
-      <tbody>{pairs.map(([a, b], i) => <tr key={i} className={frame.sums && i === frame.pick ? 'is-pick' : undefined}>
+  return <table className={`ns-quad__pairs${done}`} aria-hidden="true">
+    <thead><tr><th>The two numbers</th><th className="is-f1">×</th><th className="is-f0">+</th></tr></thead>
+    <tbody>
+      <tr className="ns-quad__target"><td><Gap /> <span className="ns-quad__and">and</span> <Gap /></td><td className="is-f1">{minus(frame.last)}</td><td className="is-f0">{minus(frame.middle)}</td></tr>
+      {pairs.map(([a, b], i) => <tr key={i} className={frame.sums && i === frame.pick ? 'is-pick' : undefined}>
         <td>{minus(a)} <span className="ns-quad__and">and</span> {minus(b)}</td>
         <td className="is-f1">{minus(a * b)}</td>
         <td className="is-f0">{frame.sums ? <>{minus(a + b)} <span className={i === frame.pick ? 'ns-quad__yes' : 'ns-quad__no'}>{i === frame.pick ? '✓' : '✗'}</span></> : ''}</td>
-      </tr>)}</tbody>
-    </table>
-  </>
+      </tr>)}
+    </tbody>
+  </table>
 }
 
 /** A difference of two squares: each term written as a square, the part that is squared boxed in its colour. */
@@ -83,20 +83,23 @@ function spoken(frame: QuadraticFrame) {
 
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
 export function QuadraticVisual({ frame, heading, plain }: { frame: QuadraticFrame; heading?: ReactNode; plain?: boolean }) {
-  // Grey out the parts this step has finished with: the question and the part just before this step's stay clear.
-  const parts = (['shape', 'signs', 'squares', 'pairs', 'answer'] as const).filter(part => part === 'shape' ? frame.shape : part === 'signs' ? frame.signs : part === 'squares' ? frame.squares : part === 'pairs' ? frame.pairs : frame.answer)
-  const now = parts.indexOf(frame.adds === 'sums' ? 'pairs' : frame.adds)
-  const done = (part: typeof parts[number]) => parts.indexOf(part) < now - 1 ? ' is-done' : ''
+  // Grey out what this step has finished with: only the question, what the step before added and what this step adds
+  // stay clear (Sunny, 1 Oct). The first step's brackets and the table's first row come together.
+  type Part = 'brackets' | 'signs' | 'table' | 'squares' | 'answer'
+  const partsOf = (adds?: QuadraticFrame['adds']): Part[] => adds === 'shape' ? ['brackets', 'table'] : adds === 'pairs' || adds === 'sums' ? ['table'] : adds ? [adds] : []
+  const clear = [...partsOf(frame.adds), ...partsOf(frame.before)]
+  const done = (part: Part) => clear.includes(part) ? '' : ' is-done'
   if (plain) return <div className="ns-quad is-plain" role="img" aria-label={`The question: ${quadraticText(frame)}`}><Question frame={frame} plain /></div>
   return <div className="ns-quad" role="img" aria-label={spoken(frame)}>
     <Question frame={frame} />
     {frame.adds === 'shape' && heading}
-    {frame.shape && <Shape frame={frame} done={done('shape')} />}
+    {frame.shape && <Brackets frame={frame} done={done('brackets')} />}
     {frame.adds === 'signs' && heading}
     {frame.signs && <ul className={`ns-quad__signs${done('signs')}`} aria-hidden="true">{frame.signs.map(sign => <li key={sign}><Powers text={sign} /></li>)}</ul>}
     {frame.adds === 'squares' && heading}
     {frame.squares && <Squares frame={frame} done={done('squares')} />}
-    {frame.pairs && <Pairs frame={frame} heading={heading} done={done('pairs')} />}
+    {(frame.adds === 'pairs' || frame.adds === 'sums') && heading}
+    {frame.shape && <Pairs frame={frame} done={done('table')} />}
     {frame.adds === 'answer' && heading}
     {frame.answer && <Answer frame={frame} />}
   </div>

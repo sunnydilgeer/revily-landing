@@ -223,7 +223,8 @@
 .ns-quad__pairs td { padding: 4px 8px; white-space: nowrap; color: var(--f, var(--rv-ink)); border-top: 1px solid var(--rv-line); }
 .ns-quad__pairs tr.is-pick td { color: #7c3aed; background: color-mix(in srgb, #7c3aed 10%, transparent); }
 .ns-quad__pairs tr.is-pick td.is-f0, .ns-quad__pairs tr.is-pick td.is-f1 { color: var(--f); }
-.ns-quad__heading-row td { padding: 8px 0 4px; border: 0; }
+.ns-quad__target td { padding-bottom: 6px; font-weight: 700; }
+.ns-quad__target .ns-quad__gap { width: .95em; height: .95em; }
 .ns-quad__and { font-size: .75em; font-weight: 500; color: var(--rv-muted); }
 .ns-quad__yes { color: var(--rv-good); }
 .ns-quad__no { color: #dc2626; }

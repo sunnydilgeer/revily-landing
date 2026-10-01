@@ -51,9 +51,10 @@ function pairsModel(middle: number, last: number, letter = 'x'): TutorWorking {
   const base = { letter, middle, last }
   const question = tex(quadratic(letter, middle, last))
   const steps: MethodStep[] = []
-  const step = (title: string, equation: string, instruction: string, frame: QuadraticFrame) => steps.push({ title, operation: question, equation, instruction, frame: { quadratic: frame } })
+  // Each frame says what the step before added, so that stays clear while older working is greyed out.
+  const step = (title: string, equation: string, instruction: string, frame: QuadraticFrame) => steps.push({ title, operation: question, equation, instruction, frame: { quadratic: { ...frame, before: steps.at(-1)?.frame.quadratic?.adds } } })
   let frame: QuadraticFrame = { ...base, shape: true, adds: 'shape' }
-  step('What the numbers do', `a\\times b=${signed(last)},\\ a+b=${signed(middle)}`.replace(/−/g, '-'), 'Two numbers go in the brackets. They must multiply to make the last number and add to make the number in front of x.', frame)
+  step('What the numbers do', `a\\times b=${signed(last)},\\ a+b=${signed(middle)}`.replace(/−/g, '-'), 'Two numbers go in the brackets. The first row of the table says what they must do: multiply to make the last number and add to make the number in front of x.', frame)
   const signs = signReasons(middle, last)
   if (signs) { frame = { ...frame, signs: signs.notes, adds: 'signs' }; step('Pick the signs', '\\text{signs}', signs.say, frame) }
   frame = { ...frame, pairs, adds: 'pairs' }
@@ -71,7 +72,7 @@ function squaresModel(root: number, letter = 'x'): TutorWorking {
   const base = { letter, middle: 0, last }
   const steps: MethodStep[] = [
     { title: 'Write as squares', operation: question, equation: `${letter}^{2}=${letter}\\times ${letter},\\ ${-last}=${root}\\times ${root}`, instruction: 'There is no middle term, and both terms are squares. Write each one as something times itself.', frame: { quadratic: { ...base, squares: true, adds: 'squares' } } },
-    { title: 'One plus, one minus', operation: question, equation: tex(brackets(letter, [root, -root])), instruction: 'Put the two square roots in two brackets, one with a plus and one with a minus. Multiplied out, the two middle terms cancel, so there is no middle term.', frame: { quadratic: { ...base, squares: true, answer: [root, -root], adds: 'answer' } } },
+    { title: 'One plus, one minus', operation: question, equation: tex(brackets(letter, [root, -root])), instruction: 'Put the two square roots in two brackets, one with a plus and one with a minus. Multiplied out, the two middle terms cancel, so there is no middle term.', frame: { quadratic: { ...base, squares: true, answer: [root, -root], adds: 'answer', before: 'squares' } } },
   ]
   return { kind: 'method-worked', examples: [{ method: 'ordering', expression: question, label: 'Factorise', first: 0, second: 0, steps, pictureOnly: true }] }
 }
