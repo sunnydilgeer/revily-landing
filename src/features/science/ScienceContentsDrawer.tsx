@@ -9,11 +9,13 @@ import { progress } from './engine'
 import { getScienceLesson, scienceChaptersFor, scienceHubHref, scienceLessonHref, scienceLessonNumberById, scienceLessonsFor, scienceSubjectLessonHref, scienceSubjectTitle, TRANSPORT_EXAM_LESSON_ID, type ScienceSubject } from './lessonNavigation'
 import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
+import { forTier, type ScienceTier } from './tier'
 
 type Props = {
   open: boolean
   subject: ScienceSubject
   lessonNumber: number
+  tier: ScienceTier
   chapterTitle: string
   session: PreviewSession
   storageAvailable: boolean
@@ -32,7 +34,7 @@ const TRANSPORT_STORY = [
 
 const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
 
-export default function ScienceContentsDrawer({ open, subject, lessonNumber, chapterTitle, session, storageAvailable, onClose, onJump, onRestart }: Props) {
+export default function ScienceContentsDrawer({ open, subject, lessonNumber, tier, chapterTitle, session, storageAvailable, onClose, onJump, onRestart }: Props) {
   const drawerRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const [confirmRestart, setConfirmRestart] = useState(false)
@@ -60,7 +62,7 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, cha
   }, [onClose, open])
 
   if (!open) return null
-  const entry = getScienceLesson(subject, lessonNumber)!
+  const entry = forTier(getScienceLesson(subject, lessonNumber)!, tier)
   const lesson = entry.lesson
   const sections = sectionStatus(lesson, entry.sections, session)
   const subjectLessons = scienceLessonsFor(subject)

@@ -9,8 +9,9 @@
 import { useCallback, useEffect, useReducer, useRef, useState, type RefObject } from 'react'
 import { Button, CheckBar, RevilyLogo } from '../../ui'
 import { progress } from './engine'
-import { allScienceLessons, getScienceLesson, nextScienceLesson, scienceChapterFor, scienceHubHref, scienceSubjectLessonHref, type ScienceSubject } from './lessonNavigation'
+import { getScienceLesson, nextScienceLesson, scienceChapterFor, scienceHubHref, scienceSubjectLessonHref, type ScienceSubject } from './lessonNavigation'
 import { createPreviewSessionEngine, type PreviewSession, type SessionAction } from './previewSession'
+import { forTier, readScienceTier, type ScienceTier } from './tier'
 import { sectionRanges } from './scienceProgress'
 import { WalkthroughDiagram, WorkedVisual } from './components/TeachingChunk'
 import { LessonVisual } from './components/LessonVisual'
@@ -43,7 +44,14 @@ const REFRESHERS: Record<string, { title: string; text: string }> = {
   'B5-01': { title: 'Quick nucleus refresher', text: 'The nucleus contains genetic information. Chromosomes in the nucleus consist of DNA; a gene is a small section of DNA. This lesson connects that model to cell division.' },
 }
 
-const engines = new Map(allScienceLessons.map(item => [item.lesson.id, createPreviewSessionEngine(item.lesson)] as const))
+// One engine per lesson version: a lesson with Higher sections has its own version, so its own saved session.
+const engines = new Map<string, ReturnType<typeof createPreviewSessionEngine>>()
+function engineFor(lesson: Parameters<typeof createPreviewSessionEngine>[0]) {
+  const key = `${lesson.id}:${lesson.contentVersion}`
+  let engine = engines.get(key)
+  if (!engine) { engine = createPreviewSessionEngine(lesson); engines.set(key, engine) }
+  return engine
+}
 const newSessionId = () => window.crypto.randomUUID()
 const now = () => new Date().toISOString()
 const sectionTitle = (title: string) => title.replace(/^Chapter \d+ · /, '')
@@ -61,12 +69,15 @@ function Hint({ open, text, id, onToggle }: { open: boolean; text: string; id: s
 
 // `lessonNumber` is the number within `subject` (Biology when omitted, as in the original ?lesson=N links).
 export default function ScienceLesson({ subject = 'biology', lessonNumber, initialActivity }: { subject?: ScienceSubject; lessonNumber: number; initialActivity?: string }) {
-  const entry = getScienceLesson(subject, lessonNumber)!
+  // The tier is read after mounting (it lives in this device's storage); nothing is restored until it is known.
+  const [tier, setTier] = useState<ScienceTier | null>(null)
+  useEffect(() => setTier(readScienceTier()), [])
+  const entry = forTier(getScienceLesson(subject, lessonNumber)!, tier ?? 'foundation')
   const lesson = entry.lesson
   const nextEntry = nextScienceLesson(entry)
   const chapter = scienceChapterFor(entry)!
   const frames = entry.frames
-  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = engines.get(lesson.id)!
+  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = engineFor(lesson)
   const reducer = useCallback((session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) =>
     action.type === 'restore' ? action.session : previewReducer(session, action), [previewReducer])
   const [session, dispatch] = useReducer(reducer, createPreviewSession('loading'))
@@ -95,6 +106,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
 
   // Restore this lesson's saved session, then keep saving it.
   useEffect(() => {
+    if (tier === null) return
     let restored: PreviewSession | null = null
     try {
       const raw = window.localStorage.getItem(storageKey)
@@ -106,7 +118,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
     const opening = restored || createPreviewSession(newSessionId())
     dispatch({ type: 'restore', session: initialActivity ? previewReducer(opening, { type: 'jump', id: initialActivity }) : opening })
     setReady(true)
-  }, [createPreviewSession, restorePreviewSession, previewReducer, storageKey, initialActivity])
+  }, [tier, createPreviewSession, restorePreviewSession, previewReducer, storageKey, initialActivity])
   useEffect(() => {
     if (!ready || session.lessonId !== lesson.id) return
     try { window.localStorage.setItem(storageKey, JSON.stringify(session)) }
@@ -316,6 +328,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
       open={drawerOpen}
       subject={subject}
       lessonNumber={lessonNumber}
+      tier={tier ?? 'foundation'}
       chapterTitle={chapter.title}
       session={session}
       storageAvailable={storageAvailable}
