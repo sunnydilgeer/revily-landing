@@ -11,6 +11,7 @@ import { higherB5Fertility } from './biology-b5-fertility'
 import { higherB6 } from './biology-b6'
 import { higherC2 } from './chemistry-c2'
 import { higherC4 } from './chemistry-c4'
+import { higherC6 } from './chemistry-c6'
 
 export type { HigherAddition } from './helpers'
 
@@ -77,4 +78,4 @@ const riskPlaces = addition('B-ORG-016-B', 'B16-10', 'B-HIGHER-RISK', ['4.2.2.6'
     a.choice('B16-H03', 'Why are heart disease and type 2 diabetes more common in deprived areas?', ['People there are more likely to smoke, have a poor diet and not exercise', 'These diseases spread from person to person there', 'Everyone there has the same genes'], 0, 'Think about the risk factors for these diseases.', ['Heart disease and type 2 diabetes are not communicable, so they do not spread.', 'People in deprived areas are more likely to have risk factors such as smoking, a poor diet and no exercise.'], 'understanding', true),
   ])
 
-export const higherAdditions: readonly HigherAddition[] = [gills, oxyhaemoglobin, cholesterol, virusCancer, riskPlaces, ...higherB4, ...higherB5, ...higherB5Fertility, ...higherB6, ...higherC2, ...higherC4]
+export const higherAdditions: readonly HigherAddition[] = [gills, oxyhaemoglobin, cholesterol, virusCancer, riskPlaces, ...higherB4, ...higherB5, ...higherB5Fertility, ...higherB6, ...higherC2, ...higherC4, ...higherC6]

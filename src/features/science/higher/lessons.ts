@@ -15,6 +15,10 @@ import { lessonC22H, acidStrengthSections } from '../chemistry/lesson-22h/lesson
 import { acidStrengthFrames } from '../chemistry/lesson-22h/teachingFrames'
 import { lessonC25H, redoxSections } from '../chemistry/lesson-25h/lesson'
 import { redoxFrames } from '../chemistry/lesson-25h/teachingFrames'
+import { lessonC36H, equilibriumSections } from '../chemistry/lesson-36h/lesson'
+import { equilibriumFrames } from '../chemistry/lesson-36h/teachingFrames'
+import { lessonC30H, bondEnergySections } from '../chemistry/lesson-30h/lesson'
+import { bondEnergyFrames } from '../chemistry/lesson-30h/teachingFrames'
 import type { ScienceCatalogueEntry } from '../lessonNavigation'
 
 export const higherLessons: readonly ScienceCatalogueEntry[] = [
@@ -24,4 +28,8 @@ export const higherLessons: readonly ScienceCatalogueEntry[] = [
   { subject: 'chemistry', number: 22.5, label: '22H', higherOnly: true, folder: '22h', title: 'Strong and weak acids', detail: 'Ionisation, pH steps and strength versus concentration', lesson: lessonC22H, sections: acidStrengthSections, frames: acidStrengthFrames },
   // Chemistry C4, between Lesson 25 (metals with acids and water, displacement) and Lesson 26 (electrolysis).
   { subject: 'chemistry', number: 25.5, label: '25H', higherOnly: true, folder: '25h', title: 'Redox and ionic equations', detail: 'Electrons lost and gained, half equations and ionic equations', lesson: lessonC25H, sections: redoxSections, frames: redoxFrames },
+  // Chemistry C5, between Lesson 30 (reaction profiles) and Lesson 31 (rates of reaction, a new chapter).
+  { subject: 'chemistry', number: 30.5, label: '30H', higherOnly: true, folder: '30h', title: 'Bond energies', detail: 'Bonds broken minus bonds made', lesson: lessonC30H, sections: bondEnergySections, frames: bondEnergyFrames },
+  // Chemistry C6, between Lesson 36 (reversible reactions and equilibrium) and Lesson 37 (hydrocarbons).
+  { subject: 'chemistry', number: 36.5, label: '36H', higherOnly: true, folder: '36h', title: 'Le Chatelier’s principle', detail: 'How temperature, pressure and concentration move an equilibrium', lesson: lessonC36H, sections: equilibriumSections, frames: equilibriumFrames },
 ]
