@@ -105,7 +105,7 @@
 .sp-working { gap: 12px; min-height: 0; padding: 4px 0 0; }
 .sp-picture { overflow-x: auto; }
 .sp-given { margin: 0; text-align: center; color: var(--rv-muted); font-size: 17px; }
-.sp-start { margin: 0; text-align: center; font-size: 28px; font-weight: 700; color: var(--rv-ink, inherit); }
+.sp-start { margin: 0; text-align: center; font-size: clamp(20px, 7cqw, 28px); text-wrap: balance; font-weight: 700; color: var(--rv-ink, inherit); }
 .sp-columns, .sp-bus { width: max-content; margin: 0 auto; font-size: clamp(26px, 7.5vw, 34px); font-weight: 600; font-variant-numeric: tabular-nums; }
 .sp-row { display: grid; grid-template-columns: .9em repeat(var(--sp-cols), auto); justify-content: center; align-items: end; min-height: 1.3em; }
 .sp-col { min-width: .95em; text-align: center; border-radius: 6px; }
@@ -132,7 +132,7 @@
 .sp-bus__row .is-focus { color: #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); border-radius: 5px; }
 .sp-bus__row sup { position: absolute; left: -.2em; top: .05em; font-size: 14px; color: #7c3aed; font-weight: 700; }
 .sp-bus__row .sp-point, .sp-bus__top .sp-point { min-width: .35em; }
-.sp-lines li { color: var(--rv-ink); }
+.sp-lines li { color: var(--rv-ink); gap: .4em; }
 .sp-lines.is-old li { color: var(--rv-muted); font-size: .85em; }
 .sp-lines.is-old .sp-result { color: inherit; }
 .sp-parts { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: .3em; }
