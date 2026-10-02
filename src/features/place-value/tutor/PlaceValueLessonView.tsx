@@ -7,6 +7,7 @@ import { diagnoseNumber } from '../../written-methods/tutor/numberDiagnosis'
 import { Button, CheckBar } from '../../../ui'
 import { InlinePlaceHint } from './PlaceValueHint'
 import { PlaceValueTeachingMedia } from './PlaceValueTeachingMedia'
+import { PlaceWorkingExample } from './PlaceWorkingExample'
 import { tutorPlaceValueLesson as lesson, tutorPlaceValueLabels as labels, type TutorPlaceState } from './placeValueLesson'
 import '../../number-types/RationalNumbersLesson.css'
 import '../../written-methods/tutor/TutorLessonBase.css'
@@ -36,7 +37,8 @@ export default function TutorPlaceValueLessonView() {
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.title}</h3>
       {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
-      <PlaceValueTeachingMedia state={state} />
+      {/* Once answered, the working's chart shows the number, so it is drawn once. */}
+      {!(feedback && state.working) && <PlaceValueTeachingMedia state={state} />}
       {numeric && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && engine.inputValue.trim()) engine.submit() }}>
         <div className={`rung-answer${answerState}`}>
           <span className="rung-answer__eq" aria-hidden="true">=</span>
@@ -50,7 +52,8 @@ export default function TutorPlaceValueLessonView() {
         return <button type="button" key={option.id} className={`pvb-choice pvb-choice--${status}`} disabled={Boolean(feedback)} aria-pressed={selected} aria-label={`${option.label}${feedback ? correct ? ', correct answer' : selected ? ', your answer, incorrect' : '' : ''}`} onClick={() => engine.submitSelection([option.id])}><span>{option.label}</span><span aria-hidden="true">{feedback ? correct ? '✓' : selected ? '×' : '' : ''}</span></button>
       })}</div>}
       {!teaching && !feedback && state.hints && <InlinePlaceHint hints={state.hints} onConsult={engine.markHintUsed} />}
-      {feedback?.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
+      {feedback && state.working && <div className="rung-explain pvb-stage"><PlaceWorkingExample working={state.working} /></div>}
+      {feedback?.workedExplanation && !state.working && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
     </article>
 
     {feedback

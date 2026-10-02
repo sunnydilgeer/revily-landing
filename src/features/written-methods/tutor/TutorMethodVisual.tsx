@@ -1,6 +1,7 @@
 'use client'
 
 import { MethodWorkedExample } from './MethodWorkedExample'
+import { StepWorkedExample } from './StepWorkedExample'
 import { FractionWorkedExample } from '../../fractions/tutor/FractionWorkedExample'
 import { ConversionWorkedExample } from '../../fractions-decimals-percentages/tutor/ConversionWorkedExample'
 import { useState } from 'react'
@@ -13,6 +14,7 @@ function Grid({ first, second }: { first: number[]; second: number[] }) {
 }
 
 export function TeachingVisual({ visual }: { visual: Visual }) {
+  if (visual.kind === 'step-worked') return <div className="pvb-stage"><StepWorkedExample working={visual} /></div>
   if (visual.kind === 'method-worked') return <div className="pvb-stage"><MethodWorkedExample visual={visual} /></div>
   if (visual.kind === 'fraction-worked') return <div className="pvb-stage"><FractionWorkedExample visual={visual} /></div>
   if (visual.kind === 'conversion-worked') return <div className="pvb-stage"><ConversionWorkedExample visual={visual} /></div>

@@ -1,5 +1,9 @@
 # Science scaffold architecture
 
+## Foundation and Higher — 1 October 2026
+
+One set of lessons. Higher students also get Higher-only sections (`higher/additions.ts`, spliced in by `forTier`) and whole Higher-only lessons (`higher/lessons.ts`, e.g. Chemistry Lesson 20H, merged in by the `…ForTier` lookups in `tier.ts`). Higher-only content never reaches a Foundation student: Foundation lookups return the catalogue as authored, so there is no row, count, progress, next link, contents entry or reachable URL. Details and how to register one: NAVIGATION.md, "Higher-only lessons".
+
 ## Current state — 26 September 2026, after the cell-biology split (read this first)
 
 - **31 Biology lessons.** Lessons 1, 2, 5 and 6 were split, so Science went from 26 to 31 lessons. The catalogue (`scienceLessons` in `lessonNavigation.ts`) is the single source of truth for order, titles, sections and frames. `lessonSections.ts` and `lessonFrames.ts` are derived from it.

@@ -5,8 +5,9 @@ import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, RankCard, Rule, Why, rankFor, useCountUp, useScore, useShare, recordRank } from '../kit/Lab'
+import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { crew, jobs, pounds, type Job, type Question } from './jobs'
+import { makeJobs, crew, pounds, type Job, type Question } from './jobs'
 import './HeistSplit.css'
 
 type Known = Question['reveals']
@@ -96,7 +97,7 @@ function BarModel({ job, known, final }: { job: Job; known: Set<Known>; final: b
   </figure>
 }
 
-export default function HeistSplit() {
+function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void }) {
   const [jobIndex, setJobIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('vault')
   const [vaultOpen, setVaultOpen] = useState(false)
@@ -146,7 +147,7 @@ export default function HeistSplit() {
     else { score.bank(); setScreen('payout'); sfx.win() }
   }
 
-  const restart = () => { score.reset(); resetShare(); startJob(0) }
+  const restart = onReplay
 
   const header = <LabTop progress={`Job ${jobIndex + 1}/${jobs.length}`} streak={score.streak} lives={score.lives} />
 
@@ -263,4 +264,10 @@ export default function HeistSplit() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function HeistSplit() {
+  const { data, play, regenerate } = useGenerated(makeJobs)
+  return data ? <HeistSplitGame key={play} jobs={data} onReplay={regenerate} /> : null
 }

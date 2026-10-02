@@ -31,9 +31,11 @@ const TERM = /\[\[([\w-]+):(.*?)\]\]/g
 const keysOf = line => [...line.matchAll(TERM)].map(match => match[1])
 const latexOf = line => line.replace(TERM, (_, key, body) => `\\htmlData{k=${key}}{${body}}`)
 
+const { checkStepWorking } = require('./step-working-check.cjs')
 function chainOf(visual) {
   if (visual.kind === 'method-worked') return methodChain(visual)
-  if (visual.kind === 'fraction-worked') return visual.chain
+  // An HCF or LCM step shows factor or multiple lists rather than a line (verify-fraction-chains checks them).
+  if (visual.kind === 'fraction-worked') return visual.chain.filter(step => !step.lists)
   if (visual.kind === 'conversion-worked') return chainFromSteps(visual.expression, visual.steps)
   return null
 }
@@ -44,6 +46,8 @@ for (const lesson of mathsLessons.filter(entry => entry.number >= 4)) {
   for (const state of lesson.definition.states) {
     for (const visual of [state.visual, state.working]) {
       if (!visual) continue
+      // Step workings are drawn one move a step with no chain; they have their own check (step-working-check.cjs).
+      if (visual.kind === 'step-worked') { checkStepWorking(visual, `L${lesson.number} ${state.id}`); chains++; continue }
       const chain = chainOf(visual)
       if (!chain) continue
       chains++

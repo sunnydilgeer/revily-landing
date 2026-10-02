@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import { prefersReducedMotion } from '../../step-chain/flip'
+import { isTestMode } from './random'
 import { isMuted, setMuted, sfx } from './sfx'
 import './lab.css'
 
@@ -77,6 +78,7 @@ export function Choices({ choices, picked, answer, onPick, columns }: {
         className={`lab-choice${state}`}
         disabled={picked !== null && picked !== choice.value}
         aria-pressed={picked === choice.value}
+        data-correct={isTestMode() && choice.value === answer ? '' : undefined}
         onClick={() => picked === null && onPick(choice.value)}
       >{choice.label}</button>
     })}

@@ -1,0 +1,55 @@
+/* Level Up: the retro XP ladder. The shared lab look is in ../kit/lab.css. */
+.lu-stage { display: grid; }
+.lu-stage.is-hit { animation: lab-shake .4s; }
+
+.lu-ladder { margin: 0; display: grid; gap: 8px; }
+.lu-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
+/* Level | bar | XP, with the number in its own column so even a tiny bar stays readable. */
+.lu-row {
+  display: grid; grid-template-columns: 4em minmax(0, 1fr) 4.4em; align-items: center; gap: 8px;
+  font: 800 .85rem/1 var(--rv-font-display); font-variant-numeric: tabular-nums; color: var(--rv-ink);
+}
+.lu-row__level { white-space: nowrap; letter-spacing: .04em; }
+.lu-row__xp { text-align: right; white-space: nowrap; }
+.lu-row__track {
+  position: relative; height: 22px; border: 3px solid var(--rv-ink); background: var(--rv-grid);
+  box-shadow: 3px 3px 0 var(--rv-line-strong);
+}
+/* Stepped stripes give the fill an 8-bit look without any images. */
+.lu-row__fill {
+  position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--rv-step-b) 0 8px, var(--rv-step-b-light) 8px 10px);
+  transition: width .7s steps(8, end);
+}
+.lu-row__jump {
+  position: absolute; right: 4px; top: 50%; translate: 0 -50%; padding: 1px 4px;
+  font-size: .7rem; color: var(--rv-ink); background: var(--rv-yellow); animation: lab-pop .3s both;
+}
+
+.lu-row.is-hidden .lu-row__track { border-style: dashed; background: var(--rv-surface); }
+.lu-row.is-hidden .lu-row__xp { color: var(--rv-step-i); font-size: 1.1rem; }
+.lu-row.is-up .lu-row__fill { background: repeating-linear-gradient(90deg, var(--rv-good) 0 8px, var(--rv-level-secure-light) 8px 10px); }
+.lu-row.is-up .lu-row__xp { color: var(--rv-good-ink); }
+.lu-row.is-target .lu-row__fill { background: repeating-linear-gradient(90deg, var(--rv-yellow-deep) 0 8px, var(--rv-yellow) 8px 10px); }
+.lu-row.is-target .lu-row__track { border-style: dashed; }
+.lu-row.is-miss { color: var(--rv-redpen); }
+.lu-row.is-miss .lu-row__track { border-style: dashed; border-color: var(--rv-redpen); background: var(--rv-redpen-tint); box-shadow: none; }
+.lu-row.is-miss .lu-row__fill { background: transparent; border-right: 3px solid var(--rv-redpen); }
+
+.lu-pop {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%; padding: 2px 6px; white-space: nowrap;
+  font-size: .72rem; letter-spacing: .06em; color: var(--rv-ink); background: var(--rv-yellow); border: 2px solid var(--rv-ink);
+  animation: lu-pop 1.4s cubic-bezier(.2, 1.6, .4, 1) .5s both;
+}
+@keyframes lu-pop { 0% { transform: scale(.3); opacity: 0; } 20% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+.lu-gap { text-align: center; font: 800 1.2rem/1 var(--rv-font-display); color: var(--rv-muted); letter-spacing: .3em; }
+.lu-caption {
+  margin: 0; padding: 6px 8px; text-align: center; border: 3px solid var(--rv-ink); background: var(--rv-night); color: var(--rv-yellow);
+  font: 800 1rem/1.2 var(--rv-font-display); font-variant-numeric: tabular-nums; letter-spacing: .04em; overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lu-stage.is-hit, .lu-row__jump, .lu-pop { animation: none; }
+  .lu-row__fill { transition: none; }
+}
