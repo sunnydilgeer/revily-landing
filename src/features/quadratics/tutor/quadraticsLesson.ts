@@ -33,26 +33,34 @@ export function pairsOf(middle: number, last: number): [number, number][] {
   return pairs
 }
 
-/** The signs of the pairs when there is a minus: a line or two in the picture, and why, for the ⓘ. */
-export function signsOf(middle: number, last: number): { lines: string[]; say: string } | null {
+/**
+ * Where the minus signs go, when there is one (Sunny, 2 Oct): the factor pairs are listed plain first, then this step
+ * flips their signs. The last number's sign says whether the signs match; the middle one's says which way. The pairs
+ * are still positive when the step is read, so "the bigger one" is the bigger number.
+ */
+export function flipOf(middle: number, last: number): { title: string; say: string } | null {
   if (last > 0 && middle > 0) return null
-  const x = `${middle < 0 ? '−' : '+'} ${Math.abs(middle) === 1 ? '' : Math.abs(middle)}x`
-  if (last > 0) return { lines: [`+ ${last} and ${x}: both numbers are negative`], say: ' The last number is plus and the middle minus, so both are negative.' }
-  // One sentence (Sunny, 2 Oct). "Further from 0", not "bigger": in −6 and 4, the −6 is the one that takes the sign.
-  return { lines: [`− ${-last} and ${x}: one number is negative, and the one further from 0 is ${middle < 0 ? 'negative' : 'positive'}`], say: ' The last number is minus, so one is negative. The one further from 0 takes the middle’s sign.' }
+  if (last > 0) return { title: 'Make both negative', say: 'The last number is plus, so the signs are the same. The middle is minus, so both are negative.' }
+  return middle > 0
+    ? { title: 'Make the smaller one negative', say: 'The last number is minus, so one number is negative. The middle is plus, so the bigger one stays positive.' }
+    : { title: 'Make the bigger one negative', say: 'The last number is minus, so one number is negative. The middle is minus, so the bigger one is negative.' }
 }
 
-/** x² + bx + c in three steps: the factor pairs of c, the pair that adds to b, then the brackets. */
+/** x² + bx + c one move a step: the factor pairs of c, their signs when there is a minus, the pair that adds to b, then the brackets. */
 function pairsModel(middle: number, last: number, letter = 'x'): TutorWorking {
   const pairs = pairsOf(middle, last), pick = pairs.findIndex(([a, b]) => a + b === middle)
   if (pick < 0) throw new Error(`${quadratic(letter, middle, last)} doesn't factorise`)
   const question = tex(quadratic(letter, middle, last))
-  const signs = signsOf(middle, last)
+  const flip = flipOf(middle, last)
   const steps: MethodStep[] = []
   // Each frame says what the step before added, so that stays clear while older working is greyed out.
   const step = (title: string, equation: string, instruction: string, frame: QuadraticFrame) => steps.push({ title, operation: question, equation, instruction, frame: { quadratic: { ...frame, before: steps.at(-1)?.frame.quadratic?.adds } } })
-  let frame: QuadraticFrame = { letter, middle, last, signs: signs?.lines, pairs, adds: 'pairs' }
-  step(`Factor pairs of ${signed(last)}`, pairs.map(([a, b]) => `${a}\times ${b}`).join(',\ '), `List every pair that multiplies to make the last number.${signs?.say ?? ''}`, frame)
+  let frame: QuadraticFrame = { letter, middle, last, pairs, adds: 'pairs' }
+  step(`Factor pairs of ${Math.abs(last)}`, pairs.map(([a, b]) => `${Math.abs(a)}\times ${Math.abs(b)}`).join(',\ '), `List every pair that multiplies to make the last number.${flip ? ' Leave the signs for the next step.' : ''}`, frame)
+  if (flip) {
+    frame = { ...frame, flipped: true, adds: 'flip' }
+    step(flip.title, pairs.map(([a, b]) => `${a}\times ${b}`).join(',\ '), flip.say, frame)
+  }
   frame = { ...frame, sums: true, pick, adds: 'sums' }
   step(`Which pair adds to ${signed(middle)}?`, pairs.map(([a, b]) => `${a}+${b}=${a + b}`).join(',\ '), 'Add each pair. The one that makes the middle number is your pair.', frame)
   frame = { ...frame, answer: pairs[pick], adds: 'answer' }
@@ -209,7 +217,7 @@ video(lastVideo, media('negative-last', 'Factorising x² + 2x − 15', 'A7.3_Fac
   'Where you see it: a flower bed has area x² + 2x − 15 m², so its sides are x − 3 and x + 5.',
 ]))
 factorise(negativeLast, 'A7.3 Q2', 3, -4, 'Two numbers that multiply to −4 and add to 3. One is negative.', `A rectangular sign has an area, in square metres, of ${nb('x² + 3x − 4')}. Factorise this expression.`)
-factorise(negativeLast, 'A7.3 Q3', -2, -24, 'Two numbers that multiply to −24 and add to −2. The one further from 0 is negative.', `A rectangular field has an area, in square metres, of ${nb('x² − 2x − 24')}. Factorise this expression.`)
+factorise(negativeLast, 'A7.3 Q3', -2, -24, 'Two numbers that multiply to −24 and add to −2. Make the bigger one negative.', `A rectangular field has an area, in square metres, of ${nb('x² − 2x − 24')}. Factorise this expression.`)
 factorise(negativeLast, 'A7.3 Q4a', 5, -14, 'Two numbers that multiply to −14 and add to 5.', `A rectangular flower bed has an area of ${nb('x² + 5x − 14')} square metres. Factorise it to find expressions for the length and width.`)
 practice(negativeLast, `The flower bed is ${nb('(x + 7)')} m by ${nb('(x − 2)')} m. Explain why x must be greater than 2.`, 'A7.3 Q4b', choose(
   'A side can’t be zero or negative, so x − 2 must be more than 0',

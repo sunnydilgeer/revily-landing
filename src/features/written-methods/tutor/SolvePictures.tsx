@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Side } from './EquationPictures'
 import type { EquationRow, SolveFrame } from './methodWorking'
 import { Powers } from './Powers'
-import { Pairs } from './QuadraticPictures'
+import { Pairs, SignOf } from './QuadraticPictures'
 
 /*
  * Solving x² + bx + c = 0 by factorising (lesson 22), in the textbook's four steps: make one side 0 on the A5 board,
@@ -25,7 +25,7 @@ function Quadratic({ frame }: { frame: SolveFrame }) {
   const box = (text: string, family: number, on?: boolean) => on ? <span className={`ns-quad__job is-f${family}`}><Powers text={text} /></span> : <Powers text={text} />
   // x on its own is 1x: the box goes round the x, so there is still something to box.
   const x = Math.abs(middle) === 1 ? box(letter, 0, frame.sums) : <>{box(String(Math.abs(middle)), 0, frame.sums)}{letter}</>
-  return <><Powers text={`${letter}²`} />{middle !== 0 && <> {middle < 0 ? '−' : '+'} {x}</>} {last < 0 ? '−' : '+'} {box(String(Math.abs(last)), 1, Boolean(frame.pairs))}</>
+  return <><Powers text={`${letter}²`} />{middle !== 0 && <> <SignOf n={middle} frame={frame} /> {x}</>} <SignOf n={last} frame={frame} /> {box(String(Math.abs(last)), 1, Boolean(frame.pairs))}</>
 }
 
 /** (x − 4)(x + 5): the numbers purple, like the pair they came from; each bracket boxed when the next step splits them. */
@@ -36,7 +36,7 @@ function Brackets({ frame, boxed }: { frame: SolveFrame; boxed?: boolean }) {
 
 /** The textbook's four steps (Sunny, 2 Oct): each move is labelled with the one it belongs to. */
 export const stageOf: Record<SolveFrame['adds'], string> = {
-  zero: 'Step 1 · make it 0', pairs: 'Step 2 · factorise', sums: 'Step 2 · factorise', brackets: 'Step 2 · factorise', split: 'Step 3 · two equations', solve: 'Step 4 · solve each',
+  zero: 'Step 1 · make it 0', pairs: 'Step 2 · factorise', flip: 'Step 2 · factorise', sums: 'Step 2 · factorise', brackets: 'Step 2 · factorise', split: 'Step 3 · two equations', solve: 'Step 4 · solve each',
 }
 
 type Part = 'board' | 'zero' | 'pairs' | 'brackets' | 'split' | 'moves'
@@ -44,6 +44,7 @@ type Part = 'board' | 'zero' | 'pairs' | 'brackets' | 'split' | 'moves'
 const clear: Record<SolveFrame['adds'], Part[]> = {
   zero: ['board', 'zero'],
   pairs: ['zero', 'pairs'],
+  flip: ['zero', 'pairs'],
   sums: ['zero', 'pairs'],
   brackets: ['zero', 'pairs', 'brackets'],
   split: ['brackets', 'split'],
@@ -55,8 +56,7 @@ function spoken(frame: SolveFrame) {
   const parts = rows.map(row => row.replace(/[~^[\]]/g, '').replace(/ ([+−])(?=\d)/g, ' $1 '))
   const zero = `${frame.letter}² ${frame.middle ? `${after(frame.middle)}${frame.letter} ` : ''}${after(frame.last)} = 0`.replace(/([+−]) 1x/, '$1 x')
   if (!frame.given && !frame.board?.some(row => 'left' in row && row.right === '0')) parts.push(zero)
-  if (frame.signs) parts.push(...frame.signs)
-  for (const [i, [a, b]] of (frame.pairs ?? []).entries()) parts.push(`${minus(a)} and ${minus(b)} multiply to ${minus(a * b)}${frame.sums ? ` and add to ${minus(a + b)}${i === frame.pick ? ', which works' : ''}` : ''}`)
+  for (const [i, [a, b]] of (frame.pairs ?? []).entries()) parts.push(!frame.flipped && (a < 0 || b < 0) ? `${Math.abs(a)} and ${Math.abs(b)} multiply to ${Math.abs(a * b)}` : `${minus(a)} and ${minus(b)} multiply to ${minus(a * b)}${frame.sums ? ` and add to ${minus(a + b)}${i === frame.pick ? ', which works' : ''}` : ''}`)
   const [a, b] = frame.brackets ?? []
   if (frame.brackets) parts.push(`(${frame.letter} ${after(a)})(${frame.letter} ${after(b)}) = 0`)
   if (frame.split) parts.push(`${frame.letter} ${after(a)} = 0 or ${frame.letter} ${after(b)} = 0`)
@@ -79,7 +79,7 @@ export function SolveVisual({ frame, heading, plain, focus }: { frame: SolveFram
   const done = (part: Part) => focus && frame.adds !== 'zero' && !clear[frame.adds].includes(part) ? ' is-done' : ''
   if (plain) {
     const first = frame.board?.[0]
-    return <div className="ns-eq ns-solve is-plain" role="img" aria-label={`The question: ${spoken({ ...frame, board: first ? [first] : undefined, pairs: undefined, signs: undefined, brackets: frame.given ? frame.brackets : undefined, split: false, solve: false })}`}>
+    return <div className="ns-eq ns-solve is-plain" role="img" aria-label={`The question: ${spoken({ ...frame, board: first ? [first] : undefined, pairs: undefined, brackets: frame.given ? frame.brackets : undefined, split: false, solve: false })}`}>
       {first && 'left' in first
         ? <Row left={<Side side={first.left} plain />} right={<Side side={first.right} plain />} done="" />
         : frame.given ? <Row left={<Brackets frame={frame} />} right="0" done="" />
@@ -101,10 +101,9 @@ export function SolveVisual({ frame, heading, plain, focus }: { frame: SolveFram
     {frame.adds === 'zero' && head}
     {board.slice(1).map((row, i) => boardRow(row, i + 1))}
     {zeroRow && <Row left={<Quadratic frame={frame} />} right="0" done={done('zero')} />}
-    {frame.adds === 'pairs' && head}
-    {frame.signs && frame.pairs && wide('pairs', <ul className="ns-quad__signs">{frame.signs.map(sign => <li key={sign}><Powers text={sign} /></li>)}</ul>)}
+    {(frame.adds === 'pairs' || frame.adds === 'flip') && head}
     {frame.adds === 'sums' && head}
-    {frame.pairs && wide('pairs', <Pairs frame={{ letter, middle: frame.middle, last: frame.last, pairs: frame.pairs, sums: frame.sums, pick: frame.pick, adds: 'pairs' }} />)}
+    {frame.pairs && wide('pairs', <Pairs frame={{ letter, middle: frame.middle, last: frame.last, pairs: frame.pairs, flipped: frame.flipped, sums: frame.sums, pick: frame.pick, adds: frame.adds === 'flip' ? 'flip' : 'pairs' }} />)}
     {frame.adds === 'brackets' && head}
     {frame.brackets && <Row left={<Brackets frame={frame} boxed={frame.adds === 'split'} />} right="0" done={done('brackets')} />}
     {frame.adds === 'split' && head}

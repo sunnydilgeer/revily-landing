@@ -5,8 +5,9 @@ import { Powers } from './Powers'
 /*
  * Factorising x² + bx + c into (x + p)(x + q) in three steps (Sunny, 1 Oct): list the factor pairs of the last number
  * (boxed amber), find the pair that adds to the middle number (boxed blue), and put it in the brackets (purple, like the
- * ticked pair). A minus sign adds one line on the signs of the pairs. A difference of two squares writes each term as a
- * square first. Colours as in EXPLANATIONS.md.
+ * ticked pair). With a minus, the pairs are listed plain, then a step flips their signs (Sunny, 2 Oct): the two signs in
+ * the question that decide it are boxed purple, and the minus signs it adds are purple. A difference of two squares
+ * writes each term as a square first. Colours as in EXPLANATIONS.md.
  */
 
 const minus = (n: number) => n < 0 ? `−${-n}` : String(n)
@@ -15,22 +16,29 @@ const after = (n: number, letter = '') => `${n < 0 ? '−' : '+'} ${Math.abs(n) 
 /** The question as typed: x² + 8x + 15, or x² − 49 with no middle term. */
 export const quadraticText = ({ letter, middle, last }: Pick<QuadraticFrame, 'letter' | 'middle' | 'last'>) => `${letter}² ${middle ? `${after(middle, letter)} ` : ''}${after(last)}`
 
+/** A sign in the question, boxed purple on the step that flips the pairs' signs: those two signs decide it. */
+export const SignOf = ({ n, frame }: { n: number; frame: { adds: string } }) => frame.adds === 'flip' ? <span className="ns-quad__job is-f3">{n < 0 ? '−' : '+'}</span> : <>{n < 0 ? '−' : '+'}</>
+
 function Question({ frame, plain }: { frame: QuadraticFrame; plain?: boolean }) {
   const { letter, middle, last } = frame
   // The last number is boxed from the factor pairs step, the middle one from the step that adds the pairs.
   const box = (text: string, family: number) => !plain && (family === 1 ? frame.pairs || frame.squares : frame.sums) ? <span className={`ns-quad__job is-f${family}`}><Powers text={text} /></span> : <Powers text={text} />
   return <p className="ns-quad__question" aria-hidden="true">
     <Powers text={`${letter}²`} />
-    {middle !== 0 && <> {middle < 0 ? '−' : '+'} {box(`${Math.abs(middle) === 1 ? '' : Math.abs(middle)}`, 0)}{letter}</>}
-    {' '}{last < 0 ? '−' : '+'} {box(String(Math.abs(last)), 1)}
+    {middle !== 0 && <> <SignOf n={middle} frame={frame} /> {box(`${Math.abs(middle) === 1 ? '' : Math.abs(middle)}`, 0)}{letter}</>}
+    {' '}<SignOf n={last} frame={frame} /> {box(String(Math.abs(last)), 1)}
   </p>
 }
 
-/** The factor pairs of c, one a line, then what each adds to once checked: the pair that works is ticked and purple. */
+/**
+ * The factor pairs of c, one a line: plain until a step flips their signs (the minus signs it adds are purple on that
+ * step), then what each adds to once checked: the pair that works is ticked and purple.
+ */
 export function Pairs({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
-  const bracket = (n: number) => n < 0 ? `(${minus(n)})` : String(n)
+  const signed = (n: number) => n < 0 && frame.flipped ? <>{frame.adds === 'flip' ? <span className="ns-quad__flip">−</span> : '−'}{-n}</> : Math.abs(n)
+  const bracket = (n: number) => n < 0 && frame.flipped ? <>({signed(n)})</> : signed(n)
   return <ul className={`ns-quad__pairs${done}`} aria-hidden="true">{(frame.pairs ?? []).map(([a, b], i) => <li key={i} className={frame.sums && i === frame.pick ? 'is-pick' : undefined}>
-    <span className="is-f1">{minus(a)} × {bracket(b)}</span>
+    <span className="is-f1">{signed(a)} × {bracket(b)}</span>
     {frame.sums && <span className="is-f0">{minus(a)} + {bracket(b)} = {minus(a + b)} <span className={i === frame.pick ? 'ns-quad__yes' : 'ns-quad__no'}>{i === frame.pick ? '✓' : '✗'}</span></span>}
   </li>)}</ul>
 }
@@ -54,9 +62,8 @@ function Answer({ frame }: { frame: QuadraticFrame }) {
 
 function spoken(frame: QuadraticFrame) {
   const parts = [`The question: ${quadraticText(frame)}.`]
-  if (frame.signs) parts.push(...frame.signs.map(sign => `${sign}.`))
   if (frame.squares) parts.push(`${frame.letter} squared is ${frame.letter} times ${frame.letter}, and ${-frame.last} is ${Math.sqrt(-frame.last)} times ${Math.sqrt(-frame.last)}.`)
-  for (const [i, [a, b]] of (frame.pairs ?? []).entries()) parts.push(`${minus(a)} and ${minus(b)} multiply to ${minus(a * b)}${frame.sums ? ` and add to ${minus(a + b)}${i === frame.pick ? ', which works' : ''}` : ''}.`)
+  for (const [i, [a, b]] of (frame.pairs ?? []).entries()) parts.push(!frame.flipped && (a < 0 || b < 0) ? `${Math.abs(a)} and ${Math.abs(b)} multiply to ${Math.abs(a * b)}.` : `${minus(a)} and ${minus(b)} multiply to ${minus(a * b)}${frame.sums ? ` and add to ${minus(a + b)}${i === frame.pick ? ', which works' : ''}` : ''}.`)
   if (frame.answer) parts.push(`The answer: (${frame.letter} ${after(frame.answer[0])})(${frame.letter} ${after(frame.answer[1])}).`)
   return parts.join(' ')
 }
@@ -65,15 +72,14 @@ function spoken(frame: QuadraticFrame) {
 export function QuadraticVisual({ frame, heading, plain }: { frame: QuadraticFrame; heading?: ReactNode; plain?: boolean }) {
   // Grey out what this step has finished with: only the question, what the step before added and what this step adds
   // stay clear (Sunny, 1 Oct).
-  type Part = 'signs' | 'pairs' | 'squares' | 'answer'
-  const partsOf = (adds?: QuadraticFrame['adds']): Part[] => adds === 'pairs' ? ['signs', 'pairs'] : adds ? [adds === 'sums' ? 'pairs' : adds] : []
+  type Part = 'pairs' | 'squares' | 'answer'
+  const partsOf = (adds?: QuadraticFrame['adds']): Part[] => adds ? [adds === 'sums' || adds === 'flip' ? 'pairs' : adds] : []
   const clear = [...partsOf(frame.adds), ...partsOf(frame.before)]
   const done = (part: Part) => clear.includes(part) ? '' : ' is-done'
   if (plain) return <div className="ns-quad is-plain" role="img" aria-label={`The question: ${quadraticText(frame)}`}><Question frame={frame} plain /></div>
   return <div className="ns-quad" role="img" aria-label={spoken(frame)}>
     <Question frame={frame} />
-    {frame.adds === 'pairs' && heading}
-    {frame.signs && <ul className={`ns-quad__signs${done('signs')}`} aria-hidden="true">{frame.signs.map(sign => <li key={sign}><Powers text={sign} /></li>)}</ul>}
+    {(frame.adds === 'pairs' || frame.adds === 'flip') && heading}
     {frame.adds === 'squares' && heading}
     {frame.squares && <Squares frame={frame} done={done('squares')} />}
     {frame.adds === 'sums' && heading}

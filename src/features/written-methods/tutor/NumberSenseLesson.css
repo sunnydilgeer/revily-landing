@@ -223,6 +223,7 @@
 .ns-quad__pairs li.is-pick > span { background: color-mix(in srgb, #7c3aed 10%, transparent); }
 .ns-quad__pairs li.is-pick > span.is-f1 { color: #7c3aed; }
 .ns-quad__and { font-size: .75em; font-weight: 500; color: var(--rv-muted); }
+.ns-quad__flip { color: #7c3aed; }
 .ns-quad__yes { color: var(--rv-good); }
 .ns-quad__no { color: #dc2626; }
 .ns-quad__answer { justify-self: auto; margin: 0; }
