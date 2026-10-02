@@ -106,6 +106,72 @@ export type BracketFrame = { outside: string; inside: { text: string; family: nu
  */
 export type EquationRow = { left: string; right: string } | { note: string; family?: number } | { answer: string }
 export type EquationFrame = { rows: EquationRow[] }
+/**
+ * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
+ * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
+ * of two squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
+ */
+export type QuadraticFrame = {
+  letter: string; middle: number; last: number
+  /** The factor pairs of c, in order, with their signs; `sums` adds what each pair adds to, and `pick` is the one that works. */
+  pairs?: [number, number][]
+  /** The pairs are drawn plain (1 × 20) until a step flips their signs, when there is a minus (Sunny, 2 Oct). */
+  flipped?: boolean
+  sums?: boolean
+  pick?: number
+  /** A difference of two squares: each term as a square, "x² = x × x" and "49 = 7 × 7". */
+  squares?: boolean
+  /** The two numbers that go into the brackets, in order: (x + a)(x + b). */
+  answer?: [number, number]
+  adds: 'pairs' | 'flip' | 'sums' | 'squares' | 'answer'
+  /** What the step before added: it stays clear, with the question and this step; everything older is greyed out. */
+  before?: QuadraticFrame['adds']
+}
+/**
+ * Solving x² + bx + c = 0 by factorising (lesson 22), the whole picture so far, in the textbook's four steps: make one
+ * side 0 (the board), factorise (A7's factor pairs, then the brackets), set each bracket to 0, then solve each one,
+ * ending in the answer. Rows line up on their = signs. `adds` is the part this step draws, where its heading goes.
+ */
+export type SolveFrame = {
+  letter: string; middle: number; last: number
+  /** The board before one side is 0: the question, then the rows of the move that makes it 0. None when it already is. */
+  board?: EquationRow[]
+  /** As in QuadraticFrame: the factor pairs of c, flipped to their signs, their sums and the pair that works. */
+  pairs?: [number, number][]
+  flipped?: boolean
+  sums?: boolean
+  pick?: number
+  /** The two numbers in the brackets, in order: (x + a)(x + b) = 0. */
+  brackets?: [number, number]
+  /** The question gives the brackets, so the picture starts there. */
+  given?: boolean
+  /** Each bracket set equal to 0; `solve` undoes the number in each, ending in the answer. */
+  split?: boolean
+  solve?: boolean
+  adds: 'zero' | 'pairs' | 'flip' | 'sums' | 'brackets' | 'split' | 'solve'
+}
+/**
+ * A sequence (lesson 23), the whole picture so far: the terms as the question gives them, the jumps between them
+ * (+ 4, × 2), rows lined up under the terms (4n: 4, 8, 12, 16, then + 1 under each), carrying on from the last term to
+ * the next ones, lines of working and the answer. Each part says which step added it (`at`), so finished parts grey out.
+ * See SequencePictures.tsx.
+ */
+export type SequenceFrame = {
+  terms: string[]
+  /** "…" after the terms: the sequence carries on. */
+  more?: boolean
+  hops?: { labels: string[]; at: number }
+  /** Each term's position (1, 2, 3, 4), small above it, so 4n reads as 4 × the position (Sunny, 2 Oct). */
+  positions?: { at: number }
+  rows?: { label: string; cells: string[]; family: number; at: number; answer?: boolean }[]
+  /** Carrying on from the last term: a jump into each new term, "?" until it is worked out, green once it is. */
+  next?: { hops: string[]; terms: string[]; filled: boolean; at: number }
+  lines?: { text: string; family: number; at: number }[]
+  answer?: { text: string; at: number; parts?: { text: string; label: string; family?: number }[] }
+  /** This step's number (0 is step 1), and the part it adds, where its heading goes. */
+  step: number
+  adds: 'hops' | 'row' | 'next' | 'lines' | 'answer'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 /** A part of a written method's line: its text, colour (`is-f…`) and whether it is boxed in purple (the carry being added). */
@@ -135,6 +201,9 @@ export type MethodFrame = {
   expand?: ExpandFrame
   bracket?: BracketFrame
   equation?: EquationFrame
+  quadratic?: QuadraticFrame
+  solve?: SolveFrame
+  sequence?: SequenceFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>
@@ -164,6 +233,11 @@ export type MethodExample = {
   chain?: MethodChainStep[]
   /** Draw the whole working in the picture, one step at a time (src/features/EXPLANATIONS.md). */
   pictureOnly?: boolean
+  /**
+   * Grey out the working a step has finished with, so the row it works on and what it adds stand out (Sunny, 1 Oct,
+   * for students who lose their place: A5 on).
+   */
+  focus?: boolean
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`
