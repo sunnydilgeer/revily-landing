@@ -1,5 +1,5 @@
 /* NumberDial: a big readout with − / + either side and a slider underneath. Sized for thumbs at 320px. */
-.nd { display: grid; gap: 10px; padding: 12px; border: 2px solid var(--rv-night-3); border-radius: var(--rv-radius-md); background: var(--rv-night-2); }
+.nd { container-type: inline-size; display: grid; gap: 10px; padding: 12px; border: 2px solid var(--rv-night-3); border-radius: var(--rv-radius-md); background: var(--rv-night-2); }
 .nd--right { border-color: var(--rv-good); }
 .nd--wrong { border-color: var(--rv-redpen); animation: lab-shake .4s; }
 .nd__row { display: flex; align-items: stretch; gap: 6px; }
@@ -21,6 +21,12 @@
 .nd__slider { width: 100%; margin: 0; accent-color: var(--rv-yellow); height: 28px; cursor: pointer; }
 .nd__slider:disabled { opacity: .4; }
 
+/* Narrow: the bigger jumps drop to their own row, so the readout keeps its room. */
+@container (max-width: 360px) {
+  .nd__row { flex-wrap: wrap; }
+  .nd__value { flex: 1 1 50%; }
+  .nd__btn--jump { order: 1; flex: 1 1 40%; min-height: 40px; }
+}
 @media (max-width: 359px) {
   .nd__btn { min-width: 42px; }
   .nd__number { font-size: 1.35rem; }

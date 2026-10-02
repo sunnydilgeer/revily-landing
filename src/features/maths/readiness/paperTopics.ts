@@ -48,7 +48,7 @@ const lesson = (number: number, ...sections: string[]) => sections.map(section =
 
 export const paperTopics: PaperTopic[] = [
   // Number
-  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [] },
+  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [], labs: ['stall'] },
   { id: 'percentages', title: 'Percentages', short: 'Percent', area: 'number', marks30: 130, sittings: 10, requires: ['fdp'], statements: [], labs: ['deals'] },
   { id: 'factors', title: 'Factors and multiples', short: 'Factors', area: 'number', marks30: 49, sittings: 9, requires: ['number-types'], statements: [
     ...lesson(1, 'multiples-factors'), ...lesson(7, 'prime-factorisation', 'hcf-lcm-listing', 'hcf-lcm-venn'),

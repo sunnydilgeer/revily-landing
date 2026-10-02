@@ -128,6 +128,14 @@ export const labCatalog: LabEntry[] = [
     inExam: 'Find the equation of the line through (−4, 0) and (−3, −1).',
     minutes: 6,
   },
+  {
+    id: 'stall', area: 'number', href: '/preview/lab/stall', emoji: '🌱', title: 'Stall Tycoon',
+    hook: 'Run a market stall with Ziggy for three days. Stock up, give change, set prices and decide if the upgrade pays.',
+    skill: 'Money problems: costs, change, profit, wages and payback',
+    inGame: 'They buy 4 at £3.50 each and pay with a £50 note. How much change?',
+    inExam: 'Pens cost £3.50 each. Sam buys 4 and pays with a £50 note. How much change should Sam get?',
+    minutes: 5,
+  },
 ]
 
 /** Coming soon: shown locked, so students can see where the labs are heading. */

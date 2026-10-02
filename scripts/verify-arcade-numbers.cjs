@@ -22,7 +22,7 @@ const TERM = /\[\[([\w-]+):(.*?)\]\]/g
 const games = {
   heist: ['heist/jobs.ts', 'makeJobs'], storm: ['storm/drops.ts', 'makeDrops'], potion: ['potion/brews.ts', 'makeBrews'],
   tiers: ['tiers/lists.ts', 'makeLists'], trick: ['trick/shots.ts', 'makeShots'], packs: ['packs/rounds.ts', 'makeRounds'], balance: ['balance/puzzles.ts', 'makePuzzles'],
-  deals: ['deals/deals.ts', 'makeDeals'], stats: ['stats/rounds.ts', 'makeRounds'], mind: ['mind/tricks.ts', 'makeTricks'], build: ['build/bases.ts', 'makeBases'], levels: ['levels/levels.ts', 'makeGame'], laser: ['laser/lines.ts', 'makeRounds'],
+  deals: ['deals/deals.ts', 'makeDeals'], stats: ['stats/rounds.ts', 'makeRounds'], mind: ['mind/tricks.ts', 'makeTricks'], build: ['build/bases.ts', 'makeBases'], levels: ['levels/levels.ts', 'makeGame'], laser: ['laser/lines.ts', 'makeRounds'], stall: ['stall/days.ts', 'makeStall'],
 }
 const visible = line => line.replace(TERM, '$2').replace(/\\text\{([^}]*)\}/g, '$1').replace(/\\(pounds|times|div|circ|frac)/g, 'x').replace(/[{}\\^ ]/g, '')
 
