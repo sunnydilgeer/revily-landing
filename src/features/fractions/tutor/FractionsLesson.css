@@ -1,6 +1,11 @@
 .fr-worked { margin: 0; min-width: 0; }
 .fr-bars, .fr-mixed, .fr-area { display: grid; gap: 12px; margin: 16px 0; }
 .fr-bar-row { display: grid; grid-template-columns: minmax(70px, auto) minmax(0, 1fr); align-items: center; gap: 12px; }
+/* Wholes as full bars, then "+", then the part left over: 17/6 is 2 whole bars + 5/6. */
+.fr-bar, .fr-wholes { min-width: 0; }
+.fr-wholes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.fr-wholes .fr-segments { flex: 1 1 56px; min-width: 56px; }
+.fr-plus { color: var(--rv-biro); font-size: 22px; font-weight: 800; }
 .fr-card { min-width: 68px; display: grid; justify-items: center; gap: 4px; padding: 10px 12px; border: 1px solid var(--rv-line); border-radius: 12px; background: #fff; color: var(--rv-ink); }
 .fr-card--equivalent { border-color: #8cb6d9; background: #f1f8ff; }
 .fr-card--result { border-color: var(--rv-line-strong); background: var(--rv-grid); }
@@ -10,15 +15,10 @@
 .fr-stack { display: inline-grid; grid-template-rows: 1fr 1fr; min-width: 1.4em; text-align: center; line-height: 1.05; }
 .fr-stack span:first-child { border-bottom: 2px solid currentColor; padding-bottom: 2px; }
 .fr-stack span:last-child { padding-top: 2px; }
-.fr-segments { grid-column: 2; display: grid; grid-template-columns: repeat(var(--parts), minmax(3px, 1fr)); min-height: 38px; border: 2px solid var(--rv-line-strong); border-radius: 9px; overflow: hidden; background: white; }
+.fr-segments { display: grid; grid-template-columns: repeat(var(--parts), minmax(3px, 1fr)); min-height: 38px; border: 2px solid var(--rv-line-strong); border-radius: 9px; overflow: hidden; background: white; }
 .fr-segments i { min-width: 0; border-left: 1px solid var(--rv-line); background: #fff; }
 .fr-segments i:first-child { border-left: 0; }
 .fr-segments i.is-filled { background: var(--rv-biro-light); }
-.fr-whole-count { grid-column: 2; min-height: 0; color: var(--rv-muted); font-size: 12px; }
-/* The card sits beside its bar: an empty "wholes" label takes no row, so the bar lines up with its card. */
-.fr-bar-row > .fr-card { grid-row: span 2; }
-.fr-whole-count:empty { display: none; }
-.fr-whole-count:empty + .fr-segments { grid-row: span 2; align-self: center; }
 .fr-reciprocal { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 18px 0; }
 .fr-reciprocal > div { display: flex; align-items: center; gap: 12px; }
 .fr-arrow { color: var(--rv-biro); font-size: 25px; font-weight: 800; }
@@ -45,6 +45,14 @@
 .frm > .rung-worked__visual { justify-self: stretch; }
 .frm .fr-bars, .frm .fr-mixed, .frm .fr-area { width: min(100%, 460px); margin: 4px auto 18px; gap: 14px; }
 .frm .fr-segments { min-height: 44px; }
+/* HCF and LCM steps: each number's factors or multiples, the shared ones in purple and the one used boxed. */
+.frm-lists { display: grid; gap: 10px; width: min(100%, 460px); }
+.frm-list { display: grid; gap: 5px; justify-items: center; }
+.frm-list__label { color: var(--rv-muted); font-size: 14px; font-weight: 650; }
+.frm-list__values { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.frm-list__values b { box-sizing: border-box; min-width: 32px; height: 32px; display: inline-grid; place-items: center; padding: 0 7px; border: 1px solid var(--rv-line); border-radius: 999px; background: #fff; color: var(--rv-ink); font-size: 15px; font-weight: 600; }
+.frm-list__values b.is-shared { border-color: color-mix(in srgb, #7c3aed 45%, transparent); color: #7c3aed; }
+.frm-list__values b.is-pick { border: 2px solid #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; font-weight: 800; }
 
 /* Fraction workings as a board (FractionWorkedExample.tsx): lines in the app font, fractions stacked, a move in purple,
    earlier lines faded and the answer green. */

@@ -9,7 +9,12 @@ import type { FractionFrame } from './fractionWorking'
 
 /** A line of working, optionally with the fraction picture to show from this step on. */
 /** `note`: lines of working shown before the step's line ("17 ÷ 6 → 2 r 5"), so no number appears from nowhere. */
-export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[] }
+/**
+ * `lists`: a step that finds the HCF or LCM shows the factors or multiples of each number, the ones in every list marked
+ * and the one used (`pick`) boxed in purple. Such a step has no line of working of its own.
+ */
+export type NumberList = { label: string; values: number[]; shared: number[]; pick: number }
+export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[]; lists?: NumberList[] }
 
 type Term = { nk: string; dk: string; n: number; d: number }
 export type WholeFraction = { whole?: number; numerator: number; denominator: number }
@@ -20,6 +25,32 @@ const k = (key: string, latex: string | number) => `[[${key}:${latex}]]`
 const frac = (top: string, bottom: string) => `\\frac{${top}}{${bottom}}`
 /** A fraction as plain text for the `why` sentences: 3/4, 2 1/2. */
 const said = (n: number, d: number, whole?: number) => `${whole ? `${whole} ` : ''}${n}/${d}`
+const factorsOf = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter(f => n % f === 0)
+const multiplesUpTo = (n: number, limit: number) => Array.from({ length: limit / n }, (_, i) => n * (i + 1))
+
+/** Why the divisor: the factors of the top and the bottom, the biggest one in both boxed. */
+function hcfStep(n: number, d: number, factor: number): FractionChainStep {
+  const top = factorsOf(n), bottom = factorsOf(d), shared = top.filter(f => bottom.includes(f))
+  return {
+    line: '',
+    op: 'Find the HCF',
+    why: 'List the factors of the top and the bottom. The biggest number in both lists is the highest common factor, so it is the biggest number you can divide both by.',
+    lists: [{ label: `Factors of ${n}`, values: top, shared, pick: factor }, { label: `Factors of ${d}`, values: bottom, shared, pick: factor }],
+  }
+}
+
+/** Why the common bottom: the multiples of each bottom up to the first one they share. */
+function lcmStep(bottoms: number[], common: number): FractionChainStep {
+  const distinct = [...new Set(bottoms)]
+  const lists = distinct.map(b => multiplesUpTo(b, common))
+  const shared = lists[0].filter(m => lists.every(list => list.includes(m)))
+  return {
+    line: '',
+    op: 'Find the LCM',
+    why: 'List the multiples of each bottom. The first number in every list is the lowest common multiple: the smallest number all the bottoms go into.',
+    lists: distinct.map((b, i) => ({ label: `Multiples of ${b}`, values: lists[i], shared, pick: common })),
+  }
+}
 
 /**
  * Simplify the fraction on the last line: ÷ HCF top and bottom, then work it out, then (for
@@ -30,6 +61,7 @@ function simplifyTail(term: Term, mixedAnswer: boolean): FractionChainStep[] {
   let { nk, dk, n, d } = term
   const factor = gcd(n, d)
   if (factor > 1) {
+    steps.push(hcfStep(n, d, factor))
     steps.push({
       line: `= ${frac(`${k(nk, n)} ${k('sp', `\\div ${factor}`)}`, `${k(dk, d)} ${k('sq', `\\div ${factor}`)}`)}`,
       op: 'Divide top and bottom',
@@ -137,10 +169,11 @@ export function addSubtractChain(values: { numerator: number; denominator: numbe
   let tops = terms.map(term => ({ key: term.nk, n: term.n })), bottoms = terms.map(term => term.dk)
   if (scales.some(scale => scale > 1)) {
     const changing = terms.filter((_, i) => scales[i] > 1)
-    const bottomsSaid = terms.map(term => term.d)
+    steps.push(lcmStep(terms.map(term => term.d), common))
     steps.push({
       line: `= ${join(terms.map((term, i) => scaled(term, scales[i], `mt${i}`, `mb${i}`)))}`,
       op: 'Make bottoms the same',
+      note: changing.map(term => `${common} ÷ ${term.d} → ${common / term.d}`),
       why: `You can only ${words} parts that are the same size. ${common} is the smallest number the bottoms all go into. Multiply the top by the same number as the bottom so the size doesn't change.`,
     })
     const merge: Record<string, string[]> = {}

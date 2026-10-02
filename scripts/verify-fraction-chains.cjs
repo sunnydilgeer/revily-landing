@@ -45,8 +45,28 @@ for (const state of tutorFractionsLesson.states) {
 
 let steps = 0, answers = 0
 for (const [id, working] of workings) {
-  const chain = working.chain
-  assert.ok(chain?.length > 1, `${id}: every fraction working needs a step chain`)
+  assert.ok(working.chain?.length > 1, `${id}: every fraction working needs a step chain`)
+  // An HCF or LCM step shows lists, not a line: its lists must be the real factors or multiples, the boxed number the
+  // highest common factor or lowest common multiple, and the step right after it must use that number.
+  working.chain.forEach((step, index) => {
+    if (!step.lists) return
+    const label = `${id} line ${index + 1}`
+    assert.ok(!step.line && (step.op === 'Find the HCF' || step.op === 'Find the LCM'), `${label}: a list step has no line`)
+    assert.ok(!/=|\d\s*[×÷+−-]\s*\d/.test(step.why), `${label}: the ⓘ is words (${step.why})`)
+    const ns = step.lists.map(list => Number(list.label.split(' ').pop()))
+    const pick = step.lists[0].pick
+    for (const [i, list] of step.lists.entries()) {
+      const n = ns[i]
+      const expected = step.op === 'Find the HCF' ? Array.from({ length: n }, (_, k) => k + 1).filter(f => n % f === 0) : Array.from({ length: pick / n }, (_, k) => n * (k + 1))
+      assert.deepEqual(list.values, expected, `${label}: ${list.label}`)
+      assert.equal(list.pick, pick, `${label}: one boxed number`)
+    }
+    const gcd = (a, b) => b ? gcd(b, a % b) : a
+    const want = step.op === 'Find the HCF' ? gcd(ns[0], ns[1]) : ns.reduce((a, b) => a * b / gcd(a, b))
+    assert.equal(pick, want, `${label}: ${step.op} is ${want}`)
+    assert.ok(working.chain[index + 1].line.includes(step.op === 'Find the HCF' ? `\\div ${pick}` : String(pick)) || (working.chain[index + 1].note ?? []).some(note => note.startsWith(`${pick} ÷`)), `${label}: the next step uses ${pick}`)
+  })
+  const chain = working.chain.filter(step => !step.lists)
   chain.forEach((step, index) => {
     const label = `${id} line ${index + 1}`
     const keys = keysOf(step.line)

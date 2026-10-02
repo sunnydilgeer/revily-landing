@@ -4,7 +4,7 @@ import { useId, useMemo, useState, type ReactNode } from 'react'
 import { chainFromSteps } from '../../maths/step-chain/fromSteps'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { type FractionDisplay, type FractionFrame, type FractionWorking } from './fractionWorking'
-import type { FractionChainStep } from './fractionChain'
+import type { FractionChainStep, NumberList } from './fractionChain'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
 import { PictureStep } from '../../written-methods/tutor/NumberSenseWorkedExample'
 import type { MethodStep } from '../../written-methods/tutor/methodWorking'
@@ -16,18 +16,35 @@ function FractionCard({ value }: { value: FractionDisplay }) {
   </div>
 }
 
+function Segments({ parts, filled }: { parts: number; filled: number }) {
+  return <div className="fr-segments" style={{ '--parts': parts } as React.CSSProperties}>
+    {Array.from({ length: parts }, (_, index) => <i className={index < filled ? 'is-filled' : ''} key={index} />)}
+  </div>
+}
+
+/** A fraction's card and bar. More than one whole is drawn as full bars, then "+", then the part left over. */
 function SegmentedBar({ value }: { value: FractionDisplay }) {
-  const whole = value.whole ?? Math.floor(value.numerator / value.denominator)
+  const complete = value.whole ?? Math.floor(value.numerator / value.denominator)
   const remainder = value.whole !== undefined ? value.numerator : value.numerator % value.denominator
-  const complete = value.whole !== undefined ? value.whole : whole
   if (value.denominator > 24) return <FractionCard value={value} />
+  const said = `${complete ? `${complete} whole${complete === 1 ? '' : 's'}${remainder ? ' and ' : ''}` : ''}${remainder || !complete ? `${remainder} of ${value.denominator} parts` : ''}`
   return <div className="fr-bar-row">
     <FractionCard value={value} />
-    <div className="fr-whole-count" aria-hidden={complete === 0} aria-label={complete > 0 ? `${complete} complete wholes` : undefined}>{complete > 0 && <span>{complete} whole{complete === 1 ? '' : 's'}</span>}</div>
-    <div className="fr-segments" style={{ '--parts': value.denominator } as React.CSSProperties} aria-label={`${remainder} of ${value.denominator} parts shaded`}>
-      {Array.from({ length: value.denominator }, (_, index) => <i className={index < remainder ? 'is-filled' : ''} key={index} />)}
-    </div>
+    {complete > 0
+      ? <div className="fr-wholes" role="img" aria-label={said}>
+        {Array.from({ length: complete }, (_, index) => <Segments parts={value.denominator} filled={value.denominator} key={index} />)}
+        {remainder > 0 && <><b className="fr-plus" aria-hidden="true">+</b><Segments parts={value.denominator} filled={remainder} /></>}
+      </div>
+      : <div className="fr-bar" role="img" aria-label={said}><Segments parts={value.denominator} filled={remainder} /></div>}
   </div>
+}
+
+/** Factors or multiples of each number, the ones in every list marked and the one used boxed (HCF and LCM steps). */
+function NumberLists({ lists }: { lists: NumberList[] }) {
+  return <div className="frm-lists">{lists.map(list => <div className="frm-list" key={list.label} role="group" aria-label={`${list.label}: ${list.values.join(', ')}`}>
+    <span className="frm-list__label">{list.label}</span>
+    <span className="frm-list__values" aria-hidden="true">{list.values.map(v => <b key={v} className={v === list.pick ? 'is-pick' : list.shared.includes(v) ? 'is-shared' : undefined}>{v}</b>)}</span>
+  </div>)}</div>
 }
 
 function FractionFrameView({ frame }: { frame: FractionFrame }) {
@@ -83,7 +100,7 @@ function Tex({ text }: { text: string }): ReactNode {
   return <>{out}</>
 }
 
-type Group = { title: string; why: string; lines: string[]; notes: string[]; last: number }
+type Group = { title: string; why: string; lines: string[]; notes: string[]; lists?: NumberList[]; last: number }
 
 /**
  * A fraction working one move a step (src/features/EXPLANATIONS.md): the bar picture on top, then the working as a board.
@@ -95,7 +112,7 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
   const groups = useMemo(() => chain.slice(1).reduce<Group[]>((all, step, i) => {
     const previous = all.at(-1)
     if (step.op === 'Work out' && previous) { previous.lines.push(step.line); previous.last = i + 1; return all }
-    return [...all, { title: step.op ?? '', why: step.why ?? '', lines: [step.line], notes: (step as FractionChainStep).note ?? [], last: i + 1 }]
+    return [...all, { title: step.op ?? '', why: step.why ?? '', lines: step.line ? [step.line] : [], notes: (step as FractionChainStep).note ?? [], lists: (step as FractionChainStep).lists, last: i + 1 }]
   }, []), [chain])
   const steps: ChainStep[] = [chain[0], ...groups.map(group => ({ line: group.lines.join(' '), op: group.title, why: group.why }))]
   const picture = (revealed: number) => {
@@ -111,6 +128,7 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
         {bars}
         {earlier.map((line, i) => <p key={i} className="frm-line is-old"><Tex text={line} /></p>)}
         {heading}
+        {group.lists && <NumberLists lists={group.lists} />}
         {group.notes.map((note, i) => <p key={`n${i}`} className="frm-note">{note}</p>)}
         {group.lines.map((line, i) => {
           const answer = lastGroup && i === group.lines.length - 1
