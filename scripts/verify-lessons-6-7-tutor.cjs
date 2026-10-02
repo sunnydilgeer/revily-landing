@@ -29,7 +29,16 @@ const compactLessons = new Set([6, 7])
 const conceptQuestions = new Set(['N6.1 Q5c', 'N6.2 Q5c', 'N6.3 Q5c', 'N6.4 Q5c', 'N7.1 Q5b', 'N7.2 Q5b', 'N7.3 Q5c'])
 
 let calculationGroups = 0, equationLines = 0
-function verifyWorking(working) {
+const { checkStepWorking, number } = require('./step-working-check.cjs')
+let stepLines = 0
+function verifyWorking(working, state) {
+  if (working.kind === 'step-worked') {
+    const { answer, lines } = checkStepWorking(working, state?.sourceRef ?? 'working')
+    stepLines += lines
+    const expected = state?.interaction.correctAnswer
+    if (state && state.interaction.type === 'numericInput') assert.ok(Math.abs(number(answer) - Number(expected)) < 1e-9, `${state.sourceRef}: the working ends on ${expected}, not ${answer}`)
+    return
+  }
   assert.equal(working.kind, 'method-worked')
   for (const example of working.examples) {
     calculationGroups++
@@ -60,7 +69,7 @@ function verifyLesson(lesson, expected, screenCount, questionCount, videoCount) 
     if (state.microSkillId !== topic) { assert(!seenTopics.has(state.microSkillId), 'Progress topics must remain contiguous'); seenTopics.add(state.microSkillId); topic = state.microSkillId }
     if (state.video) {
       if (compactLessons.has(lesson.number)) {
-        assert.equal(state.visual.kind, 'method-worked', 'Each Lesson 6/7 video must contain its step-by-step tab')
+        assert.ok(['method-worked', 'step-worked'].includes(state.visual.kind), 'Each Lesson 6/7 video must contain its step-by-step tab')
         assert(!lesson.states[index + 1]?.sourceRef.includes('interactive worked example'), 'Video working must not be repeated on the next screen')
       } else assert.equal(lesson.states[index + 1]?.visual.kind, 'method-worked', 'Each video must be followed by interactive worked teaching')
       for (const asset of [state.video.src, state.video.poster]) assert(fs.statSync(path.join(__dirname, '..', 'public', asset)).size > 1000)
@@ -71,7 +80,7 @@ function verifyLesson(lesson, expected, screenCount, questionCount, videoCount) 
         assert.equal(hash(original), hash(path.join(__dirname, '..', 'public', state.video.src)), `${state.video.sourceFile}: media changed during import`)
       }
     }
-    if (state.visual.kind === 'method-worked') verifyWorking(state.visual)
+    if (state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked') verifyWorking(state.visual)
   }
   for (const [sourceRef, answer] of Object.entries(expected)) {
     const matches = questions.filter(state => state.sourceRef === sourceRef || state.sourceRef.startsWith(sourceRef + ' ('))
@@ -85,7 +94,7 @@ function verifyLesson(lesson, expected, screenCount, questionCount, videoCount) 
     if (conceptQuestions.has(sourceRef)) assert.equal(state.working, undefined, `${sourceRef}: conceptual question must not show calculation walkthrough`)
     else {
       assert(state.working, `${sourceRef}: post-answer walkthrough missing`)
-      verifyWorking(state.working)
+      verifyWorking(state.working, state)
     }
     assert.deepEqual(state.feedback.correct.workedExplanation, state.feedback.incorrect.workedExplanation)
   }

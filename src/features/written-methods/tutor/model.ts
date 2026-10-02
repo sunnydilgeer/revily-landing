@@ -1,11 +1,12 @@
 import type { LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
 import type { LessonVideoDefinition } from '../../order-of-operations/variant-c/variantCLesson'
 import type { MethodWorking } from './methodWorking'
+import type { StepWorking } from './stepWorking'
 import type { FractionWorking } from '../../fractions/tutor/fractionWorking'
 import type { ConversionWorking } from '../../fractions-decimals-percentages/tutor/conversionWorking'
 import type { Diagram } from '../model'
 
-export type TutorWorking = MethodWorking | FractionWorking | ConversionWorking
+export type TutorWorking = MethodWorking | FractionWorking | ConversionWorking | StepWorking
 export type TutorMethodVisual = TutorWorking
   | { kind: 'diagram'; diagram: Diagram }
   | { kind: 'grid'; first: number[]; second: number[] }
@@ -25,7 +26,7 @@ export type TutorMethodState = LearningState & {
   diagnose?: (response: string) => string | null
 }
 export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
-  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19
+  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23
   labels: Partial<Record<MicroSkillId, string>>
   states: TutorMethodState[]
 }

@@ -194,3 +194,84 @@
 .ns-tiles__label { color: var(--f); font-size: 15px; font-weight: 700; }
 /* The answer: the last row of an equation's working, in a green box like the videos. The working ends here. */
 .ns-eq__answer { grid-column: 1 / -1; justify-self: center; margin: 6px 0 0; padding: 4px 20px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-size: clamp(21px, 5.6vw, 26px); font-weight: 700; white-space: nowrap; }
+/* Formulas on the board (lesson 20): a root over a whole fraction or bracket, the move in purple inside a token. */
+.ns-eq__move { color: #7c3aed; }
+.ns-eq__rooted { display: inline-flex; align-items: flex-start; }
+.ns-eq__root { display: inline-flex; align-items: stretch; }
+.ns-eq__radical { position: relative; display: flex; width: .62em; margin-right: -1px; }
+.ns-eq__radical svg { width: 100%; height: 100%; overflow: visible; }
+.ns-eq__radical.ns-shared { width: calc(.62em + 10px); padding: 2px 3px; }
+/* A cancelled root: a red line through the sign, like the struck numbers. */
+.ns-eq__radical.is-cancelled { opacity: .75; }
+.ns-eq__radical.is-cancelled::after { content: ""; position: absolute; left: -3px; right: -3px; top: 50%; border-top: 2px solid #dc2626; transform: rotate(-35deg); }
+.ns-eq__under { display: inline-flex; align-items: center; padding: 4px 3px 1px; border-top: 2px solid currentColor; }
+.ns-eq__answer-side { display: inline-flex; align-items: center; gap: 0 5px; vertical-align: middle; }
+.ns-eq__answer .ns-eq__token { color: inherit; }
+.ns-eq__answer:has(.ns-eq__frac) { border-radius: 22px; }
+/* Factorising a quadratic into two brackets (lesson 21, QuadraticPictures.tsx). */
+.ns-quad { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-quad p { margin: 0; }
+.ns-quad__question { color: var(--rv-ink); white-space: nowrap; }
+.ns-quad__job { padding: 0 4px; border: 2px solid var(--f); border-radius: 6px; color: var(--f); }
+.ns-quad__shape { display: grid; gap: 6px; justify-items: center; }
+.ns-quad__shape > p { color: var(--f, var(--rv-ink)); white-space: nowrap; }
+.ns-quad__signs { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; color: #7c3aed; font-size: .9em; }
+.ns-quad__pairs { display: grid; grid-template-columns: max-content max-content; gap: 6px 18px; margin: 0; padding: 0; list-style: none; }
+.ns-quad__pairs li { display: contents; }
+.ns-quad__pairs li > span.is-f1 { grid-column: 1; }
+.ns-quad__pairs li > span { padding: 2px 6px; border-radius: 8px; text-align: left; white-space: nowrap; color: var(--f); }
+.ns-quad__pairs li.is-pick > span { background: color-mix(in srgb, #7c3aed 10%, transparent); }
+.ns-quad__pairs li.is-pick > span.is-f1 { color: #7c3aed; }
+.ns-quad__and { font-size: .75em; font-weight: 500; color: var(--rv-muted); }
+.ns-quad__flip { color: #7c3aed; }
+.ns-quad__yes { color: var(--rv-good); }
+.ns-quad__no { color: #dc2626; }
+.ns-quad__answer { justify-self: auto; margin: 0; }
+@media (max-width: 360px) { .ns-quad__pairs { column-gap: 8px; } }
+/* Working a step has finished with, greyed out so the current step stands out (MethodExample.focus: A5 on). */
+.ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done, .ns-solve__wide.is-done { opacity: .35; transition: opacity .2s ease; }
+.ns-quad__answer .is-f1, .ns-quad__answer .is-f3 { color: var(--f); }
+/* Solving a quadratic (lesson 22, SolvePictures.tsx): the board with A7's factor pairs across its full width. */
+.ns-solve__wide { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ns-solve__stage { margin: 0 0 2px; color: var(--rv-muted); font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+.ns-solve__num { color: var(--f); }
+.ns-solve__or { color: var(--rv-muted); font-size: .8em; font-weight: 500; }
+/* Sequences (lesson 23, SequencePictures.tsx): each term a column with the jump into it above, so new terms carry on
+   in the same row at the same spacing and a phone wraps whole terms. Rows under the terms use the same columns. */
+.ns-seq { --seq-col: 2em; --seq-gap: 1.6em; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; font-size: clamp(15px, 4.6vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-seq.is-wide { --seq-gap: 1.5em; }
+.ns-seq p { margin: 0; }
+.ns-seq__heading { align-self: stretch; contain: inline-size; }
+.ns-seq__rowblock { display: flex; flex-direction: column; align-items: center; gap: 16px; align-self: stretch; color: var(--f); }
+.ns-seq__terms { display: flex; flex-wrap: wrap; justify-content: center; row-gap: 12px; }
+/* A term with the jump into it: the jump sits above and between the two terms, its arc pointing from one to the next. */
+.ns-seq__unit { display: inline-grid; grid-template-columns: auto var(--seq-col); grid-template-rows: 1.5em auto; align-items: end; }
+.ns-seq__unit:first-child { grid-template-columns: var(--seq-col); }
+.ns-seq__rowblock .ns-seq__unit { grid-template-rows: 0 auto; }
+.ns-seq__hop { grid-row: 1 / 3; grid-column: 1; position: relative; width: var(--seq-gap); height: 100%; color: var(--f); }
+.ns-seq__jumplabel { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: .7em; line-height: 1.2; white-space: nowrap; }
+.ns-seq__arc { position: absolute; left: 0; right: 0; top: 1.05em; height: .45em; border: 2px solid currentColor; border-bottom: 0; border-radius: 1em 1em 0 0; opacity: .55; }
+.ns-seq__term, .ns-seq__cell, .ns-seq__new { grid-row: 2; grid-column: -2; position: relative; min-width: var(--seq-col); white-space: nowrap; }
+.ns-seq__term { color: #2347b8; }
+.ns-seq.is-plain .ns-seq__term { color: var(--rv-ink); }
+.ns-seq__more { align-self: flex-end; padding-left: 2px; color: var(--rv-muted); }
+/* The rows under the terms keep the same width as the terms' row with its "…", so the columns line up. */
+.ns-seq__more.is-spacer { visibility: hidden; }
+.ns-seq__cell { color: var(--f); }
+.ns-seq__new { padding: 0 4px; border: 2px dashed var(--rv-line); border-radius: 8px; color: var(--rv-muted); }
+.ns-seq .is-answer { border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 10px; padding: 0 4px; background: var(--rv-good-tint); color: var(--rv-good-ink); }
+.ns-seq__line { color: var(--f); }
+.ns-seq .is-done { opacity: .35; transition: opacity .2s ease; }
+/* Positions 1, 2, 3, 4 above the terms, small and grey, and the nth term built from labelled pieces. */
+.ns-seq__positions { margin-bottom: -12px; line-height: 1; }
+.ns-seq__positions small { color: var(--rv-muted); font-size: .7em; font-weight: 600; }
+.ns-seq__labelled { display: inline-flex; align-items: flex-start; gap: 14px; border-radius: 22px; white-space: normal; }
+.ns-seq__piece { display: inline-flex; flex-direction: column; align-items: center; }
+/* Each piece of the nth term in the colour of the row it comes from: 4n purple like the times table, + 1 amber. */
+.ns-seq__piece[class*="is-f"] b { color: var(--f); }
+.ns-seq__piece small { max-width: 7.5em; margin-top: 2px; color: var(--rv-muted); font-size: 12px; font-weight: 600; line-height: 1.2; }
+/* A worded answer ("The gaps aren't the same") wraps on a phone instead of pushing the page wider. */
+.ns-seq .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
+/* A board or quadratic picture takes the frame's full width, so a short formula (A = 6s²) doesn't squeeze its step
+   headings and ⓘ text into a narrow column; the rows stay centred. */
+.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad, > .ns-seq) { flex: 1; min-width: 0; }

@@ -1,6 +1,11 @@
 .fr-worked { margin: 0; min-width: 0; }
 .fr-bars, .fr-mixed, .fr-area { display: grid; gap: 12px; margin: 16px 0; }
 .fr-bar-row { display: grid; grid-template-columns: minmax(70px, auto) minmax(0, 1fr); align-items: center; gap: 12px; }
+/* Wholes as full bars, then "+", then the part left over: 17/6 is 2 whole bars + 5/6. */
+.fr-bar, .fr-wholes { min-width: 0; }
+.fr-wholes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.fr-wholes .fr-segments { flex: 1 1 56px; min-width: 56px; }
+.fr-plus { color: var(--rv-biro); font-size: 22px; font-weight: 800; }
 .fr-card { min-width: 68px; display: grid; justify-items: center; gap: 4px; padding: 10px 12px; border: 1px solid var(--rv-line); border-radius: 12px; background: #fff; color: var(--rv-ink); }
 .fr-card--equivalent { border-color: #8cb6d9; background: #f1f8ff; }
 .fr-card--result { border-color: var(--rv-line-strong); background: var(--rv-grid); }
@@ -10,11 +15,10 @@
 .fr-stack { display: inline-grid; grid-template-rows: 1fr 1fr; min-width: 1.4em; text-align: center; line-height: 1.05; }
 .fr-stack span:first-child { border-bottom: 2px solid currentColor; padding-bottom: 2px; }
 .fr-stack span:last-child { padding-top: 2px; }
-.fr-segments { grid-column: 2; display: grid; grid-template-columns: repeat(var(--parts), minmax(3px, 1fr)); min-height: 38px; border: 2px solid var(--rv-line-strong); border-radius: 9px; overflow: hidden; background: white; }
+.fr-segments { display: grid; grid-template-columns: repeat(var(--parts), minmax(3px, 1fr)); min-height: 38px; border: 2px solid var(--rv-line-strong); border-radius: 9px; overflow: hidden; background: white; }
 .fr-segments i { min-width: 0; border-left: 1px solid var(--rv-line); background: #fff; }
 .fr-segments i:first-child { border-left: 0; }
 .fr-segments i.is-filled { background: var(--rv-biro-light); }
-.fr-whole-count { grid-column: 2; min-height: 0; color: var(--rv-muted); font-size: 12px; }
 .fr-reciprocal { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 18px 0; }
 .fr-reciprocal > div { display: flex; align-items: center; gap: 12px; }
 .fr-arrow { color: var(--rv-biro); font-size: 25px; font-weight: 800; }
@@ -35,3 +39,35 @@
   .fr-amount > div { gap: 2px; }
   .fr-amount span { padding-inline: 0; font-size: 9px; }
 }
+
+/* In a working the bars use the card's width, not the width of the line below them, so 24 parts stay countable. */
+.ns-visual.frm { flex: 1 1 auto; min-width: 0; }
+.frm > .rung-worked__visual { justify-self: stretch; }
+.frm .fr-bars, .frm .fr-mixed, .frm .fr-area { width: min(100%, 460px); margin: 4px auto 18px; gap: 14px; }
+.frm .fr-segments { min-height: 44px; }
+/* HCF and LCM steps: each number's factors or multiples, the shared ones in purple and the one used boxed. */
+.frm-lists { display: grid; gap: 10px; width: min(100%, 460px); }
+.frm-list { display: grid; gap: 5px; justify-items: center; }
+.frm-list__label { color: var(--rv-muted); font-size: 14px; font-weight: 650; }
+.frm-list__values { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.frm-list__values b { box-sizing: border-box; min-width: 32px; height: 32px; display: inline-grid; place-items: center; padding: 0 7px; border: 1px solid var(--rv-line); border-radius: 999px; background: #fff; color: var(--rv-ink); font-size: 15px; font-weight: 600; }
+.frm-list__values b.is-shared { border-color: color-mix(in srgb, #7c3aed 45%, transparent); color: #7c3aed; }
+.frm-list__values b.is-pick { border: 2px solid #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; font-weight: 800; }
+
+/* Fraction workings as a board (FractionWorkedExample.tsx): lines in the app font, fractions stacked, a move in purple,
+   earlier lines faded and the answer green. */
+.frm { gap: 10px; min-height: 0; padding: 4px 0 0; justify-items: center; }
+.frm-line { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .1em; margin: 0; font-size: clamp(21px, 6vw, 25px); font-weight: 600; color: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.frm-line.is-old { color: var(--rv-muted); font-size: clamp(17px, 4.8vw, 20px); font-weight: 500; }
+.frm-frac { display: inline-grid; justify-items: center; margin: 0 .15em; line-height: 1.2; vertical-align: middle; }
+.frm-frac > span:first-child { padding: 0 .25em 2px; border-bottom: 2px solid currentColor; }
+.frm-frac > span:last-child { padding: 2px .25em 0; }
+.frm-move { color: #7c3aed; }
+/* A mixed number is one piece; the one a step converts ("1 1/2" → 3/2) is boxed in purple. */
+.frm-mixed { display: inline-flex; align-items: center; }
+.frm-focus { margin: 0 .1em; padding: 2px 6px; border: 2px solid #7c3aed; border-radius: 12px; background: color-mix(in srgb, #7c3aed 10%, transparent); color: var(--rv-ink); }
+.frm-note { margin: 0; color: #7c3aed; font-size: 18px; font-weight: 600; }
+.frm-eq { margin-right: .3em; }
+.frm-answer { display: inline-flex; align-items: center; padding: 2px 16px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 18px; background: var(--rv-good-tint); color: var(--rv-good-ink); }
+.wc--picture:has(.frm) .wc-controls { gap: 12px; }
+.wc--picture:has(.frm) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }

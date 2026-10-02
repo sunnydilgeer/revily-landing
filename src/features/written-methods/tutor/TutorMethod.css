@@ -99,3 +99,87 @@
 @media (max-width: 480px) {
   .wms-venn { height: 215px; transform: scale(.82); transform-origin: top center; margin-bottom: -34px; }
 }
+
+/* Step workings (stepWorking.ts): pictures and lines one move a step. The column worked on is tinted, carries and
+   regrouped digits are purple (boxed while being used, struck out after), and the answer is green. */
+.sp-working { gap: 12px; min-height: 0; padding: 4px 0 0; }
+.sp-picture { overflow-x: auto; }
+.sp-given { margin: 0; text-align: center; color: var(--rv-muted); font-size: 17px; }
+.sp-start { margin: 0; text-align: center; font-size: clamp(20px, 7cqw, 28px); text-wrap: balance; font-weight: 700; color: var(--rv-ink, inherit); }
+.sp-columns, .sp-bus { width: max-content; margin: 0 auto; font-size: clamp(26px, 7.5vw, 34px); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sp-row { display: grid; grid-template-columns: .9em repeat(var(--sp-cols), auto); justify-content: center; align-items: end; min-height: 1.3em; }
+.sp-col { min-width: .95em; text-align: center; border-radius: 6px; }
+.sp-col.is-focus { background: color-mix(in srgb, var(--rv-biro) 10%, transparent); }
+.sp-point { min-width: .35em; text-align: center; }
+.sp-op { text-align: left; }
+.sp-small { min-height: .7em; line-height: 1; }
+.sp-small b { font-size: .5em; }
+.sp-rule { height: 2px; margin: 4px 0; background: var(--rv-muted); }
+.sp-columns .is-added { color: #7c3aed; }
+.sp-columns .is-struck { text-decoration: line-through 2px #7c3aed; opacity: .6; }
+.sp-carry, .sp-regroup { display: inline-block; padding: 0 2px; color: #7c3aed; line-height: 1.2; }
+.sp-carry.is-boxed, .sp-regroup.is-boxed { border: 2px solid #7c3aed; border-radius: 5px; }
+.sp-carry.is-used { text-decoration: line-through 2px; opacity: .55; }
+.sp-answer.is-done { border-radius: 999px; background: var(--rv-good-tint); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rv-good) 55%, transparent); color: var(--rv-good-ink); }
+.sp-bus__top, .sp-bus__row > div { display: grid; grid-template-columns: repeat(var(--sp-cols), auto); }
+.sp-bus__top { grid-template-columns: 1.2em repeat(var(--sp-cols), auto); min-height: 1.3em; }
+.sp-bus__top > span, .sp-bus__row > div > span { min-width: .95em; text-align: center; position: relative; }
+.sp-bus__top > span:first-child { min-width: 1.2em; }
+.sp-bus__top.is-done { border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rv-good) 55%, transparent); }
+.sp-bus__row { display: flex; align-items: center; }
+.sp-bus__row > span { min-width: 1.2em; text-align: center; color: var(--f); }
+.sp-bus__row > div { border-left: 2px solid var(--rv-muted); border-top: 2px solid var(--rv-muted); padding: .1em 0 0; }
+.sp-bus__row .is-focus { color: #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); border-radius: 5px; }
+.sp-bus__row sup { position: absolute; left: -.2em; top: .05em; font-size: 14px; color: #7c3aed; font-weight: 700; }
+.sp-bus__row .sp-point, .sp-bus__top .sp-point { min-width: .35em; }
+.sp-lines li { color: var(--rv-ink); gap: .4em; }
+.sp-lines.is-old li { color: var(--rv-muted); font-size: .85em; }
+.sp-lines.is-old .sp-result { color: inherit; }
+.sp-parts { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: .3em; }
+.sp-lines [class*="is-f"] { color: var(--f); font-weight: 600; }
+.sp-lines .is-struck { text-decoration: line-through 2px #dc2626; opacity: .7; }
+.sp-result { color: var(--rv-biro); }
+.sp-mark { color: var(--rv-muted); font-size: .7em; font-weight: 600; }
+.sp-mark.is-ok { color: var(--rv-good-ink); }
+.sp-answer-pill { padding: 2px 16px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-weight: 700; white-space: nowrap; }
+.sp-words { justify-self: center; margin: 0; max-width: 100%; box-sizing: border-box; border-radius: 18px; font-size: 18px; line-height: 1.3; text-align: center; white-space: normal; }
+.wc--picture:has(.sp-working) .wc-controls { gap: 12px; }
+.wc--picture:has(.sp-working) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }
+.ns-visual:has(.wms-venn-wrap) { flex: 1 1 auto; min-width: 0; }
+.sp-picture .wms-venn-wrap { zoom: .78; }
+/* Written methods drawn as pictures, one move a step (src/features/EXPLANATIONS.md): the part a move uses is coloured
+   like its line of working (top number amber, multiplier or divisor blue), what the step adds to is boxed in purple,
+   used carries are struck out, and the row the last move writes is the green answer. */
+.wms-written { gap: 14px; min-height: 0; padding: 4px 0 0; }
+.wms-written .rung-worked__visual { overflow-x: auto; }
+.wms-lines li { color: var(--rv-ink); }
+.wms-lines [class*="is-f"] { color: var(--f); font-weight: 600; }
+.wms-lines .wms-boxed { font-weight: 700; }
+.wms-answer, .wms-answer-words { padding: 2px 16px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-weight: 700; white-space: nowrap; }
+.wms-mark { color: var(--rv-muted); font-size: .7em; font-weight: 600; }
+.wms-mark.is-ok { color: var(--rv-good-ink); }
+.wms-digit--focus { color: var(--f); background: color-mix(in srgb, var(--f) 13%, transparent); border-radius: 6px; font-weight: 700; }
+.wms-digit--new { background: var(--rv-grid); border-radius: 6px; }
+.wms-number-row.is-answer { border-radius: 999px; background: var(--rv-good-tint); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rv-good) 55%, transparent); color: var(--rv-good-ink); font-weight: 700; }
+.wms-carry { display: inline-block; min-width: 1em; line-height: 1.2; color: #7c3aed; }
+.wms-carry.is-boxed { border: 2px solid #7c3aed; border-radius: 5px; }
+.wms-carry.is-used { text-decoration: line-through 2px; opacity: .55; }
+.wms-carry.is-answer { border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); opacity: 1; text-decoration: none; }
+.wms-grid-head { color: var(--f); font-weight: 700; }
+.wms-grid-head.is-active { padding: 1px 6px; border-radius: 6px; background: color-mix(in srgb, var(--f) 14%, transparent); }
+.wms-group { color: #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); font-weight: 700; }
+.wms-dividend > .is-f0 { color: var(--f); font-weight: 600; }
+.wms-dividend sup { color: #7c3aed; font-weight: 700; }
+.wms-written .wms-dividend sup { top: .15em; left: -.22em; }
+.wms-dividend sup.is-boxed { padding: 1px 3px; border-radius: 5px; background: #7c3aed; color: #fff; }
+.wms-quotient.is-answer { border-radius: 999px; background: var(--rv-good-tint); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rv-good) 55%, transparent); color: var(--rv-good-ink); font-weight: 700; }
+.wms-quotient { position: relative; }
+.wms-quotient.has-r { padding-right: 2.2em; }
+.wms-quotient__r { position: absolute; right: .35em; top: 50%; transform: translateY(-50%); font-size: .7em; white-space: nowrap; }
+.wms-answer-words { justify-self: center; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 12px auto 0; padding: 4px 14px; border-radius: 18px; font-size: 17px; line-height: 1.3; text-align: center; white-space: normal; }
+.wms-lines li > span:first-child { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: .3em; }
+/* Long written methods have 11 or 12 steps: let the dots wrap rather than push Next step off a 320px screen. */
+.wc--picture:has(.wms-written) .wc-controls { gap: 12px; }
+.wc--picture:has(.wms-written) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }
+.wms-written .wms-dividend sup { z-index: 1; line-height: 1.1; }
+.wms-quotient.is-answer { margin-bottom: 6px; }

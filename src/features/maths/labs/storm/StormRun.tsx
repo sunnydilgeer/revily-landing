@@ -5,8 +5,9 @@ import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useScore, useShare, type Speaker, recordRank } from '../kit/Lab'
+import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { drops, metres, type Drop, type Ride } from './drops'
+import { makeDrops, metres, type Drop, type Ride } from './drops'
 import './StormRun.css'
 
 type Screen = 'drop' | 'question' | 'payout' | 'busted' | 'done'
@@ -86,7 +87,7 @@ function StormMap({ drop, distanceKnown, ride, run }: { drop: Drop; distanceKnow
   </figure>
 }
 
-export default function StormRun() {
+function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void }) {
   const [dropIndex, setDropIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('drop')
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -160,7 +161,7 @@ export default function StormRun() {
     else { score.bank(); setScreen('payout'); sfx.win() }
   }
 
-  const restart = () => { score.reset(); resetShare(); startDrop(0) }
+  const restart = onReplay
 
   useEffect(() => {
     if (screen === 'done') recordRank('storm', rankFor(score.kept, drops.length, RANKS), RANKS)
@@ -249,4 +250,10 @@ export default function StormRun() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function StormRun() {
+  const { data, play, regenerate } = useGenerated(makeDrops)
+  return data ? <StormRunGame key={play} drops={data} onReplay={regenerate} /> : null
 }
