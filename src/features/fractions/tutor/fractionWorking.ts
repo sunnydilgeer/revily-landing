@@ -195,9 +195,10 @@ export function mixedCalculationWorking(firstValue: MixedValue | FractionValue, 
       ...base.steps.map(step => ({ ...step, frame: { ...step.frame, note: step.frame.note } })),
     ],
   }
-  // While the mixed numbers are being converted, the picture still shows them as written (1 1/2 is a whole bar + 1/2).
+  // While the mixed numbers are being converted, the picture still shows them as written (1 1/2 is a whole bar + 1/2);
+  // once worked out, the next step shows them improper (3/2).
   const asWritten = (value: MixedValue | FractionValue): FractionDisplay => ({ ...value, tone: 'equivalent' })
-  return { ...working, chain: framed(mixedCalculationChain(firstValue, secondValue, operation), [[1, { kind: 'mixed', values: [asWritten(firstValue), asWritten(secondValue)], note: 'Convert before calculating' }]]) }
+  return { ...working, chain: framed(mixedCalculationChain(firstValue, secondValue, operation), [[1, { kind: 'mixed', values: [asWritten(firstValue), asWritten(secondValue)], note: 'Convert before calculating' }], [2, working.steps[0].frame]]) }
 }
 
 export function fractionOfAmountWorking(numerator: number, denominator: number, amount: number, currency = true): FractionWorking {
