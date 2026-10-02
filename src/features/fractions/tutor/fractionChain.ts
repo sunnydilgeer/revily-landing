@@ -14,8 +14,11 @@ import type { FractionFrame } from './fractionWorking'
  * and the one used (`pick`) boxed in purple. Such a step has no line of working of its own.
  */
 export type NumberList = { label: string; values: number[]; shared: number[]; pick: number }
-/** `focus`: the mixed numbers (by their whole number's key) on the line above that this step converts, boxed in purple. */
-export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[]; lists?: NumberList[]; focus?: string[] }
+/**
+ * `focus`: the mixed numbers (by their whole number's key) on the line above that this step converts, boxed in purple.
+ * `fresh`: the keys on this step's line that it has just worked out (the 3 of 3/2 from 1 1/2), drawn in purple.
+ */
+export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[]; lists?: NumberList[]; focus?: string[]; fresh?: string[] }
 
 type Term = { nk: string; dk: string; n: number; d: number }
 export type WholeFraction = { whole?: number; numerator: number; denominator: number }
@@ -276,6 +279,7 @@ export function mixedCalculationChain(first: WholeFraction, second: WholeFractio
       line: `= ${frac(k('a', a.n), k('b', a.d))} ${k(key, sign)} ${frac(k('c', b.n), k('e', b.d))}`,
       op: 'Make improper fractions',
       focus: [first.whole ? 'w1' : '', second.whole ? 'w2' : ''].filter(Boolean),
+      fresh: [first.whole ? 'a' : '', second.whole ? 'c' : ''].filter(Boolean),
       why: `Mixed numbers can't be ${operation === 'multiply' ? 'multiplied' : 'divided'} straight away, so turn each one into a top-heavy fraction: the wholes times the bottom, plus the top.`,
       note: conversions,
       merge: { a: first.whole ? ['w1', 'n1'] : ['n1'], c: second.whole ? ['w2', 'n2'] : ['n2'] },

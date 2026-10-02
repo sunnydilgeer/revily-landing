@@ -178,7 +178,8 @@ export function divideFractionsWorking(first: FractionValue, second: FractionVal
       { title: 'Simplify and convert if needed', equation: `${rawLatex(numerator, denominator)}=${rationalLatex(numerator, denominator)}`, instruction: `Simplify fully${result.numerator > result.denominator ? ' and write the improper result as a mixed number' : ''}.`, frame: { kind: 'mixed', values: [valueFrame(result.numerator, result.denominator, 'result')], note: rationalText(numerator, denominator) } },
     ],
   }
-  return { ...working, chain: framed(divideChain(first, second), [[1, working.steps[0].frame]]) }
+  // No flip picture (1/2, 1/6 → 6/1): the working shows the flip on its own line.
+  return { ...working, chain: framed(divideChain(first, second), []) }
 }
 
 const improper = (value: MixedValue | FractionValue): FractionValue => 'whole' in value ? { numerator: value.whole * value.denominator + value.numerator, denominator: value.denominator } : value
@@ -194,7 +195,10 @@ export function mixedCalculationWorking(firstValue: MixedValue | FractionValue, 
       ...base.steps.map(step => ({ ...step, frame: { ...step.frame, note: step.frame.note } })),
     ],
   }
-  return { ...working, chain: framed(mixedCalculationChain(firstValue, secondValue, operation), [[1, working.steps[0].frame]]) }
+  // While the mixed numbers are being converted, the picture still shows them as written (1 1/2 is a whole bar + 1/2);
+  // once worked out, the next step shows them improper (3/2).
+  const asWritten = (value: MixedValue | FractionValue): FractionDisplay => ({ ...value, tone: 'equivalent' })
+  return { ...working, chain: framed(mixedCalculationChain(firstValue, secondValue, operation), [[1, { kind: 'mixed', values: [asWritten(firstValue), asWritten(secondValue)], note: 'Convert before calculating' }], [2, working.steps[0].frame]]) }
 }
 
 export function fractionOfAmountWorking(numerator: number, denominator: number, amount: number, currency = true): FractionWorking {
