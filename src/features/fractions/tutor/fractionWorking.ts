@@ -206,5 +206,5 @@ export function fractionOfAmountWorking(numerator: number, denominator: number, 
       { title: 'State the amount', equation: `${rawLatex(numerator, denominator)}\\text{ of }${sign}${amount}=${sign}${answer}`, instruction: `The required fraction of the amount is ${sign}${answer}.`, frame: { kind: 'amount', amount, currency, parts: denominator, selectedParts: numerator, unitValue: unit, note: `${sign}${answer}` } },
     ],
   }
-  return { ...working, chain: framed(fractionOfAmountChain(numerator, denominator, amount, currency), [[3, working.steps[1].frame]]) }
+  return { ...working, chain: framed(fractionOfAmountChain(numerator, denominator, amount, currency), []) }
 }
