@@ -1,15 +1,17 @@
 /** Every lab, as the Lab screen lists it: the game, the GCSE skill it trains, and the exam question it gets you ready for. */
-export type LabArea = 'ratio' | 'algebra' | 'geometry' | 'probability'
+export type LabArea = 'number' | 'ratio' | 'algebra' | 'geometry' | 'probability' | 'statistics'
 
 export const labAreas: { id: LabArea; title: string; chip: string }[] = [
+  { id: 'number', title: 'Number games', chip: 'Number · about a quarter of Foundation marks' },
   { id: 'ratio', title: 'Ratio games', chip: 'Ratio, proportion & rates · about a quarter of Foundation marks' },
   { id: 'algebra', title: 'Algebra games', chip: 'Algebra · about a fifth of Foundation marks' },
   { id: 'geometry', title: 'Geometry games', chip: 'Geometry & measures · about 15% of Foundation marks' },
-  { id: 'probability', title: 'Probability games', chip: 'Probability & statistics · about 15% of Foundation marks' },
+  { id: 'probability', title: 'Probability games', chip: 'Probability · shares about 15% of Foundation marks with statistics' },
+  { id: 'statistics', title: 'Statistics games', chip: 'Statistics · shares about 15% of Foundation marks with probability' },
 ]
 
 export type LabEntry = {
-  id: 'heist' | 'storm' | 'potion' | 'tiers' | 'balance' | 'trick' | 'packs'
+  id: 'heist' | 'storm' | 'potion' | 'tiers' | 'balance' | 'trick' | 'packs' | 'deals' | 'stats' | 'mind' | 'build' | 'levels'
   area: LabArea
   href: string
   emoji: string
@@ -78,11 +80,51 @@ export const labCatalog: LabEntry[] = [
     inExam: 'P(red) = 0.05. The spinner is spun 20 times. Estimate how many reds.',
     minutes: 5,
   },
+  {
+    id: 'deals', area: 'number', href: '/preview/lab/deals', emoji: '🏷️', title: 'Deal or Steal',
+    hook: 'Black Friday mega-sale, and half the deals are fake. Work out the real price before Sale Sal fools you.',
+    skill: 'Percentages: % of an amount, discounts and increases',
+    inGame: 'Shop A: £180, 20% off. Shop B: just £150. Which is cheaper?',
+    inExam: 'A watch costs £180. In a sale the price is reduced by 20%. Work out the sale price.',
+    minutes: 4,
+  },
+  {
+    id: 'mind', area: 'algebra', href: '/preview/lab/mind', emoji: '🔮', title: 'Mind Reader',
+    hook: 'Learn a think-of-a-number trick that always lands on the same answer, then use algebra to show why.',
+    skill: 'Expressions, like terms and expanding brackets',
+    inGame: 'Mystic Mo’s trick: n × 10, + 40, ÷ 10. What is (10n + 40) ÷ 10?',
+    inExam: 'Expand and simplify 3(n + 6) − 3n.',
+    minutes: 4,
+  },
+  {
+    id: 'levels', area: 'algebra', href: '/preview/lab/levels', emoji: '🆙', title: 'Level Up',
+    hook: 'The XP for each level follows a pattern. Crack it and predict level 50 before you get there.',
+    skill: 'Linear sequences and the nth term',
+    inGame: 'Levels 1 to 4 need 140, 190, 240, 290 XP. How much XP for level 50?',
+    inExam: 'The nth term of a sequence is 50n + 90. Work out the 50th term.',
+    minutes: 4,
+  },
+  {
+    id: 'build', area: 'geometry', href: '/preview/lab/build', emoji: '🧱', title: 'Base Builder',
+    hook: 'Night is coming and so are the zombies. Walls round the edge, floor inside: build it in time.',
+    skill: 'Perimeter and area, including L-shapes',
+    inGame: 'A 35 m by 10 m shed. How many metres of wall go all the way round?',
+    inExam: 'A rectangle is 35 m long and 10 m wide. Work out its perimeter and its area.',
+    minutes: 4,
+  },
+  {
+    id: 'stats', area: 'statistics', href: '/preview/lab/stats', emoji: '📊', title: 'Rig the Stats',
+    hook: 'Your mate’s screen time is a disaster. Work out the averages, then rig one day so the mean looks small.',
+    skill: 'Mean, median, mode and range',
+    inGame: 'Screen time: 130, 260, 100, 240, 120 minutes. What’s the mean?',
+    inExam: 'Work out the mean and the range of these five numbers.',
+    minutes: 4,
+  },
 ]
 
 /** Coming soon: shown locked, so students can see where the labs are heading. */
 export const labTeasers = [
-  { emoji: '🔮', title: 'Mind Reader', skill: 'Algebra · expressions and brackets' },
-  { emoji: '📊', title: 'Rig the Stats', skill: 'Statistics · mean, median, mode' },
-  { emoji: '🏷️', title: 'Deal or Steal', skill: 'Ratio · percentages and discounts' },
+  { emoji: '💱', title: 'Import or Not', skill: 'Ratio · exchange rates' },
+  { emoji: '🧮', title: 'Function Factory', skill: 'Algebra · function machines' },
+  { emoji: '📐', title: 'Pythagoras Parkour', skill: 'Geometry · Pythagoras' },
 ]

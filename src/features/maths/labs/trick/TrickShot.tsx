@@ -5,8 +5,9 @@ import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { POCKETS, shots, type Arc, type Point, type Shot } from './shots'
+import { makeShots, POCKETS, type Arc, type Point, type Shot } from './shots'
 import './TrickShot.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -77,13 +78,13 @@ function Table({ shot, arcStates, ball, potted }: { shot: Shot; arcStates: Recor
   </figure>
 }
 
-export default function TrickShot() {
+function TrickShotGame({ shots, onReplay }: { shots: Shot[]; onReplay: () => void }) {
   const [shotIndex, setShotIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('intro')
   const [questionIndex, setQuestionIndex] = useState(0)
   const [picked, setPicked] = useState<number | null>(null)
   const [missed, setMissed] = useState(false)
-  const [ball, setBall] = useState<Point | null>(shots[0].path[0])
+  const [ball, setBall] = useState<Point | null>(() => shots[0].path[0])
   const [rolling, setRolling] = useState(false)
   const [potted, setPotted] = useState(false)
   const [revealed, setRevealed] = useState(1)
@@ -153,7 +154,7 @@ export default function TrickShot() {
     else { score.bank(); setScreen('payout') }
   }
 
-  const restart = () => { score.reset(); resetShare(); startShot(0) }
+  const restart = onReplay
 
   if (screen === 'done') {
     const rank = rankFor(score.kept, shots.length, RANKS)
@@ -241,4 +242,10 @@ export default function TrickShot() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function TrickShot() {
+  const { data, play, regenerate } = useGenerated(makeShots)
+  return data ? <TrickShotGame key={play} shots={data} onReplay={regenerate} /> : null
 }

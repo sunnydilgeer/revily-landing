@@ -35,6 +35,7 @@
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",
         "verify:fractions:chains": "node scripts/verify-fraction-chains.cjs",
         "verify:step-chains": "node scripts/verify-step-chains.cjs",
+        "verify:arcade": "node scripts/verify-arcade-numbers.cjs",
         "verify:study-log": "node scripts/verify-study-log.cjs",
         "verify:exam-checklist": "node scripts/verify-exam-checklist.cjs",
         "verify:number:diagnosis": "node scripts/verify-number-diagnosis.cjs",
