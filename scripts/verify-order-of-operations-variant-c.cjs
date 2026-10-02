@@ -14,7 +14,8 @@ function loadTypeScriptModule(relativePath) {
     fileName: filename,
   }).outputText
   const module = { exports: {} }
-  Function('exports', 'module', 'require', '__filename', '__dirname', output)(module.exports, module, require, filename, path.dirname(filename))
+  const local = request => request.startsWith('.') ? loadTypeScriptModule(path.relative(root, path.resolve(path.dirname(filename), request)) + '.ts') : require(request)
+  Function('exports', 'module', 'require', '__filename', '__dirname', output)(module.exports, module, local, filename, path.dirname(filename))
   return module.exports
 }
 
@@ -35,7 +36,7 @@ assert.ok(lessonView.includes('teaching && !state.video && state.content.body'),
 assert.deepEqual(videoStates.map(state => state.id), ['L2C-02', 'L2C-16', 'L2C-25'], 'Each BIDMAS clip must appear at its matching topic demonstration')
 for (const state of videoStates) {
   assert.equal(state.interaction.type, 'continue', 'Videos must not interfere with answer submission')
-  assert.equal(state.visual.kind, 'stacked-worked', 'Video clips must retain the approved working')
+  assert.equal(state.visual.kind, 'board', 'Video clips come with their board working')
   assert.ok(state.video.durationSeconds > 0 && state.video.durationSeconds < 60)
   assert.ok(state.video.textAlternative.length >= 5, 'Silent videos need a complete written alternative')
   for (const asset of [state.video.src, state.video.poster]) {
@@ -47,48 +48,44 @@ for (const state of videoStates) {
 
 assert.equal(states.length, 34, 'Variant C should contain 34 storyboarded screens')
 assert.equal(new Set(states.map(state => state.id)).size, states.length, 'Every state ID must be unique')
-assert.equal(states[1].visual.kind, 'stacked-worked')
-const demonstrations = states.filter(state => state.visual.kind === 'stacked-worked')
-assert.equal(demonstrations.length, 8, 'Every worked demonstration must use cumulative working')
-assert.equal(states.filter(state => state.visual.kind === 'worked').length, 0, 'No replacement-frame demonstrations may remain')
-assert.equal(states[1].visual.steps.length, 4)
-function removeUnderlines(math) {
-  const command = '\\underline{'
-  while (math.includes(command)) {
-    const start = math.indexOf(command)
-    const content = start + command.length
-    let depth = 1
-    let end = content
-    while (depth && end < math.length) {
-      if (math[end] === '{') depth++
-      if (math[end] === '}') depth--
-      end++
-    }
-    assert.equal(depth, 0, 'Underline braces must be balanced')
-    math = math.slice(0, start) + math.slice(content, end - 1) + math.slice(end)
-  }
-  return math
+// Every worked example and answer is a board, one move a step (opsBoard.ts): each row equals the one before it (letters
+// are checked by substituting values), each step boxes a part of the row above, and the answer appears once, at the end.
+const { plainRow } = loadTypeScriptModule('src/features/order-of-operations/variant-c/opsBoard.ts')
+const letters = { x: 2, y: 3, a: 5, b: 7, p: 11, q: 13, m: 17, n: 19, c: 23, d: 29 }
+function evaluate(row) {
+  let js = plainRow(row).split(' | ').map(side => `(${side})`).join('/')
+  js = js.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')
+  js = js.replace(/(\d|[a-z]|\)|²|³)(?=[a-z(])/g, '$1*').replace(/²/g, '**2').replace(/³/g, '**3')
+  js = js.replace(/[a-z]/g, letter => `(${letters[letter]})`)
+  return Function(`return ${js}`)()
 }
-let calculations = 0
-let transitions = 0
-for (const state of demonstrations) {
-  for (const example of [state.visual, ...(state.visual.additionalExamples ?? [])]) {
-    calculations++
-    let previous = example.math
-    katex.renderToString(previous, { throwOnError: true, strict: 'error' })
-    for (const item of example.steps) {
-      transitions++
-      assert.ok(item.previousMath.includes('\\underline'), state.id + ' must identify the input calculation')
-      assert.equal(removeUnderlines(item.previousMath), previous, state.id + ' underlining must preserve the preceding expression')
-      assert.ok(!item.math.includes('='), state.id + ' result lines must not duplicate the equals sign')
-      for (const math of [item.previousMath, item.math]) katex.renderToString(math, { throwOnError: true, strict: 'error' })
-      previous = item.math
+const toRow = answer => String(answer).replace(/\^2/g, '²').replace(/^n\s*=\s*/, '')
+assert.equal(states[1].visual.kind, 'board')
+let boards = 0, moves = 0
+for (const state of states) {
+  const working = state.visual.kind === 'board' ? state.visual : state.working
+  if (state.visual.kind === 'expression') assert.ok(state.working, state.id + ': every answer has a board working')
+  if (!working) continue
+  boards++
+  let row = working.start, value = evaluate(row)
+  working.steps.forEach((step, i) => {
+    moves++
+    assert.ok(step.title.split(' ').length <= 4, state.id + ': short heading ' + step.title)
+    assert.ok(!/[=×÷²]|\d\s*[+−]\s*\d/.test(step.instruction), state.id + ': the ⓘ is words ' + step.instruction)
+    if (step.fresh) { row = step.mark; value = evaluate(row); return }
+    assert.equal(plainRow(step.mark), row, state.id + ' step ' + (i + 1) + ': the box marks the row above')
+    assert.equal((step.mark.match(/\[/g) ?? []).length, 1, state.id + ': one part is boxed, one move a step')
+    for (const note of step.notes ?? []) {
+      const [left, right] = note.split(' → ')
+      assert.ok(Math.abs(evaluate(left) - evaluate(right)) < 1e-9, state.id + ': ' + note)
     }
-  }
+    assert.ok(Math.abs(evaluate(step.next) - value) < 1e-9 * Math.max(1, Math.abs(value)), `${state.id} step ${i + 1}: ${plainRow(step.next)} equals ${row}`)
+    row = plainRow(step.next)
+  })
+  const answer = state.interaction.correctAnswer
+  if (state.interaction.type === 'numericInput') assert.ok(Math.abs(evaluate(row) - evaluate(toRow(answer))) < 1e-9, state.id + ': the board ends on the answer')
 }
-assert.equal(calculations, 9, 'The algebra video must retain both distinct examples')
-assert.equal(transitions, 27)
-assert.equal(states[16].visual.steps.length, 5, 'Denominator multiplication and addition need separate lines')
+assert.equal(boards, 31)
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(!app.includes('operationsVariant'), 'Lesson 2 must not have a variant selector')
 assert.ok(!app.includes('OperationsVariantBLesson') && !app.includes('OrderOfOperationsLesson'), 'Retired Lesson 2 paths must not be rendered')
@@ -141,4 +138,4 @@ for (const source of ['N2.1 Q2', 'N2.1 Q5c', 'N2.2 Q2', 'N2.2 Q5c', 'N2.3 Q2', '
 }
 assert.equal(states.filter(state => state.sourceRef.startsWith('Video')).length, 3, 'All three tutor videos need a replayable screen')
 
-console.log('Verified Lesson 2: ' + states.length + ' screens, ' + questions.length + ' questions, ' + calculations + ' stacked calculations, ' + transitions + ' underlined transitions, sole tutor-backed route.')
+console.log('Verified Lesson 2: ' + states.length + ' screens, ' + questions.length + ' questions, ' + boards + ' board workings, ' + moves + ' checked moves, sole tutor-backed route.')
