@@ -36,14 +36,14 @@ export function pairsOf(middle: number, last: number): [number, number][] {
 /**
  * Where the minus signs go, when there is one (Sunny, 2 Oct): the factor pairs are listed plain first, then this step
  * flips their signs. The last number's sign says whether the signs match; the middle one's says which way. The pairs
- * are still positive when the step is read, so "the bigger one" is the bigger number.
+ * are still positive when the step is read, so "the bigger factors" are the bigger numbers.
  */
 export function flipOf(middle: number, last: number): { title: string; say: string } | null {
   if (last > 0 && middle > 0) return null
   if (last > 0) return { title: 'Make both negative', say: 'The last number is plus, so the signs are the same. The middle is minus, so both are negative.' }
   return middle > 0
-    ? { title: 'Make the smaller one negative', say: 'The last number is minus, so one number is negative. The middle is plus, so the bigger one stays positive.' }
-    : { title: 'Make the bigger one negative', say: 'The last number is minus, so one number is negative. The middle is minus, so the bigger one is negative.' }
+    ? { title: 'Make the smaller factors negative', say: 'The last number is minus, so one number is negative. The middle is plus, so the bigger factors stay positive.' }
+    : { title: 'Make the bigger factors negative', say: 'The last number is minus, so one number is negative. The middle is minus, so the bigger factors are negative.' }
 }
 
 /** x² + bx + c one move a step: the factor pairs of c, their signs when there is a minus, the pair that adds to b, then the brackets. */
@@ -217,7 +217,7 @@ video(lastVideo, media('negative-last', 'Factorising x² + 2x − 15', 'A7.3_Fac
   'Where you see it: a flower bed has area x² + 2x − 15 m², so its sides are x − 3 and x + 5.',
 ]))
 factorise(negativeLast, 'A7.3 Q2', 3, -4, 'Two numbers that multiply to −4 and add to 3. One is negative.', `A rectangular sign has an area, in square metres, of ${nb('x² + 3x − 4')}. Factorise this expression.`)
-factorise(negativeLast, 'A7.3 Q3', -2, -24, 'Two numbers that multiply to −24 and add to −2. Make the bigger one negative.', `A rectangular field has an area, in square metres, of ${nb('x² − 2x − 24')}. Factorise this expression.`)
+factorise(negativeLast, 'A7.3 Q3', -2, -24, 'Two numbers that multiply to −24 and add to −2. Make the bigger factors negative.', `A rectangular field has an area, in square metres, of ${nb('x² − 2x − 24')}. Factorise this expression.`)
 factorise(negativeLast, 'A7.3 Q4a', 5, -14, 'Two numbers that multiply to −14 and add to 5.', `A rectangular flower bed has an area of ${nb('x² + 5x − 14')} square metres. Factorise it to find expressions for the length and width.`)
 practice(negativeLast, `The flower bed is ${nb('(x + 7)')} m by ${nb('(x − 2)')} m. Explain why x must be greater than 2.`, 'A7.3 Q4b', choose(
   'A side can’t be zero or negative, so x − 2 must be more than 0',

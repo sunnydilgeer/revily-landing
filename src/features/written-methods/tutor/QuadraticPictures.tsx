@@ -16,8 +16,8 @@ const after = (n: number, letter = '') => `${n < 0 ? '−' : '+'} ${Math.abs(n) 
 /** The question as typed: x² + 8x + 15, or x² − 49 with no middle term. */
 export const quadraticText = ({ letter, middle, last }: Pick<QuadraticFrame, 'letter' | 'middle' | 'last'>) => `${letter}² ${middle ? `${after(middle, letter)} ` : ''}${after(last)}`
 
-/** A sign in the question, boxed purple on the step that flips the pairs' signs: those two signs decide it. */
-export const SignOf = ({ n, frame }: { n: number; frame: { adds: string } }) => frame.adds === 'flip' ? <span className="ns-quad__job is-f3">{n < 0 ? '−' : '+'}</span> : <>{n < 0 ? '−' : '+'}</>
+/** A minus sign in the question, boxed purple on the step that flips the pairs' signs: the minus signs decide it (Sunny, 2 Oct). */
+export const SignOf = ({ n, frame }: { n: number; frame: { adds: string } }) => frame.adds === 'flip' && n < 0 ? <span className="ns-quad__job is-f3">{n < 0 ? '−' : '+'}</span> : <>{n < 0 ? '−' : '+'}</>
 
 function Question({ frame, plain }: { frame: QuadraticFrame; plain?: boolean }) {
   const { letter, middle, last } = frame
