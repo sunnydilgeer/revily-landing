@@ -11,7 +11,7 @@ export const labAreas: { id: LabArea; title: string; chip: string }[] = [
 ]
 
 export type LabEntry = {
-  id: 'heist' | 'storm' | 'potion' | 'tiers' | 'balance' | 'trick' | 'packs' | 'deals' | 'stats' | 'mind' | 'build' | 'levels'
+  id: 'heist' | 'storm' | 'potion' | 'tiers' | 'balance' | 'trick' | 'packs' | 'deals' | 'stats' | 'mind' | 'build' | 'levels' | 'laser' | 'stall'
   area: LabArea
   href: string
   emoji: string
@@ -119,6 +119,14 @@ export const labCatalog: LabEntry[] = [
     inGame: 'Screen time: 130, 260, 100, 240, 120 minutes. What’s the mean?',
     inExam: 'Work out the mean and the range of these five numbers.',
     minutes: 4,
+  },
+  {
+    id: 'laser', area: 'algebra', href: '/preview/lab/laser', emoji: '🎯', title: 'Laser Line',
+    hook: 'Tune y = mx + c and blast the drones. Your laser fires along the line you set.',
+    skill: 'Straight-line graphs · y = mx + c',
+    inGame: 'Drones at (−4, 0) and (−3, −1). Set m and c so your laser hits both.',
+    inExam: 'Find the equation of the line through (−4, 0) and (−3, −1).',
+    minutes: 6,
   },
 ]
 
