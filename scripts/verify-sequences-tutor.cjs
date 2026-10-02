@@ -196,6 +196,7 @@ for (const state of states) {
       + (frame.rows ?? []).filter(row => old(row.at)).reduce((sum, row) => sum + row.cells.length, 0)
       + (frame.next && old(frame.next.at) ? 2 * frame.next.terms.length : 0)
       + (frame.lines ?? []).filter(line => old(line.at)).length
+      + (frame.positions && old(frame.positions.at) ? 1 : 0)
     assert.equal((html.match(/is-done/g) ?? []).length, expected, `${state.id} step ${i + 1}: ${expected} finished parts greyed out`)
     if (i === 0) assert.equal(expected, 0, `${state.id}: step 1 greys nothing`)
     assert.ok(!/ns-eq__answer[^"]*is-done|is-answer[^"]*is-done/.test(html), `${state.id} step ${i + 1}: the answer stays clear`)

@@ -161,11 +161,13 @@ export type SequenceFrame = {
   /** "…" after the terms: the sequence carries on. */
   more?: boolean
   hops?: { labels: string[]; at: number }
+  /** Each term's position (1, 2, 3, 4), small above it, so 4n reads as 4 × the position (Sunny, 2 Oct). */
+  positions?: { at: number }
   rows?: { label: string; cells: string[]; family: number; at: number; answer?: boolean }[]
   /** Carrying on from the last term: a jump into each new term, "?" until it is worked out, green once it is. */
   next?: { hops: string[]; terms: string[]; filled: boolean; at: number }
   lines?: { text: string; family: number; at: number }[]
-  answer?: { text: string; at: number }
+  answer?: { text: string; at: number; parts?: { text: string; label: string }[] }
   /** This step's number (0 is step 1), and the part it adds, where its heading goes. */
   step: number
   adds: 'hops' | 'row' | 'next' | 'lines' | 'answer'

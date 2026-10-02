@@ -73,8 +73,12 @@ function nthModel(terms: number[]): TutorWorking {
   const verb = b > 0 ? `Add ${b}` : `Subtract ${-b}`
   return sequenceModel(`${list(terms)}, …`, { terms: terms.map(fmt), more: true }, [
     gaps(terms, `The gap is ${fmt(gap)}`, `The gap is the same every time, so that number goes in front of n.`),
-    underRow('', table, 0, `Write the ${fmt(gap)} times table`, `Multiply each position (1, 2, 3, 4) by the gap, and line the answers up under the terms.`),
-    answerMove(`nth term: ${linear(gap, b)}`, `Compare: ${verb.toLowerCase()}`, `Each term is the same distance from the times table, so add or take away that much.`, underRow('', compare, 3, '', '')),
+    { ...underRow('', table, 0, `Write the ${fmt(gap)} times table`, `Multiply each term’s position, the small number above it, by the gap.`), change: (frame, step) => underRow('', table, 0, '', '').change({ ...frame, positions: { at: step } }, step) },
+    { ...answerMove(`nth term: ${linear(gap, b)}`, `Compare: ${verb.toLowerCase()}`, `Each term is the same distance from the times table, so add or take away that much. The answer works for any position.`, underRow('', compare, 3, '', '')),
+      change: (frame, step) => ({ ...underRow('', compare, 3, '', '').change(frame, step), answer: { text: `nth term: ${linear(gap, b)}`, at: step, parts: [
+        { text: linear(gap, 0), label: `${fmt(gap)} × the position` },
+        { text: `${b < 0 ? '−' : '+'} ${Math.abs(b)}`, label: `${Math.abs(b)} ${b < 0 ? 'less' : 'more'} than the ${fmt(gap)} times table` },
+      ] } }) },
   ], 'Find the nth term')
 }
 
