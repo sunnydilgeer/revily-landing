@@ -105,6 +105,7 @@ export type MicroSkillId =
   | 'quadratics-negative-middle'
   | 'quadratics-negative-last'
   | 'quadratics-difference-of-squares'
+  | 'quadratic-equations'
   | 'mixed'
 
 export type LessonPhase =

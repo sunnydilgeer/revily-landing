@@ -19,3 +19,8 @@
 /* A picture-only working (like terms) keeps ←, dots and Next step together in the middle, under the maths. */
 .wc--picture .wc-controls { justify-content: center; gap: 18px; }
 .wc--picture .wc-controls .sc-dots { flex: none; }
+/* Six or more dots beside "Show the first step" are too wide for 320px: the gaps close up and the dots may wrap. */
+@media (max-width: 360px) {
+  .wc--picture .wc-controls { gap: 10px; }
+  .wc--picture .wc-controls .sc-dots { flex: 0 1 auto; }
+}

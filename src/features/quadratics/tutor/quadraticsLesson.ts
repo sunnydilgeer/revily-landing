@@ -24,7 +24,7 @@ const brackets = (letter: string, [a, b]: [number, number]) => `(${letter} ${a <
  * The pairs that multiply to c, smallest first, with the signs the question needs: both positive, both negative, or
  * one of each with the bigger one taking the sign of the middle term (so the sum can come out right).
  */
-function pairsOf(middle: number, last: number): [number, number][] {
+export function pairsOf(middle: number, last: number): [number, number][] {
   const size = Math.abs(last), pairs: [number, number][] = []
   for (let a = 1; a * a <= size; a++) if (size % a === 0) {
     const b = size / a
@@ -34,7 +34,7 @@ function pairsOf(middle: number, last: number): [number, number][] {
 }
 
 /** The signs of the pairs when there is a minus: a line or two in the picture, and why, for the ⓘ. */
-function signsOf(middle: number, last: number): { lines: string[]; say: string } | null {
+export function signsOf(middle: number, last: number): { lines: string[]; say: string } | null {
   if (last > 0 && middle > 0) return null
   const x = `${middle < 0 ? '−' : '+'} ${Math.abs(middle)}x`
   if (last > 0) return { lines: [`+ ${last} and ${x}: both negative`], say: ' The last number is plus and the middle minus, so both are negative.' }
