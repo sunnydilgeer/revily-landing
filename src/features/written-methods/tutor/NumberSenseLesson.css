@@ -267,6 +267,8 @@
 .ns-seq__positions small { color: var(--rv-muted); font-size: .7em; font-weight: 600; }
 .ns-seq__labelled { display: inline-flex; align-items: flex-start; gap: 14px; border-radius: 22px; white-space: normal; }
 .ns-seq__piece { display: inline-flex; flex-direction: column; align-items: center; }
+/* Each piece of the nth term in the colour of the row it comes from: 4n purple like the times table, + 1 amber. */
+.ns-seq__piece[class*="is-f"] b { color: var(--f); }
 .ns-seq__piece small { max-width: 7.5em; margin-top: 2px; color: var(--rv-muted); font-size: 12px; font-weight: 600; line-height: 1.2; }
 /* A worded answer ("The gaps aren't the same") wraps on a phone instead of pushing the page wider. */
 .ns-seq .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }

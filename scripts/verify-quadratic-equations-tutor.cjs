@@ -120,7 +120,7 @@ for (const [ref, [letter, b, c, answers]] of Object.entries(equations)) {
   const titles = steps.map(step => step.title)
   if (!given) assert.ok(titles.includes(`Factor pairs of ${Math.abs(c)}`) && titles.includes(`Which pair adds to ${String(b).replace('-', '−')}?`), `${state.id}: the factorising headings name ${c} and ${b}`)
   if (!given) {
-    const flipTitle = c > 0 ? 'Make both negative' : b > 0 ? 'Make the smaller one negative' : 'Make the bigger one negative'
+    const flipTitle = c > 0 ? 'Make both negative' : b > 0 ? 'Make the smaller factors negative' : 'Make the bigger factors negative'
     assert.equal(titles.includes(flipTitle), flips, `${state.id}: ${flips ? `"${flipTitle}"` : 'no flip step'}`)
   }
   const undo = titles.at(-1).toLowerCase()

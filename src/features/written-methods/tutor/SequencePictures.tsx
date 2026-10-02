@@ -70,7 +70,7 @@ export function SequenceVisual({ frame, heading, plain, focus }: { frame: Sequen
       {head('answer')}
       {frame.answer.parts
         // The answer built from labelled pieces, so it says what it means (like A4's brackets).
-        ? <p className="ns-eq__answer ns-seq__labelled" aria-hidden="true">{frame.answer.parts.map((part, i) => <span key={i} className="ns-seq__piece"><b><Powers text={part.text} /></b><small>{part.label}</small></span>)}</p>
+        ? <p className="ns-eq__answer ns-seq__labelled" aria-hidden="true">{frame.answer.parts.map((part, i) => <span key={i} className={`ns-seq__piece${part.family !== undefined ? ` is-f${part.family % 4}` : ''}`}><b><Powers text={part.text} /></b><small>{part.label}</small></span>)}</p>
         : <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer.text} /></p>}
     </>}
   </div>
