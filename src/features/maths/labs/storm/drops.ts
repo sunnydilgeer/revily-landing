@@ -1,4 +1,5 @@
 import type { ChainStep } from '../../step-chain/StepChain'
+import { options, whole, type Rand } from '../kit/random'
 
 export type Ride = { name: string; emoji: string; speed: number }
 
@@ -28,12 +29,6 @@ export type Drop = {
   chain: ChainStep[]
 }
 
-export const rides = {
-  sprint: { name: 'Sprint', emoji: '🏃', speed: 5 },
-  car: { name: 'Car', emoji: '🚗', speed: 25 },
-  glider: { name: 'Glider', emoji: '🪂', speed: 35 },
-} satisfies Record<string, Ride>
-
 export const metres = (value: number) => `${value.toLocaleString('en-GB')} m`
 const texMetres = (value: number) => `${value.toLocaleString('en-GB').replace(/,/g, '{,}')}\\text{ m}`
 
@@ -62,155 +57,140 @@ function speedChain(squares: number, scale: number, seconds: number): ChainStep[
   ]
 }
 
-export const drops: Drop[] = [
-  {
-    id: 'quarry',
-    title: 'Drop 1 · Old Quarry',
-    scale: 100,
-    squares: 4,
-    closes: 100,
-    brief: 'You land at the edge of the map. The storm is closing in.',
-    why: 'A map is the real world shrunk down. Each square stands for 100 m of ground, so counting squares tells you the real distance.',
-    questions: [
-      {
-        prompt: 'Each square is 100 m. How far is it to the safe zone?',
-        answer: 400,
-        choices: [
-          { value: 104, label: '104 m', nope: 'That’s 100 + 4. It’s 4 squares, each worth 100 m: 4 × 100.' },
-          { value: 400, label: '400 m' },
-          { value: 25, label: '25 m', nope: 'That’s 100 ÷ 4. Each of the 4 squares is a whole 100 m, so multiply.' },
-        ],
-        why: '4 squares × 100 m = 400 m.',
-        reveals: 'distance',
-      },
-      {
-        prompt: 'You sprint at 5 m/s. How many seconds to get there?',
-        answer: 80,
-        choices: [
-          { value: 2000, label: '2,000 s', nope: '400 × 5 is way too long. 5 m/s means 5 metres every second: how many 5s fit into 400?' },
-          { value: 20, label: '20 s', nope: 'That’s 100 ÷ 5, one square. You need all 400 m.' },
-          { value: 80, label: '80 s' },
-        ],
-        why: '5 m/s means 5 metres every second. 400 ÷ 5 = 80 seconds.',
-      },
-      {
-        prompt: 'The storm closes in 100 s. Do you make it on foot?',
-        answer: 'yes',
-        choices: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No', nope: 'You need 80 s and you’ve got 100 s. That’s 20 seconds to spare.' },
-        ],
-        why: '80 s is less than 100 s. You’re in with 20 seconds to spare.',
-        run: rides.sprint,
-      },
+const SPRINT: Ride = { name: 'Sprint', emoji: '🏃', speed: 5 }
+const CAR: Ride = { name: 'Car', emoji: '🚗', speed: 25 }
+
+/** "How far to the zone?" from squares × scale, with the usual slips. */
+function distanceQuestion(rand: Rand, squares: number, scale: number, prompt: string): StormQuestion {
+  const distance = squares * scale
+  return {
+    prompt,
+    answer: distance,
+    choices: options(rand, { value: distance, label: metres(distance) }, [
+      { value: scale + squares, label: metres(scale + squares), nope: `That’s ${scale} + ${squares}. It’s ${squares} squares, each worth ${metres(scale)}: ${squares} × ${scale}.` },
+      { value: scale / squares, label: metres(scale / squares), nope: `That’s ${scale} ÷ ${squares}. Each square is a whole ${metres(scale)}, so multiply.` },
+      { value: distance / 10, label: metres(distance / 10), nope: `Close, but check the zeros: ${squares} × ${scale} = ${distance}.` },
+    ], { valid: whole }),
+    why: `${squares} squares × ${metres(scale)} = ${metres(distance)}.`,
+    reveals: 'distance',
+  }
+}
+
+/** "How long at this speed?" = distance ÷ speed. */
+function timeQuestion(rand: Rand, distance: number, scale: number, ride: Ride, prompt: string): StormQuestion {
+  const time = distance / ride.speed
+  return {
+    prompt,
+    answer: time,
+    choices: options(rand, { value: time, label: `${time.toLocaleString('en-GB')} s` }, [
+      { value: distance * ride.speed, label: `${(distance * ride.speed).toLocaleString('en-GB')} s`, nope: `Multiplying made it longer. ${ride.speed} m/s means ${ride.speed} metres every second: how many lots of ${ride.speed} fit into ${distance}?` },
+      { value: scale / ride.speed, label: `${(scale / ride.speed).toLocaleString('en-GB')} s`, nope: `That’s ${scale} ÷ ${ride.speed}, one square. Use the whole ${metres(distance)}.` },
+      { value: distance - ride.speed, label: `${(distance - ride.speed).toLocaleString('en-GB')} s`, nope: `That’s ${distance} − ${ride.speed}. Speed is metres EVERY second, so divide.` },
+    ], { valid: whole }),
+    why: `${ride.speed} m/s means ${ride.speed} metres every second. ${distance.toLocaleString('en-GB')} ÷ ${ride.speed} = ${time} seconds.`,
+  }
+}
+
+/** "Do you make it?" Yes when the ride's time beats the storm. */
+function verdictQuestion(time: number, closes: number, ride: Ride, prompt: string): StormQuestion {
+  const makes = time <= closes
+  return {
+    prompt,
+    answer: makes ? 'yes' : 'no',
+    choices: [
+      { value: 'yes', label: 'Yes', nope: makes ? undefined : `You need ${time} s and you’ve only got ${closes} s. That’s ${time - closes} seconds too slow.` },
+      { value: 'no', label: 'No', nope: makes ? `You need ${time} s and you’ve got ${closes} s. That’s ${closes - time} seconds to spare.` : undefined },
     ],
-    chain: timeChain(4, 100, rides.sprint),
-  },
-  {
-    id: 'flats',
-    title: 'Drop 2 · Salt Flats',
-    scale: 250,
-    squares: 5,
-    closes: 90,
-    brief: 'Bigger map, faster storm. There’s a car nearby, but it’s loud.',
-    why: 'Same method: squares × scale for the distance, then distance ÷ speed for the time. A faster ride cuts the time.',
-    questions: [
-      {
-        prompt: 'Each square is 250 m. How far to the zone?',
-        answer: 1250,
-        choices: [
-          { value: 1250, label: '1,250 m' },
-          { value: 255, label: '255 m', nope: 'That’s 250 + 5. It’s 5 squares of 250 m: 5 × 250.' },
-          { value: 50, label: '50 m', nope: 'That’s 250 ÷ 5. Each square is a whole 250 m, so multiply.' },
-        ],
-        why: '5 squares × 250 m = 1,250 m.',
-        reveals: 'distance',
-      },
-      {
-        prompt: 'Sprinting at 5 m/s, how long does it take?',
-        answer: 250,
-        choices: [
-          { value: 6250, label: '6,250 s', nope: 'Multiplying made it longer. Divide: how many lots of 5 m fit into 1,250 m?' },
-          { value: 250, label: '250 s' },
-          { value: 50, label: '50 s', nope: 'That’s 250 ÷ 5, one square. Use the whole 1,250 m.' },
-        ],
-        why: '1,250 ÷ 5 = 250 seconds.',
-      },
-      {
-        prompt: 'The storm closes in 90 s. Make it on foot?',
-        answer: 'no',
-        choices: [
-          { value: 'yes', label: 'Yes', nope: 'You need 250 s and you’ve only got 90 s. That’s 160 seconds too slow.' },
-          { value: 'no', label: 'No' },
-        ],
-        why: '250 s is way more than 90 s. On foot, the storm gets you.',
-        run: rides.sprint,
-      },
-      {
-        prompt: 'Grab the car: 25 m/s. How long now?',
-        answer: 50,
-        choices: [
-          { value: 31250, label: '31,250 s', nope: 'That’s 1,250 × 25. Divide: how many lots of 25 m fit into 1,250 m?' },
-          { value: 10, label: '10 s', nope: 'That’s 250 ÷ 25, one square. Use the whole 1,250 m.' },
-          { value: 50, label: '50 s' },
-        ],
-        why: '1,250 ÷ 25 = 50 seconds.',
-      },
-      {
-        prompt: 'Storm closes in 90 s. Make it in the car?',
-        answer: 'yes',
-        choices: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No', nope: '50 s is less than 90 s. The car gets you there with 40 seconds to spare.' },
-        ],
-        why: '50 s beats 90 s. Five times faster, five times less time.',
-        run: rides.car,
-      },
-    ],
-    chain: timeChain(5, 250, rides.car),
-  },
-  {
-    id: 'final',
-    title: 'Drop 3 · Final Circle',
-    scale: 200,
-    squares: 3,
-    closes: 20,
-    brief: 'Final circle. 20 seconds until the storm closes. Pick your ride.',
-    why: 'Flip it round. You know the distance and the time you’ve got, so work out the speed you need: distance ÷ time.',
-    questions: [
-      {
-        prompt: 'Each square is 200 m. How far to the zone?',
-        answer: 600,
-        choices: [
-          { value: 203, label: '203 m', nope: 'That’s 200 + 3. It’s 3 squares of 200 m: 3 × 200.' },
-          { value: 600, label: '600 m' },
-          { value: 60, label: '60 m', nope: 'Close, but check the zeros: 3 × 200 = 600.' },
-        ],
-        why: '3 squares × 200 m = 600 m.',
-        reveals: 'distance',
-      },
-      {
-        prompt: 'You’ve got 20 s. What speed do you need?',
-        answer: 30,
-        choices: [
-          { value: 30, label: '30 m/s' },
-          { value: 12000, label: '12,000 m/s', nope: 'That’s 600 × 20, faster than a rocket. Speed is distance ÷ time.' },
-          { value: 580, label: '580 m/s', nope: 'That’s 600 − 20. Share the 600 m across the 20 seconds: divide.' },
-        ],
-        why: '600 m ÷ 20 s = 30 m/s. You need to cover 30 metres every second.',
-      },
-      {
-        prompt: 'Which ride gets you in?',
-        answer: 'glider',
-        choices: [
-          { value: 'sprint', label: '🏃 5', nope: '5 m/s is way under the 30 m/s you need. 600 ÷ 5 = 120 s.' },
-          { value: 'car', label: '🚗 25', nope: 'So close. 25 m/s is under 30 m/s: 600 ÷ 25 = 24 s, and you’ve only got 20.' },
-          { value: 'glider', label: '🪂 35' },
-        ],
-        why: '35 m/s is faster than the 30 m/s you need. 600 ÷ 35 is about 17 s. In with time to spare.',
-        run: rides.glider,
-      },
-    ],
-    chain: speedChain(3, 200, 20),
-  },
-]
+    why: makes ? `${time} s is less than ${closes} s. You’re in with ${closes - time} seconds to spare.` : `${time} s is way more than ${closes} s. ${ride.name === 'Sprint' ? 'On foot, the storm gets you.' : 'The storm gets you.'}`,
+    run: ride,
+  }
+}
+
+/** A fresh set of drops. Distances are multiples of 50 or 100, so every time is whole seconds. */
+export function makeDrops(rand: Rand): Drop[] {
+  // Drop 1: you make it on foot.
+  const scale1 = rand.pick([50, 100, 200]), squares1 = rand.int(3, 5), distance1 = scale1 * squares1
+  const time1 = distance1 / SPRINT.speed, closes1 = Math.ceil(time1 / 10) * 10 + rand.pick([10, 20, 30])
+
+  // Drop 2: on foot you don't, in the car you do.
+  const scale2 = rand.pick([200, 250, 500]), squares2 = rand.int(4, 5), distance2 = scale2 * squares2
+  const car = { ...CAR, speed: rand.pick([20, 25].filter(speed => distance2 % speed === 0)) }
+  const carTime = distance2 / car.speed, closes2 = Math.ceil(carTime / 10) * 10 + rand.pick([10, 20])
+
+  // Drop 3: work out the speed you need, then pick the only ride fast enough.
+  const needed = rand.pick([30, 40]), closes3 = rand.pick([10, 20, 30]), distance3 = needed * closes3
+  const squares3 = rand.pick([2, 3, 4, 5].filter(q => distance3 % q === 0 && (distance3 / q) % 50 === 0))
+  const scale3 = distance3 / squares3
+  const glider: Ride = { name: 'Glider', emoji: '🪂', speed: rand.pick([needed + 10, needed + 20].filter(speed => distance3 % speed === 0).concat(needed + 10)) }
+  const gliderTime = distance3 / glider.speed
+  const slowCar = CAR.speed
+
+  return [
+    {
+      id: 'drop-1',
+      title: `Drop 1 · ${rand.pick(['Old Quarry', 'Pine Woods', 'Rust Yard'])}`,
+      scale: scale1,
+      squares: squares1,
+      closes: closes1,
+      brief: 'You land at the edge of the map. The storm is closing in.',
+      why: `A map is the real world shrunk down. Each square stands for ${metres(scale1)} of ground, so counting squares tells you the real distance.`,
+      questions: [
+        distanceQuestion(rand, squares1, scale1, `Each square is ${metres(scale1)}. How far is it to the safe zone?`),
+        timeQuestion(rand, distance1, scale1, SPRINT, `You sprint at ${SPRINT.speed} m/s. How many seconds to get there?`),
+        verdictQuestion(time1, closes1, SPRINT, `The storm closes in ${closes1} s. Do you make it on foot?`),
+      ],
+      chain: timeChain(squares1, scale1, SPRINT),
+    },
+    {
+      id: 'drop-2',
+      title: `Drop 2 · ${rand.pick(['Salt Flats', 'Dust Bowl', 'Long Highway'])}`,
+      scale: scale2,
+      squares: squares2,
+      closes: closes2,
+      brief: 'Bigger map, faster storm. There’s a car nearby, but it’s loud.',
+      why: 'Same method: squares × scale for the distance, then distance ÷ speed for the time. A faster ride cuts the time.',
+      questions: [
+        distanceQuestion(rand, squares2, scale2, `Each square is ${metres(scale2)}. How far to the zone?`),
+        timeQuestion(rand, distance2, scale2, SPRINT, `Sprinting at ${SPRINT.speed} m/s, how long does it take?`),
+        verdictQuestion(distance2 / SPRINT.speed, closes2, SPRINT, `The storm closes in ${closes2} s. Make it on foot?`),
+        timeQuestion(rand, distance2, scale2, car, `Grab the car: ${car.speed} m/s. How long now?`),
+        verdictQuestion(carTime, closes2, car, `Storm closes in ${closes2} s. Make it in the car?`),
+      ],
+      chain: timeChain(squares2, scale2, car),
+    },
+    {
+      id: 'final',
+      title: 'Drop 3 · Final Circle',
+      scale: scale3,
+      squares: squares3,
+      closes: closes3,
+      brief: `Final circle. ${closes3} seconds until the storm closes. Pick your ride.`,
+      why: 'Flip it round. You know the distance and the time you’ve got, so work out the speed you need: distance ÷ time.',
+      questions: [
+        distanceQuestion(rand, squares3, scale3, `Each square is ${metres(scale3)}. How far to the zone?`),
+        {
+          prompt: `You’ve got ${closes3} s. What speed do you need?`,
+          answer: needed,
+          choices: options(rand, { value: needed, label: `${needed} m/s` }, [
+            { value: distance3 * closes3, label: `${(distance3 * closes3).toLocaleString('en-GB')} m/s`, nope: `That’s ${distance3} × ${closes3}, faster than a rocket. Speed is distance ÷ time.` },
+            { value: distance3 - closes3, label: `${(distance3 - closes3).toLocaleString('en-GB')} m/s`, nope: `That’s ${distance3} − ${closes3}. Share the ${metres(distance3)} across the ${closes3} seconds: divide.` },
+            { value: closes3 / 10, label: `${closes3 / 10} m/s`, nope: `Too slow! Speed = distance ÷ time = ${distance3} ÷ ${closes3}.` },
+          ], { valid: whole }),
+          why: `${metres(distance3)} ÷ ${closes3} s = ${needed} m/s. You need to cover ${needed} metres every second.`,
+        },
+        {
+          prompt: 'Which ride gets you in?',
+          answer: 'glider',
+          choices: [
+            { value: 'sprint', label: `🏃 ${SPRINT.speed}`, nope: `${SPRINT.speed} m/s is way under the ${needed} m/s you need. ${distance3} ÷ ${SPRINT.speed} = ${distance3 / SPRINT.speed} s.` },
+            { value: 'car', label: `🚗 ${slowCar}`, nope: `So close. ${slowCar} m/s is under ${needed} m/s: ${distance3} ÷ ${slowCar} = ${distance3 / slowCar} s, and you’ve only got ${closes3}.` },
+            { value: 'glider', label: `🪂 ${glider.speed}` },
+          ],
+          why: `${glider.speed} m/s is faster than the ${needed} m/s you need. ${distance3} ÷ ${glider.speed} ${Number.isInteger(gliderTime) ? `= ${gliderTime}` : `is about ${Math.round(gliderTime)}`} s. In with time to spare.`,
+          run: glider,
+        },
+      ],
+      chain: speedChain(squares3, scale3, closes3),
+    },
+  ]
+}

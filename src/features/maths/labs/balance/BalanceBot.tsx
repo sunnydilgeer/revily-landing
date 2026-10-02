@@ -5,8 +5,9 @@ import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { puzzles, sideText, type Scale as ScaleState, type Side } from './puzzles'
+import { makePuzzles, sideText, type Scale as ScaleState, type Side, type Puzzle } from './puzzles'
 import './BalanceBot.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -31,28 +32,28 @@ const RANKS: Parameters<typeof rankFor>[2] = [
 const none: ScaleState = { left: { x: 0, u: 0 }, right: { x: 0, u: 0 } }
 const less = (a: Side, b: Side): Side => ({ x: Math.max(0, a.x - b.x), u: Math.max(0, a.u - b.u) })
 
-function Pan({ side, leaving, reveal }: { side: Side; leaving: Side; reveal: number | null }) {
+function Pan({ side, leaving, reveal, unit }: { side: Side; leaving: Side; reveal: number | null; unit: number }) {
   return <div className="bb-pan__items">
     {Array.from({ length: side.x }, (_, i) => <span key={`x${i}`} className={`bb-box${i >= side.x - leaving.x ? ' is-leaving' : ''}${reveal !== null ? ' is-open' : ''}`}>{reveal ?? 'x'}</span>)}
-    {Array.from({ length: side.u }, (_, i) => <span key={`u${i}`} className={`bb-weight${i >= side.u - leaving.u ? ' is-leaving' : ''}`}>1</span>)}
+    {Array.from({ length: side.u }, (_, i) => <span key={`u${i}`} className={`bb-weight${i >= side.u - leaving.u ? ' is-leaving' : ''}`}>{unit}</span>)}
   </div>
 }
 
 /** The see-saw. It tips when the two sides stop being equal, and the pans stay level as it swings. */
-function Balance({ scale, leaving, tilt, reveal }: { scale: ScaleState; leaving: ScaleState; tilt: number; reveal: number | null }) {
-  return <figure className="bb-scale" style={{ ['--tilt' as string]: `${tilt}deg` }} aria-label={`Scale: ${sideText(scale.left)} on the left, ${sideText(scale.right)} on the right`}>
+function Balance({ scale, leaving, tilt, reveal, unit }: { scale: ScaleState; leaving: ScaleState; tilt: number; reveal: number | null; unit: number }) {
+  return <figure className="bb-scale" style={{ ['--tilt' as string]: `${tilt}deg` }} aria-label={`Scale: ${sideText(scale.left, unit)} on the left, ${sideText(scale.right, unit)} on the right`}>
     <div className="bb-beam" />
-    <div className="bb-pan bb-pan--left"><Pan side={scale.left} leaving={leaving.left} reveal={reveal} /></div>
-    <div className="bb-pan bb-pan--right"><Pan side={scale.right} leaving={leaving.right} reveal={reveal} /></div>
+    <div className="bb-pan bb-pan--left"><Pan side={scale.left} leaving={leaving.left} reveal={reveal} unit={unit} /></div>
+    <div className="bb-pan bb-pan--right"><Pan side={scale.right} leaving={leaving.right} reveal={reveal} unit={unit} /></div>
     <div className="bb-post" />
   </figure>
 }
 
-export default function BalanceBot() {
+function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: () => void }) {
   const [puzzleIndex, setPuzzleIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('intro')
   const [moveIndex, setMoveIndex] = useState(0)
-  const [scale, setScale] = useState<ScaleState>(puzzles[0].start)
+  const [scale, setScale] = useState<ScaleState>(() => puzzles[0].start)
   const [leaving, setLeaving] = useState<ScaleState>(none)
   const [tilt, setTilt] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
@@ -99,7 +100,7 @@ export default function BalanceBot() {
     else { score.bank(); setScreen('payout'); sfx.win() }
   }
 
-  const restart = () => { score.reset(); resetShare(); startPuzzle(0) }
+  const restart = onReplay
 
   if (screen === 'done') {
     const rank = rankFor(score.kept, puzzles.length, RANKS)
@@ -119,7 +120,7 @@ export default function BalanceBot() {
     </main>
   }
 
-  const equation = `${sideText(scale.left)} = ${sideText(scale.right)}`
+  const equation = `${sideText(scale.left, puzzle.unit)} = ${sideText(scale.right, puzzle.unit)}`
 
   return <main className="lab">
     <LabTop progress={`Level ${puzzleIndex + 1}/${puzzles.length}`} streak={score.streak} lives={score.lives} />
@@ -128,7 +129,7 @@ export default function BalanceBot() {
       <section className="lab-intro">
         <p className="lab-kicker">{puzzle.title}</p>
         <h1 className="lab-title">What’s in the box? <span className="bb-eq">{puzzle.equation}</span></h1>
-        <div className="lab-card rv-paper"><Balance scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>
+        <div className="lab-card rv-paper"><Balance unit={puzzle.unit} scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>
         <Quip speaker={BOT}>{INTROS[puzzleIndex]}</Quip>
         <Why>{puzzle.why}</Why>
       </section>
@@ -139,7 +140,7 @@ export default function BalanceBot() {
 
     {screen === 'question' && <>
       <section className="lab-card rv-paper bb-stage">
-        <Balance scale={scale} leaving={leaving} tilt={tilt} reveal={solved && !leaving.left.x && !leaving.right.u ? puzzle.solution : null} />
+        <Balance unit={puzzle.unit} scale={scale} leaving={leaving} tilt={tilt} reveal={solved && !leaving.left.x && !leaving.right.u ? puzzle.solution : null} />
         <p className="bb-equation" aria-live="polite">{equation}</p>
       </section>
       <section className="lab-ask">
@@ -171,7 +172,7 @@ export default function BalanceBot() {
     {screen === 'payout' && <>
       <Burst key={puzzle.id} emoji="⚖️" />
       <section className="lab-card rv-paper bb-stage bb-stage--solved">
-        <Balance scale={scale} leaving={none} tilt={0} reveal={puzzle.solution} />
+        <Balance unit={puzzle.unit} scale={scale} leaving={none} tilt={0} reveal={puzzle.solution} />
         <p className="bb-equation">x = {puzzle.solution}</p>
       </section>
       <section className="lab-card lab-card--working rv-paper">
@@ -191,4 +192,10 @@ export default function BalanceBot() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function BalanceBot() {
+  const { data, play, regenerate } = useGenerated(makePuzzles)
+  return data ? <BalanceBotGame key={play} puzzles={data} onReplay={regenerate} /> : null
 }

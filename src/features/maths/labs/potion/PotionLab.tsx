@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain } from '../../step-chain/StepChain'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank } from '../kit/Lab'
+import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { brews, ingredients, mixColour, type Brew, type Counts, type MixBrew } from './brews'
+import { makeBrews, ingredients, mixColour, type Brew, type Counts, type MixBrew } from './brews'
 import './PotionLab.css'
 
 type Screen = 'recipe' | 'brew' | 'busted' | 'done'
@@ -29,7 +30,7 @@ const INTROS = [
   'Double batch. Double EVERYTHING. Not just the bits you like.',
   'Use all eight crystals. They cost more than you do.',
   'Fill it to the brim. Not a drop over. I’ve just cleaned that ceiling.',
-  'Some cowboy down the road is selling “Speed Potion”. Tell me it’s fake.',
+  'Some cowboy down the road is selling my recipe. Real or rubbish? You tell me.',
 ]
 
 const empty = (recipe: Counts): Counts => Object.fromEntries(Object.keys(recipe).map(id => [id, 0]))
@@ -83,7 +84,7 @@ function Working({ brew }: { brew: Brew }) {
   </section>
 }
 
-export default function PotionLab() {
+function PotionLabGame({ brews, onReplay }: { brews: Brew[]; onReplay: () => void }) {
   const [brewIndex, setBrewIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('recipe')
   const [counts, setCounts] = useState<Counts>(() => empty(brews[0].recipe))
@@ -136,7 +137,7 @@ export default function PotionLab() {
     else setScreen('done')
   }
 
-  const restart = () => { score.reset(); resetShare(); startBrew(0) }
+  const restart = onReplay
 
   useEffect(() => {
     if (screen === 'done') recordRank('potion', rankFor(score.kept, brews.length, RANKS), RANKS)
@@ -188,7 +189,7 @@ export default function PotionLab() {
         : <section className="lab-ask">
           <h1 className="lab-prompt">{brew.task}</h1>
           <ul className="pl-shelf">
-            {Object.keys(brew.recipe).map(id => <li key={id}>
+            {Object.keys(brew.recipe).map(id => <li key={id} data-target={isTestMode() ? brew.target[id] : undefined}>
               <span className="pl-shelf__emoji" aria-hidden="true">{ingredients[id].emoji}</span>
               <span className="pl-shelf__name">{ingredients[id].name}</span>
               <button type="button" className="pl-step" aria-label={`One less ${ingredients[id].name.toLowerCase()}`} disabled={pot !== 'idle' || counts[id] === 0} onClick={() => nudge(id, -1)}>−</button>
@@ -218,7 +219,7 @@ export default function PotionLab() {
 
     {screen === 'brew' && pot === 'brewed' && <>
       <Burst key={brew.id} emoji={brew.emoji} />
-      <CheckBar status="correct" title={`${GRIMBLE.emoji} “${say(GRIMBLE.right, brewIndex)}”`} message={<><strong>{brew.kind === 'check' ? 'Busted the fake!' : `${brew.potion} brewed!`}</strong> {brew.win}<Combo streak={score.streak} /></>}>
+      <CheckBar status="correct" title={`${GRIMBLE.emoji} “${say(GRIMBLE.right, brewIndex)}”`} message={<><strong>{brew.kind === 'check' ? (brew.legit ? 'It’s legit!' : 'Busted the fake!') : `${brew.potion} brewed!`}</strong> {brew.win}<Combo streak={score.streak} /></>}>
         <button type="button" className="rv-btn rv-btn--good rv-btn--lg rv-btn--block" onClick={carryOn}>{brewIndex + 1 < brews.length ? 'Next potion' : 'Finish'}</button>
       </CheckBar>
     </>}
@@ -239,4 +240,10 @@ export default function PotionLab() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function PotionLab() {
+  const { data, play, regenerate } = useGenerated(makeBrews)
+  return data ? <PotionLabGame key={play} brews={data} onReplay={regenerate} /> : null
 }

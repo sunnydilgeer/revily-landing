@@ -1,4 +1,5 @@
 import type { ChainStep } from '../../step-chain/StepChain'
+import type { Rand } from '../kit/random'
 
 export type Deal = { name: string; emoji: string; price: number; amount: number }
 
@@ -12,6 +13,8 @@ export type TierList = {
   measure: 'cost' | 'amount'
   why: string
   lesson: string
+  /** Del's sales pitch on the intro screen. */
+  pitch: string
   deals: Deal[]
 }
 
@@ -70,50 +73,69 @@ export function unitChain(list: TierList, deal: Deal): ChainStep[] {
     ]
 }
 
-export const lists: TierList[] = [
-  {
-    id: 'fizzy',
-    title: 'Fizzy drinks',
-    emoji: '🥤',
-    unit: 'can',
-    measure: 'cost',
-    why: 'Bigger packs cost more, so you can’t compare the prices straight. Find what ONE can costs in each deal, then compare like with like.',
-    lesson: 'The “2 for £2.50” offer was the worst deal on the list. “Offer” doesn’t mean cheap.',
-    deals: [
-      { name: 'Single can', emoji: '🥫', price: 1.2, amount: 1 },
-      { name: '4-pack', emoji: '📦', price: 4, amount: 4 },
-      { name: '12-pack', emoji: '🧃', price: 9.6, amount: 12 },
-      { name: '2 for £2.50', emoji: '🏷️', price: 2.5, amount: 2 },
-    ],
-  },
-  {
-    id: 'data',
-    title: 'Phone data',
-    emoji: '📶',
-    unit: 'GB',
-    measure: 'cost',
-    why: 'Same move: the price of 1 GB on each plan. Watch out, the biggest plan isn’t always the best value.',
-    lesson: 'The 100 GB plan costs more per GB than the 50 GB one. Bigger isn’t always better.',
-    deals: [
-      { name: '5 GB plan', emoji: '📱', price: 5, amount: 5 },
-      { name: '20 GB plan', emoji: '📲', price: 12, amount: 20 },
-      { name: '100 GB plan', emoji: '🚀', price: 45, amount: 100 },
-      { name: '50 GB plan', emoji: '⚡', price: 20, amount: 50 },
-    ],
-  },
-  {
-    id: 'coins',
-    title: 'Game coins',
-    emoji: '🪙',
-    unit: 'coin',
-    measure: 'amount',
-    why: 'Flip it: work out how many coins you get for every £1. This time, the bigger number wins.',
-    lesson: 'Here the biggest bundle wins: 225 coins for every £1, against 160 in the smallest.',
-    deals: [
-      { name: 'Starter', emoji: '👛', price: 5, amount: 800 },
-      { name: 'Mid pack', emoji: '💰', price: 25, amount: 4500 },
-      { name: 'Mega pack', emoji: '🏦', price: 60, amount: 13500 },
-      { name: 'Value pack', emoji: '🎒', price: 10, amount: 2000 },
-    ],
-  },
-]
+/** Pence → pounds, so prices are built in whole pence and never pick up float noise. */
+const pounds = (pence: number) => pence / 100
+const deal = (name: string, emoji: string, unitPence: number, amount: number): Deal => ({ name, emoji, price: pounds(unitPence * amount), amount })
+
+/** A fresh set of tier lists. Unit prices are multiples of 5p, coin rates multiples of 10. */
+export function makeLists(rand: Rand): TierList[] {
+  // Fizzy drinks: the big pack is best and the "offer" is the worst deal on the list.
+  const single = rand.pick([80, 90, 100, 110, 120]), multi = single - rand.pick([10, 20]), big = multi - rand.pick([10, 20])
+  const offerCount = rand.pick([2, 3]), offerUnit = single + rand.pick([5, 10, 15]), multiCount = rand.pick([4, 6]), bigCount = rand.pick([12, 24])
+  const offerName = `${offerCount} for ${money(pounds(offerUnit * offerCount)).replace('.00', '')}`
+  const fizzy = [
+    deal('Single can', '🥫', single, 1),
+    deal(`${multiCount}-pack`, '📦', multi, multiCount),
+    deal(`${bigCount}-pack`, '🧃', big, bigCount),
+    deal(offerName, '🏷️', offerUnit, offerCount),
+  ]
+
+  // Phone data: the 50 GB plan beats the 100 GB one, so bigger isn't always better.
+  const u50 = rand.pick([30, 40]), u100 = u50 + 5, u20 = u100 + rand.pick([10, 15]), u5 = u20 + rand.pick([20, 40])
+  const data = [deal('5 GB plan', '📱', u5, 5), deal('20 GB plan', '📲', u20, 20), deal('100 GB plan', '🚀', u100, 100), deal('50 GB plan', '⚡', u50, 50)]
+
+  // Game coins: rated in coins per £1; which pack wins changes from play to play.
+  const rates = rand.shuffle([150, 160, 180, 200, 220, 250]).slice(0, 4)
+  const packs = [['Starter', '👛', 5], ['Value pack', '🎒', 10], ['Mid pack', '💰', 25], ['Mega pack', '🏦', 50]] as const
+  const coins: Deal[] = packs.map(([name, emoji, price], i) => ({ name, emoji, price, amount: rates[i] * price }))
+  const best = coins[rates.indexOf(Math.max(...rates))], worst = coins[rates.indexOf(Math.min(...rates))]
+  const mega = coins[3]
+
+  return [
+    {
+      id: 'fizzy',
+      title: 'Fizzy drinks',
+      emoji: '🥤',
+      unit: 'can',
+      measure: 'cost',
+      why: 'Bigger packs cost more, so you can’t compare the prices straight. Find what ONE can costs in each deal, then compare like with like.',
+      lesson: `The “${offerName}” offer was the worst deal on the list. “Offer” doesn’t mean cheap.`,
+      pitch: `Trust me, the “${offerName}” is a proper offer. It says OFFER on it.`,
+      deals: rand.shuffle(fizzy),
+    },
+    {
+      id: 'data',
+      title: 'Phone data',
+      emoji: '📶',
+      unit: 'GB',
+      measure: 'cost',
+      why: 'Same move: the price of 1 GB on each plan. Watch out, the biggest plan isn’t always the best value.',
+      lesson: `The 100 GB plan costs ${money(pounds(u100))} a GB, more than the 50 GB plan’s ${money(pounds(u50))}. Bigger isn’t always better.`,
+      pitch: 'Everyone wants the 100 GB plan. Biggest is best, innit?',
+      deals: rand.shuffle(data),
+    },
+    {
+      id: 'coins',
+      title: 'Game coins',
+      emoji: '🪙',
+      unit: 'coin',
+      measure: 'amount',
+      why: 'Flip it: work out how many coins you get for every £1. This time, the bigger number wins.',
+      lesson: best === mega
+        ? `Here the biggest bundle wins: ${count(Math.max(...rates))} coins for every £1, against ${count(Math.min(...rates))} in the worst.`
+        : `The Mega pack ISN’T the best value: the ${best.name} gives ${count(Math.max(...rates))} coins for every £1. Always check.`,
+      pitch: `The ${worst.name}, perfect for you. Small price, big fun. Don’t look at the maths.`,
+      deals: rand.shuffle(coins),
+    },
+  ]
+}
