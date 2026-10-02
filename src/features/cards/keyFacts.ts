@@ -231,6 +231,13 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'quadratics-negative-last': [['Factorise x² + 2x − 15.', '(x − 3)(x + 5). The last number is negative, so one number is negative: −3 × 5 = −15 and −3 + 5 = 2.']],
     'quadratics-difference-of-squares': [['Factorise x² − 49.', '(x + 7)(x − 7). 49 is 7 × 7. One bracket plus, one minus, so the middle terms cancel.']],
   },
+  23: {
+    'sequences-special': [['Next two terms of 1, 3, 6, 10.', '15 and 21. The gaps are 2, 3, 4, so the next gaps are 5 and 6.']],
+    'sequences-geometric': [['Next two terms of 3, 6, 12, 24.', '48 and 96. Each term divided by the one before is 2: the common ratio. Keep multiplying by 2.']],
+    'sequences-nth-term': [['The nth term of 5, 9, 13, 17.', '4n + 1. The gap is 4, so start with 4n: 4, 8, 12, 16. Each term is 1 more.']],
+    'sequences-in-sequence': [['Is 63 a term of 5n − 2?', 'Yes. 5n − 2 = 63, so 5n = 65 and n = 13, a whole number.']],
+    'sequences-consecutive': [['Two terms next to each other of 3n + 2 add to 55. Find them.', '26 and 29. The next term is 3(n + 1) + 2 = 3n + 5. 6n + 7 = 55, so n = 8.']],
+  },
   22: {
     'quadratic-equations': [['Solve x² + x = 20.', 'x = 4 or x = −5. Subtract 20: x² + x − 20 = 0. Factorise: (x − 4)(x + 5) = 0. One bracket must be 0, so x − 4 = 0 or x + 5 = 0.']],
   },

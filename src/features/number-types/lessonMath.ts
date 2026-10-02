@@ -127,6 +127,11 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const expectedValues = [...new Set(parseNumericList(expected))].sort((a, b) => a - b)
     return actualValues.length === expectedValues.length && actualValues.every((value, index) => value === expectedValues[index])
   }
+  if (interaction.acceptanceRule === 'numberList') {
+    // The same numbers in the same order: the next two terms, or the first five.
+    const actual = parseNumericList(response), wanted = parseNumericList(expected)
+    return actual.length === wanted.length && actual.every((value, index) => Math.abs(value - wanted[index]) < 1e-9)
+  }
   if (interaction.acceptanceRule === 'ordered') {
     const actual = Array.isArray(response) ? response.map(String) : []
     const wanted = Array.isArray(expected) ? expected.map(String) : []

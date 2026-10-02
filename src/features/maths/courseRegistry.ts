@@ -21,8 +21,9 @@ import { tutorEquationsLesson } from '../equations/tutor/equationsLesson'
 import { tutorRearrangingLesson } from '../rearranging/tutor/rearrangingLesson'
 import { tutorQuadraticsLesson } from '../quadratics/tutor/quadraticsLesson'
 import { tutorQuadraticEquationsLesson } from '../quadratic-equations/tutor/quadraticEquationsLesson'
+import { tutorSequencesLesson } from '../sequences/tutor/sequencesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23
 
 export type MathsSection = {
   id: MicroSkillId
@@ -111,6 +112,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(20, tutorRearrangingLesson, 'Rearranging formulae', 'Change the subject of a formula, including formulae with fractions, squares and square roots.', tutorRearrangingLesson.labels, 'algebra'),
   entry(21, tutorQuadraticsLesson, 'Factorising quadratics', 'Factorise quadratics like x² + 8x + 15 into two brackets, including the difference of two squares.', tutorQuadraticsLesson.labels, 'algebra'),
   entry(22, tutorQuadraticEquationsLesson, 'Solving quadratics', 'Solve quadratic equations like x² + x = 20 by making one side 0 and factorising.', tutorQuadraticEquationsLesson.labels, 'algebra'),
+  entry(23, tutorSequencesLesson, 'Sequences', 'Continue sequences, find and use the nth term, check whether a number is a term, and solve problems with terms next to each other.', tutorSequencesLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

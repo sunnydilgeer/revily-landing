@@ -29,6 +29,7 @@
         "verify:lesson20:tutor": "node scripts/verify-rearranging-tutor.cjs",
         "verify:lesson21:tutor": "node scripts/verify-quadratics-tutor.cjs",
         "verify:lesson22:tutor": "node scripts/verify-quadratic-equations-tutor.cjs",
+        "verify:lesson23:tutor": "node scripts/verify-sequences-tutor.cjs",
         "verify:file-casing": "node scripts/verify-file-casing.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",
