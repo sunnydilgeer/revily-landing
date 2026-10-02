@@ -122,7 +122,7 @@ function TermsVisual({ frame, plain, heading }: { frame: TermsFrame; plain?: boo
  * One step of a picture-only working (see src/features/EXPLANATIONS.md): its heading sits just above what the
  * step adds, and its explanation (closed until the student taps ⓘ) just below. Earlier steps' headings go.
  */
-function PictureStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
+export function PictureStep({ step, children }: { step: MethodStep; children: (heading: ReactNode) => ReactNode }) {
   const [open, setOpen] = useState(false)
   const heading = <p className="ns-step" aria-live="polite">
     <span className="ns-step__title"><Powers text={step.title} /></span>
