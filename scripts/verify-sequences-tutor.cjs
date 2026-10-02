@@ -165,6 +165,20 @@ for (const [ref, response, expected] of cases) {
 }
 for (const state of states.filter(state => state.diagnose)) assert.equal(state.diagnose(String(state.interaction.correctAnswer)), null, `${state.id} stays silent on the right answer`)
 
+// ---------- Sunny's notes (2 Oct) ----------
+const allSteps = states.flatMap(state => ((state.working ?? (state.visual.kind === 'method-worked' ? state.visual : null))?.examples[0].steps ?? []).map(step => ({ state, step })))
+assert.ok(!allSteps.some(({ step }) => step.title === 'Find the gaps' || /Take each term from the next one/.test(step.instruction)), '"Calculate the gaps", without "Take each term from the next one."')
+assert.ok(!allSteps.some(({ step }) => step.frame.sequence?.rows?.some(row => row.label)), 'No labels beside the rows (no "4n")')
+assert.deepEqual(at('A9.5 Q3').working.examples[0].steps.map(step => step.frame.sequence.answer?.text), ['4 × 4 × 4 = 64'], 'The cube is one multiplication of three 4s')
+assert.deepEqual(at('A9.5 Q2').working.examples[0].steps.map(step => step.title), ['Square 4 is 4 by 4', 'So square 5 is 5 by 5'], 'The tiles follow the question’s own words')
+// Every working that draws a sequence of three or more terms shows the jumps between them (gaps or the common ratio).
+for (const { state, step } of allSteps) {
+  const frame = step.frame.sequence
+  if (!frame || frame.terms.length < 3 || step !== (state.working ?? state.visual).examples[0].steps.filter(s => s.frame.sequence).at(-1)) continue
+  if (['A9.4 Q2', 'A9.4 Q5b', 'A9.5 Q2'].includes(state.sourceRef)) continue // the question gives the ratio or asks for it; the tiles use the question's own words (option A)
+  assert.ok(frame.hops, `${state.id}: the jumps between the terms are drawn`)
+}
+
 // ---------- Greying (Sunny, 1 Oct): parts older than the step before grey out; step 1 greys nothing ----------
 const React = require('react')
 const { renderToStaticMarkup } = require('react-dom/server')
@@ -179,8 +193,8 @@ for (const state of states) {
     const html = renderToStaticMarkup(React.createElement(SequenceVisual, { frame, focus: true }))
     const old = at => frame.step > 0 && at < frame.step - 1
     const expected = (frame.hops && frame.terms.length && old(frame.hops.at) ? frame.terms.length - 1 : 0)
-      + (frame.rows ?? []).filter(row => old(row.at)).reduce((sum, row) => sum + 1 + row.cells.length, 0)
-      + (frame.next && old(frame.next.at) ? 1 : 0)
+      + (frame.rows ?? []).filter(row => old(row.at)).reduce((sum, row) => sum + row.cells.length, 0)
+      + (frame.next && old(frame.next.at) ? 2 * frame.next.terms.length : 0)
       + (frame.lines ?? []).filter(line => old(line.at)).length
     assert.equal((html.match(/is-done/g) ?? []).length, expected, `${state.id} step ${i + 1}: ${expected} finished parts greyed out`)
     if (i === 0) assert.equal(expected, 0, `${state.id}: step 1 greys nothing`)

@@ -72,8 +72,8 @@ function nthModel(terms: number[]): TutorWorking {
   if (!b) throw new Error(`${terms}: the nth term needs something to add or take away`)
   const verb = b > 0 ? `Add ${b}` : `Subtract ${-b}`
   return sequenceModel(`${list(terms)}, …`, { terms: terms.map(fmt), more: true }, [
-    gaps(terms, `The gap is ${fmt(gap)}`, `Take each term from the next one. The gap is the same every time, so that number goes in front of n.`),
-    underRow(linear(gap, 0), table, 0, `Write the ${fmt(gap)} times table`, `Multiply each position (1, 2, 3, 4) by the gap, and line the answers up under the terms.`),
+    gaps(terms, `The gap is ${fmt(gap)}`, `The gap is the same every time, so that number goes in front of n.`),
+    underRow('', table, 0, `Write the ${fmt(gap)} times table`, `Multiply each position (1, 2, 3, 4) by the gap, and line the answers up under the terms.`),
     answerMove(`nth term: ${linear(gap, b)}`, `Compare: ${verb.toLowerCase()}`, `Each term is the same distance from the times table, so add or take away that much.`, underRow('', compare, 3, '', '')),
   ], 'Find the nth term')
 }
@@ -211,7 +211,7 @@ const slips = (right: number, list: Slip[]) => (response: string) => diagnoseSli
 /* ---------- Rung 1: special sequences (A9.5) ---------- */
 
 const triangle = worked(special, 'Oranges are stacked in triangles of 1, 3, 6 and 10 oranges. Work out the next two terms.', 'Find the next two terms', 'A9.5 video + Q1', sequenceModel('1, 3, 6, 10, …', { terms: ['1', '3', '6', '10'], more: true }, [
-  gaps([1, 3, 6, 10], 'Find the gaps', 'Take each term from the next one. The gaps aren’t all the same, but they follow a pattern.'),
+  gaps([1, 3, 6, 10], 'Calculate the gaps', 'The gaps aren’t all the same, but they follow a pattern.'),
   carryOn(10, ['+ 5', '+ 6'], [15, 21], false, 'The gaps go up by 1', 'Each gap is 1 more than the one before. Carry the pattern on.'),
   carryOn(10, ['+ 5', '+ 6'], [15, 21], true, 'Add each gap', 'Add each new gap to the term before it.'),
 ], 'Carry on'), 'Look at the gaps between the terms, and how the gaps change.')
@@ -222,15 +222,15 @@ video(triangle, media('special-sequences', 'Triangular numbers: 1, 3, 6, 10', 'A
   'Where you see it: oranges stacked in triangles of 1, 3, 6, 10. The 6th triangle has 15 + 6 = 21 oranges.',
 ]))
 practice(special, `Square tiles are laid in squares of 1 by 1, 2 by 2, 3 by 3 and 4 by 4: ${nb('1, 4, 9, 16, …')} How many tiles are in the 5th square?`, 'A9.5 Q2', number(25, '25 tiles'), 'A square number is a number times itself.', sequenceModel('1, 4, 9, 16, …', { terms: ['1', '4', '9', '16'], more: true }, [
-  underRow('n', ['1', '2', '3', '4'], 0, 'Each term is n × n', 'The terms are the square numbers: each position times itself.'),
-  answerMove('5 × 5 = 25', 'The 5th: 5 × 5', 'Multiply 5 by itself.'),
+  underRow('', ['1×1', '2×2', '3×3', '4×4'], 0, 'Square 4 is 4 by 4', 'Each square of tiles is its number of tiles along, times the same number down.'),
+  answerMove('5 × 5 = 25', 'So square 5 is 5 by 5', 'Five tiles along and five down.'),
 ]), slips(25, [[10, 'Square means times itself: 5 × 5, not 5 × 2.'], [20, 'That’s 16 + 4. Square numbers don’t go up by the same gap: the 5th is 5 × 5.'], [5, 'That’s the position. The 5th square number is 5 × 5.']]), 'tiles')
 practice(special, 'A cube of side 4 cm is built from small 1 cm cubes. How many small cubes are used?', 'A9.5 Q3', number(64, '64 cubes'), 'A cube number is a number multiplied by itself three times.', sequenceModel('4³', { terms: [] }, [
-  lines(['4 × 4 = 16'], 'Multiply 4 by 4', 'A cube is a number times itself three times. Start with two of them.'),
-  answerMove('16 × 4 = 64', 'Then by 4 again', 'Multiply by the third 4.'),
-]), slips(64, [[12, '4³ means 4 × 4 × 4, not 4 × 3.'], [16, 'That’s 4 × 4. A cube needs one more: 16 × 4.'], [48, '4 × 4 is 16, not 12: 16 × 4 = 64.']]), 'cubes')
+  answerMove('4 × 4 × 4 = 64', 'Multiply three 4s', 'A cube number is a number times itself three times: 4 along, 4 across and 4 up.'),
+]), slips(64, [[12, '4³ means 4 × 4 × 4, not 4 × 3.'], [16, 'That’s 4 × 4. A cube needs one more 4: 4 × 4 × 4.'], [48, '4 × 4 is 16, not 12: 4 × 4 × 4 = 64.']]), 'cubes')
 practice(special, `Each term of a Fibonacci-type sequence is the sum of the two terms before it: ${nb('2, 3, 5, 8, 13, …')} Work out the next two terms.`, 'A9.5 Q4a', numbers([21, 34], '21 and 34'), 'Add the last two terms. Then add the last two again.', sequenceModel('2, 3, 5, 8, 13, …', { terms: ['2', '3', '5', '8', '13'], more: true }, [
-  carryOn(13, ['+ 8', '+ 13'], [21, 34], true, 'Add the two terms before', 'Each new term is the two before it added: 8 and 13, then 13 and the new one.'),
+  gaps([2, 3, 5, 8, 13], 'Calculate the gaps', 'Look at each gap: it is the term two places back.'),
+  carryOn(13, ['+ 8', '+ 13'], [21, 34], true, 'Add the two terms before', 'So the next gaps are 8, then 13: each new term is the two before it added.'),
 ]), response => diagnoseList(response, [21, 34], [[[18, 23], 'The gap isn’t 5 every time. Add the two terms before: 8 + 13, then 13 + 21.'], [[21, 29], 'The second new term adds 13 and 21, the two before it.'], [[26, 39], 'That’s doubling 13. Add the two terms before it: 8 + 13.']]))
 practice(special, `Another sequence follows the same rule and starts ${nb('4, 7, …')} Write down the 3rd term.`, 'A9.5 Q4b', number(11, '11'), 'Add the first two terms.', sequenceModel('4, 7, …', { terms: ['4', '7'], more: true }, [
   carryOn(7, ['+ 4'], [11], true, 'Add the two terms before', 'The 3rd term is the first two added.'),
@@ -257,17 +257,28 @@ practice(special, `Which is the term-to-term rule for ${nb('1, 3, 6, 10, 15, …
   ['Multiply by 2', '1 × 2 is 2, not 3. Look at the gaps: 2, 3, 4, 5.'],
   ['The nth term is n × n', 'That’s a position-to-term rule, and it gives 1, 4, 9: the square numbers. The term-to-term rule says how to get from one term to the next.'],
 ), 'A term-to-term rule says how to get from each term to the next. Look at the gaps.', sequenceModel('1, 3, 6, 10, 15, …', { terms: ['1', '3', '6', '10', '15'], more: true }, [
-  gaps([1, 3, 6, 10, 15], 'Find the gaps', 'Take each term from the next one.'),
+  gaps([1, 3, 6, 10, 15], 'Calculate the gaps', 'The gap is how much each term goes up by.'),
   answerMove('Add 1 more each time', 'How do the gaps change?', 'Each gap is 1 bigger than the one before.'),
 ]))
 
 /* ---------- Rung 2: geometric sequences (A9.4) ---------- */
 
+/**
+ * Moves: the common ratio, drawn as the jump between each pair of terms (× 2), with one division underneath to show
+ * where it comes from (Sunny, 2 Oct).
+ */
+function ratioJumps(terms: number[], ratio: string, divide = false): Move {
+  const label = divide ? `÷ ${ratio.split('/')[1]}` : `× ${ratio}`
+  const division = `${fmt(terms[1])} ÷ ${fmt(terms[0])} = ${ratio}`
+  return {
+    title: 'Divide each term by the one before', say: 'The answer is the same every time: that’s the common ratio, the jump between the terms.', equation: tex(division), adds: 'hops',
+    change: (frame, step) => ({ ...frame, hops: { labels: terms.slice(1).map(() => label), at: step }, lines: [...(frame.lines ?? []), { text: division, family: 0, at: step }] }),
+  }
+}
 /** A geometric sequence: divide each term by the one before to find the ratio, then multiply on (A9.4 video). */
 function ratioModel(terms: number[], next: number[], ratio: string, divide = false): TutorWorking {
-  const divisions = terms.slice(1).map((term, i) => `${fmt(term)} ÷ ${fmt(terms[i])} = ${ratio}`)
   return sequenceModel(`${list(terms)}, …`, { terms: terms.map(fmt), more: true }, [
-    lines(divisions, 'Divide each term by the one before', 'The answer is the same every time: that’s the common ratio.'),
+    ratioJumps(terms, ratio, divide),
     carryOn(terms.at(-1)!, next.map(() => divide ? `÷ ${ratio.split('/')[1]}` : `× ${ratio}`), next, true, divide ? `Divide by ${ratio.split('/')[1]}` : `Multiply by ${ratio}`, divide ? 'Multiplying by a third is the same as dividing by 3. Keep going from the last term.' : 'Keep multiplying by the common ratio, from the last term.'),
   ], 'Carry on')
 }
@@ -290,10 +301,11 @@ practice(geometric, 'Explain why 4, 12, 36, … is not an arithmetic sequence.',
   ['The numbers are too big', 'Size doesn’t matter. An arithmetic sequence adds the same each time; here the gaps are 8 and 24.'],
   ['It starts with 4', 'Any sequence can start with 4. Work out the gaps: 8 and 24 aren’t the same.'],
 ), 'An arithmetic sequence goes up by the same amount each time. Work out the gaps.', sequenceModel('4, 12, 36, …', { terms: ['4', '12', '36'], more: true }, [
-  gaps([4, 12, 36], 'Work out the gaps', 'Take each term from the next one.'),
+  gaps([4, 12, 36], 'Calculate the gaps', 'The gap is how much each term goes up by.'),
   answerMove('The gaps aren’t the same', 'Are the gaps the same?', 'An arithmetic sequence adds the same each time.'),
 ]))
 practice(geometric, `Ria’s savings double every week. She has £5, £10, £20 and £40 in weeks 1 to 4. Work out how much she has in week 7.`, 'A9.4 Q5a', number(320, '£320'), 'Keep doubling until week 7.', sequenceModel('5, 10, 20, 40, …', { terms: ['5', '10', '20', '40'], more: true }, [
+  ratioJumps([5, 10, 20, 40], '2'),
   carryOn(40, ['× 2', '× 2', '× 2'], [80, 160, 320], true, 'Double to weeks 5, 6 and 7', 'The common ratio is 2. Weeks 5, 6 and 7 are three more doublings.'),
 ]), slips(320, [[160, 'That’s week 6. One more doubling for week 7.'], [70, 'The savings double, not go up by 10: 40, 80, 160, 320.'], [640, 'That’s week 8. Week 4 is £40: three doublings to week 7.']])).answerPrefix = '£'
 practice(geometric, 'Another jar has £800, £400 and £200 in weeks 1, 2 and 3. Write down the common ratio.', 'A9.4 Q5b', fractionAnswer('1/2'), 'Divide each term by the one before.', sequenceModel('800, 400, 200, …', { terms: ['800', '400', '200'], more: true }, [
@@ -305,6 +317,7 @@ practice(geometric, 'Mia says 2, 6, 10, 14, … is a geometric sequence because 
   ['Yes: every term is even', 'Even numbers can be in any sequence. Check the ratios: 6 ÷ 2 = 3, 10 ÷ 6 = 1.67…'],
   ['No: it isn’t a sequence', 'It is a sequence: it follows a rule, adding 4. It’s arithmetic, not geometric.'],
 ), 'Geometric means multiplying by the same number. Divide each term by the one before.', sequenceModel('2, 6, 10, 14, …', { terms: ['2', '6', '10', '14'], more: true }, [
+  gaps([2, 6, 10, 14], 'Calculate the gaps', 'The gap is how much each term goes up by.'),
   lines(['6 ÷ 2 = 3', '10 ÷ 6 = 1.67…'], 'Divide each term by the one before', 'A geometric sequence gives the same answer every time.'),
   answerMove('Not the same: not geometric', 'Are the ratios the same?', 'It adds 4 each time instead, so it is arithmetic.'),
 ]))
@@ -315,7 +328,7 @@ practice(geometric, `Which is the term-to-term rule for ${nb('7, 14, 28, 56, …
   ['Multiply by 7', '7 × 7 is 49, not 14. Each term is double the one before.'],
   ['The nth term is 7n', '7n gives 7, 14, 21. And the term-to-term rule says how to get from one term to the next.'],
 ), 'A term-to-term rule says how to get from each term to the next. Divide each term by the one before.', sequenceModel('7, 14, 28, 56, …', { terms: ['7', '14', '28', '56'], more: true }, [
-  lines(['14 ÷ 7 = 2', '28 ÷ 14 = 2', '56 ÷ 28 = 2'], 'Divide each term by the one before', 'The same answer each time is the number to multiply by.'),
+  ratioJumps([7, 14, 28, 56], '2'),
   answerMove('Multiply by 2', 'The rule', 'Each term is the one before times the common ratio.'),
 ]))
 
@@ -337,8 +350,8 @@ video(savings, media('nth-term', 'The nth term of 5, 9, 13, 17', 'A9.1_Nth_Term_
   'Where you see it: Mia saves £5, £9, £13, £17 in weeks 1 to 4. In week 20 she has 4 × 20 + 1 = £81.',
 ]))
 practice(nthTerm, `A sequence has nth term ${nb('3n − 2')}. Work out the first 5 terms.`, 'Textbook A9 Your Turn Q2a (own numbers)', numbers([1, 4, 7, 10, 13], '1, 4, 7, 10, 13', { joiner: ',' }), 'Put n = 1, 2, 3, 4 and 5 into 3n − 2.', sequenceModel('3n − 2', { terms: [] }, [
-  underRow('n', ['1', '2', '3', '4', '5'], 0, 'n is 1, 2, 3, 4, 5', 'The first five terms are at positions 1 to 5.'),
-  underRow('3n', ['3', '6', '9', '12', '15'], 1, 'Multiply each by 3', '3n means 3 times n.'),
+  underRow('', ['1', '2', '3', '4', '5'], 0, 'n is 1, 2, 3, 4, 5', 'The first five terms are at positions 1 to 5.'),
+  underRow('', ['3', '6', '9', '12', '15'], 1, 'Multiply each by 3', '3n means 3 times n.'),
   underRow('', ['1', '4', '7', '10', '13'], 3, 'Subtract 2', 'Take 2 away from each, as the nth term says.', true),
 ], 'Work them out'), response => diagnoseList(response, [1, 4, 7, 10, 13], [[[3, 6, 9, 12, 15], 'That’s 3n. The nth term takes 2 away from each: 3 − 2, 6 − 2, …'], [[5, 8, 11, 14, 17], '3n − 2 takes 2 away, not adds: 3 − 2 = 1.'], [[-2, 1, 4, 7, 10], 'The first term is n = 1, not n = 0: 3 × 1 − 2 = 1.']]))
 practice(nthTerm, `Pattern n of a tile design uses ${nb('3n + 2')} tiles. How many tiles are in pattern 5?`, 'A9.1 Q2', number(17, '17 tiles'), 'Put n = 5 into 3n + 2.', sequenceModel('3n + 2', { terms: [] }, [
