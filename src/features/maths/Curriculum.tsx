@@ -1,17 +1,18 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Button } from '../../ui'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
 import { mathsLessonMinutes } from './lessonMinutes'
 import { rungStatus } from './rungProgress'
 import './Curriculum.css'
+import './ContentsDrawer.css'
 
 type Props = {
   progress: LessonProgressMap
   lastLesson: MathsLessonNumber
-  onOpenLesson: (lesson: MathsLessonNumber) => void
+  onOpenLesson: (lesson: MathsLessonNumber, skill?: string) => void
 }
 
 const LATER_CHAPTERS = ['Ratio and proportion', 'Geometry and measures', 'Probability', 'Statistics']
@@ -26,6 +27,26 @@ export type TocStatus = 'done' | 'next' | 'progress' | 'todo'
 export const Lock = () => <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-label="Not built yet"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
 const Play = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>
 
+export type SearchResult = { key: string; title: string; label: string; onPick: () => void }
+
+/** Search across every lesson and skill, the same as in the Contents drawer. With a query, results replace the contents. */
+export function CurriculumSearch({ query, onQuery, placeholder, results }: { query: string; onQuery: (value: string) => void; placeholder: string; results: SearchResult[] | null }) {
+  return <div className="toc cur-search">
+    <div className="toc-search">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+      <input type="search" value={query} onChange={event => onQuery(event.target.value)} placeholder={placeholder} aria-label={placeholder} />
+    </div>
+    {results && <section className="cur-panel cur-search__results" aria-label="Search results">
+      <p className="toc-results-count" role="status">{results.length === 0 ? `Nothing matches “${query.trim()}”` : `${results.length} ${results.length === 1 ? 'match' : 'matches'}`}</p>
+      <ul className="toc-results">
+        {results.map(result => <li key={result.key}>
+          <button type="button" onClick={result.onPick}><strong>{result.title}</strong><span>{result.label}</span></button>
+        </li>)}
+      </ul>
+    </section>}
+  </div>
+}
+
 /** One chapter in the left-hand contents list. */
 export function TocChapter({ code, title, meta, selected, locked, onSelect }: { code: string; title: string; meta: ReactNode; selected: boolean; locked?: boolean; onSelect: () => void }) {
   return <li>
@@ -38,11 +59,11 @@ export function TocChapter({ code, title, meta, selected, locked, onSelect }: { 
 }
 
 /** One lesson on the chapter's line: the next lesson is a highlighted card with its button, every other lesson is a single row. */
-export function TocLesson({ status, title, minutes, detail, action, onOpen }: { status: TocStatus; title: string; minutes: number; detail: string; action: string; onOpen: () => void }) {
+export function TocLesson({ status, title, badge, minutes, detail, action, onOpen }: { status: TocStatus; title: string; badge?: ReactNode; minutes: number; detail: string; action: string; onOpen: () => void }) {
   if (status === 'next') return <li className="cur-lesson is-next">
     <span className="cur-lesson__dot" aria-hidden="true" />
     <div className="cur-lesson__body">
-      <h3>{title}</h3>
+      <h3>{title}{badge}</h3>
       <p>{detail}</p>
     </div>
     <Button variant="dark" className="cur-lesson__go" onClick={onOpen} aria-label={`${action} ${title}`}><Play />{action}</Button>
@@ -50,7 +71,7 @@ export function TocLesson({ status, title, minutes, detail, action, onOpen }: { 
   return <li className={`cur-lesson is-${status}`}>
     <button type="button" className="cur-lesson__row" onClick={onOpen} aria-label={`${action} ${title}${status === 'done' ? ' (done)' : status === 'progress' ? ' (in progress)' : ''}`}>
       <span className="cur-lesson__dot" aria-hidden="true">{status === 'done' ? '✓' : ''}</span>
-      <span className="cur-lesson__title">{title}</span>
+      <span className="cur-lesson__title">{title}{badge}</span>
       <small>{minutes} min</small>
     </button>
   </li>
@@ -74,6 +95,18 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
   const chapter = mathsChapters[chapterIndex]
   const laterIndex = LATER_CHAPTERS.indexOf(selected)
 
+  // Search matches lesson titles and skill titles; a skill opens its lesson at that skill.
+  const [query, setQuery] = useState('')
+  const results = useMemo<SearchResult[] | null>(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return null
+    return mathsChapters.flatMap(item => item.lessons.flatMap(entry => [
+      ...(entry.title.toLowerCase().includes(q) ? [{ key: entry.lessonId, title: entry.title, label: `Lesson · ${item.title}`, onPick: () => onOpenLesson(entry.number) }] : []),
+      ...entry.sections.filter(section => section.title.toLowerCase().includes(q))
+        .map(section => ({ key: `${entry.lessonId}-${section.id}`, title: section.title, label: `Skill · ${entry.title}`, onPick: () => onOpenLesson(entry.number, section.id) })),
+    ]))
+  }, [onOpenLesson, query])
+
   return <div className="cur">
     <header className="cur-head">
       <div>
@@ -86,7 +119,9 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
       </div>
     </header>
 
-    <div className="cur-toc">
+    <CurriculumSearch query={query} onQuery={setQuery} placeholder="Search lessons and skills" results={results} />
+
+    {!results && <div className="cur-toc">
       <nav className="cur-toc__chapters" aria-label="Chapters">
         <ol>
           {mathsChapters.map((item, index) => <TocChapter key={item.id} code={String(index + 1)} title={item.title}
@@ -122,6 +157,6 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
         </div>}
       </section>
 
-    </div>
+    </div>}
   </div>
 }

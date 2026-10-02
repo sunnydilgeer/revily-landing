@@ -9,9 +9,11 @@
 import { useCallback, useEffect, useReducer, useRef, useState, type RefObject } from 'react'
 import { Button, CheckBar, RevilyLogo } from '../../ui'
 import { progress } from './engine'
-import { allScienceLessons, getScienceLesson, nextScienceLesson, scienceChapterFor, scienceHubHref, scienceSubjectLessonHref, type ScienceSubject } from './lessonNavigation'
+import { scienceChapterFor, scienceEntryHref, scienceHubHref, type ScienceSubject } from './lessonNavigation'
 import { createPreviewSessionEngine, type PreviewSession, type SessionAction } from './previewSession'
+import { forTier, getScienceLessonForTier, nextScienceLessonForTier, readScienceTier, type ScienceTier } from './tier'
 import { sectionRanges } from './scienceProgress'
+import { HigherBadge } from './higher/HigherBadge'
 import { WalkthroughDiagram, WorkedVisual } from './components/TeachingChunk'
 import { LessonVisual } from './components/LessonVisual'
 import ScienceContentsDrawer from './ScienceContentsDrawer'
@@ -43,12 +45,19 @@ const REFRESHERS: Record<string, { title: string; text: string }> = {
   'B5-01': { title: 'Quick nucleus refresher', text: 'The nucleus contains genetic information. Chromosomes in the nucleus consist of DNA; a gene is a small section of DNA. This lesson connects that model to cell division.' },
 }
 
-const engines = new Map(allScienceLessons.map(item => [item.lesson.id, createPreviewSessionEngine(item.lesson)] as const))
+// One engine per lesson version: a lesson with Higher sections has its own version, so its own saved session.
+const engines = new Map<string, ReturnType<typeof createPreviewSessionEngine>>()
+function engineFor(lesson: Parameters<typeof createPreviewSessionEngine>[0]) {
+  const key = `${lesson.id}:${lesson.contentVersion}`
+  let engine = engines.get(key)
+  if (!engine) { engine = createPreviewSessionEngine(lesson); engines.set(key, engine) }
+  return engine
+}
 const newSessionId = () => window.crypto.randomUUID()
 const now = () => new Date().toISOString()
 const sectionTitle = (title: string) => title.replace(/^Chapter \d+ · /, '')
 
-type SectionSummary = { index: number; title: string; nextTitle: string; questions: number; firstTry: number }
+type SectionSummary = { index: number; title: string; higher?: true; nextTitle: string; questions: number; firstTry: number }
 
 const Tick = () => <div className="rung-done__badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
 
@@ -60,13 +69,20 @@ function Hint({ open, text, id, onToggle }: { open: boolean; text: string; id: s
 }
 
 // `lessonNumber` is the number within `subject` (Biology when omitted, as in the original ?lesson=N links).
+// A Higher-only lesson (number 20.5, shown as 20H) is only ever shown to a Higher student: see `hidden` below.
 export default function ScienceLesson({ subject = 'biology', lessonNumber, initialActivity }: { subject?: ScienceSubject; lessonNumber: number; initialActivity?: string }) {
-  const entry = getScienceLesson(subject, lessonNumber)!
+  // The tier is read after mounting (it lives in this device's storage); nothing is restored until it is known.
+  const [tier, setTier] = useState<ScienceTier | null>(null)
+  useEffect(() => setTier(readScienceTier()), [])
+  const entry = forTier(getScienceLessonForTier(subject, lessonNumber, 'higher')!, tier ?? 'foundation')
+  // Until the tier is known a Higher-only lesson shows nothing of itself; on Foundation it is an unknown lesson and goes back to the Science home.
+  const hidden = entry.higherOnly === true && tier !== 'higher'
+  useEffect(() => { if (hidden && tier === 'foundation') window.location.replace(scienceHubHref()) }, [hidden, tier])
   const lesson = entry.lesson
-  const nextEntry = nextScienceLesson(entry)
+  const nextEntry = nextScienceLessonForTier(entry, tier ?? 'foundation')
   const chapter = scienceChapterFor(entry)!
   const frames = entry.frames
-  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = engines.get(lesson.id)!
+  const { createPreviewSession, previewReducer, restorePreviewSession, storageKey } = engineFor(lesson)
   const reducer = useCallback((session: PreviewSession, action: SessionAction | { type: 'restore'; session: PreviewSession }) =>
     action.type === 'restore' ? action.session : previewReducer(session, action), [previewReducer])
   const [session, dispatch] = useReducer(reducer, createPreviewSession('loading'))
@@ -95,6 +111,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
 
   // Restore this lesson's saved session, then keep saving it.
   useEffect(() => {
+    if (tier === null || hidden) return
     let restored: PreviewSession | null = null
     try {
       const raw = window.localStorage.getItem(storageKey)
@@ -106,7 +123,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
     const opening = restored || createPreviewSession(newSessionId())
     dispatch({ type: 'restore', session: initialActivity ? previewReducer(opening, { type: 'jump', id: initialActivity }) : opening })
     setReady(true)
-  }, [createPreviewSession, restorePreviewSession, previewReducer, storageKey, initialActivity])
+  }, [tier, hidden, createPreviewSession, restorePreviewSession, previewReducer, storageKey, initialActivity])
   useEffect(() => {
     if (!ready || session.lessonId !== lesson.id) return
     try { window.localStorage.setItem(storageKey, JSON.stringify(session)) }
@@ -143,6 +160,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
     setSectionDone({
       index: sectionIndex,
       title: sectionTitle(range.title),
+      higher: range.higher || entry.higherOnly,
       nextTitle: sectionTitle(ranges[sectionIndex + 1].title),
       questions: choices.length,
       firstTry: choices.filter(item => session.answers[item.id]?.result === 'correct').length,
@@ -165,7 +183,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
   }, [])
 
   const header = <header className="rung-head">
-    <h2 id="science-section-title">{sectionTitle(range.title)}</h2>
+    <h2 id="science-section-title">{sectionTitle(range.title)}{(range.higher || entry.higherOnly) && <HigherBadge />}</h2>
     <div className="rung-head__progress">
       <div className="rung-head__bar" role="progressbar" aria-label={`${entry.title}, section ${sectionIndex + 1} of ${ranges.length}: progress through ${sectionTitle(range.title)}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={sectionProgress}>
         <span style={{ width: `${Math.max(4, Math.min(100, sectionProgress))}%` }} />
@@ -180,8 +198,8 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
     body = <section className="rung-lesson" aria-labelledby="rung-done-title">
       <div className="rung-done rv-paper" role="status">
         <Tick />
-        <p className="rung-done__kicker">Section {sectionDone.index + 1} of {ranges.length} complete</p>
-        <h3 id="rung-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{sectionDone.title}</h3>
+        <p className="rung-done__kicker">{entry.higherOnly && `Lesson ${entry.label} · `}Section {sectionDone.index + 1} of {ranges.length} complete</p>
+        <h3 id="rung-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{sectionDone.title}{sectionDone.higher && <HigherBadge />}</h3>
         {sectionDone.questions > 0 && <p className="rung-done__score"><strong>{sectionDone.firstTry} of {sectionDone.questions}</strong> right first time</p>}
         <p className="rung-done__next">Next section: <strong>{sectionDone.nextTitle}</strong></p>
         <div className="rung-done__actions">
@@ -198,13 +216,13 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
       <div className="rung-done rv-paper" role="status">
         {!remaining && <Tick />}
         <p className="rung-done__kicker">{remaining ? `${completion.total - completion.completed} screens still to do` : `All ${ranges.length} sections done`}</p>
-        <h3 id="lesson-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{remaining ? 'Almost there' : `Lesson complete: ${entry.title}`}</h3>
+        <h3 id="lesson-done-title" ref={heading as RefObject<HTMLHeadingElement>} tabIndex={-1}>{remaining ? 'Almost there' : `Lesson complete: ${entry.title}`}{!remaining && entry.higherOnly && <HigherBadge />}</h3>
         {!remaining && pendingWritten && <p className="rung-done__next">Your written answers are saved on this device.</p>}
         {!remaining && PRACTICAL_NOTES[lesson.id] && <p className="rung-done__next sl-practical-note">{PRACTICAL_NOTES[lesson.id]}</p>}
         <div className="rung-done__actions">
           {remaining
             ? <Button size="lg" onClick={() => jump(remaining.id)}>Go to what’s left</Button>
-            : nextEntry && <Button size="lg" onClick={() => window.location.assign(scienceSubjectLessonHref(nextEntry.subject, nextEntry.number))}>Next: {nextEntry.title}</Button>}
+            : nextEntry && <Button size="lg" onClick={() => window.location.assign(scienceEntryHref(nextEntry))}>Next: {nextEntry.higherOnly && `Lesson ${nextEntry.label} · `}{nextEntry.title}{nextEntry.higherOnly && <HigherBadge />}</Button>}
           <Button variant="secondary" size="lg" onClick={goToCurriculum}>Back to lessons</Button>
         </div>
       </div>
@@ -301,13 +319,17 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
     </section>
   }
 
+  if (hidden) return <div className="app-shell app-shell--lesson app-shell--study sl-shell" data-subject="science">
+    <main className="lesson-preview" id="main-content" aria-busy="true"><section className="rung-lesson"><p className="sl-loading">Opening your lesson…</p></section></main>
+  </div>
+
   return <div className="app-shell app-shell--lesson app-shell--study sl-shell" data-subject="science">
     <header className="site-header">
       <RevilyLogo wordmark={false} size={24} href={scienceHubHref()} />
       <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
         <a href={scienceHubHref()}>{chapter.code}</a>
         <span aria-hidden="true">/</span>
-        <span className="maths-breadcrumb-number" aria-current="page">{entry.title}</span>
+        <span className="maths-breadcrumb-number" aria-current="page">{entry.higherOnly && `Lesson ${entry.label} · `}{entry.title}{entry.higherOnly && <HigherBadge />}</span>
       </nav>
       <button ref={contentsButton} className="maths-contents-button" type="button" aria-expanded={drawerOpen} aria-controls="science-contents" onClick={() => setDrawerOpen(true)}>Contents</button>
     </header>
@@ -316,6 +338,7 @@ export default function ScienceLesson({ subject = 'biology', lessonNumber, initi
       open={drawerOpen}
       subject={subject}
       lessonNumber={lessonNumber}
+      tier={tier ?? 'foundation'}
       chapterTitle={chapter.title}
       session={session}
       storageAvailable={storageAvailable}

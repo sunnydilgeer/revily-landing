@@ -109,5 +109,17 @@ export const canStatements: Record<string, string> = {
   '19:equations-both-sides': 'I can solve an equation with the unknown on both sides, like 9x + 4 = 4x + 29',
   '19:equations-brackets': 'I can solve an equation with brackets, like 2(3x + 1) = x + 22',
   '19:equations-fractions': 'I can solve an equation with fractions, like (2x + 1)/3 = 5',
+
+  '20:rearrange-linear': 'I can make m the subject of a formula like C = 3m + 5',
+  '20:rearrange-fractions': 'I can rearrange a formula with a fraction, like M = (a + b)/2',
+  '20:rearrange-squares': 'I can rearrange a formula with a square, like A = 6s², to get s = √(A/6)',
+  '20:rearrange-roots': 'I can rearrange a formula with a square root, like t = √(h/5), to get h = 5t²',
+
+  '21:quadratics-positive': 'I can factorise a quadratic like x² + 8x + 15 = (x + 3)(x + 5)',
+  '21:quadratics-negative-middle': 'I can factorise a quadratic with a negative middle term, like x² − 9x + 20 = (x − 4)(x − 5)',
+  '21:quadratics-negative-last': 'I can factorise a quadratic with a negative last term, like x² + 2x − 15 = (x − 3)(x + 5)',
+  '21:quadratics-difference-of-squares': 'I can factorise the difference of two squares, like x² − 49 = (x + 7)(x − 7)',
+
+  '22:quadratic-equations': 'I can solve a quadratic like x² + x = 20 by making one side 0, factorising and setting each bracket to 0',
 }
 

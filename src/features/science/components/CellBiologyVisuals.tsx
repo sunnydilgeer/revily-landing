@@ -15,6 +15,27 @@ import { PlantDiseaseVisual } from './PlantDiseaseVisuals'
 import { RespirationVisual } from './RespirationVisuals'
 import { NervousVisual } from './NervousVisuals'
 import { HormoneVisual } from './HormoneVisuals'
+import { HigherPhotosynthesisVisual } from './HigherPhotosynthesisVisuals'
+import { HigherHormoneVisual } from './HigherHormoneVisuals'
+import { HigherGeneticEngineeringVisual } from './HigherGeneticEngineeringVisuals'
+import { HigherParticleModelVisual } from './HigherParticleModelVisuals'
+import { HigherMolesVisual } from './HigherMolesVisuals'
+import { HigherFertilityVisual } from './HigherFertilityVisuals'
+import { HigherEquilibriumVisual } from './HigherEquilibriumVisuals'
+import { HigherCopperVisual } from './HigherCopperVisuals'
+import { HigherRateTangentVisual } from './HigherRateTangentVisuals'
+import { HigherBondEnergyVisual } from './HigherBondEnergyVisuals'
+import { HigherElectrolysisVisual } from './HigherElectrolysisVisuals'
+import { HigherRedoxVisual } from './HigherRedoxVisuals'
+import { HigherAcidStrengthVisual } from './HigherAcidStrengthVisuals'
+import { HigherTransformerVisual } from './HigherTransformerVisuals'
+import { HigherForceDrawingVisual } from './HigherForceDrawingVisuals'
+import { HigherMomentumVisual } from './HigherMomentumVisuals'
+import { HigherMotionGraphVisual } from './HigherMotionGraphVisuals'
+import { HigherNewtonVisual } from './HigherNewtonVisuals'
+import { HigherMotorVisual } from './HigherMotorVisuals'
+import { HigherWaveVisual } from './HigherWaveVisuals'
+import { HigherGraphTangentVisual } from './HigherGraphTangentVisuals'
 import { InheritanceVisual } from './InheritanceVisuals'
 import { EvolutionVisual } from './EvolutionVisuals'
 import { EcologyVisual } from './EcologyVisuals'
@@ -443,6 +464,27 @@ export function CellBiologyVisual({ focus, assessment = false }: { focus: string
   if (focus.startsWith('cmpd-')) return <CompoundVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('energy-')) return <RespirationVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('nerve-')) return <NervousVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hphoto-')) return <HigherPhotosynthesisVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hfert-')) return <HigherFertilityVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hhorm-')) return <HigherHormoneVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hgene-')) return <HigherGeneticEngineeringVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hpart-')) return <HigherParticleModelVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hmole-')) return <HigherMolesVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hequil-')) return <HigherEquilibriumVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hcopper-')) return <HigherCopperVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hrate-')) return <HigherRateTangentVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hbond-')) return <HigherBondEnergyVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('helec-')) return <HigherElectrolysisVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hredox-')) return <HigherRedoxVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hacid-')) return <HigherAcidStrengthVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('htrans-')) return <HigherTransformerVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hfdraw-')) return <HigherForceDrawingVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hmom-')) return <HigherMomentumVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hgraph-')) return <HigherMotionGraphVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hnewt-')) return <HigherNewtonVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hmotor-')) return <HigherMotorVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hwave-')) return <HigherWaveVisual focus={focus} assessment={assessment} />
+  if (focus.startsWith('hgrad-')) return <HigherGraphTangentVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('hormone-')) return <HormoneVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('inherit-')) return <InheritanceVisual focus={focus} assessment={assessment} />
   if (focus.startsWith('evolve-')) return <EvolutionVisual focus={focus} assessment={assessment} />

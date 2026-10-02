@@ -15,7 +15,7 @@ const drawer = read('src/features/maths/MathsContentsDrawer.tsx')
 const registry = read('src/features/maths/courseRegistry.ts')
 const engine = read('src/features/number-types/useLessonEngine.ts')
 
-for (const number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]) {
+for (const number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]) {
   assert.ok(registry.includes(`entry(${number},`), `Lesson ${number} must be registered once in course order`)
   assert.ok(app.includes(`case ${number}:`), `Lesson ${number} must retain its preview route`)
 }
@@ -55,8 +55,9 @@ assert.ok(drawer.includes("document.body.style.overflow = 'hidden'"), 'The drawe
 assert.ok(app.includes('contentsButtonRef.current?.focus()'), 'Closing must return focus to Contents')
 assert.ok(drawer.includes("aria-current={isCurrent ? 'page' : undefined}"))
 assert.ok(drawer.includes("aria-current={isCurrentSection ? 'step' : undefined}"))
-assert.ok(drawer.includes('All Maths lessons'))
-assert.ok(drawer.includes('Lesson information and options'))
+assert.ok(drawer.includes('aria-label="Search lessons and skills"'), 'Contents must let students search every lesson and skill')
+assert.ok(drawer.includes('aria-expanded={chapterOpen}') && drawer.includes('aria-expanded={skillsOpen}'), 'Chapters and lessons must fold open and closed')
+assert.ok(app.includes('selectSkillFromDrawer'), 'Any skill in any lesson must open in one tap')
 
 assert.ok(engine.includes('saveMathsProgress'))
 assert.ok(engine.includes('MATHS_NAVIGATE_EVENT'))

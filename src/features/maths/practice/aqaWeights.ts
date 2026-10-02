@@ -98,6 +98,18 @@ export const aqaMarks: Record<string, number> = {
   '19:equations-both-sides': 3,
   '19:equations-brackets': 3,
   '19:equations-fractions': 2,
+  // Estimates, not yet counted from the 18 papers: changing the subject comes up most sittings, usually for 1–2 marks.
+  '20:rearrange-linear': 3,
+  '20:rearrange-fractions': 2,
+  '20:rearrange-squares': 1,
+  '20:rearrange-roots': 1,
+  // Estimates, not yet counted from the 18 papers: factorising a quadratic into two brackets comes up most sittings, usually for 1–2 marks.
+  '21:quadratics-positive': 2,
+  '21:quadratics-negative-middle': 1,
+  '21:quadratics-negative-last': 2,
+  '21:quadratics-difference-of-squares': 1,
+  // Estimates, not yet counted from the 18 papers: solving a quadratic by factorising comes up most sittings, usually for 2–3 marks.
+  '22:quadratic-equations': 2,
 }
 
 /**
