@@ -15,7 +15,8 @@ function spoken(frame: SequenceFrame) {
   for (const row of frame.rows ?? []) parts.push(`${row.label ? `${row.label}: ` : ''}${row.cells.join(', ')}.`)
   if (frame.next) parts.push(`Carry on: ${frame.next.terms.map((term, i) => `${frame.next!.hops[i]} gives ${frame.next!.filled ? term : 'a new term'}`).join(', ')}.`)
   for (const line of frame.lines ?? []) parts.push(`${line.text}.`)
-  if (frame.answer) parts.push(`The answer: ${frame.answer.text}.`)
+  if (frame.positions) parts.push(`Positions ${frame.terms.map((_, i) => i + 1).join(', ')}.`)
+  if (frame.answer) parts.push(`The answer: ${frame.answer.text}${frame.answer.parts ? `: ${frame.answer.parts.map(part => `${part.text}, ${part.label}`).join('; ')}` : ''}.`)
   return parts.join(' ').replace(/[[\]]/g, '')
 }
 
@@ -40,6 +41,10 @@ export function SequenceVisual({ frame, heading, plain, focus }: { frame: Sequen
   const style = longest > 2 ? { ['--seq-col' as string]: `${(0.62 * longest + 0.4).toFixed(2)}em` } : undefined
   return <div className={`ns-seq${plain ? ' is-plain' : ''}${wide}`} style={style} role="img" aria-label={plain ? `The question: ${spoken({ ...frame, hops: undefined, rows: undefined, next: undefined, lines: undefined, answer: undefined })}` : spoken(frame)}>
     {(head('hops') ?? head('next'))}
+    {!plain && frame.positions && <p className={`ns-seq__terms ns-seq__positions${done(frame.positions.at)}`} aria-hidden="true">{frame.terms.map((_, i) => <span key={i} className="ns-seq__unit">
+      {i > 0 && <span className="ns-seq__hop" />}
+      <span className="ns-seq__cell"><small>{i + 1}</small></span>
+    </span>)}{frame.more && <span className="ns-seq__more is-spacer">…</span>}</p>}
     {all.length > 0 && <p className="ns-seq__terms" aria-hidden="true">{all.map((term, i) => {
       const hop = hopInto(i)
       const filled = term.kind === 'given' || next!.filled
@@ -63,7 +68,10 @@ export function SequenceVisual({ frame, heading, plain, focus }: { frame: Sequen
     ])}
     {!plain && frame.answer && <>
       {head('answer')}
-      <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer.text} /></p>
+      {frame.answer.parts
+        // The answer built from labelled pieces, so it says what it means (like A4's brackets).
+        ? <p className="ns-eq__answer ns-seq__labelled" aria-hidden="true">{frame.answer.parts.map((part, i) => <span key={i} className="ns-seq__piece"><b><Powers text={part.text} /></b><small>{part.label}</small></span>)}</p>
+        : <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer.text} /></p>}
     </>}
   </div>
 }
