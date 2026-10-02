@@ -176,6 +176,10 @@
 .rung-roots__or { color: var(--rv-muted); font-weight: 600; }
 .rung-roots__pair { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .rung-lesson .rung-roots .rung-answer__input { width: 3.6em; }
+/* A row of five terms ("☐, ☐, ☐, ☐, ☐"): narrower boxes, so a phone fits three on a line. */
+.rung-list--row { gap: 8px 4px; }
+.rung-list--row .rung-roots__pair { gap: 4px; }
+.rung-lesson .rung-list--row .rung-answer__input { width: 3em; }
 
 /* A rearranged formula after "m =" (FormulaAnswerInput): one box or a fraction, a √ over everything, keys underneath. */
 .rung-formula { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; max-width: 100%; }

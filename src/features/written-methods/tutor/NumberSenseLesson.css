@@ -236,6 +236,29 @@
 .ns-solve__stage { margin: 0 0 2px; color: var(--rv-muted); font-size: 14px; font-weight: 600; letter-spacing: .02em; }
 .ns-solve__num { color: var(--f); }
 .ns-solve__or { color: var(--rv-muted); font-size: .8em; font-weight: 500; }
+/* Sequences (lesson 23, SequencePictures.tsx): terms in a row, the jumps above, rows lined up under them. */
+.ns-seq { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; font-size: clamp(15px, 4.6vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-seq p { margin: 0; }
+.ns-seq__heading { align-self: stretch; contain: inline-size; }
+.ns-seq__grid { display: grid; align-items: center; justify-items: center; gap: 6px 2px; }
+.ns-seq__grid > .ns-seq__heading, .ns-seq__row > .ns-seq__heading { grid-column: 1 / -1; justify-self: stretch; margin: 4px 0; }
+.ns-seq__row { display: contents; }
+.ns-seq__label { justify-self: end; padding-right: 6px; color: var(--f, var(--rv-muted)); font-size: .8em; white-space: nowrap; }
+.ns-seq__term { position: relative; color: #2347b8; white-space: nowrap; }
+.ns-seq.is-plain .ns-seq__term { color: var(--rv-ink); }
+.ns-seq__more { position: absolute; left: 100%; padding-left: 4px; color: var(--rv-muted); }
+.ns-seq__cell { color: var(--f); white-space: nowrap; }
+.ns-seq__hop { position: relative; padding: 0 2px 6px; color: var(--f); font-size: .72em; white-space: nowrap; }
+.ns-seq__arc { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; border: 2px solid currentColor; border-bottom: 0; border-radius: 8px 8px 0 0; opacity: .6; }
+.ns-seq__next { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; }
+.ns-seq__step { display: inline-flex; align-items: center; gap: 6px; }
+.ns-seq__jump { display: inline-flex; flex-direction: column; align-items: center; color: var(--f); font-size: .72em; line-height: 1.1; }
+.ns-seq__new { min-width: 1.8em; padding: 0 6px; border: 2px dashed var(--rv-line); border-radius: 8px; color: var(--rv-muted); }
+.ns-seq .is-answer { border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 10px; padding: 0 6px; background: var(--rv-good-tint); color: var(--rv-good-ink); }
+.ns-seq__line { color: var(--f); }
+.ns-seq .is-done { opacity: .35; transition: opacity .2s ease; }
+/* A worded answer ("The gaps aren't the same") wraps on a phone instead of pushing the page wider. */
+.ns-seq .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* A board or quadratic picture takes the frame's full width, so a short formula (A = 6s²) doesn't squeeze its step
    headings and ⓘ text into a narrow column; the rows stay centred. */
-.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad) { flex: 1; min-width: 0; }
+.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad, > .ns-seq) { flex: 1; min-width: 0; }

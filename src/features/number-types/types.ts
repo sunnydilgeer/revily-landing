@@ -106,6 +106,11 @@ export type MicroSkillId =
   | 'quadratics-negative-last'
   | 'quadratics-difference-of-squares'
   | 'quadratic-equations'
+  | 'sequences-special'
+  | 'sequences-geometric'
+  | 'sequences-nth-term'
+  | 'sequences-in-sequence'
+  | 'sequences-consecutive'
   | 'mixed'
 
 export type LessonPhase =
@@ -152,8 +157,10 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula' | 'brackets'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula' | 'brackets' | 'numberList'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions' | 'list'
+  /** A `list` answer: one box per number in `correctAnswer`, with this word between them ("and", or "," for a row of terms). */
+  listJoiner?: string
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
   anyPower?: boolean
   requiredDenominator?: number

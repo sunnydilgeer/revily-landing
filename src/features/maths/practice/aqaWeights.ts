@@ -110,6 +110,12 @@ export const aqaMarks: Record<string, number> = {
   '21:quadratics-difference-of-squares': 1,
   // Estimates, not yet counted from the 18 papers: solving a quadratic by factorising comes up most sittings, usually for 2–3 marks.
   '22:quadratic-equations': 2,
+  // Estimates, not yet counted from the 18 papers: sequences come up every sitting, the nth term most often.
+  '23:sequences-special': 1,
+  '23:sequences-geometric': 1,
+  '23:sequences-nth-term': 2,
+  '23:sequences-in-sequence': 1,
+  '23:sequences-consecutive': 1,
 }
 
 /**

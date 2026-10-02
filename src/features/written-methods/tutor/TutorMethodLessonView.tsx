@@ -123,6 +123,27 @@ function RootsAnswerInput({ id, letter, unit, disabled, onChange }: { id: string
   </div>
 }
 
+/**
+ * A short list of numbers, one box each: "☐ and ☐" for the next two terms, or "☐, ☐, ☐, ☐, ☐" for the first five.
+ * Each box opens the full keyboard, because a number pad has no minus key.
+ */
+function ListAnswerInput({ id, count, joiner, unit, disabled, onChange }: { id: string; count: number; joiner: string; unit?: string; disabled: boolean; onChange: (value: string) => void }) {
+  const [values, setValues] = useState<string[]>(() => Array(count).fill(''))
+  const update = (i: number, value: string) => {
+    const next = values.map((old, k) => k === i ? value : old)
+    setValues(next)
+    onChange(next.every(v => !v.trim()) ? '' : next.map(v => v.trim().replace(/^[−–]/, '-') || '?').join(', '))
+  }
+  return <div className={`rung-roots rung-list${joiner === ',' ? ' rung-list--row' : ''}`} role="group" aria-label={`Enter ${count} numbers, in order`}>
+    {values.map((value, i) => <span key={i} className="rung-roots__pair">
+      <label htmlFor={`list-${i}-${id}`}><span className="sr-only">{`Number ${i + 1} of ${count}`}</span>
+        <input id={`list-${i}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value} onChange={event => update(i, event.target.value)} /></label>
+      {unit && <span className="rung-answer__eq" aria-hidden="true">{unit}</span>}
+      {i < count - 1 && <span className="rung-roots__or" aria-hidden="true">{joiner}</span>}
+    </span>)}
+  </div>
+}
+
 /** One power, as a base with its power box raised beside it (like the power box in standard form). */
 function PowerAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
   const [base, setBase] = useState(''), [power, setPower] = useState('')
@@ -208,7 +229,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.type === 'multiSelect') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.responseShape === 'list' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -247,6 +268,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const roots = numeric && state.interaction.responseShape === 'roots'
   const formula = numeric && state.interaction.responseShape === 'formula'
   const dimensions = numeric && state.interaction.responseShape === 'dimensions'
+  const list = numeric && state.interaction.responseShape === 'list'
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
@@ -273,8 +295,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          {!standardForm && !expression && !power && !roots && !dimensions && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
-          {dimensions
+          {!standardForm && !expression && !power && !roots && !dimensions && !list && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
+          {list
+            ? <ListAnswerInput id={state.id} count={String(state.interaction.correctAnswer).split(',').length} joiner={state.interaction.listJoiner ?? 'and'} unit={state.answerPrefix} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : dimensions
             ? <RootsAnswerInput id={state.id} letter="" unit={state.answerPrefix ?? ''} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : formula
             ? <FormulaAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />

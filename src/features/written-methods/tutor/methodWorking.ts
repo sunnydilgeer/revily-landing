@@ -150,6 +150,26 @@ export type SolveFrame = {
   solve?: boolean
   adds: 'zero' | 'pairs' | 'flip' | 'sums' | 'brackets' | 'split' | 'solve'
 }
+/**
+ * A sequence (lesson 23), the whole picture so far: the terms as the question gives them, the jumps between them
+ * (+ 4, × 2), rows lined up under the terms (4n: 4, 8, 12, 16, then + 1 under each), carrying on from the last term to
+ * the next ones, lines of working and the answer. Each part says which step added it (`at`), so finished parts grey out.
+ * See SequencePictures.tsx.
+ */
+export type SequenceFrame = {
+  terms: string[]
+  /** "…" after the terms: the sequence carries on. */
+  more?: boolean
+  hops?: { labels: string[]; at: number }
+  rows?: { label: string; cells: string[]; family: number; at: number; answer?: boolean }[]
+  /** Carrying on from the last term: a jump into each new term, "?" until it is worked out, green once it is. */
+  next?: { hops: string[]; terms: string[]; filled: boolean; at: number }
+  lines?: { text: string; family: number; at: number }[]
+  answer?: { text: string; at: number }
+  /** This step's number (0 is step 1), and the part it adds, where its heading goes. */
+  step: number
+  adds: 'hops' | 'row' | 'next' | 'lines' | 'answer'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
@@ -162,6 +182,7 @@ export type MethodFrame = {
   equation?: EquationFrame
   quadratic?: QuadraticFrame
   solve?: SolveFrame
+  sequence?: SequenceFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>
