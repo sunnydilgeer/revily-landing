@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, type Ref } from 'react'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { MethodWorkedExample } from './MethodWorkedExample'
+import { StepWorkedExample } from './StepWorkedExample'
 import { FractionWorkedExample } from '../../fractions/tutor/FractionWorkedExample'
 import { ConversionWorkedExample } from '../../fractions-decimals-percentages/tutor/ConversionWorkedExample'
 import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fractionDiagnosis'
@@ -214,7 +215,8 @@ function FormulaAnswerInput({ id, disabled, onChange }: { id: string; disabled: 
 
 function WorkingPanel({ visual, ref }: { visual: TutorWorking; ref?: Ref<HTMLDivElement> }) {
   return <div className="pvb-stage rung-working-panel" ref={ref}>
-    {visual.kind === 'fraction-worked' ? <FractionWorkedExample visual={visual} />
+    {visual.kind === 'step-worked' ? <StepWorkedExample working={visual} />
+      : visual.kind === 'fraction-worked' ? <FractionWorkedExample visual={visual} />
       : visual.kind === 'conversion-worked' ? <ConversionWorkedExample visual={visual} />
       : <MethodWorkedExample visual={visual} />}
   </div>
@@ -285,7 +287,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   // The question's own grid or bus stop is drawn again, step by step, in its working; once that is open, show it once.
   const drawnInWorking = Boolean(feedback && showWorking && state.working && (state.visual.kind === 'diagram' || state.visual.kind === 'grid'))
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
-  const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
+  const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
   return <section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}

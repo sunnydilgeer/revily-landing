@@ -17,7 +17,7 @@ export function isNumberSenseWorking(visual: MethodWorking) {
   return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
 }
 
-function RoundingVisual({ frame }: { frame: RoundingFrame }) {
+export function RoundingVisual({ frame }: { frame: RoundingFrame }) {
   if (frame.stage === 'result') return <div className="ns-result"><span className="ns-original">{frame.original}</span><span aria-hidden="true">→</span><strong>{frame.answer}</strong></div>
   return <>
     <div className="ns-rounding" role="img" aria-label={frame.chop ? `${frame.original}. Keep ${frame.kept}. Chop off the rest.` : `${frame.original}. Keep ${frame.kept}. The decision digit is ${frame.decisionDigit}.`}>

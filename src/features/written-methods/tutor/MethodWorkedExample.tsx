@@ -166,6 +166,8 @@ function Venn({ frame }: { frame: MethodFrame }) {
   </div>
 }
 
+/** A method's own picture for one frame (used by step workings too, for factor trees, lists and Venn diagrams). */
+export { WorkingDiagram as MethodPicture }
 function WorkingDiagram({ example, frame, step }: { example: MethodExample; frame: MethodFrame; step?: MethodStep }) {
   if (example.method === 'column') return <Column example={example} frame={frame} step={step} />
   if (example.method === 'grid') return <Grid example={example} frame={frame} step={step} />
