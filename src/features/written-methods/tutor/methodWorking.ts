@@ -167,7 +167,7 @@ export type SequenceFrame = {
   /** Carrying on from the last term: a jump into each new term, "?" until it is worked out, green once it is. */
   next?: { hops: string[]; terms: string[]; filled: boolean; at: number }
   lines?: { text: string; family: number; at: number }[]
-  answer?: { text: string; at: number; parts?: { text: string; label: string }[] }
+  answer?: { text: string; at: number; parts?: { text: string; label: string; family?: number }[] }
   /** This step's number (0 is step 1), and the part it adds, where its heading goes. */
   step: number
   adds: 'hops' | 'row' | 'next' | 'lines' | 'answer'
