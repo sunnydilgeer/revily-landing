@@ -7,6 +7,7 @@ import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
 import { ExpandVisual } from './GridPictures'
 import { EquationVisual } from './EquationPictures'
+import { QuadraticVisual } from './QuadraticPictures'
 import { Boxed, Powers } from './Powers'
 import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
@@ -176,7 +177,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
   const answer = own.ordering?.answer ?? (own.rounding?.stage === 'result' ? own.rounding.answer : undefined)
   const rule = own.rounding && own.rounding.stage !== 'identify' && !own.rounding.chop
-  const at = newTiles ? 'tiles' : own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
+  const at = own.quadratic ? 'quadratic' : newTiles ? 'tiles' : own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
   return <>
     {at === 'picture' && heading}
     {terms && <TermsVisual frame={{ terms: terms.terms }} />}
@@ -184,7 +185,8 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
     {expand && <ExpandVisual frame={expand} />}
-    {board && <EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} />}
+    {board && <EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} focus={example.focus} />}
+    {own.quadratic && <QuadraticVisual frame={own.quadratic} heading={heading} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
     {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
@@ -235,6 +237,7 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
           ? { given: true, grids: first.expand.grids.map(grid => ({ side: grid.side.map(() => '?'), top: grid.top.map(() => '?'), cells: grid.cells?.map(row => row.map(cell => ({ text: cell.text }))) })) }
           : { grids: first.expand.grids.map(grid => ({ ...grid, cells: undefined })) }} /></div>
         // The equation as the question writes it, before any move: the board's first row, in plain ink.
+        if (first?.quadratic) return <div className="ns-visual rung-worked__visual"><QuadraticVisual frame={first.quadratic} plain /></div>
         if (first?.equation) return <div className="ns-visual rung-worked__visual"><EquationVisual frame={{ rows: first.equation.rows.slice(0, 1) }} plain /></div>
         if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>

@@ -194,3 +194,42 @@
 .ns-tiles__label { color: var(--f); font-size: 15px; font-weight: 700; }
 /* The answer: the last row of an equation's working, in a green box like the videos. The working ends here. */
 .ns-eq__answer { grid-column: 1 / -1; justify-self: center; margin: 6px 0 0; padding: 4px 20px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-size: clamp(21px, 5.6vw, 26px); font-weight: 700; white-space: nowrap; }
+/* Formulas on the board (lesson 20): a root over a whole fraction or bracket, the move in purple inside a token. */
+.ns-eq__move { color: #7c3aed; }
+.ns-eq__rooted { display: inline-flex; align-items: flex-start; }
+.ns-eq__root { display: inline-flex; align-items: stretch; }
+.ns-eq__radical { position: relative; display: flex; width: .62em; margin-right: -1px; }
+.ns-eq__radical svg { width: 100%; height: 100%; overflow: visible; }
+.ns-eq__radical.ns-shared { width: calc(.62em + 10px); padding: 2px 3px; }
+/* A cancelled root: a red line through the sign, like the struck numbers. */
+.ns-eq__radical.is-cancelled { opacity: .75; }
+.ns-eq__radical.is-cancelled::after { content: ""; position: absolute; left: -3px; right: -3px; top: 50%; border-top: 2px solid #dc2626; transform: rotate(-35deg); }
+.ns-eq__under { display: inline-flex; align-items: center; padding: 4px 3px 1px; border-top: 2px solid currentColor; }
+.ns-eq__answer-side { display: inline-flex; align-items: center; gap: 0 5px; vertical-align: middle; }
+.ns-eq__answer .ns-eq__token { color: inherit; }
+.ns-eq__answer:has(.ns-eq__frac) { border-radius: 22px; }
+/* Factorising a quadratic into two brackets (lesson 21, QuadraticPictures.tsx). */
+.ns-quad { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-quad p { margin: 0; }
+.ns-quad__question { color: var(--rv-ink); white-space: nowrap; }
+.ns-quad__job { padding: 0 4px; border: 2px solid var(--f); border-radius: 6px; color: var(--f); }
+.ns-quad__shape { display: grid; gap: 6px; justify-items: center; }
+.ns-quad__shape > p { color: var(--f, var(--rv-ink)); white-space: nowrap; }
+.ns-quad__signs { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; color: #7c3aed; font-size: .9em; }
+.ns-quad__pairs { display: grid; grid-template-columns: max-content max-content; gap: 6px 18px; margin: 0; padding: 0; list-style: none; }
+.ns-quad__pairs li { display: contents; }
+.ns-quad__pairs li > span.is-f1 { grid-column: 1; }
+.ns-quad__pairs li > span { padding: 2px 6px; border-radius: 8px; text-align: left; white-space: nowrap; color: var(--f); }
+.ns-quad__pairs li.is-pick > span { background: color-mix(in srgb, #7c3aed 10%, transparent); }
+.ns-quad__pairs li.is-pick > span.is-f1 { color: #7c3aed; }
+.ns-quad__and { font-size: .75em; font-weight: 500; color: var(--rv-muted); }
+.ns-quad__yes { color: var(--rv-good); }
+.ns-quad__no { color: #dc2626; }
+.ns-quad__answer { justify-self: auto; margin: 0; }
+@media (max-width: 360px) { .ns-quad__pairs { column-gap: 8px; } }
+/* Working a step has finished with, greyed out so the current step stands out (MethodExample.focus: A5 on). */
+.ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done { opacity: .35; transition: opacity .2s ease; }
+.ns-quad__answer .is-f1, .ns-quad__answer .is-f3 { color: var(--f); }
+/* A board or quadratic picture takes the frame's full width, so a short formula (A = 6s²) doesn't squeeze its step
+   headings and ⓘ text into a narrow column; the rows stay centred. */
+.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad) { flex: 1; min-width: 0; }

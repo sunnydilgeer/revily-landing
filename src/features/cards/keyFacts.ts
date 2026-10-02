@@ -219,4 +219,16 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'equations-brackets': [['Solve 2(3x + 1) = x + 22.', 'x = 4. Multiply out: 2 × 3x = 6x and 2 × 1 = 2, so 6x + 2 = x + 22. Then 5x = 20.']],
     'equations-fractions': [['Solve (2x + 1)/3 = 5.', 'x = 7. Multiply both sides by 3: 2x + 1 = 15. Then 2x = 14.']],
   },
+  20: {
+    'rearrange-linear': [['Make m the subject of C = 3m + 5.', 'm = (C − 5)/3. Subtract 5 from both sides: C − 5 = 3m. Then divide all of C − 5 by 3.']],
+    'rearrange-fractions': [['Make a the subject of M = (a + b)/2.', 'a = 2M − b. Multiply both sides by 2 to clear the fraction: 2M = a + b. Then subtract b.']],
+    'rearrange-squares': [['Make s the subject of A = 6s².', 's = √(A/6). Divide both sides by 6: A/6 = s². Then square root the whole of A/6.']],
+    'rearrange-roots': [['Make h the subject of t = √(h/5).', 'h = 5t². Square both sides to undo the root: t² = h/5. Then multiply both sides by 5.']],
+  },
+  21: {
+    'quadratics-positive': [['Factorise x² + 8x + 15.', '(x + 3)(x + 5). 3 and 5 multiply to 15 and add to 8.']],
+    'quadratics-negative-middle': [['Factorise x² − 9x + 20.', '(x − 4)(x − 5). The last number is positive and the middle negative, so both numbers are negative: −4 × −5 = 20 and −4 + −5 = −9.']],
+    'quadratics-negative-last': [['Factorise x² + 2x − 15.', '(x − 3)(x + 5). The last number is negative, so one number is negative: −3 × 5 = −15 and −3 + 5 = 2.']],
+    'quadratics-difference-of-squares': [['Factorise x² − 49.', '(x + 7)(x − 7). 49 is 7 × 7. One bracket plus, one minus, so the middle terms cancel.']],
+  },
 }

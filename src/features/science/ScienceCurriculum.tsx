@@ -4,41 +4,57 @@
  * Science curriculum home. Same contents layout as Maths: the AQA units down the left, one subject at a time,
  * and the chosen unit's lessons on a line on the right. The unit you're in is chosen to start with.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../ui'
-import { Lock, TocChapter, TocLesson, type TocStatus } from '../maths/Curriculum'
-import { scienceSubjectLessonHref, scienceSubjects, type ScienceCatalogueEntry } from './lessonNavigation'
+import { CurriculumSearch, Lock, TocChapter, TocLesson, type SearchResult, type TocStatus } from '../maths/Curriculum'
+import { scienceEntryHref, scienceSubjects, scienceSubjectTitle, type ScienceCatalogueEntry } from './lessonNavigation'
 import { scienceLessonMinutes } from './lessonMinutes'
-import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceCatalogue, scienceUnits, sectionStatus, type ScienceProgressMap } from './scienceProgress'
+import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceUnitsForTier, sectionStatus, type ScienceProgressMap } from './scienceProgress'
+import { forTier, readScienceTier, saveScienceTier, scienceCatalogueForTier, type ScienceTier } from './tier'
+import { HigherBadge } from './higher/HigherBadge'
 import '../maths/Curriculum.css'
 import './ScienceCurriculum.css'
 
 // Science lessons still open in the Science lesson player for now.
-function onOpenLesson(entry: ScienceCatalogueEntry) {
+function onOpenLesson(entry: ScienceCatalogueEntry, section?: string) {
   saveScienceLastLesson(entry)
-  window.location.assign(scienceSubjectLessonHref(entry.subject, entry.number))
+  window.location.assign(scienceEntryHref(entry, section))
 }
+const stripChapter = (title: string) => title.replace(/^Chapter \d+ · /, '')
 
 // A subject becomes a real section of the curriculum as soon as it has one lesson; until then it is listed under Coming later.
 const LATER = scienceSubjects.filter(item => item.lessons.length === 0).map(item => ({ code: item.code, title: item.title }))
 const shownSubjects = scienceSubjects.filter(item => item.lessons.length > 0)
-const shownUnits = scienceUnits.filter(unit => shownSubjects.some(item => item.subject === unit.subject))
+const shownUnitsFor = (tier: ScienceTier) => scienceUnitsForTier(tier).filter(unit => shownSubjects.some(item => item.subject === unit.subject))
 
 export default function ScienceCurriculum() {
   const [progress, setProgress] = useState<ScienceProgressMap>({})
   const [last, setLast] = useState<ScienceCatalogueEntry | null>(null)
+  const [tier, setTier] = useState<ScienceTier>('foundation')
   useEffect(() => {
-    setProgress(readScienceProgress())
-    setLast(readScienceLastLesson())
+    const saved = readScienceTier()
+    setTier(saved)
+    setProgress(readScienceProgress(saved))
+    setLast(readScienceLastLesson(saved))
   }, [])
+  function chooseTier(next: ScienceTier) {
+    saveScienceTier(next)
+    setTier(next)
+    setProgress(readScienceProgress(next))
+    setLast(readScienceLastLesson(next))
+  }
+  // Foundation never gets a Higher-only lesson: not in the list, the counts, the progress or Up next.
+  const scienceCatalogue = scienceCatalogueForTier(tier)
+  const shownUnits = shownUnitsFor(tier)
   const nextIncomplete = scienceCatalogue.find(item => !progress[item.lesson.id]?.completed)
   const upNext = last && progress[last.lesson.id]?.started && !progress[last.lesson.id]?.completed ? last : nextIncomplete ?? last ?? scienceCatalogue[0]
   const upNextStatus = progress[upNext.lesson.id]
-  const upNextSections = upNextStatus?.sections ?? sectionStatus(upNext.lesson, upNext.sections, null)
+  const upNextTiered = forTier(upNext, tier)
+  const upNextSections = upNextStatus?.sections ?? sectionStatus(upNextTiered.lesson, upNextTiered.sections, null)
   const current = upNextSections.findIndex(section => section.current && !section.done)
   const upNextIndex = current >= 0 ? current : Math.max(0, upNextSections.findIndex(section => !section.done))
   const doneLessons = scienceCatalogue.filter(item => progress[item.lesson.id]?.completed).length
-  const upNextUnit = scienceUnits.find(unit => unit.lessons.includes(upNext))!.code
+  const upNextUnit = shownUnits.find(unit => unit.lessons.includes(upNext))!.code
   // The unit you're in is shown until you pick another; the saved last lesson arrives after the first render.
   const [picked, setPicked] = useState<string | null>(null)
   const selected = picked ?? upNextUnit
@@ -48,11 +64,31 @@ export default function ScienceCurriculum() {
   const [pickedSubject, setListSubject] = useState<string | null>(null)
   const listSubject = pickedSubject ?? unit?.subject ?? upNext.subject
 
+  // Search matches lesson and section titles in every subject; a section opens its lesson at that section.
+  const [query, setQuery] = useState('')
+  const results = useMemo<SearchResult[] | null>(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return null
+    return shownUnitsFor(tier).flatMap(item => item.lessons.flatMap(raw => {
+      const entry = forTier(raw, tier)
+      const where = `${scienceSubjectTitle(entry.subject)} · ${item.code}`
+      return [
+        ...(entry.title.toLowerCase().includes(q) ? [{ key: entry.lesson.id, title: entry.title, label: `Lesson · ${where} ${item.title}`, onPick: () => onOpenLesson(entry) }] : []),
+        ...sectionStatus(entry.lesson, entry.sections, null).filter(section => stripChapter(section.title).toLowerCase().includes(q))
+          .map(section => ({ key: `${entry.lesson.id}-${section.id}`, title: stripChapter(section.title), label: `Section · ${where} · ${entry.title}`, onPick: () => onOpenLesson(entry, section.id) })),
+      ]
+    }))
+  }, [query, tier])
+
   return <div className="cur">
     <header className="cur-head">
       <div>
         <h1>Curriculum</h1>
-        <p>AQA Combined Science Trilogy · Foundation · {shownUnits.length} units</p>
+        <p>AQA Combined Science Trilogy · {tier === 'higher' ? 'Higher' : 'Foundation'} · {shownUnits.length} units</p>
+        <div className="cur-tier" role="group" aria-label="Tier">
+          {(['foundation', 'higher'] as const).map(option => <button key={option} type="button" aria-pressed={tier === option}
+            onClick={() => chooseTier(option)}>{option === 'higher' ? 'Higher' : 'Foundation'}</button>)}
+        </div>
       </div>
       <div className="cur-overall" aria-label={`${doneLessons} of ${scienceCatalogue.length} lessons complete`}>
         <div className="cur-overall__bar" aria-hidden="true"><span style={{ width: `${doneLessons / scienceCatalogue.length * 100}%` }} /></div>
@@ -60,7 +96,9 @@ export default function ScienceCurriculum() {
       </div>
     </header>
 
-    <div className="cur-toc">
+    <CurriculumSearch query={query} onQuery={setQuery} placeholder="Search lessons and sections" results={results} />
+
+    {!results && <div className="cur-toc">
       <nav className="cur-toc__chapters" aria-label="Units">
         <div className="cur-toc__subjects" role="group" aria-label="Subject">
           {shownSubjects.map(subject => <button key={subject.code} type="button" aria-pressed={subject.subject === listSubject}
@@ -86,11 +124,11 @@ export default function ScienceCurriculum() {
             {unit.lessons.map(item => {
               const record = progress[item.lesson.id]
               const status: TocStatus = record?.completed ? 'done' : item === upNext ? 'next' : record?.started ? 'progress' : 'todo'
-              const minutes = scienceLessonMinutes(item.lesson)
+              const minutes = scienceLessonMinutes(forTier(item, tier).lesson)
               const detail = upNextStatus?.started
                 ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
                 : `Start here · ${upNextSections.length} sections · ${minutes} min`
-              return <TocLesson key={item.lesson.id} status={status} title={item.title} minutes={minutes} detail={detail}
+              return <TocLesson key={item.lesson.id} status={status} title={item.title} badge={item.higherOnly && <HigherBadge />} minutes={minutes} detail={detail}
                 action={status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(item)} />
             })}
           </ol>
@@ -102,6 +140,6 @@ export default function ScienceCurriculum() {
         <p className="sci-draft-note">Draft content, awaiting review by a qualified teacher.</p>
       </section>
 
-    </div>
+    </div>}
   </div>
 }
