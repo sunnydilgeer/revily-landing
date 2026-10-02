@@ -63,9 +63,7 @@ function solveModel(middle: number, last: number, { letter = 'x', start, given }
   const zero = `${quadratic(letter, middle, last)} = 0`
   const question = given ? `${brackets(letter, given)} = 0` : start?.question ?? zero
   const board = start && [row(start.question), ...start.rows.map(row), row(zero)]
-  // "+ 1x" reads as "+ x", as the question writes it.
   const signs = signsOf(middle, last)
-  if (signs) signs.lines = signs.lines.map(line => line.replace(new RegExp(`([+−]) 1${letter}:`), `$1 ${letter}:`))
   const steps: MethodStep[] = []
   let frame: SolveFrame = { letter, middle, last, board, given: Boolean(given), brackets: given, adds: 'zero' }
   // Each step's textbook step (1–4) is drawn above its heading by the picture (stageOf in SolvePictures.tsx).

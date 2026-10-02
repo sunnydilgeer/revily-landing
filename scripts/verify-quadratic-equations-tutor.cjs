@@ -98,6 +98,7 @@ for (const [ref, [letter, b, c, answers]] of Object.entries(equations)) {
   }
   assert.ok(!steps.some(step => /answer/i.test(step.title)), `${state.id}: no separate answer step`)
   assert.ok(!frames.some(frame => frame.signs?.some(line => / 1[a-z]:/.test(line))), `${state.id}: the sign lines write x, not 1x`)
+  assert.ok(frames.every(frame => !frame.signs || (frame.signs.length === 1 && !/bigger/.test(frame.signs[0]))), `${state.id}: the signs are one sentence, saying further from 0, not bigger`)
   const last = frames.at(-1)
   assert.deepEqual(sorted(last.brackets.map(n => -n)), sorted(answers), `${state.id}: the brackets give ${answers}`)
   assert.equal(frames.filter(frame => frame.solve).length, 1, `${state.id}: the answer appears once, at the last step`)
