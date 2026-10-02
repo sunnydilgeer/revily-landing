@@ -128,8 +128,13 @@ export default function ScienceCurriculum() {
               const detail = upNextStatus?.started
                 ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
                 : `Start here · ${upNextSections.length} sections · ${minutes} min`
-              return <TocLesson key={item.lesson.id} status={status} title={item.title} badge={item.higherOnly && <HigherBadge />} minutes={minutes} detail={detail}
-                action={status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(item)} />
+              const tiered = forTier(item, tier)
+              const sections = item === upNext ? upNextSections : sectionStatus(tiered.lesson, tiered.sections, null)
+              return <TocLesson key={item.lesson.id} id={item.lesson.id} status={status} title={item.title} badge={item.higherOnly && <HigherBadge />} minutes={minutes} detail={detail}
+                action={status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(item)}
+                sections={sections.map(section => ({ id: section.id, title: stripChapter(section.title), badge: section.higher && <HigherBadge /> }))}
+                currentSectionId={status === 'next' && upNextStatus?.started ? sections.find(section => section.current)?.id : undefined}
+                onOpenSection={sectionId => onOpenLesson(item, sectionId)} />
             })}
           </ol>
         </> : <div className="cur-panel__later">

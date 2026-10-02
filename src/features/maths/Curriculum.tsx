@@ -59,21 +59,48 @@ export function TocChapter({ code, title, meta, selected, locked, onSelect }: { 
 }
 
 /** One lesson on the chapter's line: the next lesson is a highlighted card with its button, every other lesson is a single row. */
-export function TocLesson({ status, title, badge, minutes, detail, action, onOpen }: { status: TocStatus; title: string; badge?: ReactNode; minutes: number; detail: string; action: string; onOpen: () => void }) {
+export type TocSection = { id: string; title: string; badge?: ReactNode }
+
+const Chevron = () => <svg className="cur-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+
+/**
+ * One lesson on the chapter's line. Tapping a lesson folds its sections open, the same as in Contents; a section
+ * opens the lesson at that point. The next lesson is a highlighted card with its Start button and its sections open.
+ */
+export function TocLesson({ id, status, title, badge, minutes, detail, action, sections, currentSectionId, onOpen, onOpenSection }: {
+  id: string; status: TocStatus; title: string; badge?: ReactNode; minutes: number; detail: string; action: string
+  sections: TocSection[]; currentSectionId?: string; onOpen: () => void; onOpenSection: (sectionId: string) => void
+}) {
+  const [open, setOpen] = useState(status === 'next')
+  const listId = `cur-sections-${id}`
+  const list = open && <ol className="cur-sections" id={listId} aria-label={`${title} sections`}>
+    {sections.map(section => <li key={section.id}>
+      <button type="button" aria-current={section.id === currentSectionId ? 'step' : undefined} onClick={() => onOpenSection(section.id)}>
+        <span className="cur-section__dot" aria-hidden="true" />{section.title}{section.badge}
+      </button>
+    </li>)}
+  </ol>
   if (status === 'next') return <li className="cur-lesson is-next">
-    <span className="cur-lesson__dot" aria-hidden="true" />
-    <div className="cur-lesson__body">
-      <h3>{title}{badge}</h3>
-      <p>{detail}</p>
+    <div className="cur-lesson__card">
+      <span className="cur-lesson__dot" aria-hidden="true" />
+      <div className="cur-lesson__body">
+        <h3>{title}{badge}</h3>
+        <p>{detail}</p>
+      </div>
+      <Button variant="dark" className="cur-lesson__go" onClick={onOpen} aria-label={`${action} ${title}`}><Play />{action}</Button>
+      <button type="button" className="cur-lesson__fold" aria-expanded={open} aria-controls={listId}
+        aria-label={`${open ? 'Hide' : 'Show'} sections in ${title}`} onClick={() => setOpen(!open)}><Chevron /></button>
     </div>
-    <Button variant="dark" className="cur-lesson__go" onClick={onOpen} aria-label={`${action} ${title}`}><Play />{action}</Button>
+    {list}
   </li>
   return <li className={`cur-lesson is-${status}`}>
-    <button type="button" className="cur-lesson__row" onClick={onOpen} aria-label={`${action} ${title}${status === 'done' ? ' (done)' : status === 'progress' ? ' (in progress)' : ''}`}>
+    <button type="button" className="cur-lesson__row" aria-expanded={open} aria-controls={listId} onClick={() => setOpen(!open)}>
       <span className="cur-lesson__dot" aria-hidden="true">{status === 'done' ? '✓' : ''}</span>
-      <span className="cur-lesson__title">{title}{badge}</span>
+      <span className="cur-lesson__title">{title}{badge}{status === 'done' && <span className="cur-sr"> (done)</span>}{status === 'progress' && <span className="cur-sr"> (in progress)</span>}</span>
       <small>{minutes} min</small>
+      <Chevron />
     </button>
+    {list}
   </li>
 }
 
@@ -146,8 +173,10 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
               const detail = upNextSnapshot
                 ? `Up next · section ${upNextRungIndex + 1} of ${upNextRungs.length} · ${upNextRungs[upNextRungIndex]?.title}`
                 : `Start here · ${upNextRungs.length} sections · ${minutes} min`
-              return <TocLesson key={entry.lessonId} status={status} title={entry.title} minutes={minutes} detail={detail}
-                action={status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(entry.number)} />
+              return <TocLesson key={entry.lessonId} id={entry.lessonId} status={status} title={entry.title} minutes={minutes} detail={detail}
+                action={status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(entry.number)}
+                sections={entry.sections} currentSectionId={status === 'next' ? snapshot?.currentSectionId : undefined}
+                onOpenSection={sectionId => onOpenLesson(entry.number, sectionId)} />
             })}
           </ol>
         </> : <div className="cur-panel__later">
