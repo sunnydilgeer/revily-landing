@@ -172,7 +172,7 @@ export type InteractionDefinition = {
 }
 
 export type FeedbackDefinition = {
-  workedExplanation?: { steps: Array<{ title: string; lines: string[] }>; answer: string; answerLabel?: string }
+  workedExplanation?: { steps: Array<{ title: string; lines: string[]; /** The ⓘ text: words, not maths. A working whose steps all have one is drawn one move a step (LinesWorking). */ why?: string }>; answer: string; answerLabel?: string }
   message: string
   evidence?: string
   visualAction?: VisualAction
