@@ -108,6 +108,8 @@ export const aqaMarks: Record<string, number> = {
   '21:quadratics-negative-middle': 1,
   '21:quadratics-negative-last': 2,
   '21:quadratics-difference-of-squares': 1,
+  // Estimates, not yet counted from the 18 papers: solving a quadratic by factorising comes up most sittings, usually for 2–3 marks.
+  '22:quadratic-equations': 2,
 }
 
 /**

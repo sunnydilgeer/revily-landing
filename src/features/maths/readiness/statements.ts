@@ -119,5 +119,7 @@ export const canStatements: Record<string, string> = {
   '21:quadratics-negative-middle': 'I can factorise a quadratic with a negative middle term, like x² − 9x + 20 = (x − 4)(x − 5)',
   '21:quadratics-negative-last': 'I can factorise a quadratic with a negative last term, like x² + 2x − 15 = (x − 3)(x + 5)',
   '21:quadratics-difference-of-squares': 'I can factorise the difference of two squares, like x² − 49 = (x + 7)(x − 7)',
+
+  '22:quadratic-equations': 'I can solve a quadratic like x² + x = 20 by making one side 0, factorising and setting each bracket to 0',
 }
 

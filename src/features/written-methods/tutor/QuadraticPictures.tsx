@@ -27,7 +27,7 @@ function Question({ frame, plain }: { frame: QuadraticFrame; plain?: boolean }) 
 }
 
 /** The factor pairs of c, one a line, then what each adds to once checked: the pair that works is ticked and purple. */
-function Pairs({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
+export function Pairs({ frame, done = '' }: { frame: QuadraticFrame; done?: string }) {
   const bracket = (n: number) => n < 0 ? `(${minus(n)})` : String(n)
   return <ul className={`ns-quad__pairs${done}`} aria-hidden="true">{(frame.pairs ?? []).map(([a, b], i) => <li key={i} className={frame.sums && i === frame.pick ? 'is-pick' : undefined}>
     <span className="is-f1">{minus(a)} × {bracket(b)}</span>
