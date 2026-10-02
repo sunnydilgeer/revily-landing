@@ -86,7 +86,8 @@ for (const [ref, [letter, b, c, answers]] of Object.entries(equations)) {
   assert.ok(frames.every(frame => frame && frame.letter === letter && frame.middle === b && frame.last === c), `${state.id}: every step is drawn on the solving picture, for the question`)
   const order = frames.map(frame => frame.adds)
   const given = frames[0].given
-  const expected = [...(frames[0].board ? ['zero'] : []), ...(given ? [] : ['pairs', 'sums', 'brackets']), 'split', 'solve']
+  const flips = !(b > 0 && c > 0)
+  const expected = [...(frames[0].board ? ['zero'] : []), ...(given ? [] : ['pairs', ...(flips ? ['flip'] : []), 'sums', 'brackets']), 'split', 'solve']
   assert.deepEqual(order, expected, `${state.id}: one move a step, in the textbook's order`)
   // The tags follow the textbook's four steps, never going back.
   const tagIndex = frames.map(frame => tags.indexOf(stageOf[frame.adds]))
@@ -97,8 +98,6 @@ for (const [ref, [letter, b, c, answers]] of Object.entries(equations)) {
     stepsChecked++
   }
   assert.ok(!steps.some(step => /answer/i.test(step.title)), `${state.id}: no separate answer step`)
-  assert.ok(!frames.some(frame => frame.signs?.some(line => / 1[a-z]:/.test(line))), `${state.id}: the sign lines write x, not 1x`)
-  assert.ok(frames.every(frame => !frame.signs || (frame.signs.length === 1 && !/bigger/.test(frame.signs[0]))), `${state.id}: the signs are one sentence, saying further from 0, not bigger`)
   const last = frames.at(-1)
   assert.deepEqual(sorted(last.brackets.map(n => -n)), sorted(answers), `${state.id}: the brackets give ${answers}`)
   assert.equal(frames.filter(frame => frame.solve).length, 1, `${state.id}: the answer appears once, at the last step`)
@@ -119,7 +118,11 @@ for (const [ref, [letter, b, c, answers]] of Object.entries(equations)) {
   }
   // The headings name the real numbers.
   const titles = steps.map(step => step.title)
-  if (!given) assert.ok(titles.includes(`Factor pairs of ${String(c).replace('-', '−')}`) && titles.includes(`Which pair adds to ${String(b).replace('-', '−')}?`), `${state.id}: the factorising headings name ${c} and ${b}`)
+  if (!given) assert.ok(titles.includes(`Factor pairs of ${Math.abs(c)}`) && titles.includes(`Which pair adds to ${String(b).replace('-', '−')}?`), `${state.id}: the factorising headings name ${c} and ${b}`)
+  if (!given) {
+    const flipTitle = c > 0 ? 'Make both negative' : b > 0 ? 'Make the smaller one negative' : 'Make the bigger one negative'
+    assert.equal(titles.includes(flipTitle), flips, `${state.id}: ${flips ? `"${flipTitle}"` : 'no flip step'}`)
+  }
   const undo = titles.at(-1).toLowerCase()
   for (const n of [p, q]) assert.ok(undo.includes(`${n < 0 ? 'add' : 'subtract'} ${Math.abs(n)}`), `${state.id}: the last heading says how to undo ${n}`)
 }
@@ -170,8 +173,8 @@ for (const ref of Object.keys(equations)) {
     // What this step works on and adds stays clear: count the parts above that, row by row.
     const questionRows = frame.board ? frame.board.length - 1 : 0 // the question and the rows of its move; the 0 row is its own part
     const zeroRows = frame.given ? 0 : 1
-    const pairRows = frame.pairs ? (frame.signs ? 2 : 1) : 0
-    const grey = { zero: 0, pairs: questionRows, sums: questionRows, brackets: questionRows, split: questionRows + zeroRows + pairRows, solve: questionRows + zeroRows + pairRows + 1 }[frame.adds]
+    const pairRows = frame.pairs ? 1 : 0
+    const grey = { zero: 0, pairs: questionRows, flip: questionRows, sums: questionRows, brackets: questionRows, split: questionRows + zeroRows + pairRows, solve: questionRows + zeroRows + pairRows + 1 }[frame.adds]
     assert.equal(dimmed, i === 0 ? 0 : grey, `${ref} step ${i + 1} (${frame.adds}): ${grey} finished rows greyed out`)
     assert.ok(!/ns-eq__answer[^"]*is-done/.test(html), `${ref} step ${i + 1}: the answer stays clear`)
     if (frame.adds === 'solve') assert.equal((html.match(/ns-eq__answer/g) ?? []).length, 1, `${ref}: one green answer`)

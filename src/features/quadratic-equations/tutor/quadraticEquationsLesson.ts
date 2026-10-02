@@ -3,7 +3,7 @@ import { author } from '../../written-methods/tutor/content'
 import type { EquationRow, MethodStep, SolveFrame, WorkingLine } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
-import { pairsOf, signsOf } from '../../quadratics/tutor/quadraticsLesson'
+import { flipOf, pairsOf } from '../../quadratics/tutor/quadraticsLesson'
 import { quadratic } from '../../quadratics/tutor/quadraticsDiagnosis'
 import { diagnoseSlips } from '../../equations/tutor/equationsDiagnosis'
 import { diagnoseSolve } from './quadraticEquationsDiagnosis'
@@ -63,7 +63,7 @@ function solveModel(middle: number, last: number, { letter = 'x', start, given }
   const zero = `${quadratic(letter, middle, last)} = 0`
   const question = given ? `${brackets(letter, given)} = 0` : start?.question ?? zero
   const board = start && [row(start.question), ...start.rows.map(row), row(zero)]
-  const signs = signsOf(middle, last)
+  const flip = flipOf(middle, last)
   const steps: MethodStep[] = []
   let frame: SolveFrame = { letter, middle, last, board, given: Boolean(given), brackets: given, adds: 'zero' }
   // Each step's textbook step (1–4) is drawn above its heading by the picture (stageOf in SolvePictures.tsx).
@@ -73,7 +73,8 @@ function solveModel(middle: number, last: number, { letter = 'x', start, given }
   }
   if (start) step(start.title, tex(zero), start.say, { ...frame, board: [row(start.marked), ...board!.slice(1)] })
   if (!given) {
-    step(`Factor pairs of ${signed(last)}`, pairs.map(([a, b]) => `${a}\\times ${b}`).join(',\\ '), `List every pair that multiplies to make the last number.${signs?.say ?? ''}`, { ...frame, board, signs: signs?.lines, pairs, adds: 'pairs' })
+    step(`Factor pairs of ${Math.abs(last)}`, pairs.map(([a, b]) => `${Math.abs(a)}\\times ${Math.abs(b)}`).join(',\\ '), `List every pair that multiplies to make the last number.${flip ? ' Leave the signs for the next step.' : ''}`, { ...frame, board, pairs, adds: 'pairs' })
+    if (flip) step(flip.title, pairs.map(([a, b]) => `${a}\\times ${b}`).join(',\\ '), flip.say, { ...frame, flipped: true, adds: 'flip' })
     step(`Which pair adds to ${signed(middle)}?`, pairs.map(([a, b]) => `${a}+${b}=${a + b}`).join(',\\ '), `Add each pair. The one that makes the middle number is your pair.${Math.abs(middle) === 1 ? ` ${letter} on its own means 1${letter}.` : ''}`, { ...frame, sums: true, pick, adds: 'sums' })
     step('Into the brackets', tex(`${brackets(letter, pair)} = 0`), `Each number goes into its own bracket after ${letter}, with its sign. The other side is still 0.`, { ...frame, brackets: pair, adds: 'brackets' })
   }

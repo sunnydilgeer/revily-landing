@@ -93,13 +93,23 @@ for (const [ref, [letter, b, c, [p, q]]] of Object.entries(quadratics)) {
     assert.equal(Math.sqrt(-c) ** 2, -c, `${state.id}: ${-c} is a square`)
     continue
   }
-  // Each step adds one part of the picture, in order, and the signs step comes only when a sign is negative.
+  // Each step adds one part of the picture, in order. With a minus, the pairs are listed plain, then a step flips their
+  // signs (Sunny, 2 Oct): both negative, the smaller one negative, or the bigger one negative.
   const order = frames.map(frame => frame.adds)
-  assert.deepEqual(order, ['pairs', 'sums', 'answer'], `${state.id}: three steps, the factor pairs, the one that adds up, then the brackets`)
-  assert.equal(Boolean(last.signs), !(b > 0 && c > 0), `${state.id}: a line on the signs only when there is a minus`)
-  // One sentence (Sunny, 2 Oct), and "further from 0", not "bigger": in −6 and 4 the −6 takes the middle's sign.
-  if (last.signs) assert.ok(last.signs.length === 1 && !/bigger/.test(last.signs[0]) && (c > 0 || last.signs[0].includes('further from 0')), `${state.id}: the signs are one sentence`)
-  assert.deepEqual(steps.map(step => step.title), [`Factor pairs of ${String(c).replace('-', '−')}`, `Which pair adds to ${String(b).replace('-', '−')}?`, 'Into the brackets'], `${state.id}: the headings name the numbers`)
+  const flips = !(b > 0 && c > 0)
+  assert.deepEqual(order, flips ? ['pairs', 'flip', 'sums', 'answer'] : ['pairs', 'sums', 'answer'], `${state.id}: the factor pairs, ${flips ? 'their signs, ' : ''}the one that adds up, then the brackets`)
+  const flipTitle = c > 0 ? 'Make both negative' : b > 0 ? 'Make the smaller one negative' : 'Make the bigger one negative'
+  if (flips) {
+    // The plain pairs are the factor pairs of |c|; flipping them gives the signed pairs, by the rule in the heading.
+    for (const [m, n] of last.pairs) {
+      const [small, big] = [Math.abs(m), Math.abs(n)]
+      assert.ok(small <= big, `${state.id}: pairs listed smaller first`)
+      const wanted = c > 0 ? [-small, -big] : b > 0 ? [-small, big] : [small, -big]
+      assert.deepEqual([m, n], wanted, `${state.id}: "${flipTitle}" turns ${small} × ${big} into ${wanted.join(' × ')}`)
+    }
+    assert.ok(!frames[0].flipped && frames[1].flipped, `${state.id}: plain pairs first, flipped on the next step`)
+  }
+  assert.deepEqual(steps.map(step => step.title), [`Factor pairs of ${Math.abs(c)}`, ...(flips ? [flipTitle] : []), `Which pair adds to ${String(b).replace('-', '−')}?`, 'Into the brackets'], `${state.id}: the headings name the numbers`)
   const { pairs, pick } = last
   for (const [m, n] of pairs) { assert.equal(m * n, c, `${state.id}: ${m} and ${n} multiply to ${c}`); pairsChecked++ }
   assert.equal(pairs.filter(([m, n]) => m + n === b).length, 1, `${state.id}: exactly one pair adds to ${b}`)
@@ -108,7 +118,7 @@ for (const [ref, [letter, b, c, [p, q]]] of Object.entries(quadratics)) {
   let count = 0
   for (let m = 1; m * m <= Math.abs(c); m++) if (Math.abs(c) % m === 0) count++
   assert.equal(pairs.length, count, `${state.id}: every pair that multiplies to ${c}, with the signs picked`)
-  assert.ok(steps.find(step => step.frame.quadratic.adds === 'pairs').title.endsWith(String(c).replace('-', '−')), `${state.id}: the pairs heading names ${c}`)
+  assert.ok(steps.find(step => step.frame.quadratic.adds === 'pairs').title.endsWith(String(Math.abs(c))), `${state.id}: the pairs heading names ${Math.abs(c)}`)
 }
 
 // ---------- Worked-out values, by hand ----------
@@ -154,8 +164,8 @@ for (const [ref, response, expected] of cases) {
 const React = require('react')
 const { renderToStaticMarkup } = require('react-dom/server')
 const { QuadraticVisual } = require('../src/features/written-methods/tutor/QuadraticPictures.tsx')
-const partsOf = adds => adds === 'pairs' ? ['signs', 'pairs'] : adds ? [adds === 'sums' ? 'pairs' : adds] : []
-const classOf = { squares: 'ns-quad__shape', signs: 'ns-quad__signs', pairs: 'ns-quad__pairs' }
+const partsOf = adds => adds ? [adds === 'sums' || adds === 'flip' ? 'pairs' : adds] : []
+const classOf = { squares: 'ns-quad__shape', pairs: 'ns-quad__pairs' }
 let dimChecked = 0
 for (const ref of Object.keys(quadratics)) {
   const steps = (at(ref).working ?? at(ref).visual).examples[0].steps
@@ -163,7 +173,7 @@ for (const ref of Object.keys(quadratics)) {
     const frame = step.frame.quadratic
     const html = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame }))
     const dimmed = [...html.matchAll(/class="(ns-quad__\w+)[^"]*is-done/g)].map(match => match[1]).sort()
-    const shown = steps.slice(0, i + 1).flatMap(s => partsOf(s.frame.quadratic.adds)).filter(part => part !== 'answer' && (part !== 'signs' || frame.signs))
+    const shown = steps.slice(0, i + 1).flatMap(s => partsOf(s.frame.quadratic.adds)).filter(part => part !== 'answer')
     const clear = [...partsOf(frame.adds), ...partsOf(steps[i - 1]?.frame.quadratic.adds)]
     const expected = [...new Set(shown)].filter(part => !clear.includes(part)).map(part => classOf[part]).sort()
     assert.deepEqual(dimmed, expected, `${ref} step ${i + 1}: only what the steps before the last one added is greyed out`)
@@ -177,7 +187,17 @@ for (const ref of Object.keys(quadratics)) {
     const n = v => String(Math.abs(v))
     const html = steps.map(step => renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: step.frame.quadratic })).match(/ns-quad__question.*?<\/p>/)[0])
     assert.ok(html[0].includes(`ns-quad__job is-f1">${n(c)}<`) && !html[0].includes('is-f0'), `${ref}: step 1 boxes ${c}, the number the pairs multiply to`)
-    assert.ok(html[1].includes(`ns-quad__job is-f0">${n(b)}<`), `${ref}: step 2 boxes ${b}, the number the pair adds to`)
+    const sums = steps.findIndex(step => step.frame.quadratic.adds === 'sums')
+    assert.ok(html[sums].includes(`ns-quad__job is-f0">${n(b)}<`), `${ref}: the sums step boxes ${b}, the number the pair adds to`)
+    // The flip step boxes the two signs that decide it, purple, and draws the minus signs it adds purple.
+    const flip = steps.findIndex(step => step.frame.quadratic.adds === 'flip')
+    if (flip >= 0) {
+      assert.equal((html[flip].match(/ns-quad__job is-f3/g) ?? []).length, 2, `${ref}: the flip step boxes both signs`)
+      const pairsHtml = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps[flip].frame.quadratic }))
+      assert.ok(pairsHtml.includes('ns-quad__flip'), `${ref}: the flip step's minus signs are purple`)
+      const plainHtml = renderToStaticMarkup(React.createElement(QuadraticVisual, { frame: steps[0].frame.quadratic })).match(/ns-quad__pairs.*?<\/ul>/)[0]
+      assert.ok(!/−/.test(plainHtml), `${ref}: the factor pairs step lists the pairs plain`)
+    }
   }
 }
 
