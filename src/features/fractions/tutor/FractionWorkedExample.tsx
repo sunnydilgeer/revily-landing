@@ -76,7 +76,7 @@ function readGroup(text: string, at: number, open: string, close: string) {
  * `focus`: whole-number keys of mixed numbers to box in purple (the ones a step converts). A mixed number, its whole and
  * its fraction, is always kept together as one piece.
  */
-function Tex({ text, focus }: { text: string; focus?: string[] }): ReactNode {
+function Tex({ text, focus, fresh }: { text: string; focus?: string[]; fresh?: string[] }): ReactNode {
   const out: ReactNode[] = []
   let plain = '', i = 0
   const flush = () => { if (plain) out.push(plain.replace(/\\,/g, '\u2009')); plain = '' }
@@ -91,12 +91,12 @@ function Tex({ text, focus }: { text: string; focus?: string[] }): ReactNode {
         i = bottom.end
         continue
       }
-      out.push(/^\\(times|div) \d+$/.test(body.trim()) ? <span key={i} className="frm-move"><Tex text={body} /></span> : <Tex key={i} text={body} />)
+      out.push(/^\\(times|div) \d+$/.test(body.trim()) || fresh?.includes(key) ? <span key={i} className="frm-move"><Tex text={body} /></span> : <Tex key={i} text={body} fresh={fresh} />)
       i = end
     } else if (text.startsWith('\\frac', i)) {
       flush()
       const top = readGroup(text, i + 5, '{', '}'), bottom = readGroup(text, top.end, '{', '}')
-      out.push(<span key={i} className="frm-frac"><span><Tex text={top.inner} /></span><span><Tex text={bottom.inner} /></span></span>)
+      out.push(<span key={i} className="frm-frac"><span><Tex text={top.inner} fresh={fresh} /></span><span><Tex text={bottom.inner} fresh={fresh} /></span></span>)
       i = bottom.end
     } else if (text.startsWith('\\text{', i)) {
       const { inner, end } = readGroup(text, i + 5, '{', '}'); plain += inner; i = end
@@ -110,7 +110,7 @@ function Tex({ text, focus }: { text: string; focus?: string[] }): ReactNode {
   return <>{out}</>
 }
 
-type Group = { title: string; why: string; lines: string[]; notes: string[]; lists?: NumberList[]; focus?: string[]; last: number }
+type Group = { title: string; why: string; lines: string[]; notes: string[]; lists?: NumberList[]; focus?: string[]; fresh?: string[]; last: number }
 
 /**
  * A fraction working one move a step (src/features/EXPLANATIONS.md): the bar picture on top, then the working as a board.
@@ -122,7 +122,7 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
   const groups = useMemo(() => chain.slice(1).reduce<Group[]>((all, step, i) => {
     const previous = all.at(-1)
     if (step.op === 'Work out' && previous) { previous.lines.push(step.line); previous.last = i + 1; return all }
-    return [...all, { title: step.op ?? '', why: step.why ?? '', lines: step.line ? [step.line] : [], notes: (step as FractionChainStep).note ?? [], lists: (step as FractionChainStep).lists, focus: (step as FractionChainStep).focus, last: i + 1 }]
+    return [...all, { title: step.op ?? '', why: step.why ?? '', lines: step.line ? [step.line] : [], notes: (step as FractionChainStep).note ?? [], lists: (step as FractionChainStep).lists, focus: (step as FractionChainStep).focus, fresh: (step as FractionChainStep).fresh, last: i + 1 }]
   }, []), [chain])
   const steps: ChainStep[] = [chain[0], ...groups.map(group => ({ line: group.lines.join(' '), op: group.title, why: group.why }))]
   const picture = (revealed: number) => {
@@ -142,7 +142,7 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
         {group.notes.map((note, i) => <p key={`n${i}`} className="frm-note">{note}</p>)}
         {group.lines.map((line, i) => {
           const answer = lastGroup && i === group.lines.length - 1
-          return <p key={i} className={`frm-line${answer ? ' is-answer' : ''}`}>{answer ? <><span className="frm-eq">=</span><span className="frm-answer"><Tex text={line.replace(/^=\s*/, '')} /></span></> : <Tex text={line} />}</p>
+          return <p key={i} className={`frm-line${answer ? ' is-answer' : ''}`}>{answer ? <><span className="frm-eq">=</span><span className="frm-answer"><Tex text={line.replace(/^=\s*/, '')} /></span></> : <Tex text={line} fresh={i === 0 ? group.fresh : undefined} />}</p>
         })}
       </>}</PictureStep>
     </div>

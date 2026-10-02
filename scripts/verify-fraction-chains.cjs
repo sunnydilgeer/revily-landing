@@ -85,6 +85,7 @@ for (const [id, working] of workings) {
       else assert.equal(Function(`return ${sum.replace(/×/g, '*').replace(/÷/g, '/')}`)(), Number(result), `${label}: ${note}`)
     }
     const above = new Set(keysOf(chain[index - 1].line))
+    for (const key of step.fresh ?? []) assert.ok(keys.includes(key), `${label}: the purple number ${key} is on the step's line`)
     // A boxed mixed number must be on the line above: the whole number's key, followed by its fraction.
     for (const key of step.focus ?? []) assert.ok(new RegExp(`\\[\\[${key}:\\d+\\]\\]\\\\frac`).test(chain[index - 1].line), `${label}: focus ${key} is a mixed number on the line above`)
     for (const [result, sources] of Object.entries(step.merge ?? {})) {
