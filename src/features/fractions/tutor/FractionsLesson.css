@@ -63,6 +63,9 @@
 .frm-frac > span:first-child { padding: 0 .25em 2px; border-bottom: 2px solid currentColor; }
 .frm-frac > span:last-child { padding: 2px .25em 0; }
 .frm-move { color: #7c3aed; }
+/* A mixed number is one piece; the one a step converts ("1 1/2" → 3/2) is boxed in purple. */
+.frm-mixed { display: inline-flex; align-items: center; }
+.frm-focus { margin: 0 .1em; padding: 2px 6px; border: 2px solid #7c3aed; border-radius: 12px; background: color-mix(in srgb, #7c3aed 10%, transparent); color: var(--rv-ink); }
 .frm-note { margin: 0; color: #7c3aed; font-size: 18px; font-weight: 600; }
 .frm-eq { margin-right: .3em; }
 .frm-answer { display: inline-flex; align-items: center; padding: 2px 16px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 18px; background: var(--rv-good-tint); color: var(--rv-good-ink); }

@@ -14,7 +14,8 @@ import type { FractionFrame } from './fractionWorking'
  * and the one used (`pick`) boxed in purple. Such a step has no line of working of its own.
  */
 export type NumberList = { label: string; values: number[]; shared: number[]; pick: number }
-export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[]; lists?: NumberList[] }
+/** `focus`: the mixed numbers (by their whole number's key) on the line above that this step converts, boxed in purple. */
+export type FractionChainStep = ChainStep & { frame?: FractionFrame; note?: string[]; lists?: NumberList[]; focus?: string[] }
 
 type Term = { nk: string; dk: string; n: number; d: number }
 export type WholeFraction = { whole?: number; numerator: number; denominator: number }
@@ -126,6 +127,7 @@ export function mixedToImproperChain(whole: number, n: number, d: number): Fract
       line: `= ${frac(`${k('w', whole)} ${k('x', '\\times')} ${k('e', d)} ${k('pl', '+')} ${k('n', n)}`, k('d', d))}`,
       op: 'Count the parts',
       why: 'Each whole is made of parts the size of the bottom number. Count the parts in the wholes, then add the parts left over. The bottom stays the same.',
+      focus: ['w'],
     },
     {
       line: `= ${frac(k('i', improper), k('d', d))}`,
@@ -273,6 +275,7 @@ export function mixedCalculationChain(first: WholeFraction, second: WholeFractio
     {
       line: `= ${frac(k('a', a.n), k('b', a.d))} ${k(key, sign)} ${frac(k('c', b.n), k('e', b.d))}`,
       op: 'Make improper fractions',
+      focus: [first.whole ? 'w1' : '', second.whole ? 'w2' : ''].filter(Boolean),
       why: `Mixed numbers can't be ${operation === 'multiply' ? 'multiplied' : 'divided'} straight away, so turn each one into a top-heavy fraction: the wholes times the bottom, plus the top.`,
       note: conversions,
       merge: { a: first.whole ? ['w1', 'n1'] : ['n1'], c: second.whole ? ['w2', 'n2'] : ['n2'] },
@@ -282,33 +285,28 @@ export function mixedCalculationChain(first: WholeFraction, second: WholeFractio
 }
 
 export function fractionOfAmountChain(n: number, d: number, amount: number, currency: boolean): FractionChainStep[] {
-  const unit = amount / d, answer = unit * n
+  const top = n * amount, answer = top / d
   const money = (value: number) => currency ? `\\pounds ${value}` : String(value)
-  const say = (value: number) => currency ? `£${value}` : String(value)
   return [
-    // The top number is set aside until 'Take n parts', so it is not a term here (a term that leaves is crossed out).
-    { line: `${frac(String(n), k('d', d))} \\text{ of } ${k('a', money(amount))}` },
+    { line: `${frac(k('n', n), k('d', d))} \\text{ of } ${k('a', money(amount))}` },
     {
-      line: `${k('a', money(amount))} ${k('v', '\\div')} ${k('d', d)}`,
-      op: 'Find one part',
-      why: 'The bottom number says how many equal parts to split the amount into. Dividing finds one part.',
+      line: `= ${frac(k('n', n), k('d', d))} ${k('x', '\\times')} ${k('a', money(amount))}`,
+      op: 'Of means times',
+      why: 'Finding a fraction of an amount is the same as multiplying the amount by the fraction.',
     },
     {
-      line: `= ${k('u', money(unit))}`,
-      op: 'Work out',
-      why: 'That is one part.',
-      merge: { u: ['a', 'v', 'd'] },
-    },
-    {
-      line: `${k('u', money(unit))} ${k('x', '\\times')} ${k('n', n)}`,
-      op: `Take ${n} part${n === 1 ? '' : 's'}`,
-      why: 'The top number says how many of those parts we want.',
+      line: `= ${frac(k('t', money(top)), k('d', d))}`,
+      op: 'Multiply the top',
+      why: 'The amount is a whole number, so it multiplies the top. The bottom stays the same.',
+      note: [`${n} × ${amount} → ${top}`],
+      merge: { t: ['n', 'x', 'a'] },
     },
     {
       line: `= ${k('r', money(answer))}`,
-      op: 'Work out',
-      why: 'Multiply one part by how many parts we want.',
-      merge: { r: ['u', 'x', 'n'] },
+      op: 'Divide',
+      why: 'A fraction bar means divide, so divide the top by the bottom.',
+      note: [`${top} ÷ ${d} → ${answer}`],
+      merge: { r: ['t', 'd'] },
     },
   ]
 }

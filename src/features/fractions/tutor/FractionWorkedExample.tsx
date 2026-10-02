@@ -72,7 +72,11 @@ function readGroup(text: string, at: number, open: string, close: string) {
   }
   return { inner: text.slice(at + open.length), end: text.length }
 }
-function Tex({ text }: { text: string }): ReactNode {
+/**
+ * `focus`: whole-number keys of mixed numbers to box in purple (the ones a step converts). A mixed number, its whole and
+ * its fraction, is always kept together as one piece.
+ */
+function Tex({ text, focus }: { text: string; focus?: string[] }): ReactNode {
   const out: ReactNode[] = []
   let plain = '', i = 0
   const flush = () => { if (plain) out.push(plain.replace(/\\,/g, '\u2009')); plain = '' }
@@ -80,7 +84,13 @@ function Tex({ text }: { text: string }): ReactNode {
     if (text.startsWith('[[', i)) {
       flush()
       const { inner, end } = readGroup(text, i, '[[', ']]')
-      const body = inner.slice(inner.indexOf(':') + 1)
+      const key = inner.slice(0, inner.indexOf(':')), body = inner.slice(inner.indexOf(':') + 1)
+      if (/^\d+$/.test(body) && text.startsWith('\\frac', end)) {
+        const top = readGroup(text, end + 5, '{', '}'), bottom = readGroup(text, top.end, '{', '}')
+        out.push(<span key={i} className={`frm-mixed${focus?.includes(key) ? ' frm-focus' : ''}`}>{body}<span className="frm-frac"><span><Tex text={top.inner} /></span><span><Tex text={bottom.inner} /></span></span></span>)
+        i = bottom.end
+        continue
+      }
       out.push(/^\\(times|div) \d+$/.test(body.trim()) ? <span key={i} className="frm-move"><Tex text={body} /></span> : <Tex key={i} text={body} />)
       i = end
     } else if (text.startsWith('\\frac', i)) {
@@ -100,7 +110,7 @@ function Tex({ text }: { text: string }): ReactNode {
   return <>{out}</>
 }
 
-type Group = { title: string; why: string; lines: string[]; notes: string[]; lists?: NumberList[]; last: number }
+type Group = { title: string; why: string; lines: string[]; notes: string[]; lists?: NumberList[]; focus?: string[]; last: number }
 
 /**
  * A fraction working one move a step (src/features/EXPLANATIONS.md): the bar picture on top, then the working as a board.
@@ -112,7 +122,7 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
   const groups = useMemo(() => chain.slice(1).reduce<Group[]>((all, step, i) => {
     const previous = all.at(-1)
     if (step.op === 'Work out' && previous) { previous.lines.push(step.line); previous.last = i + 1; return all }
-    return [...all, { title: step.op ?? '', why: step.why ?? '', lines: step.line ? [step.line] : [], notes: (step as FractionChainStep).note ?? [], lists: (step as FractionChainStep).lists, last: i + 1 }]
+    return [...all, { title: step.op ?? '', why: step.why ?? '', lines: step.line ? [step.line] : [], notes: (step as FractionChainStep).note ?? [], lists: (step as FractionChainStep).lists, focus: (step as FractionChainStep).focus, last: i + 1 }]
   }, []), [chain])
   const steps: ChainStep[] = [chain[0], ...groups.map(group => ({ line: group.lines.join(' '), op: group.title, why: group.why }))]
   const picture = (revealed: number) => {
@@ -126,7 +136,7 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
     return <div className="ns-visual frm" key={revealed}>
       <PictureStep step={{ title: group.title, instruction: group.why, operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
         {bars}
-        {earlier.map((line, i) => <p key={i} className="frm-line is-old"><Tex text={line} /></p>)}
+        {earlier.map((line, i) => <p key={i} className="frm-line is-old"><Tex text={line} focus={i === earlier.length - 1 ? group.focus : undefined} /></p>)}
         {heading}
         {group.lists && <NumberLists lists={group.lists} />}
         {group.notes.map((note, i) => <p key={`n${i}`} className="frm-note">{note}</p>)}
