@@ -1,41 +1,67 @@
 'use client'
 
-/* The /preview lock: a playful under-construction splash with a password box. */
+/* The /preview lock, as an 8-bit arcade level: the password is the "cheat code" and wrong guesses cost a life. */
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import '@fontsource/press-start-2p/400.css'
 import './locked.css'
 
 const STATUS = [
-  'Carrying the 1…',
-  'Pouring fresh decimal points…',
-  'Tightening loose fractions…',
-  'Balancing the equations…',
-  'Looking for x (it’s hiding again)…',
-  'Rounding off the corners…',
-  'Simplifying the scaffolding…',
-  'Measuring twice, cutting once…',
+  'SPAWNING FRACTIONS…',
+  'RESPAWNING x…',
+  'COLLECTING π COINS…',
+  'LEVELLING UP ALGEBRA…',
+  'DEFEATING THE DECIMAL DRAGON…',
+  'BOSS FIGHT: SIMULTANEOUS EQUATIONS…',
+  'POLISHING THE PIXELS…',
 ]
 
 const WRONG = [
-  'Nope. Not even close to a right angle.',
-  'Wrong answer, but we admire the working out.',
-  'Not quite. Check your signs?',
-  'Incorrect. The builders are shaking their heads.',
-  'Close… ish. To 0 significant figures.',
-  'That’s a no from the site foreman.',
+  'WRONG CODE! -1 LIFE',
+  'OUCH! THAT’S NOT IT',
+  'NICE TRY, PLAYER 2',
+  'NOPE. CHECK YOUR WORKING',
 ]
 
-const BRICKS = ['π', '√', '½', '%', 'x', '÷', '∑', '7', '±', '∞', '²', '=']
+// A tiny pixel student in a graduation cap. K cap/shoes, Y tassel, S skin, E eyes, B jumper, P trousers.
+const SPRITE = [
+  '....KKKK....',
+  '..KKKKKKKK..',
+  '....KKKKY...',
+  '....SSSS.Y..',
+  '...SSESESS..',
+  '...SSSSSS...',
+  '....SSSS....',
+  '...BBBBBB...',
+  '..BBBBBBBB..',
+  '..SBBBBBBS..',
+  '...BBBBBB...',
+  '...PP..PP...',
+  '...PP..PP...',
+  '..KKK..KKK..',
+]
+const SPRITE_COLOURS: Record<string, string> = { K: '#1b1f3b', Y: '#ffd35c', S: '#f2c29b', E: '#1b1f3b', B: '#6d3fd8', P: '#3b5bdb' }
+
+const STARS = Array.from({ length: 46 }, (_, i) => ({ left: (i * 47) % 100, top: (i * 29) % 62, delay: (i % 9) * 0.35, size: i % 5 === 0 ? 4 : 2 }))
+const BLOCKS = ['π', '?', '√', '?', 'x²']
+const COINS = ['π', '∑', '½', '%']
+
+function Sprite() {
+  return <svg className="arcade-sprite" viewBox="0 0 12 14" shapeRendering="crispEdges" aria-hidden="true">
+    {SPRITE.flatMap((row, y) => [...row].map((cell, x) => cell === '.' ? null : <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={SPRITE_COLOURS[cell]} />))}
+  </svg>
+}
 
 export default function LockScreen() {
   const [status, setStatus] = useState(0)
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [lives, setLives] = useState(3)
   const [state, setState] = useState<'idle' | 'checking' | 'wrong' | 'open'>('idle')
   const wrongCount = useRef(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const timer = window.setInterval(() => setStatus(current => (current + 1) % STATUS.length), 2400)
+    const timer = window.setInterval(() => setStatus(current => (current + 1) % STATUS.length), 2200)
     return () => window.clearInterval(timer)
   }, [])
 
@@ -43,72 +69,73 @@ export default function LockScreen() {
     event.preventDefault()
     if (!password.trim() || state === 'checking' || state === 'open') return
     setState('checking')
-    setMessage('Checking with the foreman…')
+    setMessage('CHECKING CODE…')
     const response = await fetch('/api/preview-unlock', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }),
     }).catch(() => null)
     if (response?.ok) {
       setState('open')
-      setMessage('Hard hat on. Come on in!')
-      window.setTimeout(() => window.location.reload(), 1300)
+      setMessage('LEVEL UNLOCKED! +100 XP')
+      window.setTimeout(() => window.location.reload(), 1400)
       return
     }
     setState('wrong')
-    setMessage(response ? WRONG[wrongCount.current++ % WRONG.length] : 'The site radio is down. Try again in a moment.')
+    if (!response) setMessage('CONNECTION LOST. TRY AGAIN')
+    else if (lives <= 1) { setLives(3); setMessage('GAME OVER… JUST KIDDING. CONTINUE? ♥♥♥') }
+    else { setLives(lives - 1); setMessage(WRONG[wrongCount.current++ % WRONG.length]) }
     setPassword('')
     inputRef.current?.focus()
   }
 
-  return <main className={`lock lock--${state}`}>
-    <div className="lock-tape" aria-hidden="true"><span>UNDER CONSTRUCTION · MIND THE MATHS · UNDER CONSTRUCTION · MIND THE MATHS · UNDER CONSTRUCTION · MIND THE MATHS ·</span></div>
-
-    <div className="lock-stage">
-      <svg className="lock-crane" viewBox="0 0 320 220" aria-hidden="true">
-        <rect x="40" y="40" width="14" height="180" rx="3" className="lock-crane__mast" />
-        {[60, 90, 120, 150, 180].map(y => <path key={y} d={`M40 ${y} L54 ${y + 26} M54 ${y} L40 ${y + 26}`} className="lock-crane__lattice" />)}
-        <rect x="20" y="32" width="270" height="12" rx="3" className="lock-crane__jib" />
-        <rect x="8" y="26" width="34" height="24" rx="4" className="lock-crane__weight" />
-        <rect x="34" y="12" width="26" height="22" rx="4" className="lock-crane__cab" />
-        <g className="lock-crane__hook">
-          <line x1="250" y1="44" x2="250" y2="128" className="lock-crane__cable" />
-          <rect x="222" y="128" width="56" height="44" rx="8" className="lock-crane__block" />
-          <text x="250" y="158" textAnchor="middle" className="lock-crane__label">x²</text>
-        </g>
-      </svg>
-      <div className="lock-bricks" aria-hidden="true">
-        {BRICKS.map((brick, index) => <span key={brick} style={{ animationDelay: `${index * 90}ms` }}>{brick}</span>)}
-      </div>
+  return <main className={`arcade arcade--${state}`}>
+    <div className="arcade-sky" aria-hidden="true">
+      {STARS.map((star, i) => <span key={i} style={{ left: `${star.left}%`, top: `${star.top}%`, width: star.size, height: star.size, animationDelay: `${star.delay}s` }} />)}
     </div>
+    <div className="arcade-cloud arcade-cloud--one" aria-hidden="true" />
+    <div className="arcade-cloud arcade-cloud--two" aria-hidden="true" />
 
-    <section className="lock-card" aria-labelledby="lock-title">
-      <p className="lock-kicker"><span aria-hidden="true">🚧</span> Revily · preview</p>
-      <h1 id="lock-title">Under construction</h1>
-      <p className="lock-sub">We’re building something brilliant for GCSE Maths and Science. Hard hats only beyond this point.</p>
+    <header className="arcade-hud" aria-hidden="true">
+      <span><small>SCORE</small>003141</span>
+      <span><small>WORLD</small>GCSE-1</span>
+      <span><small>LIVES</small><b className="arcade-hearts">{'♥'.repeat(lives)}<i>{'♥'.repeat(3 - lives)}</i></b></span>
+      <span><small>TIME</small>∞</span>
+    </header>
 
-      <div className="lock-progress" role="img" aria-label="Build progress: 99.9 percent">
-        <div className="lock-progress__bar"><span /></div>
-        <div className="lock-progress__meta"><span aria-live="polite">{STATUS[status]}</span><strong>99.9%</strong></div>
-        <small>(That’s 100% to 1 significant figure. Nearly there.)</small>
+    <section className="arcade-card" aria-labelledby="arcade-title">
+      <p className="arcade-kicker">REVILY · PLAYER 1</p>
+      <h1 id="arcade-title">LEVEL UNDER<br />CONSTRUCTION</h1>
+      <p className="arcade-sub">We’re building new GCSE Maths and Science levels. Players with the cheat code may enter.</p>
+
+      <div className="arcade-loading" role="img" aria-label="Loading: 99.9 percent">
+        <div className="arcade-loading__bar">{Array.from({ length: 20 }, (_, i) => <span key={i} className={i === 19 ? 'is-last' : ''} />)}</div>
+        <div className="arcade-loading__meta"><span aria-live="polite">{STATUS[status]}</span><strong>99.9%</strong></div>
       </div>
 
-      <form className="lock-form" onSubmit={unlock}>
-        <label htmlFor="lock-password">Got the secret word?</label>
-        <div className="lock-form__row">
-          <input ref={inputRef} id="lock-password" type="password" autoComplete="current-password" value={password}
+      <form className="arcade-form" onSubmit={unlock}>
+        <label htmlFor="arcade-code">ENTER CHEAT CODE</label>
+        <div className="arcade-form__row">
+          <input ref={inputRef} id="arcade-code" type="password" autoComplete="current-password" value={password}
             onChange={event => { setPassword(event.target.value); if (state === 'wrong') setState('idle') }}
-            placeholder="Secret word" disabled={state === 'open'} />
+            placeholder="_ _ _ _ _" disabled={state === 'open'} />
           <button type="submit" disabled={state === 'checking' || state === 'open'}>
-            {state === 'open' ? 'Opening…' : state === 'checking' ? 'Checking…' : 'Let me in'}
+            <span className="arcade-blink" aria-hidden="true">▶</span> {state === 'open' ? 'LOADING' : 'PRESS START'}
           </button>
         </div>
-        <p className="lock-message" role="status">{message}</p>
+        <p className="arcade-message" role="status">{message}</p>
       </form>
     </section>
 
-    {state === 'open' && <div className="lock-burst" aria-hidden="true">
-      {Array.from({ length: 28 }, (_, index) => <span key={index} style={{ left: `${(index * 37) % 100}%`, animationDelay: `${(index % 7) * 60}ms` }}>{BRICKS[index % BRICKS.length]}</span>)}
-    </div>}
+    <div className="arcade-world" aria-hidden="true">
+      <div className="arcade-blocks">{BLOCKS.map((block, i) => <span key={i} className={block === '?' ? 'is-mystery' : ''}>{block}</span>)}</div>
+      <div className="arcade-coins">{COINS.map((coin, i) => <span key={coin} style={{ animationDelay: `${i * 0.2}s` }}>{coin}</span>)}</div>
+      <div className="arcade-hill" />
+      <div className="arcade-runner"><Sprite /></div>
+      <div className="arcade-ground" />
+    </div>
 
-    <div className="lock-tape lock-tape--bottom" aria-hidden="true"><span>HARD HATS ONLY · NO CALCULATORS BEYOND THIS POINT · HARD HATS ONLY · NO CALCULATORS BEYOND THIS POINT ·</span></div>
+    {state === 'open' && <div className="arcade-burst" aria-hidden="true">
+      {Array.from({ length: 24 }, (_, i) => <span key={i} style={{ left: `${(i * 41) % 100}%`, animationDelay: `${(i % 6) * 70}ms` }}>{COINS[i % COINS.length]}</span>)}
+    </div>}
+    <div className="arcade-scanlines" aria-hidden="true" />
   </main>
 }
