@@ -113,7 +113,7 @@ export type EquationFrame = { rows: EquationRow[] }
  */
 export type QuadraticFrame = {
   letter: string; middle: number; last: number
-  /** A line or two on the signs of the pairs, when there is a minus: "+ 20 and − 9x: both negative". */
+  /** One line on the signs of the pairs, when there is a minus: "+ 20 and − 9x: both numbers are negative". */
   signs?: string[]
   /** The factor pairs of c, in order; `sums` adds what each pair adds to, and `pick` is the one that works. */
   pairs?: [number, number][]

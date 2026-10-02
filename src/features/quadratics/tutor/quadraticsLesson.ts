@@ -22,7 +22,7 @@ const brackets = (letter: string, [a, b]: [number, number]) => `(${letter} ${a <
 
 /**
  * The pairs that multiply to c, smallest first, with the signs the question needs: both positive, both negative, or
- * one of each with the bigger one taking the sign of the middle term (so the sum can come out right).
+ * one of each with the one further from 0 taking the sign of the middle term (so the sum can come out right).
  */
 export function pairsOf(middle: number, last: number): [number, number][] {
   const size = Math.abs(last), pairs: [number, number][] = []
@@ -36,9 +36,10 @@ export function pairsOf(middle: number, last: number): [number, number][] {
 /** The signs of the pairs when there is a minus: a line or two in the picture, and why, for the ⓘ. */
 export function signsOf(middle: number, last: number): { lines: string[]; say: string } | null {
   if (last > 0 && middle > 0) return null
-  const x = `${middle < 0 ? '−' : '+'} ${Math.abs(middle)}x`
-  if (last > 0) return { lines: [`+ ${last} and ${x}: both negative`], say: ' The last number is plus and the middle minus, so both are negative.' }
-  return { lines: [`− ${-last}: one is negative`, `${x}: the bigger one is ${middle < 0 ? 'negative' : 'positive'}`], say: ' The last number is minus, so one is negative. The bigger one takes the middle’s sign.' }
+  const x = `${middle < 0 ? '−' : '+'} ${Math.abs(middle) === 1 ? '' : Math.abs(middle)}x`
+  if (last > 0) return { lines: [`+ ${last} and ${x}: both numbers are negative`], say: ' The last number is plus and the middle minus, so both are negative.' }
+  // One sentence (Sunny, 2 Oct). "Further from 0", not "bigger": in −6 and 4, the −6 is the one that takes the sign.
+  return { lines: [`− ${-last} and ${x}: one number is negative, and the one further from 0 is ${middle < 0 ? 'negative' : 'positive'}`], say: ' The last number is minus, so one is negative. The one further from 0 takes the middle’s sign.' }
 }
 
 /** x² + bx + c in three steps: the factor pairs of c, the pair that adds to b, then the brackets. */
@@ -208,7 +209,7 @@ video(lastVideo, media('negative-last', 'Factorising x² + 2x − 15', 'A7.3_Fac
   'Where you see it: a flower bed has area x² + 2x − 15 m², so its sides are x − 3 and x + 5.',
 ]))
 factorise(negativeLast, 'A7.3 Q2', 3, -4, 'Two numbers that multiply to −4 and add to 3. One is negative.', `A rectangular sign has an area, in square metres, of ${nb('x² + 3x − 4')}. Factorise this expression.`)
-factorise(negativeLast, 'A7.3 Q3', -2, -24, 'Two numbers that multiply to −24 and add to −2. The bigger one is negative.', `A rectangular field has an area, in square metres, of ${nb('x² − 2x − 24')}. Factorise this expression.`)
+factorise(negativeLast, 'A7.3 Q3', -2, -24, 'Two numbers that multiply to −24 and add to −2. The one further from 0 is negative.', `A rectangular field has an area, in square metres, of ${nb('x² − 2x − 24')}. Factorise this expression.`)
 factorise(negativeLast, 'A7.3 Q4a', 5, -14, 'Two numbers that multiply to −14 and add to 5.', `A rectangular flower bed has an area of ${nb('x² + 5x − 14')} square metres. Factorise it to find expressions for the length and width.`)
 practice(negativeLast, `The flower bed is ${nb('(x + 7)')} m by ${nb('(x − 2)')} m. Explain why x must be greater than 2.`, 'A7.3 Q4b', choose(
   'A side can’t be zero or negative, so x − 2 must be more than 0',
