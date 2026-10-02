@@ -1,0 +1,37 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// Momentum builds on velocity (speed in a given direction), Newton's Third Law and the stopping-distance lessons, without
+// re-teaching them. Each teaching section keeps one drawing on screen and changes it frame by frame: two lanes of
+// traffic with a momentum arrow under each vehicle; a skateboarder beside a working card; two lab trolleys on a track
+// (bounce apart, then stick together); and a skater on ice throwing a heavy ball. The last frame of each puts it together.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const momentumFrames: Record<string, TeachingFrame[]> = {
+  'P52H-02': [
+    f('Moving things have momentum', 'Anything that is moving has momentum. Something standing still has none.', 'moving → momentum · still → zero', 'Think how hard it would be to stop something that is moving. A parked car is easy: it is not moving at all. A moving car is much harder to stop. Physicists say the moving car has momentum, and the parked car has zero momentum.', 'hmom-what-moving'),
+    f('More mass, more momentum', 'At the same velocity, the object with more mass has more momentum.', 'same velocity, bigger mass → more momentum', 'A car and a lorry drive side by side at 10 m/s. The lorry has four times the mass of the car. So the lorry has four times the momentum. It would be much harder to stop.', 'hmom-what-mass'),
+    f('Faster, more momentum', 'With the same mass, the object with the bigger velocity has more momentum.', 'same mass, faster → more momentum', 'Now two identical cars move along the road. One goes at 10 m/s and the other at 20 m/s. The faster car has twice the momentum. Doubling the velocity doubles the momentum.', 'hmom-what-speed'),
+    f('The momentum equation', 'Momentum = mass × velocity, or p = m v. It is measured in kg m/s.', 'p = m × v · kg × m/s = kg m/s', 'Momentum is mass multiplied by velocity. In symbols, p = m v, where p stands for momentum. Mass is in kg and velocity is in m/s. So momentum is measured in kilogram metres per second, written kg m/s.', 'hmom-what-equation'),
+    f('Momentum has a direction', 'Momentum is a vector: it has a size and a direction. One direction is positive, the other negative.', 'right +, left −', 'Velocity has a direction, so momentum does too. A quantity with a size and a direction is called a vector. Pick one direction as positive, say to the right. Then a car moving left at 10 m/s has negative momentum.', 'hmom-what-vector'),
+  ],
+  'P52H-05': [
+    f('Write the equation', 'Start every calculation by writing p = m × v and checking the units.', 'p in kg m/s · m in kg · v in m/s', 'Write the equation first: momentum = mass × velocity. Check the units before you put numbers in. Mass must be in kg and velocity in m/s. Then the momentum comes out in kg m/s.', 'hmom-calc-equation'),
+    f('Find the momentum', 'Multiply the mass by the velocity.', '50 kg × 4 m/s = 200 kg m/s', 'A skateboarder and her board have a mass of 50 kg. She rolls forwards at 4 m/s. Her momentum is p = m × v = 50 × 4 = 200 kg m/s.', 'hmom-calc-p'),
+    f('Find the velocity', 'To find the velocity, divide the momentum by the mass: v = p ÷ m.', '300 ÷ 50 = 6 m/s', 'Later she has 300 kg m/s of momentum. To find her velocity, divide both sides of p = m v by m. This gives v = p ÷ m. So v = 300 ÷ 50 = 6 m/s.', 'hmom-calc-v'),
+    f('Find the mass', 'To find the mass, divide the momentum by the velocity: m = p ÷ v.', '240 ÷ 4 = 60 kg', 'A second skateboarder rolls at 4 m/s with 240 kg m/s of momentum. To find his mass, divide p = m v by v. This gives m = p ÷ v. So m = 240 ÷ 4 = 60 kg.', 'hmom-calc-m'),
+    f('Put it together', 'One equation, three ways round. Write it, rearrange it, put the numbers in, add the unit.', 'p = m v · v = p ÷ m · m = p ÷ v', 'The same equation gives all three answers. To find momentum, multiply. To find velocity or mass, divide the momentum by the other quantity. Always finish with the unit: kg m/s, m/s or kg.', 'hmom-calc-together'),
+  ],
+  'P52H-10': [
+    f('A closed system', 'A closed system is a group of objects with no outside forces acting on it.', 'no outside forces → closed system', 'Two lab trolleys roll on a smooth, level track. Think of the two trolleys together as one system. If no forces act from outside, it is called a closed system. Here we ignore friction and air resistance, so the system is closed.', 'hmom-coll-closed'),
+    f('Momentum before', 'Before the collision, add up the momentum of every object.', '6 + 0 = 6 kg m/s', 'Trolley A has a mass of 2 kg and moves right at 3 m/s. Its momentum is 2 × 3 = 6 kg m/s. Trolley B, 1 kg, is not moving, so its momentum is 0. The total momentum before the collision is 6 kg m/s.', 'hmom-coll-before'),
+    f('Momentum after', 'In a closed system the total momentum after a collision equals the total before.', '2 + 4 = 6 kg m/s', 'A hits B. A slows to 1 m/s, so its momentum is 2 × 1 = 2 kg m/s. B moves off at 4 m/s: 1 × 4 = 4 kg m/s. The total is still 6 kg m/s. Momentum before equals momentum after: this is called conservation of momentum.', 'hmom-coll-after'),
+    f('Sticking together', 'If the objects stick together, use the total mass to find their shared velocity.', '6 ÷ 3 = 2 m/s', 'Now the trolleys have sticky pads, so they join when they hit. The momentum after must still be 6 kg m/s. The moving mass is now 2 + 1 = 3 kg. So the velocity is v = p ÷ m = 6 ÷ 3 = 2 m/s.', 'hmom-coll-stick'),
+    f('Put it together', 'Total momentum before = total momentum after. More mass moving means a smaller velocity.', 'before = after · mass up → velocity down', 'In both collisions the total momentum stayed at 6 kg m/s. When the trolleys stick, the same momentum is shared by more mass. So they move off together more slowly than A was moving. Work it out one step at a time.', 'hmom-coll-together'),
+  ],
+  'P52H-13': [
+    f('Zero to start with', 'If nothing is moving, the total momentum is zero.', 'nothing moving → p = 0', 'A skater stands still on smooth ice, holding a heavy 5 kg ball. Neither the skater nor the ball is moving. So the total momentum is zero. The ice is so smooth that we can treat the skater and ball as a closed system.', 'hmom-exp-zero'),
+    f('Pushing apart', 'When the skater throws the ball, the ball gains momentum in one direction.', '5 kg × 6 m/s = +30 kg m/s', 'The skater throws the ball forwards at 6 m/s. The ball now has momentum 5 × 6 = 30 kg m/s forwards. But momentum is conserved. The total after the throw must still be zero.', 'hmom-exp-throw'),
+    f('Recoil', 'The skater moves backwards with equal momentum in the opposite direction. This is recoil.', '−30 kg m/s · 30 ÷ 60 = 0.5 m/s back', 'So the skater must gain 30 kg m/s backwards. The skater has a mass of 60 kg. Velocity = 30 ÷ 60 = 0.5 m/s backwards. Moving backwards like this is called recoil.', 'hmom-exp-recoil'),
+    f('Put it together', 'In an explosion, momentum before is zero, so the parts move off in opposite directions and cancel out.', '+30 + (−30) = 0', 'Anything that starts still and pushes apart works like this, such as an explosion. The parts move off in opposite directions. Their momenta are the same size, so they cancel to zero. The part with more mass moves off more slowly.', 'hmom-exp-together'),
+  ],
+}
