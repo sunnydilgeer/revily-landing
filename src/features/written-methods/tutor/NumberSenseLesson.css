@@ -228,8 +228,13 @@
 .ns-quad__answer { justify-self: auto; margin: 0; }
 @media (max-width: 360px) { .ns-quad__pairs { column-gap: 8px; } }
 /* Working a step has finished with, greyed out so the current step stands out (MethodExample.focus: A5 on). */
-.ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done { opacity: .35; transition: opacity .2s ease; }
+.ns-eq__row.is-done > *, .ns-eq__note.is-done, .ns-quad .is-done, .ns-solve__wide.is-done { opacity: .35; transition: opacity .2s ease; }
 .ns-quad__answer .is-f1, .ns-quad__answer .is-f3 { color: var(--f); }
+/* Solving a quadratic (lesson 22, SolvePictures.tsx): the board with A7's factor pairs across its full width. */
+.ns-solve__wide { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ns-solve__stage { margin: 0 0 2px; color: var(--rv-muted); font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+.ns-solve__num { color: var(--f); }
+.ns-solve__or { color: var(--rv-muted); font-size: .8em; font-weight: 500; }
 /* A board or quadratic picture takes the frame's full width, so a short formula (A = 6s²) doesn't squeeze its step
    headings and ⓘ text into a narrow column; the rows stay centred. */
 .wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad) { flex: 1; min-width: 0; }

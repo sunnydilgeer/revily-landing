@@ -113,7 +113,7 @@ export type EquationFrame = { rows: EquationRow[] }
  */
 export type QuadraticFrame = {
   letter: string; middle: number; last: number
-  /** A line or two on the signs of the pairs, when there is a minus: "+ 20 and − 9x: both negative". */
+  /** One line on the signs of the pairs, when there is a minus: "+ 20 and − 9x: both numbers are negative". */
   signs?: string[]
   /** The factor pairs of c, in order; `sums` adds what each pair adds to, and `pick` is the one that works. */
   pairs?: [number, number][]
@@ -127,6 +127,29 @@ export type QuadraticFrame = {
   /** What the step before added: it stays clear, with the question and this step; everything older is greyed out. */
   before?: QuadraticFrame['adds']
 }
+/**
+ * Solving x² + bx + c = 0 by factorising (lesson 22), the whole picture so far, in the textbook's four steps: make one
+ * side 0 (the board), factorise (A7's factor pairs, then the brackets), set each bracket to 0, then solve each one,
+ * ending in the answer. Rows line up on their = signs. `adds` is the part this step draws, where its heading goes.
+ */
+export type SolveFrame = {
+  letter: string; middle: number; last: number
+  /** The board before one side is 0: the question, then the rows of the move that makes it 0. None when it already is. */
+  board?: EquationRow[]
+  /** As in QuadraticFrame: the signs of the pairs, the factor pairs of c, their sums and the pair that works. */
+  signs?: string[]
+  pairs?: [number, number][]
+  sums?: boolean
+  pick?: number
+  /** The two numbers in the brackets, in order: (x + a)(x + b) = 0. */
+  brackets?: [number, number]
+  /** The question gives the brackets, so the picture starts there. */
+  given?: boolean
+  /** Each bracket set equal to 0; `solve` undoes the number in each, ending in the answer. */
+  split?: boolean
+  solve?: boolean
+  adds: 'zero' | 'pairs' | 'sums' | 'brackets' | 'split' | 'solve'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 export type MethodFrame = {
@@ -138,6 +161,7 @@ export type MethodFrame = {
   bracket?: BracketFrame
   equation?: EquationFrame
   quadratic?: QuadraticFrame
+  solve?: SolveFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

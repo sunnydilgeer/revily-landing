@@ -231,4 +231,7 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'quadratics-negative-last': [['Factorise x² + 2x − 15.', '(x − 3)(x + 5). The last number is negative, so one number is negative: −3 × 5 = −15 and −3 + 5 = 2.']],
     'quadratics-difference-of-squares': [['Factorise x² − 49.', '(x + 7)(x − 7). 49 is 7 × 7. One bracket plus, one minus, so the middle terms cancel.']],
   },
+  22: {
+    'quadratic-equations': [['Solve x² + x = 20.', 'x = 4 or x = −5. Subtract 20: x² + x − 20 = 0. Factorise: (x − 4)(x + 5) = 0. One bracket must be 0, so x − 4 = 0 or x + 5 = 0.']],
+  },
 }

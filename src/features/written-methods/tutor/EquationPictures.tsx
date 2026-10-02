@@ -63,7 +63,7 @@ function Radical({ mark }: { mark?: Token['root'] }) {
   </span>
 }
 
-function Side({ side, plain }: { side: string; plain?: boolean }) {
+export function Side({ side, plain }: { side: string; plain?: boolean }) {
   return <>{readTokens(side).map((token, i) => <span key={i} className={`ns-eq__token${family(token, plain)}${token.struck && !plain ? ' is-struck' : ''}`}>
     {token.root
       ? <span className="ns-eq__rooted"><span className="ns-eq__root">

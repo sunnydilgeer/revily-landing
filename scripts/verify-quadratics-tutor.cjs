@@ -97,6 +97,8 @@ for (const [ref, [letter, b, c, [p, q]]] of Object.entries(quadratics)) {
   const order = frames.map(frame => frame.adds)
   assert.deepEqual(order, ['pairs', 'sums', 'answer'], `${state.id}: three steps, the factor pairs, the one that adds up, then the brackets`)
   assert.equal(Boolean(last.signs), !(b > 0 && c > 0), `${state.id}: a line on the signs only when there is a minus`)
+  // One sentence (Sunny, 2 Oct), and "further from 0", not "bigger": in −6 and 4 the −6 takes the middle's sign.
+  if (last.signs) assert.ok(last.signs.length === 1 && !/bigger/.test(last.signs[0]) && (c > 0 || last.signs[0].includes('further from 0')), `${state.id}: the signs are one sentence`)
   assert.deepEqual(steps.map(step => step.title), [`Factor pairs of ${String(c).replace('-', '−')}`, `Which pair adds to ${String(b).replace('-', '−')}?`, 'Into the brackets'], `${state.id}: the headings name the numbers`)
   const { pairs, pick } = last
   for (const [m, n] of pairs) { assert.equal(m * n, c, `${state.id}: ${m} and ${n} multiply to ${c}`); pairsChecked++ }
