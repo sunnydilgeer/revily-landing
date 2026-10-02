@@ -42,7 +42,7 @@ export function expanded(expression: string) {
 }
 
 const header = (term: Term, i: number) => i === 0 ? show(term) : show(term, false).replace(' ', '')
-function expandModel(expression: string, extra: { title: string; math: string; say: string; line?: WorkingLine; answer?: string }[] = []): TutorWorking {
+export function expandModel(expression: string, extra: { title: string; math: string; say: string; line?: WorkingLine; answer?: string }[] = []): TutorWorking {
   const list = grids(expression), all = products(list)
   const answer = expanded(expression)
   const families = [...collect(all.map(p => p.product)).keys()]

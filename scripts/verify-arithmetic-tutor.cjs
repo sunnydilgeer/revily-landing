@@ -49,11 +49,27 @@ function verifyWorking(working) {
         assert.equal(calculation(left), calculation(right), equation)
       }
     }
+    // One move a step, shown where it comes from: every line's sum is true, and the answer appears once, on the last step.
+    for (const [index, step] of example.steps.entries()) {
+      for (const line of step.frame.lines ?? []) {
+        const text = line.parts.map(part => part.text).join(' ')
+        if (line.result === undefined || !/^[\d ×+−]+$/.test(text) || !/^£?[\d,]+$/.test(line.result)) continue
+        assert.equal(calculation(text.replace(/ /g, '').replace(/×/g, '\\times').replace(/−/g, '-')), Number(line.result.replace(/[£,]/g, '')), `${example.expression}: ${text} → ${line.result}`)
+      }
+      const f = step.frame
+      const answers = [f.answerRow, f.answerCarry, f.answerWords, ...(f.lines ?? []).map(line => line.answer)].filter(Boolean).length
+      assert.equal(answers, index === example.steps.length - 1 ? 1 : 0, `${example.expression} step ${index + 1}: the answer is shown once, by the last move`)
+      assert(!/check|the answer/i.test(step.title), `${example.expression}: no separate check or answer step (${step.title})`)
+      assert(step.title.split(' ').length <= 4, `${example.expression}: short heading (${step.title})`)
+      assert(!/=/.test(step.instruction), `${example.expression}: the ⓘ is words, not sums (${step.instruction})`)
+    }
     const last = example.steps.at(-1).frame
-    if (example.method === 'column') {
+    if (last.answerCarry) {
+      assert.equal(last.carry.value, Math.floor((Math.floor(example.first / 10) % 10 * example.second + Math.floor(example.first % 10 * example.second / 10)) / 10))
+    } else if (example.method === 'column') {
       assert.equal(Number(last.ones), example.first * (example.second % 10))
       if (example.second >= 10) {
-        const zeroStep = example.steps.find(step => step.title === 'Why the second row starts with 0')
+        const zeroStep = example.steps.find(step => step.title === 'Put down a 0')
         assert.deepEqual(zeroStep.focus, { factorPlace: 1 }, 'Underline only the multiplier tens digit during the zero-start action')
         assert.equal(zeroStep.frame.tens, '0')
         assert.equal(Number(last.tens), example.first * Math.floor(example.second / 10) * 10)
@@ -65,6 +81,7 @@ function verifyWorking(working) {
       assert.equal(Number(last.total), example.first * example.second)
     } else {
       assert.equal(Number(last.quotient), Math.floor(example.first / example.second))
+      if (last.answerRow) assert.equal(last.answerRow, 'quotient')
       assert.equal(last.remainder, example.first % example.second)
       assert(last.remainder >= 0 && last.remainder < example.second)
     }
@@ -147,6 +164,8 @@ const gridEnd = methodProgress(gridExample, 6)
 assert.equal(gridEnd.active, 0)
 assert.equal(gridEnd.current.equation, '600+180+80+24=884')
 assert.equal(gridEnd.working[0].count, 6)
+assert.deepEqual(gridExample.examples[0].steps.map(s => s.title), ['Split both numbers', 'Top-left box', 'Top-right box', 'Bottom-left box', 'Bottom-right box', 'Add the boxes'])
+assert.equal(gridExample.examples[0].steps.at(-1).frame.lines[0].result, '884')
 const columnExample = columnVideoExample.visual
 const columnStart = methodProgress(columnExample, 1)
 assert.equal(columnStart.current.equation, '3\\times6=18')
@@ -171,8 +190,8 @@ console.log('Video-first openings and synchronised current-step selection passed
 const addedExamples = [
   { lesson: multiplication, source: '424 × 28', method: 'column', first: 424, second: 28, ones: 3392, tens: 8480, total: 11872, steps: 11 },
   { lesson: multiplication, source: '291 × 56', method: 'column', first: 291, second: 56, ones: 1746, tens: 14550, total: 16296, steps: 12 },
-  { lesson: division, source: '235 ÷ 17', method: 'long-division', first: 235, second: 17, quotient: ' 13', remainder: 14, steps: 9 },
-  { lesson: division, source: '289 ÷ 29', method: 'long-division', first: 289, second: 29, quotient: '  9', remainder: 28, steps: 5 },
+  { lesson: division, source: '235 ÷ 17', method: 'long-division', first: 235, second: 17, quotient: ' 13', remainder: 14, steps: 6 },
+  { lesson: division, source: '289 ÷ 29', method: 'long-division', first: 289, second: 29, quotient: '  9', remainder: 28, steps: 3 },
 ]
 for (const expected of addedExamples) {
   const matches = expected.lesson.states.filter(s => s.sourceRef === `User-added worked example: ${expected.source}`)
@@ -188,12 +207,13 @@ for (const expected of addedExamples) {
   else { assert.equal(last.quotient, expected.quotient); assert.equal(last.remainder, expected.remainder) }
 }
 const long17 = division.states.find(s => s.sourceRef.endsWith('235 ÷ 17')).visual.examples[0].steps
-assert.deepEqual(long17.map(s => s.title), ['Choose the first group of digits', 'Divide 23 by 17', 'Multiply', 'Subtract', 'Bring down 5', 'Divide 65 by 17', 'Multiply', 'Subtract', 'Read and check the answer'])
-assert.deepEqual(long17[3].frame.longRows, [{ number: '17', end: 1, kind: 'subtract' }, { number: '6', end: 1, kind: 'remainder' }])
-assert.deepEqual(long17[4].frame.longRows, [{ number: '17', end: 1, kind: 'subtract' }, { number: '65', end: 2, kind: 'bring-down' }])
+assert.deepEqual(long17.map(s => s.title), ['Start with 23', 'How many 17s?', 'Subtract', 'Bring down the 5', 'How many 17s?', 'Subtract'])
+assert.deepEqual(long17[1].frame.lines.map(l => [l.result, l.mark]), [['17', '✓'], ['34', 'too big']], 'The trial multiples show where the 1 comes from')
+assert.deepEqual(long17[2].frame.longRows, [{ number: '17', end: 1, kind: 'subtract' }, { number: '6', end: 1, kind: 'remainder' }])
+assert.deepEqual(long17[3].frame.longRows, [{ number: '17', end: 1, kind: 'subtract' }, { number: '65', end: 2, kind: 'bring-down' }])
 assert.deepEqual(long17.at(-1).frame.longRows, [{ number: '17', end: 1, kind: 'subtract' }, { number: '65', end: 2, kind: 'bring-down' }, { number: '51', end: 2, kind: 'subtract' }, { number: '14', end: 2, kind: 'remainder' }])
 const long29 = division.states.find(s => s.sourceRef.endsWith('289 ÷ 29')).visual.examples[0].steps
-assert(long29[1].instruction.includes('29 × 10 = 290 is too big'))
+assert.deepEqual(long29[1].frame.lines.map(l => [l.parts.map(p => p.text).join(' '), l.result, l.mark]), [['29 × 9', '261', '✓'], ['29 × 10', '290', 'too big']])
 assert.deepEqual(long29.at(-1).frame.longRows, [{ number: '261', end: 2, kind: 'subtract' }, { number: '28', end: 2, kind: 'remainder' }])
 console.log('All four user-added worked examples verified, including subtraction/bring-down alignment and both final remainders; all source questions retained.')
 const carried = columnWorking(347, 4).steps
@@ -203,9 +223,23 @@ const twoRows = columnWorking(246, 43).steps
 assert.equal(twoRows.length, 11, 'One useful action per click, without split calculation/result clicks')
 assert.deepEqual(twoRows.slice(-4).map(s => s.frame.total), ['8', '78', '578', '10578'])
 const bus = divisionWorking(375, 5).steps
-assert.equal(bus.length, 4)
-assert.deepEqual(bus.slice(0, 3).map(s => s.frame.quotient), [' ', ' 7', ' 75'])
-assert.deepEqual(bus.slice(0, 2).map(s => s.frame.divisionCarry), [{ index: 1, value: 3 }, { index: 2, value: 2 }])
+assert.equal(bus.length, 3, 'One step a place, and no check step')
+assert.deepEqual(bus.map(s => s.frame.quotient), [' ', ' 7', ' 75'])
+assert.deepEqual(bus.map(s => s.frame.busCarries), [[{ index: 1, value: 3 }], [{ index: 1, value: 3 }, { index: 2, value: 2 }], [{ index: 1, value: 3 }, { index: 2, value: 2 }]])
+assert.deepEqual(bus[1].frame.lines.map(l => [l.parts.map(p => p.text).join(' '), l.result]), [['5 × 7', '35'], ['37 − 35', '2']], 'The remainder is worked out, not announced')
+// Each question's working ends on what that question asks for.
+const workingFor = (lesson, source) => lesson.states.find(s => s.sourceRef.startsWith(source)).working.examples[0].steps
+const oneMore = workingFor(division, 'N4.1 Q4b').at(-1).frame.lines[0]
+assert.deepEqual([oneMore.parts.map(p => p.text).join(' '), oneMore.result, oneMore.answer], ['31 + 1', '32', true], 'The working reaches 32 boxes')
+assert.equal(workingFor(division, 'N4.1 Q4a').at(-1).frame.answerWords, '31 full boxes, 2 buns left over')
+assert.equal(workingFor(division, 'N4.1 Q5b').at(-1).frame.lines.at(-1).result, '0')
+assert(workingFor(division, 'N4.1 Q5c').at(-1).frame.carriesBoxed)
+assert.equal(workingFor(multiplication, 'N5.1 Q5b').at(-1).frame.carry.value, 1)
+assert.equal(workingFor(multiplication, 'N5.1 Q4b').at(-1).frame.lines[0].result, '£756')
+assert.equal(workingFor(multiplication, 'N5.1 Q4b')[0].title, 'Write the sum')
+const carriedCol = columnWorking(246, 3).steps
+assert.deepEqual(carriedCol[1].frame.lines.map(l => [l.parts.map(p => p.text).join(' '), l.result]), [['3 × 4', '12'], ['12 + 1', '13']], 'A carry is added on its own line')
+assert.deepEqual(carriedCol[2].frame.carries.map(c => [c.value, Boolean(c.used), Boolean(c.boxed)]), [[1, true, false], [1, false, true]], 'Used carries are struck out; the one being added is boxed')
 for (const [first, second] of [[405, 32], [306, 24], [132, 24]]) verifyWorking({ kind: 'method-worked', examples: [columnWorking(first, second)] })
 for (const [first, second] of [[408, 4], [250, 8], [624, 8]]) verifyWorking({ kind: 'method-worked', examples: [divisionWorking(first, second)] })
 console.log('Digit placement, repeated carries, internal zeros, cumulative sums, aligned quotient and remainder exchanges passed.')

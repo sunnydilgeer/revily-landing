@@ -15,3 +15,12 @@
 @media (max-width: 799px) {
   .cur-toc__subjects { margin: 0 16px 10px; }
 }
+
+/* Foundation or Higher: the same pill switch as the subject picker. */
+.cur-tier { display: inline-flex; gap: 4px; margin-top: 8px; padding: 4px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-pill); background: var(--rv-surface); }
+.cur-tier button {
+  min-height: 36px; padding: 0 14px; border: 0; border-radius: var(--rv-radius-pill); background: none; cursor: pointer;
+  color: var(--rv-ink-2); font: 700 .85rem var(--rv-font-body);
+}
+.cur-tier button[aria-pressed="true"] { background: var(--rv-ink); color: var(--rv-surface); }
+.cur-tier button:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
