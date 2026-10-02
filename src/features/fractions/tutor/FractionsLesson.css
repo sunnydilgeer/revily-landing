@@ -41,6 +41,7 @@
 
 /* In a working the bars use the card's width, not the width of the line below them, so 24 parts stay countable. */
 .ns-visual.frm { flex: 1 1 auto; min-width: 0; }
+.frm > .rung-worked__visual { justify-self: stretch; }
 .frm .fr-bars, .frm .fr-mixed, .frm .fr-area { width: min(100%, 460px); margin: 4px auto 18px; gap: 14px; }
 .frm .fr-segments { min-height: 44px; }
 
