@@ -6,7 +6,7 @@ import { readBests, type Best } from './kit/Lab'
 import './LabsHome.css'
 
 const HOW = [
-  { emoji: '🎮', title: 'Play', line: 'Heists, storms, potions, robots, pool and packs: pick a game.' },
+  { emoji: '🎮', title: 'Play', line: 'Heists, storms, sales, zombies and more. Fresh numbers every time you play.' },
   { emoji: '🧠', title: 'Learn the move', line: 'Every answer shows you the working, step by step.' },
   { emoji: '📝', title: 'Bank exam marks', line: 'The same move answers a real GCSE question.' },
 ]

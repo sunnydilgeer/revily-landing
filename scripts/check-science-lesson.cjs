@@ -45,7 +45,7 @@ if (subject !== 'biology') {
   const number = dir.replace(/^.*lesson-/, '')
   const prefix = subject === 'chemistry' ? 'C' : subject === 'physics' ? 'P' : 'W'
   if (lesson.strand !== subject) fail('subject', `strand must be '${subject}'`)
-  for (const state of states) if (!new RegExp(`^${prefix}${number}-\\d{2}$`).test(state.id)) fail('ids', `${state.id}: ${subject} screen ids are ${prefix}${number}-NN`)
+  for (const state of states) if (!new RegExp(`^${prefix}${number.toUpperCase()}-\\d{2}$`).test(state.id)) fail('ids', `${state.id}: ${subject} screen ids are ${prefix}${number.toUpperCase()}-NN`)
   if (!fs.existsSync(path.join(science, `cards/facts/${subject}/${number}.ts`))) fail('facts', `No key facts at cards/facts/${subject}/${number}.ts`)
 }
 if (lesson.reviewStatus !== 'draftNeedsTeacherReview') fail('draft', 'Lesson must stay a draft awaiting teacher review')
@@ -95,7 +95,7 @@ try {
     const html = render(f.focus, false)
     if (html.length <= 20 || html.includes('NaN')) fail('visuals', `${id} frame "${f.label}" focus "${f.focus}" does not render a diagram`)
   }
-  for (const state of states) if (state.visual && /^(?:B(?:[4-9]|[1-9]\d)|[CPW]\d+)-/.test(state.id)) {
+  for (const state of states) if (state.visual && /^(?:B(?:[4-9]|[1-9]\d)|[CPW]\d+H?)-/.test(state.id)) {
     const html = render(state.visual.id, state.kind !== 'teaching')
     if (html.length <= 20 || html.includes('NaN')) fail('visuals', `${state.id} visual "${state.visual.id}" does not render`)
   }

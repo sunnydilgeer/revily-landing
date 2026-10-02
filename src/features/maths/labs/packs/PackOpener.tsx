@@ -5,8 +5,9 @@ import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { openPacks, rarities, rounds, type Rarity } from './rounds'
+import { makeRounds, openPacks, type Rarity, type Round } from './rounds'
 import './PackOpener.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -28,10 +29,9 @@ const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🎲', name: 'Lucky Guesser', line: 'You got there. Keep an eye on those odds.' },
   { badge: '🤑', name: 'Jax’s Best Customer', line: 'Jax is buying a yacht with your money. Run it again.' },
 ]
-const SEEDS: Record<number, number> = { 20: 11, 1000: 2024 }
 const DURATION: Record<number, number> = { 20: 1800, 1000: 2600 }
 
-function Odds({ legendaryKnown }: { legendaryKnown: boolean }) {
+function Odds({ rarities, legendaryKnown }: { rarities: Rarity[]; legendaryKnown: boolean }) {
   return <ul className="po-odds" aria-label="Pack odds">
     {rarities.map(rarity => {
       const hidden = rarity.id === 'legendary' && !legendaryKnown
@@ -45,7 +45,7 @@ function Odds({ legendaryKnown }: { legendaryKnown: boolean }) {
 }
 
 /** 20 packs: cards flip one by one. */
-function PackGrid({ opening }: { opening: Opening }) {
+function PackGrid({ rarities, opening }: { rarities: Rarity[]; opening: Opening }) {
   return <ul className="po-grid" aria-label="Packs opened">
     {opening.results.map((id, i) => {
       const rarity = rarities.find(r => r.id === id)!
@@ -56,7 +56,7 @@ function PackGrid({ opening }: { opening: Opening }) {
 }
 
 /** 1,000 packs: a live tally, with the real odds marked on each bar. */
-function LongRun({ opening }: { opening: Opening }) {
+function LongRun({ rarities, opening }: { rarities: Rarity[]; opening: Opening }) {
   const seen = opening.results.slice(0, opening.shown)
   return <div className="po-tally">
     <p className="po-tally__count">{opening.shown.toLocaleString('en-GB')} packs opened</p>
@@ -76,7 +76,7 @@ function LongRun({ opening }: { opening: Opening }) {
   </div>
 }
 
-export default function PackOpener() {
+function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => void }) {
   const [roundIndex, setRoundIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('intro')
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -97,6 +97,7 @@ export default function PackOpener() {
   const nope = question.choices.find(choice => choice.value === picked)?.nope
   const busy = !!opening && opening.shown < opening.results.length
   const legendaries = opening ? opening.results.filter(id => id === 'legendary').length : 0
+  const expected20 = Math.round(round.odds[2].chance * 20)
 
   useEffect(() => () => cancelAnimationFrame(frame.current), [])
   useEffect(() => {
@@ -104,7 +105,7 @@ export default function PackOpener() {
   }, [screen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const open = (count: number) => {
-    const results = openPacks(count, SEEDS[count])
+    const results = openPacks(count, round.seeds[count], round.odds)
     if (prefersReducedMotion()) { setOpening({ results, shown: count }); return }
     setOpening({ results, shown: 0 })
     const start = performance.now()
@@ -143,20 +144,20 @@ export default function PackOpener() {
     else { score.bank(); setScreen('payout'); sfx.win() }
   }
 
-  const restart = () => { score.reset(); resetShare(); setOddsKnown(false); startRound(0) }
+  const restart = onReplay
 
   /** What actually happened, next to what was expected. */
   const outcome = opening && !busy && question.open
     ? question.open === 20
-      ? legendaries === 1
-        ? ' You got exactly 1. It won’t always land that neatly: chance wobbles.'
+      ? legendaries === expected20
+        ? ` You got exactly ${expected20}. It won’t always land that neatly: chance wobbles.`
         : ` You got ${legendaries}. Chance wobbles: expected is the average, not a promise.`
-      : ` You got ${legendaries}, which is ${(legendaries / 10).toFixed(1)}%. Over lots of packs it lands close to 5%.`
+      : ` You got ${legendaries}, which is ${(legendaries / 10).toFixed(1)}%. Over lots of packs it lands close to ${Math.round(round.odds[2].chance * 100)}%.`
     : ''
 
   if (screen === 'done') {
     const rank = rankFor(score.kept, rounds.length, RANKS)
-    const brag = `I worked out a legendary costs £40 on average. Jax couldn’t sell me anything. Rank: ${rank.name} ${rank.badge}`
+    const brag = `I worked out a legendary costs £${rounds[0].cost} on average. Jax couldn’t sell me anything. Rank: ${rank.name} ${rank.badge}`
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Pack Opener complete</p>
@@ -179,7 +180,7 @@ export default function PackOpener() {
       <section className="lab-intro">
         <p className="lab-kicker">{round.title}</p>
         <h1 className="lab-title">{round.brief}</h1>
-        <div className="lab-card rv-paper"><Odds legendaryKnown={oddsKnown} /></div>
+        <div className="lab-card rv-paper"><Odds rarities={round.odds} legendaryKnown={oddsKnown} /></div>
         <Quip speaker={JAX}>{INTROS[roundIndex]}</Quip>
         <Why>{round.why}</Why>
       </section>
@@ -191,8 +192,8 @@ export default function PackOpener() {
     {screen === 'question' && <>
       <section className="lab-card rv-paper po-stage">
         {opening
-          ? opening.results.length <= 20 ? <PackGrid opening={opening} /> : <LongRun opening={opening} />
-          : <Odds legendaryKnown={oddsKnown} />}
+          ? opening.results.length <= 20 ? <PackGrid rarities={round.odds} opening={opening} /> : <LongRun rarities={round.odds} opening={opening} />
+          : <Odds rarities={round.odds} legendaryKnown={oddsKnown} />}
       </section>
       <section className="lab-ask">
         <p className="lab-asker"><span aria-hidden="true">{JAX.emoji}</span> {JAX.name} wants to know</p>
@@ -239,4 +240,10 @@ export default function PackOpener() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function PackOpener() {
+  const { data, play, regenerate } = useGenerated(makeRounds)
+  return data ? <PackOpenerGame key={play} rounds={data} onReplay={regenerate} /> : null
 }

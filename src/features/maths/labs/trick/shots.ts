@@ -1,4 +1,5 @@
 import type { ChainStep } from '../../step-chain/StepChain'
+import { options, type Rand } from '../kit/random'
 
 /*
  * Table coordinates: 160 × 90, cushions at x = 6 and 154, y = 6 and 84.
@@ -38,142 +39,155 @@ const rad = (deg: number) => deg * Math.PI / 180
 /** From `p`, go `length` in direction `deg`. */
 const toward = ([x, y]: Point, deg: number, length: number): Point => [x + length * Math.cos(rad(deg)), y - length * Math.sin(rad(deg))]
 
-// Shot 1 and 2: a 50° line from the bottom cushion into the top-right corner pocket.
-const HIT: Point = [154 - 78 / Math.tan(rad(50)), 84]
-const START_2 = toward(HIT, 130, 78 / Math.sin(rad(50)))
-// Shot 3: into the same pocket, crossed by a mate's shot at 70°.
-const CROSS: Point = [80, 45]
-const LINE = Math.atan2(45 - 6, 154 - 80) * 180 / Math.PI
 const deg = (value: number) => `${value}^\\circ`
+const label = (value: number) => `${value}°`
+const angle = (value: number, nope?: string) => ({ value, label: label(value), nope })
 
-export const shots: Shot[] = [
-  {
-    id: 'straight',
-    title: 'Shot 1 · Straight Line',
-    brief: 'Your ball’s on the cushion. Pot it in the top corner.',
-    why: 'A straight line is a half turn: 180°. The angles along it always add up to 180°, so if you know one, you know the other.',
-    path: [HIT, [154, 6]],
-    guides: [],
-    arcs: [
-      { id: 'known', at: HIT, from: 50, to: 180, value: 130 },
-      { id: 'aim', at: HIT, from: 0, to: 50, value: 50 },
-    ],
-    questions: [
-      {
-        prompt: 'Angles on a straight line add to 180°. What’s the missing angle?',
-        arc: 'aim',
-        answer: 50,
-        choices: [
-          { value: 130, label: '130°', nope: 'That’s the angle you were given. The two together make 180°.' },
-          { value: 50, label: '50°' },
-          { value: 80, label: '80°', nope: 'Check the subtraction: 180 − 130 = 50.' },
-        ],
-        why: '180° − 130° = 50°. Aim at 50° and it’s in.',
-      },
-    ],
-    chain: [
-      { line: `\\text{?} + [[k:${deg(130)}]] = [[t:${deg(180)}]]` },
-      { line: `\\text{?} = [[t:${deg(180)}]] [[m:- ${deg(130)}]]`, op: '− 130° both sides', why: 'Angles on a straight line add to 180°. Take the 130° away to leave the missing angle.' },
-      { line: `\\text{?} = [[r:${deg(50)}]]`, op: 'Work it out', merge: { r: ['t', 'm'] }, why: '180 − 130 = 50.' },
-    ],
-  },
-  {
-    id: 'bank',
-    title: 'Shot 2 · Bank Shot',
-    brief: 'The corner’s blocked. Bank it off the bottom cushion.',
-    why: 'A ball bounces like light off a mirror: the angle in equals the angle out. Then straight-line and triangle facts do the rest.',
-    path: [START_2, HIT, [154, 6]],
-    guides: [[START_2, [154, 6]]],
-    arcs: [
-      { id: 'in', at: HIT, from: 130, to: 180, value: 50 },
-      { id: 'out', at: HIT, from: 0, to: 50, value: 50 },
-      { id: 'gap', at: HIT, from: 50, to: 130, value: 80 },
-      { id: 'start', at: START_2, from: 310, to: 360, value: 50 },
-      { id: 'pocket', at: [154, 6], from: 180, to: 230, value: 50 },
-    ],
-    questions: [
-      {
-        prompt: 'Angle in = angle out. It hits at 50°. What angle does it bounce off at?',
-        arc: 'out',
-        answer: 50,
-        choices: [
-          { value: 50, label: '50°' },
-          { value: 130, label: '130°', nope: '130° is the straight-line partner of 50°. A bounce keeps the same angle: in = out.' },
-          { value: 40, label: '40°', nope: '40° would make a right angle with 50°. For a bounce, the angle out is the same as the angle in.' },
-        ],
-        why: 'Angle in = angle out, so it leaves at 50° too.',
-      },
-      {
-        prompt: 'The three angles at the cushion make a straight line. What’s the gap between the paths?',
-        arc: 'gap',
-        answer: 80,
-        choices: [
-          { value: 130, label: '130°', nope: 'That’s 180 − 50. There are two 50° angles on this line, so take both away.' },
-          { value: 80, label: '80°' },
-          { value: 100, label: '100°', nope: 'That’s 50 + 50. Those two plus the gap make 180, so 180 − 100.' },
-        ],
-        why: '180° − 50° − 50° = 80°.',
-      },
-      {
-        prompt: 'The shot makes a triangle. Angles in a triangle add to 180°. Find the angle at the pocket.',
-        arc: 'pocket',
-        answer: 50,
-        choices: [
-          { value: 60, label: '60°', nope: '60° is for a triangle with all angles equal. Here it’s 180 − 50 − 80.' },
-          { value: 130, label: '130°', nope: 'That’s 180 − 50. Take the 80° away as well.' },
-          { value: 50, label: '50°' },
-        ],
-        why: '180° − 50° − 80° = 50°. Every angle checks out. Take the shot.',
-      },
-    ],
-    chain: [
-      { line: `\\text{Out} = [[a:${deg(50)}]]` },
-      { line: `\\text{Gap} = [[t:${deg(180)}]] - [[a:${deg(50)}]] - [[b:${deg(50)}]]`, op: 'Straight line', why: 'The angle in, the gap and the angle out sit on the cushion: a straight line, 180°.' },
-      { line: `\\text{Gap} = [[g:${deg(80)}]]`, op: 'Work it out', merge: { g: ['t', 'a', 'b'] }, why: '180 − 50 − 50 = 80.' },
-      { line: `\\text{Pocket} = [[u:${deg(180)}]] - [[c:${deg(50)}]] - [[g:${deg(80)}]]`, op: 'Triangle', why: 'The three corners of a triangle add to 180°. You know two of them.' },
-      { line: `\\text{Pocket} = [[z:${deg(50)}]]`, op: 'Work it out', merge: { z: ['u', 'c', 'g'] }, why: '180 − 50 − 80 = 50.' },
-    ],
-  },
-  {
-    id: 'cross',
-    title: 'Shot 3 · Cross Fire',
-    brief: 'Your mate’s shot crosses yours. Line it up perfectly.',
-    why: 'When two straight lines cross, the angles opposite each other are equal. Angles next to each other are on a straight line, so they add to 180°.',
-    path: [toward(CROSS, LINE + 180, 55), [154, 6]],
-    guides: [[toward(CROSS, LINE + 70, 40), toward(CROSS, LINE + 250, 40)]],
-    arcs: [
-      { id: 'given', at: CROSS, from: LINE, to: LINE + 70, value: 70 },
-      { id: 'opposite', at: CROSS, from: LINE + 180, to: LINE + 250, value: 70 },
-      { id: 'next', at: CROSS, from: LINE + 70, to: LINE + 180, value: 110 },
-    ],
-    questions: [
-      {
-        prompt: 'Vertically opposite angles are equal. What’s the angle opposite 70°?',
-        arc: 'opposite',
-        answer: 70,
-        choices: [
-          { value: 110, label: '110°', nope: '110° is the one NEXT to 70°. The opposite one is the same size: 70°.' },
-          { value: 290, label: '290°', nope: 'That’s all the way round minus 70. The opposite angle is just a mirror of 70°.' },
-          { value: 70, label: '70°' },
-        ],
-        why: 'Opposite angles are equal: 70°.',
-      },
-      {
-        prompt: 'And the angle next to it?',
-        arc: 'next',
-        answer: 110,
-        choices: [
-          { value: 110, label: '110°' },
-          { value: 20, label: '20°', nope: '90 − 70 is for a right angle. These two sit on a straight line: 180 − 70.' },
-          { value: 70, label: '70°', nope: 'Opposite ones are equal, but this one’s next door. Next-door angles add to 180°.' },
-        ],
-        why: '180° − 70° = 110°. Lined up. Shoot.',
-      },
-    ],
-    chain: [
-      { line: `\\text{Opposite} = [[a:${deg(70)}]]` },
-      { line: `\\text{Next} = [[t:${deg(180)}]] - [[a:${deg(70)}]]`, op: 'Straight line', why: 'Opposite angles are equal, so that one is 70°. The next-door angle sits with it on a straight line: 180°.' },
-      { line: `\\text{Next} = [[r:${deg(110)}]]`, op: 'Work it out', merge: { r: ['t', 'a'] }, why: '180 − 70 = 110.' },
-    ],
-  },
-]
+/** A fresh set of shots. Every angle is a multiple of 10, and the table is drawn from the angles. */
+export function makeShots(rand: Rand): Shot[] {
+  // Shot 1: off the bottom cushion at θ into the top-right corner.
+  const t1 = rand.pick([30, 40, 50, 60]), given1 = 180 - t1
+  const hit1: Point = [154 - 78 / Math.tan(rad(t1)), 84]
+
+  // Shot 2: a bank shot from the top cushion, off the bottom one, into the top-right corner.
+  const t2 = rand.pick([50, 60, 70]), gap2 = 180 - 2 * t2
+  const hit2: Point = [154 - 78 / Math.tan(rad(t2)), 84]
+  const start2 = toward(hit2, 180 - t2, 78 / Math.sin(rad(t2)))
+
+  // Shot 3: into the same pocket, crossed by a mate's shot at α.
+  const a3 = rand.pick([40, 50, 60, 70, 80]), next3 = 180 - a3
+  const cross: Point = [80, 45]
+  const line = Math.atan2(45 - 6, 154 - 80) * 180 / Math.PI
+
+  return [
+    {
+      id: 'straight',
+      title: 'Shot 1 · Straight Line',
+      brief: 'Your ball’s on the cushion. Pot it in the top corner.',
+      why: 'A straight line is a half turn: 180°. The angles along it always add up to 180°, so if you know one, you know the other.',
+      path: [hit1, [154, 6]],
+      guides: [],
+      arcs: [
+        { id: 'known', at: hit1, from: t1, to: 180, value: given1 },
+        { id: 'aim', at: hit1, from: 0, to: t1, value: t1 },
+      ],
+      questions: [
+        {
+          prompt: 'Angles on a straight line add to 180°. What’s the missing angle?',
+          arc: 'aim',
+          answer: t1,
+          choices: options(rand, angle(t1), [
+            angle(given1, 'That’s the angle you were given. The two together make 180°.'),
+            angle(t1 + 30, `Check the subtraction: 180 − ${given1} = ${t1}.`),
+            angle(360 - given1, `That’s 360 − ${given1}, a full turn. A straight line is half a turn: 180°.`),
+          ]),
+          why: `180° − ${given1}° = ${t1}°. Aim at ${t1}° and it’s in.`,
+        },
+      ],
+      chain: [
+        { line: `\\text{?} + [[k:${deg(given1)}]] = [[t:${deg(180)}]]` },
+        { line: `\\text{?} = [[t:${deg(180)}]] [[m:- ${deg(given1)}]]`, op: `− ${given1}° both sides`, why: `Angles on a straight line add to 180°. Take the ${given1}° away to leave the missing angle.` },
+        { line: `\\text{?} = [[r:${deg(t1)}]]`, op: 'Work it out', merge: { r: ['t', 'm'] }, why: `180 − ${given1} = ${t1}.` },
+      ],
+    },
+    {
+      id: 'bank',
+      title: 'Shot 2 · Bank Shot',
+      brief: 'The corner’s blocked. Bank it off the bottom cushion.',
+      why: 'A ball bounces like light off a mirror: the angle in equals the angle out. Then straight-line and triangle facts do the rest.',
+      path: [start2, hit2, [154, 6]],
+      guides: [[start2, [154, 6]]],
+      arcs: [
+        { id: 'in', at: hit2, from: 180 - t2, to: 180, value: t2 },
+        { id: 'out', at: hit2, from: 0, to: t2, value: t2 },
+        { id: 'gap', at: hit2, from: t2, to: 180 - t2, value: gap2 },
+        { id: 'start', at: start2, from: 360 - t2, to: 360, value: t2 },
+        { id: 'pocket', at: [154, 6], from: 180, to: 180 + t2, value: t2 },
+      ],
+      questions: [
+        {
+          prompt: `Angle in = angle out. It hits at ${t2}°. What angle does it bounce off at?`,
+          arc: 'out',
+          answer: t2,
+          choices: options(rand, angle(t2), [
+            angle(180 - t2, `${180 - t2}° is the straight-line partner of ${t2}°. A bounce keeps the same angle: in = out.`),
+            angle(90 - t2, `${90 - t2}° would make a right angle with ${t2}°. For a bounce, the angle out is the same as the angle in.`),
+            angle(2 * t2, `That’s ${t2} doubled. The angle out is the same as the angle in.`),
+          ]),
+          why: `Angle in = angle out, so it leaves at ${t2}° too.`,
+        },
+        {
+          prompt: 'The three angles at the cushion make a straight line. What’s the gap between the paths?',
+          arc: 'gap',
+          answer: gap2,
+          choices: options(rand, angle(gap2), [
+            angle(180 - t2, `That’s 180 − ${t2}. There are two ${t2}° angles on this line, so take both away.`),
+            angle(2 * t2, `That’s ${t2} + ${t2}. Those two plus the gap make 180, so 180 − ${2 * t2}.`),
+            angle(gap2 + 20, `Check it: 180 − ${t2} − ${t2} = ${gap2}.`),
+          ]),
+          why: `180° − ${t2}° − ${t2}° = ${gap2}°.`,
+        },
+        {
+          prompt: 'The shot makes a triangle. Angles in a triangle add to 180°. Find the angle at the pocket.',
+          arc: 'pocket',
+          answer: t2,
+          choices: options(rand, angle(t2), [
+            angle(60, `60° is for a triangle with all angles equal. Here it’s 180 − ${t2} − ${gap2}.`),
+            angle(180 - t2, `That’s 180 − ${t2}. Take the ${gap2}° away as well.`),
+            angle(gap2, `That’s the gap at the cushion. The pocket angle is 180 − ${t2} − ${gap2}.`),
+          ]),
+          why: `180° − ${t2}° − ${gap2}° = ${t2}°. Every angle checks out. Take the shot.`,
+        },
+      ],
+      chain: [
+        { line: `\\text{Out} = [[a:${deg(t2)}]]` },
+        { line: `\\text{Gap} = [[t:${deg(180)}]] - [[a:${deg(t2)}]] - [[b:${deg(t2)}]]`, op: 'Straight line', why: 'The angle in, the gap and the angle out sit on the cushion: a straight line, 180°.' },
+        { line: `\\text{Gap} = [[g:${deg(gap2)}]]`, op: 'Work it out', merge: { g: ['t', 'a', 'b'] }, why: `180 − ${t2} − ${t2} = ${gap2}.` },
+        { line: `\\text{Pocket} = [[u:${deg(180)}]] - [[c:${deg(t2)}]] - [[g:${deg(gap2)}]]`, op: 'Triangle', why: 'The three corners of a triangle add to 180°. You know two of them.' },
+        { line: `\\text{Pocket} = [[z:${deg(t2)}]]`, op: 'Work it out', merge: { z: ['u', 'c', 'g'] }, why: `180 − ${t2} − ${gap2} = ${t2}.` },
+      ],
+    },
+    {
+      id: 'cross',
+      title: 'Shot 3 · Cross Fire',
+      brief: 'Your mate’s shot crosses yours. Line it up perfectly.',
+      why: 'When two straight lines cross, the angles opposite each other are equal. Angles next to each other are on a straight line, so they add to 180°.',
+      path: [toward(cross, line + 180, 55), [154, 6]],
+      guides: [[toward(cross, line + a3, 40), toward(cross, line + a3 + 180, 40)]],
+      arcs: [
+        { id: 'given', at: cross, from: line, to: line + a3, value: a3 },
+        { id: 'opposite', at: cross, from: line + 180, to: line + 180 + a3, value: a3 },
+        { id: 'next', at: cross, from: line + a3, to: line + 180, value: next3 },
+      ],
+      questions: [
+        {
+          prompt: `Vertically opposite angles are equal. What’s the angle opposite ${a3}°?`,
+          arc: 'opposite',
+          answer: a3,
+          choices: options(rand, angle(a3), [
+            angle(next3, `${next3}° is the one NEXT to ${a3}°. The opposite one is the same size: ${a3}°.`),
+            angle(360 - a3, `That’s all the way round minus ${a3}. The opposite angle is just a mirror of ${a3}°.`),
+            angle(90 - a3, `${90 - a3}° would make a right angle. Opposite angles are equal: ${a3}°.`),
+          ]),
+          why: `Opposite angles are equal: ${a3}°.`,
+        },
+        {
+          prompt: 'And the angle next to it?',
+          arc: 'next',
+          answer: next3,
+          choices: options(rand, angle(next3), [
+            angle(a3, 'Opposite ones are equal, but this one’s next door. Next-door angles add to 180°.'),
+            angle(90 - a3, `90 − ${a3} is for a right angle. These two sit on a straight line: 180 − ${a3}.`),
+            angle(360 - a3, `That’s a full turn minus ${a3}. Next-door angles make a straight line: 180°.`),
+          ]),
+          why: `180° − ${a3}° = ${next3}°. Lined up. Shoot.`,
+        },
+      ],
+      chain: [
+        { line: `\\text{Opposite} = [[a:${deg(a3)}]]` },
+        { line: `\\text{Next} = [[t:${deg(180)}]] - [[a:${deg(a3)}]]`, op: 'Straight line', why: `Opposite angles are equal, so that one is ${a3}°. The next-door angle sits with it on a straight line: 180°.` },
+        { line: `\\text{Next} = [[r:${deg(next3)}]]`, op: 'Work it out', merge: { r: ['t', 'a'] }, why: `180 − ${a3} = ${next3}.` },
+      ],
+    },
+  ]
+}
