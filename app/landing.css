@@ -213,6 +213,11 @@
 .lp-shots__title { font-family: var(--rv-font-display); font-weight: 800; font-size: 1.1rem; }
 .lp-shots__skill { margin-top: 2px !important; color: var(--rv-lab); font-size: .85rem; font-weight: 700; }
 
+/* A lesson screen at the foot of each subject card */
+.lp-phone--subject { justify-self: center; width: min(250px, 100%); margin: 14px 0 0; }
+.lp-subject--maths .lp-phone--subject { transform: rotate(-1.5deg); }
+.lp-subject--science .lp-phone--subject { transform: rotate(1.5deg); }
+
 /* Responsive */
 @media (max-width: 1000px) {
   .lp-arcade__grid { grid-template-columns: minmax(0, 1fr); }

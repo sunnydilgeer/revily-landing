@@ -235,6 +235,10 @@ function Subjects() {
             <ul className="lp-chips">
               <li>Number · 14</li><li>Algebra · 9</li><li className="is-soon">Ratio, Geometry and Higher next</li>
             </ul>
+            <figure className="lp-phone lp-phone--subject">
+              <img src="/landing/maths-quadratics.webp" width={520} height={1167} loading="lazy" decoding="async"
+                alt="Solving quadratics lesson: x² + x = 20 worked step by step, testing factor pairs of 20, factorising to (x − 4)(x + 5) = 0, and finishing with x = 4 or x = −5." />
+            </figure>
           </article>
           <article className="lp-subject lp-subject--science">
             <p className="lp-subject__tag">AQA Combined Science Trilogy</p>
@@ -242,6 +246,10 @@ function Subjects() {
             <ul className="lp-chips">
               <li>Biology</li><li>Chemistry</li><li>Physics</li><li>Foundation &amp; Higher</li><li className="is-soon">Being reviewed by teachers</li>
             </ul>
+            <figure className="lp-phone lp-phone--subject">
+              <img src="/landing/science-heart.webp" width={520} height={1125} loading="lazy" decoding="async"
+                alt="Circulatory system lesson, Two loops, one heart: a labelled diagram of the double circulation, with the pulmonary circuit to the lungs and the systemic circuit to the body." />
+            </figure>
           </article>
         </div>
       </div>
