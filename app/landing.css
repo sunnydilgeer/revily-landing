@@ -139,7 +139,7 @@
 .lp-mini-card--back { position: absolute; z-index: 0; height: 64px; background: var(--rv-cards); border-color: var(--rv-night-3); transform: rotate(-6deg) translateX(-10px); }
 
 /* Features */
-.lp-features { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.lp-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .lp-feature { display: grid; gap: 10px; align-content: start; padding: 22px; border: 2.5px solid var(--rv-ink); border-radius: 22px; background: var(--rv-surface); box-shadow: 0 5px 0 var(--rv-ink); }
 .lp-feature h3 { font-size: 1.2rem; font-weight: 800; }
 .lp-feature p { color: var(--rv-ink-2); font-size: .95rem; line-height: 1.55; }
@@ -148,6 +148,27 @@
 .lp-feature--lab .lp-feature__dot { background: var(--rv-lab); }
 .lp-feature--cards .lp-feature__dot { background: var(--rv-cards); }
 .lp-feature--practice .lp-feature__dot { background: var(--rv-practice); }
+
+/* Arcade */
+.lp-arcade { border-block: 2.5px solid var(--rv-ink); background: #fff1e6; }
+.lp-arcade .lp-kicker { color: var(--rv-lab); }
+.lp-arcade__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.lp-arcade h2 { margin-top: 10px; font-size: clamp(2rem, 4.6vw, 3.1rem); font-weight: 800; line-height: 1.04; }
+.lp-arcade__lede { max-width: 520px; margin-top: 14px; color: var(--rv-ink-2); font-size: 1.08rem; line-height: 1.55; }
+.lp-arcade__games { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 0; padding: 0; list-style: none; }
+.lp-arcade__games li {
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center; padding: 10px 16px 10px 12px;
+  border: 2.5px solid var(--rv-ink); border-radius: 16px; background: var(--rv-surface); box-shadow: 0 4px 0 var(--rv-ink);
+}
+.lp-arcade__games span { grid-row: span 2; font-size: 1.6rem; }
+.lp-arcade__games strong { font-family: var(--rv-font-display); font-size: 1rem; }
+.lp-arcade__games small { color: var(--rv-lab); font-weight: 700; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; }
+.lp-arcade__pair { display: grid; justify-items: center; gap: 8px; }
+.lp-arcade__card { width: 100%; max-width: 400px; padding: 18px 20px; border: 3px solid var(--rv-ink); border-radius: 20px; background: var(--rv-surface); box-shadow: 6px 6px 0 var(--rv-ink); }
+.lp-arcade__card--game { background: var(--rv-lab); color: #fff; transform: rotate(-1.5deg); }
+.lp-arcade__card p:last-child { font-family: var(--rv-font-display); font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+.lp-arcade__label { margin-bottom: 6px !important; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+.lp-arcade__arrow { font: 800 1.6rem var(--rv-font-display); color: var(--rv-lab); }
 
 /* Honest status */
 .lp-status { border: 2.5px solid var(--rv-ink); border-radius: 24px; background: var(--rv-surface); overflow: hidden; }
@@ -218,6 +239,7 @@
 /* Responsive */
 @media (max-width: 1000px) {
   .lp-features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lp-arcade__grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 880px) {
   .lp-hero__grid, .lp-subjects, .lp-steps { grid-template-columns: minmax(0, 1fr); }
@@ -238,3 +260,4 @@
 @media (prefers-reduced-motion: reduce) {
   .lp *, .lp *::before, .lp *::after { transition: none !important; }
 }
+.lp-arcade__card b { white-space: nowrap; }
