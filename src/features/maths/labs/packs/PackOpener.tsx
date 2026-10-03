@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeRounds, openPacks, type Rarity, type Round } from './rounds'
@@ -161,7 +161,7 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Pack Opener complete</p>
-        <RankCard rank={rank} stats={[['Packs opened', '1,020'], ['Lives kept', `${score.kept}/${rounds.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Packs opened', '1,020'], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['All the probabilities add up to 1 (100%).', 'Expected number = probability × number of tries.', 'More tries → results settle near the real odds.']} />
       </section>
       <footer className="lab-bar">

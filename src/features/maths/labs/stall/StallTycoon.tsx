@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useCountUp, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useCountUp, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { gbp, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -208,7 +208,7 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Stall Tycoon complete</p>
-        <RankCard rank={rank} stats={[['Final cash', gbp(cash)], ['Lives kept', `${score.kept}/${stall.days.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Final cash', gbp(cash)], ['Lives kept', `${score.kept}/${stall.days.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Total cost = price each × how many', 'Change = what they paid − what it cost', 'Profit = money in − money out']} />
       </section>
       <footer className="lab-bar">

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, RankCard, Rule, Why, rankFor, useCountUp, useScore, useShare, recordRank } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, RankCard, Rule, Why, rankFor, useCountUp, useScore, useShare, recordRank , livesPerRound } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeJobs, crew, pounds, type Job, type Question } from './jobs'
@@ -162,7 +162,7 @@ function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void 
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">All jobs done</p>
-        <RankCard rank={rank} stats={[['Split', pounds(total)], ['Trust kept', `${score.kept}/${jobs.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Split', pounds(total)], ['Trust kept', `${score.kept}/${jobs.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Add the parts to get the number of shares.', 'Divide to find one share.', 'Multiply by each person’s shares.']} />
       </section>
       <footer className="lab-bar">

@@ -150,7 +150,7 @@ function day1(stock: Stock, v: Numbers): Day {
       {
         kind: 'change', label: 'Change', asker: 'in £', commit: 'Give change',
         prompt: `First customer! They buy ${k} at ${gbp(p)} each and pay with a ${gbp(N)} note. How much change?`,
-        answer: change, start: 0, min: 0, max: N, step: 0.5, money: true,
+        answer: change, start: 0, min: 0, max: N, step: 0.5, jump: 5, money: true,
         why: `${k} × ${gbp(p)} = ${gbp(t)}. ${gbp(N)} − ${gbp(t)} = ${gbp(change)} change. Check: ${gbp(t)} + ${gbp(change)} = ${gbp(N)}.`,
         nope: value => {
           if (value === N - p) return `That’s ${gbp(N)} − ${gbp(p)}: you only charged them for one. They bought ${k}, so work out ${k} × ${gbp(p)} first, then take that off ${gbp(N)}.`
@@ -186,7 +186,7 @@ function day2(stock: Stock, v: Numbers): Day {
       {
         kind: 'each', label: 'Cost each', asker: 'in £', commit: 'Check the bill',
         prompt: `You bought ${n} ${stock.items} for ${gbp(C)} in total. What did each one cost?`,
-        answer: e, start: 0, min: 0, max: 10, step: 0.5, money: true,
+        answer: e, start: 0, min: 0, max: 10, step: 0.5, jump: 5, money: true,
         why: `${gbp(C)} ÷ ${n} = ${gbp(e)} each. Check: ${n} × ${gbp(e)} = ${gbp(C)}.`,
         nope: value => {
           if (value === C - n) return `That’s ${gbp(C)} − ${n}. Sharing a total into equal parts is divide: ${gbp(C)} ÷ ${n}.`
@@ -200,7 +200,7 @@ function day2(stock: Stock, v: Numbers): Day {
       {
         kind: 'price', label: 'Price', asker: 'in £ each', commit: 'Start selling',
         prompt: `Ziggy wants ${gbp(P)} profit when all ${n} sell. What price should each one be?`,
-        answer: s, start: e, min: 0, max: 15, step: 0.5, money: true,
+        answer: s, start: e, min: 0, max: 15, step: 0.5, jump: 5, money: true,
         why: `${gbp(P)} ÷ ${n} = ${gbp(m)} profit each, so ${gbp(e)} + ${gbp(m)} = ${gbp(s)}. ${n} × ${gbp(s)} = ${gbp(n * s)} in, minus ${gbp(C)} out = ${gbp(P)} profit.`,
         nope: value => {
           const takings = n * value, profit = takings - C
@@ -237,7 +237,7 @@ function day3(stock: Stock, v: Numbers): Day {
       {
         kind: 'wage', label: 'Pay', asker: 'in £', commit: 'Pay them',
         prompt: `Your helper works ${h} hours at ${gbp(w)} an hour. What’s their pay?`,
-        answer: wage, start: 0, min: 0, max: 120, step: 1, money: true,
+        answer: wage, start: 0, min: 0, max: 120, step: 1, jump: 5, money: true,
         why: `${h} hours × ${gbp(w)} = ${gbp(wage)}. Every hour earns the same ${gbp(w)}.`,
         nope: value => {
           if (value === h + w) return `That’s ${h} + ${w}. They get ${gbp(w)} for EVERY hour, so it’s ${h} lots of ${gbp(w)}: multiply.`

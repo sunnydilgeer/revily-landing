@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { DAY_NAMES, MAX_MINUTES, makeRounds, meanOf, medianOf, modeOf, rigNope, type Round, type Stat } from './rounds'
@@ -156,7 +156,7 @@ export default function RigTheStats() {
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Rig the Stats complete</p>
-        <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Mean = total ÷ how many', 'Median = middle value once they’re in order', 'Mode = most common · Range = biggest − smallest']} />
       </section>
       <footer className="lab-bar">

@@ -3,21 +3,17 @@
 .labs h1, .labs h2, .labs h3 { margin: 0; }
 
 .labs-hero {
-  position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 24px;
-  padding: 26px; border-radius: var(--rv-radius-lg); color: #fff; background: var(--rv-night);
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 16px 18px; border-radius: var(--rv-radius-lg); color: #fff; background: var(--rv-night);
 }
-.labs-hero::after {
-  content: '🧪 ⚗️ 🎮 🏆 🌀 💰'; position: absolute; right: -10px; bottom: -14px; font-size: 3.2rem; letter-spacing: .2em;
-  opacity: .12; pointer-events: none; white-space: nowrap;
-}
-.labs-hero__copy { flex: 1 1 320px; display: grid; gap: 8px; }
-.labs-hero h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -0.015em; }
+.labs-hero__copy { flex: 1 1 auto; min-width: 0; }
+.labs-hero h1 { font-size: clamp(1.15rem, 4vw, 1.7rem); line-height: 1.15; letter-spacing: -0.01em; }
 .labs-hero p { margin: 0; color: var(--rv-on-night); opacity: .85; font-size: 1.02rem; line-height: 1.45; }
 .labs-hero__score {
-  position: relative; z-index: 1; display: grid; justify-items: center; min-width: 120px; padding: 14px 18px;
+  position: relative; z-index: 1; flex: none; display: grid; justify-items: center; padding: 8px 12px;
   border: 2px solid var(--rv-yellow); border-radius: var(--rv-radius-md); background: var(--rv-night-2);
 }
-.labs-hero__score strong { font: 800 2rem/1 var(--rv-font-display); color: var(--rv-yellow); }
+.labs-hero__score strong { font: 800 1.4rem/1 var(--rv-font-display); color: var(--rv-yellow); }
 .labs-hero__score span { font-size: .8rem; color: var(--rv-on-night-muted); }
 
 
@@ -41,7 +37,7 @@
 .labs-card__skill { padding: 3px 9px; border-radius: var(--rv-radius-pill); font-size: .78rem; font-weight: 700; color: var(--rv-ink); background: var(--rv-yellow-tint); }
 .labs-card__play { margin-top: auto; align-self: flex-end; flex: none; padding: 8px 14px; border: 2px solid var(--rv-ink); border-radius: var(--rv-radius-pill); font-weight: 700; font-size: .9rem; background: var(--rv-accent); box-shadow: 0 2px 0 var(--rv-ink); }
 
-.labs-soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.labs-soon { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .labs-soon li { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px dashed var(--rv-line-strong); border-radius: var(--rv-radius-md); background: var(--rv-surface); opacity: .75; }
 .labs-soon__emoji { font-size: 1.8rem; filter: grayscale(1); }
 .labs-soon li div { flex: 1; min-width: 0; }
@@ -50,8 +46,7 @@
 
 @media (max-width: 760px) {
   .labs-grid, .labs-soon { grid-template-columns: 1fr; }
-  .labs-hero { padding: 20px; }
-  .labs-hero__score { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 10px 14px; }
+  .labs-hero { padding: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .labs-card { transition: none; }

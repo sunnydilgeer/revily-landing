@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, LIVES, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, livesPerRound, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { SQUARE, corners, makeBases, squares, type Builds, type Round } from './bases'
@@ -56,7 +56,7 @@ function Plan({ round, done, lost, night }: { round: Round; done: number; lost: 
   // The whole floor lays in about a second, however many squares there are.
   const stagger = prefersReducedMotion() ? 0 : Math.min(40, 900 / tiles.length)
   // Zombies start in the corners and creep towards the base with each life lost.
-  const creep = Math.min(lost, LIVES) / LIVES * .6
+  const creep = Math.min(lost, livesPerRound()) / livesPerRound() * .6
   const lair = [[18, 22], [VIEW_W - 18, 22], [VIEW_W - 18, viewH - 14], [18, viewH - 14]]
   const goal = [[ox - 14, oy - 10], [ox + width + 14, oy - 10], [ox + width + 14, oy + height + 18], [ox - 14, oy + height + 18]]
   const gridX = Array.from({ length: Math.ceil(VIEW_W / CELL) + 1 }, (_, i) => ox % CELL + i * CELL)
@@ -147,7 +147,7 @@ export default function BaseBuilder() {
   const wrong = picked !== null && !right
   const nope = question.choices.find(choice => choice.value === picked)?.nope
   const done = questionIndex + (right ? 1 : 0)
-  const lost = LIVES - score.lives
+  const lost = livesPerRound() - score.lives
 
   const startRound = (index: number) => {
     setRoundIndex(index); setScreen('intro'); setQuestionIndex(0); setPicked(null); setMissed(false); setRevealed(1)
@@ -179,7 +179,7 @@ export default function BaseBuilder() {
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Base Builder complete</p>
-        <RankCard rank={rank} stats={[['Nights survived', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * LIVES}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Nights survived', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Perimeter = all the way round: add every side.', 'Area = length × width (split L-shapes into rectangles).', 'Missing side: the big side minus the small side.']} />
       </section>
       <footer className="lab-bar">

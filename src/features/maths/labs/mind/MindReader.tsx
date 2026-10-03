@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { PICKS, makeTricks, type Round, type TrickStep } from './tricks'
@@ -136,7 +136,7 @@ export default function MindReader() {
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Mind Reader complete</p>
-        <RankCard rank={rank} stats={[['Tricks', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Tricks', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Use n for the number you don’t know.', 'Do each step to the whole expression.', 'Collect like terms: n’s with n’s, numbers with numbers.']} />
       </section>
       <footer className="lab-bar">

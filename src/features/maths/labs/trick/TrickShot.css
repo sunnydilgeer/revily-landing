@@ -26,6 +26,26 @@
   transform: translate(-50%, -50%); box-shadow: 0 6px 18px rgb(0 0 0 / 30%); animation: lab-combo .5s cubic-bezier(.2, 1.6, .4, 1) both;
 }
 
+/* The live aim: the line the angle is measured from, the cue stick and a dashed sight line to the cushion. */
+.ts-base { stroke: rgb(255 255 255 / 55%); stroke-width: .7; }
+.ts-sight { stroke: var(--rv-yellow); stroke-width: .7; stroke-dasharray: 1.6 1.4; }
+.ts-cue { stroke: #e8c78f; stroke-width: 1.8; stroke-linecap: round; filter: drop-shadow(0 .6px .6px rgb(0 0 0 / 40%)); }
+.ts-arc.is-live path { fill: rgb(255 211 92 / 45%); stroke: var(--rv-yellow); }
+.ts-arc.is-live circle { fill: var(--rv-yellow); }
+.ts-aim.is-miss .ts-arc.is-live path { fill: rgb(255 255 255 / 15%); stroke: #ffb3a8; }
+.ts-aim.is-miss .ts-arc.is-live circle { fill: #ffb3a8; }
+
+/* What the shot is aiming at: a ring round a pocket, a red ball, your cue ball's spot or a chalk mark. */
+.ts-ring { fill: none; stroke: var(--rv-yellow); stroke-width: .6; stroke-dasharray: 1.4 1; animation: ts-spin 4s linear infinite; transform-box: fill-box; transform-origin: center; }
+.ts-target.is-done .ts-ring { stroke: #7ff0a8; stroke-dasharray: none; animation: none; }
+.ts-object { fill: #d8342c; stroke: #8f1d17; stroke-width: .4; }
+.ts-ghost { fill: none; stroke: #fff; stroke-width: .5; stroke-dasharray: .9 .7; }
+.ts-spot { stroke: #fff; stroke-width: .8; stroke-linecap: round; }
+@keyframes ts-spin { to { transform: rotate(360deg); } }
+
+/* The "which fact?" replay question: long labels, one per row. */
+.ts-side .lab-choice { font-size: 1rem; line-height: 1.25; padding: 10px 12px; white-space: normal; text-align: left; }
+
 @media (prefers-reduced-motion: reduce) {
-  .ts-arc.is-asked circle, .ts-banner { animation: none; }
+  .ts-arc.is-asked circle, .ts-banner, .ts-ring { animation: none; }
 }

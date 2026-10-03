@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -193,7 +193,7 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Laser Line complete</p>
-        <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['c is where the line crosses the y-axis.', 'm is the steepness: up (or down) ÷ across.', 'y = mx + c: find m first, then c.']} />
       </section>
       <footer className="lab-bar">

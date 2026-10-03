@@ -55,7 +55,7 @@ export const paperTopics: PaperTopic[] = [
   ] },
   { id: 'fractions', title: 'Fractions', area: 'number', marks30: 46, sittings: 10, requires: ['factors'], statements: lesson(8,
     'simplifying-fractions', 'mixed-improper-fractions', 'adding-fractions', 'subtracting-fractions',
-    'multiplying-fractions', 'dividing-fractions', 'mixed-fraction-calculations', 'fractions-of-amounts') },
+    'multiplying-fractions', 'dividing-fractions', 'mixed-fraction-calculations', 'fractions-of-amounts'), labs: ['slice'] },
   { id: 'decimals', title: 'Decimals', area: 'number', marks30: 28, sittings: 6, requires: ['written-methods', 'place-value'], statements: lesson(6,
     'decimal-addition', 'decimal-subtraction', 'decimal-multiplication', 'decimal-division') },
   { id: 'written-methods', title: 'Written methods', short: 'Written methods', area: 'number', marks30: 60, estimate: true, requires: ['place-value'], statements: [
@@ -83,7 +83,7 @@ export const paperTopics: PaperTopic[] = [
 
   // Algebra
   { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [], labs: ['laser'] },
-  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [] },
+  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [], labs: ['formula'] },
   { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: lesson(23, 'sequences-special', 'sequences-geometric', 'sequences-nth-term', 'sequences-in-sequence', 'sequences-consecutive'), labs: ['levels'] },
   { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [...lesson(19,
     'equations-one-unknown', 'equations-squares', 'equations-both-sides', 'equations-brackets', 'equations-fractions'),
@@ -96,17 +96,17 @@ export const paperTopics: PaperTopic[] = [
     ...lesson(18, 'factorise-two-terms', 'factorise-three-terms'),
     ...lesson(21, 'quadratics-positive', 'quadratics-negative-middle', 'quadratics-negative-last', 'quadratics-difference-of-squares'),
   ], labs: ['mind'] },
-  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [] },
+  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [], labs: ['formula'] },
 
   // Ratio, proportion and rates of change
   { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: [], labs: ['heist', 'potion', 'tiers'] },
-  { id: 'conversions', title: 'Unit conversions', short: 'Units', area: 'ratio', marks30: 57, sittings: 10, statements: [] },
+  { id: 'conversions', title: 'Unit conversions', short: 'Units', area: 'ratio', marks30: 57, sittings: 10, statements: [], labs: ['supplies'] },
   { id: 'speed', title: 'Speed, distance, time', short: 'Speed', area: 'ratio', marks30: 37, sittings: 8, requires: ['conversions'], statements: [], labs: ['storm'] },
 
   // Geometry and measures
   { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, requires: ['shapes'], statements: [], labs: ['trick'] },
   { id: 'area', title: 'Area and perimeter', short: 'Area', area: 'geometry', marks30: 58, sittings: 10, requires: ['shapes'], statements: [], labs: ['build'] },
-  { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, requires: ['area'], statements: [] },
+  { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, requires: ['area'], statements: [], labs: ['loot'] },
   { id: 'shapes', title: 'Properties of shapes', short: 'Shapes', area: 'geometry', marks30: 31, sittings: 8, statements: [] },
   { id: 'transformations', title: 'Transformations', short: 'Transform', area: 'geometry', marks30: 23, sittings: 7, requires: ['shapes'], statements: [] },
   { id: 'trigonometry', title: 'Trigonometry', short: 'Trig', area: 'geometry', marks30: 22, sittings: 8, requires: ['pythagoras'], statements: [] },
@@ -114,10 +114,10 @@ export const paperTopics: PaperTopic[] = [
 
   // Probability
   { id: 'probability', title: 'Probability', area: 'probability', marks30: 59, sittings: 10, statements: [], labs: ['packs'] },
-  { id: 'frequency-trees', title: 'Frequency trees', short: 'Freq. trees', area: 'probability', marks30: 38, sittings: 9, requires: ['probability'], statements: [] },
+  { id: 'frequency-trees', title: 'Frequency trees', short: 'Freq. trees', area: 'probability', marks30: 38, sittings: 9, requires: ['probability'], statements: [], labs: ['obby'] },
 
   // Statistics
-  { id: 'charts', title: 'Charts and graphs', short: 'Charts', area: 'statistics', marks30: 56, sittings: 10, statements: [] },
+  { id: 'charts', title: 'Charts and graphs', short: 'Charts', area: 'statistics', marks30: 56, sittings: 10, statements: [], labs: ['viral'] },
   { id: 'averages', title: 'Averages', area: 'statistics', marks30: 26, sittings: 7, requires: ['charts'], statements: [], labs: ['stats'] },
 ]
 

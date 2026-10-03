@@ -1,0 +1,59 @@
+/* 99 Nights Supplies: the camp at dusk and the supply bench under it. The shared lab look is in ../kit/lab.css. */
+.ns-stage { display: grid; gap: 10px; padding: 0 0 12px; overflow: hidden; background: var(--rv-surface); }
+.ns-stage svg { display: block; width: 100%; height: auto; }
+
+/* The camp strip: the sky darkens and the stars come out as the supplies get packed. */
+.ns-sky { fill: #ffb978; }
+.ns-night, .ns-star, .ns-sun { transition: opacity .8s, cy .8s; }
+.ns-night { fill: var(--rv-night); }
+.ns-star { fill: var(--rv-yellow); }
+.ns-sun { fill: var(--rv-yellow); }
+.ns-ground { fill: #3c6b3a; }
+.ns-tree { fill: #24492a; }
+.ns-tent { fill: var(--rv-redpen); stroke: var(--rv-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.ns-tent__door { fill: var(--rv-ink); }
+.ns-emoji { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; dominant-baseline: auto; }
+
+/* The bench: the job being measured out */
+.ns-given { font: 700 11px/1 var(--rv-font-body); fill: var(--rv-ink-2); }
+.ns-tag { font: 800 12px/1 var(--rv-font-body); fill: var(--rv-ink); paint-order: stroke; stroke: var(--rv-surface); stroke-width: 3px; }
+.ns-bench.is-right .ns-tag { fill: var(--rv-good-ink); }
+.ns-bench.is-wrong .ns-tag { fill: var(--rv-redpen); }
+
+.ns-track { stroke: var(--rv-line-strong); stroke-width: 2; stroke-dasharray: 4 4; }
+.ns-run { stroke: #a0702f; stroke-width: 6; stroke-linecap: round; }
+.ns-bench.is-trail .ns-run { stroke: var(--rv-biro); stroke-width: 4; stroke-dasharray: 2 6; }
+.ns-bench.is-time .ns-run { stroke: var(--rv-yellow-deep); stroke-width: 10; }
+.ns-bench.is-wrong .ns-run { stroke: var(--rv-redpen); }
+.ns-bench.is-right .ns-run { stroke: var(--rv-good); }
+.ns-goal-line { stroke: var(--rv-ink-2); stroke-width: 2; }
+.ns-grow { animation: ns-grow .6s ease-out both; }
+@keyframes ns-grow { from { transform: scaleX(0); } }
+
+.ns-vessel { fill: var(--rv-biro-tint); stroke: var(--rv-ink-2); stroke-width: 2; }
+.ns-water { fill: var(--rv-biro-light); }
+.ns-rise { animation: ns-rise .7s ease-out both; }
+@keyframes ns-rise { from { transform: scaleY(0); } }
+.ns-mark { stroke: var(--rv-ink); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.ns-bench.is-wrong .ns-mark { stroke: var(--rv-redpen); }
+.ns-arrow { font: 800 22px/1 var(--rv-font-body); fill: var(--rv-muted); }
+
+.ns-whole { fill: var(--rv-line); }
+.ns-piece { fill: #c48a46; stroke: var(--rv-ink); stroke-width: 1; animation: lab-pop .3s both; transform-box: fill-box; transform-origin: center; }
+.ns-bench.is-time .ns-piece { fill: var(--rv-yellow); }
+.ns-piece.is-missing { fill: none; stroke: var(--rv-redpen); stroke-dasharray: 3 2; }
+
+.ns-pop { animation: lab-pop .3s both; transform-box: fill-box; transform-origin: center; }
+.ns-pop.is-empty { opacity: .5; }
+
+/* The packed list: one chip per job done this round */
+.ns-packed { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0 12px; list-style: none; }
+.ns-packed li {
+  padding: 3px 9px; border-radius: var(--rv-radius-pill); font-weight: 700; font-size: .8rem;
+  color: var(--rv-good-ink); background: var(--rv-good-tint); animation: lab-pop .3s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-grow, .ns-rise, .ns-piece, .ns-pop, .ns-packed li { animation: none; }
+  .ns-night, .ns-star, .ns-sun { transition: none; }
+}
