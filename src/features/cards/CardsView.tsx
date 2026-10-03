@@ -102,6 +102,9 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
   const swiped = useRef(false)
   const SWIPE = 80
   function swipeStart(event: React.PointerEvent) {
+    // A new touch is a new gesture. The click a swipe would leave behind arrives before this, and browsers often
+    // skip it after a drag, so clearing here stops a leftover flag swallowing the next real tap.
+    swiped.current = false
     if (event.pointerType === 'mouse' || drag?.leaving) return
     swipe.current = { x: event.clientX, y: event.clientY, id: event.pointerId, moved: false }
   }
