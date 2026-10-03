@@ -31,10 +31,13 @@ export default function LabsHome() {
       <ul className="labs-grid">
         {labCatalog.filter(lab => lab.area === area.id).map(lab => <li key={lab.id}>
           <a className={`labs-card labs-card--${lab.area}`} href={lab.href}>
+            <span className="labs-card__icon" aria-hidden="true">{lab.emoji}</span>
             <h3>{lab.title}</h3>
-            <p className="labs-card__hook">{lab.hook}</p>
-            <span className="labs-card__skill">Topic: {lab.skill}</span>
-            <span className="labs-card__play">Play →</span>
+            <p className="labs-card__hook">{lab.tagline}</p>
+            <span className="labs-card__foot">
+              <span className="labs-card__skill">{lab.tag}</span>
+              <span className="labs-card__play">Play →</span>
+            </span>
           </a>
         </li>)}
       </ul>
