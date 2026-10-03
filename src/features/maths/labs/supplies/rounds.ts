@@ -5,7 +5,9 @@ import { options, texNum, type Option, type Rand } from '../kit/random'
  * 99 Nights Supplies: Scout is packing for a forest camp before dark. Every supply is measured out
  * on a dial in the unit the kit uses (cm, m, ml, g, minutes, decimal hours), so every move is a unit
  * conversion. Answers are picked first (whole pieces, cups, bags and shifts) and the amounts built
- * backwards from them, so every division comes out whole.
+ * backwards from them, so every division comes out whole. Round 4 goes small to big (÷) with mixed
+ * units; round 5 (boss) totals the water, converts it, and rounds UP to whole bottles (the bottle
+ * count is never whole before rounding, and the share works out to at most 2 decimal places).
  */
 
 /** Numbers on screen: 1,200 · 2.5 · 0.75 */
@@ -24,12 +26,12 @@ const r2 = (value: number) => Math.round(value * 100) / 100
 export type Scene =
   /** A bar from one thing to another: rope from tent to peg, the trail to the wood, the watch on a timeline. */
   | { kind: 'measure'; look: 'rope' | 'trail' | 'time'; from: string; to: string; target: number; given: string }
-  /** The water can poured into a measuring jug. */
-  | { kind: 'jug'; target: number; given: string }
+  /** The water can poured into a measuring jug. `from` / `into` name the two (default "Can" and "Jug (ml)"). */
+  | { kind: 'jug'; target: number; given: string; from?: string; into?: string }
   /** A whole cut into equal pieces: guy lines from the rope, shifts from the night. */
   | { kind: 'split'; look: 'rope' | 'time'; total: number; each: number; given: string; eachText: string }
   /** A store shared into containers: water into cups, rice into bags. */
-  | { kind: 'fill'; item: 'cup' | 'bag'; source: string; target: number; given: string }
+  | { kind: 'fill'; item: 'cup' | 'bag' | 'bottle'; source: string; target: number; given: string }
 
 export type DialStep = {
   kind: 'dial'
@@ -364,6 +366,162 @@ function watchRound(rand: Rand): Round {
   }
 }
 
+// ─── Round 4 · Small to big: g → kg, m → km, ml → litres ────────────────────────────────────
+
+function flaskCheck(rand: Rand): { prompt: string; answer: string; choices: Option<string>[]; why: string } {
+  const ml = rand.pick([250, 350, 450, 600, 650, 750, 850]), L = ml / 1000
+  const fix = `1 litre = 1,000 ml, so ${ml} ÷ 1,000 = ${fmt(L)} litres.`
+  const lit = (value: number) => ({ value: String(value), label: `${fmt(value)} litres` })
+  return {
+    prompt: `Scout’s flask holds ${ml} ml. The kit list wants litres. What goes on the list?`,
+    answer: String(L),
+    choices: options<string>(rand, lit(L), [
+      { ...lit(ml / 100), nope: `That’s ÷ 100, as if a litre were 100 ml. ${fix}` },
+      { ...lit(ml / 10), nope: `That’s ÷ 10. A litre is 1,000 ml. ${fix}` },
+      { ...lit(ml), nope: `You didn’t convert. ${fmt(ml)} litres would fill a bath. ${fix}` },
+    ]),
+    why: `Small unit to big unit: divide. ${fix}`,
+  }
+}
+
+function backwardsRound(rand: Rand): Round {
+  for (;;) {
+    const Wkg = rand.pick([1.5, 2, 2.5, 3, 4, 4.5, 6, 7.5]), g = rand.pick([150, 200, 250, 300, 500, 750])
+    const total = Math.round(Wkg * 1000), k = total / g
+    if (!Number.isInteger(k) || k < 4 || k > 20) continue
+    const A = rand.pick([0.5, 0.8, 1, 1.2, 1.5, 2, 2.4]), B = rand.int(150, 950, 50)
+    const Bk = B / 1000, T = r2(A + Bk)
+    const fixW = `${k} × ${g} = ${fmt(total)} g, and ${fmt(total)} ÷ 1,000 = ${fmt(Wkg)} kg.`
+    const fixT = `${B} m ÷ 1,000 = ${fmt(Bk)} km, and ${fmt(A)} + ${fmt(Bk)} = ${fmt(T)} km.`
+    return {
+      id: 'backwards',
+      title: 'Round 4 · Small to big',
+      headline: 'Weigh the wood. Walk to the berries.',
+      why: `Going from a small unit to a big one, the number gets smaller: divide. Grams to kg, metres to km and ml to litres are all ÷ 1,000. Mixed units? Make them the same before you add.`,
+      steps: [
+        {
+          kind: 'dial', id: 'wood-kg', asker: 'in kg', label: 'Firewood', unit: 'kg',
+          prompt: `Scout chopped ${k} logs. Each one weighs ${g} g. The scale reads kg. How heavy is the lot?`,
+          answer: Wkg, start: 0, min: 0, max: 10, step: 0.25, jump: 1, commit: 'Weigh it',
+          win: `${k} × ${g} g = ${fmt(total)} g. Then ÷ 1,000 = ${fmt(Wkg)} kg.`,
+          packed: `🪵 ${fmt(Wkg)} kg of wood`,
+          scene: { kind: 'measure', look: 'rope', from: '🪓', to: '⚖️', target: Wkg, given: `${k} logs × ${g} g` },
+          nope: v => {
+            if (v === 0) return `The scale says nothing. ${fixW}`
+            if (near(v, total / 100, 0.125)) return `That’s ÷ 100, as if 1 kg were 100 g. It’s 1,000 g. ${fixW}`
+            if (near(v, total / 10000, 0.125)) return `That’s ÷ 10,000, too far. 1 kg = 1,000 g. ${fixW}`
+            if (near(v, g / 1000, 0.125)) return `That’s one log. There are ${k} of them. ${fixW}`
+            if (v === k) return `${k} is how many logs, not how heavy they are. ${fixW}`
+            if (v < Wkg) return `${fmt(v)} kg is only ${fmt(v * 1000)} g. Some logs are missing. ${fixW}`
+            return `${fmt(v)} kg is ${fmt(v * 1000)} g, more wood than Scout chopped. ${fixW}`
+          },
+        },
+        {
+          kind: 'dial', id: 'berries-km', asker: 'in km', label: 'Trail', unit: 'km',
+          prompt: `The stream is ${fmt(A)} km away. The berries are ${B} m past the stream. How far is it to the berries, in km?`,
+          answer: T, start: 0, min: 0, max: 6, step: 0.05, jump: 0.5, commit: 'Walk it',
+          win: `${B} m = ${fmt(Bk)} km. ${fmt(A)} + ${fmt(Bk)} = ${fmt(T)} km.`,
+          packed: `🫐 berries at ${fmt(T)} km`,
+          scene: { kind: 'measure', look: 'trail', from: '⛺', to: '🫐', target: T, given: `${fmt(A)} km + ${B} m` },
+          nope: v => {
+            if (v === 0) return `You haven’t left the tent. ${fixT}`
+            if (near(v, A + B / 100, 0.025)) return `That’s ${B} ÷ 100. There are 1,000 m in a km, not 100. ${fixT}`
+            if (near(v, A + B / 10, 0.025)) return `That’s ${B} ÷ 10. There are 1,000 m in a km. ${fixT}`
+            if (near(v, A, 0.025)) return `That only gets you to the stream. The berries are ${B} m further. ${fixT}`
+            if (near(v, Bk, 0.025)) return `That’s just the bit past the stream. Add the ${fmt(A)} km to the stream too. ${fixT}`
+            if (v < T) return `${fmt(v)} km is only ${fmt(Math.round(v * 1000))} m. You stop short of the berries. ${fixT}`
+            return `${fmt(v)} km is ${fmt(Math.round(v * 1000))} m. You walked right past the berries. ${fixT}`
+          },
+        },
+        { kind: 'choice', id: 'flask-l', asker: 'quick check', ...flaskCheck(rand) },
+      ],
+      chain: [
+        { line: `\\text{wood} = [[k:${k}]] \\times [[g:${g}]]\\text{ g}` },
+        { line: `\\text{wood} = [[t:${texNum(total)}]]\\text{ g}`, op: 'Multiply', merge: { t: ['k', 'g'] }, why: `${k} logs of ${g} g: ${k} × ${g} = ${fmt(total)} g.` },
+        { line: `\\text{wood} = [[t:${texNum(total)}]] \\div [[f:1{,}000]]`, op: '÷ 1,000', why: `1 kg = 1,000 g. Small unit to big unit, so divide.` },
+        { line: `\\text{wood} = [[w:${Wkg}]]\\text{ kg}`, op: 'Work it out', merge: { w: ['t', 'f'] }, why: `${fmt(total)} ÷ 1,000 = ${fmt(Wkg)}. The number gets smaller because kg are bigger.` },
+      ],
+    }
+  }
+}
+
+// ─── Round 5 · Boss: the water run, ml → litres, then round up to whole bottles ─────────────
+
+function waterRun(rand: Rand): Round {
+  for (;;) {
+    const n = rand.int(3, 10), p = rand.pick([250, 500, 750])
+    const ml = n * p, Tl = ml / 1000
+    if (Tl < 2 || Tl > 8) continue
+    const b = rand.pick([1.5, 2, 2.5, 3])
+    const q = Tl / b, c = Math.ceil(q - 1e-9), lo = Math.floor(q + 1e-9)
+    if (Number.isInteger(r2(q)) || Math.abs(q * 100 - Math.round(q * 100)) > 1e-9 || lo < 1 || c > 12) continue
+    const spare = Math.round(c * b * 1000) - ml, short = ml - Math.round(lo * b * 1000)
+    const fixL = `${n} × ${p} = ${fmt(ml)} ml, and ${fmt(ml)} ÷ 1,000 = ${fmt(Tl)} litres.`
+    const fixB = `${fmt(Tl)} ÷ ${fmt(b)} = ${fmt(q)}. You can’t buy part of a bottle, so round UP to ${c}.`
+    const mls = (value: number) => ({ value: String(value), label: `${fmt(value)} ml` })
+    return {
+      id: 'water-run',
+      title: 'Round 5 · Boss: the water run',
+      headline: 'Work out the water. Buy enough bottles.',
+      why: `Find the total in the small unit, then convert: ml ÷ 1,000 = litres. Then divide by the size of a bottle. You can’t buy part of a bottle, so round UP.`,
+      steps: [
+        {
+          kind: 'dial', id: 'need-l', asker: 'in litres', label: 'Water', unit: 'litres',
+          prompt: `${n} scouts each need ${p} ml of water for the night. How many litres is that altogether?`,
+          answer: Tl, start: 0, min: 0, max: 15, step: 0.25, jump: 1, commit: 'Pour it in',
+          win: `${n} × ${p} ml = ${fmt(ml)} ml. ÷ 1,000 = ${fmt(Tl)} litres.`,
+          packed: `💧 ${fmt(Tl)} litres needed`,
+          scene: { kind: 'jug', target: Tl, given: `${n} × ${p} ml`, from: 'Need', into: 'Jug (litres)' },
+          nope: v => {
+            if (v === 0) return `Nobody gets a drink. ${fixL}`
+            if (near(v, ml / 100, 0.125)) return `That’s ÷ 100. A litre is 1,000 ml. ${fixL}`
+            if (near(v, p / 1000, 0.125)) return `That’s enough for one scout. There are ${n}. ${fixL}`
+            if (v === n) return `${n} is the number of scouts, not litres. ${fixL}`
+            if (v < Tl) return `${fmt(v)} litres is only ${fmt(v * 1000)} ml. Someone goes thirsty. ${fixL}`
+            return `${fmt(v)} litres is ${fmt(v * 1000)} ml, more than they need. ${fixL}`
+          },
+        },
+        {
+          kind: 'dial', id: 'bottles', asker: 'in bottles', label: 'Bottles', unit: 'bottles',
+          prompt: `The shop only sells ${fmt(b)}-litre bottles. How many must Scout buy so nobody goes thirsty?`,
+          answer: c, start: 0, min: 0, max: 20, step: 1, jump: 5, commit: 'Buy them',
+          win: `${fmt(Tl)} ÷ ${fmt(b)} = ${fmt(q)}, so ${lo} bottle${lo === 1 ? '' : 's'} isn’t enough. Round up: ${c} bottles.`,
+          packed: `🧴 ${c} bottles`,
+          scene: { kind: 'fill', item: 'bottle', source: '🏪', target: c, given: `${fmt(Tl)} litres · ${fmt(b)} L bottles` },
+          nope: v => {
+            if (v === 0) return `No bottles, no water. ${fixB}`
+            if (v === lo) return `${lo} bottle${lo === 1 ? '' : 's'} is only ${fmt(lo * b)} litres, ${fmt(short)} ml short. Round up, not down. ${fixB}`
+            if (v === Math.round(Tl * b)) return `You multiplied ${fmt(Tl)} × ${fmt(b)}. Share the water into bottles: divide. ${fixB}`
+            if (v === n) return `One bottle each is more than they need. ${fixB}`
+            if (v > c) return `${v} bottles is ${fmt(v * b)} litres. ${c} already does it. ${fixB}`
+            return `${v} bottle${v === 1 ? '' : 's'} is only ${fmt(v * b)} litres. Not enough. ${fixB}`
+          },
+        },
+        {
+          kind: 'choice', id: 'spare-ml', asker: 'quick check',
+          prompt: `Scout buys ${c} bottles of ${fmt(b)} litres. How much water is spare once everyone has their ${p} ml?`,
+          answer: String(spare),
+          choices: options<string>(rand, mls(spare), [
+            { ...mls(spare / 10), nope: `That treats a litre as 100 ml. ${c} × ${fmt(b)} = ${fmt(c * b)} litres = ${fmt(c * b * 1000)} ml, minus ${fmt(ml)} ml = ${fmt(spare)} ml.` },
+            { ...mls(short), nope: `That’s how short ${lo} bottle${lo === 1 ? '' : 's'} would be. With ${c}: ${fmt(c * b * 1000)} − ${fmt(ml)} = ${fmt(spare)} ml spare.` },
+            { ...mls(Math.round(c * b * 1000)), nope: `That’s all the water bought. Take away the ${fmt(ml)} ml they drink: ${fmt(spare)} ml.` },
+            { ...mls(spare * 10), nope: `A zero too many. ${fmt(c * b * 1000)} − ${fmt(ml)} = ${fmt(spare)} ml.` },
+          ]),
+          why: `${c} × ${fmt(b)} = ${fmt(c * b)} litres = ${fmt(c * b * 1000)} ml. Minus the ${fmt(ml)} ml they need: ${fmt(spare)} ml spare.`,
+        },
+      ],
+      chain: [
+        { line: `\\text{need} = [[n:${n}]] \\times [[p:${p}]]\\text{ ml}` },
+        { line: `\\text{need} = [[t:${texNum(ml)}]]\\text{ ml}`, op: 'Multiply', merge: { t: ['n', 'p'] }, why: `${n} scouts × ${p} ml = ${fmt(ml)} ml.` },
+        { line: `\\text{need} = [[l:${Tl}]]\\text{ litres}`, op: '÷ 1,000', merge: { l: ['t'] }, why: `1 litre = 1,000 ml, so ${fmt(ml)} ÷ 1,000 = ${fmt(Tl)} litres.` },
+        { line: `\\text{bottles} = [[l:${Tl}]] \\div [[b:${b}]]`, op: `÷ ${fmt(b)}`, why: `Each bottle holds ${fmt(b)} litres, so share the ${fmt(Tl)} litres into ${fmt(b)}s.` },
+        { line: `\\text{bottles} = [[q:${r2(q)}]]`, op: 'Work it out', merge: { q: ['l', 'b'] }, why: `${fmt(Tl)} ÷ ${fmt(b)} = ${fmt(q)}. Not a whole number of bottles.` },
+        { line: `\\text{buy} = [[c:${c}]]`, op: 'Round up', merge: { c: ['q'] }, why: `${lo} bottle${lo === 1 ? '' : 's'} would leave them short, so buy ${c}. Always round up when you need enough.` },
+      ],
+    }
+  }
+}
+
 export function makeRounds(rand: Rand): Round[] {
-  return [ropeRound(rand), supplyRound(rand), watchRound(rand)]
+  return [ropeRound(rand), supplyRound(rand), watchRound(rand), backwardsRound(rand), waterRun(rand)]
 }

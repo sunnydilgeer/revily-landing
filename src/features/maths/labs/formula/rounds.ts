@@ -22,6 +22,8 @@ export type Forge = {
   prompt: string
   /** The dial's name, also in its button names. */
   label: string
+  /** The letter being dialled, shown on the anvil's readout. Defaults to D. */
+  unknown?: string
   answer: number
   start: number
   min: number; max: number; step: number; jump: number
@@ -46,6 +48,8 @@ export type Round = {
   machine: Machine | null
   side: Side | null
   chain: ChainStep[]
+  /** Which forge the working is about (shown on the payout screen). Defaults to the first, or the last on a machine. */
+  workingOn?: number
 }
 
 /** On-screen numbers with a proper minus sign. */
@@ -297,6 +301,150 @@ function machineRound(rand: Rand): Round {
   }
 }
 
+/** Round 4: brackets with a cursed stat inside, then a power with a number in front. */
+function bracketRound(rand: Rand): Round {
+  const [w1, w2] = rand.shuffle(BLADES)
+  let p = 0, a = 0, B = 0
+  for (;;) {
+    p = rand.int(2, 6); a = rand.int(6, 12); B = rand.int(1, 5)
+    if (a - B >= 2 && a !== p && B !== p && (p * (a - B)) % 5 === 0) break
+  }
+  const b = -B, s = a - B, A = p * s, pa = p * a
+  const fix1 = `Brackets first: ${a} + (−${B}) = ${s}. Then ${p} × ${s} = ${A}.`
+  const f1: Forge = {
+    id: 'bracket-1', kind: 'formula', weapon: w1,
+    formula: `D = ${p}(a + b)`,
+    stats: [{ letter: 'a', value: a, what: w1.a }, { letter: 'b', value: b, what: 'curse' }],
+    prompt: `Brackets AND a curse on this ${w1.name}. Work out D, then forge it.`,
+    label: 'Damage D', answer: A, min: -50, max: 150, ...DIAL,
+    win: `${p}(a + b) means ${p} × (a + b). ${fix1}`,
+    nope: value => diagnose(A, value, [
+      [pa + b, `You only multiplied the a. The ${p} outside the brackets multiplies everything inside.`],
+      [p * (a + B), `The curse is negative: a + b is ${a} + (−${B}), which is ${s}, not ${a + B}.`],
+      [p + s, `${p}(a + b) means ${p} × the bracket, not ${p} + the bracket.`],
+      [cat(p, s), `You stuck the digits together: ${p}(${s}) isn’t ${cat(p, s)}. A number next to a bracket means multiply.`],
+      [s, `You worked out the bracket but forgot the × ${p} outside.`],
+      [pa, `You dropped the curse. b = ${n(b)} is inside the bracket, so it counts.`],
+    ], fix1),
+  }
+
+  let k = 0, x = 0, c = 0
+  for (;;) {
+    k = rand.int(2, 5); x = rand.int(3, 7); c = rand.int(1, 19)
+    const D = k * x * x + c
+    if (x !== k && c !== k && c !== x && D % 5 === 0 && D <= 200) break
+  }
+  const xx = x * x, kxx = k * xx, D = kxx + c
+  const fix2 = `Powers before ×: ${x}² = ${xx}. Then ${k} × ${xx} = ${kxx}, and + ${c} makes ${D}.`
+  const f2: Forge = {
+    id: 'bracket-2', kind: 'formula', weapon: w2,
+    formula: `D = ${k}a² + ${c}`,
+    stats: [{ letter: 'a', value: x, what: w2.a }],
+    prompt: `Only the a gets squared on this ${w2.name}. Work out D and forge it.`,
+    label: 'Damage D', answer: D, min: 0, max: 250, ...DIAL,
+    win: `${k}a² means ${k} × a², so square a first. ${fix2}`,
+    nope: value => diagnose(D, value, [
+      [(k * x) ** 2 + c, `You squared the ${k} too: (${k} × ${x})² = ${(k * x) ** 2}. Only the a is squared.`],
+      [2 * k * x + c, `a² means a × a, not 2 × a. ${x}² is ${xx}, not ${2 * x}.`],
+      [k * x + c, `You forgot to square a. ${x}² = ${x} × ${x} = ${xx}.`],
+      [kxx, `You forgot the + ${c} on the end.`],
+      [k + xx + c, `${k}a² means ${k} × a², not ${k} + a².`],
+      [kxx - c, `It’s + ${c}, not − ${c}.`],
+    ], fix2),
+  }
+
+  return {
+    id: 'bracket',
+    title: 'Round 4 · Brackets first',
+    headline: 'Brackets, then powers, then the rest',
+    why: `Work out the brackets first: 3(a + b) means 3 × (a + b). A number outside a bracket multiplies everything inside. Powers come next: 2a² means 2 × a², so only the a is squared.`,
+    forges: [f1, f2], machine: null, side: null,
+    chain: [
+      { line: `D = [[p:${p}]]([[a:a]] + [[b:b]])` },
+      { line: `D = [[p:${p}]]([[a:${a}]] + [[b:(-${B})]])`, op: 'Swap in a and b', why: `a = ${a} and the curse b = ${n(b)}, in brackets to keep its sign safe.` },
+      { line: `D = [[p:${p}]] \\times [[s:${s}]]`, op: 'Brackets first', merge: { s: ['a', 'b'] }, why: `${a} + (−${B}) is the same as ${a} − ${B} = ${s}.` },
+      { line: `D = [[d:${A}]]`, op: 'Multiply', merge: { d: ['p', 's'] }, why: `The ${p} outside multiplies the whole bracket: ${p} × ${s} = ${A}.` },
+    ],
+  }
+}
+
+/** Round 5 (boss): the exam two-parter. D = pa − c: (a) find D, (b) find a for a target D. */
+function bossRound(rand: Rand): Round {
+  const [w] = rand.shuffle(BLADES)
+  let p = 0, c = 0, a = 0, X = 0
+  for (;;) {
+    p = rand.int(2, 6); c = rand.int(5, 30, 5)
+    a = p === 5 ? rand.int(3, 12) : rand.pick([5, 10, 15])
+    X = p === 5 ? rand.int(3, 12) : rand.pick([5, 10, 15, 20])
+    const D1 = p * a - c, D2 = p * X - c
+    if (X !== a && X !== c && a !== c && c !== p && D1 > 0 && D2 > 0 && D1 <= 150 && D2 <= 150 && D2 !== X && D2 !== c) break
+  }
+  const pa = p * a, D1 = pa - c, D2 = p * X - c, up = D2 + c
+  const fixA = `${p} × ${a} = ${pa}, then − ${c} = ${D1}.`
+  const partA: Forge = {
+    id: 'boss-1', kind: 'formula', weapon: w,
+    formula: `D = ${p}a − ${c}`,
+    stats: [{ letter: 'a', value: a, what: w.a }],
+    prompt: `Part (a): work out D when a = ${a}.`,
+    label: 'Damage D', answer: D1, min: -50, max: 150, ...DIAL,
+    win: `Multiply first, then take away. ${fixA}`,
+    nope: value => diagnose(D1, value, [
+      [pa + c, `It’s − ${c}, not + ${c}.`],
+      [p * (a - c), `You did a − ${c} first, then × ${p}. Multiply first, take away after.`],
+      [p + a - c, `${p}a means ${p} × a, not ${p} + a.`],
+      [cat(p, a) - c, `You stuck the digits together: ${p}a with a = ${a} isn’t ${cat(p, a)}.`],
+      [pa, `You forgot the − ${c} on the end.`],
+      [c - pa, `Order matters: it’s ${p}a take away ${c}, not ${c} take away ${p}a.`],
+    ], fixA),
+  }
+  const fixB = `Undo the − ${c} first: ${D2} + ${c} = ${up}. Then undo × ${p}: ${up} ÷ ${p} = ${X}. Check: ${p} × ${X} − ${c} = ${D2}.`
+  const partB: Forge = {
+    id: 'boss-2', kind: 'backward', weapon: w,
+    formula: `D = ${p}a − ${c}`,
+    stats: [{ letter: 'D', value: D2, what: 'damage wanted' }],
+    prompt: `Part (b): a knight wants D = ${D2}. What must a be?`,
+    label: 'Stat a', unknown: 'a', answer: X, min: 0, max: 50, start: 0, step: 1, jump: 5,
+    win: fixB,
+    nope: value => diagnose(X, value, [
+      [(D2 - c) / p, `You took ${c} away. The formula already takes ${c} away, so undo it with the opposite: + ${c}.`],
+      [D2 / p + c, `Right moves, wrong order. The − ${c} happened last, so undo it first.`],
+      [up, `Halfway there: ${D2} + ${c} = ${up}. Now undo the × ${p} by dividing.`],
+      [D2 / p, `You undid the × ${p} but not the − ${c}. And undo the last step first.`],
+      [p * D2 - c, `You ran it forwards. Backwards, undo each step with its opposite.`],
+      [up * p, `You kept the × ${p}. To undo × ${p}, divide by ${p}.`],
+      [a, `That’s a from part (a). New damage, new a.`],
+    ], fixB),
+  }
+
+  const right = `Add ${c}`
+  const choices = options<string>(rand, { value: right, label: right }, [
+    { value: `Take away ${c}`, label: `Take away ${c}`, nope: `The formula already takes ${c} away. Undo it with the opposite: ${D2} + ${c} = ${up}.` },
+    { value: `Divide by ${p}`, label: `Divide by ${p}`, nope: `The × ${p} happened first, so it gets undone LAST. Undo the − ${c} first.` },
+    { value: `Multiply by ${p}`, label: `Multiply by ${p}`, nope: `That runs the formula forwards. Undo × ${p} by dividing, and only after the − ${c} is undone.` },
+  ])
+
+  return {
+    id: 'boss',
+    title: 'Round 5 · The big order',
+    headline: 'Forwards, then backwards',
+    why: `Part (a) gives you a: swap it in and work out D. Part (b) gives you D: work backwards to find a. Undo the last step first, using the opposite. Then check by putting your answer back in.`,
+    forges: [partA, partB], machine: null,
+    side: {
+      prompt: `Your mate is stuck on part (b). What should they do to ${D2} first?`,
+      answer: right,
+      choices,
+      why: `In ${p}a − ${c}, the − ${c} is done last, so undo it first: ${D2} + ${c} = ${up}. Then ÷ ${p} = ${X}.`,
+    },
+    workingOn: 1,
+    chain: [
+      { line: `[[p:${p}]][[a:a]] [[c:- ${c}]] = [[t:${D2}]]` },
+      { line: `[[p:${p}]][[a:a]] = [[r:${up}]]`, op: `+ ${c} both sides`, merge: { r: ['t', 'c'] }, why: `The − ${c} was done last, so undo it first: ${D2} + ${c} = ${up}.` },
+      { line: `[[a:a]] = [[s:${X}]]`, op: `÷ ${p} both sides`, merge: { s: ['r', 'p'] }, why: `${p}a means ${p} × a. Undo it by dividing: ${up} ÷ ${p} = ${X}.` },
+      { line: `${p} \\times [[s:${X}]] - ${c} = ${D2}`, op: 'Check it', why: `Put a = ${X} back in: ${p} × ${X} = ${p * X}, − ${c} = ${D2}. Spot on.` },
+    ],
+  }
+}
+
 export function makeRounds(rand: Rand): Round[] {
-  return [forgeRound(rand), curseRound(rand), machineRound(rand)]
+  return [forgeRound(rand), curseRound(rand), machineRound(rand), bracketRound(rand), bossRound(rand)]
 }

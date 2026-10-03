@@ -1,4 +1,4 @@
-/* Going Viral: Tia's bar chart, pie chart and the fake chart. The shared lab look is in ../kit/lab.css. */
+/* Going Viral: Tia's bar chart, pie chart, fake chart, pictogram and line graph. The shared lab look is in ../kit/lab.css. */
 .gv-chart { margin: 0; display: grid; gap: 6px; justify-items: center; }
 .gv-chart svg { display: block; width: 100%; max-width: 360px; height: auto; overflow: visible; }
 .gv-shake { animation: lab-shake .4s; }
@@ -50,7 +50,20 @@
 
 .gv-side .lab-choice { font-size: 1.02rem; min-height: 54px; padding: 8px 12px; text-align: left; }
 
+/* Pictogram: hearts fill in as the dial turns; dashed ghosts show the row being drawn. */
+.gv-heart { fill: var(--rv-redpen); }
+.gv-heart__ghost { fill: none; stroke: var(--rv-line-strong); stroke-width: 1.2; stroke-dasharray: 2 2; }
+.gv-chart.is-miss .gv-prow.is-active .gv-heart { fill: var(--rv-muted); }
+
+/* Line graph: points joined in week order; the biggest rise lights up once it's found. */
+.gv-line { stroke: var(--rv-biro); stroke-width: 2.5; stroke-linecap: round; }
+.gv-line.is-rise { stroke: var(--rv-good-ink); stroke-width: 4.5; }
+.gv-point { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2.5; transition: cy .3s cubic-bezier(.3, 1.4, .5, 1); }
+.gv-point.is-active { fill: var(--rv-yellow); stroke: var(--rv-ink); }
+.gv-chart.is-miss .gv-point.is-active { fill: var(--rv-redpen); }
+.gv-table--weeks td { font-size: .74rem; }
+
 @media (prefers-reduced-motion: reduce) {
   .gv-shake { animation: none; }
-  .gv-bar__fill { transition: none; }
+  .gv-bar__fill, .gv-point { transition: none; }
 }

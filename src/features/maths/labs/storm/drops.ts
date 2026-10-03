@@ -15,7 +15,7 @@ export type Ride = { name: string; emoji: string; speed: number }
 /** A run: you go at `speed` m/s for `time` seconds. */
 export type Run = { emoji: string; speed: number; time: number }
 
-export type Quantity = 'distance' | 'time' | 'speed'
+export type Quantity = 'distance' | 'time' | 'speed' | 'scale'
 
 /** The main move: set a value on a NumberDial, then commit. */
 export type DialStep = {
@@ -68,6 +68,10 @@ export type Drop = {
   closes: number
   /** How the storm timer reads before you've worked it out ("1 min 20 s"), or null when it's in seconds already. */
   timer: string | null
+  /** How the map key shows one square ("0.4 km") when it isn't plain metres. */
+  scaleText?: string
+  /** The map key is torn off: 1 square = ? until they work the scale out. */
+  scaleHidden?: boolean
   brief: string
   why: string
   steps: Step[]
@@ -77,10 +81,12 @@ export type Drop = {
 export const metres = (value: number) => `${value.toLocaleString('en-GB')} m`
 export const seconds = (value: number) => `${value.toLocaleString('en-GB')} s`
 export const mps = (value: number) => `${value.toLocaleString('en-GB')} m/s`
-export const formatFor = (sets: Quantity) => sets === 'distance' ? metres : sets === 'time' ? seconds : mps
+export const formatFor = (sets: Quantity) => sets === 'distance' || sets === 'scale' ? metres : sets === 'time' ? seconds : mps
 const texNum = (value: number) => value.toLocaleString('en-GB').replace(/,/g, '{,}')
 const texMetres = (value: number) => `${texNum(value)}\\text{ m}`
 const minSec = (total: number) => `${Math.floor(total / 60)} min ${total % 60} s`
+/** 400 → "0.4 km". */
+const kmText = (m: number) => `${m / 1000} km`
 
 /** Where a run ends up against the zone. */
 function runOutcome(distance: number, speed: number, time: number) {
@@ -94,16 +100,22 @@ function runOutcome(distance: number, speed: number, time: number) {
 
 // ---------------------------------------------------------------- the dials
 
-function distanceDial(id: string, squares: number, scale: number, max: number): DialStep {
+function distanceDial(id: string, squares: number, scale: number, max: number, km = false): DialStep {
   const distance = squares * scale
-  const fix = `It’s ${squares} squares and each is ${metres(scale)}: ${squares} × ${scale} = ${metres(distance)}.`
+  const fix = km
+    ? `1 km = 1,000 m, so ${kmText(scale)} = ${metres(scale)} a square. ${squares} × ${scale} = ${metres(distance)}.`
+    : `It’s ${squares} squares and each is ${metres(scale)}: ${squares} × ${scale} = ${metres(distance)}.`
   return {
     kind: 'dial', id, sets: 'distance', label: 'Distance',
-    prompt: `1 square = ${metres(scale)}. Set the real distance to the zone.`,
+    prompt: km ? `1 square = ${kmText(scale)}. Set the real distance in metres.` : `1 square = ${metres(scale)}. Set the real distance to the zone.`,
     min: 0, max, step: 50, jump: 500, start: 0, target: distance, commit: 'Measure',
-    win: `${squares} squares × ${metres(scale)} = ${metres(distance)}. The map is the ground, shrunk.`,
+    win: km
+      ? `${kmText(scale)} is ${metres(scale)}, so ${squares} squares × ${metres(scale)} = ${metres(distance)}.`
+      : `${squares} squares × ${metres(scale)} = ${metres(distance)}. The map is the ground, shrunk.`,
     nope: value => {
       if (value === 0) return `0 m? The zone isn’t under your feet. ${fix}`
+      if (km && value * 10 === distance) return `A km is 1,000 m, not 100 m, so ${kmText(scale)} is ${metres(scale)}. ${fix}`
+      if (km && value === squares * 1000) return `That’s ${squares} whole km. Each square is only ${kmText(scale)}. ${fix}`
       if (value === scale) return `${metres(scale)} is just one square. ${fix}`
       if (value === distance * 10) return `Too many zeros: that’s ten times too far. ${fix}`
       if (value * 10 === distance) return `Lost a zero: that’s ten times too short. ${fix}`
@@ -181,6 +193,46 @@ function timerDial(id: string, closes: number): DialStep {
   }
 }
 
+/** Working backwards: a mate's run gives the real distance, distance = speed × time. */
+function coverDial(id: string, speed: number, time: number, max: number): DialStep {
+  const distance = speed * time
+  const fix = `Distance = speed × time = ${speed} × ${time} = ${metres(distance)}.`
+  return {
+    kind: 'dial', id, sets: 'distance', label: 'Distance',
+    prompt: `Your mate rode ${mps(speed)} for ${seconds(time)} to reach the zone. Set the real distance.`,
+    min: 0, max, step: 50, jump: 500, start: 0, target: distance, commit: 'Measure',
+    win: `${speed} metres every second, for ${time} seconds: ${speed} × ${time} = ${metres(distance)}.`,
+    nope: value => {
+      if (value === 0) return `0 m? They definitely moved. ${fix}`
+      if (value === speed + time) return `That’s ${speed} + ${time}. They go ${speed} m EVERY second, so it’s ${time} lots of ${speed}: multiply. ${fix}`
+      if (value === distance * 10) return `Too many zeros: ten times too far. ${fix}`
+      if (value * 10 === distance) return `Lost a zero: ten times too short. ${fix}`
+      if (value === time || value === speed) return `That’s just the ${value === time ? 'time' : 'speed'}. You need both: speed × time. ${fix}`
+      return `You set ${metres(value)}, ${value < distance ? 'too short' : 'too far'}. ${fix}`
+    },
+  }
+}
+
+/** The map key is torn off: one square = distance ÷ squares. */
+function scaleDial(id: string, squares: number, distance: number): DialStep {
+  const scale = distance / squares
+  const fix = `${metres(distance)} over ${squares} squares: ${distance} ÷ ${squares} = ${metres(scale)} a square.`
+  return {
+    kind: 'dial', id, sets: 'scale', label: 'Scale',
+    prompt: `That ${metres(distance)} is ${squares} squares on the map. Fix the key: 1 square = ?`,
+    min: 0, max: 1000, step: 50, jump: 100, start: 0, target: scale, commit: 'Fix the map',
+    win: `${distance} ÷ ${squares} = ${scale}. 1 square = ${metres(scale)}, so the map works again.`,
+    nope: value => {
+      if (value === 0) return `0 m a square would make the whole map a dot. ${fix}`
+      if (value === distance) return `That’s the whole distance, all ${squares} squares. Share it out: divide by ${squares}. ${fix}`
+      if (value * (squares + 1) === distance) return `You split it into ${squares + 1}. Count the gaps between the ticks, not the ticks: ${squares} squares. ${fix}`
+      if (squares > 1 && value * (squares - 1) === distance) return `You split it into ${squares - 1}. Count the squares along the path again: ${squares}. ${fix}`
+      if (value === distance * squares) return `Multiplying made each square bigger than the whole trip. Divide. ${fix}`
+      return `${squares} × ${metres(value)} = ${metres(squares * value)}, not ${metres(distance)}. ${fix}`
+    },
+  }
+}
+
 // ---------------------------------------------------------------- the working
 
 function distanceLines(squares: number, scale: number): ChainStep[] {
@@ -220,6 +272,30 @@ function finalChain(squares: number, scale: number, closes: number): ChainStep[]
   ]
 }
 
+/** Distance from the mate's run, then share it over the squares for the scale. */
+function scaleChain(squares: number, speed: number, time: number): ChainStep[] {
+  const distance = speed * time
+  return [
+    { line: `\\text{Dist} = [[v:${speed}\\text{ m/s}]] \\times [[t:${time}\\text{ s}]]` },
+    { line: `\\text{Dist} = [[d:${texMetres(distance)}]]`, op: 'Work it out', merge: { d: ['v', 't'] }, why: `${speed} metres every second for ${time} seconds: ${speed} × ${time} = ${metres(distance)}.` },
+    { line: `\\text{Square} = [[d:${texMetres(distance)}]] \\div [[n:${squares}]]`, op: '÷ the squares', why: `That distance is ${squares} squares on the map, so share it over ${squares}.` },
+    { line: `\\text{Square} = [[s:${texMetres(distance / squares)}]]`, op: 'Work it out', merge: { s: ['d', 'n'] }, why: `${distance} ÷ ${squares} = ${distance / squares}. Each square is ${metres(distance / squares)} of ground.` },
+  ]
+}
+
+/** The boss: minutes to seconds, km to m, then distance ÷ time. Every key flows on, so nothing gets struck out. */
+function bossChain(squares: number, scale: number, closes: number): ChainStep[] {
+  const distance = squares * scale, mins = Math.floor(closes / 60), secs = closes % 60
+  return [
+    { line: `\\text{Time} = [[m:${mins * 60}]] + [[x:${secs}]]\\text{ s}` },
+    { line: `\\text{Time} = [[t:${closes}\\text{ s}]]`, op: 'Add', merge: { t: ['m', 'x'] }, why: `${mins} min is ${mins} × 60 = ${mins * 60} seconds. Add the ${secs} s.` },
+    { line: `\\text{Speed} = [[n:${squares}]] \\times [[k:${scale / 1000}\\text{ km}]] \\div [[t:${closes}\\text{ s}]]`, op: 'Distance ÷ time', why: `The distance is ${squares} squares × ${kmText(scale)}. Share it over the ${closes} seconds.` },
+    { line: `\\text{Speed} = [[n:${squares}]] \\times [[s:${texMetres(scale)}]] \\div [[t:${closes}\\text{ s}]]`, op: 'km to m', merge: { s: ['k'] }, why: `Speed is in metres per second, so use metres. 1 km is 1,000 m, so ${kmText(scale)} = ${metres(scale)}.` },
+    { line: `\\text{Speed} = [[d:${texMetres(distance)}]] \\div [[t:${closes}\\text{ s}]]`, op: 'Find the distance', merge: { d: ['n', 's'] }, why: `${squares} × ${scale} = ${metres(distance)}.` },
+    { line: `\\text{Speed} = [[v:${distance / closes}\\text{ m/s}]]`, op: 'Work it out', merge: { v: ['d', 't'] }, why: `${metres(distance)} ÷ ${closes} = ${distance / closes}. ${distance / closes} metres every second.` },
+  ]
+}
+
 const SPRINT: Ride = { name: 'Sprint', emoji: '🏃', speed: 5 }
 
 /** A fresh set of drops. Distances are multiples of 50 m, so every time and speed comes out whole. */
@@ -242,6 +318,25 @@ export function makeDrops(rand: Rand): Drop[] {
   const [speed3, closes3, squares3] = rand.pick(combos)
   const scale3 = speed3 * closes3 / squares3
   const mins3 = Math.floor(closes3 / 60), secs3 = closes3 % 60
+
+  // Drop 4: the map key is torn. Work backwards from a mate's run: distance = speed × time, then ÷ squares.
+  const torn: [number, number, number][] = []
+  for (const scale of [100, 150, 200, 250, 300, 400, 500]) for (const squares of [3, 4, 5, 6]) for (const speed of [10, 15, 20, 25]) {
+    const distance = scale * squares, time = distance / speed
+    if (distance <= 3000 && Number.isInteger(time) && time % 5 === 0 && time >= 20 && time <= 200) torn.push([scale, squares, speed])
+  }
+  const [scale4, squares4, speed4] = rand.pick(torn)
+  const time4 = scale4 * squares4 / speed4
+
+  // Drop 5 (boss): the key is in km, the timer in minutes and seconds. Metres, seconds, then speed.
+  const boss: [number, number, number][] = []
+  for (const speed of [10, 15, 20, 25, 30]) for (const closes of [70, 80, 90, 100, 110, 130, 140, 150, 160, 170]) for (const squares of [3, 4, 5, 6]) {
+    const distance = speed * closes, scale = distance / squares
+    if (distance <= 4500 && [150, 200, 250, 300, 400, 500, 600, 750].includes(scale)) boss.push([speed, closes, squares])
+  }
+  const [speed5, closes5, squares5] = rand.pick(boss)
+  const scale5 = speed5 * closes5 / squares5
+  const mins5 = Math.floor(closes5 / 60), secs5 = closes5 % 60
 
   return [
     {
@@ -300,6 +395,39 @@ export function makeDrops(rand: Rand): Drop[] {
         speedDial('d3-speed', squares3, scale3, closes3, { name: 'Hoverboard', emoji: '🛹' }, `Set the hoverboard speed to land on the zone in ${seconds(closes3)}.`, 60, { mins: mins3, secs: secs3 }),
       ],
       chain: finalChain(squares3, scale3, closes3),
+    },
+    {
+      id: 'torn',
+      title: `Drop 4 · ${rand.pick(['Torn Map', 'Soggy Map', 'Chewed Map'])}`,
+      scale: scale4,
+      squares: squares4,
+      closes: time4 + rand.pick([20, 30, 40]),
+      timer: null,
+      scaleHidden: true,
+      brief: 'Your map’s key got ripped off. No scale. But your mate already made it to the zone.',
+      why: 'Work backwards. Distance = speed × time, so your mate’s run tells you the real distance. Then share that distance over the squares on the map. That gives you the scale.',
+      steps: [
+        coverDial('d4-distance', speed4, time4, 3000),
+        scaleDial('d4-scale', squares4, scale4 * squares4),
+      ],
+      chain: scaleChain(squares4, speed4, time4),
+    },
+    {
+      id: 'boss',
+      title: 'Drop 5 · Last Squad Standing',
+      scale: scale5,
+      squares: squares5,
+      closes: closes5,
+      timer: minSec(closes5),
+      scaleText: kmText(scale5),
+      brief: `Boss drop. The key is in km, the storm says ${minSec(closes5)}, and your jet bike has no brakes.`,
+      why: 'Everything has to match before you divide. Turn the km into metres (× 1,000). Turn the minutes into seconds (× 60). Then speed = distance ÷ time.',
+      steps: [
+        distanceDial('d5-distance', squares5, scale5, 4500, true),
+        timerDial('d5-timer', closes5),
+        speedDial('d5-speed', squares5, scale5, closes5, { name: 'Jet bike', emoji: '🏍️' }, `Set the jet bike speed to land on the zone in ${seconds(closes5)}.`, 60, { mins: mins5, secs: secs5 }),
+      ],
+      chain: bossChain(squares5, scale5, closes5),
     },
   ]
 }

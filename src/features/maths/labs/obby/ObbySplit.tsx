@@ -22,7 +22,16 @@ const BLOX: Speaker = {
 const INTROS = [
   'MY NEW COURSE IS LIVE! Players are flooding in. I need the tree filled so I know who went where. Tap a box, set the number.',
   'Disaster. My counter only logged the finish line. Work backwards up the tree and tell me how many took each path.',
-  'Last course! Fill the tree, count every clear, then tell me the odds a random player made it through one path.',
+  'Third course! Fill the tree, count every clear, then tell me the odds a random player made it through one path.',
+  'My counter only logged the clearers on one path. I know what fraction that is though. Work the whole path out backwards.',
+  'FINAL OBBY. Percentages, fractions, the lot. Fill it in, then tell me the odds for one path. Exam-board-level stuff.',
+]
+const TIPS = [
+  'The two boxes under any box add up to it. A fraction on a branch is a fraction of the box it comes from, not of everyone.',
+  'Going up the tree, add the two ends. The other branch is the total − this branch.',
+  'Probability = the number at that end ÷ everyone at the start.',
+  'If 3/4 of a branch is 60, one quarter is 60 ÷ 3 = 20, so the whole branch is 20 × 4 = 80.',
+  'Percent of everyone first (10% then scale up). When Blox picks from one path, that path is the bottom of the fraction.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🏆', name: 'Obby Overlord', line: 'Every box first try. Blox wants you on the dev team.' },
@@ -193,7 +202,7 @@ function ObbySplitGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
 
   const nextLabel = left.length ? 'Next box' : side && !onSide ? 'Bonus question' : 'See the working'
   const mood = (offset: number) => roundIndex * 4 + checks + offset
-  const sideEnd: NodeId | null = side ? (round.nodes.ac.value === Number(side.answer.split('/')[0]) ? 'ac' : 'bc') : null
+  const sideEnd: NodeId | null = side ? side.end : null
   const max = round.start
   const jump = max >= 200 ? 50 : 20
 
@@ -204,7 +213,7 @@ function ObbySplitGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
       <section className="lab-intro">
         <p className="lab-kicker">Obby Split complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['The two boxes under any box add up to it.', 'A fraction on a branch is of the box above it.', 'Probability = that end ÷ the total at the start.']} />
+        <Rule steps={['The two boxes under any box add up to it.', 'A fraction or % on a branch is of the box above it. Know the part? ÷ top × bottom.', 'Probability = that end ÷ the group you pick from.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -291,8 +300,8 @@ function ObbySplitGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
       <section className="lab-intro lab-intro--centre">
         <span className="lab-sirens" aria-hidden="true">🕳️</span>
         <p className="lab-kicker">Fell through the map</p>
-        <h1 className="lab-title">Three wrong boxes. The players are lost in the void.</h1>
-        <Why tag="Tip">The two boxes under any box add up to it. A fraction on a branch is a fraction of the box it comes from, not of everyone.</Why>
+        <h1 className="lab-title">Out of lives. The players are lost in the void.</h1>
+        <Why tag="Tip">{TIPS[roundIndex]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Respawn</button>

@@ -1,5 +1,5 @@
 import type { ChainStep } from '../../step-chain/StepChain'
-import { options, texNum, whole, type Option, type Rand } from '../kit/random'
+import { gbp, options, texGbp, texNum, whole, type Option, type Rand } from '../kit/random'
 
 /** 1 grid square = 5 m, so every length is a multiple of 5. */
 export const SQUARE = 5
@@ -11,7 +11,7 @@ export const SQUARE = 5
 export type Plan = { w: number; h: number; cut: { w: number; h: number } | null }
 
 /** What a right answer builds on the map. */
-export type Builds = 'walls' | 'side' | 'floor' | 'crates'
+export type Builds = 'walls' | 'side' | 'floor' | 'crates' | 'cost'
 
 export type Question = {
   prompt: string
@@ -35,6 +35,10 @@ export type Round = {
   coverage: number | null
   /** The walls are already up when the round starts. */
   walled: boolean
+  /** The floor is already down when the round starts. */
+  floored: boolean
+  /** A gap this many metres wide left in the bottom wall for a gate, if any. */
+  gate: number | null
   questions: Question[]
   chain: ChainStep[]
 }
@@ -86,6 +90,8 @@ function rectangle(rand: Rand): Round {
     missing: null,
     coverage: null,
     walled: false,
+    floored: false,
+    gate: null,
     questions: [
       {
         prompt: 'Walls go all the way round. How many metres of wall?',
@@ -150,6 +156,8 @@ function lShape(rand: Rand): Round {
     missing: hidden.edge,
     coverage: null,
     walled: false,
+    floored: false,
+    gate: null,
     questions: [
       {
         prompt: 'How long is the wall marked “?”',
@@ -202,6 +210,8 @@ function supplies(rand: Rand): Round {
     missing: null,
     coverage,
     walled: true,
+    floored: false,
+    gate: null,
     questions: [
       {
         prompt: 'Walls are up. How much floor needs tiling?',
@@ -236,7 +246,139 @@ function supplies(rand: Rand): Round {
   }
 }
 
-/** One play: three fresh bases. */
+/** Round 4: work backwards. The floor's down and one wall is known: side = area ÷ side, then the wall, less a gate. */
+function yard(rand: Rand): Round {
+  // Answer first: the hidden side, then the front wall and the gate.
+  const h = rand.int(15, 45, SQUARE)
+  let w = rand.int(15, 40, SQUARE)
+  while (w === h) w = rand.int(15, 40, SQUARE)
+  const gate = rand.pick([5, 10])
+  const area = w * h, perimeter = 2 * (w + h), wall = perimeter - gate
+  return {
+    id: 'yard',
+    title: 'Night 4 · The yard',
+    heading: `The yard’s floor is down: ${m2(area)}. The front wall is ${w} m.`,
+    why: 'Area is width × length. If you know the area and one side, divide by that side to get the other one. Then add every side for the wall. A gate is a gap in the wall, so take it off.',
+    plan: { w, h, cut: null },
+    labels: [m(w), '?', `${gate} m gate`, null],
+    missing: 1,
+    coverage: null,
+    walled: false,
+    floored: true,
+    gate,
+    questions: [
+      {
+        prompt: `${m2(area)} of floor, ${w} m wide. How long is the side wall marked “?”`,
+        answer: h,
+        choices: options(rand, { value: h, label: m(h) }, [
+          { value: area - w, label: m(area - w), nope: `That’s ${n(area)} − ${w}. The area is ${w} × the side, so undo the × with ÷: ${n(area)} ÷ ${w} = ${h} m.` },
+          { value: area / 2 - w, label: m(area / 2 - w), nope: `That treats ${n(area)} as the wall all the way round. It’s the floor: ${w} × side = ${n(area)}, so the side is ${n(area)} ÷ ${w} = ${h} m.` },
+          { value: w, label: m(w), nope: `That’s the front wall again. The yard isn’t a square: ${n(area)} ÷ ${w} = ${h} m.` },
+          { value: area / SQUARE, label: m(area / SQUARE), nope: `That’s ${n(area)} ÷ 5. Divide by the ${w} m front wall: ${n(area)} ÷ ${w} = ${h} m.` },
+        ], { valid: whole }),
+        why: `${w} × ? = ${n(area)}, so ? = ${n(area)} ÷ ${w} = ${h} m. Check: ${w} × ${h} = ${n(area)}.`,
+        builds: 'side',
+      },
+      {
+        prompt: `Wall all the way round, but leave the ${gate} m gap for the gate. How many metres of wall?`,
+        answer: wall,
+        choices: options(rand, { value: wall, label: m(wall) }, [
+          { value: perimeter, label: m(perimeter), nope: `${perimeter} m is the whole way round. Leave the ${gate} m gate open: ${perimeter} − ${gate} = ${wall} m.` },
+          { value: perimeter + gate, label: m(perimeter + gate), nope: `You added the gate. It’s a gap, so it comes off: ${perimeter} − ${gate} = ${wall} m.` },
+          { value: w + h - gate, label: m(w + h - gate), nope: `That’s only two walls. All four: ${w} + ${h} + ${w} + ${h} = ${perimeter}, then − ${gate} for the gate = ${wall} m.` },
+        ], { valid: whole }),
+        why: `${w} + ${h} + ${w} + ${h} = ${perimeter} m round the edge. Take off the ${gate} m gate: ${wall} m of wall.`,
+        builds: 'walls',
+      },
+    ],
+    chain: [
+      { line: `\\text{?} = [[a:${texNum(area)}]] \\div [[w:${w}]]` },
+      { line: `\\text{?} = [[h:${tm(h)}]]`, op: 'Area ÷ side', merge: { h: ['a', 'w'] }, why: `Area = width × length, so length = area ÷ width. ${n(area)} ÷ ${w} = ${h}.` },
+      { line: `\\text{P} = 2 \\times ([[p:${w}]] + [[q:${h}]])`, op: 'Round the edge', why: 'Opposite walls match, so add one of each and double it.' },
+      { line: `\\text{P} = [[r:${tm(perimeter)}]]`, op: 'Work it out', merge: { r: ['p', 'q'] }, why: `${w} + ${h} = ${w + h}, and 2 × ${w + h} = ${perimeter}.` },
+      { line: `\\text{Wall} = [[r:${perimeter}]] - [[g:${gate}]]`, op: '− the gate', why: `The gate is a ${gate} m gap, so that bit needs no wall.` },
+      { line: `\\text{Wall} = [[z:${tm(wall)}]]`, op: 'Subtract', merge: { z: ['r', 'g'] }, why: `${perimeter} − ${gate} = ${wall}.` },
+    ],
+  }
+}
+
+/** Round 5, the boss: an exam-style L. Find the unmarked wall, the area, crates (round UP), then the cost. */
+function hall(rand: Rand): Round {
+  const coverage = rand.pick([50, 75, 100]), price = rand.pick([15, 20, 25, 30])
+  let w = 0, h = 0, top = 0, cutH = 0, area = 0
+  // Keep drawing halls until the crates don't come out exact (so rounding up matters) and the order is sensible.
+  do {
+    w = rand.int(35, 50, SQUARE); h = rand.int(30, 50, SQUARE)
+    top = rand.int(15, w - 15, SQUARE); cutH = rand.int(10, h - 15, SQUARE)
+    area = top * h + (w - top) * (h - cutH)
+  } while (area % coverage === 0 || area / coverage > 40)
+  const across = w - top, right = h - cutH
+  const big = top * h, small = across * right, perimeter = 2 * (w + h)
+  const under = Math.floor(area / coverage), count = under + 1, left = area - under * coverage
+  const cost = count * price
+  return {
+    id: 'hall',
+    title: 'Night 5 · The great hall',
+    heading: `The great hall. One crate of tiles covers ${coverage} m² and costs ${gbp(price)}.`,
+    why: 'Two walls have no length marked, so work them out from the walls opposite. Split the L into two rectangles and add them for the area. Divide by what one crate covers and round UP, because you can’t buy part of a crate. Then the cost is crates × price.',
+    plan: { w, h, cut: { w: across, h: cutH } },
+    labels: [m(top), null, null, m(right), m(w), m(h)],
+    missing: null,
+    coverage,
+    walled: true,
+    floored: false,
+    gate: null,
+    questions: [
+      {
+        prompt: 'Two walls aren’t marked. Work out the floor area.',
+        answer: area,
+        choices: options(rand, { value: area, label: m2(area) }, [
+          { value: w * h, label: m2(w * h), nope: `That’s ${w} × ${h}, a full rectangle. The corner’s missing: ${top} × ${h} = ${n(big)}, plus ${across} × ${right} = ${n(small)}, makes ${n(area)} m².` },
+          { value: big + w * right, label: m2(big + w * right), nope: `You used the whole ${w} m for the small piece, so it overlaps the big one. Its width is ${w} − ${top} = ${across}: ${n(big)} + ${n(small)} = ${n(area)} m².` },
+          { value: big, label: m2(big), nope: `That’s only the big piece, ${top} × ${h}. Add the small one: ${across} × ${right} = ${n(small)}, so ${n(area)} m².` },
+          { value: perimeter, label: m2(perimeter), nope: `${perimeter} m is the wall round the edge. The floor is inside: ${n(big)} + ${n(small)} = ${n(area)} m².` },
+        ]),
+        why: `The unmarked step is ${w} − ${top} = ${across} m. Split it: ${top} × ${h} = ${n(big)} and ${across} × ${right} = ${n(small)}. Total ${n(area)} m².`,
+        builds: 'floor',
+      },
+      {
+        prompt: `One crate covers ${coverage} m². How many crates do you need to buy?`,
+        answer: count,
+        choices: options(rand, { value: count, label: crates(count) }, [
+          { value: under, label: crates(under), nope: `${under} crates only cover ${n(under * coverage)} m², leaving ${left} m² of mud. You can’t buy part of a crate, so round UP: ${count}.` },
+          { value: area / 25, label: crates(area / 25), nope: `That’s one crate per grid square. A crate covers ${coverage} m²: ${n(area)} ÷ ${coverage} = ${under} remainder ${left}, so ${count} crates.` },
+          { value: count + 1, label: crates(count + 1), nope: `${count} crates already cover ${n(count * coverage)} m², more than the ${n(area)} m² floor. One more is a waste of money.` },
+        ], { valid: whole }),
+        why: `${n(area)} ÷ ${coverage} = ${under} remainder ${left}. ${under} crates leave ${left} m² bare, so round up: ${count} crates.`,
+        builds: 'crates',
+      },
+      {
+        prompt: `Each crate costs ${gbp(price)}. How much is the order?`,
+        answer: cost,
+        choices: options(rand, { value: cost, label: gbp(cost) }, [
+          { value: under * price, label: gbp(under * price), nope: `That’s ${under} crates: not enough to cover the floor. You need ${count}: ${count} × ${gbp(price)} = ${gbp(cost)}.` },
+          { value: area / coverage * price, label: gbp(area / coverage * price), nope: `That pays for part of a crate. The shop sells whole crates: ${count} × ${gbp(price)} = ${gbp(cost)}.` },
+          { value: count + price, label: gbp(count + price), nope: `That’s ${count} + ${price}. Each crate costs ${gbp(price)}, so multiply: ${count} × ${gbp(price)} = ${gbp(cost)}.` },
+        ]),
+        why: `${count} crates × ${gbp(price)} = ${gbp(cost)}. Bex is checking her wallet.`,
+        builds: 'cost',
+      },
+    ],
+    chain: [
+      { line: `\\text{Step} = [[w:${w}]] - [[t:${top}]]` },
+      { line: `\\text{Step} = [[g:${tm(across)}]]`, op: 'Big − small', merge: { g: ['w', 't'] }, why: `The bottom wall is ${w} m. The top wall and the unmarked step across make the same, so the step is ${w} − ${top}.` },
+      { line: `\\text{A} = [[p:${top}]] \\times [[q:${h}]] + [[u:${across}]] \\times [[v:${right}]]`, op: 'Split in two', why: 'Cut down the inside corner: a tall rectangle and a short one.' },
+      { line: `\\text{A} = [[z:${tm2(area)}]]`, op: 'Each piece, add', merge: { z: ['p', 'q', 'u', 'v'] }, why: `${top} × ${h} = ${n(big)} and ${across} × ${right} = ${n(small)}. Add them: ${n(area)}.` },
+      { line: `\\text{Crates} = [[z:${texNum(area)}]] \\div [[c:${coverage}]]`, op: `÷ ${coverage} m² a crate`, why: `Each crate covers ${coverage} m², so count how many ${coverage}s fit in the floor.` },
+      { line: `\\text{Crates} = [[e:${under}\\text{ r }${left}]]`, op: 'Divide', merge: { e: ['z', 'c'] }, why: `${n(area)} ÷ ${coverage} = ${under} remainder ${left}. That ${left} m² still needs tiles.` },
+      { line: `\\text{Crates} = [[k:${count}]]`, op: 'Round UP', merge: { k: ['e'] }, why: `You can’t buy part of a crate, and ${under} would leave a bare patch. So ${count}.` },
+      { line: `\\text{Cost} = [[k:${count}]] \\times [[s:${texGbp(price)}]]`, op: '× the price', why: `Every crate costs ${gbp(price)}.` },
+      { line: `\\text{Cost} = [[y:${texGbp(cost)}]]`, op: 'Multiply', merge: { y: ['k', 's'] }, why: `${count} × ${price} = ${cost}.` },
+    ],
+  }
+}
+
+/** One play: five fresh bases. */
 export function makeBases(rand: Rand): Round[] {
-  return [rectangle(rand), lShape(rand), supplies(rand)]
+  return [rectangle(rand), lShape(rand), supplies(rand), yard(rand), hall(rand)]
 }

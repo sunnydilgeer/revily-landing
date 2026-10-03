@@ -81,6 +81,9 @@ export const FACTS = {
   opposite: 'Vertically opposite angles are equal',
   triangle: 'Angles in a triangle add to 180°',
   bounce: 'Angle in = angle out',
+  alternate: 'Alternate angles are equal',
+  corresponding: 'Corresponding angles are equal',
+  quad: 'Angles in a quadrilateral add to 360°',
 }
 const fact = (key: keyof typeof FACTS, nope?: string): Option<string> => ({ value: key, label: FACTS[key], nope })
 
@@ -101,6 +104,14 @@ export function makeShots(rand: Rand): Shot[] {
   const line = Math.atan2(45 - 6, 154 - 80) * 180 / Math.PI
   const start3 = toward(cross, line + 180, 55)
   const mate = toward(cross, line + a3 + 180, 40)
+
+  // Shot 4: from the top cushion down into the bottom middle pocket. The cushions are parallel.
+  const t4 = rand.pick([60, 70, 80, 100, 110, 120]), given4 = 180 - t4
+  const pocket4: Point = [80, 84]
+  const cue4: Point = [80 + 78 / Math.tan(rad(t4)), 6]
+
+  // Shot 5: a quadrilateral. Cue ball at D, off the red at C, into the bottom-right corner B. A is a chalk mark.
+  const q = quad(rand), e5 = 180 - q.d, sum5 = q.a + q.b + q.d
 
   return [
     {
@@ -284,7 +295,169 @@ export function makeShots(rand: Rand): Shot[] {
         { line: `\\text{Next} = [[r:${deg(next3)}]]`, op: 'Work it out', merge: { r: ['t', 'a'] }, why: `180 − ${a3} = ${next3}.` },
       ],
     },
+    {
+      id: 'rails',
+      title: 'Shot 4 · Rail to Rail',
+      brief: 'Ball on the top cushion. Drop it in the bottom middle pocket.',
+      why: 'The top and bottom cushions are parallel. A path across them makes a Z, and the angles in the corners of a Z are equal: alternate angles. Use the straight line first, then the Z.',
+      path: [cue4, pocket4],
+      guides: [[[6, 6], [154, 6]]],
+      arcs: [
+        { id: 'given', at: cue4, from: 180 + t4, to: 360, value: given4 },
+        { id: 'cue', at: cue4, from: 180, to: 180 + t4, value: t4 },
+        { id: 'pocket', at: pocket4, from: 0, to: t4, value: t4 },
+      ],
+      questions: [
+        {
+          prompt: `The ${given4}° and your angle share the top cushion: a straight line. Set the missing angle and drop it in.`,
+          arc: 'cue',
+          answer: t4, min: 0, max: 180, start: 0,
+          aim: { vertex: cue4, base: 180, target: pocket4, kind: 'pocket' },
+          nope: v => {
+            if (v === given4) return `${given4}° is the angle you were given. Yours is on the other side of the path, on the same cushion: 180 − ${given4} = ${t4}°.`
+            if (v === 180) return `180° is the whole cushion: it rolls along the rail. Take the ${given4}° off: 180 − ${given4} = ${t4}°.`
+            if (v === 0) return `0° just rolls along the cushion. Open it up to 180 − ${given4} = ${t4}°.`
+            if (v === 90) return `90° drops straight down the table. The two angles on the cushion add to 180: 180 − ${given4} = ${t4}°.`
+            return `${v}° is ${off(v, t4)}. Angles on a straight line add to 180: 180 − ${given4} = ${t4}°.`
+          },
+          why: `180° − ${given4}° = ${t4}°. Down the middle and in.`,
+        },
+        {
+          prompt: `Replay check. The cushions are parallel, so the path makes a Z. Set the angle at the pocket to run back to the cue ball.`,
+          arc: 'pocket',
+          answer: t4, min: 0, max: 180, start: 0,
+          aim: { vertex: pocket4, base: 0, target: cue4, kind: 'cue' },
+          nope: v => {
+            if (v === given4) return `${given4}° sits on the other side of the path. In a Z, the angles in the two corners match: alternate angles are equal, so it’s ${t4}°, same as at the top.`
+            if (v === 180) return `180° is the whole bottom cushion. The angle in the Z’s corner matches the top one: ${t4}°.`
+            if (v === 90) return `90° fires straight up. The path isn’t upright: alternate angles are equal, so it’s ${t4}°.`
+            if (v === 0) return `0° rolls along the bottom cushion. Alternate angles are equal: open it to ${t4}°.`
+            return `${v}° is ${off(v, t4)}. The two corners of the Z are equal: ${t4}°.`
+          },
+          why: `Alternate angles are equal: ${t4}° at the top, ${t4}° at the bottom. Big Vic is crying.`,
+        },
+      ],
+      side: {
+        prompt: 'Big Vic wants the reason. Which fact gave you the angle at the pocket?',
+        answer: 'alternate',
+        choices: options(rand, fact('alternate'), [
+          fact('corresponding', 'Corresponding angles sit in matching corners on the SAME side of the path: an F shape. These two are on opposite sides, a Z: alternate.'),
+          fact('line', `That got you the ${t4}° at the top from the ${given4}°. The pocket angle came from the parallel cushions: a Z, alternate angles.`),
+          fact('opposite', 'Opposite angles are at one crossing. These two are at different cushions, in the corners of a Z: alternate angles.'),
+        ]),
+        why: 'The cushions are parallel and the path cuts across both in a Z, so the angles in its corners are equal.',
+      },
+      chain: [
+        { line: `\\text{?} + [[k:${deg(given4)}]] = [[t:${deg(180)}]]` },
+        { line: `\\text{?} = [[t:${deg(180)}]] [[m:- ${deg(given4)}]]`, op: `− ${given4}° both sides`, why: `The two angles at the cue ball sit on the top cushion, a straight line, so they add to 180°.` },
+        { line: `\\text{Top} = [[r:${deg(t4)}]]`, op: 'Work it out', merge: { r: ['t', 'm'] }, why: `180 − ${given4} = ${t4}.` },
+        { line: `\\text{Pocket} = [[r:${deg(t4)}]]`, op: 'Alternate', why: 'The cushions are parallel. The path cuts across both in a Z, and alternate angles are equal.' },
+      ],
+    },
+    {
+      id: 'quad',
+      title: 'Shot 5 · The Final Frame',
+      brief: 'Off the red and into the corner. Four corners, one shot.',
+      why: 'The chalk lines make a shape with four corners: a quadrilateral. Its angles add to 360°. First use the straight line to turn the outside angle into the inside one. Then take the three you know off 360°.',
+      path: [q.D, q.C, q.B],
+      guides: [[q.A, q.B], [q.B, q.C], [q.C, q.D], [q.D, q.A], [q.D, toward(q.D, q.cd, Math.min(22, Math.hypot(...toCushion(q.D, q.cd).map((v, i) => v - q.D[i]) as Point)))]],
+      arcs: [
+        { id: 'a', at: q.A, from: 0, to: q.a, value: q.a },
+        { id: 'b', at: q.B, from: 180 - q.b, to: 180, value: q.b },
+        { id: 'outside', at: q.D, from: q.cd, to: q.da, value: 180 - q.d },
+        { id: 'inside', at: q.D, from: q.da, to: q.da + q.d, value: q.d },
+        { id: 'red', at: q.C, from: q.cd, to: q.cd + q.c, value: q.c },
+      ],
+      questions: [
+        {
+          prompt: `The ${e5}° outside angle and the inside one share a straight line. Set the inside angle and hit the red.`,
+          arc: 'inside',
+          answer: q.d, min: 0, max: 180, start: 0,
+          aim: { vertex: q.D, base: q.da, target: q.C, kind: 'ball' },
+          nope: v => {
+            if (v === e5) return `${e5}° is the outside angle. The inside one shares the straight line with it: 180 − ${e5} = ${q.d}°.`
+            if (v === 180) return `180° is the whole straight line. Take the ${e5}° outside angle off: ${q.d}°.`
+            if (v === 90) return `It’s not a right angle. Inside + outside = 180, so 180 − ${e5} = ${q.d}°.`
+            if (v === 0) return `0° runs along the chalk line. Open it to 180 − ${e5} = ${q.d}°.`
+            return `${v}° is ${off(v, q.d)}. Inside + outside make a straight line: 180 − ${e5} = ${q.d}°.`
+          },
+          why: `180° − ${e5}° = ${q.d}°. Clack! Now it’s off the red.`,
+        },
+        {
+          prompt: `Four corners add to 360°. You know ${q.a}°, ${q.b}° and ${q.d}°. Set the angle at the red for the corner pocket.`,
+          arc: 'red',
+          answer: q.c, min: 0, max: 180, start: 0,
+          aim: { vertex: q.C, base: q.cd, target: q.B, kind: 'pocket' },
+          nope: v => {
+            const outside = 360 - q.a - q.b - e5
+            if (v === outside) return `You used the ${e5}° outside angle. Inside the shape that corner is ${q.d}°: 360 − ${q.a} − ${q.b} − ${q.d} = ${q.c}°.`
+            if (v === 360 - q.a - q.b) return `That’s 360 − ${q.a} − ${q.b}: you left out the ${q.d}° at the cue ball. All three come off: ${q.c}°.`
+            if (v === 360 - q.a - q.d) return `That’s 360 − ${q.a} − ${q.d}: you left out the ${q.b}° at the pocket. All three come off: ${q.c}°.`
+            if (v === 360 - q.b - q.d) return `That’s 360 − ${q.b} − ${q.d}: you left out the ${q.a}° at the chalk mark. All three come off: ${q.c}°.`
+            if (v === 180) return `180 is for a triangle. This shape has four corners, so they add to 360: 360 − ${sum5} = ${q.c}°.`
+            return `${v}° is ${off(v, q.c)}. Four corners make 360: ${q.a} + ${q.b} + ${q.d} = ${sum5}, and 360 − ${sum5} = ${q.c}°.`
+          },
+          why: `360° − ${sum5}° = ${q.c}°. In off the red. Big Vic has fainted.`,
+        },
+      ],
+      side: {
+        prompt: 'Last replay. Which fact gave you the angle at the red?',
+        answer: 'quad',
+        choices: options(rand, fact('quad'), [
+          fact('triangle', 'A triangle has three corners. This shape has four, so its angles add to 360°, not 180°.'),
+          fact('line', `That turned the ${e5}° outside angle into ${q.d}° inside. The red’s angle came from the four corners adding to 360°.`),
+          fact('point', 'Round a point is 360° too, but these angles aren’t round one point. They’re the four corners of a shape.'),
+        ]),
+        why: `Four corners of a quadrilateral add to 360°: ${q.a} + ${q.b} + ${q.d} + ${q.c} = 360.`,
+      },
+      chain: [
+        { line: `\\text{Cue} = [[t:${deg(180)}]] - [[e:${deg(e5)}]]` },
+        { line: `\\text{Cue} = [[d:${deg(q.d)}]]`, op: 'Straight line', merge: { d: ['t', 'e'] }, why: `Inside and outside angles sit on a straight line: 180 − ${e5} = ${q.d}.` },
+        { line: `\\text{Red} = [[f:${deg(360)}]] - [[s:${deg(sum5)}]]`, op: 'Quadrilateral', why: `Four corners add to 360°. The three you know: ${q.a} + ${q.b} + ${q.d} = ${sum5}.` },
+        { line: `\\text{Red} = [[c:${deg(q.c)}]]`, op: 'Work it out', merge: { c: ['f', 's'] }, why: `360 − ${sum5} = ${q.c}.` },
+      ],
+    },
   ]
+}
+
+/** Shot 5's shape: A (chalk mark on the bottom cushion), B (bottom-right pocket), C (the red), D (the cue ball). */
+export type Quad = { a: number; b: number; c: number; d: number; A: Point; B: Point; C: Point; D: Point; cd: number; da: number }
+
+/** Where the lines from `p` (direction `u`) and `q` (direction `v`) meet, and how far along each. */
+function meet(p: Point, u: number, q: Point, v: number): { at: Point; s: number; t: number } | null {
+  const [ux, uy] = [Math.cos(rad(u)), -Math.sin(rad(u))], [vx, vy] = [Math.cos(rad(v)), -Math.sin(rad(v))]
+  const det = ux * -vy - uy * -vx
+  if (Math.abs(det) < 1e-9) return null
+  const [dx, dy] = [q[0] - p[0], q[1] - p[1]]
+  const s = (dx * -vy - dy * -vx) / det, t = (ux * dy - uy * dx) / det
+  return { at: [p[0] + s * ux, p[1] + s * uy], s, t }
+}
+
+/** Answer first: the four corners (add to 360), then draw the shape from them and keep it if it fits the table. */
+export function quad(rand: Rand): Quad {
+  for (let tries = 0; tries < 400; tries++) {
+    const d = rand.pick([70, 80, 100, 110]), c = rand.int(70, 120, 10), b = rand.int(70, 110, 10)
+    const a = 360 - b - c - d
+    if (a < 60 || a > 120) continue
+    const A: Point = [rand.int(20, 45, 5), 84], B: Point = [154, 84]
+    const C = toward(B, 180 - b, rand.int(45, 65, 5))
+    const cd = 360 - b - c, da = cd + 180 - d
+    const hit = meet(A, a, C, cd)
+    if (!hit || hit.s < 30 || hit.t < 30) continue
+    const D = hit.at
+    const inside = ([x, y]: Point) => x >= 16 && x <= 144 && y >= 14 && y <= 76
+    if (!inside(C) || !inside(D)) continue
+    // The angle labels sit 19 out along the middle of each arc: keep them on the felt.
+    const labels = [toward(D, cd + (180 - d) / 2, 19), toward(D, da + d / 2, 19), toward(C, cd + c / 2, 19)]
+    if (labels.some(([x, y]) => x < 9 || x > 151 || y < 9 || y > 81)) continue
+    // Keep the cue ball and the red clear of the pockets.
+    if ([C, D].some(p => POCKETS.some(k => Math.hypot(p[0] - k[0], p[1] - k[1]) < 18))) continue
+    return { a, b, c, d, A, B, C, D, cd, da }
+  }
+  // A shape that always fits, in case the dice are unkind.
+  const A: Point = [45, 84], B: Point = [154, 84]
+  const C = toward(B, 100, 55), cd = 180, D = meet(A, 100, C, cd)!.at
+  return { a: 100, b: 80, c: 100, d: 80, A, B, C, D, cd, da: cd + 100 }
 }
 
 /** Where a ball rolling from `from` in direction `deg` meets a cushion. */

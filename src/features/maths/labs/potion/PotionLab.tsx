@@ -28,9 +28,10 @@ const GRIMBLE: Speaker = {
 }
 const INTROS = [
   'Double batch. Double EVERYTHING. Not just the bits you like.',
-  'Use all eight crystals. They cost more than you do.',
+  'Use every last scoop of it. That stuff costs more than you do.',
   'Fill it to the brim. Not a drop over. I’ve just cleaned that ceiling.',
   'Some cowboy down the road is selling my recipe. Real or rubbish? You tell me.',
+  'Big order, awkward number. Add one of everything and I’ll add you to the compost.',
 ]
 
 const empty = (recipe: Counts): Counts => Object.fromEntries(Object.keys(recipe).map(id => [id, 0]))
@@ -39,6 +40,7 @@ const ratio = (counts: Counts) => Object.values(counts).join(' : ')
 /** Why a mix is wrong, pointing at the first ingredient that's off. */
 function whyWrong(brew: MixBrew, counts: Counts) {
   const ids = Object.keys(brew.recipe)
+  if (brew.makes && brew.order) return whyWrongBoss(brew, brew.makes, brew.order, counts)
   const k = brew.target[ids[0]] / brew.recipe[ids[0]]
   const scale = counts[ids[0]] / brew.recipe[ids[0]]
   if (scale > 0 && ids.every(id => counts[id] === brew.recipe[id] * scale)) {
@@ -48,6 +50,22 @@ function whyWrong(brew: MixBrew, counts: Counts) {
   }
   const off = ids.find(id => counts[id] !== brew.target[id])!
   return `Check the ${ingredients[off].name.toLowerCase()}: ${brew.recipe[off]} × ${k} = ${brew.target[off]}, and you put ${counts[off]}. Every part gets the same × ${k}.`
+}
+
+/** Boss brew slips: added instead of multiplied, forgot to divide, stopped at one potion, or one part off. */
+function whyWrongBoss(brew: MixBrew, makes: number, order: number, counts: Counts) {
+  const ids = Object.keys(brew.recipe)
+  const one = (id: string) => brew.recipe[id] / makes
+  const same = (f: (id: string) => number) => ids.every(id => counts[id] === f(id))
+  const shift = counts[ids[0]] - brew.recipe[ids[0]]
+  if (same(id => brew.recipe[id])) return `That’s the recipe as it is: ${makes} potions. The order is ${order}.`
+  if (shift !== 0 && same(id => brew.recipe[id] + shift)) {
+    return `You ${shift > 0 ? 'added' : 'took'} ${Math.abs(shift)} ${shift > 0 ? 'to' : 'from'} every part. Ratios don’t work by adding: ${ratio(brew.recipe)} ÷ ${makes} = ${ids.map(one).join(' : ')} for one potion, then × ${order}.`
+  }
+  if (same(id => brew.recipe[id] * order)) return `That’s the recipe × ${order}: ${makes * order} potions! Divide by ${makes} first to get one potion’s worth.`
+  if (same(one)) return `That’s one potion’s worth. Nice start. Now × ${order} for the whole order.`
+  const off = ids.find(id => counts[id] !== brew.target[id])!
+  return `Check the ${ingredients[off].name.toLowerCase()}: ${brew.recipe[off]} ÷ ${makes} = ${one(off)} for one potion, × ${order} = ${brew.target[off]}. You put ${counts[off]}.`
 }
 
 function Cauldron({ counts, pot, label, emoji }: { counts: Counts; pot: Pot; label?: string; emoji?: string }) {
@@ -68,7 +86,7 @@ function RecipeCard({ brew }: { brew: Brew }) {
   return <div className="pl-recipe">
     <span className="pl-swatch" style={{ background: mixColour(brew.recipe) }} aria-hidden="true" />
     <div>
-      <p className="pl-recipe__name">{brew.emoji} {brew.potion}</p>
+      <p className="pl-recipe__name">{brew.emoji} {brew.potion}{brew.kind === 'mix' && brew.makes ? <> · makes <b className="pl-recipe__makes">{brew.makes}</b> potions</> : null}</p>
       <p className="pl-recipe__parts">
         {Object.entries(brew.recipe).map(([id, n], i) => <span key={id}>{i > 0 && <b> : </b>}{n} {ingredients[id].emoji}</span>)}
       </p>
@@ -150,7 +168,7 @@ function PotionLabGame({ brews, onReplay }: { brews: Brew[]; onReplay: () => voi
       <section className="lab-intro">
         <p className="lab-kicker">Potion Lab complete</p>
         <RankCard rank={rank} stats={[['Potions', `${brews.length}/${brews.length}`], ['Lives kept', `${score.kept}/${brews.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Find what one part was multiplied by.', 'Multiply every part by the same number.', 'Same ratio = same potion, whatever the size.']} />
+        <Rule steps={['Find what one part was multiplied by. Awkward number? Find one potion’s worth first.', 'Multiply (never add) every part by the same number.', 'Same ratio = same potion, whatever the size.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -167,7 +185,7 @@ function PotionLabGame({ brews, onReplay }: { brews: Brew[]; onReplay: () => voi
     {screen === 'recipe' && <>
       <IntroSplit
         key={brewIndex}
-        kicker={brew.kind === 'check' ? 'Spot the fake' : 'Order in'}
+        kicker={brew.kind === 'check' ? 'Spot the fake' : brew.kind === 'mix' && brew.makes ? 'Boss order' : 'Order in'}
         title={brew.task}
         scene={<RecipeCard brew={brew} />}
         speaker={GRIMBLE} line={INTROS[brewIndex]}
@@ -231,7 +249,9 @@ function PotionLabGame({ brews, onReplay }: { brews: Brew[]; onReplay: () => voi
         <span className="lab-sirens" aria-hidden="true">💥</span>
         <p className="lab-kicker">Lab destroyed</p>
         <h1 className="lab-title">Three explosions. Health and safety want a word.</h1>
-        <Why tag="Tip">Find what one ingredient was multiplied by, then multiply every ingredient by that same number.</Why>
+        <Why tag="Tip">{brew.kind === 'mix' && brew.makes
+          ? `Find one potion’s worth first: divide every part by ${brew.makes}. Then multiply every part by ${brew.order}.`
+          : 'Find what one ingredient was multiplied by, then multiply every ingredient by that same number.'}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startBrew(brewIndex) }}>Rebuild the lab</button>

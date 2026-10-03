@@ -21,6 +21,8 @@ const INTROS = [
   'WELCOME TO THE MEGA SALE!!! Everything is a DEAL!!! Probably!!! Don’t do any maths, just BUY!!!',
   'TWO shops, ONE item!!! Shop A has a GIANT sticker, so it MUST be cheaper!!! (Please do not check.)',
   'NEW!!! IMPROVED!!! Same thing, just MORE money!!! That’s how you know it’s better!!!',
+  'FLASH SALE!!! Weird percentages!!! Nobody can work out 35%!!! So just TRUST ME!!!',
+  'FINAL BOSS SALE!!! My sticker says what it says!!! Checking the old price is RUDE!!!',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🧾', name: 'Receipt Checker', line: 'Not one fake deal got past you. Sal is thinking of closing down.' },
@@ -54,6 +56,15 @@ function Stage({ round, shown }: { round: Round; shown: Set<Shows> }) {
   const sticker = `${rise ? '+' : '−'}${round.percent}%`
   const change = shown.has('change') ? `${rise ? '+' : '−'}${gbp(round.change)}` : undefined
   const now = shown.has('final') ? round.final : undefined
+  if (round.kind === 'claim') {
+    const verdict = shown.has('verdict')
+    const honest = round.claim === round.percent
+    return <div className="ds-stage" aria-live="polite">
+      <Tag item={round.item} price={round.price} sticker={`−${round.claim}%`} now={round.final}
+        change={verdict ? `Really −${round.percent}%` : change}
+        stamp={verdict ? (honest ? 'deal' : 'steal') : undefined} />
+    </div>
+  }
   if (round.kind !== 'versus') return <div className="ds-stage" aria-live="polite">
     <Tag item={round.item} price={round.price} sticker={sticker} rise={rise} change={change} now={now} />
   </div>
@@ -70,6 +81,9 @@ function Stage({ round, shown }: { round: Round; shown: Set<Shows> }) {
 function verdictText(round: Round) {
   if (round.kind === 'off') return `You pay ${gbp(round.final)}. You save ${gbp(round.change)}.`
   if (round.kind === 'rise') return `New price ${gbp(round.final)}. That’s ${gbp(round.change)} more.`
+  if (round.kind === 'claim') return round.claim === round.percent
+    ? `Sal said ${round.claim}% off. It really is. Shocking.`
+    : `Sal said ${round.claim}% off. It’s really ${round.percent}%.`
   return `Shop ${round.cheaper} is the real deal.`
 }
 
@@ -127,7 +141,7 @@ function DealOrStealGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =
       <section className="lab-intro">
         <p className="lab-kicker">Deal or Steal complete</p>
         <RankCard rank={rank} stats={[['Deals checked', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Find 10% by ÷ 10 (or 25% by ÷ 4, 50% by ÷ 2).', 'Scale it up to the % you need.', 'Take it off for a discount, add it on for an increase.']} />
+        <Rule steps={['Find 10% by ÷ 10 and 5% by halving it (or 25% by ÷ 4, 50% by ÷ 2).', 'Build the % you need, then take it off or add it on.', 'Real % off = saving ÷ old price × 100.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -159,7 +173,7 @@ function DealOrStealGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =
         <Stage round={round} shown={shown} />
       </section>
       <section className="lab-ask">
-        <p className="lab-asker"><span aria-hidden="true">{SAL.emoji}</span> {SAL.name} shouts · {round.kind === 'versus' ? 'which shop wins?' : 'trust the sticker!!!'}</p>
+        <p className="lab-asker"><span aria-hidden="true">{SAL.emoji}</span> {SAL.name} shouts · {round.kind === 'versus' ? 'which shop wins?' : round.kind === 'claim' ? 'never check the old price!!!' : 'trust the sticker!!!'}</p>
         <h1 className="lab-prompt">{question.prompt}</h1>
         <Choices choices={question.choices} picked={picked} answer={question.answer} onPick={pick} columns={question.choices.length} />
         {right && <Combo streak={score.streak} />}
@@ -167,7 +181,7 @@ function DealOrStealGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =
       {right && <CheckBar status="correct" title={`${SAL.emoji} “${say(SAL.right, roundIndex * 2 + qIndex)}”`} message={question.why}>
         <button type="button" className="rv-btn rv-btn--good rv-btn--lg rv-btn--block" onClick={carryOn}>{qIndex + 1 < round.questions.length ? 'Next question' : 'See the receipt'}</button>
       </CheckBar>}
-      {wrong && score.lives > 0 && <CheckBar status="incorrect" title={`${SAL.emoji} “${say(SAL.wrong, roundIndex + qIndex + (3 - score.lives))}”`} message={nope}>
+      {wrong && score.lives > 0 && <CheckBar status="incorrect" title={`${SAL.emoji} “${say(SAL.wrong, roundIndex + qIndex + (livesPerRound() - score.lives))}”`} message={nope}>
         <button type="button" className="rv-btn rv-btn--bad rv-btn--lg rv-btn--block" onClick={() => setPicked(null)}>Try again</button>
       </CheckBar>}
     </>}
@@ -177,7 +191,7 @@ function DealOrStealGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =
         <span className="lab-sirens" aria-hidden="true">🛒</span>
         <p className="lab-kicker">Sold!!!</p>
         <h1 className="lab-title">Sal sold you the fake deal. Grab your receipt and try again.</h1>
-        <Why tag="Tip">Turn the % into pounds first: 10% is ÷ 10, 25% is ÷ 4, 50% is ÷ 2. Then take it off for a discount, or add it on for an increase.</Why>
+        <Why tag="Tip">Turn the % into pounds first: 10% is ÷ 10, 5% is half of that, 25% is ÷ 4, 50% is ÷ 2. Take it off for a discount, add it on for an increase. To find a % off, do saving ÷ old price × 100.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Back to the sale</button>

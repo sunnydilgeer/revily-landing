@@ -8,7 +8,7 @@ import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, reco
 import { NumberDial } from '../kit/NumberDial'
 import { gbp, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { cashOf, entriesSoFar, makeStall, type DialStep, type Entry, type Stall } from './days'
+import { cashOf, entriesSoFar, fractionWords, makeStall, type DialStep, type Entry, type Stall } from './days'
 import './StallTycoon.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -23,6 +23,8 @@ const INTROS = [
   'We’re gonna be MILLIONAIRES. Well. Thousandaires. Step one: stuff to sell.',
   'New stock, new prices. I want PROFIT, not vibes.',
   'Big day. Staff. Machines. Me in sunglasses. You do the sums, obviously.',
+  'A CAFÉ wants our stuff. Wholesale, baby. I’ve already bought a tie.',
+  'Last day. Everything must go. If we’re not rich by tonight, I’m blaming you.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🏦', name: 'Market Mogul', line: 'Every penny where it should be. Ziggy wants to be you.' },
@@ -30,8 +32,8 @@ const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🧾', name: 'Trainee Trader', line: 'You got there. Ziggy is still recounting the till.' },
   { badge: '💸', name: 'Ziggy’s Accountant Quit', line: 'The money went everywhere. Run the stall again.' },
 ]
-const CUSTOMERS = ['🧑', '🧓', '🧒']
-const COMMIT_SOUND: Partial<Record<DialStep['kind'], () => void>> = { buy: sfx.stamp, price: sfx.whoosh, wage: sfx.stamp }
+const CUSTOMERS = ['🧑', '🧓', '🧒', '🧑‍🍳']
+const COMMIT_SOUND: Partial<Record<DialStep['kind'], () => void>> = { buy: sfx.stamp, price: sfx.whoosh, wage: sfx.stamp, bill: sfx.stamp, order: sfx.whoosh, takings: sfx.stamp, profit: sfx.stamp }
 
 /** Counts from the number it showed last to the new one, so money visibly lands on the balance. */
 function useTween(target: number, initial = target, ms = 800) {
@@ -57,7 +59,7 @@ function useTween(target: number, initial = target, ms = 800) {
 
 const signed = (amount: number) => `${amount < 0 ? '−' : '+'}${gbp(Math.abs(amount))}`
 
-/** The cash balance across all three days, with the latest money in or out dropping onto it. */
+/** The cash balance across all the days, with the latest money in or out dropping onto it. */
 function Ledger({ entries, cash, landing = 0 }: { entries: Entry[]; cash: number; landing?: number }) {
   // `landing`: money that has only just arrived, so the balance counts it on from before.
   const shown = useTween(cash, cash - landing)
@@ -209,7 +211,7 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
       <section className="lab-intro">
         <p className="lab-kicker">Stall Tycoon complete</p>
         <RankCard rank={rank} stats={[['Final cash', gbp(cash)], ['Lives kept', `${score.kept}/${stall.days.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Total cost = price each × how many', 'Change = what they paid − what it cost', 'Profit = money in − money out']} />
+        <Rule steps={['Total cost = price each × how many (+ any flat charge)', 'Work backwards: take off the flat charge, then ÷ price each', 'Profit = money in − money out']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -242,6 +244,27 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
       }
       return { crates: n.n, label: done ? `${n.n} sold at ${gbp(v)}` : `${n.n} ${stock.items}`, crateState: done ? 'is-sold' : undefined, tag: done ? v : value, customer: done ? { face: CUSTOMERS[1], mood: result === 'right' ? '😊' : '🤨', leaving: false, holds: null, paid: false } : null, helper: null, upgrade: 'none' }
     }
+    // After day 3 the helper stays, and the upgrade stays if Ziggy bought it.
+    const kit = { helper: '😄', upgrade: (n.worth ? 'bought' : 'none') as View['upgrade'] }
+    if (roundIndex === 3) {
+      if (screen === 'payout') return { ...kit, crates: 0, label: `Delivered: ${n.r + n.r2} ${stock.items}`, tag: n.s, customer: null }
+      const mood = result === 'right' ? '😊' : result === 'wrong' ? '🤨' : null
+      if (screen !== 'question' || stepIndex === 0) {
+        return { ...kit, crates: n.r, label: `Order: ${n.r} ${stock.items} + ${gbp(n.F)} delivery`, tag: n.s, customer: { face: CUSTOMERS[3], mood, leaving: false, holds: done ? null : `${n.r}× ${stock.emoji}\n🚚 ${gbp(n.F)}`, paid: result === 'right' } }
+      }
+      return {
+        ...kit, crates: done ? v : 0, label: done ? `${v} ${stock.items} packed` : `Paid ${gbp(n.Y)}`, crateState: result === 'wrong' ? 'is-bad' : undefined, tag: n.s,
+        customer: { face: CUSTOMERS[3], mood, leaving: false, holds: done ? null : `💷 ${gbp(n.Y)}\n🚚 ${gbp(n.F)}`, paid: result === 'right' },
+      }
+    }
+    if (roundIndex === 4) {
+      if (screen === 'payout') return { ...kit, crates: 0, label: `Sold out: ${n.g} ${stock.items}`, tag: n.z, customer: null }
+      if (screen !== 'question' || stepIndex === 0) {
+        return { ...kit, crates: n.g, label: done ? `${v} at full price` : `${n.g} ${stock.items} · ${gbp(n.K)}`, crateState: result === 'wrong' ? 'is-bad' : undefined, tag: n.s, customer: null }
+      }
+      const sold = stepIndex === 2 || result === 'right'
+      return { ...kit, crates: sold ? 0 : n.g, label: `${n.f} at ${gbp(n.s)} · ${n.g - n.f} at ${gbp(n.z)}`, crateState: sold ? 'is-sold' : undefined, tag: n.z, customer: null }
+    }
     const fresh = { crates: n.n, label: null, tag: n.s, customer: null }
     if (screen === 'payout') return { ...fresh, helper: '😄', upgrade: n.worth ? 'bought' : 'none' }
     if (screen !== 'question' || stepIndex === 0) {
@@ -264,6 +287,17 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
         : v < n.change ? { text: `${gbp(v)} change? Short-changed! They storm off.`, good } : { text: `${gbp(v)} change?! They leg it, grinning.`, good }
       case 'wage': return good ? { text: `${gbp(v)} for ${n.h} hours. Fair pay.`, good }
         : v < n.wage ? { text: `${gbp(v)}? The helper is fuming.`, good } : { text: `${gbp(v)}? The helper can’t believe their luck.`, good }
+      case 'bill': return good ? { text: `${gbp(v)} invoiced. The café pays up.`, good }
+        : v === n.r * n.s ? { text: 'Forgot the delivery! Ziggy walked there for free.', good }
+          : v < n.bill ? { text: `${gbp(v)}? The café can’t believe the bargain.`, good } : { text: `${gbp(v)}?! The café’s ringing Trading Standards.`, good }
+      case 'order': return good ? { text: `${v} ${stock.items} packed. Exactly right.`, good }
+        : { text: `${v} packed? That would cost ${gbp(v * n.s + n.F)}, not ${gbp(n.Y)}.`, good }
+      case 'portion': return good ? { text: `${v} at full price, ${n.g - v} for the clear-out.`, good }
+        : { text: v > n.g ? `${v}? He only bought ${n.g}!` : `${v} isn’t ${fractionWords(n.fa, n.fb)} of ${n.g}.`, good }
+      case 'takings': return good ? { text: `${gbp(v)} in the till. Counted twice.`, good }
+        : v < n.T ? { text: `${gbp(v)}? The till has more than that.`, good } : { text: `${gbp(v)}? The till doesn’t have that much.`, good }
+      case 'profit': return good ? { text: `${gbp(v)} profit. Tycoon status.`, good }
+        : { text: `${gbp(v)} profit? The sums don’t add up.`, good }
       case 'worth': return good
         ? { text: n.worth ? `${stock.upgrade[0].toUpperCase()}${stock.upgrade.slice(1)} installed!` : `Skipped. Money stays in the till.`, good }
         : { text: picked === 'yes' ? 'That would lose money.' : 'That’s free money left on the table.', good }
@@ -282,6 +316,20 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
     }
     if (step.kind === 'price') return <Takings key={committed} n={n.n} price={committed} costs={n.C} want={n.P} />
     if (step.kind === 'payback') return <Payback key={committed} days={committed} per={n.x} cost={n.U} />
+    if (step.kind === 'order') {
+      const cost = committed * n.s + n.F
+      return <div className={`st-panel ${cost === n.Y ? 'is-good' : 'is-bad'}`}>
+        <p className="st-panel__sum"><span>🧾 {committed} × {gbp(n.s)} + {gbp(n.F)} = <b>{gbp(cost)}</b></span></p>
+        <p className="st-panel__note">The café paid {gbp(n.Y)} {cost === n.Y ? '✅' : '❌'}</p>
+      </div>
+    }
+    if (step.kind === 'profit') {
+      const good = committed === n.gain
+      return <div className={`st-panel ${good ? 'is-good' : 'is-bad'}`}>
+        <p className="st-panel__sum"><span>In <b>{gbp(n.T)}</b></span><span>− Out <b>{gbp(n.K)}</b></span><span>= <b className="st-panel__result">{gbp(n.gain)}</b></span></p>
+        <p className="st-panel__note">You said {gbp(committed)} {good ? '✅' : '❌'}</p>
+      </div>
+    }
     return null
   }
 
@@ -344,7 +392,7 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
       {result === 'right' && <CheckBar status="correct" title={`${ZIGGY.emoji} “${say(ZIGGY.right, roundIndex * 3 + stepIndex)}”`} message={step.why}>
         <button type="button" className="rv-btn rv-btn--good rv-btn--lg rv-btn--block" onClick={carryOn}>{stepIndex + 1 < day.steps.length ? 'Next' : 'Cash up'}</button>
       </CheckBar>}
-      {result === 'wrong' && score.lives > 0 && <CheckBar status="incorrect" title={`${ZIGGY.emoji} “${say(ZIGGY.wrong, roundIndex + stepIndex + (3 - score.lives))}”`} message={nope}>
+      {result === 'wrong' && score.lives > 0 && <CheckBar status="incorrect" title={`${ZIGGY.emoji} “${say(ZIGGY.wrong, roundIndex + stepIndex + (livesPerRound() - score.lives))}”`} message={nope}>
         <button type="button" className="rv-btn rv-btn--bad rv-btn--lg rv-btn--block" onClick={retry}>Try again</button>
       </CheckBar>}
     </>}
@@ -353,8 +401,8 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
       <section className="lab-intro lab-intro--centre">
         <span className="lab-sirens" aria-hidden="true">💸</span>
         <p className="lab-kicker">Gone bust</p>
-        <h1 className="lab-title">Three money mess-ups. Ziggy’s selling the awning.</h1>
-        <Why tag="Tip">Cost = price each × how many. Change = what they paid − the cost. Sharing a total out equally is divide. Profit = money in − money out.</Why>
+        <h1 className="lab-title">Out of lives. Ziggy’s selling the awning.</h1>
+        <Why tag="Tip">Cost = price each × how many, then add any flat charge once. Change = what they paid − the cost. Sharing a total out equally is divide. To work backwards, undo the steps in reverse. Profit = money in − money out.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Reopen the stall</button>
