@@ -2,11 +2,14 @@ import type { ChainStep } from '../../step-chain/StepChain'
 import { options, texNum, type Option, type Rand } from '../kit/random'
 
 /*
- * Dex's loot drop: three chests to pack before the drop ship leaves.
+ * Dex's loot drop: five chests to pack before the drop ship leaves.
  *
  * Round 1 is counted in crates (one crate = one cube): 3–6 long, 2–4 deep, 2–4 tall, so every crate
  * can be drawn. Round 2 is in cm, every side a multiple of 10 (or 25), so volumes land on 500s.
  * Round 3 is a slime tank whose volume is a multiple of 500 cm³, so the litres are whole or .5.
+ * Round 4 packs s cm gem cases into a hold whose sides are whole numbers of cases (3–6 × 2–4 × 2–4).
+ * Round 5 (boss) is a part-full vat: depth a multiple of 5, slime volume a multiple of 500 cm³ and the
+ * empty space above it whole litres.
  * Every answer is picked first and the question is built from it.
  */
 
@@ -31,10 +34,21 @@ export type Dial = {
   win: string
   /** What went wrong with the value they set. */
   nope: (value: number) => string
+  /** Edge labels, when the box's own numbers aren't what's printed (gem cases counted, sides in cm). */
+  labels?: [string, string, string]
+  /** A part-full tank: how far up (0–1) the right answer fills it. Default: to the lid. */
+  depth?: number
+  /** The readout before they commit. */
+  ready?: string
 }
 
 /** The one multiple-choice side question a round may have. */
-export type Side = { prompt: string; answer: number; choices: Option<number>[]; why: string; box: Box; labels: [string, string, string] }
+export type Side = {
+  prompt: string; answer: number; choices: Option<number>[]; why: string; box: Box; labels: [string, string, string]
+  /** How full the drawing is before they answer (0–1); it fills to the lid on a right answer. */
+  level: number
+  note?: string
+}
 
 export type Round = {
   id: string
@@ -198,6 +212,7 @@ function lootRound(rand: Rand): Round {
       why: `Work backwards. Floor: ${b.l} × ${b.w} = ${num(bFloor)}. Then ${num(b.v)} ÷ ${num(bFloor)} = ${b.h} cm.`,
       box: { mode: 'loot', l: b.l, w: b.w, h: b.h },
       labels: [`${b.l} cm`, `${b.w} cm`, '? cm'],
+      level: 0,
     },
     chain: [
       { line: `V = [[l:${a.l}]] \\times [[w:${a.w}]] \\times [[h:${a.h}]]` },
@@ -264,6 +279,7 @@ function slimeRound(rand: Rand): Round {
       why: `Litres to cm³ goes the other way: × 1,000. ${jug} × 1,000 = ${cm3(jugCm)}.`,
       box: { mode: 'slime', l: 10, w: 10, h: 10 },
       labels: ['10 cm', '10 cm', '10 cm'],
+      level: 1, note: '1 litre',
     },
     chain: [
       { line: `V = [[l:${t.l}]] \\times [[w:${t.w}]] \\times [[h:${t.h}]]` },
@@ -275,6 +291,187 @@ function slimeRound(rand: Rand): Round {
   }
 }
 
+// ─── Round 4: gem cases, how many boxes fit in a box ───────────────────────────────────────────
+
+function caseLayerNope(L: number, W: number, s: number, l: number, w: number, h: number) {
+  const layer = l * w
+  const fix = `${L} ÷ ${s} = ${l} along, ${W} ÷ ${s} = ${w} back. ${l} × ${w} = ${layer} cases.`
+  return (v: number) => {
+    if (v === l + w) return `You added: ${l} + ${w} = ${v}. The floor is ${w} rows of ${l}, so multiply. ${fix}`
+    if (v * s === L * W) return `That’s ${L} × ${W} ÷ ${s}: you only divided once. A case is ${s} cm long AND ${s} cm wide, so divide both sides. ${fix}`
+    if (v === layer * h) return `That’s the whole hold! Just the floor for now. ${fix}`
+    if (v === l) return `That’s one row along the front. There are ${w} rows like it. ${fix}`
+    if (v === w) return `That’s one row going back. There are ${l} of those side by side. ${fix}`
+    if (v === 2 * (l + w)) return `${v} is going round the edge of the floor. Fill the middle too. ${fix}`
+    if (v < layer) return `Gaps! ${layer - v} space${layer - v === 1 ? '' : 's'} on the floor still empty. ${fix}`
+    return `${v - layer} case${v - layer === 1 ? '' : 's'} won’t fit on the floor. ${fix}`
+  }
+}
+
+function caseTotalNope(L: number, W: number, H: number, s: number, l: number, w: number, h: number) {
+  const layer = l * w, total = layer * h
+  const fix = `${H} ÷ ${s} = ${h} layers. ${layer} × ${h} = ${total} cases.`
+  return (v: number) => {
+    if (v === layer) return `That’s one layer. The hold is ${H} cm tall, so ${h} layers of ${s} cm cases stack up. ${fix}`
+    if (v === l + w + h) return `You added ${l} + ${w} + ${h}. The cases fill a block, so multiply. ${fix}`
+    if (v === layer * H) return `You multiplied by ${H}, the height in cm. Each case is ${s} cm tall, so only ${H} ÷ ${s} = ${h} layers fit. ${fix}`
+    if (v * s * s === L * W * H) return `You divided the volume by ${s} × ${s}. A case is ${s} × ${s} × ${s} = ${num(s * s * s)} cm³, so ÷ by that, or count each side. ${fix}`
+    if (v === layer * (h + 1)) return `One layer too many: ${H} ÷ ${s} = ${h}. ${fix}`
+    if (v === layer * (h - 1)) return `One layer short: ${H} ÷ ${s} = ${h}. ${fix}`
+    if (v < total) return `The hatch shuts on ${total - v} empty space${total - v === 1 ? '' : 's'}. ${fix}`
+    return `${v - total} case${v - total === 1 ? '' : 's'} won’t fit in. ${fix}`
+  }
+}
+
+function gemRound(rand: Rand): Round {
+  const s = rand.pick([10, 20, 25])
+  let l = 0, w = 0, h = 0
+  do { l = rand.int(3, 6); w = rand.int(2, 4); h = rand.int(2, 4) } while (l === w || w === h)
+  const L = l * s, W = w * s, H = h * s
+  const layer = l * w, total = layer * h, one = s * s * s
+  const box: Box = { mode: 'crates', l, w, h }
+  const labels: [string, string, string] = [`${L} cm`, `${W} cm`, `${H} cm`]
+  const vol = (value: number) => ({ value, label: cm3(value) })
+  return {
+    id: 'gems',
+    title: 'Round 4 · Gem cases',
+    headline: 'How many boxes fit in a box?',
+    why: `Gem cases are cubes, so count how many fit along each side. Divide each side of the hold by the size of a case. Then multiply them: along × back × up.`,
+    dials: [
+      {
+        id: 'floor', box, fills: 'layer', label: 'Cases on the floor', labels,
+        prompt: `The hold’s floor is ${L} cm by ${W} cm. Gem cases are ${s} cm cubes. How many cases cover the floor?`,
+        answer: layer, start: 1, min: 1, max: 30, step: 1,
+        win: `${L} ÷ ${s} = ${l} along, ${W} ÷ ${s} = ${w} back. ${l} × ${w} = ${layer} cases on the floor.`,
+        nope: caseLayerNope(L, W, s, l, w, h),
+      },
+      {
+        id: 'hold', box, fills: 'total', label: 'Cases in the hold', labels,
+        prompt: `One layer is ${layer} cases. The hold is ${H} cm tall. How many cases fill it?`,
+        answer: total, start: layer, min: 1, max: 150, step: 1, jump: 10,
+        win: `${H} ÷ ${s} = ${h} layers of ${layer}: ${layer} × ${h} = ${total} gem cases.`,
+        nope: caseTotalNope(L, W, H, s, l, w, h),
+      },
+    ],
+    side: {
+      prompt: `What’s the volume of one ${s} cm gem case?`,
+      answer: one,
+      choices: options<number>(rand, vol(one), [
+        { ...vol(s * s), nope: `${s} × ${s} = ${num(s * s)} is one face (cm²). A cube has three lengths: ${s} × ${s} × ${s} = ${cm3(one)}.` },
+        { ...vol(3 * s), nope: `That’s ${s} × 3. Cubed means ${s} × ${s} × ${s} = ${cm3(one)}.` },
+        { ...vol(6 * s * s), nope: `That’s the six faces added up (surface area). Volume is ${s} × ${s} × ${s} = ${cm3(one)}.` },
+      ]),
+      why: `A cube’s volume is side × side × side: ${s} × ${s} × ${s} = ${cm3(one)}.`,
+      box: { mode: 'loot', l: s, w: s, h: s },
+      labels: [`${s} cm`, `${s} cm`, `${s} cm`],
+      level: 0,
+    },
+    chain: [
+      { line: `\\text{Along} = [[a:${L}]] \\div [[s:${s}]]` },
+      { line: `\\text{Along} = [[x:${l}]]`, op: 'Divide', merge: { x: ['a', 's'] }, why: `${l} cases of ${s} cm fit along the ${L} cm side.` },
+      { line: `N = [[x:${l}]] \\times [[y:${w}]] \\times [[z:${h}]]`, op: 'Each side', why: `Same again: ${W} ÷ ${s} = ${w} back, ${H} ÷ ${s} = ${h} up.` },
+      { line: `N = [[f:${layer}]] \\times [[z:${h}]]`, op: 'Floor first', merge: { f: ['x', 'y'] }, why: `${l} × ${w} = ${layer} cases cover the floor.` },
+      { line: `N = [[n:${total}]]`, op: '× the layers', merge: { n: ['f', 'z'] }, why: `${layer} × ${h} = ${total} gem cases fill the hold.` },
+    ],
+  }
+}
+
+// ─── Round 5 (boss): a part-full slime vat ─────────────────────────────────────────────────────
+
+function vatNope(l: number, w: number, h: number, d: number) {
+  const floor = l * w, v = floor * d
+  const fix = `Use the depth, not the tank’s height: ${l} × ${w} × ${d} = ${cm3(v)}.`
+  return (value: number) => {
+    if (value === 0) return `No slime at all? There’s ${d} cm of it in there. ${fix}`
+    if (value === floor * h) return `That’s the whole tank, ${l} × ${w} × ${h}. The slime is only ${d} cm deep. ${fix}`
+    if (value === floor * (h - d)) return `That’s the empty bit above the slime (${h} − ${d} = ${h - d} cm). ${fix}`
+    if (value === floor) return `That’s just the floor, ${l} × ${w}. Times the depth. ${fix}`
+    if (value === l + w + d) return `You added the sides. Volume multiplies them. ${fix}`
+    if (value === v * 10) return `A zero too many. ${fix}`
+    if (value * 10 === v) return `A zero short. ${fix}`
+    return `${cm3(value)} is ${value < v ? 'too little' : 'too much'} slime. ${fix}`
+  }
+}
+
+function vatLitreNope(l: number, w: number, h: number, d: number) {
+  const v = l * w * d, ans = v / 1000
+  const fix = `${num(v)} cm³ ÷ 1,000 = ${litres(ans)}.`
+  return (value: number) => {
+    if (value === 0) return `The vat’s not empty. ${fix}`
+    if (value * 100 === v) return `You divided by 100. A litre is 1,000 cm³. ${fix}`
+    if (value * 10 === v) return `You divided by 10. A litre is 1,000 cm³. ${fix}`
+    if (value * 1000 === l * w * h) return `That’s the whole tank in litres. The slime is only ${d} cm deep. ${fix}`
+    if (value * 1000 === l * w * (h - d)) return `That’s the empty space above the slime. ${fix}`
+    return `${litres(value)} is ${value < ans ? 'too little' : 'too much'}. ${fix}`
+  }
+}
+
+const VAT_L = [40, 50, 60, 80], VAT_W = [20, 25, 30, 40, 50], VAT_H = [30, 40, 50, 60]
+
+function vatRound(rand: Rand): Round {
+  let l = 0, w = 0, h = 0, d = 0
+  for (;;) {
+    l = rand.pick(VAT_L); w = rand.pick(VAT_W); h = rand.pick(VAT_H); d = rand.int(10, h - 10, 5)
+    const v = l * w * d, top = l * w * (h - d)
+    if (l <= w || w === h || l === h || v % 500 || top % 1000 || v < 10000 || l * w * h > 200000) continue
+    break
+  }
+  const floor = l * w, v = floor * d, full = floor * h, top = full - v
+  const ans = v / 1000, fullL = full / 1000, topL = top / 1000
+  const box: Box = { mode: 'slime', l, w, h }
+  const labels: [string, string, string] = [`${l} cm`, `${w} cm`, `${h} cm`]
+  const depth = d / h, ready = `Slime ${d} cm deep`
+  const lit = (value: number) => ({ value, label: litres(value) })
+  return {
+    id: 'vat',
+    title: 'Round 5 · Boss: the slime vat',
+    headline: 'A tank that’s only part full',
+    why: `A part-full tank holds less than a full one. Use the depth of the slime as the height. Work out the volume in cm³, then ÷ 1,000 for litres.`,
+    dials: [
+      {
+        id: 'vat', box, fills: 'volume', label: 'Slime volume', labels, depth, ready,
+        prompt: `The vat is ${l} cm by ${w} cm and ${h} cm tall. The slime is ${d} cm deep. What volume of slime is in it?`,
+        answer: v, start: 0, min: 0, max: 200000, step: 500, jump: 5000,
+        win: `${l} × ${w} = ${num(floor)}, × ${d} cm deep = ${cm3(v)}. The depth, not the tank’s height.`,
+        nope: vatNope(l, w, h, d),
+      },
+      {
+        id: 'vat-litres', box, fills: 'litres', label: 'Slime', labels, depth, ready,
+        prompt: `That’s ${cm3(v)} of slime. How many litres is it?`,
+        answer: ans, start: 0, min: 0, max: 500, step: 0.5, jump: 10,
+        win: `${num(v)} ÷ 1,000 = ${litres(ans)} of slime.`,
+        nope: vatLitreNope(l, w, h, d),
+      },
+    ],
+    side: {
+      prompt: `How many more litres would fill the vat to the top?`,
+      answer: topL,
+      choices: options<number>(rand, lit(topL), [
+        { ...lit(fullL), nope: `${litres(fullL)} is the whole tank. ${litres(ans)} is already in, so ${num(fullL)} − ${num(ans)} = ${litres(topL)}.` },
+        { ...lit(top / 100), nope: `You divided by 100. The gap is ${l} × ${w} × ${h - d} = ${cm3(top)}, ÷ 1,000 = ${litres(topL)}.` },
+        { ...lit(ans), nope: `That’s the slime already in. The empty part is ${h} − ${d} = ${h - d} cm deep: ${litres(topL)}.` },
+        { ...lit(top / 10), nope: `You divided by 10. A litre is 1,000 cm³: ${num(top)} ÷ 1,000 = ${litres(topL)}.` },
+        { ...lit(topL * 10), nope: `A zero too many. ${num(top)} cm³ ÷ 1,000 = ${litres(topL)}.` },
+        { ...lit(h - d), nope: `${h - d} cm is how deep the empty part is, not its volume. ${l} × ${w} × ${h - d} = ${cm3(top)} = ${litres(topL)}.` },
+      ], { valid: value => Number.isInteger(value) && value > 0 && value <= 5000 }),
+      why: `The empty part is ${h} − ${d} = ${h - d} cm deep: ${l} × ${w} × ${h - d} = ${cm3(top)} = ${litres(topL)}.`,
+      box,
+      labels,
+      level: depth,
+      note: ready,
+    },
+    chain: [
+      { line: `V = [[l:${l}]] \\times [[w:${w}]] \\times [[d:${d}]]` },
+      { line: `V = [[f:${texNum(floor)}]] \\times [[d:${d}]]`, op: 'Floor first', merge: { f: ['l', 'w'] }, why: `${l} × ${w} = ${num(floor)} cm² of floor. The slime is ${d} cm deep, so use ${d}, not ${h}.` },
+      { line: `V = [[v:${texNum(v)}\\text{ cm}^3]]`, op: '× the depth', merge: { v: ['f', 'd'] }, why: `${num(floor)} × ${d} = ${num(v)} cm³ of slime.` },
+      { line: `\\text{Litres} = [[v:${texNum(v)}]] \\div [[k:1{,}000]]`, op: '÷ 1,000', why: `1 litre = 1,000 cm³.` },
+      { line: `\\text{Litres} = [[r:${ans}]]`, op: 'Divide', merge: { r: ['v', 'k'] }, why: `${num(v)} ÷ 1,000 = ${litres(ans)} of slime.` },
+      { line: `\\text{More} = [[g:${fullL}]] - [[r:${ans}]]`, op: 'Top it up', why: `Full tank: ${l} × ${w} × ${h} = ${cm3(full)} = ${litres(fullL)}.` },
+      { line: `\\text{More} = [[m:${topL}]]`, op: 'Subtract', merge: { m: ['g', 'r'] }, why: `${num(fullL)} − ${num(ans)} = ${litres(topL)} more to fill it.` },
+    ],
+  }
+}
+
 export function makeRounds(rand: Rand): Round[] {
-  return [cratesRound(rand), lootRound(rand), slimeRound(rand)]
+  return [cratesRound(rand), lootRound(rand), slimeRound(rand), gemRound(rand), vatRound(rand)]
 }

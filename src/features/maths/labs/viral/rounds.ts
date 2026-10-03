@@ -7,7 +7,9 @@ import { options, texNum, type Option, type Rand } from '../kit/random'
  * Round 1 builds a bar chart on a scale that goes up in 20s, 50s or 100s (labelled every 2 lines),
  * so the student must work out what one line is worth. Round 2 slices a pie: 360 ÷ total degrees per
  * viewer, × each group. Round 3 fixes a fake chart whose axis starts near the data, then finds the
- * honest % increase. Every answer is picked first and the data is built backwards from it.
+ * honest % increase. Round 4 is a pictogram whose key has to be worked out backwards from a row,
+ * then drawn in quarter hearts. Round 5 (the boss) plots a six-week line graph and finds the biggest
+ * week-to-week rise. Every answer is picked first and the data is built backwards from it.
  */
 
 /** One dial-and-check move. */
@@ -25,7 +27,7 @@ export type Shot = {
   step: number
   jump?: number
   label: string
-  unit: 'sq' | 'deg' | 'axis' | 'pct'
+  unit: 'sq' | 'deg' | 'axis' | 'pct' | 'key' | 'icon' | 'num'
   /** Why the right value is right: shown on a hit. */
   win: string
 }
@@ -60,7 +62,31 @@ export type FakeRound = Base & {
   look: number
 }
 
-export type Round = BarRound | PieRound | FakeRound
+/** A pictogram row: `icons` hearts of the key make `likes`. */
+export type Row = { name: string; emoji: string; likes: number; icons: number }
+
+export type PictRound = Base & {
+  kind: 'pict'
+  /** Likes per heart. */
+  key: number
+  rows: Row[]
+  /** Rows already drawn. Row 0 is the one the key is worked out from. */
+  drawn: number[]
+}
+
+export type LineRound = Base & {
+  kind: 'line'
+  /** Followers per gridline. Labels go up every 2 lines. */
+  line: number
+  /** Followers at the end of each week. */
+  weeks: number[]
+  /** Points already plotted. */
+  drawn: number[]
+  /** The biggest week-to-week rise ends on this week (index into weeks). */
+  peak: number
+}
+
+export type Round = BarRound | PieRound | FakeRound | PictRound | LineRound
 
 /** Gridlines up the bar chart's axis. */
 export const LINES = 10
@@ -261,13 +287,201 @@ function fakeNope(round: FakeRound, shot: Shot, x: number) {
   return `${x > percent ? 'Too high' : 'Too low'}. % increase = rise ÷ original × 100. ${fix}`
 }
 
+/* ---------- Round 4: the pictogram, key worked out backwards ---------- */
+
+const QUARTER = ['', '¼', '½', '¾']
+/** 2.75 → 2¾ */
+export function quarters(value: number) {
+  const whole = Math.floor(value), q = Math.round((value - whole) * 4)
+  return q ? `${whole || ''}${QUARTER[q]}` : String(whole)
+}
+const texQuarters = (value: number) => {
+  const whole = Math.floor(value), q = Math.round((value - whole) * 4)
+  return q ? `${whole || ''}${['', '\\tfrac14', '\\tfrac12', '\\tfrac34'][q]}` : String(whole)
+}
+/** Names inside \text{}: & would break KaTeX. */
+const texName = (name: string) => name.replace(/&/g, '\\&')
+
+/** 4 rows of hearts. Row 0 gives the key away backwards; rows 2 and 3 are drawn by the student. */
+function pictRound(rand: Rand): PictRound {
+  for (;;) {
+    const key = rand.pick([20, 40, 60, 80])
+    const first = rand.pick([1.5, 2.5, 3.5, 4.5, 5.5])
+    // 1 to 8 hearts, in quarters, all different.
+    const rest = rand.shuffle(Array.from({ length: 29 }, (_, i) => (i + 4) / 4)).slice(0, 3)
+    const icons = [first, ...rest]
+    if (new Set(icons).size !== 4) continue
+    // At least one row to draw ends on a quarter or three-quarter heart: the trickier read.
+    if (!rest.slice(1).some(v => (v * 4) % 2 === 1)) continue
+    const rows: Row[] = rand.shuffle(POSTS).slice(0, 4).map((p, i) => ({ ...p, likes: icons[i] * key, icons: icons[i] }))
+    const r0 = rows[0], halves = first * 2
+
+    const shots: Shot[] = [
+      {
+        id: 'pict-1',
+        prompt: `${r0.emoji} ${r0.name} got ${r0.likes} likes. That’s ${quarters(first)} ❤️. What’s one ❤️ worth?`,
+        slot: 0, target: key, start: 0, min: 0, max: 200, step: 5, jump: 20, label: 'Key', unit: 'key',
+        win: `${quarters(first)} ❤️ = ${r0.likes}. That’s ${halves} half hearts, so half a ❤️ is ${key / 2} and a whole one is ${key}.`,
+      },
+      ...[2, 3].map((slot, k): Shot => {
+        const r = rows[slot], t = r.icons, w = Math.floor(t), q = Math.round((t - w) * 4)
+        return {
+          id: `pict-${k + 2}`,
+          prompt: k === 0 ? `Key: ❤️ = ${key} likes. ${r.emoji} ${r.name} got ${r.likes}. Draw its row.` : `Last row. ${r.emoji} ${r.name}: ${r.likes} likes.`,
+          slot, target: t, start: 0, min: 0, max: 8, step: 0.25, jump: 1, label: 'Hearts', unit: 'icon',
+          win: `${r.likes} ÷ ${key} = ${quarters(t)}.${q ? ` ${w} whole ❤️ make ${w * key}, and the last ${r.likes - w * key} is ${QUARTER[q]} of ${key}.` : ''}`,
+        }
+      }),
+    ]
+    // The working follows the row that ends on a quarter or three-quarter heart.
+    const shown = shots.slice(1).find(s => (s.target * 4) % 2 === 1)!
+    const r = rows[shown.slot], t = r.icons, w = Math.floor(t), q = Math.round((t - w) * 4)
+    return {
+      kind: 'pict', id: 'pict',
+      title: 'Round 4 · The pictogram',
+      headline: 'Lost the key? Work it backwards.',
+      why: `In a pictogram every icon is worth the same: that’s the key. Here ${quarters(first)} hearts make ${r0.likes}, so ${halves} half hearts make ${r0.likes}. Find one half, double it, and you’ve got the key. Then hearts = likes ÷ key, and a part heart is a half or a quarter of it.`,
+      key, rows, drawn: [0, 1], shots, side: null,
+      chain: [
+        { line: `[[k:${texQuarters(first)}]]\\text{ hearts} = [[l:${r0.likes}]]` },
+        { line: `[[h:${halves}]]\\text{ halves} = [[l:${r0.likes}]]`, op: '× 2', merge: { h: ['k'] }, why: `${quarters(first)} hearts is ${halves} half hearts. Halves are easier to share.` },
+        { line: `\\text{Half} = [[g:${key / 2}]]`, op: `÷ ${halves}`, merge: { g: ['h', 'l'] }, why: `${r0.likes} ÷ ${halves} = ${key / 2} likes in half a heart.` },
+        { line: `\\text{Key} = [[c:${key}]]`, op: '× 2', merge: { c: ['g'] }, why: `Two halves make a whole: ${key / 2} × 2 = ${key} likes per ❤️.` },
+        { line: `\\text{${texName(r.name)}} = \\frac{[[m:${r.likes}]]}{[[c:${key}]]}`, op: 'Likes ÷ key', why: `${r.name} got ${r.likes} likes. How many lots of ${key} is that?` },
+        { line: `\\text{${texName(r.name)}} = [[i:${texQuarters(t)}]]`, op: `÷ ${key}`, merge: { i: ['m', 'c'] }, why: `${r.likes} ÷ ${key} = ${t}: ${w} whole hearts and ${QUARTER[q]} of one (${(key * q) / 4} likes).` },
+      ],
+    }
+  }
+}
+
+function pictNope(round: PictRound, shot: Shot, x: number) {
+  const key = round.key
+  if (shot.unit === 'key') {
+    const r = round.rows[0], n = r.icons, likes = r.likes
+    const fix = `${likes} ÷ ${quarters(n)} = ${key}: ${n * 2} halves make ${likes}, so half is ${key / 2} and a whole is ${key}.`
+    if (x === 0) return `A heart has to be worth something! ${fix}`
+    if (x === likes) return `${likes} is the whole row: ${quarters(n)} hearts together. One heart is a share of it. ${fix}`
+    if (x === likes / Math.floor(n)) return `You shared ${likes} between ${Math.floor(n)} and forgot the half heart. It’s ${quarters(n)} hearts. ${fix}`
+    if (x === likes / Math.ceil(n)) return `You counted the half heart as a whole one: ${Math.ceil(n)} hearts. It’s only ${quarters(n)}. ${fix}`
+    if (x === key / 2) return `${x} is HALF a heart. Double it for a whole one. ${fix}`
+    return `Check it: ${x} × ${quarters(n)} = ${num(x * n)}, not ${likes}. ${fix}`
+  }
+  const r = round.rows[shot.slot], t = shot.target, likes = r.likes
+  const fix = `${likes} ÷ ${key} = ${quarters(t)} hearts.`
+  if (x === 0) return `No hearts at all! ${r.name} got ${likes} likes. ${fix}`
+  if (key !== 10 && x === likes / 10) return `You counted each heart as 10. The key says ❤️ = ${key}. ${fix}`
+  if (x === t * 2) return `That’s double. Each heart is ${key}, not ${key / 2}. ${fix}`
+  if (x === t / 2) return `That’s half. You counted each heart as ${key * 2}, but the key is ${key}. ${fix}`
+  if (Math.floor(x) === Math.floor(t) && x !== t) {
+    const left = likes - Math.floor(t) * key
+    return `Right whole hearts, wrong last bit. ${Math.floor(t)} hearts make ${Math.floor(t) * key}, leaving ${left}, and ${left} is ${QUARTER[Math.round((left / key) * 4)]} of ${key}. A quarter heart is ${key / 4}.`
+  }
+  return `Your row shows ${quarters(x)} × ${key} = ${num(x * key)} likes, not ${likes}. ${fix}`
+}
+
+/* ---------- Round 5: the line graph (the boss) ---------- */
+
+const pair = (i: number) => `Week ${i + 1} → ${i + 2}`
+
+/** Six weeks of followers: mostly up, one dip, one clear biggest jump. Plot two points, then find the jump. */
+function lineRound(rand: Rand): LineRound {
+  for (;;) {
+    const line = rand.pick([200, 250, 500])
+    const dip = rand.int(1, 4)
+    // Week-to-week changes in half lines.
+    const changes = Array.from({ length: 5 }, (_, i) => i === dip ? -rand.int(1, 3) : rand.int(1, 5))
+    const most = Math.max(...changes)
+    if (changes.filter(c => c === most).length > 1) continue
+    const h = [rand.int(2, 6)]
+    for (const c of changes) h.push(h[h.length - 1] + c)
+    if (Math.max(...h) > 2 * LINES || Math.min(...h) < 1) continue
+    const weeks = h.map(x => (x * line) / 2)
+    const peak = changes.indexOf(most) + 1
+    const plot = rand.shuffle([1, 2, 3, 4, 5]).slice(0, 2).sort((a, b) => a - b)
+    // At least one point to plot sits halfway between two lines.
+    if (!plot.some(i => h[i] % 2 === 1)) continue
+    const rise = weeks[peak] - weeks[peak - 1], a = weeks[peak - 1], b = weeks[peak]
+
+    const shots: Shot[] = [
+      ...plot.map((slot, k): Shot => {
+        const t = h[slot] / 2
+        return {
+          id: `line-${k + 1}`,
+          prompt: k === 0 ? `Week ${slot + 1}: ${num(weeks[slot])} followers. Read the scale, then plot it.` : `Week ${slot + 1}: ${num(weeks[slot])} followers. Plot it.`,
+          slot, target: t, start: 0, min: 0, max: LINES, step: 0.5, jump: 2, label: 'Point height', unit: 'sq',
+          win: `One line is ${num(line)}. ${num(weeks[slot])} ÷ ${num(line)} = ${half(t)}${Number.isInteger(t) ? ' lines up' : `: ${Math.floor(t)} lines up, then halfway to the next`}.`,
+        }
+      }),
+      {
+        id: 'line-3',
+        prompt: `The brand asks: what was the biggest rise from one week to the next?`,
+        slot: -1, target: rise, start: 0, min: 0, max: line * LINES, step: line / 2, jump: line * 2, label: 'Biggest rise', unit: 'num',
+        win: `The steepest climb is week ${peak} → ${peak + 1}: ${num(b)} − ${num(a)} = ${num(rise)} new followers.`,
+      },
+    ]
+    const others = rand.shuffle([0, 1, 2, 3, 4].filter(i => i !== dip && i !== peak - 1))
+    const side: Side = {
+      prompt: `One week, followers went DOWN. Which one?`,
+      answer: `w${dip}`,
+      choices: options<string>(rand, { value: `w${dip}`, label: pair(dip) }, [
+        { value: `w${peak - 1}`, label: pair(peak - 1), nope: `That’s the biggest RISE: ${num(a)} → ${num(b)}. A fall is where the line goes downhill.` },
+        ...others.map(i => ({ value: `w${i}`, label: pair(i), nope: `That week went up: ${num(weeks[i])} → ${num(weeks[i + 1])}. Look for the bit where the line goes DOWN.` })),
+      ], { count: 3 }),
+      why: `${pair(dip)} is the only bit that goes downhill: ${num(weeks[dip])} → ${num(weeks[dip + 1])}, down ${num(weeks[dip] - weeks[dip + 1])}.`,
+    }
+    return {
+      kind: 'line', id: 'line',
+      title: 'Round 5 · The line graph',
+      headline: 'Six weeks. Where did it pop off?',
+      why: `A line graph shows how something changes over time. Find what one gridline is worth from the labels: here the labels go up ${num(line * 2)} every 2 lines. Plot each week at followers ÷ that, then join the dots in order. The steepest uphill bit is the biggest rise: new − old.`,
+      line, weeks, drawn: [0, 1, 2, 3, 4, 5].filter(i => !plot.includes(i)), peak, shots, side,
+      chain: [
+        { line: `\\text{1 line} = \\frac{[[a:${texNum(line * 2)}]]}{[[b:2]]}` },
+        { line: `\\text{1 line} = [[s:${line}]]`, op: '÷ 2', merge: { s: ['a', 'b'] }, why: `The labels jump ${num(line * 2)} every 2 lines, so each line is ${num(line)} followers.` },
+        { line: `\\text{Wk ${peak + 1}} = [[h:${h[peak] / 2}]] \\times [[s:${line}]]`, op: 'Read the top', why: `The steepest bit of the line ends at week ${peak + 1}, ${half(h[peak] / 2)} lines up.` },
+        { line: `\\text{Wk ${peak + 1}} = [[v:${texNum(b)}]]`, op: 'Multiply', merge: { v: ['h', 's'] }, why: `${h[peak] / 2} × ${num(line)} = ${num(b)} followers.` },
+        { line: `\\text{Rise} = [[v:${texNum(b)}]] - [[u:${texNum(a)}]]`, op: 'Take the week before', why: `Week ${peak} was ${num(a)}. A rise is new − old.` },
+        { line: `\\text{Rise} = [[r:${texNum(rise)}]]`, op: 'Take away', merge: { r: ['v', 'u'] }, why: `${num(b)} − ${num(a)} = ${num(rise)} new followers in one week. That’s where Tia blew up.` },
+      ],
+    }
+  }
+}
+
+function lineNope(round: LineRound, shot: Shot, x: number) {
+  const { weeks, peak, line } = round
+  if (shot.unit === 'sq') {
+    const v = weeks[shot.slot], t = shot.target
+    const fix = `${num(v)} ÷ ${num(line)} = ${sqText(t)}.`
+    if (x === 0) return `No point plotted! Week ${shot.slot + 1} had ${num(v)} followers. ${fix}`
+    if (x === t / 2) return `You counted each line as ${num(line * 2)}. The labels go up ${num(line * 2)} every 2 lines, so one line is only ${num(line)}. ${fix}`
+    if (x === t * 2) return `That’s double. One line is ${num(line)}, not ${num(line / 2)}. ${fix}`
+    if (Math.abs(x - t) === 1) return `One line ${x > t ? 'too high' : 'too low'}. Your point reads ${num(x * line)}, not ${num(v)}. ${fix}`
+    if (Math.abs(x - t) === 0.5) return `Half a line out. Half a line is ${num(line / 2)} followers. ${fix}`
+    return `Your point reads ${num(x * line)}, not ${num(v)}. One line is ${num(line)}, so ${fix}`
+  }
+  const a = weeks[peak - 1], b = weeks[peak], rise = b - a
+  const fix = `Steepest climb: week ${peak} → ${peak + 1}, ${num(b)} − ${num(a)} = ${num(rise)}.`
+  const ups = weeks.slice(1).map((w, i) => w - weeks[i])
+  if (x === 0) return `0 means no rise at all. The line climbs a lot. ${fix}`
+  if (x === b) return `${num(b)} is how many followers in week ${peak + 1}, not the rise. A rise is new − old. ${fix}`
+  if (x === a) return `${num(a)} is week ${peak}’s followers, not the rise. A rise is new − old. ${fix}`
+  const other = ups.findIndex((u, i) => u === x && i !== peak - 1)
+  if (other >= 0) return `That’s the rise from week ${other + 1} to ${other + 2}. Real, but not the biggest. ${fix}`
+  const fell = ups.findIndex(u => -u === x)
+  if (fell >= 0) return `That’s how much it FELL from week ${fell + 1} to ${fell + 2}. The brand wants the biggest rise. ${fix}`
+  if (x === weeks[5] - weeks[0]) return `That’s the rise over all six weeks. The brand asked about ONE week to the next. ${fix}`
+  return `${x > rise ? 'Too big' : 'Too small'}. ${fix}`
+}
+
 /** Why a dial value was wrong, built from that play's numbers. */
 export function nopeFor(round: Round, shot: Shot, x: number) {
   if (round.kind === 'bar') return barNope(round, shot, x)
   if (round.kind === 'pie') return pieNope(round, shot, x)
+  if (round.kind === 'pict') return pictNope(round, shot, x)
+  if (round.kind === 'line') return lineNope(round, shot, x)
   return fakeNope(round, shot, x)
 }
 
 export function makeRounds(rand: Rand): Round[] {
-  return [barRound(rand), pieRound(rand), fakeRound(rand)]
+  return [barRound(rand), pieRound(rand), fakeRound(rand), pictRound(rand), lineRound(rand)]
 }

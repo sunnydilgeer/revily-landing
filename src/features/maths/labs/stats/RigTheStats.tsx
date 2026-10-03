@@ -5,9 +5,10 @@ import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
+import { NumberDial } from '../kit/NumberDial'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { DAY_NAMES, MAX_MINUTES, makeRounds, meanOf, medianOf, modeOf, rigNope, type Round, type Stat } from './rounds'
+import { DAY_NAMES, MAX_MINUTES, dialNope, makeRounds, meanOf, medianOf, modeOf, rigNope, type Round, type Stat, type Table } from './rounds'
 import './RigTheStats.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -21,6 +22,17 @@ const INTROS = [
   'If Mum sees this I’m DONE. She wants my average screen time. Work out how bad it is first.',
   'Now it’s the whole week. They want the “usual” day. Turns out there’s more than one kind of average.',
   'Here’s the plan. I change ONE day. Just one. You make the mean land exactly where I need it.',
+  'New rule from Mum: my mean this week has to be EXACTLY her limit. Six days are done. How much can I squeeze into Sunday?',
+  'Mum went full detective. She made a frequency table of my screen time. Crack this and you can crack the exam one too.',
+]
+/** The start button on each round's intro. */
+const STARTS = ['Crunch it', 'Crunch it', 'Rig it', 'Rig it', 'Crunch it']
+const TIP_AVERAGES = 'Mean: add them all, ÷ how many. Median: put them in order first, then take the middle. Mode: the one that repeats. Range: biggest − smallest.'
+/** The busted screen's tip for each round. */
+const TIPS = [
+  TIP_AVERAGES, TIP_AVERAGES, TIP_AVERAGES,
+  'Work backwards: the total = mean × how many days. Take off the days you know. What’s left is the missing day.',
+  'Frequency table: hours × days on every row, add those up, then ÷ the total number of DAYS, not the 5 rows. Mode = the hours with the most days.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🕵️', name: 'Stats Mastermind', line: 'Flawless. Kai’s parents suspect nothing.' },
@@ -37,8 +49,10 @@ const pct = (minutes: number) => `${(minutes / MAX_MINUTES) * 100}%`
  * Kai's screen time as a bar chart. Stats appear on it as they're found: a dashed mean line, the
  * median bar(s) in yellow, the mode bars sharing teal, and a bracket from the shortest to the tallest.
  */
-function Chart({ days, values, known, sorted, rig, panic }: {
+function Chart({ days, values, known, sorted, rig, panic, missing = false }: {
   days: string[]; values: number[]; known: Stat[]; sorted: boolean; rig: number | null; panic: boolean
+  /** The rigged day hasn't been set yet: show it as a question mark. */
+  missing?: boolean
 }) {
   const n = values.length
   const order = values.map((_, i) => i).sort((a, b) => values[a] - values[b] || a - b)
@@ -49,16 +63,17 @@ function Chart({ days, values, known, sorted, rig, panic }: {
   const shows = (stat: Stat) => known.includes(stat)
   const reading: Record<Stat, number | null> = { mean: Math.round(mean), median, mode, range: hi - lo }
 
-  return <figure className={`rs-chart${panic ? ' is-panic' : ''}`} aria-label={`Screen time: ${days.map((day, i) => `${day} ${values[i]} minutes`).join(', ')}`}>
+  return <figure className={`rs-chart${panic ? ' is-panic' : ''}`} aria-label={`Screen time: ${days.map((day, i) => `${day} ${missing && rig === i ? 'unknown' : values[i]} minutes`).join(', ')}`}>
     <div className="rs-plot">
       {GRID.map(line => <span key={line} className="rs-grid" style={{ bottom: pct(line) }}><span>{line / 60}h</span></span>)}
       {values.map((value, i) => {
         const classes = ['rs-bar',
           shows('median') && middle.includes(i) && 'is-median',
           shows('mode') && value === mode && 'is-mode',
-          rig === i && 'is-rig'].filter(Boolean).join(' ')
+          rig === i && 'is-rig',
+          missing && rig === i && 'is-missing'].filter(Boolean).join(' ')
         return <div key={i} className={classes} style={{ left: `${((sorted ? order.indexOf(i) : i) * 100) / n}%`, width: `${100 / n}%` }}>
-          <span className="rs-bar__fill" style={{ height: pct(value) }}><span className="rs-bar__mins">{value}</span></span>
+          <span className="rs-bar__fill" style={{ height: pct(value) }}><span className="rs-bar__mins">{missing && rig === i ? '?' : value}</span></span>
           <span className="rs-bar__day">{days[i]}</span>
         </div>
       })}
@@ -68,6 +83,34 @@ function Chart({ days, values, known, sorted, rig, panic }: {
     <ul className="rs-readout" aria-live="polite">
       {(['mean', 'median', 'mode', 'range'] as Stat[]).filter(shows).map(stat =>
         <li key={stat} className={`rs-key rs-key--${stat}`}>{STAT_NAMES[stat]} <b>{reading[stat]}</b></li>)}
+    </ul>
+  </figure>
+}
+
+/**
+ * Round 5's frequency table: hours a day, how many days, and an hours × days column that fills in once
+ * the total is found. The mean shows underneath once it's set, and the modal row lights up teal.
+ */
+function FreqTable({ table, shows, known, panic }: { table: Table; shows: ('total' | 'mean')[]; known: Stat[]; panic: boolean }) {
+  const products = table.hours.map((h, i) => h * table.days[i])
+  const n = table.days.reduce((a, b) => a + b, 0), sum = products.reduce((a, b) => a + b, 0)
+  const top = Math.max(...table.days)
+  const showTotal = shows.includes('total'), showMode = known.includes('mode')
+  return <figure className={`rs-chart${panic ? ' is-panic' : ''}`}>
+    <table className="rs-table">
+      <thead><tr><th scope="col">Hours a day</th><th scope="col">Days</th><th scope="col">Hours × days</th></tr></thead>
+      <tbody>
+        {table.hours.map((h, i) => <tr key={h} className={showMode && table.days[i] === top ? 'is-mode' : ''}>
+          <th scope="row">{h}</th>
+          <td>{table.days[i]}</td>
+          <td className={showTotal ? 'is-found' : 'is-blank'}>{showTotal ? products[i] : '?'}</td>
+        </tr>)}
+        <tr className="rs-table__total"><th scope="row">Total</th><td>{n}</td><td className={showTotal ? 'is-found' : 'is-blank'}>{showTotal ? sum : '?'}</td></tr>
+      </tbody>
+    </table>
+    <ul className="rs-readout" aria-live="polite">
+      {shows.includes('mean') && <li className="rs-key rs-key--mean">Mean <b>{sum / n} h</b></li>}
+      {showMode && <li className="rs-key rs-key--mode">Mode <b>{table.hours[table.days.indexOf(top)]} h</b></li>}
     </ul>
   </figure>
 }
@@ -84,6 +127,9 @@ export default function RigTheStats() {
   // The rigged day's minutes while the student works the steppers. null: not touched yet.
   const [rigValue, setRigValue] = useState<number | null>(null)
   const [rigCheck, setRigCheck] = useState<'right' | 'wrong' | null>(null)
+  // Round 5's dial value (null: not touched yet) and what the frequency table has revealed so far.
+  const [dialValue, setDialValue] = useState<number | null>(null)
+  const [shown, setShown] = useState<('total' | 'mean')[]>([])
   const [panic, setPanic] = useState(false)
   const [revealed, setRevealed] = useState(1)
   const score = useScore()
@@ -105,11 +151,12 @@ export default function RigTheStats() {
   const wrong = step.kind === 'pick' ? picked !== null && !right : rigCheck === 'wrong'
   const nope = step.kind === 'pick'
     ? step.choices.find(choice => choice.value === picked)?.nope
-    : rigCheck === 'wrong' ? rigNope(round, step, rigValue ?? step.from) : undefined
+    : rigCheck !== 'wrong' ? undefined
+      : step.kind === 'rig' ? rigNope(round, step, rigValue ?? step.from) : dialNope(round, step, dialValue ?? step.start)
 
   const startRound = (index: number) => {
     setRoundIndex(index); setScreen('intro'); setStepIndex(0); setPicked(null); setMissed(false)
-    setFound([]); setSorted(false); setRigValue(null); setRigCheck(null); setRevealed(1)
+    setFound([]); setSorted(false); setRigValue(null); setRigCheck(null); setRevealed(1); setDialValue(null); setShown([])
   }
 
   const flinch = () => {
@@ -136,12 +183,21 @@ export default function RigTheStats() {
 
   const rigIt = () => {
     if (step.kind !== 'rig') return
-    if (rigValue === step.to) { setRigCheck('right'); score.hit(!missed); sfx.stamp() }
+    if (rigValue === step.to) {
+      setRigCheck('right'); score.hit(!missed); sfx.stamp()
+      // Filling a missing day: the mean line drops in on the target.
+      if (step.fill) setFound([...found, 'mean'])
+    } else { setRigCheck('wrong'); flinch() }
+  }
+
+  const lockIt = () => {
+    if (step.kind !== 'dial') return
+    if (dialValue === step.target) { setRigCheck('right'); score.hit(!missed); sfx.stamp(); setShown([...shown, step.reveal]) }
     else { setRigCheck('wrong'); flinch() }
   }
 
   const carryOn = () => {
-    setPicked(null); setMissed(false); setRigCheck(null)
+    setPicked(null); setMissed(false); setRigCheck(null); setDialValue(null)
     if (stepIndex + 1 < round.steps.length) setStepIndex(stepIndex + 1)
     else { score.bank(); setScreen('payout'); sfx.win() }
   }
@@ -157,7 +213,7 @@ export default function RigTheStats() {
       <section className="lab-intro">
         <p className="lab-kicker">Rig the Stats complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Mean = total ÷ how many', 'Median = middle value once they’re in order', 'Mode = most common · Range = biggest − smallest']} />
+        <Rule steps={['Mean = total ÷ how many. Missing day? Total = mean × how many, minus the rest.', 'Median = middle value in order · Mode = most common · Range = biggest − smallest', 'Frequency table: add up value × frequency, then ÷ the total frequency']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -168,7 +224,9 @@ export default function RigTheStats() {
     </main>
   }
 
-  const chart = (panicking: boolean) => <Chart days={round.days} values={values} known={known} sorted={sorted} rig={rig ? rig.day : null} panic={panicking} />
+  const chart = (panicking: boolean) => round.table
+    ? <FreqTable table={round.table} shows={shown} known={known} panic={panicking} />
+    : <Chart days={round.days} values={values} known={known} sorted={sorted} rig={rig ? rig.day : null} panic={panicking} missing={!!rig?.fill && rigValue === null} />
 
   return <main className="lab">
     <LabTop progress={`Round ${roundIndex + 1}/${rounds.length}`} streak={score.streak} lives={score.lives} />
@@ -181,7 +239,7 @@ export default function RigTheStats() {
         scene={<div className="lab-card rv-paper">{chart(false)}</div>}
         speaker={KAI} line={INTROS[roundIndex]}
         why={round.why}
-        start={roundIndex < 2 ? 'Crunch it' : 'Rig it'}
+        start={STARTS[roundIndex] ?? 'Crunch it'}
         onStart={() => { sfx.tick(); setScreen('question') }}
       />
     </>}
@@ -189,17 +247,33 @@ export default function RigTheStats() {
     {screen === 'question' && <>
       <section className="lab-card rv-paper">{chart(panic)}</section>
       <section className="lab-ask">
-        <p className="lab-asker"><span aria-hidden="true">{KAI.emoji}</span> {KAI.name} asks · in minutes</p>
+        <p className="lab-asker"><span aria-hidden="true">{KAI.emoji}</span> {KAI.name} asks · in {round.table ? 'hours' : 'minutes'}</p>
         <h1 className="lab-prompt">{step.prompt}</h1>
         {step.kind === 'pick'
           ? <Choices choices={step.choices} picked={picked} answer={step.answer} onPick={pick} />
+          : step.kind === 'dial' ? <>
+            <NumberDial
+              key={step.id}
+              label={step.label}
+              value={dialValue ?? step.start}
+              onChange={setDialValue}
+              min={step.min} max={step.max} step={step.step} jump={step.jump}
+              format={value => `${value} h`}
+              target={step.target}
+              disabled={rigCheck !== null}
+              tone={rigCheck === 'right' ? 'right' : rigCheck === 'wrong' ? 'wrong' : 'default'}
+            />
+            {rigCheck === null && <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" disabled={dialValue === null || dialValue === step.start} onClick={lockIt}>Lock it in</button>}
+          </>
           : <>
             <div className="rs-stepper" role="group" aria-label={`${DAY_NAMES[step.day]}’s minutes`} data-value={rigValue ?? step.from} data-target={isTestMode() ? step.to : undefined}>
               <button type="button" className="rs-stepper__btn" aria-label="Less" disabled={rigCheck !== null || (rigValue ?? step.from) <= 0} onClick={() => nudge(-10)}>−</button>
               <output className="rs-stepper__value"><span>{round.days[step.day]}</span>{rigValue ?? step.from} min</output>
               <button type="button" className="rs-stepper__btn" aria-label="More" disabled={rigCheck !== null || (rigValue ?? step.from) >= MAX_MINUTES} onClick={() => nudge(10)}>+</button>
             </div>
-            <p className="rs-live" aria-live="polite">Mean now <b>{Math.round(meanOf(values))}</b> · need <b>{step.target}</b></p>
+            {step.fill
+              ? <p className="rs-live" aria-live="polite">Need a mean of <b>{step.target}</b> over {round.days.length} days</p>
+              : <p className="rs-live" aria-live="polite">Mean now <b>{Math.round(meanOf(values))}</b> · need <b>{step.target}</b></p>}
             {rigCheck === null && <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" disabled={rigValue === null || rigValue === step.from} onClick={rigIt}>Rig it</button>}
           </>}
         {right && <Combo streak={score.streak} />}
@@ -217,7 +291,7 @@ export default function RigTheStats() {
         <span className="lab-sirens" aria-hidden="true">🚨</span>
         <p className="lab-kicker">Busted</p>
         <h1 className="lab-title">Mum saw the real numbers. Phone confiscated.</h1>
-        <Why tag="Tip">Mean: add them all, ÷ how many. Median: put them in order first, then take the middle. Mode: the one that repeats. Range: biggest − smallest.</Why>
+        <Why tag="Tip">{TIPS[roundIndex] ?? TIP_AVERAGES}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Try that round again</button>

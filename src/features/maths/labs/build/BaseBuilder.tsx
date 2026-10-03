@@ -21,6 +21,8 @@ const INTROS = [
   'Walls first. Zombies don’t care about your floor.',
   'Somebody bit a corner off this one. Still need every wall, though.',
   'Floor’s bare and the tiles come in crates. Order too few and we’re sleeping on mud.',
+  'Floor’s done, plans are lost. We know the area and one wall. Work backwards, genius.',
+  'The great hall. Big floor, real money. Get this order wrong and it’s coming out of your pocket.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🏰', name: 'Fortress Architect', line: 'Not one gap. The zombies filed a complaint.' },
@@ -37,7 +39,12 @@ const MARGIN = 48
 /** Little extras on the plan, filled in from what's been worked out so far. */
 function builtBy(round: Round, done: number) {
   const built = new Set<Builds>(round.questions.slice(0, done).map(question => question.builds))
-  return { walls: round.walled || built.has('walls') || built.has('side'), side: built.has('side'), floor: built.has('floor'), crates: built.has('crates') }
+  // A found side puts the walls up, unless the round asks for the walls separately.
+  const ownWalls = round.questions.some(question => question.builds === 'walls')
+  return {
+    walls: round.walled || built.has('walls') || (built.has('side') && !ownWalls),
+    side: built.has('side'), floor: round.floored || built.has('floor'), crates: built.has('crates'),
+  }
 }
 
 /**
@@ -79,6 +86,8 @@ function Plan({ round, done, lost, night }: { round: Round; done: number; lost: 
       y1={oy + plan.cut.h / SQUARE * CELL} y2={oy + height} />}
     <polygon className="bd-outline" points={points.join(' ')} />
     <polygon className={`bd-walls${walls ? ' is-up' : ''}`} points={points.join(' ')} pathLength={1} />
+    {round.gate && <line className={`bd-gate${walls ? ' is-up' : ''}`}
+      x1={ox + width / 2 - round.gate / SQUARE * CELL / 2} x2={ox + width / 2 + round.gate / SQUARE * CELL / 2} y1={oy + height} y2={oy + height} />}
     {round.labels.map((label, edge) => {
       if (!label) return null
       const [a, b] = [points[edge], points[(edge + 1) % points.length]]
@@ -114,7 +123,7 @@ function Night({ done, total }: { done: number; total: number }) {
 
 /** What's been worked out on this base so far. */
 function Found({ round, done }: { round: Round; done: number }) {
-  const icon: Record<Builds, string> = { walls: '🧱 Walls', side: '📏 ?', floor: '🟫 Floor', crates: '📦 Crates' }
+  const icon: Record<Builds, string> = { walls: '🧱 Walls', side: '📏 ?', floor: '🟫 Floor', crates: '📦 Crates', cost: '💷 Cost' }
   const found = round.questions.slice(0, done)
   if (!found.length) return <p className="bd-found bd-found--empty">1 square = 5 m</p>
   return <p className="bd-found" aria-live="polite">
@@ -180,7 +189,7 @@ export default function BaseBuilder() {
       <section className="lab-intro">
         <p className="lab-kicker">Base Builder complete</p>
         <RankCard rank={rank} stats={[['Nights survived', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Perimeter = all the way round: add every side.', 'Area = length × width (split L-shapes into rectangles).', 'Missing side: the big side minus the small side.']} />
+        <Rule steps={['Perimeter = all the way round: add every side (take off any gate).', 'Area = length × width. Split L-shapes. Missing side: big − small, or area ÷ side.', 'Crates = area ÷ what one covers, rounded UP. Cost = crates × price.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -235,7 +244,7 @@ export default function BaseBuilder() {
         <span className="lab-sirens" aria-hidden="true">🧟</span>
         <p className="lab-kicker">The zombies got in</p>
         <h1 className="lab-title">Gap in the walls. Patch it up and try that base again.</h1>
-        <Why tag="Tip">Walls go round the edge: add every side. Floor is the inside: length × width. For an L, split it into two rectangles.</Why>
+        <Why tag="Tip">Walls go round the edge: add every side. Floor is the inside: length × width. For an L, split it into two rectangles. Crates always round up.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Rebuild</button>

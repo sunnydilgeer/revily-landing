@@ -22,6 +22,8 @@ const INTROS = [
   'Okay okay okay. Sun’s going down. Tent first. The rope says metres, the tent says cm. Why are they like this?',
   'Water and food. If we run out, it’s squirrels for dinner. Litres, ml, kilos, grams. Help.',
   'It’s nearly dark. Someone has to watch the fire all night. Hours and minutes. Please don’t say 2.30 hours.',
+  'Now it’s backwards. Grams and metres, but the scale wants kilos and the map wants km. That’s divide. I think. You check.',
+  'Boss level. Water for the whole camp, and the shop only sells big bottles. Get this wrong and we’re drinking pond.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🔦', name: 'Night Warden', line: 'Every supply measured first time. Scout has stopped hyperventilating.' },
@@ -29,7 +31,7 @@ const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🪵', name: 'Wood Gatherer', line: 'You got there. Scout is still recounting the cups.' },
   { badge: '🐺', name: 'Wolf Snack', line: 'The units got you. Pack again before the sun goes.' },
 ]
-const ITEM = { cup: { full: '🥤', empty: '🫙' }, bag: { full: '🍚', empty: '🛍️' } }
+const ITEM = { cup: { full: '🥤', empty: '🫙' }, bag: { full: '🍚', empty: '🛍️' }, bottle: { full: '🧴', empty: '🫙' } }
 
 /** Scene units: 320 × 210. The camp is the top strip; the bench below shows the current job. */
 const W = 320
@@ -83,11 +85,11 @@ function Bench({ scene, unit, value, right }: { scene: Scene; unit: string; valu
     const got = value === null ? 0 : Math.min(value, scene.target) / scene.target
     const asked = value === null ? 0 : Math.min(1.2, value / scene.target)
     return <g className={`ns-bench${tone}`}>
-      <text className="ns-given" x={92} y={top + 8} textAnchor="middle">Can: {scene.given}</text>
+      <text className="ns-given" x={92} y={top + 8} textAnchor="middle">{scene.from ?? 'Can'}: {scene.given}</text>
       <rect className="ns-vessel" x={60} y={base - h} width={64} height={h} rx={8} />
       <rect className="ns-water" x={62} y={base - cap * (1 - got)} width={60} height={cap * (1 - got)} rx={6} />
       <text className="ns-arrow" x={160} y={base - 40} textAnchor="middle">➜</text>
-      <text className="ns-given" x={232} y={top + 8} textAnchor="middle">Jug (ml)</text>
+      <text className="ns-given" x={232} y={top + 8} textAnchor="middle">{scene.into ?? 'Jug (ml)'}</text>
       <path className="ns-vessel" d={`M200 ${base - h}H264L258 ${base}H206Z`} />
       {got > 0 && <rect key={value} className="ns-water ns-rise" x={207} y={base - cap * got} width={50} height={cap * got} style={{ transformOrigin: `232px ${base}px` }} />}
       {value !== null && <g>
@@ -128,7 +130,9 @@ function Bench({ scene, unit, value, right }: { scene: Scene; unit: string; valu
         x={gx + (i % per) * size} y={gy + Math.floor(i / per) * (size + 2) + 16} fontSize={16}>{full ? ITEM[scene.item].full : ITEM[scene.item].empty}</text>
     })}
     {value !== null && <text className="ns-tag" x={gx + 105} y={top + 108} textAnchor="middle">
-      {right ? `${unitText(v, unit)} · all used ✓` : v > scene.target ? `${v - scene.target} left empty` : `some left over`}
+      {scene.item === 'bottle'
+        ? right ? `${unitText(v, unit)} · enough for all ✓` : v > scene.target ? `${v - scene.target} more than needed` : 'not enough water'
+        : right ? `${unitText(v, unit)} · all used ✓` : v > scene.target ? `${v - scene.target} left empty` : `some left over`}
     </text>}
   </g>
 }
@@ -217,7 +221,7 @@ function NightsSuppliesGame({ rounds, onReplay }: { rounds: Round[]; onReplay: (
         <p className="lab-kicker">99 Nights Supplies complete</p>
         <Stage dusk={1} step={null} committed={null} right={false} packed={[]} />
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Big unit to small unit: multiply. Small to big: divide.', 'km→m and kg→g and litres→ml: × 1,000. m→cm: × 100.', 'Hours to minutes: × 60. Time is not a decimal.']} />
+        <Rule steps={['Big unit to small unit: multiply. Small to big: divide.', 'km, kg and litres: 1,000 of the small unit. 1 m = 100 cm. 1 hour = 60 min.', 'Same units before you add or share. Buying whole bottles? Round up.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -289,7 +293,7 @@ function NightsSuppliesGame({ rounds, onReplay }: { rounds: Round[]; onReplay: (
         <span className="lab-sirens" aria-hidden="true">🐺</span>
         <p className="lab-kicker">Dark already</p>
         <h1 className="lab-title">Three mix-ups. The sun’s gone and the camp isn’t ready.</h1>
-        <Why tag="Tip">Big unit to small unit, multiply. 1 km = 1,000 m, 1 m = 100 cm, 1 litre = 1,000 ml, 1 kg = 1,000 g. And an hour is 60 minutes, not 100.</Why>
+        <Why tag="Tip">Big unit to small unit, multiply. Small to big, divide. 1 km = 1,000 m, 1 m = 100 cm, 1 litre = 1,000 ml, 1 kg = 1,000 g. An hour is 60 minutes, not 100. And you can’t buy half a bottle: round up.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Try the round again</button>

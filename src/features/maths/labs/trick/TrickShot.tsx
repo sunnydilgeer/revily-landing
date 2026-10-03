@@ -24,6 +24,8 @@ const INTROS = [
   'Good evening and welcome to the Trick Shot Finals! Our player needs just one angle to get this started…',
   'Oh, the corner’s blocked! This calls for a bank shot. Angle in, angle out, folks.',
   'Two shots crossing. If the angles are off, it’s carnage. No pressure!',
+  'Top cushion to the middle pocket, folks. Two parallel rails and one very nervous player.',
+  'The Final Frame! Four corners, one red, one corner pocket. Win this and you’re a legend.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🏆', name: 'Trick Shot Legend', line: 'Every angle, every pot. Big Vic has lost his voice.' },
@@ -249,7 +251,7 @@ function TrickShotGame({ shots, onReplay }: { shots: Shot[]; onReplay: () => voi
       <section className="lab-intro">
         <p className="lab-kicker">Trick Shot complete</p>
         <RankCard rank={rank} stats={[['Shots', `${shots.length}/${shots.length}`], ['Lives kept', `${score.kept}/${shots.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule label="The angle facts" steps={['Straight line: angles add to 180°.', 'Vertically opposite angles are equal.', 'Triangle: angles add to 180°. Bounce: angle in = angle out.']} />
+        <Rule label="The angle facts" steps={['Straight line and triangle: 180°. Round a point and quadrilateral: 360°.', 'Vertically opposite angles are equal. Parallel lines: alternate angles (Z) are equal.', 'Bounce: angle in = angle out. Chain the facts one angle at a time.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -351,7 +353,7 @@ function TrickShotGame({ shots, onReplay }: { shots: Shot[]; onReplay: () => voi
         <span className="lab-sirens" aria-hidden="true">🎱</span>
         <p className="lab-kicker">Scratch!</p>
         <h1 className="lab-title">Three misses. Big Vic needs a sit down.</h1>
-        <Why tag="Tip">Straight line = 180°. Opposite angles are equal. A triangle’s angles add to 180°. Angle in = angle out.</Why>
+        <Why tag="Tip">Straight line = 180°. Opposite angles are equal. Triangle = 180°, four-sided shape = 360°. Parallel lines make a Z: those angles are equal.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startShot(shotIndex) }}>Re-rack</button>

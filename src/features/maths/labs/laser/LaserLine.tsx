@@ -24,6 +24,8 @@ const INTROS = [
   'Targets locked. Try not to hit the moon this time. The tilt’s fixed: you only slide the beam up and down.',
   'Height’s locked now. You’re on tilt duty. Some of these come in downhill, so watch the sign.',
   'Full manual. Two drones, two dials. No pressure. Well, some pressure.',
+  'A friendly beam’s already up. Fire alongside it, never across it. Parallel, rookie.',
+  'Boss wave. The fleet’s cloaked: all we’ve got is an intercepted equation. Decode it and fire blind.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🎯', name: 'Sharpshooter Supreme', line: 'Every drone down, first time. Command is… actually impressed.' },
@@ -66,14 +68,19 @@ function useEased(target: number, ms = 180) {
  * the dials turn. Firing sends a pulse along the beam; drones it passes through explode and the
  * rest dodge. Once a line is found, the rise/run triangle between the drones shows the gradient.
  */
-function Grid({ m, c, drones, phase, triangle, probe }: {
+function Grid({ m, c, drones, phase, triangle, probe, guide, cloaked }: {
   m: number; c: number; drones: Pt[]; phase: Phase; triangle: boolean; probe?: { p: Pt; right: boolean } | null
+  guide?: { m: number; c: number }; cloaked?: boolean
 }) {
   const em = useEased(m), ec = useEased(c)
-  const [a, b] = drones
+  const [a, b = a] = drones
   const run = b.x - a.x, rise = b.y - a.y
   const result = phase === 'hit' || phase === 'miss'
-  const label = `Grid with drones at ${drones.map(ptText).join(' and ')}. Laser: ${lineText(m, c)}.`
+  // Cloaked drones only show up once the beam has fired and the result is in.
+  const hidden = cloaked && !result
+  // Label the guide beam at a point well inside the grid, away from the y-axis.
+  const guideAt = guide ? [5, -5, 4, -4, 3, -3, 2, -2].find(x => Math.abs(guide.m * x + guide.c) <= 5) ?? 1 : 0
+  const label = `Grid with ${hidden ? 'cloaked drones' : `${drones.length === 1 ? 'a drone' : 'drones'} at ${drones.map(ptText).join(' and ')}`}${guide ? `, a guide beam ${lineText(guide.m, guide.c)}` : ''}. Laser: ${lineText(m, c)}.`
   return <figure className={`ll-grid is-${phase}`}>
     <svg viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label={label}>
       <defs>
@@ -94,12 +101,16 @@ function Grid({ m, c, drones, phase, triangle, probe }: {
         </g>)}
       </g>
 
-      {triangle && phase === 'hit' && <g className="ll-triangle">
+      {triangle && phase === 'hit' && drones.length > 1 && <g className="ll-triangle">
         <path d={`M${sx(a.x)} ${sy(a.y)} H${sx(b.x)} V${sy(b.y)}`} />
         <text x={(sx(a.x) + sx(b.x)) / 2} y={sy(a.y) + (rise > 0 ? 14 : -6)} textAnchor="middle">run {run}</text>
         <text x={sx(b.x) + 5} y={(sy(a.y) + sy(b.y)) / 2 + 4}>rise {n(rise)}</text>
       </g>}
 
+      {guide && <g className="ll-guide" clipPath="url(#ll-clip)">
+        <line x1={sx(-8)} y1={sy(guide.m * -8 + guide.c)} x2={sx(8)} y2={sy(guide.m * 8 + guide.c)} />
+        <text x={sx(guideAt)} y={sy(guide.m * guideAt + guide.c) - 7} textAnchor="middle">guide</text>
+      </g>}
       <g clipPath="url(#ll-clip)">
         <line className="ll-beam__glow" x1={sx(-8)} y1={sy(em * -8 + ec)} x2={sx(8)} y2={sy(em * 8 + ec)} />
         <line className="ll-beam" x1={sx(-8)} y1={sy(em * -8 + ec)} x2={sx(8)} y2={sy(em * 8 + ec)} pathLength={100} />
@@ -109,7 +120,8 @@ function Grid({ m, c, drones, phase, triangle, probe }: {
         <text x={sx(0) + 7} y={sy(ec) - 6}>c</text>
       </g>}
 
-      {drones.map(d => {
+      {hidden && <text className="ll-cloak" x={sx(0)} y={sy(-5.6)} textAnchor="middle">📡 drones cloaked</text>}
+      {!hidden && drones.map(d => {
         const struck = result && onLine(d, m, c)
         // The outer group places the drone; the inner one is free for CSS to shake or pop.
         return <g key={`${d.x},${d.y}`} transform={`translate(${sx(d.x)} ${sy(d.y)})`}>
@@ -189,12 +201,12 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
 
   if (screen === 'done') {
     const rank = rankFor(score.kept, rounds.length, RANKS)
-    const brag = `I shot down a drone fleet with y = mx + c. Rank: ${rank.name} ${rank.badge}`
+    const brag = `I shot down a cloaked drone fleet with y = mx + c. Rank: ${rank.name} ${rank.badge}`
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Laser Line complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['c is where the line crosses the y-axis.', 'm is the steepness: up (or down) ÷ across.', 'y = mx + c: find m first, then c.']} />
+        <Rule steps={['c is where the line crosses the y-axis. m is the steepness: up (or down) ÷ across.', 'Find m first, then put a point in to get c. Parallel lines share the same m.', 'Not in y = mx + c form? Get y on its own first, then read off m and c.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -208,7 +220,9 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
   const answered = round.shots[round.shots.length - 1]
   const sideRight = picked !== null && side !== null && picked === side.answer
   const sideWrong = picked !== null && !sideRight
-  const probe = side && picked ? { p: { x: Number(picked.split(',')[0]), y: Number(picked.split(',')[1]) }, right: sideRight } : null
+  // Only point answers ("x,y") get a dot on the grid; equation answers (the parallel-line bonus) don't.
+  const point = picked !== null && /^-?\d+,-?\d+$/.test(picked) ? picked.split(',').map(Number) : null
+  const probe = side && point ? { p: { x: point[0], y: point[1] }, right: sideRight } : null
   const tone = phase === 'hit' ? 'right' : phase === 'miss' ? 'wrong' : 'default'
   const locked = phase !== 'aim'
   const mood = (offset: number) => roundIndex * 3 + shotIndex + offset
@@ -221,7 +235,7 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
         key={roundIndex}
         kicker={round.title}
         title={round.headline}
-        scene={<div className="lab-card rv-paper"><Grid m={shot.start.m} c={shot.start.c} drones={shot.drones} phase="aim" triangle={false} /></div>}
+        scene={<div className="lab-card rv-paper"><Grid m={shot.start.m} c={shot.start.c} drones={shot.drones} phase="aim" triangle={false} guide={shot.guide} cloaked={shot.cloaked} /></div>}
         speaker={VEGA} line={INTROS[roundIndex]}
         why={round.why}
         start="Lock on"
@@ -230,10 +244,11 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
     </>}
 
     {screen === 'question' && !onSide && <>
-      <section className="lab-card rv-paper"><Grid m={m} c={c} drones={shot.drones} phase={phase} triangle={round.triangle} /></section>
+      <section className="lab-card rv-paper"><Grid m={m} c={c} drones={shot.drones} phase={phase} triangle={round.triangle} guide={shot.guide} cloaked={shot.cloaked} /></section>
       <section className="lab-ask">
         <p className="lab-asker"><span aria-hidden="true">{VEGA.emoji}</span> {VEGA.name} · fire when the beam lines up</p>
         <h1 className="lab-prompt">{shot.prompt}</h1>
+        {shot.code && <p className="ll-code" aria-label={`Intercepted equation: ${shot.code.text}`}><span aria-hidden="true">📡</span> {shot.code.text}</p>}
         <div className="ll-dials">
           {shot.dials.includes('m')
             ? <NumberDial label="Gradient m" value={m} onChange={setM} min={-5} max={5} format={n} target={shot.m} disabled={locked} tone={tone} />
@@ -278,8 +293,14 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
       <section className="lab-intro lab-intro--centre">
         <span className="lab-sirens" aria-hidden="true">🛸</span>
         <p className="lab-kicker">Base overrun</p>
-        <h1 className="lab-title">Three misses. The drones now run the base.</h1>
-        <Why tag="Tip">c is where the beam crosses the y-axis. m is rise ÷ run between two drones, and it’s negative if the beam goes downhill.</Why>
+        <h1 className="lab-title">Out of lives. The drones now run the base.</h1>
+        <Why tag="Tip">{[
+          'c is where the beam crosses the y-axis. Work out mx at a drone: c is what’s left to reach its y.',
+          'm is rise ÷ run between two drones, and it’s negative if the beam goes downhill.',
+          'Find m first with rise ÷ run, then put one drone’s x and y into y = mx + c to get c.',
+          'Parallel beams have the same m. Copy it from the guide, then use the drone to find c.',
+          'Get y on its own: move the x term across the = and flip its sign, then divide everything by the number in front of y.',
+        ][roundIndex]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Reboot the laser</button>
@@ -287,7 +308,7 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
     </>}
 
     {screen === 'payout' && <>
-      <section className="lab-card rv-paper"><Grid m={answered.m} c={answered.c} drones={answered.drones} phase="hit" triangle={round.triangle} /></section>
+      <section className="lab-card rv-paper"><Grid m={answered.m} c={answered.c} drones={answered.drones} phase="hit" triangle={round.triangle} guide={answered.guide} /></section>
       <section className="lab-card lab-card--working rv-paper">
         <h2 className="lab-working__title">The working</h2>
         <StepChain key={round.id} steps={round.chain} revealed={revealed} pace={pace} />

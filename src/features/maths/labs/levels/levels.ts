@@ -38,6 +38,10 @@ export type Game = {
   target: number
   hit: boolean
   level: number
+  /** Round 4: a corrupted save with its own rule dn + c, where only levels p and q survive. */
+  save: { d: number; c: number; p: number; q: number }
+  /** Round 5: the boss's HP after hit n is c − dn, so it hits 0 on hit ko = c ÷ d. */
+  boss: { d: number; c: number; ko: number }
   rounds: Round[]
 }
 
@@ -83,8 +87,18 @@ export function makeGame(rand: Rand): Game {
   const terms = [1, 2, 3, 4, 5].map(n => xp(d, c, n))
   const a = terms[0]
   const far = rand.pick([20, 30, 50, 100])
-  const game = { d, c, terms, far, farXp: xp(d, c, far), target: pickTarget.x, hit: pickTarget.hit, level: pickTarget.level }
-  return { ...game, rounds: [pattern(rand, game, a), nthTerm(rand, game, a), member(rand, game)] }
+  // Round 4: a different rule from rounds 1–3, so the jump has to be worked out from two far-apart levels.
+  let sd = d, sc = c
+  while (sd === d && sc === c) { sd = rand.pick(JUMPS.slice(0, 4)); sc = rand.pick(ADD_ONS[sd]) }
+  // 3 to 5 jumps apart, but never as many jumps as the jump itself, so "levels apart" is always a wrong option.
+  const p = rand.int(2, 4), q = p + rand.pick(sd === 5 ? [3, 4] : [3, 4, 5])
+  // Round 5: the boss's HP. Pick the knockout hit first, so HP = c − dn lands on exactly 0.
+  const bd = rand.pick(JUMPS), ko = rand.int(8, 20)
+  const game = {
+    d, c, terms, far, farXp: xp(d, c, far), target: pickTarget.x, hit: pickTarget.hit, level: pickTarget.level,
+    save: { d: sd, c: sc, p, q }, boss: { d: bd, c: bd * ko, ko },
+  }
+  return { ...game, rounds: [pattern(rand, game, a), nthTerm(rand, game, a), member(rand, game), corrupted(rand, game), bossFight(rand, game)] }
 }
 
 type Base = Omit<Game, 'rounds'>
@@ -234,6 +248,100 @@ function member(rand: Rand, { d, c, target, hit, level }: Base): Round {
       ...back,
       { line: `\\text{Lv }${level} = [[lo:${texNum(low)}]]`, op: 'Not whole', why: `${num(rest)} isn’t in the ${d} times table, so n isn’t whole. The nearest level under it is ${level}: ${d} × ${level} + ${c} = ${num(low)}.` },
       { line: `\\text{Lv }${level + 1} = [[hi:${texNum(high)}]]`, op: 'One more jump', why: `Level ${level + 1} needs ${num(high)}, over ${num(target)}. So ${num(target)} is skipped, and level ${level} is the closest without going over.` },
+    ],
+  }
+}
+
+/** "500 − 30n": the boss's HP rule, with a proper minus sign. */
+const down = (c: number, d: number) => `${num(c)} − ${d}n`
+
+function corrupted(rand: Rand, { save }: Base): Round {
+  const { d, c, p, q } = save
+  const tp = xp(d, c, p), tq = xp(d, c, q), gap = q - p, diff = tq - tp, answer = rule(d, c)
+  const count = (value: string | number) => typeof value === 'number' && whole(value)
+  return {
+    id: 'corrupted',
+    title: 'Round 4 · Corrupted save',
+    heading: `Only levels ${p} and ${q} survived`,
+    why: `The save file glitched and wiped most of the XP table. The gap between two levels is made of equal jumps, so share it by how many jumps there are. Then take that many jumps off a level to find the add-on.`,
+    questions: [
+      {
+        asker: 'rebuild the jump',
+        prompt: `Level ${p} needs ${num(tp)} XP and level ${q} needs ${num(tq)} XP. What’s the jump from one level to the next?`,
+        answer: d,
+        choices: options<string | number>(rand, { value: d, label: num(d) }, rand.shuffle([
+          { value: diff, label: num(diff), nope: `${num(diff)} is the whole gap, ${num(tq)} − ${num(tp)}. That’s ${gap} jumps stacked up, so share it: ${num(diff)} ÷ ${gap} = ${d}.` },
+          { value: diff / (gap + 1), label: num(diff / (gap + 1)), nope: `Levels ${p} to ${q} is ${gap} jumps (${q} − ${p}), not ${gap + 1}. Count the gaps, not the levels: ${num(diff)} ÷ ${gap} = ${d}.` },
+          { value: gap, label: num(gap), nope: `${gap} is how many levels apart they are, not the XP. The XP gap is ${num(diff)}, shared over ${gap} jumps: ${d}.` },
+          { value: tq / q, label: num(tq / q), nope: `That’s ${num(tq)} ÷ ${q}, but the XP isn’t just ${q} jumps: there’s an add-on too. Use the gap: (${num(tq)} − ${num(tp)}) ÷ ${gap} = ${d}.` },
+        ]), { valid: count }),
+        why: `${num(tq)} − ${num(tp)} = ${num(diff)} XP over ${gap} jumps. ${num(diff)} ÷ ${gap} = ${d} a level.`,
+      },
+      {
+        asker: 'restore the rule',
+        prompt: `The jump is ${d}. What’s the rule for level n?`,
+        answer,
+        choices: options<string | number>(rand, { value: answer, label: answer }, rand.shuffle([
+          { value: rule(d, tp - d), label: rule(d, tp - d), nope: `That takes one jump off level ${p}. But level ${p} is ${p} jumps plus the add-on: ${num(tp)} − ${p} × ${d} = ${c}.` },
+          { value: rule(d, tp), label: rule(d, tp), nope: `${num(tp)} is level ${p}’s XP. Check: ${d} × ${p} + ${num(tp)} = ${num(d * p + tp)}, not ${num(tp)}. Take ${p} jumps off: ${num(tp)} − ${d * p} = ${c}.` },
+          { value: rule(diff, c), label: rule(diff, c), nope: `${num(diff)} is the whole gap, not one jump. The number in front of n is the jump: ${d}.` },
+        ])),
+        why: `Level ${p} needs ${num(tp)}, which is ${p} jumps of ${d} (${d * p}) plus the add-on. ${num(tp)} − ${d * p} = ${c}. Rule: ${answer}.`,
+      },
+    ],
+    chain: [
+      { line: `[[q:${texNum(tq)}]] [[p:- ${texNum(tp)}]]` },
+      { line: `\\text{Gap} = [[g:${texNum(diff)}]]`, op: 'Subtract', merge: { g: ['q', 'p'] }, why: `Level ${q} needs ${num(tq)} and level ${p} needs ${num(tp)}. The gap between them is ${num(diff)} XP.` },
+      { line: `[[g:${texNum(diff)}]] \\div [[j:${gap}]]`, op: `${gap} jumps`, why: `From level ${p} to level ${q} is ${q} − ${p} = ${gap} jumps. Count the gaps, not the levels.` },
+      { line: `\\text{Jump} = [[d:${d}]]`, op: 'Divide', merge: { d: ['g', 'j'] }, why: `${num(diff)} ÷ ${gap} = ${d} XP a level. That goes in front of n.` },
+      { line: `c = [[t:${texNum(tp)}]] [[s:- ${p} \\times ${d}]]`, op: 'Find the add-on', why: `Level ${p} is ${p} jumps of ${d} plus the add-on. So take ${p} jumps off its XP.` },
+      { line: `c = [[c:${c}]]`, op: 'Work it out', merge: { c: ['t', 's'] }, why: `${num(tp)} − ${d * p} = ${c}.` },
+      { line: `\\text{XP} = [[d:${d}]]n [[c:+ ${c}]]`, op: 'nth term', why: `Check level ${q}: ${d} × ${q} + ${c} = ${num(tq)}. Save restored.` },
+    ],
+  }
+}
+
+function bossFight(rand: Rand, { boss }: Base): Round {
+  const { d, c, ko } = boss
+  const [h1, h2, h3, h4] = [1, 2, 3, 4].map(hit => c - d * hit)
+  const answer = down(c, d)
+  return {
+    id: 'boss',
+    title: 'Round 5 · Boss fight',
+    heading: `The boss has ${num(h1)} HP after your first hit`,
+    why: `This time the numbers go down, so the jump is negative. The rule still works: first term minus the jump gives the number on its own. Then set the rule equal to 0 to find the knockout hit.`,
+    questions: [
+      {
+        asker: 'read the health bar',
+        prompt: `After each hit the boss has ${num(h1)}, ${num(h2)}, ${num(h3)}, ${num(h4)} HP … What’s the rule for its HP after hit n?`,
+        answer,
+        choices: options<string | number>(rand, { value: answer, label: answer }, rand.shuffle([
+          { value: down(h1, d), label: down(h1, d), nope: `Check hit 1: ${num(h1)} − ${d} = ${num(h1 - d)}, not ${num(h1)}. The number on its own is first term − jump: ${num(h1)} − (−${d}) = ${num(c)}.` },
+          { value: `${d}n + ${num(h1)}`, label: `${d}n + ${num(h1)}`, nope: `+ ${d}n makes the HP go up each hit, but it drops by ${d}. The jump is −${d}, so it’s − ${d}n.` },
+          { value: `${d}n − ${num(c)}`, label: `${d}n − ${num(c)}`, nope: `Check hit 1: ${d} − ${num(c)} is negative, but the boss has ${num(h1)}. Start at ${num(c)} and take ${d}n away: ${answer}.` },
+        ])),
+        why: `The HP drops by ${d} a hit, so the jump is −${d}. The number on its own is ${num(h1)} − (−${d}) = ${num(c)}. Rule: ${answer}.`,
+      },
+      {
+        asker: 'land the knockout',
+        prompt: `HP = ${answer}. Which hit takes the boss to exactly 0 HP?`,
+        answer: ko,
+        choices: options<string | number>(rand, { value: ko, label: num(ko) }, rand.shuffle([
+          { value: ko - 1, label: num(ko - 1), nope: `That’s ${num(h1)} ÷ ${d}, counting from the HP after hit 1. Use the rule: ${num(c)} − ${d}n = 0, so n = ${num(c)} ÷ ${d} = ${ko}. Hit ${ko - 1} still leaves ${d} HP.` },
+          { value: ko + 1, label: num(ko + 1), nope: `One hit too many. After hit ${ko + 1} the HP would be ${num(c)} − ${d * (ko + 1)} = −${d}. It hits 0 on hit ${ko}.` },
+          { value: -ko, label: `−${ko}`, nope: `You can’t land a negative hit. Sign slip: ${num(c)} − ${d}n = 0 means ${d}n = ${num(c)}, so n = ${num(c)} ÷ ${d} = ${ko}.` },
+        ]), { valid: value => typeof value === 'number' && Number.isInteger(value) && value !== 0 }),
+        why: `${num(c)} − ${d}n = 0, so ${d}n = ${num(c)} and n = ${num(c)} ÷ ${d} = ${ko}. Hit ${ko} is the knockout.`,
+      },
+    ],
+    chain: [
+      { line: `\\text{Jump} = [[b:${texNum(h2)}]] [[a:- ${texNum(h1)}]]` },
+      { line: `\\text{Jump} = [[d:-${d}]]`, op: 'Find the jump', merge: { d: ['b', 'a'] }, why: `The HP drops by ${d} every hit, so the jump is negative: −${d}.` },
+      { line: `\\text{HP} = [[c:${texNum(c)}]] [[d:- ${d}n]]`, op: 'nth term', why: `First term − jump: ${num(h1)} − (−${d}) = ${num(h1)} + ${d} = ${num(c)}. A negative jump means − ${d}n.` },
+      { line: `[[c:${texNum(c)}]] [[d:- ${d}n]] = 0`, op: 'K.O. = 0 HP', why: `Knocked out means 0 HP left, so set the rule equal to 0.` },
+      { line: `[[c:${texNum(c)}]] = [[d:${d}n]]`, op: `+ ${d}n both sides`, why: `Move the ${d}n across so it’s positive.` },
+      { line: `n = [[c:${texNum(c)}]] \\div [[e:${d}]]`, op: `÷ ${d} both sides`, why: `${d}n means ${d} lots of n, so share ${num(c)} by ${d}.` },
+      { line: `n = [[k:${ko}]]`, op: 'Divide', merge: { k: ['c', 'e'] }, why: `${num(c)} ÷ ${d} = ${ko}. Check: ${num(c)} − ${d} × ${ko} = 0. K.O. on hit ${ko}.` },
     ],
   }
 }

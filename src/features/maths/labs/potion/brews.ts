@@ -24,8 +24,11 @@ type BrewBase = {
   chain: ChainStep[]
 }
 
-/** Brew with the steppers until the cauldron holds exactly `target`. */
-export type MixBrew = BrewBase & { kind: 'mix'; target: Counts }
+/**
+ * Brew with the steppers until the cauldron holds exactly `target`. A boss brew's recipe `makes` some potions and
+ * the order is for `order` potions: find one potion's worth first, then scale up.
+ */
+export type MixBrew = BrewBase & { kind: 'mix'; target: Counts; makes?: number; order?: number }
 /** Judge someone else's mix: is it the same ratio as the recipe? */
 export type CheckBrew = BrewBase & { kind: 'check'; rival: Counts; legit: boolean; nope: string }
 export type Brew = MixBrew | CheckBrew
@@ -57,20 +60,58 @@ function scaleChain(parts: number[], k: number, op: string, why: string): ChainS
   ]
 }
 
+/** Unitary method: ÷ the potions the recipe makes, then × the potions ordered. */
+function unitaryChain(parts: number[], makes: number, order: number): ChainStep[] {
+  const keys = ['a', 'b', 'c'], each = ['u', 'v', 'w'], ops = ['p', 'q', 'r'], ups = ['i', 'j', 'k'], out = ['x', 'y', 'z']
+  const line = (terms: string[]) => terms.join(' : ')
+  const one = parts.map(n => n / makes)
+  return [
+    { line: line(parts.map((n, i) => `[[${keys[i]}:${n}]]`)) },
+    {
+      line: line(parts.map((n, i) => `[[${keys[i]}:${n}]] [[${ops[i]}:\\div ${makes}]]`)),
+      op: `÷ ${makes} for 1 potion`,
+      why: `The recipe makes ${makes} potions. Divide every part by ${makes} to get one potion’s worth.`,
+    },
+    {
+      line: line(one.map((n, i) => `[[${each[i]}:${n}]]`)),
+      op: 'Work it out',
+      why: parts.map(n => `${n} ÷ ${makes} = ${n / makes}`).join(', ') + '.',
+      merge: Object.fromEntries(parts.map((_, i) => [each[i], [keys[i], ops[i]]])),
+    },
+    {
+      line: line(one.map((n, i) => `[[${each[i]}:${n}]] [[${ups[i]}:\\times ${order}]]`)),
+      op: `× ${order} for ${order} potions`,
+      why: `The order is ${order} potions, so multiply one potion’s worth by ${order}.`,
+    },
+    {
+      line: line(one.map((n, i) => `[[${out[i]}:${n * order}]]`)),
+      op: 'Work it out',
+      why: one.map(n => `${n} × ${order} = ${n * order}`).join(', ') + '.',
+      merge: Object.fromEntries(parts.map((_, i) => [out[i], [each[i], ups[i]]])),
+    },
+  ]
+}
+
 const POTIONS = [['Speed Potion', '⚡'], ['Night Vision', '🦉'], ['Giant Potion', '🦖'], ['Invisibility', '👻'], ['Fire Breath', '🐉'], ['Super Jump', '🦘']] as const
 const IDS = ['slime', 'crystal', 'shroom']
 const TRIPLES = [[2, 3, 1], [1, 2, 3], [3, 1, 2], [2, 1, 1], [1, 3, 2], [3, 2, 2], [2, 2, 1], [4, 1, 2]]
 const PAIRS = [[3, 2], [2, 3], [1, 3], [3, 1], [2, 5], [4, 1], [1, 2]]
 const FIVES = [[1, 4], [2, 3], [3, 2], [4, 1]]
+/** One potion's worth for the boss brew: small, so both the recipe and the order fit on the shelf. */
+const SINGLES = [[2, 1, 1], [1, 2, 1], [1, 1, 2], [2, 3, 1], [3, 1, 2], [1, 2, 3], [3, 2, 1], [2, 1, 3]]
+/** Recipe makes → potions ordered. The order is never a whole number of recipes, so "just double it" can't work. */
+const ORDERS = [[2, 3], [2, 5], [3, 2], [4, 6], [3, 5], [4, 3], [3, 4], [4, 5]]
 const BATCH: Record<number, string> = { 2: 'double', 3: 'triple', 4: 'quadruple' }
 
+/** The most scoops of one ingredient the shelf allows (PotionLab's MAX_SCOOPS). */
+const MAX = 15
 const recipeOf = (ids: string[], parts: number[]): Counts => Object.fromEntries(ids.map((id, i) => [id, parts[i]]))
 const times = (counts: Counts, k: number): Counts => Object.fromEntries(Object.entries(counts).map(([id, n]) => [id, n * k]))
 const name = (id: string) => ingredients[id].name.toLowerCase()
 
 /** A fresh set of potions. Every ingredient count is a whole number of scoops, 15 at most. */
 export function makeBrews(rand: Rand): Brew[] {
-  const [p1, p2, p3] = rand.shuffle(POTIONS)
+  const [p1, p2, p3, p5] = rand.shuffle(POTIONS)
 
   // 1: scale a three-part recipe by 2 or 3.
   const parts1 = rand.pick(TRIPLES), k1 = rand.pick([2, 3]), recipe1 = recipeOf(IDS, parts1)
@@ -93,6 +134,12 @@ export function makeBrews(rand: Rand): Brew[] {
   const rival = legit ? real4 : { ...real4, [off]: real4[off] + nudge }
   const [a1, b1, c1] = parts1
   const fakeWhy = `${IDS.filter(id => id !== off).map(id => `${recipe1[id]} → ${real4[id]}`).join(' and ')} are both × ${k4}. But ${recipe1[off]} ${name(off)} × ${k4} is ${real4[off]}, not ${rival[off]}.`
+
+  // 5 (boss): the recipe makes `makes` potions; brew `order` of them. Find one potion's worth, then scale up.
+  const [makes, order] = rand.pick(ORDERS)
+  const single = rand.pick(SINGLES.filter(parts => Math.max(...parts) * Math.max(makes, order) <= MAX))
+  const recipe5 = recipeOf(IDS, single.map(n => n * makes)), target5 = recipeOf(IDS, single.map(n => n * order))
+  const parts5 = IDS.map(id => recipe5[id])
 
   return [
     {
@@ -156,6 +203,20 @@ export function makeBrews(rand: Rand): Brew[] {
           merge: { x: ['a', 'p'], y: ['b', 'q'], z: ['c', 'r'] },
         },
       ],
+    },
+    {
+      id: 'boss',
+      kind: 'mix',
+      potion: p5[0],
+      emoji: p5[1],
+      recipe: recipe5,
+      makes,
+      order,
+      task: `The recipe makes ${makes} potion${makes === 1 ? '' : 's'}. Brew ${order}.`,
+      why: `${order} ÷ ${makes} isn’t a nice number, so don’t guess the multiplier. Divide every part by ${makes} to get one potion’s worth. Then multiply every part by ${order}. Never add the same amount to every part: that changes the ratio.`,
+      target: target5,
+      win: `${parts5.join(' : ')} ÷ ${makes} = ${single.join(' : ')} for one potion. × ${order} = ${single.map(n => n * order).join(' : ')} for ${order}.`,
+      chain: unitaryChain(parts5, makes, order),
     },
   ]
 }

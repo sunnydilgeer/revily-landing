@@ -21,6 +21,18 @@ const INTROS = [
   'Hello, human. I am B-4L. My one job is balance. Please do not tip me over.',
   'Two mystery boxes. My sensors say they weigh the same. Find out what.',
   'Boxes on BOTH sides. This is my favourite. Also my scariest.',
+  'Someone put my boxes in a bracket. Rude. Please get them out.',
+  'BOSS MODE. Heavier blocks, boxes everywhere, and an exam board watching. No pressure.',
+]
+/** The start button for each level. */
+const STARTS = ['Balance it', 'Balance it', 'Balance it', 'Open the bracket', 'Beat the boss']
+/** The busted tip for each level: the slip that most often tips this one over. */
+const TIPS = [
+  'Whatever you do to one side, do to the other. Undo the + with a −.',
+  'Clear the loose numbers first, then share by the number of x’s.',
+  'Boxes both sides? Take the same number of boxes off each side first.',
+  'A number outside a bracket means that many lots. Share by it first and the bracket opens.',
+  'Take the SMALLER number of boxes off both sides. Then clear the loose weights, then share.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🧠', name: 'Equation Engineer', line: 'Perfect balance every time. B-4L wants to be you.' },
@@ -109,7 +121,7 @@ function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: ()
       <section className="lab-intro">
         <p className="lab-kicker">Balance Bot complete</p>
         <RankCard rank={rank} stats={[['Equations', `${puzzles.length}/${puzzles.length}`], ['Lives kept', `${score.kept}/${puzzles.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Do the same to both sides, always.', 'Clear the loose numbers with + or −.', 'Then ÷ by the number of x’s.']} />
+        <Rule steps={['Do the same to both sides, always.', 'Boxes both sides? Take the fewer off. Bracket? Share first.', 'Clear the loose numbers, then ÷ by the number of x’s.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -120,7 +132,8 @@ function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: ()
     </main>
   }
 
-  const equation = `${sideText(scale.left, puzzle.unit)} = ${sideText(scale.right, puzzle.unit)}`
+  // Blocks can't show a bracket, so a level that starts with one shows its own text until the first move.
+  const equation = puzzle.startText && scale === puzzle.start ? puzzle.startText : `${sideText(scale.left, puzzle.unit)} = ${sideText(scale.right, puzzle.unit)}`
 
   return <main className="lab">
     <LabTop progress={`Level ${puzzleIndex + 1}/${puzzles.length}`} streak={score.streak} lives={score.lives} />
@@ -133,7 +146,7 @@ function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: ()
         scene={<div className="lab-card rv-paper"><Balance unit={puzzle.unit} scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>}
         speaker={BOT} line={INTROS[puzzleIndex]}
         why={puzzle.why}
-        start="Balance it"
+        start={STARTS[puzzleIndex] ?? 'Balance it'}
         onStart={() => { sfx.tick(); setScreen('question') }}
       />
     </>}
@@ -162,7 +175,7 @@ function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: ()
         <span className="lab-sirens" aria-hidden="true">🤖</span>
         <p className="lab-kicker">System crash</p>
         <h1 className="lab-title">B-4L tipped over. Reboot and try again.</h1>
-        <Why tag="Tip">Whatever you do to one side, do to the other. Clear the loose numbers first, then share by the number of x’s.</Why>
+        <Why tag="Tip">{TIPS[puzzleIndex] ?? TIPS[1]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startPuzzle(puzzleIndex) }}>Reboot</button>

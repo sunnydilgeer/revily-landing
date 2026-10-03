@@ -2,7 +2,7 @@ import type { ChainStep } from '../../step-chain/StepChain'
 import { gbp, texGbp, type Option, type Rand } from '../kit/random'
 
 /*
- * Ziggy's market stall, three days of it. Prices are 50p steps up to £10, quantities in 5s and 10s,
+ * Ziggy's market stall, five days of it. Prices are 50p steps up to £10, quantities in 5s and 10s,
  * wages whole pounds an hour. Every answer is picked first and the question built backwards from
  * it, so every share comes out in whole pounds or 50p. Cash carries across the days.
  */
@@ -29,9 +29,13 @@ export type Numbers = {
   n: number; C: number; e: number; P: number; m: number; s: number
   /** Day 3: h hours at £w, pay £wage; upgrade £U for £x a day pays back in d days; D days left. */
   h: number; w: number; wage: number; U: number; x: number; d: number; D: number; worth: boolean
+  /** Day 4: a café orders r at £s plus a £F delivery charge (bill £bill); a second order costs £Y, so r2 items. */
+  r: number; F: number; bill: number; r2: number; Y: number
+  /** Day 5: g more bought for £K; fa/fb of them sell at £s (f items), the rest at £z in the clear-out; takings £T, profit £gain. */
+  g: number; K: number; fa: number; fb: number; f: number; z: number; T: number; gain: number
 }
 
-export type Kind = 'buy' | 'change' | 'each' | 'price' | 'wage' | 'payback'
+export type Kind = 'buy' | 'change' | 'each' | 'price' | 'wage' | 'payback' | 'bill' | 'order' | 'portion' | 'takings' | 'profit'
 export type Entry = { amount: number; note: string }
 
 export type DialStep = {
@@ -119,7 +123,33 @@ function numbers(rand: Rand): Numbers {
     if (afterDay1 < C || beforeUpgrade < (worth ? U : 0)) continue
     // It's a tycoon game: every day should end up, and three days leave you richer than you started.
     if (P - wage + (worth ? D * x - U : 0) <= 0) continue
-    return { start, c, B, q, p, k, t, N, change, n, C, e, P, m, s, h, w, wage, U, x, d, D, worth }
+
+    // Day 4: two café orders at £s each plus a flat delivery charge. Whole-pound bills.
+    const r = rand.pick([10, 12, 15, 20, 24, 30])
+    const F = rand.pick([2, 3, 4, 5, 6, 8, 10])
+    const bill = r * s + F
+    const r2 = rand.int(10, 40)
+    const Y = r2 * s + F
+    if (!Number.isInteger(r * s) || !Number.isInteger(r2 * s) || bill > 200 || r2 === r || Y > 400) continue
+    // A slip mustn't land on the answer by luck: delivery on every item, or one item plus delivery.
+    if (r * (s + F) === bill || s + F === bill) continue
+
+    // Day 5: a bulk buy, a fraction sold at full price, the rest in the clear-out.
+    const [fa, fb] = rand.pick([[1, 4], [3, 4], [1, 3], [2, 3], [2, 5], [3, 5], [4, 5]])
+    const g = rand.pick([20, 30, 40, 50, 60])
+    const f = g * fa / fb
+    const z = rand.int(1, 2 * s - 1) / 2
+    const T = f * s + (g - f) * z
+    const K = rand.int(Math.ceil(T * 0.4 / 5) * 5, Math.floor(T * 0.8 / 5) * 5, 5)
+    const gain = T - K
+    if (!Number.isInteger(f) || !Number.isInteger(T) || T > 300 || K < 10 || gain <= 0 || gain > 200) continue
+    // Slips mustn't land on the answers: the rest, or the profit equal to the takings or cost.
+    if (g - f === f || g / fb === f || gain === K || f * s === T) continue
+
+    const afterDay3 = beforeUpgrade - (worth ? U : 0) + P + (worth ? D * x : 0)
+    const afterDay4 = afterDay3 + bill + Y - (r + r2) * e
+    if (afterDay4 < K) continue
+    return { start, c, B, q, p, k, t, N, change, n, C, e, P, m, s, h, w, wage, U, x, d, D, worth, r, F, bill, r2, Y, g, K, fa, fb, f, z, T, gain }
   }
 }
 
@@ -291,11 +321,141 @@ function day3(stock: Stock, v: Numbers): Day {
   }
 }
 
+function day4(stock: Stock, v: Numbers): Day {
+  const { s, r, F, bill, r2, Y, e } = v
+  const goods = r * s, goods2 = Y - F
+  return {
+    id: 'orders',
+    title: 'Day 4 · Big orders',
+    headline: 'A café wants your stock. Delivered.',
+    why: `A bill with a fixed charge has two parts: price each × how many, then the fixed charge on top once. Working backwards undoes that in reverse order. Take the fixed charge off first, then divide by the price each.`,
+    steps: [
+      {
+        kind: 'bill', label: 'Bill', asker: 'in £', commit: 'Send the bill',
+        prompt: `A café orders ${r} ${stock.items} at your price of ${gbp(s)} each. Delivery is a flat ${gbp(F)}. What’s the bill?`,
+        answer: bill, start: 0, min: 0, max: 200, step: 0.5, jump: 5, money: true,
+        why: `${r} × ${gbp(s)} = ${gbp(goods)}, plus ${gbp(F)} delivery = ${gbp(bill)}.`,
+        nope: value => {
+          if (value === goods) return `That’s just the ${stock.items}: ${r} × ${gbp(s)} = ${gbp(goods)}. You forgot the ${gbp(F)} delivery on top.`
+          if (value === r * (s + F)) return `That charges ${gbp(F)} delivery on EVERY ${stock.item}. Delivery is one flat ${gbp(F)} for the whole order: ${gbp(goods)} + ${gbp(F)}.`
+          if (value === s + F) return `That’s one ${stock.item} plus delivery. They ordered ${r}: ${r} × ${gbp(s)} first, then + ${gbp(F)}.`
+          if (value === r + s + F) return `That’s ${r} + ${gbp(s)} + ${gbp(F)}. The ${r} ${stock.items} each cost ${gbp(s)}, so multiply first: ${r} × ${gbp(s)}, then + ${gbp(F)}.`
+          if (value === 0) return `Free stock? Ziggy faints. ${r} × ${gbp(s)}, then add the ${gbp(F)} delivery.`
+          return value < bill
+            ? `${gbp(value)} is too little: ${r} × ${gbp(s)} is already ${gbp(goods)} before delivery. Price × how many, then + ${gbp(F)}.`
+            : `${gbp(value)} is too much. ${r} × ${gbp(s)} = ${gbp(goods)}, and delivery is only ${gbp(F)} on top.`
+        },
+        cash: { amount: bill, note: 'café order' },
+      },
+      {
+        kind: 'order', label: 'How many', asker: 'in items', commit: 'Pack the order',
+        prompt: `Next day the café pays ${gbp(Y)} for another order, same price, same ${gbp(F)} delivery. How many ${stock.items} did they order?`,
+        answer: r2, start: 0, min: 0, max: 60, step: 1, jump: 10, money: false,
+        why: `${gbp(Y)} − ${gbp(F)} delivery = ${gbp(goods2)} of ${stock.items}. ${gbp(goods2)} ÷ ${gbp(s)} = ${r2}. Check: ${r2} × ${gbp(s)} + ${gbp(F)} = ${gbp(Y)}.`,
+        nope: value => {
+          if (value === Y / s) return `That’s ${gbp(Y)} ÷ ${gbp(s)}, but ${gbp(F)} of that was delivery, not ${stock.items}. Take the delivery off FIRST, then divide.`
+          if (value === (Y + F) / s) return `You added the delivery on. Working backwards, you undo it: ${gbp(Y)} − ${gbp(F)} first, then ÷ ${gbp(s)}.`
+          if (value === goods2) return `${gbp(goods2)} is the money for the ${stock.items}. How many ${gbp(s)}s is that? Divide by ${gbp(s)}.`
+          if (value === 0) return `They paid ${gbp(Y)}, so they ordered something! Take off the ${gbp(F)} delivery, then ÷ ${gbp(s)}.`
+          const cost = value * s + F
+          return `Check it: ${value} × ${gbp(s)} + ${gbp(F)} = ${gbp(cost)}, not ${gbp(Y)}. Take the ${gbp(F)} off ${gbp(Y)}, then ÷ ${gbp(s)}.`
+        },
+        cash: { amount: Y, note: 'second order' },
+      },
+    ],
+    // The orders came out of Ziggy's stock at the day 2 cost price, so he restocks.
+    close: [{ amount: -(r + r2) * e, note: `restock ${r + r2} at ${gbp(e)}` }],
+    chain: [
+      { line: `\\text{Bill} = [[r:${r}]] \\times [[s:${tex(s)}]] + [[f:${tex(F)}]]` },
+      { line: `\\text{Bill} = [[a:${tex(goods)}]] + [[f:${tex(F)}]]`, op: 'Multiply first', merge: { a: ['r', 's'] }, why: `${r} × ${gbp(s)} = ${gbp(goods)} for the ${stock.items}.` },
+      { line: `\\text{Bill} = [[b:${tex(bill)}]]`, op: 'Add delivery', merge: { b: ['a', 'f'] }, why: `Delivery goes on once: ${gbp(goods)} + ${gbp(F)} = ${gbp(bill)}.` },
+      { line: `\\text{Goods} = [[y:${tex(Y)}]] - [[g:${tex(F)}]]`, op: 'Work backwards', why: `Order 2 cost ${gbp(Y)}. Undo the last step first: take the ${gbp(F)} delivery off.` },
+      { line: `\\text{Goods} = [[o:${tex(goods2)}]]`, op: 'Take away', merge: { o: ['y', 'g'] }, why: `${gbp(Y)} − ${gbp(F)} = ${gbp(goods2)}, just for the ${stock.items}.` },
+      { line: `\\text{Items} = [[o:${tex(goods2)}]] \\div [[p:${tex(s)}]]`, op: '÷ price each', why: `Then undo the × : how many ${gbp(s)}s make ${gbp(goods2)}?` },
+      { line: `\\text{Items} = [[n:${r2}]]`, op: 'Divide', merge: { n: ['o', 'p'] }, why: `${gbp(goods2)} ÷ ${gbp(s)} = ${r2}. Check: ${r2} × ${gbp(s)} + ${gbp(F)} = ${gbp(Y)}.` },
+    ],
+  }
+}
+
+const FRACTIONS: Record<string, string> = { '1/4': 'a quarter', '3/4': 'three quarters', '1/3': 'a third', '2/3': 'two thirds', '2/5': 'two fifths', '3/5': 'three fifths', '4/5': 'four fifths' }
+export const fractionWords = (fa: number, fb: number) => FRACTIONS[`${fa}/${fb}`] ?? `${fa}/${fb}`
+
+function day5(stock: Stock, v: Numbers): Day {
+  const { s, g, K, fa, fb, f, z, T, gain } = v
+  const rest = g - f, part = g / fb
+  const full = f * s, clear = rest * z
+  const frac = fractionWords(fa, fb), Frac = `${frac[0].toUpperCase()}${frac.slice(1)}`
+  return {
+    id: 'clearout',
+    title: 'Day 5 · Boss: Clear-out',
+    headline: 'Last day. Sell the lot. Did it pay?',
+    why: `To find a fraction of an amount, divide by the bottom number, then times by the top. Takings add up every sale at its own price. Profit is money in − money out, the same as every day.`,
+    steps: [
+      {
+        kind: 'portion', label: 'Full price', asker: 'in items', commit: 'Sort the stock',
+        prompt: `Ziggy buys ${g} more ${stock.items} for ${gbp(K)}. He reckons ${frac} will sell at full price (${gbp(s)}). How many is that?`,
+        answer: f, start: 0, min: 0, max: 60, step: 1, jump: 10, money: false,
+        why: `${Frac} of ${g}: ${g} ÷ ${fb} = ${part}, × ${fa} = ${f}.`,
+        nope: value => {
+          if (value === part && fa !== 1) return `That’s ${g} ÷ ${fb}, which is only ONE ${fb === 3 ? 'third' : fb === 4 ? 'quarter' : 'fifth'}. You need ${fa} of them: × ${fa}.`
+          if (value === rest) return `That’s the ones left over for the clear-out. ${Frac} of ${g} is ${g} ÷ ${fb} × ${fa}.`
+          if (value === g * fa) return `That’s ${g} × ${fa}, more than he bought! Divide by the bottom (${fb}) first, then × ${fa}.`
+          if (value === 0) return `Nothing at full price? Find ${frac} of ${g}: ÷ ${fb}, then × ${fa}.`
+          return `${value} isn’t ${frac} of ${g}. Divide by the bottom: ${g} ÷ ${fb} = ${part}. Then × the top, ${fa}.`
+        },
+        cash: { amount: -K, note: 'bulk stock' },
+      },
+      {
+        kind: 'takings', label: 'Takings', asker: 'in £', commit: 'Count the till',
+        prompt: `${f} sell at ${gbp(s)}. The other ${rest} go in the clear-out at ${gbp(z)} each. What are the takings?`,
+        answer: T, start: 0, min: 0, max: 300, step: 0.5, jump: 5, money: true,
+        why: `${f} × ${gbp(s)} = ${gbp(full)}. ${rest} × ${gbp(z)} = ${gbp(clear)}. Together: ${gbp(T)}.`,
+        nope: value => {
+          if (value === full) return `That’s only the full-price ones. The ${rest} clear-out ${stock.items} bring in ${rest} × ${gbp(z)} = ${gbp(clear)} too: add it on.`
+          if (value === clear) return `That’s only the clear-out. The ${f} full-price sales bring in ${f} × ${gbp(s)} = ${gbp(full)} too.`
+          if (value === g * s) return `That sells all ${g} at full price. Only ${f} went for ${gbp(s)}; the other ${rest} went for ${gbp(z)}.`
+          if (value === f * z + rest * s) return `You swapped the prices. ${f} at ${gbp(s)}, and the ${rest} leftovers at the cheap ${gbp(z)}.`
+          if (value === g * z) return `That sells everything at the clear-out price. Only the ${rest} leftovers went for ${gbp(z)}.`
+          return value < T
+            ? `Not enough in the till. Do each price separately: ${f} × ${gbp(s)}, then ${rest} × ${gbp(z)}, then add.`
+            : `Too much in the till. Do each price separately: ${f} × ${gbp(s)}, then ${rest} × ${gbp(z)}, then add.`
+        },
+        cash: { amount: T, note: 'clear-out takings' },
+      },
+      {
+        kind: 'profit', label: 'Profit', asker: 'in £', commit: 'Cash up',
+        prompt: `The ${g} ${stock.items} cost ${gbp(K)}. What profit did today’s stock make?`,
+        answer: gain, start: 0, min: 0, max: 200, step: 0.5, jump: 5, money: true,
+        why: `Money in − money out: ${gbp(T)} − ${gbp(K)} = ${gbp(gain)} profit.`,
+        nope: value => {
+          if (value === T) return `That’s the takings. Some of that just pays back the ${gbp(K)} the stock cost: ${gbp(T)} − ${gbp(K)}.`
+          if (value === T + K) return `You added the cost on. Cost is money OUT, so take it away: ${gbp(T)} − ${gbp(K)}.`
+          if (value === K) return `${gbp(K)} is what the stock cost. Profit is what’s left of the ${gbp(T)} takings after paying that.`
+          if (value === full - K) return `You left out the clear-out money. Takings were ${gbp(T)} in total: ${gbp(T)} − ${gbp(K)}.`
+          if (value === 0) return `Broke even? Check: ${gbp(T)} in, ${gbp(K)} out.`
+          return `Profit = money in − money out = ${gbp(T)} − ${gbp(K)}. ${gbp(value)} isn’t it.`
+        },
+      },
+    ],
+    close: [],
+    chain: [
+      { line: `\\text{Full} = [[g:${g}]] [[b:\\div ${fb}]] [[a:\\times ${fa}]]` },
+      { line: `\\text{Full} = [[f:${f}]]`, op: `÷ ${fb}, × ${fa}`, merge: { f: ['g', 'b', 'a'] }, why: `${Frac} of ${g}: ${g} ÷ ${fb} = ${part}, then × ${fa} = ${f}.` },
+      { line: `\\text{Rest} = [[g2:${g}]] - [[f:${f}]]`, op: 'The rest', why: `Whatever doesn’t sell at full price goes in the clear-out.` },
+      { line: `\\text{Rest} = [[l:${rest}]]`, op: 'Take away', merge: { l: ['g2', 'f'] }, why: `${g} − ${f} = ${rest} for the clear-out.` },
+      { line: `\\text{In} = [[u:${tex(full)}]] + [[v:${tex(clear)}]]`, op: 'Each price', why: `${f} × ${gbp(s)} = ${gbp(full)} and ${rest} × ${gbp(z)} = ${gbp(clear)}.` },
+      { line: `\\text{In} = [[i:${tex(T)}]]`, op: 'Add', merge: { i: ['u', 'v'] }, why: `${gbp(full)} + ${gbp(clear)} = ${gbp(T)} takings.` },
+      { line: `\\text{Profit} = [[i:${tex(T)}]] - [[k:${tex(K)}]]`, op: 'In − out', why: `The stock cost ${gbp(K)}: that’s the money out.` },
+      { line: `\\text{Profit} = [[p:${tex(gain)}]]`, op: 'Take away', merge: { p: ['i', 'k'] }, why: `${gbp(T)} − ${gbp(K)} = ${gbp(gain)} profit. Tycoon.` },
+    ],
+  }
+}
+
 export function makeStall(rand: Rand): Stall {
   const n = numbers(rand)
   // Picked after the numbers: nearby seeds share their first draw, and the stock should vary.
   const stock = rand.pick(STOCKS)
-  return { stock, n, days: [day1(stock, n), day2(stock, n), day3(stock, n)] }
+  return { stock, n, days: [day1(stock, n), day2(stock, n), day3(stock, n), day4(stock, n), day5(stock, n)] }
 }
 
 /**

@@ -12,6 +12,10 @@ export type PackQuestion = {
   open?: number
   /** Answering this reveals the legendary odds on the odds card. */
   revealsOdds?: boolean
+  /** The rarities this question counts in the packs it opens (default: legendary). */
+  track?: Rarity['id'][]
+  /** How many of those you'd expect in the packs it opens (default: the answer). */
+  expect?: number
 }
 
 export type Round = {
@@ -27,6 +31,10 @@ export type Round = {
   seeds: Record<number, number>
   /** What a legendary costs on average, for the brag line. */
   cost: number
+  /** Odds-card labels shown until a question reveals the odds (e.g. "3x"). */
+  mystery?: Partial<Record<Rarity['id'], string>>
+  /** Show the odds as decimals (0.15) instead of percentages. */
+  decimals?: boolean
 }
 
 /** Open `count` packs with these odds. */
@@ -45,7 +53,9 @@ export function openPacks(count: number, seed: number, odds: Rarity[]): Rarity['
   })
 }
 
-const decimal = (value: number) => String(Math.round(value * 1000) / 1000)
+export const decimal = (value: number) => String(Math.round(value * 1000) / 1000)
+/** Hundredths as a tidy decimal: 15 → 0.15. */
+const hund = (value: number) => value / 100
 
 /** A fresh set of rounds. Legendary is 5% or 10%, so every expected number is whole. */
 export function makeRounds(rand: Rand): Round[] {
@@ -156,5 +166,121 @@ export function makeRounds(rand: Rand): Round[] {
       ],
       ...shared,
     },
+    workBack(rand, odds, shared),
+    boss(rand, shared),
   ]
+}
+
+type Shared = { odds: Rarity[]; seeds: Record<number, number>; cost: number }
+const pct = (odds: Rarity[], id: Rarity['id']) => Math.round(odds.find(o => o.id === id)!.chance * 100)
+
+/** Round 4: work backwards from a promise, then chain "not common" with expected number. */
+function workBack(rand: Rand, odds: Rarity[], shared: Shared): Round {
+  const l = pct(odds, 'legendary'), r = pct(odds, 'rare'), c = pct(odds, 'common')
+  const d = decimal(l / 100), per = 100 / l
+  // Answer first: k legendaries promised, so n = k ÷ p packs. k even keeps n × P(not common) whole.
+  const k = rand.pick([4, 6, 8]), n = k * per
+  const notC = r + l, m = n * notC / 100, dn = decimal(notC / 100), dc = decimal(c / 100)
+  return {
+    id: 'back',
+    title: 'Round 4 · Work it backwards',
+    brief: `Jax: “Want ${k} Legendaries? Just keep opening!” But how many is that?`,
+    why: `Expected = probability × packs, so packs = expected ÷ probability. Not common means Rare or Legendary. Its chance is 1 − P(Common).`,
+    questions: [
+      {
+        prompt: `You want to expect ${k} Legendaries. How many packs should you open?`,
+        answer: n,
+        choices: options(rand, { value: n, label: String(n) }, [
+          { value: k * l, label: String(k * l), nope: `That’s ${k} × ${l}. You need packs × ${d} = ${k}, so packs = ${k} ÷ ${d} = ${n}.` },
+          { value: per, label: String(per), nope: `${per} packs gets you ONE Legendary on average. You want ${k}: ${k} × ${per} = ${n}.` },
+          { value: 100 * k, label: String(100 * k), nope: `That’s ${k} × 100. Each 100 packs gives ${l} Legendaries, not 1. ${k} ÷ ${d} = ${n}.` },
+        ]),
+        why: `${n} × ${d} = ${k}, so ${n} packs. Dividing by ${d} is the same as × ${per}.`,
+        open: n,
+        expect: k,
+      },
+      {
+        prompt: `In those ${n} packs, how many cards should be NOT Common?`,
+        answer: m,
+        choices: options(rand, { value: m, label: String(m) }, [
+          { value: n * r / 100, label: String(n * r / 100), nope: `That’s just the Rares. Legendaries aren’t common either: ${notC}% of ${n} = ${m}.` },
+          { value: n - m, label: String(n - m), nope: `That’s how many ARE common: ${c}% of ${n}. Not common is 1 − ${dc} = ${dn}, and ${dn} × ${n} = ${m}.` },
+          { value: notC, label: String(notC), nope: `${notC} is the percentage, per 100 packs. You opened ${n}: ${dn} × ${n} = ${m}.` },
+          { value: k, label: String(k), nope: `That’s only the Legendaries. Add the Rares too: ${dn} × ${n} = ${m}.` },
+        ], { valid: value => Number.isInteger(value) && value > 0 }),
+        why: `P(not Common) = 1 − ${dc} = ${dn}. ${dn} × ${n} = ${m}.`,
+        track: ['rare', 'legendary'],
+      },
+    ],
+    chain: [
+      { line: `[[n:n]] \\times [[p:${d}]] = [[k:${k}]]` },
+      { line: `n = [[k:${k}]] \\div [[p:${d}]]`, op: 'Undo the ×', why: `Packs × probability = expected. To get the packs back, divide: ${k} ÷ ${d}.` },
+      { line: `n = [[m:${n}]]`, op: 'Work it out', merge: { m: ['k', 'p'] }, why: `÷ ${d} is the same as × ${per}: ${k} × ${per} = ${n} packs.` },
+      { line: `P(\\text{not C}) = 1 - [[c:${dc}]]`, op: 'Not common', why: `Every card is common or not. The chances add to 1, so take common off 1.` },
+      { line: `P(\\text{not C}) = [[q:${dn}]]`, op: 'Work it out', merge: { q: ['c'] }, why: `1 − ${dc} = ${dn}. That’s Rare ${decimal(r / 100)} + Legendary ${d}.` },
+      { line: `[[m:${n}]] \\times [[q:${dn}]] = [[e:${m}]]`, op: 'Expected', why: `Probability × packs: ${dn} × ${n} = ${m} cards that aren’t common.` },
+    ],
+    ...shared,
+    seeds: { ...shared.seeds, [n]: rand.int(1, 999999) },
+  }
+}
+
+/** Round 5, the boss: an exam-style missing-probability table with x, then an estimate. */
+function boss(rand: Rand, shared: Shared): Round {
+  // Answer first, in hundredths: P(Legendary) = x, Rare = m × x, Common is the rest.
+  const X = rand.pick([5, 10]), mult = rand.pick([2, 3, 4]), R = mult * X, C = 100 - (mult + 1) * X, left = (mult + 1) * X
+  const x = hund(X), dx = decimal(x), dr = decimal(hund(R)), dc = decimal(hund(C)), dl = decimal(hund(left))
+  const N = rand.pick([200, 400, 500, 600]), rares = N * R / 100
+  const odds: Rarity[] = [
+    { id: 'common', name: 'Common', emoji: '⚪', chance: C / 100 },
+    { id: 'rare', name: 'Rare', emoji: '🔷', chance: R / 100 },
+    { id: 'legendary', name: 'Legendary', emoji: '🌟', chance: X / 100 },
+  ]
+  const twoDp = (value: number) => Number.isFinite(value) && value > 0 && Math.abs(value * 100 - Math.round(value * 100)) < 1e-9
+  return {
+    id: 'mega',
+    title: 'Round 5 · The Mega pack',
+    brief: `Jax’s new Mega pack. The odds table has an x in it. Classic Jax.`,
+    why: `The probabilities still add up to 1. Rare is ${mult} times as likely as Legendary, so call Legendary x and Rare ${mult}x. Solve for x, then estimate with probability × packs.`,
+    questions: [
+      {
+        prompt: `P(Common) = ${dc}. Rare is ${mult} times as likely as Legendary. Find x, the chance of a Legendary.`,
+        answer: x,
+        choices: options(rand, { value: x, label: dx }, [
+          { value: hund(R), label: dr, nope: `${dr} is ${mult}x, the Rare chance. The x’s: ${mult}x + x = ${mult + 1}x = ${dl}, so x = ${dl} ÷ ${mult + 1} = ${dx}.` },
+          { value: hund(left), label: dl, nope: `${dl} is Rare AND Legendary together (1 − ${dc}). That’s ${mult + 1}x: divide by ${mult + 1} to get x = ${dx}.` },
+          { value: hund(left / mult), label: decimal(hund(left / mult)), nope: `You divided by ${mult}. But ${mult}x + x makes ${mult + 1}x, so ${dl} ÷ ${mult + 1} = ${dx}.` },
+          { value: hund(100 / (mult + 1)), label: decimal(hund(100 / (mult + 1))), nope: `You shared all of 1 between the x’s. Take off Common first: 1 − ${dc} = ${dl}, then ÷ ${mult + 1} = ${dx}.` },
+        ], { valid: twoDp }),
+        why: `${dc} + ${mult}x + x = 1, so ${mult + 1}x = ${dl} and x = ${dx}. Rare = ${mult} × ${dx} = ${dr}.`,
+        revealsOdds: true,
+      },
+      {
+        prompt: `Jax opens ${N} Mega packs. Estimate how many will be Rare.`,
+        answer: rares,
+        choices: options(rand, { value: rares, label: String(rares) }, [
+          { value: N * X / 100, label: String(N * X / 100), nope: `That used x, the Legendary chance. Rare is ${mult}x = ${dr}: ${dr} × ${N} = ${rares}.` },
+          { value: N * left / 100, label: String(N * left / 100), nope: `That’s Rare AND Legendary. Just Rare: ${dr} × ${N} = ${rares}.` },
+          { value: N * C / 100, label: String(N * C / 100), nope: `That’s the Commons. Rare is ${dr}: ${dr} × ${N} = ${rares}.` },
+          { value: R, label: String(R), nope: `${R} is per 100 packs. Jax opens ${N}: ${dr} × ${N} = ${rares}.` },
+        ], { valid: value => Number.isInteger(value) && value > 0 }),
+        why: `Estimate = probability × packs: ${dr} × ${N} = ${rares} Rares.`,
+        open: N,
+        track: ['rare'],
+      },
+    ],
+    chain: [
+      { line: `[[c:${dc}]] + [[r:${mult}x]] + [[l:x]] = 1` },
+      { line: `[[c:${dc}]] + [[s:${mult + 1}x]] = 1`, op: 'Collect the x’s', merge: { s: ['r', 'l'] }, why: `${mult}x + x = ${mult + 1}x. Same as ${mult} apples + 1 apple.` },
+      { line: `[[s:${mult + 1}x]] = [[t:${dl}]]`, op: `− ${dc}`, merge: { t: ['c'] }, why: `Take ${dc} off both sides: 1 − ${dc} = ${dl}.` },
+      { line: `x = [[x:${dx}]]`, op: `÷ ${mult + 1}`, merge: { x: ['s', 't'] }, why: `${dl} ÷ ${mult + 1} = ${dx}. That’s P(Legendary).` },
+      { line: `P(\\text{R}) = [[y:${dr}]]`, op: `Rare is ${mult}x`, merge: { y: ['x'] }, why: `${mult} × ${dx} = ${dr}. Check: ${dc} + ${dr} + ${dx} = 1.` },
+      { line: `[[n:${N}]] \\times [[y:${dr}]] = [[e:${rares}]]`, op: 'Estimate', why: `Probability × number of packs: ${dr} × ${N} = ${rares} Rares.` },
+    ],
+    ...shared,
+    odds,
+    seeds: { ...shared.seeds, [N]: rand.int(1, 999999) },
+    mystery: { common: dc, rare: `${mult}x`, legendary: 'x' },
+    decimals: true,
+  }
 }

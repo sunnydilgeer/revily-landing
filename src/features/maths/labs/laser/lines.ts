@@ -23,10 +23,16 @@ export type Shot = {
   c: number
   /** Where the dials start: never the answer. */
   start: { m: number; c: number }
-  /** Two drones on the line, left to right. */
-  drones: [Pt, Pt]
+  /** The drones on the line, left to right: two, or one when a guide beam gives the tilt. */
+  drones: Pt[]
   /** Why the right line is right: shown on a hit. */
   win: string
+  /** Level 4: a friendly beam already on the grid; the shot must run parallel to it. */
+  guide?: { m: number; c: number }
+  /** Level 5: the drones are cloaked until the beam fires; the line comes as a coded equation. */
+  cloaked?: boolean
+  /** The intercepted equation, e.g. 2y − 4x = 6, and the number y is multiplied by in it. */
+  code?: { text: string; k: number }
 }
 
 /** The one multiple-choice side question a round may have. */
@@ -89,7 +95,7 @@ function pickDrones(rand: Rand, m: number, c: number, minRun = 1): [Pt, Pt] | nu
 
 /** What went wrong with c, given the tilt is right. */
 function cSlip(shot: Shot, c: number) {
-  const d = shot.drones[1], p = shot.m * d.x
+  const d = shot.drones[shot.drones.length - 1], p = shot.m * d.x
   const fix = `At x = ${n(d.x)}, ${times(shot.m, d.x)} = ${n(p)} and the drone is at y = ${n(d.y)}, so c = ${minus(d.y, p)} = ${n(shot.c)}.`
   if (c === -shot.c) return `Sign flip: you set c to ${n(c)}, so the beam crosses the y-axis on the wrong side of 0. ${fix}`
   const fromX = shot.drones.find(drone => drone.x === c), fromY = shot.drones.find(drone => drone.y === c)
@@ -116,6 +122,8 @@ function mSlip(shot: Shot, m: number) {
 
 /** Why a fired line missed, worked out from the values they set. */
 export function nopeFor(shot: Shot, m: number, c: number) {
+  if (shot.guide) return parallelSlip(shot, shot.guide, m, c)
+  if (shot.code) return decodeSlip(shot, shot.code, m, c)
   const hits = shot.drones.filter(drone => onLine(drone, m, c)).length
   const clipped = hits === 1 ? 'You clipped one drone, but the other dodged. ' : ''
   if (!shot.dials.includes('m')) return cSlip(shot, c)
@@ -259,6 +267,139 @@ function bothRound(rand: Rand): Round {
   }
 }
 
+/** Level 4: why a parallel shot missed. The tilt comes from the guide, the height from the drone. */
+function parallelSlip(shot: Shot, guide: { m: number; c: number }, m: number, c: number) {
+  const d = shot.drones[0], p = shot.m * d.x
+  const fixC = `At x = ${n(d.x)}, ${times(shot.m, d.x)} = ${n(p)} and the drone is at y = ${n(d.y)}, so c = ${minus(d.y, p)} = ${n(shot.c)}.`
+  const clipped = onLine(d, m, c) ? 'You clipped the drone, but your beam isn’t parallel. ' : ''
+  if (m !== shot.m) {
+    const tilt = m === -shot.m
+      ? `Parallel means the same gradient, sign and all. The guide goes ${shot.m > 0 ? 'up' : 'down'} to the right, so yours must too: m = ${n(shot.m)}, not ${n(m)}.`
+      : `Parallel lines never meet, so they have the same tilt. The guide is ${lineText(guide.m, guide.c)}, so m = ${n(shot.m)}, not ${n(m)}.`
+    return `${clipped}${tilt}${c === shot.c ? '' : ` Then c. ${fixC}`}`
+  }
+  if (c === guide.c) return `That’s the guide’s c. Your beam landed right on top of it. Parallel lines share m but cross the y-axis somewhere else. ${fixC}`
+  return `Tilt’s spot on: same m as the guide. Now the height. ${cSlip(shot, c)}`
+}
+
+/** Level 5: why a decoded line missed, from the values they set. */
+function decodeSlip(shot: Shot, { text, k }: { text: string; k: number }, m: number, c: number) {
+  const fix = k > 1
+    ? `Get y alone: ${k}y = ${lineText(k * shot.m, k * shot.c).slice(4)}, then ÷ ${k} for ${lineText(shot.m, shot.c)}.`
+    : `Get y alone: ${lineText(shot.m, shot.c)}.`
+  const size = Math.abs(k * shot.m), term = `${size === 1 ? '' : size}x`
+  const bits: string[] = []
+  if (m === -shot.m || m === -k * shot.m) bits.push(`Sign flip on m. In ${text} it’s ${shot.m > 0 ? '−' : '+'}${term}. Move it to the other side of = and it becomes ${shot.m > 0 ? '+' : '−'}${term}, so the beam goes ${shot.m > 0 ? 'up' : 'down'} to the right.`)
+  if (k > 1 && (m === k * shot.m || m === -k * shot.m)) bits.push(`${n(m)} is the x number before you divide. ${k}y means ${k} lots of y, so ÷ ${k}.`)
+  if (k > 1 && c === k * shot.c) bits.push(`${n(c)} is the number before you divide. Share it by ${k} too.`)
+  if (c === -shot.c && c !== shot.c) bits.push(`The number ${n(k * shot.c)} stays on its side, so its sign doesn’t change.`)
+  if (m === shot.c && c === shot.m) bits.push('You swapped them. m is the number with x, c is the number on its own.')
+  if (!bits.length) bits.push(m === shot.m ? 'Tilt’s right. Check the number on its own.' : c === shot.c ? 'Height’s right. Check the x number.' : `Your beam ${lineText(m, c)} isn’t what ${text} says.`)
+  return `${bits.join(' ')} ${fix}`
+}
+
+/** Level 4: copy the tilt of a friendly beam, then slide through the drone. Uphill wave, then downhill. */
+function parallelRound(rand: Rand): Round {
+  const CS = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
+  for (;;) {
+    const m1 = rand.pick([1, 2, 3]), m2 = -rand.pick([1, 2, 3])
+    const waves = [m1, m2].map(m => {
+      const c = rand.pick(CS), g = rand.pick(CS.filter(v => v !== c && v !== -c))
+      const xs = xsOn(m, c)
+      return { m, c, g, xs }
+    })
+    if (waves.some(w => !w.xs.length)) continue
+    const shot = (id: string, prompt: string, { m, c, g, xs }: typeof waves[number]): Shot => {
+      const x = rand.pick(xs), d = { x, y: m * x + c }, p = m * x
+      return {
+        id, prompt, dials: ['m', 'c'], m, c, start: { m: 0, c: 0 }, drones: [d], guide: { m, c: g },
+        win: `Parallel, so m = ${n(m)}, same as the guide. Then ${n(d.y)} = ${times(m, d.x)} + c, so c = ${minus(d.y, p)} = ${n(c)}: ${lineText(m, c)}.`,
+      }
+    }
+    const shots = [
+      shot('parallel-1', `The guide beam is ${lineText(waves[0].m, waves[0].g)}. Fire a beam parallel to it that hits the drone.`, waves[0]),
+      shot('parallel-2', `New guide: ${lineText(waves[1].m, waves[1].g)}. Parallel again, through the drone.`, waves[1]),
+    ]
+    const last = shots[1], m = last.m, d = last.drones[0], p = m * d.x, g = last.guide!.c
+    return {
+      id: 'parallel',
+      title: 'Round 4 · Parallel beams',
+      headline: 'Same tilt, different height',
+      why: `Parallel lines never meet, so they have the same gradient. Copy m from the guide beam. Then put the drone’s x and y into y = mx + c to find your c.`,
+      shots, side: null, triangle: false,
+      chain: [
+        { line: `\\text{Guide: } y = [[m:${texMx(m)}]] ${texC(g)}` },
+        { line: `y = [[m:${texMx(m)}]] + c`, op: 'Same m', why: `Parallel means the same gradient, so keep ${n(m)}. The c will be different.` },
+        { line: `[[y:${d.y}]] = [[m:${m}]] \\times [[x:${texP(d.x)}]] + c`, op: 'Put in the drone', why: `The drone at ${ptText(d)} is on your beam, so x = ${n(d.x)} and y = ${n(d.y)} must fit.` },
+        { line: `[[y:${d.y}]] = [[p:${p}]] + c`, op: 'Multiply', merge: { p: ['m', 'x'] }, why: `${times(m, d.x)} = ${n(p)}.` },
+        { line: `c = [[k:${last.c}]]`, op: 'Get c alone', merge: { k: ['y', 'p'] }, why: `c is what’s left: ${minus(d.y, p)} = ${n(last.c)}.` },
+        { line: `y = [[e:${texMx(m)}]] [[k:${texC(last.c)}]]`, op: 'Write the line', why: `Same tilt as the guide, crossing at ${n(last.c)} instead of ${n(g)}: ${lineText(m, last.c)}.` },
+      ],
+    }
+  }
+}
+
+/** An equation with y and x on the same side: ky − kmx = kc, written with proper minus signs. */
+function codeText(k: number, m: number, c: number) {
+  const a = -k * m
+  const ky = k === 1 ? 'y' : `${k}y`
+  const ax = `${a < 0 ? '−' : '+'} ${Math.abs(a) === 1 ? '' : Math.abs(a)}x`
+  return `${ky} ${ax} = ${n(k * c)}`
+}
+
+/** Level 5, the boss: cloaked drones, only the coded equation to go on. Then the exam twist: a parallel line. */
+function decodeRound(rand: Rand): Round {
+  const MS = [-3, -2, -1, 1, 2, 3], CS = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
+  for (;;) {
+    const m1 = rand.pick(MS), c1 = rand.pick(CS), m2 = rand.pick(MS), c2 = rand.pick(CS), k = rand.pick([2, 3])
+    if (m1 === c1 || m2 === c2 || (m1 === m2 && c1 === c2)) continue
+    const d1 = pickDrones(rand, m1, c1), d2 = pickDrones(rand, m2, c2)
+    if (!d1 || !d2) continue
+    const shot = (id: string, prompt: string, m: number, c: number, kk: number, drones: [Pt, Pt]): Shot => ({
+      id, prompt, dials: ['m', 'c'], m, c, start: { m: 0, c: 0 }, drones, cloaked: true, code: { text: codeText(kk, m, c), k: kk },
+      win: kk > 1
+        ? `${codeText(kk, m, c)} → ${kk}y = ${lineText(kk * m, kk * c).slice(4)} → ÷ ${kk} → ${lineText(m, c)}. So m = ${n(m)} and c = ${n(c)}.`
+        : `${codeText(kk, m, c)} → ${lineText(m, c)}. Move the x term over and flip its sign: m = ${n(m)}, c = ${n(c)}.`,
+    })
+    const shots = [
+      shot('decode-1', `Drones cloaked! Intel says they sit on ${codeText(1, m1, c1)}. Get y alone, set the dials, fire.`, m1, c1, 1, d1),
+      shot('decode-2', `Last wave, still cloaked: ${codeText(k, m2, c2)}. Set m and c.`, m2, c2, k, d2),
+    ]
+    const m = m2, c = c2
+    // The exam twist: which of these is parallel to the beam?
+    const other = rand.pick(CS.filter(v => v !== c))
+    const wrongs: Option<string>[] = [
+      { value: lineText(-m, other), label: lineText(-m, other), nope: `That slopes the other way: m = ${n(-m)}, not ${n(m)}. Parallel needs the same m, sign and all.` },
+      { value: lineText(k * m, other), label: lineText(k * m, other), nope: `m = ${n(k * m)} comes from not dividing by ${k}. Your beam’s m is ${n(m)}.` },
+      { value: lineText(c, m), label: lineText(c, m), nope: `That has m = ${n(c)}. ${n(c)} is your beam’s c, where it crosses. Parallel copies m = ${n(m)}.` },
+      { value: lineText(m + 1, c), label: lineText(m + 1, c), nope: `Same c, but m = ${n(m + 1)}. Same crossing point isn’t parallel: it’s the tilt that has to match.` },
+    ]
+    const answer = lineText(m, other)
+    const choices = options<string>(rand, { value: answer, label: answer }, rand.shuffle(wrongs))
+    if (choices.length < 3) continue
+    const ax = -k * m, xs = Math.abs(ax) === 1 ? '' : String(Math.abs(ax))
+    return {
+      id: 'decode',
+      title: 'Round 5 · Boss: cloaked fleet',
+      headline: 'Crack the code, then fire blind',
+      why: `The drones are invisible, so the equation is all you get. Rearrange it into y = mx + c. Move the x term across the = and flip its sign. If there’s a number in front of y, divide everything by it.`,
+      shots,
+      side: {
+        prompt: `Your beam is ${lineText(m, c)}. Which line is parallel to it?`,
+        answer, choices,
+        why: `Parallel lines have the same gradient. ${answer} has m = ${n(m)}, just like yours, but crosses at ${n(other)}.`,
+      },
+      triangle: false,
+      chain: [
+        { line: `[[l:${k}y]] [[a:${ax < 0 ? '-' : '+'} ${xs}x]] = [[r:${k * c}]]` },
+        { line: `[[l:${k}y]] = [[a:${texMx(-ax)}]] [[r:${texC(k * c)}]]`, op: `${ax < 0 ? '+' : '−'} ${xs}x both sides`, why: `Get the y term on its own. The ${xs}x jumps across the = and its sign flips. The ${n(k * c)} stays put.` },
+        { line: `y = [[m:${texMx(m)}]] [[c:${texC(c)}]]`, op: `÷ ${k}`, merge: { m: ['l', 'a'], c: ['r'] }, why: `${k}y means ${k} lots of y. Divide every term by ${k}: ${n(k * m)} ÷ ${k} = ${n(m)} and ${n(k * c)} ÷ ${k} = ${n(c)}.` },
+        { line: `m = [[m:${m}]],\\ c = [[c:${c}]]`, op: 'Read off', why: `Now it’s in y = mx + c: the x number is m = ${n(m)}, the number on its own is c = ${n(c)}.` },
+      ],
+    }
+  }
+}
+
 export function makeRounds(rand: Rand): Round[] {
-  return [slideRound(rand), tiltRound(rand), bothRound(rand)]
+  return [slideRound(rand), tiltRound(rand), bothRound(rand), parallelRound(rand), decodeRound(rand)]
 }

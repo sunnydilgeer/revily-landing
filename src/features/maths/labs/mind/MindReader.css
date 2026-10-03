@@ -22,6 +22,8 @@
 }
 .mr-ball__value.is-mid { font-size: 1.6rem; }
 .mr-ball__value.is-long { font-size: 1.1rem; }
+/* The longest expressions (two brackets) wrap onto two lines inside the ball. */
+.mr-ball__value.is-xlong { font-size: .95rem; line-height: 1.2; white-space: normal; }
 .mr-ball.is-swirl .mr-ball__value { opacity: 0; filter: blur(6px); transition: opacity .3s, filter .3s; }
 .mr-ball.is-swirl { animation: mr-swirl .55s ease-in-out; }
 

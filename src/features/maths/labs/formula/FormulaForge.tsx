@@ -24,6 +24,8 @@ const INTROS = [
   'Customers want damage numbers on every weapon. I want peace and quiet. Swap the letters for numbers and we both win.',
   'Some idiot cursed half my stock. Negative stats. Brackets on, eyes open.',
   'This is my forge machine. Ore in, damage out. Then the knights start asking for exact numbers. Of course they do.',
+  'Brackets on the blueprints now. And squares. Whoever designs these weapons hates blacksmiths.',
+  'The Guild Inspector is here. Two-part order, just like the exam. Get both parts right or I’m making spoons for a living.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '⚔️', name: 'Master Smith', line: 'Every blade true, first strike. Flint almost smiled. Almost.' },
@@ -49,7 +51,7 @@ function Anvil({ forge, value, phase }: { forge: Forge; value: number; phase: Ph
       <span className="ff-sparks">✨</span>
       <div className="ff-block" />
     </div>
-    <p className="ff-readout" aria-live="polite">D = <span>{shown}</span></p>
+    <p className="ff-readout" aria-live="polite">{forge.unknown ?? 'D'} = <span>{shown}</span></p>
   </figure>
 }
 
@@ -142,7 +144,7 @@ function FormulaForgeGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () 
       <section className="lab-intro">
         <p className="lab-kicker">Formula Forge complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Swap each letter for its number. Brackets round negatives.', '3a means 3 × a. a² means a × a. Multiply before you add.', 'Function machine backwards: undo the last box first, with the opposite.']} />
+        <Rule steps={['Swap each letter for its number. Brackets round negatives.', 'Brackets, then powers, then × before +. 3a² means 3 × a × a.', 'Working backwards: undo the last step first, with the opposite.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -154,6 +156,7 @@ function FormulaForgeGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () 
   }
 
   const last = round.forges[round.forges.length - 1]
+  const worked = round.forges[round.workingOn ?? (round.machine ? round.forges.length - 1 : 0)]
   const sideRight = picked !== null && side !== null && picked === side.answer
   const sideWrong = picked !== null && !sideRight
   const tone = phase === 'hit' ? 'right' : phase === 'miss' ? 'wrong' : 'default'
@@ -219,7 +222,7 @@ function FormulaForgeGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () 
         <span className="lab-sirens" aria-hidden="true">🥄</span>
         <p className="lab-kicker">Forge gone cold</p>
         <h1 className="lab-title">Three bent blades. Flint is selling spoons now.</h1>
-        <Why tag="Tip">Write the hidden × signs back in: 3a is 3 × a. Put negatives in brackets. Multiply before you add. Backwards through a machine, undo the last box first.</Why>
+        <Why tag="Tip">Write the hidden × signs back in: 3a is 3 × a. Put negatives in brackets. Brackets first, then powers, then multiply before you add. Working backwards, undo the last step first.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Relight the forge</button>
@@ -227,7 +230,7 @@ function FormulaForgeGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () 
     </>}
 
     {screen === 'payout' && <>
-      <section className="lab-card rv-paper"><Stage round={round} forge={round.machine ? last : round.forges[0]} value={(round.machine ? last : round.forges[0]).answer} phase="hit" /></section>
+      <section className="lab-card rv-paper"><Stage round={round} forge={worked} value={worked.answer} phase="hit" /></section>
       <section className="lab-card lab-card--working rv-paper">
         <h2 className="lab-working__title">The working</h2>
         <StepChain key={round.id} steps={round.chain} revealed={revealed} pace={pace} />

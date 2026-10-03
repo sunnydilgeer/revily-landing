@@ -22,6 +22,8 @@ const INTROS = [
   'Slice Kings across the road cut every pizza into 4. Boring! Here we cut thin. But the customer still gets EXACTLY what they ordered.',
   'Now the clever ones want two halves of different pizzas in one box. You can’t add a fat slice to a skinny one. Cut them to match.',
   'Toppings. Slice Kings pile them on wherever. We share them out fair. And then we take their money.',
+  'End of the night. Half-eaten pizzas everywhere, and people STILL want slices. Take away what goes out, and say what’s left properly.',
+  'Friday night. The busiest night of the week. The newspaper wants our numbers, and Slice Kings are reading. No mistakes.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '👑', name: 'Pizza Royalty', line: 'Every slice perfect, first time. Slice Kings have shut up shop.' },
@@ -29,7 +31,8 @@ const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🍕', name: 'Dough Rookie', line: 'You got there. Nonna is still muttering, but fondly.' },
   { badge: '🥫', name: 'Slice Kings’ New Hire', line: 'That cutting belongs across the road. Back to the kitchen.' },
 ]
-const MARKS = ['🍕', '🧀', '🍅']
+const MARKS = ['🍕', '🧀', '🍅', '🔪', '🏆']
+const GROUPS = ['Margherita', 'Pepperoni', 'Veggie'] as const
 
 /* ---------- Words with fractions in them ---------- */
 
@@ -180,9 +183,10 @@ function Stage({ move, value, done, onTap }: { move: Move; value: number; done: 
       </figure>
     }
     case 'common': {
-      const both = [{ a: move.a, b: move.b, name: 'Margherita' }, { a: move.c, b: move.d, name: 'Pepperoni' }]
+      const [one, two] = move.names ?? ['Margherita', 'Pepperoni']
+      const both = [{ a: move.a, b: move.b, name: one }, { a: move.c, b: move.d, name: two }]
       return <figure className="sw-stage">
-        <Ticket>One box: <Frac top={move.a} bottom={move.b} /> + <Frac top={move.c} bottom={move.d} /></Ticket>
+        <Ticket>{move.ticket ? <Txt>{move.ticket}</Txt> : <>One box: <Frac top={move.a} bottom={move.b} /> + <Frac top={move.c} bottom={move.d} /></>}</Ticket>
         <div className="sw-pair">
           {both.map(p => {
             const fits = value % p.b === 0
@@ -216,6 +220,24 @@ function Stage({ move, value, done, onTap }: { move: Move; value: number; done: 
         <figcaption className="sw-read"><Frac top={value} bottom={move.D} /> in the box</figcaption>
       </figure>
     }
+    case 'left': {
+      const keep = Math.min(value, move.x)
+      const fills: Fill[] = [{ from: 0, to: keep, tone: bad ? 'bad' : 'serve' }, { from: keep, to: move.x, tone: 'two' }]
+      return <figure className="sw-stage">
+        <Ticket><Frac top={move.a} bottom={move.b} /> left, <Frac top={move.c} bottom={move.d} /> going out</Ticket>
+        <Pizza cuts={move.D} fills={fills} label={`Pizza cut into ${move.D}. ${move.x} slices on the counter, ${keep} kept, ${move.x - keep} going out.`}
+          onTap={done ? undefined : onTap} />
+        <figcaption className={`sw-read${value > move.x ? ' is-bad' : ''}`}>{value > move.x ? `Only ${move.x} slices on the counter!` : <><Frac top={value} bottom={move.D} /> left</>}</figcaption>
+      </figure>
+    }
+    case 'count': {
+      const counts = [move.group === 0 ? value : move.M, move.group === 1 ? value : move.P, move.group === 2 ? value : 0]
+      return <figure className="sw-stage">
+        <Ticket><Txt>{`${move.N} sold: ${fr(move.a, move.b)} Margherita, ${fr(move.c, move.d)} Pepperoni, rest Veggie`}</Txt></Ticket>
+        <Board total={move.N} counts={counts} live={move.group} bad={bad} />
+        <figcaption className={`sw-read${bad ? ' is-bad' : ''}`}>{value} {GROUPS[move.group]}</figcaption>
+      </figure>
+    }
     case 'pile':
       return <figure className="sw-stage">
         <Ticket>Order: <Frac top={move.a} bottom={move.b} /> of {move.n} {move.topping.name}</Ticket>
@@ -236,6 +258,29 @@ function Stage({ move, value, done, onTap }: { move: Move; value: number; done: 
       </figure>
     }
   }
+}
+
+const fr = (top: number, bottom: number) => `${top}/${bottom}`
+
+/** The night's pizzas as a grid of dots, coloured by group in order: Margherita, Pepperoni, Veggie, then not counted yet. */
+function Board({ total, counts, live, bad }: { total: number; counts: number[]; live: number; bad: boolean }) {
+  const cols = 10, cell = 30, rows = Math.ceil(total / cols)
+  const kinds = ['m', 'p', 'v'] as const
+  let at = 0
+  const owner: (number | null)[] = Array.from({ length: total }, () => null)
+  counts.forEach((count, group) => { for (let i = 0; i < count && at < total; i++) owner[at++] = group })
+  const over = counts.reduce((sum, count) => sum + count, 0) - total
+  const left = total - Math.min(total, counts.reduce((sum, count) => sum + count, 0))
+  return <div className="sw-board">
+    <svg viewBox={`0 0 ${cols * cell} ${rows * cell}`} role="img"
+      aria-label={`${total} pizzas: ${counts.map((count, group) => `${count} ${GROUPS[group]}`).join(', ')}. ${left} not counted.`}>
+      {owner.map((group, i) => <circle key={i} cx={(i % cols + .5) * cell} cy={(Math.floor(i / cols) + .5) * cell} r={11}
+        className={`sw-dot${group === null ? '' : ` is-${kinds[group]}`}${group === live && bad ? ' is-bad' : ''}`} />)}
+    </svg>
+    <p className={`sw-bag${over > 0 ? ' is-bad' : left === 0 ? ' is-good' : ''}`}>
+      {over > 0 ? `${over} too many: only ${total} were sold!` : left === 0 ? `All ${total} counted` : `${left} not counted yet`}
+    </p>
+  </div>
 }
 
 function Ticket({ children }: { children: ReactNode }) {
@@ -317,7 +362,7 @@ function SliceWarsGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
       <section className="lab-intro">
         <p className="lab-kicker">Slice Wars complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Same fraction: × the top and bottom by the same number.', 'Adding: make the bottoms match first, then add the tops only.', 'Fraction of an amount: ÷ by the bottom, × by the top.']} />
+        <Rule steps={['Same fraction: × or ÷ the top and bottom by the same number.', 'Adding or taking away: match the bottoms, then do the tops only.', 'Fraction of an amount: ÷ by the bottom, × by the top.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -374,7 +419,7 @@ function SliceWarsGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
           disabled={result !== null}
           tone={result ?? 'default'}
         />
-        {(move.kind === 'serve' || move.kind === 'total') && <p className="sw-hint">Tip: tap the slices on the big pizza too.</p>}
+        {(move.kind === 'serve' || move.kind === 'total' || move.kind === 'left') && <p className="sw-hint">Tip: tap the slices on the big pizza too.</p>}
         {result === 'right' && <Combo streak={score.streak} />}
       </section>
       {result === null && <footer className="lab-bar">
@@ -407,7 +452,7 @@ function SliceWarsGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
         <span className="lab-sirens" aria-hidden="true">🍕</span>
         <p className="lab-kicker">Customers walked out</p>
         <h1 className="lab-title">Three bad slices. They’ve gone to Slice Kings.</h1>
-        <Why tag="Tip">Same fraction: × top and bottom by the same number. Adding: make the bottoms the same, then add only the tops. Fraction of an amount: ÷ by the bottom, then × by the top.</Why>
+        <Why tag="Tip">Same fraction: × top and bottom by the same number. Adding or taking away: make the bottoms the same, then add or take away only the tops. Fraction of an amount: ÷ by the bottom, then × by the top.</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Fire up the oven</button>
