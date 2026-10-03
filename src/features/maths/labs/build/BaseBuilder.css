@@ -21,6 +21,10 @@
 }
 .bd-walls.is-up { stroke-dashoffset: 0; }
 .bd-plan.is-night .bd-walls { stroke: var(--rv-yellow); }
+/* A gate: a gap in the wall, which opens once the walls are up. */
+.bd-gate { stroke: #dfe9d3; stroke-width: 7; stroke-linecap: butt; opacity: 0; transition: opacity .3s 1s, stroke .8s; }
+.bd-gate.is-up { opacity: 1; }
+.bd-plan.is-night .bd-gate { stroke: #26306a; }
 .bd-split { stroke: var(--rv-ink); stroke-width: 2; stroke-dasharray: 5 4; animation: lab-pop .35s both; }
 
 .bd-label {
@@ -55,5 +59,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bd-stage.is-shaken, .bd-split, .bd-label.is-found, .bd-chip, .bd-banner { animation: none; }
-  .bd-ground, .bd-tile, .bd-walls, .bd-zombie, .bd-night__bar span { transition: none; }
+  .bd-ground, .bd-tile, .bd-walls, .bd-gate, .bd-zombie, .bd-night__bar span { transition: none; }
 }

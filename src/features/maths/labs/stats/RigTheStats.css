@@ -65,9 +65,23 @@
 .rs-live { margin: 0; text-align: center; font-weight: 600; color: var(--rv-on-night-muted); }
 .rs-live b { font: 800 1.2rem/1 var(--rv-font-display); color: var(--rv-on-night); }
 
+/* Round 4: the missing day, until it's set. */
+.rs-bar.is-missing .rs-bar__fill { opacity: .45; }
+.rs-bar.is-missing .rs-bar__mins { color: var(--rv-redpen); font-size: .9rem; }
+
+/* Round 5: the frequency table. The hours × days column fills in once the total is found. */
+.rs-table { width: 100%; margin-bottom: 10px; border-collapse: collapse; table-layout: fixed; text-align: center; font-variant-numeric: tabular-nums; }
+.rs-table th, .rs-table td { padding: 6px 4px; border: 1px solid var(--rv-line); }
+.rs-table thead th { font-size: .74rem; font-weight: 700; color: var(--rv-ink-2); background: var(--rv-grid); }
+.rs-table tbody th, .rs-table td { font: 800 1rem/1.1 var(--rv-font-display); color: var(--rv-ink); }
+.rs-table td.is-blank { color: var(--rv-muted); }
+.rs-table td.is-found { background: var(--rv-yellow-tint); animation: lab-pop .35s both; }
+.rs-table tr.is-mode th, .rs-table tr.is-mode td { background: var(--rv-teal); color: var(--rv-ink); }
+.rs-table__total th, .rs-table__total td { border-top: 2px solid var(--rv-ink); }
+
 @keyframes rs-found { 50% { transform: scaleY(1.08); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .rs-chart.is-panic, .rs-bar.is-median .rs-bar__fill, .rs-mean, .rs-range, .rs-key { animation: none; }
+  .rs-chart.is-panic, .rs-bar.is-median .rs-bar__fill, .rs-mean, .rs-range, .rs-key, .rs-table td.is-found { animation: none; }
   .rs-bar, .rs-bar__fill, .rs-mean, .rs-range { transition: none; }
 }

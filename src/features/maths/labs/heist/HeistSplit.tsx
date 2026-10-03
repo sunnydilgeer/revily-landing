@@ -32,10 +32,14 @@ function Vault({ job, open }: { job: Job; open: boolean }) {
     const timer = setTimeout(() => setCounting(true), prefersReducedMotion() ? 0 : 900)
     return () => clearTimeout(timer)
   }, [open])
-  const shown = useCountUp(job.take, counting && !job.liar)
+  // A reverse job's take is the unknown, so the vault can't give it away.
+  const hidden = job.reverse && !job.liar
+  const shown = useCountUp(job.take, counting && !job.reverse)
   return <div className={`hs-vault${open ? ' is-open' : ''}`}>
     <div className="hs-vault__inside" aria-live="polite">
-      {job.liar
+      {hidden
+        ? <><span className="hs-vault__loot" aria-hidden="true">👜</span><span className="hs-vault__sum">{counting ? '£ ?' : ''}</span></>
+        : job.liar
         ? <><span className="hs-vault__loot" aria-hidden="true">🕸️</span><span className="hs-vault__sum">Empty</span></>
         : <><span className="hs-vault__loot" aria-hidden="true">💰</span><span className="hs-vault__sum">{counting ? pounds(shown) : ''}</span></>}
     </div>
@@ -71,8 +75,8 @@ function BarModel({ job, known, final }: { job: Job; known: Set<Known>; final: b
     </div>
     {crew.map((member, row) => {
       const parts = job.ratio[row]
-      const given = job.reverse && row === job.focus
-      const cutKnown = final || given || (known.has('payout') && row === job.focus)
+      const given = job.reverse && !job.gap && row === job.focus
+      const cutKnown = final || given || (known.has('payout') && row === job.focus) || (known.has('gap') && row === job.gap?.less)
       const busted = job.liar?.who === row && takeKnown
       return <div key={member.name} className={`hs-row${row === job.focus ? ' is-focus' : ''}`}>
         <div className="hs-who">
@@ -94,6 +98,9 @@ function BarModel({ job, known, final }: { job: Job; known: Set<Known>; final: b
         <div className={`hs-cut${cutKnown ? ' is-known' : ''}`}>{cutKnown ? pounds(parts * share) : '?'}</div>
       </div>
     })}
+    {job.gap && (job.reverse || known.has('gap') || final) && <p className="hs-gap">
+      {crew[job.gap.more].emoji} {crew[job.gap.more].name} gets <b>{pounds(job.gap.amount)}</b> more than {crew[job.gap.less].emoji} {crew[job.gap.less].name}
+    </p>}
   </figure>
 }
 
@@ -163,7 +170,7 @@ function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void 
       <section className="lab-intro">
         <p className="lab-kicker">All jobs done</p>
         <RankCard rank={rank} stats={[['Split', pounds(total)], ['Trust kept', `${score.kept}/${jobs.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Add the parts to get the number of shares.', 'Divide to find one share.', 'Multiply by each person’s shares.']} />
+        <Rule steps={['Add the parts to get the number of shares.', 'Divide the money you know by its shares: that’s one share.', 'Multiply one share by the shares you need: a cut, a gap or the take.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -180,7 +187,7 @@ function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void 
     {screen === 'vault' && <>
       <section className="lab-intro lab-intro--centre">
         <p className="lab-kicker">{job.title}</p>
-        <h1 className="lab-title">{!vaultDone ? 'Crack the vault.' : job.liar ? 'Someone got here first.' : 'You’re in.'}</h1>
+        <h1 className="lab-title">{!vaultDone ? 'Crack the vault.' : job.liar ? 'Someone got here first.' : job.reverse ? 'The bags are already packed.' : 'You’re in.'}</h1>
         <Vault job={job} open={vaultOpen} />
       </section>
       <footer className="lab-bar">
@@ -234,7 +241,9 @@ function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void 
         <span className="lab-sirens" aria-hidden="true">🚨</span>
         <p className="lab-kicker">Busted</p>
         <h1 className="lab-title">The crew doesn’t trust your maths any more.</h1>
-        <Why tag="Tip">Count the shares first, not the people. Then one share is the take ÷ the number of shares.</Why>
+        <Why tag="Tip">{job.gap
+          ? 'A gap is shares too. Subtract the two people’s parts, then the money gap ÷ those shares is one share.'
+          : 'Count the shares first, not the people. Then one share is the take ÷ the number of shares.'}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startJob(jobIndex) }}>Try the job again</button>

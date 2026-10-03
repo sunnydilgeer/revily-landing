@@ -21,6 +21,18 @@ const INTROS = [
   'I see… a number… in your FUTURE. Pick one. Don’t tell me. I’ll know.',
   'What? You want to know how it works? A true mystic never reveals… oh no. Not the letters.',
   'Your mate thinks they can read minds too. Amateur. Let’s see how they do it.',
+  'My rival uses TWO brackets. Thinks it makes the trick unbreakable. Bless them.',
+  'The grand finale. A minus in front of a bracket. This one catches everyone. Even me, once. Twice.',
+]
+/** The start button for each trick. */
+const STARTS = ['Play the trick', 'Use n', 'Crack it', 'Open them up', 'Prove it']
+/** The busted tip for each trick: the slip that most often clouds the ball. */
+const TIPS = [
+  'Do one step at a time. × means lots of, ÷ means share into equal groups.',
+  'Do each step to the whole thing. When you divide, it’s EVERY term, not just the first one.',
+  'A number outside a bracket multiplies EVERYTHING inside. Then collect like terms.',
+  'Expand each bracket on its own, then add n’s to n’s and numbers to numbers.',
+  'A minus outside a bracket multiplies everything inside by a minus. Minus times minus is plus.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🧠', name: 'Grand Mind Reader', line: 'Every trick cracked. Mo is looking for a new job.' },
@@ -32,7 +44,7 @@ const RANKS: Parameters<typeof rankFor>[2] = [
 /** The crystal ball shows where the trick is up to, with the trick's steps ticking off beside it. */
 function Stage({ steps, at, swirl, reveal, caption }: { steps: TrickStep[]; at: number; swirl: boolean; reveal: boolean; caption?: string }) {
   const value = at < 0 ? '?' : steps[at].value
-  const size = value.length > 6 ? ' is-long' : value.length > 3 ? ' is-mid' : ''
+  const size = value.length > 11 ? ' is-xlong' : value.length > 6 ? ' is-long' : value.length > 3 ? ' is-mid' : ''
   return <div className="mr-stage">
     <figure className="mr-crystal" aria-label={`Crystal ball shows ${value}`}>
       <div className={`mr-ball${swirl ? ' is-swirl' : ''}${reveal ? ' is-revealed' : ''}`}>
@@ -70,7 +82,7 @@ export default function MindReader() {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
-    if (screen === 'done') recordRank('mind', rankFor(score.kept, 3, RANKS), RANKS)
+    if (screen === 'done') recordRank('mind', rankFor(score.kept, data ? data.rest.length + 1 : 5, RANKS), RANKS)
   }, [screen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return <main className="lab" />
@@ -137,7 +149,7 @@ export default function MindReader() {
       <section className="lab-intro">
         <p className="lab-kicker">Mind Reader complete</p>
         <RankCard rank={rank} stats={[['Tricks', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Use n for the number you don’t know.', 'Do each step to the whole expression.', 'Collect like terms: n’s with n’s, numbers with numbers.']} />
+        <Rule steps={['Use n for the number you don’t know.', 'Expand brackets: times EVERYTHING inside. − × − = +.', 'Collect like terms: n’s with n’s, numbers with numbers.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -159,7 +171,7 @@ export default function MindReader() {
         scene={<div className="lab-card rv-paper"><Stage steps={round.steps} at={roundIndex === 0 ? -1 : 0} swirl={false} reveal={false} /></div>}
         speaker={MO} line={INTROS[roundIndex]}
         why={round.why}
-        start={['Play the trick', 'Use n', 'Crack it'][roundIndex]}
+        start={STARTS[roundIndex] ?? 'Crack it'}
         onStart={begin}
       />
     </>}
@@ -196,7 +208,7 @@ export default function MindReader() {
         <span className="lab-sirens" aria-hidden="true">🔮</span>
         <p className="lab-kicker">The ball went cloudy</p>
         <h1 className="lab-title">Mo can’t see a thing. Polish the ball and try again.</h1>
-        <Why tag="Tip">Do each step to the whole thing. When you divide or multiply, it’s EVERY term, not just the first one.</Why>
+        <Why tag="Tip">{TIPS[roundIndex] ?? TIPS[1]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Polish the ball</button>

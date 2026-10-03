@@ -20,7 +20,16 @@ const PIXEL: Speaker = {
 const INTROS = [
   'A WILD SEQUENCE APPEARS! Every level costs XP. Spot the pattern before it spots you.',
   'Grinding to the far levels takes ages. Speedrunners use a cheat code. Pixel has it.',
-  'Final boss: a number with no level on it. Is it real, or a glitch in the matrix?',
+  'Something’s glitching: a number with no level on it. Is it real, or a glitch in the matrix?',
+  'Disaster. The save file’s corrupted. Two levels survived. Rebuild the rest from those.',
+  'FINAL BOSS. Its health bar goes DOWN every hit. Crack its rule and call the knockout.',
+]
+const TIPS = [
+  'Find the jump: take any level’s XP from the next one. Then add one jump to get the next level.',
+  'The jump goes in front of n. Then fix it so level 1 comes out right: add-on = level 1 − jump.',
+  'Run the rule backwards: take off the add-on, then ÷ the jump. A whole number means it’s a level.',
+  'Gap between two levels ÷ the number of jumps between them = one jump. Count the gaps, not the levels.',
+  'Going down means a negative jump, so it’s − dn. Set the rule equal to 0 to find the knockout.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '👑', name: 'Max Level', line: 'Flawless run. Pixel is adding you to the high score table.' },
@@ -30,7 +39,7 @@ const RANKS: Parameters<typeof rankFor>[2] = [
 ]
 
 type Row =
-  | { kind: 'level'; label: string; xp: number; state: 'known' | 'hidden' | 'up' | 'target' | 'miss'; jump?: number }
+  | { kind: 'level'; label: string; xp: number; state: 'known' | 'hidden' | 'up' | 'target' | 'miss'; jump?: number; pop?: string }
   | { kind: 'gap' }
 
 /** What the XP ladder shows: grows as each question in the round is answered. */
@@ -44,6 +53,26 @@ function rowsFor(game: Game, round: number, solved: number): { rows: Row[]; capt
   if (round === 1) return {
     rows: [...first(4, true), { kind: 'gap' }, { kind: 'level', label: `LV ${far}`, xp: farXp, state: solved >= 2 ? 'up' : 'hidden' }],
     caption: `XP = ${solved >= 1 ? `${d}n + ${c}` : '?'}`,
+  }
+  if (round === 3) {
+    const s = game.save, tp = s.d * s.p + s.c, tq = s.d * s.q + s.c
+    const span: Row[] = Array.from({ length: s.q - s.p + 1 }, (_, i) => {
+      const lv = s.p + i, ends = lv === s.p || lv === s.q
+      return { kind: 'level', label: `LV ${lv}`, xp: s.d * lv + s.c, state: ends || solved >= 1 ? 'known' : 'hidden', jump: solved >= 1 && i ? s.d : undefined }
+    })
+    const restored: Row[] = solved >= 2 ? [{ kind: 'level', label: 'LV 1', xp: s.d + s.c, state: 'up', pop: 'RESTORED!' }, ...(s.p > 2 ? [{ kind: 'gap' } as Row] : [])] : []
+    return {
+      rows: [...restored, ...span],
+      caption: solved >= 2 ? `XP = ${s.d}n + ${s.c}` : solved >= 1 ? `+${s.d} every level` : `LV ${s.p}: ${num(tp)} · LV ${s.q}: ${num(tq)}`,
+    }
+  }
+  if (round === 4) {
+    const b = game.boss
+    const hits: Row[] = [1, 2, 3, 4].map(hit => ({ kind: 'level', label: `HIT ${hit}`, xp: b.c - b.d * hit, state: 'known', jump: solved >= 1 && hit > 1 ? -b.d : undefined }))
+    return {
+      rows: [...hits, { kind: 'gap' }, { kind: 'level', label: `HIT ${b.ko}`, xp: 0, state: solved >= 2 ? 'up' : 'hidden', pop: 'K.O.!' }],
+      caption: solved >= 2 ? `K.O. ON HIT ${b.ko}` : solved >= 1 ? `HP = ${num(b.c)} − ${b.d}n` : `HP: ${hits.map(row => row.kind === 'level' ? num(row.xp) : '').join(', ')}, ?`,
+    }
   }
   const low = d * level + c
   const after: Row[] = hit
@@ -74,8 +103,8 @@ function Ladder({ game, round, solved }: { game: Game; round: number; solved: nu
           <span className="lu-row__level">{row.label}</span>
           <span className="lu-row__track">
             <span className="lu-row__fill" style={{ width: row.state === 'hidden' || !ready ? 0 : `${Math.max(3, (row.xp / max) * 100)}%` }} />
-            {row.jump !== undefined && <span className="lu-row__jump">+{row.jump}</span>}
-            {row.state === 'up' && <span className="lu-pop" aria-hidden="true">LEVEL UP!</span>}
+            {row.jump !== undefined && <span className="lu-row__jump">{row.jump < 0 ? `−${-row.jump}` : `+${row.jump}`}</span>}
+            {row.state === 'up' && <span className="lu-pop" aria-hidden="true">{row.pop ?? 'LEVEL UP!'}</span>}
           </span>
           <span className="lu-row__xp">{row.state === 'hidden' ? '?' : num(row.xp)}</span>
         </li>)}
@@ -132,12 +161,12 @@ export default function LevelUp() {
 
   if (screen === 'done') {
     const rank = rankFor(score.kept, rounds.length, RANKS)
-    const brag = `I cracked the XP code and predicted level ${game.far} before getting there. Rank: ${rank.name} ${rank.badge}`
+    const brag = `I cracked the XP code, rebuilt a corrupted save and called the boss knockout on hit ${game.boss.ko}. Rank: ${rank.name} ${rank.badge}`
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Level Up complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Find the difference: that’s the n’s times table.', 'nth term = difference × n + (first term − difference).', 'Use it to jump straight to any level.']} />
+        <Rule steps={['Find the difference: that’s the n’s times table. Going down? It’s negative.', 'nth term = difference × n + (first term − difference).', 'Swap in n to jump to any term. Run it backwards to find which term a number is.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -187,7 +216,7 @@ export default function LevelUp() {
         <span className="lab-sirens" aria-hidden="true">👾</span>
         <p className="lab-kicker">Game over</p>
         <h1 className="lab-title">Out of lives. Insert coin to continue.</h1>
-        <Why tag="Tip">Find the jump between levels first. That’s the number in front of n. Then fix it so level 1 comes out right.</Why>
+        <Why tag="Tip">{TIPS[roundIndex]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Insert coin</button>

@@ -77,11 +77,20 @@
 .sw-bag.is-good { color: var(--rv-good-ink); background: var(--rv-good-tint); }
 .sw-bag.is-bad { color: #fff; background: var(--rv-redpen); }
 
+/* The night's pizzas as dots (round 5) */
+.sw-board { width: 100%; display: grid; gap: 4px; }
+.sw-board svg { display: block; width: 100%; height: auto; }
+.sw-dot { fill: var(--sw-tray); stroke: var(--rv-line-strong); stroke-width: 1.5; transition: fill .2s; }
+.sw-dot.is-m { fill: var(--sw-cheese); stroke: var(--sw-crust); stroke-width: 3; }
+.sw-dot.is-p { fill: var(--sw-sauce); stroke: #8e2a1f; stroke-width: 2; }
+.sw-dot.is-v { fill: var(--rv-good); stroke: var(--rv-good-ink); stroke-width: 2; }
+.sw-dot.is-bad { stroke: var(--rv-redpen); stroke-width: 3; stroke-dasharray: 3 2; }
+
 .sw-hint { margin: -4px 0 0; font-size: .82rem; color: var(--rv-on-night-muted); text-align: center; }
 
 /* Fractions as answer buttons */
 .sw-side .lab-choice { font-size: 1.35rem; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sw-slice { transition: none; }
+  .sw-slice, .sw-dot { transition: none; }
 }

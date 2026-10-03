@@ -27,7 +27,7 @@ export type TreeNode = {
   nope?: (value: number) => string
 }
 
-export type Side = { prompt: string; answer: string; choices: Option<string>[]; why: string }
+export type Side = { prompt: string; answer: string; choices: Option<string>[]; why: string; /** The end of the tree the answer is about, lit up when they get it. */ end: NodeId }
 
 export type Round = {
   id: string
@@ -53,6 +53,7 @@ export const DIAL_STEP = 5
 const PATHS: Path[] = [
   { name: 'Lava', emoji: '🌋' }, { name: 'Ice', emoji: '🧊' }, { name: 'Spin', emoji: '🌀' },
   { name: 'Slime', emoji: '🟢' }, { name: 'Laser', emoji: '🔴' }, { name: 'Tower', emoji: '🗼' },
+  { name: 'Rocket', emoji: '🚀' }, { name: 'Rope', emoji: '🪢' }, { name: 'Bounce', emoji: '🏀' }, { name: 'Cloud', emoji: '☁️' },
 ]
 const STARTS = [100, 120, 200, 240]
 const FRACTIONS: [number, number][] = [[3, 4], [2, 5], [3, 5], [4, 5], [3, 10], [7, 10], [2, 3]]
@@ -137,9 +138,9 @@ function sum(node: TreeNode, o: { x: number; y: number; name: string; total: num
   }
 }
 
-function frequencyTree(rand: Rand, withFraction: boolean) {
+function frequencyTree(rand: Rand, withFraction: boolean, starts: number[] = STARTS) {
   for (;;) {
-    const S = rand.pick(STARTS), f = rand.pick(FRACTIONS)
+    const S = rand.pick(starts), f = rand.pick(FRACTIONS)
     const a = rand.int(Math.ceil(S * .3 / 10) * 10, Math.floor(S * .7 / 10) * 10, 10), b = S - a
     if (a === b) continue
     let ac: number
@@ -288,6 +289,7 @@ function oddsRound(rand: Rand, used: Set<string>): Round {
       prompt: `Blox picks one of the ${S} players at random. What’s the probability they took ${X.name} AND cleared?`,
       answer: label(xc, S), choices,
       why: `${xc} players took ${X.name} and cleared, out of ${S} altogether. P = ${xc}/${S}${simple}.`,
+      end: onA ? 'ac' : 'bc',
     },
     chain,
   }
@@ -295,5 +297,132 @@ function oddsRound(rand: Rand, used: Set<string>): Round {
 
 export function makeRounds(rand: Rand): Round[] {
   const used = new Set<string>()
-  return [fillRound(rand, used), backRound(rand, used), oddsRound(rand, used)]
+  return [fillRound(rand, used), backRound(rand, used), oddsRound(rand, used), reverseRound(rand, used), bossRound(rand, used)]
+}
+
+/** A branch worked out backwards from a fraction of it: part ÷ top × bottom. */
+function whole(node: TreeNode, o: { part: number; partName: string; f: [number, number]; total: number; ask: string; win: string }): TreeNode {
+  const [p, q] = o.f, unit = o.part / p, answer = unit * q
+  const fix = `${o.part} ÷ ${p} = ${unit}, then × ${q} = ${answer}.`
+  return {
+    ...node, given: false, ask: o.ask, win: o.win,
+    nope: value => {
+      if (value === o.part) return `That’s just the ${o.partName}. They’re only ${fr(o.f)} of this branch, so the branch is bigger. ${fix}`
+      if (value * q === o.part * p) return `You took ${fr(o.f)} OF the ${o.partName}. Go the other way: the ${o.part} is ${fr(o.f)} of the box you want. ${fix}`
+      if (value === unit) return `That’s 1/${q} of the branch. There are ${q} of those in the whole branch. ${fix}`
+      if (value === o.part * q) return `You did × ${q} but forgot ÷ ${p} first. ${o.part} is ${p} parts, not 1. ${fix}`
+      if (value === o.total - o.part) return `You took ${o.part} off the total. The ${o.part} is a fraction of one branch, not a slice of everyone. ${fix}`
+      return `${offBy(value, answer, o.total, 'players in total')} ${o.part} is ${p} parts out of ${q}: find one part, then times by ${q}. ${fix}`
+    },
+  }
+}
+
+/** Round 4: the fraction is given with its answer. Work the branch out backwards. */
+function reverseRound(rand: Rand, used: Set<string>): Round {
+  const paths = pickPaths(rand, used), [A, B] = paths
+  const t = frequencyTree(rand, true, [240, 300, 360, 400]), { S, a, b, ac, af, bc, bf, f } = t
+  const [p, q] = f, unit = ac / p
+  const nodes = baseNodes(paths, { start: S, a, b, ac, af, bc, bf })
+  nodes.a = whole(nodes.a, { part: ac, partName: `${A.name} clearers`, f, total: S,
+    ask: `${ac} players are ${fr(f)} of the ${A.name} path. How many took ${A.name}?`,
+    win: `${ac} ÷ ${p} = ${unit}, × ${q} = ${a}. ${fr(f)} of ${a} is ${ac}: checks out.` })
+  nodes.af = rest(nodes.af, { parent: a, parentName: `${A.name} players`, sibling: ac, siblingName: 'clearers', total: S,
+    ask: `How many ${A.name} players fall?`, win: `${a} − ${ac} = ${af}.` })
+  nodes.b = rest(nodes.b, { parent: S, parentName: 'players', sibling: a, siblingName: `${A.name} players`, total: S,
+    ask: `How many took the ${B.name} path?`, win: `${S} − ${a} = ${b}. Everyone else went ${B.name}.` })
+  nodes.bf = rest(nodes.bf, { parent: b, parentName: `${B.name} players`, sibling: bc, siblingName: 'clearers', total: S,
+    ask: `How many ${B.name} players fall?`, win: `${b} − ${bc} = ${bf}.` })
+  // "Took ac off the total" on the B path box: the clearers aren't the whole branch.
+  const bNope = nodes.b.nope!
+  nodes.b.nope = value => value === S - ac
+    ? `You took off ${ac}, just the ${A.name} clearers. The ${A.name} fallers took that path too: take off all ${a}. ${S} − ${a} = ${b}.`
+    : bNope(value)
+  return {
+    id: 'reverse', title: 'Round 4 · Reverse the fraction', headline: 'You know the part. Find the whole branch.',
+    why: `This time you know how many cleared AND what fraction that is. If ${fr(f)} of a branch is ${ac}, then 1/${q} is ${ac} ÷ ${p}. Times that by ${q} to get the whole branch. Then the boxes add up like always.`,
+    start: S, paths, nodes, order: ['a', 'af', 'b', 'bf'],
+    clues: [`${S} players start.`, `${fr(f)} of the ${A.name} players clear: that’s ${ac} players.`, `${bc} ${B.name} players clear.`],
+    edges: { ac: fr(f) },
+    side: null,
+    chain: [
+      { line: `\\tfrac{[[p:${p}]]}{[[q:${q}]]} \\text{ of } x = [[c:${ac}]]` },
+      { line: `\\tfrac{1}{[[q:${q}]]} \\text{ of } x = [[u:${unit}]]`, op: `÷ ${p}`, merge: { u: ['c', 'p'] }, why: `${p} parts make ${ac}, so one part is ${ac} ÷ ${p} = ${unit}.` },
+      { line: `x = [[u:${unit}]] \\times [[q:${q}]]`, op: `× ${q}`, why: `The whole ${A.name} branch is ${q} parts.` },
+      { line: `x = [[a:${a}]]`, op: 'Work it out', merge: { a: ['u', 'q'] }, why: `${unit} × ${q} = ${a} players took ${A.name}.` },
+      { line: `[[a:${a}]] - [[c:${ac}]] = [[f:${af}]]`, op: 'The rest fall', why: `${a} went ${A.name}, ${ac} cleared, so ${af} fell.` },
+      { line: `[[s:${texNum(S)}]] - [[a:${a}]] = [[b:${b}]]`, op: `${B.name} path`, why: `Everyone else went ${B.name}: ${S} − ${a} = ${b}.` },
+      { line: `[[b:${b}]] - [[k:${bc}]] = [[g:${bf}]]`, op: `${B.name} falls`, why: `${bc} of the ${b} cleared, so ${bf} fell.` },
+    ],
+  }
+}
+
+/** Round 5, the boss: an exam-style tree with a percentage and a fraction, then odds out of one branch. */
+function bossRound(rand: Rand, used: Set<string>): Round {
+  const paths = pickPaths(rand, used), [A, B] = paths
+  let S = 0, pc = 0, a = 0, f: [number, number] = [1, 2], ac = 0, bf = 0
+  for (;;) {
+    S = rand.pick([200, 240, 300, 400]); pc = rand.pick([20, 30, 40, 60, 70]); f = rand.pick(FRACTIONS)
+    a = S * pc / 100
+    if (a % 5 !== 0 || a % f[1] !== 0 || (a / f[1] * f[0]) % 5 !== 0) continue
+    ac = a / f[1] * f[0]
+    const b0 = S - a
+    bf = rand.int(Math.ceil(b0 * .2 / 5) * 5, Math.floor(b0 * .6 / 5) * 5, 5)
+    const ends = [ac, a - ac, b0 - bf, bf]
+    if (ends.some(e => e <= 0) || new Set(ends).size < 4 || ends.some(e => e === a || e === b0)) continue
+    break
+  }
+  const b = S - a, af = a - ac, bc = b - bf, [p, q] = f, ten = S / 10, unit = a / q
+  const nodes = baseNodes(paths, { start: S, a, b, ac, af, bc, bf })
+  const fixA = `10% of ${S} is ${ten}, so ${pc}% is ${ten} × ${pc / 10} = ${a}.`
+  nodes.a = {
+    ...nodes.a, given: false, ask: `${pc}% of the ${S} players take ${A.name}. How many is that?`,
+    win: `${fixA} Percent means out of 100.`,
+    nope: value => {
+      if (value === pc) return `${pc} is the percentage, not the players. ${pc}% means ${pc} out of every 100. ${fixA}`
+      if (value === b) return `That’s the other ${100 - pc}%, the ${B.name} path. ${fixA}`
+      if (value === ten) return `That’s just 10%. You need ${pc / 10} lots of it. ${fixA}`
+      if (value === S * pc / 1000 || value === S * pc / 10) return `Decimal point slip. ${pc}% of ${S} is ${pc} ÷ 100 × ${S}. ${fixA}`
+      return `${offBy(value, a, S, 'players')} ${fixA}`
+    },
+  }
+  nodes.b = rest(nodes.b, { parent: S, parentName: 'players', sibling: a, siblingName: `${A.name} players`, total: S,
+    ask: `How many take the ${B.name} path?`, win: `${S} − ${a} = ${b}. That’s the other ${100 - pc}%.` })
+  nodes.ac = part(nodes.ac, { parent: a, parentName: `${a} ${A.name} players`, who: `${A.name} players`, f, total: S, ask: `${fr(f)} of the ${A.name} players clear. How many?` })
+  nodes.af = rest(nodes.af, { parent: a, parentName: `${A.name} players`, sibling: ac, siblingName: 'clearers', total: S,
+    ask: `How many ${A.name} players fall?`, win: `${a} − ${ac} = ${af}.` })
+  nodes.bc = rest(nodes.bc, { parent: b, parentName: `${B.name} players`, sibling: bf, siblingName: 'fallers', total: S,
+    ask: `How many ${B.name} players clear?`, win: `${b} − ${bf} = ${bc}.` })
+
+  // The side question: picked from ONE branch this time, so the bottom is that branch.
+  const g = gcd(bf, b), simple = g > 1 ? ` = ${bf / g}/${b / g}` : ''
+  const label = (top: number, bottom: number) => `${top}/${bottom}`
+  const choices = options<string>(rand, { value: label(bf, b), label: label(bf, b) }, [
+    { value: label(bf, S), label: label(bf, S), nope: `${bf}/${S} is out of ALL the players. Blox only picks from the ${b} on ${B.name}, so the bottom is ${b}.` },
+    { value: label(bc, b), label: label(bc, b), nope: `${bc}/${b} is the ${B.name} players who CLEARED. You want the fallers: ${bf}.` },
+    { value: label(bf, bc), label: label(bf, bc), nope: `${bf}/${bc} compares falls with clears. Out of all ${b} ${B.name} players: ${bf}/${b}.` },
+    { value: label(af + bf, S), label: label(af + bf, S), nope: `${af + bf}/${S} is everyone who fell, on either path. Only the ${B.name} players count here.` },
+  ])
+  const chain: ChainStep[] = [
+    { line: `[[p:${pc}\\%]] \\text{ of } [[s:${texNum(S)}]]` },
+    { line: `[[t:10\\%]] = [[u:${ten}]]`, op: '÷ 10', merge: { u: ['s'] }, why: `10% is a tenth: ${S} ÷ 10 = ${ten}.` },
+    { line: `[[p:${pc}\\%]] = [[a:${a}]]`, op: `× ${pc / 10}`, merge: { a: ['u'] }, why: `${pc}% is ${pc / 10} lots of 10%: ${ten} × ${pc / 10} = ${a} took ${A.name}.` },
+    { line: `[[a:${a}]] \\div [[q:${q}]] \\times [[k:${p}]] = [[c:${ac}]]`, op: `${fr(f)} of ${a}`, why: `${a} ÷ ${q} = ${unit}, × ${p} = ${ac} ${A.name} players cleared.` },
+    { line: `[[s:${texNum(S)}]] - [[a:${a}]] = [[b:${b}]]`, op: `${B.name} path`, why: `Everyone else went ${B.name}: ${S} − ${a} = ${b}.` },
+    { line: `P = \\frac{[[n:${bf}]]}{[[b:${b}]]}`, op: `Out of ${B.name}`, why: `${bf} of the ${b} ${B.name} players fell. Blox picks from ${B.name} only, so the bottom is ${b}.` },
+  ]
+  if (g > 1) chain.push({ line: `P = \\frac{[[r:${bf / g}]]}{[[d:${b / g}]]}`, op: `÷ ${g} top and bottom`, merge: { r: ['n'], d: ['b'] }, why: `Simplifying is optional in the exam, but ${bf}/${b} = ${bf / g}/${b / g}.` })
+  return {
+    id: 'boss', title: 'Round 5 · The final obby', headline: 'The exam-style tree: percent, fraction, then the odds',
+    why: `The first split is a percentage of everyone. The second is a fraction of the branch above it. When Blox picks from ONE path, the bottom of the probability is that path, not the total.`,
+    start: S, paths, nodes, order: ['a', 'b', 'ac', 'af', 'bc'],
+    clues: [`${S} players start.`, `${pc}% take the ${A.name} path. The rest take ${B.name}.`, `${fr(f)} of the ${A.name} players clear.`, `${bf} ${B.name} players fall.`],
+    edges: { a: `${pc}%`, ac: fr(f) },
+    side: {
+      prompt: `Blox picks one of the ${B.name} players at random. What’s the probability they fell?`,
+      answer: label(bf, b), choices,
+      why: `${bf} of the ${b} ${B.name} players fell. P = ${bf}/${b}${simple}. The bottom is ${b}, the ${B.name} path, because that’s who Blox picked from.`,
+      end: 'bf',
+    },
+    chain,
+  }
 }

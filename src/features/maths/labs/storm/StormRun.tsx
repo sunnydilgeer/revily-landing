@@ -33,7 +33,13 @@ const ACE: Speaker = {
 /** Ace's reaction to a run. */
 const RUN_LINES: Record<Verdict, string> = { safe: 'We’re in! GG.', short: 'RIP. Didn’t even reach the zone.', over: 'You ran straight through it?! 💀' }
 const BANNERS: Record<Verdict, string> = { safe: 'Safe!', short: 'Eliminated', over: 'Overshot!' }
-const INTROS = ['Storm’s coming. Count the squares, then do the maths. Don’t throw.', 'Big map this time. Maybe don’t walk it…', 'Final circle. Timer’s in minutes. No pressure. (Loads of pressure.)']
+const INTROS = [
+  'Storm’s coming. Count the squares, then do the maths. Don’t throw.',
+  'Big map this time. Maybe don’t walk it…',
+  'Final circle. Timer’s in minutes. No pressure. (Loads of pressure.)',
+  'Who ripped the map?? Your mate made it though. Use their run.',
+  'Boss drop. Km, minutes, no brakes. Lock in.',
+]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🏆', name: 'Champion', line: 'Every rotate on point. Last one standing.' },
   { badge: '🎯', name: 'Pro Rotator', line: 'Nearly flawless. The storm never stood a chance.' },
@@ -61,9 +67,10 @@ function stateAt(drop: Drop, run: Motion, clock: number): RunState {
 }
 
 /** The map: grid squares, the safe zone, the storm closing on it, and you. */
-function StormMap({ drop, distanceKnown, measure, timerKnown, emoji, run }: {
-  drop: Drop; distanceKnown: boolean; measure: { value: number; right: boolean } | null; timerKnown: boolean; emoji: string | null; run: RunState | null
+function StormMap({ drop, distanceKnown, measure, timerKnown, scaleKnown = false, emoji, run }: {
+  drop: Drop; distanceKnown: boolean; measure: { value: number; right: boolean } | null; timerKnown: boolean; scaleKnown?: boolean; emoji: string | null; run: RunState | null
 }) {
+  const key = drop.scaleHidden && !scaleKnown ? '?' : drop.scaleText ?? metres(drop.scale)
   const { centre, stormStart } = geometry(drop)
   const storm = run?.storm ?? stormStart
   const x = run?.x ?? START
@@ -73,7 +80,7 @@ function StormMap({ drop, distanceKnown, measure, timerKnown, emoji, run }: {
   const dead = run?.caught || (run?.verdict && run.verdict !== 'safe')
   const measured = measure ? Math.min(measure.value / drop.scale, MAP - .3 - START) : 0
   return <figure className="sr-map" data-run={run?.verdict ?? (run ? 'running' : undefined)}>
-    <svg viewBox={`0 0 ${MAP} ${MAP}`} role="img" aria-label={`Map: ${drop.squares} squares to the safe zone, each square ${metres(drop.scale)}`}>
+    <svg viewBox={`0 0 ${MAP} ${MAP}`} role="img" aria-label={`Map: ${drop.squares} squares to the safe zone, each square ${key === '?' ? 'unknown (key torn off)' : key}`}>
       <defs>
         <mask id={`sr-hole-${drop.id}`}>
           <rect width={MAP} height={MAP} fill="white" />
@@ -97,7 +104,7 @@ function StormMap({ drop, distanceKnown, measure, timerKnown, emoji, run }: {
       <text className={`sr-you${dead ? ' is-caught' : ''}`} x={x} y={ROW + .02}>{dead ? '💀' : emoji && run ? emoji : '🧍'}</text>
     </svg>
     <figcaption className="sr-hud">
-      <span className="sr-hud__scale"><span className="sr-square" aria-hidden="true" /> 1 square = {metres(drop.scale)}</span>
+      <span className="sr-hud__scale"><span className="sr-square" aria-hidden="true" /> 1 square = {key}</span>
       <span className={`sr-hud__clock${low ? ' is-low' : ''}`}>🌀 {clock}</span>
     </figcaption>
     {run?.verdict && <p className={`sr-banner ${run.verdict === 'safe' ? 'is-safe' : 'is-caught'}`} role="status">{BANNERS[run.verdict]}</p>}
@@ -115,6 +122,7 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
   const [missed, setMissed] = useState(false)
   const [distanceKnown, setDistanceKnown] = useState(false)
   const [timerKnown, setTimerKnown] = useState(false)
+  const [scaleKnown, setScaleKnown] = useState(false)
   const [runner, setRunner] = useState<string | null>(null)
   const [run, setRun] = useState<RunState | null>(null)
   const [revealed, setRevealed] = useState(1)
@@ -172,7 +180,7 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
   }
 
   const startDrop = (index: number) => {
-    setDropIndex(index); setScreen('drop'); setDistanceKnown(false); setTimerKnown(false); setRevealed(1); setUp(index, 0)
+    setDropIndex(index); setScreen('drop'); setDistanceKnown(false); setTimerKnown(false); setScaleKnown(false); setRevealed(1); setUp(index, 0)
   }
 
   const judge = (dial: DialStep, set: number) => {
@@ -180,6 +188,7 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
       setPhase('right'); score.hit(!missed)
       if (dial.sets === 'distance') setDistanceKnown(true)
       if (dial.label === 'Storm timer') setTimerKnown(true)
+      if (dial.sets === 'scale') setScaleKnown(true)
       return
     }
     setPhase('wrong'); setMissed(true)
@@ -226,7 +235,7 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
       <section className="lab-intro">
         <p className="lab-kicker">Storm Run complete</p>
         <RankCard rank={rank} stats={[['Drops', `${drops.length}/${drops.length}`], ['Lives kept', `${score.kept}/${drops.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Distance = squares × the map scale.', 'Time = distance ÷ speed (in seconds).', 'Speed = distance ÷ time.']} />
+        <Rule steps={['Distance = squares × scale, all in metres (1 km = 1,000 m).', 'Times in seconds (1 min = 60 s).', 'Speed = distance ÷ time, time = distance ÷ speed, distance = speed × time.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -262,7 +271,7 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
 
     {screen === 'question' && <>
       <section className="lab-card rv-paper">
-        <StormMap drop={drop} distanceKnown={distanceKnown} measure={measure} timerKnown={timerKnown} emoji={runner} run={run} />
+        <StormMap drop={drop} distanceKnown={distanceKnown} measure={measure} timerKnown={timerKnown} scaleKnown={scaleKnown} emoji={runner} run={run} />
       </section>
       <section className={`lab-ask${step.kind === 'side' ? ' sr-side' : ''}`}>
         <p className="lab-asker"><span aria-hidden="true">{ACE.emoji}</span> {ACE.name} · {step.kind === 'dial' ? 'set it, then commit' : 'quick one'}</p>
@@ -297,7 +306,11 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
         <span className="lab-sirens" aria-hidden="true">🌀</span>
         <p className="lab-kicker">Caught in the storm</p>
         <h1 className="lab-title">Out of lives on this drop.</h1>
-        <Why tag="Tip">Distance = squares × scale. Then speed = distance ÷ time, and time = distance ÷ speed. Times in seconds!</Why>
+        <Why tag="Tip">{dropIndex === 3
+          ? 'Distance = speed × time. Then one square = distance ÷ number of squares.'
+          : dropIndex === 4
+            ? 'Get the units to match first: km × 1,000 for metres, minutes × 60 for seconds. Then speed = distance ÷ time.'
+            : 'Distance = squares × scale. Then speed = distance ÷ time, and time = distance ÷ speed. Times in seconds!'}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startDrop(dropIndex) }}>Drop again</button>

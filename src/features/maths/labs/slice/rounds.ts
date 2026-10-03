@@ -43,15 +43,23 @@ export type ServeMove = Base & { kind: 'serve'; a: number; b: number; cut: numbe
 /** Round 1: the slices to serve are fixed, set how many to cut the pizza into. */
 export type CutMove = Base & { kind: 'cut'; a: number; b: number; serve: number }
 /** Round 2: cut both pizzas into the same size slices. */
-export type CommonMove = Base & { kind: 'common'; a: number; b: number; c: number; d: number }
+export type CommonMove = Base & {
+  kind: 'common'; a: number; b: number; c: number; d: number
+  /** What the two pizzas are called (default Margherita and Pepperoni) and the ticket text, if not "One box: a/b + c/d". */
+  names?: [string, string]; ticket?: string
+}
 /** Round 2: both pizzas cut into D, count the slices that go in the box. */
 export type TotalMove = Base & { kind: 'total'; a: number; b: number; c: number; d: number; D: number }
 /** Round 3: share the bag into b equal piles. */
 export type PileMove = Base & { kind: 'pile'; a: number; b: number; n: number; topping: Topping }
 /** Round 3: take a of the piles onto the pizza. */
 export type TakeMove = Base & { kind: 'take'; a: number; b: number; n: number; p: number; topping: Topping }
+/** Round 4: a/b on the counter, c/d goes out, both cut into D: count the slices left. */
+export type LeftMove = Base & { kind: 'left'; a: number; b: number; c: number; d: number; D: number; x: number; y: number }
+/** Round 5: the night's N pizzas. Count one group: 0 Margherita (a/b), 1 Pepperoni (c/d), 2 Veggie (the rest). */
+export type CountMove = Base & { kind: 'count'; group: 0 | 1 | 2; N: number; a: number; b: number; c: number; d: number; M: number; P: number }
 
-export type Move = ServeMove | CutMove | CommonMove | TotalMove | PileMove | TakeMove
+export type Move = ServeMove | CutMove | CommonMove | TotalMove | PileMove | TakeMove | LeftMove | CountMove
 
 /** The one multiple-choice side question a round may have. */
 export type Side = { prompt: string; answer: string | number; choices: Option<string | number>[]; why: string; fractions: boolean }
@@ -333,6 +341,201 @@ function toppingRound(rand: Rand): Round {
   }
 }
 
+/* ---------- Round 4 · Leftovers ---------- */
+
+/** The smallest number bigger than 1 that goes into n. */
+const smallestFactor = (n: number) => { for (let f = 2; f <= n; f++) if (n % f === 0) return f; return n }
+
+/** Two fractions turned into D-ths, for a chain line: × only shown where a pizza needs re-cutting. */
+function convertLine(a: number, b: number, c: number, d: number, D: number, sign: string) {
+  const one = (top: number, bottom: number, k: number, keys: [string, string, string, string]) => k === 1
+    ? `\\frac{[[${keys[0]}:${top}]]}{[[${keys[1]}:${bottom}]]}`
+    : `\\frac{[[${keys[0]}:${top}]] [[${keys[2]}:\\times ${k}]]}{[[${keys[1]}:${bottom}]] [[${keys[3]}:\\times ${k}]]}`
+  return `= ${one(a, b, D / b, ['a', 'b', 'k', 'j'])} ${sign} ${one(c, d, D / d, ['c', 'd', 'm', 'l'])}`
+}
+
+function leftoverRound(rand: Rand): Round {
+  const all = fractions([2, 3, 4, 5, 6, 8, 10, 12])
+  for (;;) {
+    const [a, b] = rand.pick(all), [c, d] = rand.pick(all)
+    const D = lcm(b, d)
+    if (b === d || D > 30) continue
+    const x = a * D / b, y = c * D / d, r = x - y, g = gcd(r, D)
+    if (r < 1 || g === 1 || r === x - c || r === a - c) continue
+    const kb = D / b, kd = D / d
+    // Only say the fractions that actually change: one of them may already be in D-ths.
+    const why = [kb > 1 ? `${fr(a, b)} = ${fr(x, D)}` : '', kd > 1 ? `${fr(c, d)} = ${fr(y, D)}` : ''].filter(Boolean).join(' and ')
+    const table = (of: number) => multiples(of, D).join(', ')
+
+    const common: CommonMove = {
+      kind: 'common', id: 'common-left', a, b, c, d,
+      names: ['On the counter', 'The order'], ticket: `${fr(a, b)} left, ${fr(c, d)} going out`,
+      label: 'Cut into', asker: 'line up the slices', commit: 'Cut it',
+      prompt: `${fr(a, b)} of a pizza is left on the counter. A customer wants ${fr(c, d)} of a pizza from it. Cut so both amounts land on slice lines.`,
+      answer: D, start: Math.min(b, d), min: 1, max: 30, step: 1,
+      win: value => value === D
+        ? `${D} is in the ${b} times table AND the ${d} times table. Now ${why}.`
+        : `${value} works: it’s in both times tables. Nonna uses the smallest, ${D}, so there’s less cutting. ${why}.`,
+      nope: value => {
+        const fix = `${b} times table: ${table(b)}. ${d} times table: ${table(d)}. ${D} is the first in both.`
+        if (value === b - d || value === d - b) return `You took the bottoms away: that gives ${value}. The bottom is the slice size, and ${value} slices don’t line up with both. ${fix}`
+        if (value === b + d) return `You added the bottoms: ${b} + ${d} = ${value}. ${value} slices don’t line up with both amounts. ${fix}`
+        if (value % b === 0) return `${value} lines up with the ${fr(a, b)} (${value} ÷ ${b} = ${value / b}) but not the ${fr(c, d)}: ${value} ÷ ${d} isn’t whole. Look at the red cut. ${fix}`
+        if (value % d === 0) return `${value} lines up with the ${fr(c, d)} (${value} ÷ ${d} = ${value / d}) but not the ${fr(a, b)}: ${value} ÷ ${b} isn’t whole. Look at the red cut. ${fix}`
+        return `${value} doesn’t line up with either amount. You need a number both ${b} and ${d} go into. ${fix}`
+      },
+    }
+
+    const left: LeftMove = {
+      kind: 'left', id: 'left', a, b, c, d, D, x, y,
+      label: 'Slices left', asker: 'what’s left?', commit: 'Serve it',
+      prompt: `Cut into ${D}: ${fr(a, b)} on the counter, ${fr(c, d)} goes out to the customer. How many slices are left?`,
+      answer: r, start: 0, min: 0, max: D, step: 1,
+      win: () => `${why}. Same size slices, so take away: ${x} − ${y} = ${slices(r)}, which is ${fr(r, D)} of a pizza.`,
+      nope: value => {
+        const fix = `${fr(a, b)} is ${x} slices (${a} × ${kb}) and ${fr(c, d)} is ${y} slices (${c} × ${kd}). ${x} − ${y} = ${r}.`
+        if (value === x + y) return `You added. The order goes OUT of the shop, so take it away. ${fix}`
+        if (value === a - c) return `You took away the tops as they were: ${a} − ${c}. But those were ${fr(1, b)}s and ${fr(1, d)}s, different sizes. ${fix}`
+        if (value === x - c) return `You turned ${fr(a, b)} into ${x} slices but left the ${c} as it was. ${fr(c, d)} needs × ${kd} too. ${fix}`
+        if (value === x) return `That’s what was there BEFORE the order went out. ${fix}`
+        if (value === y) return `That’s the order, not what’s left. ${fix}`
+        if (value === D - r) return `That’s the bit of the pizza that’s gone, not what’s left. ${fix}`
+        return `${slices(value)} is ${value < r ? 'too few' : 'too many'}. ${fix}`
+      },
+    }
+
+    const right = fr(r / g, D / g)
+    const half = smallestFactor(g)
+    const choices = options<string | number>(rand, { value: right, label: right }, [
+      ...half < g ? [{ value: fr(r / half, D / half), label: fr(r / half, D / half), nope: `Good start: ÷ ${half} gives ${fr(r / half, D / half)}. But ${r / half} and ${D / half} can both still be divided. Keep going: ${right}.` }] : [],
+      { value: fr(r, D), label: fr(r, D), nope: `${fr(r, D)} is the right amount, but not in its simplest form: ${r} and ${D} both divide by ${g}. That gives ${right}.` },
+      { value: fr(r / g, D), label: fr(r / g, D), nope: `You divided the top by ${g} but not the bottom. Same number, top AND bottom: ${right}.` },
+      { value: fr(r, D / g), label: fr(r, D / g), nope: `You divided the bottom by ${g} but not the top. Same number, top AND bottom: ${right}.` },
+    ])
+    if (choices.length < 3) continue
+
+    const chain = [
+      { line: `\\frac{[[a:${a}]]}{[[b:${b}]]} - \\frac{[[c:${c}]]}{[[d:${d}]]}` },
+      { line: convertLine(a, b, c, d, D, '-'), op: `Cut both into ${D}`, why: `${D} is the first number in the ${b} and ${d} times tables.${kb > 1 ? ` ${b} × ${kb} = ${D}.` : ''}${kd > 1 ? ` ${d} × ${kd} = ${D}.` : ''}` },
+      {
+        line: `= \\frac{[[p:${x}]]}{[[q:${D}]]} - \\frac{[[r:${y}]]}{[[s:${D}]]}`, op: 'Work them out',
+        merge: { p: kb > 1 ? ['a', 'k'] : ['a'], q: kb > 1 ? ['b', 'j'] : ['b'], r: kd > 1 ? ['c', 'm'] : ['c'], s: kd > 1 ? ['d', 'l'] : ['d'] },
+        why: `${why}. Same size slices now.`,
+      },
+      { line: `= \\frac{[[t:${r}]]}{[[u:${D}]]}`, op: 'Take away the slices', merge: { t: ['p', 'r'], u: ['q', 's'] }, why: `${x} − ${y} = ${r} slices. The bottom is the slice size, so it stays ${D}.` },
+      { line: `= \\frac{[[v:${r / g}]]}{[[w:${D / g}]]}`, op: `÷ ${g} top and bottom`, merge: { v: ['t'], w: ['u'] }, why: `${r} and ${D} both divide by ${g}, so ${fr(r, D)} = ${right}. Simplest form: nothing else goes into both.` },
+    ]
+
+    return {
+      id: 'leftover',
+      title: 'Round 4 · Leftovers',
+      headline: 'Take it away',
+      why: `Taking away works just like adding: you can only take away slices of the same size. Cut both amounts into a number in both times tables. Then take away the tops. Last, simplify: ÷ the top and bottom by the same number until nothing else goes into both.`,
+      moves: [common, left],
+      side: {
+        prompt: `${slices(r)} of ${D} are left. Write that as a fraction in its simplest form.`,
+        answer: right, choices, fractions: true,
+        why: `${r} and ${D} both divide by ${g}: ${fr(r, D)} = ${right}. So ${fr(a, b)} − ${fr(c, d)} = ${right}.`,
+      },
+      chain,
+    }
+  }
+}
+
+/* ---------- Round 5 · Friday night (boss) ---------- */
+
+function bossRound(rand: Rand): Round {
+  const all = fractions([2, 3, 4, 5, 6, 8, 10])
+  for (;;) {
+    const [a, b] = rand.pick(all), [c, d] = rand.pick(all)
+    if (b === d) continue
+    const Ns = [20, 24, 30, 36, 40, 48, 50, 60].filter(x => x % b === 0 && x % d === 0)
+    if (!Ns.length) continue
+    const N = rand.pick(Ns)
+    const M = a * N / b, P = c * N / d, V = N - M - P
+    if (V < 2 || M === P || V === M || V === P) continue
+    const base = { N, a, b, c, d, M, P, start: 0, min: 0, max: N, step: 1, jump: 5 }
+    const ofFix = (top: number, bottom: number, count: number, name: string) =>
+      `${fr(top, bottom)} of ${N}: ${N} ÷ ${bottom} = ${N / bottom}, then × ${top} = ${count} ${name}.`
+    const ofNope = (top: number, bottom: number, count: number, name: string) => (value: number) => {
+      const fix = ofFix(top, bottom, count, name)
+      if (value === N / bottom && top > 1) return `That’s ${fr(1, bottom)} of ${N}: you stopped after ÷ ${bottom}. Now × ${top}. ${fix}`
+      if (value * top === N && top !== bottom) return `You did ${N} ÷ ${top}: you divided by the top. Divide by the bottom, then × the top. ${fix}`
+      if (value === N - count) return `That’s the pizzas that WEREN’T ${name}. ${fix}`
+      if (value === top) return `${top} pizzas? ${fr(top, bottom)} is a fraction OF the ${N}. ${fix}`
+      if (value === N) return `That’s every pizza sold! ${fix}`
+      return `${value} is ${value < count ? 'too few' : 'too many'}. ${fix}`
+    }
+
+    const marg: CountMove = {
+      ...base, kind: 'count', id: 'marg', group: 0,
+      label: 'Margherita', asker: 'count the Margheritas', commit: 'Count them',
+      prompt: `Friday night: ${N} pizzas sold. ${fr(a, b)} of them were Margherita. How many is that?`,
+      answer: M,
+      win: () => ofFix(a, b, M, 'Margherita'),
+      nope: ofNope(a, b, M, 'Margherita'),
+    }
+    const pep: CountMove = {
+      ...base, kind: 'count', id: 'pep', group: 1,
+      label: 'Pepperoni', asker: 'count the Pepperonis', commit: 'Count them',
+      prompt: `${fr(c, d)} of the ${N} pizzas were Pepperoni. How many is that?`,
+      answer: P,
+      win: () => ofFix(c, d, P, 'Pepperoni'),
+      nope: ofNope(c, d, P, 'Pepperoni'),
+    }
+    const vegFix = `${M} Margherita + ${P} Pepperoni = ${M + P}. ${N} − ${M + P} = ${V} Veggie.`
+    const veg: CountMove = {
+      ...base, kind: 'count', id: 'veg', group: 2,
+      label: 'Veggie', asker: 'the rest', commit: 'Count them',
+      prompt: `The rest of the ${N} pizzas were Veggie. How many Veggie pizzas were sold?`,
+      answer: V,
+      win: () => `The rest is what’s left after the other two. ${vegFix}`,
+      nope: value => {
+        if (value === N - M) return `You only took away the Margheritas. The Pepperonis go too. ${vegFix}`
+        if (value === N - P) return `You only took away the Pepperonis. The Margheritas go too. ${vegFix}`
+        if (value === M + P) return `That’s the Margherita and Pepperoni together. Veggie is what’s LEFT. ${vegFix}`
+        if (value === N - a - c) return `You took away the tops of the fractions, not the pizzas. ${vegFix}`
+        return `${value} is ${value < V ? 'too few' : 'too many'}. ${vegFix}`
+      },
+    }
+
+    const g = gcd(V, N), right = fr(V / g, N / g)
+    const rest = N - V, gr = gcd(rest, N)
+    const choices = options<string | number>(rand, { value: right, label: right }, [
+      { value: fr(V, N), label: fr(V, N), nope: `${fr(V, N)} is the right amount, but not in its simplest form: ${V} and ${N} both divide by ${g}. That gives ${right}.` },
+      { value: fr(V, N - V), label: fr(V, N - V), nope: `That’s Veggie against the rest (${V} to ${N - V}). A fraction is out of ALL ${N} pizzas: ${fr(V, N)} = ${right}.` },
+      { value: fr(rest / gr, N / gr), label: fr(rest / gr, N / gr), nope: `That’s the Margherita and Pepperoni (${rest} of ${N}). Veggie is the other ${V}: ${right}.` },
+      { value: fr(b + d - a - c, b + d), label: fr(b + d - a - c, b + d), nope: `You added the fractions by adding tops and bottoms. Never add the bottoms. Count the pizzas instead: ${V} of ${N} = ${right}.` },
+    ])
+    if (choices.length < 3) continue
+
+    const chain = [
+      { line: `\\frac{[[a:${a}]]}{[[b:${b}]]} \\text{ of } [[n:${N}]]` },
+      { line: `[[n:${N}]] \\div [[b:${b}]] \\times [[a:${a}]] = [[m:${M}]]`, op: 'Margherita', why: `÷ by the bottom, × by the top: ${N} ÷ ${b} = ${N / b}, × ${a} = ${M}.` },
+      { line: `[[n:${N}]] \\div [[d:${d}]] \\times [[c:${c}]] = [[p:${P}]]`, op: 'Pepperoni', why: `Same again for ${fr(c, d)}: ${N} ÷ ${d} = ${N / d}, × ${c} = ${P}.` },
+      { line: `[[n:${N}]] - [[m:${M}]] - [[p:${P}]]`, op: 'The rest', why: `Veggie is whatever’s left of the ${N} once the Margheritas and Pepperonis are gone.` },
+      { line: `= [[v:${V}]]`, op: 'Take away', merge: { v: ['n', 'm', 'p'] }, why: `${N} − ${M} − ${P} = ${V} Veggie pizzas.` },
+      g > 1
+        ? { line: `\\frac{[[v:${V}]]}{[[n:${N}]]} = \\frac{[[s:${V / g}]]}{[[t:${N / g}]]}`, op: 'As a fraction', why: `${V} out of ${N} were Veggie. Both divide by ${g}: ${right}.` }
+        : { line: `\\frac{[[v:${V}]]}{[[n:${N}]]}`, op: 'As a fraction', why: `${V} out of ${N} were Veggie: ${right}. Nothing goes into both, so it’s already simplest.` },
+    ]
+
+    return {
+      id: 'boss',
+      title: 'Round 5 · Friday night',
+      headline: 'The whole night’s orders',
+      why: `To find a fraction of an amount, ÷ by the bottom, then × by the top. Do that for each fraction you’re given. The rest is what’s left when you take those away from the total. A fraction of the total is the count over the total, simplified.`,
+      moves: [marg, pep, veg],
+      side: {
+        prompt: `What fraction of the ${N} pizzas were Veggie? Give it in its simplest form.`,
+        answer: right, choices, fractions: true,
+        why: `${V} of the ${N} were Veggie: ${fr(V, N)}${g > 1 ? ` = ${right}` : ''}. Slice Kings didn’t sell that many all week.`,
+      },
+      chain,
+    }
+  }
+}
+
 export function makeRounds(rand: Rand): Round[] {
-  return [equalRound(rand), combineRound(rand), toppingRound(rand)]
+  return [equalRound(rand), combineRound(rand), toppingRound(rand), leftoverRound(rand), bossRound(rand)]
 }

@@ -57,6 +57,8 @@
 }
 @keyframes hs-stamp { from { transform: translate(-50%, -50%) rotate(-12deg) scale(2.6); opacity: 0; } }
 
+.hs-gap { margin: 2px 0 0; padding: 8px 10px; border-radius: 8px; font-weight: 600; font-size: .85rem; text-align: center; color: var(--rv-ink); background: var(--rv-biro-tint); animation: lab-pop .35s both; }
+.hs-gap b { color: var(--rv-biro); }
 .hs-check { margin: 12px 0 0; padding-top: 10px; border-top: 2px dashed var(--rv-line); font-weight: 600; font-size: .9rem; color: var(--rv-good-ink); }
 
 /* The vault: a steel door that swings open on its left hinge. */
@@ -86,5 +88,5 @@
 .hs-vault.is-open .hs-vault__door { transform: rotateY(-100deg); }
 
 @media (prefers-reduced-motion: reduce) {
-  .hs-box, .hs-box.is-gold, .hs-cut.is-known, .hs-stamp, .hs-take__each, .hs-vault__door, .hs-vault__dial { animation: none; transition: none; }
+  .hs-box, .hs-box.is-gold, .hs-cut.is-known, .hs-stamp, .hs-take__each, .hs-gap, .hs-vault__door, .hs-vault__dial { animation: none; transition: none; }
 }

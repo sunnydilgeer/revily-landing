@@ -215,6 +215,117 @@ function bracketRound(rand: Rand, a: number, b: number): Round {
   }
 }
 
+/** A number for on-screen text, with a proper minus sign: −4. */
+const signed = (value: number) => (value < 0 ? `−${-value}` : String(value))
+
+/** Round 4: a rival's trick with two brackets, a(n + b) + c(n + d) − (a + c)n, which always gives ab + cd. */
+function doubleRound(rand: Rand, a: number, b: number, c: number, d: number): Round {
+  const ab = a * b, cd = c * d, total = ab + cd, ns = a + c
+  return {
+    id: 'double',
+    title: 'Round 4 · Double trouble',
+    heading: 'Two brackets. Still a trick?',
+    tag: `${a}(n + ${b}) + ${c}(n + ${d})`,
+    why: `Expand each bracket on its own: the number outside times everything inside. Then collect like terms. To make the n’s vanish, take away ALL the n’s you’ve got.`,
+    steps: [
+      { op: 'Call it n', value: 'n' },
+      { op: `+ ${b}, then × ${a}`, value: `${a}(n + ${b})` },
+      { op: `+ ${c}(n + ${d})`, value: `${ns}n + ${total}` },
+      { op: 'Take away the magic bit', value: String(total) },
+    ],
+    questions: [
+      {
+        step: 2,
+        ask: 'two brackets, double the drama',
+        prompt: `Expand and simplify ${a}(n + ${b}) + ${c}(n + ${d})`,
+        answer: `${ns}n+${total}`,
+        choices: options(rand, { value: `${ns}n+${total}`, label: `${ns}n + ${total}` }, [
+          { value: `${ns}n+${b + d}`, label: `${ns}n + ${b + d}`, nope: `You only multiplied the n’s. Each number outside times EVERYTHING inside: ${a} × ${b} = ${ab} and ${c} × ${d} = ${cd}.` },
+          { value: `${a * c}n+${total}`, label: `${a * c}n + ${total}`, nope: `${a}n and ${c}n are like terms, so ADD them: ${a}n + ${c}n = ${ns}n, not ${a} × ${c}.` },
+          { value: `${ns + total}n`, label: `${ns + total}n`, nope: `${ns}n and ${total} aren’t like terms, so they can’t join up. It stays ${ns}n + ${total}.` },
+        ]),
+        why: `${a}(n + ${b}) = ${a}n + ${ab} and ${c}(n + ${d}) = ${c}n + ${cd}. n’s: ${a}n + ${c}n = ${ns}n. Numbers: ${ab} + ${cd} = ${total}.`,
+      },
+      {
+        step: 3,
+        ask: 'now make the n’s disappear',
+        prompt: `What must the trick take away from ${ns}n + ${total} so everyone gets the same answer?`,
+        answer: `${ns}n`,
+        choices: options(rand, { value: `${ns}n`, label: `${ns}n` }, [
+          { value: `${a}n`, label: `${a}n`, nope: `That only cancels the first bracket’s n’s. ${ns}n − ${a}n leaves ${c}n, so the answer still depends on your number.` },
+          { value: 'n', label: 'n', nope: `There are ${ns} lots of n. Taking one away leaves ${ns - 1}n, which still changes with your number.` },
+          { value: String(total), label: String(total), nope: `That gets rid of the number and keeps the n’s: ${ns}n. Take away the n’s and ${total} is left for everyone.` },
+        ]),
+        why: `${ns}n − ${ns}n = 0. Only ${total} is left, whatever number you picked.`,
+      },
+    ],
+    caption: `Always ${total}. Two brackets, same old algebra. 😏`,
+    chain: [
+      { line: `[[p:${a}]]([[x:n]] [[y:+ ${b}]]) + [[q:${c}]]([[z:n]] [[w:+ ${d}]])` },
+      { line: `[[c:${a}n]] [[d:+ ${ab}]] + [[q:${c}]]([[z:n]] [[w:+ ${d}]])`, op: 'Expand the first', merge: { c: ['p', 'x'], d: ['y'] }, why: `${a} × n = ${a}n and ${a} × ${b} = ${ab}.` },
+      { line: `[[c:${a}n]] [[d:+ ${ab}]] [[e:+ ${c}n]] [[f:+ ${cd}]]`, op: 'Expand the second', merge: { e: ['q', 'z'], f: ['w'] }, why: `${c} × n = ${c}n and ${c} × ${d} = ${cd}.` },
+      { line: `[[c:${a}n]] [[e:+ ${c}n]] [[d:+ ${ab}]] [[f:+ ${cd}]]`, op: 'Like terms together', why: 'Put the n’s side by side and the numbers side by side. Each term keeps its sign.' },
+      { line: `[[g:${ns}n]] [[h:+ ${total}]]`, op: 'Collect like terms', merge: { g: ['c', 'e'], h: ['d', 'f'] }, why: `${a}n + ${c}n = ${ns}n and ${ab} + ${cd} = ${total}.` },
+      { line: `[[g:${ns}n]] [[h:+ ${total}]] [[k:- ${ns}n]]`, op: `− ${ns}n`, why: `Take away every n there is: ${ns}n.` },
+      { line: `[[h:${total}]]`, op: 'Collect like terms', why: `${ns}n − ${ns}n = 0. It’s ${total} for every number.` },
+    ],
+  }
+}
+
+/** Round 5 (boss): the exam one. Show that a(n + b) − a(n − d) is always a(b + d). The minus bracket is the trap. */
+function bossRound(rand: Rand, a: number, b: number, d: number): Round {
+  const ab = a * b, ad = a * d, total = ab + ad
+  return {
+    id: 'boss',
+    title: 'Round 5 · The grand finale',
+    heading: `Show it’s always ${total}.`,
+    tag: `${a}(n + ${b}) − ${a}(n − ${d})`,
+    why: `This is a real exam question: show it always gives the same answer. Expand both brackets. A minus in front of a bracket multiplies EVERYTHING inside by a minus, and minus times minus is plus. Then collect like terms.`,
+    steps: [
+      { op: 'Call it n', value: 'n' },
+      { op: `+ ${b}, then × ${a}`, value: `${a}(n + ${b})` },
+      // Non-breaking spaces keep each half together when the ball wraps it onto two lines.
+      { op: `− ${a}(n − ${d})`, value: `${a}(n\u00a0+\u00a0${b}) − ${a}(n\u00a0−\u00a0${d})` },
+      { op: 'Open both brackets', value: `${a}n\u00a0+\u00a0${ab} − ${a}n\u00a0+\u00a0${ad}` },
+      { op: 'Collect like terms', value: String(total) },
+    ],
+    questions: [
+      {
+        step: 3,
+        ask: 'the minus bracket. I’ve been dreading this',
+        prompt: `Expand ${a}(n + ${b}) − ${a}(n − ${d})`,
+        answer: `${a}n+${ab}-${a}n+${ad}`,
+        choices: options(rand, { value: `${a}n+${ab}-${a}n+${ad}`, label: `${a}n + ${ab} − ${a}n + ${ad}` }, [
+          { value: `${a}n+${ab}-${a}n-${ad}`, label: `${a}n + ${ab} − ${a}n − ${ad}`, nope: `The − ${a} multiplies the − ${d} too. Minus times minus is plus: −${a} × −${d} = + ${ad}.` },
+          { value: `${a}n+${b}-${a}n-${d}`, label: `${a}n + ${b} − ${a}n − ${d}`, nope: `You only multiplied the n’s. ${a} × ${b} = ${ab}, and −${a} × −${d} = + ${ad}.` },
+          { value: `${a}n+${ab}-${a}n-${d}`, label: `${a}n + ${ab} − ${a}n − ${d}`, nope: `The second bracket needs the ${a} too: −${a} × −${d} = + ${ad}, not − ${d}.` },
+        ]),
+        why: `${a}(n + ${b}) = ${a}n + ${ab}. −${a}(n − ${d}) = −${a}n + ${ad}, because minus times minus is plus.`,
+      },
+      {
+        step: 4,
+        ask: 'go on, finish me off',
+        prompt: `Simplify ${a}n + ${ab} − ${a}n + ${ad}`,
+        answer: String(total),
+        choices: options(rand, { value: String(total), label: String(total) }, [
+          { value: String(ab - ad), label: signed(ab - ad), nope: `It’s + ${ad}, not − ${ad}. ${ab} + ${ad} = ${total}.` },
+          { value: `${2 * a}n+${total}`, label: `${2 * a}n + ${total}`, nope: `It’s + ${a}n and − ${a}n. Together they make 0, not ${2 * a}n.` },
+          { value: `${total}n`, label: `${total}n`, nope: `The n’s cancel: ${a}n − ${a}n = 0. Only the numbers are left: ${ab} + ${ad} = ${total}.` },
+        ], { valid: value => value !== String(total) }),
+        why: `${a}n − ${a}n = 0 and ${ab} + ${ad} = ${total}. No n left, so it’s ${total} for every number. Shown.`,
+      },
+    ],
+    caption: `Always ${total}. You’ve out-mystic’d the mystic. 🎩`,
+    chain: [
+      { line: `[[p:${a}]]([[x:n]] [[y:+ ${b}]]) [[q:- ${a}]]([[z:n]] [[w:- ${d}]])` },
+      { line: `[[c:${a}n]] [[d:+ ${ab}]] [[q:- ${a}]]([[z:n]] [[w:- ${d}]])`, op: 'Expand the first', merge: { c: ['p', 'x'], d: ['y'] }, why: `${a} × n = ${a}n and ${a} × ${b} = ${ab}.` },
+      { line: `[[c:${a}n]] [[d:+ ${ab}]] [[e:- ${a}n]] [[f:+ ${ad}]]`, op: 'Expand the second', merge: { e: ['q', 'z'], f: ['w'] }, why: `−${a} × n = −${a}n and −${a} × −${d} = + ${ad}. Minus times minus is plus.` },
+      { line: `[[c:${a}n]] [[e:- ${a}n]] [[d:+ ${ab}]] [[f:+ ${ad}]]`, op: 'Like terms together', why: 'Put the n’s side by side. Each term keeps its sign as it moves.' },
+      { line: `[[g:${total}]]`, op: 'Collect like terms', merge: { g: ['d', 'f'] }, why: `${a}n − ${a}n = 0 and ${ab} + ${ad} = ${total}. No n left, so it’s always ${total}.` },
+    ],
+  }
+}
+
 export function makeTricks(rand: Rand): Tricks {
   const m = rand.pick([2, 5, 10])
   const k = rand.int(2, 9)
@@ -222,10 +333,14 @@ export function makeTricks(rand: Rand): Tricks {
   // Keep a × b small and friendly: 10 × 5 at most.
   const b = rand.int(2, Math.min(10, Math.floor(50 / a)))
   const heading = 'Think of a number. Any number.'
+  // Round 4: two different multipliers, 2 to 5, so a × c never equals a + c.
+  const a4 = rand.pick([2, 3, 4, 5]), c4 = rand.pick([2, 3, 4, 5].filter(v => v !== a4)), b4 = rand.int(1, 9), d4 = rand.int(1, 9)
+  // Round 5: the answer first, a friendly total a(b + d), then split b + d into two different numbers.
+  const a5 = rand.pick([2, 3, 4, 5]), sum5 = rand.int(5, 12), b5 = rand.int(1, sum5 - 1), d5 = sum5 - b5
   const why = `Every step is one easy sum you can do in your head. The sneaky bit is the end: taking away your own number wipes out the only part that was yours.`
   return {
     first: PICKS.map(p => playRound(rand, p, m, k, heading, why)),
-    rest: [revealRound(rand, m, k), bracketRound(rand, a, b)],
+    rest: [revealRound(rand, m, k), bracketRound(rand, a, b), doubleRound(rand, a4, b4, c4, d4), bossRound(rand, a5, b5, d5)],
     suggest: rand.int(1, 10),
   }
 }

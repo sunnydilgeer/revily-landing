@@ -7,7 +7,7 @@ import { prefersReducedMotion } from '../../step-chain/flip'
 import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { makeRounds, openPacks, type Rarity, type Round } from './rounds'
+import { decimal, makeRounds, openPacks, type Rarity, type Round } from './rounds'
 import './PackOpener.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -22,6 +22,15 @@ const INTROS = [
   'Welcome to Jax’s Packs! Legendaries EVERYWHERE! (Terms and conditions apply.)',
   'Twenty packs! You’re DEFINITELY getting loads. Probably. Maybe.',
   'Let’s go BIG. A thousand packs. What could possibly go wrong?',
+  'Name a number of Legendaries. Any number! Jax will sell you the packs. All of them.',
+  'Introducing… the MEGA pack! The odds are right there in the table. Sort of. There’s an x.',
+]
+const TIPS = [
+  'All the chances add up to 100%. The missing one is 100 − the others.',
+  'Expected number = probability × number of packs.',
+  'Expected number = probability × packs. Per legendary cost = packs per legendary × price.',
+  'Packs = expected ÷ probability. Not common = 1 − P(Common).',
+  'Add the x’s up (3x + x = 4x), take the known chance off 1, then divide.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🧠', name: 'Odds Genius', line: 'Jax can’t sell you anything. Your wallet thanks you.' },
@@ -29,16 +38,19 @@ const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🎲', name: 'Lucky Guesser', line: 'You got there. Keep an eye on those odds.' },
   { badge: '🤑', name: 'Jax’s Best Customer', line: 'Jax is buying a yacht with your money. Run it again.' },
 ]
-const DURATION: Record<number, number> = { 20: 1800, 1000: 2600 }
+const duration = (count: number) => count <= 20 ? 1800 : 2600
 
-function Odds({ rarities, legendaryKnown }: { rarities: Rarity[]; legendaryKnown: boolean }) {
+/** The odds card. Until they're known, the legendary shows "?" (or the round's mystery labels, like "3x"). */
+function Odds({ round, known }: { round: Round; known: boolean }) {
   return <ul className="po-odds" aria-label="Pack odds">
-    {rarities.map(rarity => {
-      const hidden = rarity.id === 'legendary' && !legendaryKnown
+    {round.odds.map(rarity => {
+      const mystery = known ? undefined : round.mystery ? round.mystery[rarity.id] : rarity.id === 'legendary' ? '?' : undefined
+      const hidden = mystery !== undefined && mystery !== decimal(rarity.chance)
+      const value = round.decimals ? decimal(rarity.chance) : `${Math.round(rarity.chance * 100)}%`
       return <li key={rarity.id} className={`po-odds__row is-${rarity.id}`}>
         <span aria-hidden="true">{rarity.emoji}</span>
         <span className="po-odds__name">{rarity.name}</span>
-        <strong className={hidden ? 'is-hidden' : ''}>{hidden ? '?' : `${Math.round(rarity.chance * 100)}%`}</strong>
+        <strong key={hidden ? 'hidden' : 'shown'} className={hidden ? 'is-hidden' : ''}>{mystery ?? value}</strong>
       </li>
     })}
   </ul>
@@ -55,7 +67,7 @@ function PackGrid({ rarities, opening }: { rarities: Rarity[]; opening: Opening 
   </ul>
 }
 
-/** 1,000 packs: a live tally, with the real odds marked on each bar. */
+/** Bigger openings (1,000 packs and the like): a live tally, with the real odds marked on each bar. */
 function LongRun({ rarities, opening }: { rarities: Rarity[]; opening: Opening }) {
   const seen = opening.results.slice(0, opening.shown)
   return <div className="po-tally">
@@ -96,8 +108,11 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
   const wrong = picked !== null && !right
   const nope = question.choices.find(choice => choice.value === picked)?.nope
   const busy = !!opening && opening.shown < opening.results.length
-  const legendaries = opening ? opening.results.filter(id => id === 'legendary').length : 0
-  const expected20 = Math.round(round.odds[2].chance * 20)
+  const track = question.track ?? ['legendary']
+  const got = opening ? opening.results.filter(id => track.includes(id)).length : 0
+  const expected = question.expect ?? question.answer
+  const trackPct = Math.round(round.odds.filter(r => track.includes(r.id)).reduce((t, r) => t + r.chance, 0) * 100)
+  const packsOpened = rounds.reduce((total, r) => total + r.questions.reduce((t, q) => t + (q.open ?? 0), 0), 0)
 
   useEffect(() => () => cancelAnimationFrame(frame.current), [])
   useEffect(() => {
@@ -111,7 +126,7 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
     const start = performance.now()
     let ticked = 0
     const tick = (now: number) => {
-      const shown = Math.min(count, Math.floor((now - start) / DURATION[count] * count))
+      const shown = Math.min(count, Math.floor((now - start) / duration(count) * count))
       setOpening({ results, shown })
       if (count <= 20 && shown > ticked) { ticked = shown; if (results[shown - 1] === 'legendary') sfx.win(); else sfx.tick() }
       if (shown < count) frame.current = requestAnimationFrame(tick)
@@ -123,7 +138,7 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
   const startRound = (index: number) => {
     cancelAnimationFrame(frame.current)
     setRoundIndex(index); setScreen('intro'); setQuestionIndex(0); setPicked(null); setMissed(false); setOpening(null); setRevealed(1)
-    if (index > 0) setOddsKnown(true)
+    setOddsKnown(index > 0 && !rounds[index].mystery)
   }
 
   const pick = (value: number) => {
@@ -148,11 +163,15 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
 
   /** What actually happened, next to what was expected. */
   const outcome = opening && !busy && question.open
-    ? question.open === 20
-      ? legendaries === expected20
-        ? ` You got exactly ${expected20}. It won’t always land that neatly: chance wobbles.`
-        : ` You got ${legendaries}. Chance wobbles: expected is the average, not a promise.`
-      : ` You got ${legendaries}, which is ${(legendaries / 10).toFixed(1)}%. Over lots of packs it lands close to ${Math.round(round.odds[2].chance * 100)}%.`
+    ? question.open <= 20
+      ? got === expected
+        ? ` You got exactly ${expected}. It won’t always land that neatly: chance wobbles.`
+        : ` You got ${got}. Chance wobbles: expected is the average, not a promise.`
+      : question.open >= 1000
+        ? ` You got ${got}, which is ${(got / question.open * 100).toFixed(1)}%. Over lots of packs it lands close to ${trackPct}%.`
+        : got === expected
+          ? ` You got exactly ${got}. Spot on, this time.`
+          : ` You got ${got}, against ${expected} expected. Close, but chance wobbles.`
     : ''
 
   if (screen === 'done') {
@@ -161,8 +180,8 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Pack Opener complete</p>
-        <RankCard rank={rank} stats={[['Packs opened', '1,020'], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['All the probabilities add up to 1 (100%).', 'Expected number = probability × number of tries.', 'More tries → results settle near the real odds.']} />
+        <RankCard rank={rank} stats={[['Packs opened', packsOpened.toLocaleString('en-GB')], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <Rule steps={['All the probabilities add up to 1 (100%), even with an x in the table.', 'Expected number = probability × number of tries. Tries = expected ÷ probability.', 'More tries → results settle near the real odds.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -181,7 +200,7 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
         key={roundIndex}
         kicker={round.title}
         title={round.brief}
-        scene={<div className="lab-card rv-paper"><Odds rarities={round.odds} legendaryKnown={oddsKnown} /></div>}
+        scene={<div className="lab-card rv-paper"><Odds round={round} known={oddsKnown} /></div>}
         speaker={JAX} line={INTROS[roundIndex]}
         why={round.why}
         start="Let’s see"
@@ -193,7 +212,7 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
       <section className="lab-card rv-paper po-stage">
         {opening
           ? opening.results.length <= 20 ? <PackGrid rarities={round.odds} opening={opening} /> : <LongRun rarities={round.odds} opening={opening} />
-          : <Odds rarities={round.odds} legendaryKnown={oddsKnown} />}
+          : <Odds round={round} known={oddsKnown} />}
       </section>
       <section className="lab-ask">
         <p className="lab-asker"><span aria-hidden="true">{JAX.emoji}</span> {JAX.name} wants to know</p>
@@ -214,7 +233,7 @@ function PackOpenerGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
         <span className="lab-sirens" aria-hidden="true">🤑</span>
         <p className="lab-kicker">Jax wins this one</p>
         <h1 className="lab-title">Out of lives. Jax is counting your money.</h1>
-        <Why tag="Tip">The chances add to 100%. Expected number = probability × number of packs.</Why>
+        <Why tag="Tip">{TIPS[roundIndex]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Try the round again</button>

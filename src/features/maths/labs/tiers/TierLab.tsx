@@ -118,7 +118,7 @@ function TierLabGame({ lists, onReplay }: { lists: TierList[]; onReplay: () => v
       <section className="lab-intro">
         <p className="lab-kicker">Tier lists complete</p>
         <RankCard rank={rank} stats={[['Lists', `${lists.length}/${lists.length}`], ['Lives kept', `${score.kept}/${lists.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Don’t compare pack prices straight.', 'Find the price of one (or how many for £1).', 'Then compare like with like.']} />
+        <Rule steps={['Don’t compare pack prices straight. Work out what you really pay and get (offers, kg to g).', 'Find the price of one (or of 100 g, or how many for £1).', 'Then compare like with like.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -135,7 +135,7 @@ function TierLabGame({ lists, onReplay }: { lists: TierList[]; onReplay: () => v
     {screen === 'intro' && <>
       <IntroSplit
         key={listIndex}
-        kicker="Tier list"
+        kicker={`${list.kicker ?? 'Tier list'} · ${listIndex + 1} of ${lists.length}`}
         title={<>{list.emoji} {list.title}: best value to worst</>}
         scene={<>
         <div className="tl-grid">
@@ -208,7 +208,11 @@ function TierLabGame({ lists, onReplay }: { lists: TierList[]; onReplay: () => v
         <span className="lab-sirens" aria-hidden="true">💸</span>
         <p className="lab-kicker">Ripped off</p>
         <h1 className="lab-title">The shop saw you coming.</h1>
-        <Why tag="Tip">Divide the price by how many you get. That’s the price of one, and now the deals are fair to compare.</Why>
+        <Why tag="Tip">{list.deals.some(deal => deal.offer?.kind === 'grams')
+          ? 'Count the lots of 100 g in each bag (1 kg = 1,000 g = 10 lots). Then divide the price by the lots.'
+          : list.deals.some(deal => deal.offer)
+            ? 'Sort the offer out first: what do you actually pay, and how many do you actually get? Then divide.'
+            : 'Divide the price by how many you get. That’s the price of one, and now the deals are fair to compare.'}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startList(listIndex) }}>Try this list again</button>

@@ -44,3 +44,6 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-crate, .lp-over, .lp-chest.is-miss svg, .lp-chest.is-hit svg { animation: none; }
 }
+
+/* Boss vat: where the slime should reach. */
+.lp-mark { fill: none; stroke: var(--rv-redpen); stroke-width: 1.6; stroke-dasharray: 5 3; }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
@@ -8,7 +8,7 @@ import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, reco
 import { NumberDial } from '../kit/NumberDial'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { LINES, half, makeRounds, nopeFor, num, sqText, type BarRound, type FakeRound, type PieRound, type Round, type Shot } from './rounds'
+import { LINES, half, makeRounds, nopeFor, num, quarters, sqText, type BarRound, type FakeRound, type LineRound, type PictRound, type PieRound, type Round, type Shot } from './rounds'
 import './GoingViral.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -24,7 +24,19 @@ const INTROS = [
   'My manager wants my views as a bar chart for the pitch. Some bars are done. You do the rest. Don’t make me look flop.',
   'Now the brand wants to know WHO watches me. A pie chart, apparently. It’s giving maths class but okay.',
   'So… my manager made THIS chart. The brand says it looks sus. Help me make it honest before we get cancelled.',
+  'A new brand wants my likes as a pictogram. Cute. Except my manager lost the key. We’ll have to work it out backwards.',
+  'Final boss. The big brand wants six weeks of followers as a line graph. Plot it, then show them where I blew up.',
 ]
+/** The start button on each round's intro. */
+const STARTS = ['Let’s chart', 'Let’s chart', 'Expose it', 'Let’s chart', 'Let’s chart']
+/** The busted screen's tip, per kind of chart. */
+const TIPS: Record<Round['kind'], string> = {
+  bar: 'Find what ONE gridline is worth from the labels first. Then height = views ÷ that. Half a line is half of it.',
+  pie: 'Do 360 ÷ the total first: that’s each viewer’s slice. Then × how many in the group. The angles always add to 360°.',
+  fake: 'Honest bar charts start at 0. % increase = rise ÷ the ORIGINAL number × 100.',
+  pict: 'Lost the key? Turn the part hearts into halves: 3½ hearts = 7 halves. Share the likes between them, then double for one heart. Then hearts = likes ÷ key.',
+  line: 'One line = the label jump ÷ 2. Point height = followers ÷ one line. A rise is new − old: the steepest uphill bit is the biggest.',
+}
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🚀', name: 'Gone Viral', line: 'Every chart perfect first time. The brand signed on the spot.' },
   { badge: '📈', name: 'Trending', line: 'A wobble or two, but the pitch landed.' },
@@ -173,13 +185,100 @@ function FakeChart({ round, start, phase }: { round: FakeRound; start: number; p
   </figure>
 }
 
+/* ---------- Round 4: the pictogram ---------- */
+
+const HEART = 'M10 18C10 18 1.5 12.2 1.5 6.6A4.3 4.3 0 0 1 10 4.6A4.3 4.3 0 0 1 18.5 6.6C18.5 12.2 10 18 10 18Z'
+// Rows of hearts inside a 320-wide viewBox: names on the left, up to 8 hearts on the right.
+const PX0 = 100, PSTEP = 26, PROW = 36, PY0 = 6
+
+function PictChart({ round, icons, active, keyKnown, phase }: { round: PictRound; icons: (number | null)[]; active: number | null; keyKnown: boolean; phase: Phase }) {
+  // Part hearts are clipped to a quarter, half or three-quarters of their width.
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '')
+  const height = PY0 + round.rows.length * PROW + 2
+  const label = `Pictogram of likes, key ${keyKnown ? `one heart = ${round.key} likes` : 'unknown'}. ${round.rows.map((r, i) => `${r.name}: ${icons[i] === null ? 'not drawn' : `${quarters(icons[i]!)} hearts`}`).join(', ')}.`
+  return <figure className={`gv-chart is-${phase}`}>
+    <svg viewBox={`0 0 320 ${height}`} role="img" aria-label={label}>
+      <defs>{[1, 2, 3].map(q => <clipPath key={q} id={`${uid}-q${q}`}><rect x={0} y={0} width={(20 * q) / 4} height={20} /></clipPath>)}</defs>
+      <line className="gv-axis" x1={PX0 - 8} x2={PX0 - 8} y1={PY0 - 2} y2={height - 2} />
+      {round.rows.map((r, i) => {
+        const y = PY0 + i * PROW, n = icons[i], isActive = active === i && !round.drawn.includes(i)
+        return <g key={r.name} className={`gv-prow${isActive ? ' is-active' : ''}`}>
+          {isActive && <rect className="gv-bar__slot" x={PX0 - 4} y={y} width={8 * PSTEP + 2} height={PROW - 6} rx={4} />}
+          <text className="gv-bar__emoji" x={6} y={y + 21}>{r.emoji}</text>
+          <text className="gv-bar__name" x={26} y={y + 19}>{r.name}</text>
+          {isActive && Array.from({ length: 8 }, (_, k) => <path key={`ghost-${k}`} className="gv-heart__ghost" d={HEART} transform={`translate(${PX0 + k * PSTEP} ${y + 4})`} />)}
+          {n !== null && Array.from({ length: Math.ceil(n) }, (_, k) => {
+            const q = Math.round(Math.min(1, n - k) * 4)
+            return <path key={k} className="gv-heart" d={HEART} transform={`translate(${PX0 + k * PSTEP} ${y + 4})`} clipPath={q < 4 ? `url(#${uid}-q${q})` : undefined} />
+          })}
+        </g>
+      })}
+    </svg>
+    <p className="gv-readout" aria-live="polite">Key: ❤️ = {keyKnown ? round.key : '?'} likes</p>
+  </figure>
+}
+
+function LikesTable({ round, icons, active }: { round: PictRound; icons: (number | null)[]; active: number | null }) {
+  return <table className="gv-table gv-table--pie">
+    <thead><tr><th scope="col">Post</th><th scope="col">Likes</th><th scope="col">Hearts</th></tr></thead>
+    <tbody>
+      {round.rows.map((r, i) => {
+        const setting = active === i && !round.drawn.includes(i)
+        return <tr key={r.name} className={active === i ? 'is-active' : ''}>
+          <th scope="row">{r.emoji} {r.name}</th>
+          <td>{r.likes}</td>
+          <td>{setting ? '?' : icons[i] === null ? '' : quarters(icons[i]!)}</td>
+        </tr>
+      })}
+    </tbody>
+  </table>
+}
+
+/* ---------- Round 5: the line graph ---------- */
+
+function LineChart({ round, heights, active, showRise, phase }: { round: LineRound; heights: (number | null)[]; active: number | null; showRise: boolean; phase: Phase }) {
+  const sq = (BY1 - BY0) / LINES
+  const slot = (BX1 - BX0) / round.weeks.length
+  const px = (i: number) => BX0 + slot * (i + .5), py = (h: number) => BY1 - h * sq
+  const label = `Line graph of followers. ${round.weeks.map((_, i) => `Week ${i + 1}: ${heights[i] === null ? 'not plotted' : num(heights[i]! * round.line)}`).join(', ')}.`
+  return <figure className={`gv-chart is-${phase}`}>
+    <svg viewBox="0 0 320 212" role="img" aria-label={label}>
+      <text className="gv-axis__name" x={12} y={(BY0 + BY1) / 2} transform={`rotate(-90 12 ${(BY0 + BY1) / 2})`} textAnchor="middle">Followers</text>
+      {Array.from({ length: LINES + 1 }, (_, i) => <g key={i}>
+        <line className={i === 0 ? 'gv-axis' : 'gv-gridline'} x1={BX0} x2={BX1} y1={BY1 - i * sq} y2={BY1 - i * sq} />
+        {i % 2 === 0 && <text className="gv-tick" x={BX0 - 6} y={BY1 - i * sq + 3.5} textAnchor="end">{num(i * round.line)}</text>}
+      </g>)}
+      <line className="gv-axis" x1={BX0} x2={BX0} y1={BY0 - 4} y2={BY1} />
+      {active !== null && <rect className="gv-bar__slot" x={px(active) - 11} y={BY0} width={22} height={BY1 - BY0} rx={4} />}
+      {round.weeks.slice(1).map((_, i) => {
+        const a = heights[i], b = heights[i + 1]
+        if (a === null || b === null) return null
+        return <line key={i} className={`gv-line${showRise && i + 1 === round.peak ? ' is-rise' : ''}`} x1={px(i)} y1={py(a)} x2={px(i + 1)} y2={py(b)} />
+      })}
+      {heights.map((h, i) => h === null ? null
+        : <circle key={i} className={`gv-point${active === i ? ' is-active' : ''}`} cx={px(i)} cy={py(h)} r={active === i ? 6 : 4.5} />)}
+      {active !== null && heights[active] !== null && <text className="gv-bar__read" x={px(active)} y={py(heights[active]!) - 10} textAnchor="middle">{half(heights[active]!)}</text>}
+      {round.weeks.map((_, i) => <text key={i} className="gv-bar__name" x={px(i)} y={BY1 + 16} textAnchor="middle">Wk {i + 1}</text>)}
+    </svg>
+  </figure>
+}
+
+function FollowersTable({ round, active }: { round: LineRound; active: number | null }) {
+  return <table className="gv-table gv-table--weeks">
+    <thead><tr><th scope="row">Week</th>{round.weeks.map((_, i) => <th key={i} scope="col">{i + 1}</th>)}</tr></thead>
+    <tbody><tr><th scope="row">Fans</th>{round.weeks.map((v, i) => <td key={i} className={active === i ? 'is-active' : ''}>{num(v)}</td>)}</tr></tbody>
+  </table>
+}
+
 /* ---------- The game ---------- */
 
 const unitFormat = (shot: Shot) => (value: number) =>
   shot.unit === 'sq' ? sqText(value).replace('squares', 'sq').replace('square', 'sq')
     : shot.unit === 'deg' ? `${value}°`
       : shot.unit === 'pct' ? `${value}%`
-        : num(value)
+        : shot.unit === 'key' ? `${value} likes`
+          : shot.unit === 'icon' ? `${quarters(value)} ❤️`
+            : num(value)
 
 function GoingViralGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => void }) {
   const [roundIndex, setRoundIndex] = useState(0)
@@ -257,6 +356,29 @@ function GoingViralGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
       const active = mode === 'live' ? shot.slot : null
       return <><PieChart round={round} angles={angles} active={active} phase={p} /><ViewersTable round={round} angles={angles} active={active} /></>
     }
+    if (round.kind === 'pict') {
+      const icons = round.rows.map((r, i) => {
+        if (round.drawn.includes(i)) return r.icons
+        const k = round.shots.findIndex(s => s.slot === i)
+        if (k < doneUpTo) return r.icons
+        return mode === 'live' && k === shotIndex ? value : null
+      })
+      // The key is a mystery until the first shot lands.
+      const keyKnown = mode === 'done' || (mode === 'live' && (shotIndex > 0 || phase === 'hit'))
+      const active = mode === 'live' ? shot.slot : null
+      return <><PictChart round={round} icons={icons} active={active} keyKnown={keyKnown} phase={p} /><LikesTable round={round} icons={icons} active={active} /></>
+    }
+    if (round.kind === 'line') {
+      const heights = round.weeks.map((v, i) => {
+        if (round.drawn.includes(i)) return v / round.line
+        const k = round.shots.findIndex(s => s.slot === i)
+        if (k < doneUpTo) return v / round.line
+        return mode === 'live' && k === shotIndex ? value : null
+      })
+      const active = mode === 'live' && shot.slot >= 0 ? shot.slot : null
+      const showRise = mode === 'done' || (mode === 'live' && shot.unit === 'num' && phase === 'hit')
+      return <><LineChart round={round} heights={heights} active={active} showRise={showRise} phase={p} /><FollowersTable round={round} active={active} /></>
+    }
     const start = mode === 'intro' ? round.fakeStart : mode === 'live' && shotIndex === 0 ? value : 0
     return <FakeChart round={round} start={start} phase={p} />
   }
@@ -268,7 +390,7 @@ function GoingViralGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
       <section className="lab-intro">
         <p className="lab-kicker">Going Viral complete</p>
         <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Bar chart: read what ONE line is worth, then height = value ÷ that.', 'Pie chart: 360 ÷ total = degrees each, × how many in the group.', 'Spot a fake: check the axis starts at 0. % rise = rise ÷ original × 100.']} />
+        <Rule steps={['Bars, lines, pictograms: find what ONE line or icon is worth, then value ÷ that.', 'Pie chart: 360 ÷ total = degrees each, × how many in the group.', 'Spot a fake: the axis starts at 0. A rise is new − old; % rise = rise ÷ original × 100.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -295,7 +417,7 @@ function GoingViralGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
         scene={<div className="lab-card rv-paper">{chart('intro')}</div>}
         speaker={TIA} line={INTROS[roundIndex]}
         why={round.why}
-        start={roundIndex === 2 ? 'Expose it' : 'Let’s chart'}
+        start={STARTS[roundIndex] ?? 'Let’s chart'}
         onStart={() => { sfx.tick(); setScreen('question') }}
       />
     </>}
@@ -322,7 +444,7 @@ function GoingViralGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" disabled={value === shot.start} onClick={post}>Post it</button>
       </footer>}
       {phase === 'hit' && <>
-        <Burst key={shot.id} emoji={round.kind === 'fake' ? '✅' : '❤️'} />
+        <Burst key={shot.id} emoji={round.kind === 'fake' ? '✅' : round.kind === 'line' ? '📈' : '❤️'} />
         <CheckBar status="correct" title={`${TIA.emoji} “${say(TIA.right, mood(0))}”`} message={shot.win}>
           <button type="button" className="rv-btn rv-btn--good rv-btn--lg rv-btn--block" onClick={carryOn}>{nextLabel}</button>
         </CheckBar>
@@ -353,11 +475,7 @@ function GoingViralGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =>
         <span className="lab-sirens" aria-hidden="true">📉</span>
         <p className="lab-kicker">Ratioed</p>
         <h1 className="lab-title">Three flops. The brand unfollowed.</h1>
-        <Why tag="Tip">{round.kind === 'bar'
-          ? 'Find what ONE gridline is worth from the labels first. Then height = views ÷ that. Half a line is half of it.'
-          : round.kind === 'pie'
-            ? 'Do 360 ÷ the total first: that’s each viewer’s slice. Then × how many in the group. The angles always add to 360°.'
-            : 'Honest bar charts start at 0. % increase = rise ÷ the ORIGINAL number × 100.'}</Why>
+        <Why tag="Tip">{TIPS[round.kind]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startRound(roundIndex) }}>Try that round again</button>

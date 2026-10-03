@@ -58,3 +58,13 @@
 
 /* Coordinates are wide: three of them must still fit side by side at 320px. */
 .ll-side .lab-choice { font-size: 1.02rem; padding: 0 4px; white-space: nowrap; }
+
+/* Level 4's guide beam and level 5's cloaked fleet and intercepted equation. */
+.ll-guide line { stroke: var(--rv-teal); stroke-width: 2.5; stroke-dasharray: 8 4; }
+.ll-guide text { font: 800 10.5px/1 var(--rv-font-body); fill: var(--rv-teal-ink); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; }
+.ll-cloak { font: 800 11px/1 var(--rv-font-body); fill: var(--rv-muted); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; }
+.ll-code {
+  margin: 0; padding: 8px 12px; justify-self: start; border-radius: var(--rv-radius-md); border: 2px solid var(--rv-yellow);
+  background: var(--rv-night-2); color: var(--rv-yellow); font: 800 1.3rem/1.2 var(--rv-font-display); font-style: italic;
+  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
