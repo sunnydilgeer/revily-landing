@@ -144,8 +144,6 @@ export default function RevilyLanding() {
         <Subjects />
         <HowItWorks />
         <Arcade />
-        <Features />
-        <HonestState />
         <SignupForm />
         <FAQ />
       </main>
@@ -183,18 +181,12 @@ function Hero() {
         <div className="lp-hero__copy">
           <p className="lp-pill"><span aria-hidden="true">●</span> Alpha · GCSE Maths &amp; Science · Foundation</p>
           <h1>GCSE revision, one <mark>small step</mark> at a time.</h1>
-          <p className="lp-lede">
-            Bite-sized lessons for GCSE Maths and Science, with instant feedback, revision cards, and an Arcade of maths games for days
-            you&apos;d rather play.
-          </p>
-          <p className="lp-lede lp-lede--strong">For Foundation students aiming for a 4 or 5.</p>
+          <p className="lp-lede">Bite-sized GCSE Maths and Science for students aiming for a 4 or 5. Plus an Arcade for days you&apos;d rather play.</p>
           <div className="lp-hero__actions">
             <button type="button" className="lp-btn" onClick={() => scrollToSignup("hero_cta_click")}>
               Join the Alpha <ArrowRight aria-hidden="true" />
             </button>
-            <a className="lp-btn lp-btn--ghost" href="#how">See how it works</a>
           </div>
-          <p className="lp-trust">Built from experienced GCSE tutors&apos; teaching. No random AI answers.</p>
         </div>
         <HeroMock />
       </div>
@@ -224,7 +216,6 @@ function HeroMock() {
         <strong>The HCF is the biggest number that divides into both.</strong>
       </div>
       <span className="lp-mock__chip lp-mock__chip--streak">⚡ 4 day streak</span>
-      <span className="lp-mock__chip lp-mock__chip--sci">Science · B1 Cell biology</span>
     </div>
   );
 }
@@ -241,17 +232,15 @@ function Subjects() {
           <article className="lp-subject lp-subject--maths">
             <p className="lp-subject__tag">GCSE Maths · Foundation</p>
             <h3>23 lessons across Number and Algebra</h3>
-            <p>From fractions to quadratics, every lesson split into small skills.</p>
             <ul className="lp-chips">
               <li>Number · 14</li><li>Algebra · 9</li><li className="is-soon">Ratio, Geometry and more next</li>
             </ul>
           </article>
           <article className="lp-subject lp-subject--science">
             <p className="lp-subject__tag">AQA Combined Science Trilogy</p>
-            <h3>Biology, Chemistry and Physics</h3>
-            <p>Nearly 200 lessons, Foundation and Higher. In early preview, being reviewed by teachers.</p>
+            <h3>Nearly 200 lessons, in early preview</h3>
             <ul className="lp-chips">
-              <li>Biology</li><li>Chemistry</li><li>Physics</li>
+              <li>Biology</li><li>Chemistry</li><li>Physics</li><li className="is-soon">Being reviewed by teachers</li>
             </ul>
           </article>
         </div>
@@ -300,23 +289,13 @@ function HowItWorks() {
 }
 
 function Arcade() {
-  const games = [
-    { emoji: "💰", title: "Heist Split", skill: "Ratio" },
-    { emoji: "⚖️", title: "Balance Bot", skill: "Equations" },
-    { emoji: "🎱", title: "Trick Shot", skill: "Angles" },
-  ];
   return (
     <section className="lp-section lp-arcade" aria-labelledby="arcade-title">
       <div className="lp-wrap lp-arcade__grid">
         <div>
           <p className="lp-kicker">The Arcade</p>
           <h2 id="arcade-title">Not in the mood for a lesson? Play first.</h2>
-          <p className="lp-arcade__lede">20 quick games where the maths is the cheat code. A fun way in, and every game trains a real exam question.</p>
-          <ul className="lp-arcade__games">
-            {games.map(game => (
-              <li key={game.title}><span aria-hidden="true">{game.emoji}</span><strong>{game.title}</strong><small>{game.skill}</small></li>
-            ))}
-          </ul>
+          <p className="lp-arcade__lede">20 quick games where the maths is the cheat code, each one training a real exam question.</p>
         </div>
         <div className="lp-arcade__pair" aria-label="Example: the same maths in the game and in the exam">
           <div className="lp-arcade__card lp-arcade__card--game">
@@ -328,59 +307,6 @@ function Arcade() {
             <p className="lp-arcade__label">In the exam</p>
             <p>Share £600 in the ratio <b>3 : 2 : 1</b>.</p>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Features() {
-  const items = [
-    { tone: "curriculum", title: "Jump to anything", copy: "Any lesson or skill in two taps. Nothing locked." },
-    { tone: "cards", title: "Exam path", copy: "See how many marks of a real paper you're ready for." },
-    { tone: "practice", title: "Little and often", copy: "Daily streaks and lessons sized for a bus ride." },
-  ];
-  return (
-    <section className="lp-section">
-      <div className="lp-wrap">
-        <header className="lp-head">
-          <p className="lp-kicker">Inside Revily</p>
-          <h2>Made for real revision.</h2>
-        </header>
-        <div className="lp-features">
-          {items.map(item => (
-            <article key={item.title} className={`lp-feature lp-feature--${item.tone}`}>
-              <span className="lp-feature__dot" aria-hidden="true" />
-              <h3>{item.title}</h3>
-              <p>{item.copy}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HonestState() {
-  const rows = [
-    { label: "In the preview now", tone: "live", copy: "23 Maths lessons, nearly 200 draft Science lessons, revision cards and the Arcade." },
-    { label: "Coming in the Alpha", tone: "soon", copy: "Accounts that sync across devices, a 5-minute diagnostic, and parent updates." },
-    { label: "Building toward", tone: "later", copy: "All of Foundation Maths, teacher-reviewed Science, then Higher Maths." },
-  ];
-  return (
-    <section className="lp-section lp-section--tight">
-      <div className="lp-wrap lp-wrap--narrow">
-        <header className="lp-head">
-          <p className="lp-kicker">Honest status</p>
-          <h2>What&apos;s built and what&apos;s next.</h2>
-        </header>
-        <div className="lp-status">
-          {rows.map(row => (
-            <div key={row.label} className="lp-status__row">
-              <p className={`lp-status__label lp-status__label--${row.tone}`}>{row.label}</p>
-              <p>{row.copy}</p>
-            </div>
-          ))}
         </div>
       </div>
     </section>
@@ -470,13 +396,10 @@ function SignupForm() {
 function FAQ() {
   const items = [
     { q: "Is this live yet?", a: "There's a working preview with 23 Maths lessons and nearly 200 draft Science lessons. The Alpha opens to 30 students in small batches." },
-    { q: "Does it cover Science?", a: "Yes, in early preview: AQA Combined Science, Foundation and Higher. The lessons are drafts being reviewed by qualified teachers." },
-    { q: "What's the Arcade?", a: "20 short maths games, from splitting a heist to lining up a trick shot. Each one trains a real GCSE exam question. A fun way in when a lesson feels like too much." },
+    { q: "What's the Arcade?", a: "20 short maths games, from splitting a heist to lining up a trick shot. Each one trains a real GCSE exam question." },
     { q: "Will I be charged?", a: "No. Applying is free, and you won't be charged when the Alpha opens." },
+    { q: "Is this an AI chatbot?", a: "No. Lessons follow experienced GCSE tutors' teaching, with reliable marking and original questions." },
     { q: "Can this guarantee a Grade 4 or 5?", a: "No revision product can. Revily helps students practise the right topics, consistently." },
-    { q: "Is this an AI chatbot?", a: "No. Lessons follow experienced GCSE tutors' teaching frameworks, with reliable marking and original questions. Nothing is unchecked AI output." },
-    { q: "Is it exam-board specific?", a: "Maths covers the skills shared by Edexcel, AQA and OCR Foundation. Science follows AQA Combined Science Trilogy. We're not endorsed by any exam board." },
-    { q: "Is it right for a predicted Grade 3?", a: "That's exactly who it's designed for: lifting a 3 toward a 4 or 5." },
   ];
   const [openIndex, setOpenIndex] = useState(0);
   return (
@@ -501,11 +424,6 @@ function FAQ() {
             );
           })}
         </div>
-        <div className="lp-cta">
-          <h3>{ALPHA_PLACES_REMAINING} of {ALPHA_PLACES_TOTAL} Alpha places left.</h3>
-          <p>Free to join. We&apos;ll email when places open.</p>
-          <button type="button" className="lp-btn" onClick={() => scrollToSignup("faq_bottom_cta_click")}>Join the Alpha <ArrowRight aria-hidden="true" /></button>
-                  </div>
       </div>
     </section>
   );
