@@ -19,23 +19,61 @@
 
 .labs-group { display: grid; gap: 14px; }
 .labs-group__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-.labs-group__head h2 { font: 800 1.5rem/1.2 var(--rv-font-display); }
 .labs-chip { padding: 4px 10px; border-radius: var(--rv-radius-pill); font-size: .78rem; font-weight: 700; color: var(--rv-step-b); background: var(--rv-step-b-tint); }
 
-/* Game cards: name, what it is, the topic, and Play */
-.labs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+/*
+ * Game cards: name, what it is, the topic, and Play. Retro arcade look: each card is a little CRT cabinet
+ * with chunky pixel corners, scanlines, a neon colour per exam area and a pixel-font title and button.
+ */
+.labs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
 .labs-card {
-  height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px;
-  border: 2px solid var(--rv-ink); border-radius: var(--rv-radius-lg); color: var(--rv-ink); background: var(--rv-surface);
-  text-decoration: none; box-shadow: 0 5px 0 var(--rv-ink); transition: transform .1s, box-shadow .1s;
+  --neon: var(--labs-neon-yellow);
+  position: relative; isolation: isolate; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start;
+  gap: 12px; padding: 20px 18px 18px; color: var(--rv-on-night); text-decoration: none; background: var(--rv-night);
+  /* A notched pixel border: four hard edges that leave the corners open, plus a soft neon glow inside */
+  box-shadow: 0 -4px 0 var(--neon), 0 4px 0 var(--neon), -4px 0 0 var(--neon), 4px 0 0 var(--neon),
+    inset 0 0 36px color-mix(in srgb, var(--neon) 26%, transparent);
+  transition: transform .1s;
 }
-.labs-card:hover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--rv-ink); }
-.labs-card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--rv-ink); }
-.labs-card:focus-visible { outline: none; box-shadow: var(--rv-focus); }
-.labs-card h3 { font: 800 1.4rem/1.15 var(--rv-font-display); }
-.labs-card__hook { margin: 0; color: var(--rv-ink-2); line-height: 1.4; }
-.labs-card__skill { padding: 3px 9px; border-radius: var(--rv-radius-pill); font-size: .78rem; font-weight: 700; color: var(--rv-ink); background: var(--rv-yellow-tint); }
-.labs-card__play { margin-top: auto; align-self: flex-end; flex: none; padding: 8px 14px; border: 2px solid var(--rv-ink); border-radius: var(--rv-radius-pill); font-weight: 700; font-size: .9rem; background: var(--rv-accent); box-shadow: 0 2px 0 var(--rv-ink); }
+/* CRT scanlines over the whole screen */
+.labs-card::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / 4%) 0 2px, transparent 2px 4px);
+}
+/* One neon per exam area (local tokens: the shared palette isn't loaded on this page) */
+.labs {
+  --labs-neon-yellow: #ffd35c; --labs-neon-teal: #2dd4bf; --labs-neon-violet: #bfa4ff;
+  --labs-neon-green: #4ade80; --labs-neon-coral: #ff6b5e; --labs-neon-aqua: #52d8c4;
+}
+.labs-card--number { --neon: var(--labs-neon-yellow); }
+.labs-card--ratio { --neon: var(--labs-neon-teal); }
+.labs-card--algebra { --neon: var(--labs-neon-violet); }
+.labs-card--geometry { --neon: var(--labs-neon-green); }
+.labs-card--probability { --neon: var(--labs-neon-coral); }
+.labs-card--statistics { --neon: var(--labs-neon-aqua); }
+.labs-card:hover { transform: translateY(-3px); }
+.labs-card:active { transform: translateY(2px); }
+.labs-card:focus-visible { outline: 3px solid var(--rv-on-night); outline-offset: 6px; }
+.labs-card h3 {
+  font: 400 1rem/1.5 'Press Start 2P', var(--rv-font-display); letter-spacing: .02em; color: var(--neon);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--neon) 60%, transparent), 2px 2px 0 rgb(0 0 0 / 55%);
+}
+.labs-card__hook { margin: 0; color: var(--rv-on-night); line-height: 1.45; }
+.labs-card__skill {
+  padding: 4px 9px; font-size: .78rem; font-weight: 700; color: var(--neon);
+  border: 2px dashed color-mix(in srgb, var(--neon) 70%, transparent); background: color-mix(in srgb, var(--neon) 10%, transparent);
+}
+.labs-card__play {
+  margin-top: auto; align-self: flex-end; flex: none; padding: 10px 14px 9px;
+  font: 400 .72rem/1 'Press Start 2P', var(--rv-font-display); color: var(--rv-night); background: var(--neon);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--neon) 55%, #000), 0 0 14px color-mix(in srgb, var(--neon) 55%, transparent);
+  animation: labs-insert-coin 1.6s steps(2, jump-none) infinite;
+}
+.labs-card:hover .labs-card__play { animation: none; }
+@keyframes labs-insert-coin { 50% { box-shadow: 0 4px 0 color-mix(in srgb, var(--neon) 55%, #000), 0 0 2px transparent; } }
+
+/* The section heads get the pixel font too, so the page reads as one arcade */
+.labs-group__head h2 { font: 400 1.05rem/1.4 'Press Start 2P', var(--rv-font-display); }
 
 .labs-soon { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .labs-soon li { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px dashed var(--rv-line-strong); border-radius: var(--rv-radius-md); background: var(--rv-surface); opacity: .75; }
@@ -50,4 +88,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .labs-card { transition: none; }
+  .labs-card__play { animation: none; }
 }
