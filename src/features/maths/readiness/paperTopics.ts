@@ -48,7 +48,7 @@ const lesson = (number: number, ...sections: string[]) => sections.map(section =
 
 export const paperTopics: PaperTopic[] = [
   // Number
-  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [] },
+  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [], labs: ['stall'] },
   { id: 'percentages', title: 'Percentages', short: 'Percent', area: 'number', marks30: 130, sittings: 10, requires: ['fdp'], statements: [], labs: ['deals'] },
   { id: 'factors', title: 'Factors and multiples', short: 'Factors', area: 'number', marks30: 49, sittings: 9, requires: ['number-types'], statements: [
     ...lesson(1, 'multiples-factors'), ...lesson(7, 'prime-factorisation', 'hcf-lcm-listing', 'hcf-lcm-venn'),
@@ -82,7 +82,7 @@ export const paperTopics: PaperTopic[] = [
     'standard-form-to-large', 'standard-form-to-small', 'standard-form-write-large', 'standard-form-write-small', 'standard-form-multiply', 'standard-form-divide') },
 
   // Algebra
-  { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [] },
+  { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [], labs: ['laser'] },
   { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [] },
   { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: lesson(23, 'sequences-special', 'sequences-geometric', 'sequences-nth-term', 'sequences-in-sequence', 'sequences-consecutive'), labs: ['levels'] },
   { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [...lesson(19,

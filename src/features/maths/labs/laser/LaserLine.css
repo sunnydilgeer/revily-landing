@@ -1,0 +1,60 @@
+/* Laser Line: the coordinate grid, the beam and the drones. The shared lab look is in ../kit/lab.css. */
+.ll-grid { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.ll-grid svg { display: block; width: 100%; max-width: 340px; height: auto; overflow: visible; }
+
+.ll-gridline line { stroke: var(--rv-line); stroke-width: 1; }
+.ll-axis line { stroke: var(--rv-ink-2); stroke-width: 1.6; }
+.ll-axis text { font: 600 9px/1 var(--rv-font-body); fill: var(--rv-muted); }
+.ll-axis .ll-axis__name { font: italic 700 12px/1 var(--rv-font-body); fill: var(--rv-ink-2); }
+
+/* The beam: a thin aiming line while the dials turn, a bright pulse when it fires. */
+.ll-beam, .ll-beam__glow { fill: none; stroke-linecap: round; }
+.ll-beam { stroke: var(--rv-redpen); stroke-width: 2.5; stroke-dasharray: 3 3; }
+.ll-beam__glow { stroke: transparent; stroke-width: 10; }
+.ll-grid:not(.is-aim) .ll-beam { stroke-dasharray: none; stroke-width: 3.5; }
+.ll-grid:not(.is-aim) .ll-beam__glow { stroke: var(--rv-redpen); opacity: .25; }
+.ll-grid.is-fire .ll-beam { stroke-dasharray: 100; animation: ll-shoot .6s ease-out both; }
+.ll-grid.is-fire .ll-beam__glow { animation: ll-flare .6s ease-out both; }
+.ll-grid.is-miss .ll-beam { stroke: var(--rv-muted); }
+.ll-grid.is-miss .ll-beam__glow { opacity: 0; }
+@keyframes ll-shoot { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+@keyframes ll-flare { from { opacity: 0; } 70% { opacity: .5; } }
+
+.ll-intercept circle { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 1.5; }
+.ll-intercept text { font: italic 800 12px/1 var(--rv-font-body); fill: var(--rv-ink); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; }
+
+.ll-triangle path { fill: none; stroke: var(--rv-teal); stroke-width: 2.5; stroke-dasharray: 5 3; }
+.ll-triangle text { font: 800 10.5px/1 var(--rv-font-body); fill: var(--rv-teal-ink); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; }
+
+/* Drones: an emoji ship with a target ring. Struck ones pop into an explosion; the rest dodge. */
+.ll-drone { transform-box: fill-box; transform-origin: center; }
+.ll-drone__lock { fill: rgb(255 255 255 / 70%); stroke: var(--rv-alarm); stroke-width: 1.2; stroke-dasharray: 3 2; }
+.ll-drone__ship { font-size: 15px; text-anchor: middle; dominant-baseline: central; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+.ll-drone.is-struck .ll-drone__lock { opacity: 0; }
+.ll-drone.is-struck .ll-drone__ship { font-size: 20px; }
+.ll-drone.is-struck { animation: ll-boom .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+.ll-drone.is-dodging { animation: ll-dodge .7s ease-in-out both; }
+@keyframes ll-boom { from { transform: scale(.3); opacity: 0; } }
+@keyframes ll-dodge { 25% { transform: translate(-9px, -6px) rotate(-12deg); } 60% { transform: translate(7px, 3px) rotate(10deg); } }
+
+.ll-probe { stroke: #fff; stroke-width: 2; animation: lab-pop .3s both; transform-box: fill-box; transform-origin: center; }
+.ll-probe.is-right { fill: var(--rv-good); }
+.ll-probe.is-wrong { fill: var(--rv-redpen); }
+
+.ll-readout { margin: 0; font: 800 1.45rem/1.2 var(--rv-font-display); font-style: italic; color: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.ll-grid.is-hit .ll-readout { color: var(--rv-good-ink); }
+
+/* The dials, with the locked value shown as a chip in place of its dial */
+.ll-dials { display: grid; gap: 10px; }
+.ll-locked {
+  margin: 0; padding: 10px 14px; border-radius: var(--rv-radius-md); border: 2px dashed var(--rv-night-3);
+  font-weight: 700; color: var(--rv-on-night-muted);
+}
+.ll-locked b { font: 800 1.2rem/1 var(--rv-font-display); color: var(--rv-on-night); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-grid.is-fire .ll-beam, .ll-grid.is-fire .ll-beam__glow, .ll-drone.is-struck, .ll-drone.is-dodging, .ll-probe { animation: none; }
+}
+
+/* Coordinates are wide: three of them must still fit side by side at 320px. */
+.ll-side .lab-choice { font-size: 1.02rem; padding: 0 4px; white-space: nowrap; }

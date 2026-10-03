@@ -5,12 +5,6 @@ import { labAreas, labCatalog, labTeasers } from './catalog'
 import { readBests, type Best } from './kit/Lab'
 import './LabsHome.css'
 
-const HOW = [
-  { emoji: '🎮', title: 'Play', line: 'Heists, storms, sales, zombies and more. Fresh numbers every time you play.' },
-  { emoji: '🧠', title: 'Learn the move', line: 'Every answer shows you the working, step by step.' },
-  { emoji: '📝', title: 'Bank exam marks', line: 'The same move answers a real GCSE question.' },
-]
-
 /** The Arcade (the 'lab' section in code and URLs): games where the maths is the cheat code, each tied to the exam question it trains. */
 export default function LabsHome() {
   const [bests, setBests] = useState<Record<string, Best>>({})
@@ -29,46 +23,20 @@ export default function LabsHome() {
       </div>
     </header>
 
-    <ol className="labs-how" aria-label="How the Arcade works">
-      {HOW.map((step, index) => <li key={step.title}>
-        <span className="labs-how__emoji" aria-hidden="true">{step.emoji}</span>
-        <div>
-          <strong><span className="labs-how__n">{index + 1}</span>{step.title}</strong>
-          <span>{step.line}</span>
-        </div>
-      </li>)}
-    </ol>
-
     {labAreas.map(area => <section key={area.id} className="labs-group" aria-labelledby={`labs-${area.id}`}>
       <div className="labs-group__head">
         <h2 id={`labs-${area.id}`}>{area.title}</h2>
         <span className="labs-chip">{area.chip}</span>
       </div>
       <ul className="labs-grid">
-        {labCatalog.filter(lab => lab.area === area.id).map(lab => {
-          const best = bests[lab.id]
-          return <li key={lab.id}>
-            <a className={`labs-card labs-card--${lab.id}`} href={lab.href}>
-              <div className="labs-card__art">
-                <span className="labs-card__emoji" aria-hidden="true">{lab.emoji}</span>
-                <span className="labs-card__time">{lab.minutes} min</span>
-              </div>
-              <div className="labs-card__body">
-                <h3>{lab.title}</h3>
-                <p className="labs-card__hook">{lab.hook}</p>
-                <span className="labs-card__skill">Topic: {lab.skill}</span>
-                <dl className="labs-card__bridge">
-                  <div><dt>🎮 In the game</dt><dd>{lab.inGame}</dd></div>
-                  <div><dt>📝 In the exam</dt><dd>{lab.inExam}</dd></div>
-                </dl>
-                <div className="labs-card__foot">
-                  <span className={`labs-card__best${best ? ' is-set' : ''}`}>{best ? <>{best.badge} Best: {best.name}</> : 'Not played yet'}</span>
-                  <span className="labs-card__play">{best ? 'Play again' : 'Play'} →</span>
-                </div>
-              </div>
-            </a>
-          </li>
-        })}
+        {labCatalog.filter(lab => lab.area === area.id).map(lab => <li key={lab.id}>
+          <a className="labs-card" href={lab.href}>
+            <h3>{lab.title}</h3>
+            <p className="labs-card__hook">{lab.hook}</p>
+            <span className="labs-card__skill">Topic: {lab.skill}</span>
+            <span className="labs-card__play">Play →</span>
+          </a>
+        </li>)}
       </ul>
     </section>)}
 
