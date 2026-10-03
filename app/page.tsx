@@ -288,6 +288,12 @@ function HowItWorks() {
   );
 }
 
+const ARCADE_SHOTS = [
+  { src: "/landing/arcade-trick-shot.webp", title: "Trick Shot", skill: "Angle facts", alt: "Trick Shot: the ball is potted after the student turns the cue to 30 degrees, and the commentator says “What. A. Shot.”" },
+  { src: "/landing/arcade-laser.webp", title: "Laser Line", skill: "Straight-line graphs, y = mx + c", alt: "Laser Line: the beam y = 2x + 3 hits both drones on a graph, with “Clean hit. Command is impressed. Mildly.”" },
+  { src: "/landing/arcade-pizza.webp", title: "Slice Wars", skill: "Equivalent fractions", alt: "Slice Wars: 9 of 12 slices served for an order of three quarters of a pizza, with “Perfetto!”" },
+];
+
 function Arcade() {
   return (
     <section className="lp-section lp-arcade" aria-labelledby="arcade-title">
@@ -308,6 +314,19 @@ function Arcade() {
             <p>Share £600 in the ratio <b>3 : 2 : 1</b>.</p>
           </div>
         </div>
+      </div>
+      <div className="lp-wrap">
+        <ul className="lp-shots" aria-label="Arcade games">
+          {ARCADE_SHOTS.map(shot => (
+            <li key={shot.src}>
+              <figure className="lp-phone">
+                <img src={shot.src} alt={shot.alt} width={520} height={1056} loading="lazy" decoding="async" />
+              </figure>
+              <p className="lp-shots__title">{shot.title}</p>
+              <p className="lp-shots__skill">{shot.skill}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

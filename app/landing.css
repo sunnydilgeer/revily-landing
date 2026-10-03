@@ -200,6 +200,19 @@
 .lp-footer__links button { border: 0; background: none; color: var(--rv-ink-2); font: 600 .95rem var(--rv-font-body); cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
 .lp-footer__links button:hover { color: var(--rv-ink); }
 
+/* Arcade screenshots, shown as phones */
+.lp-shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 3vw, 32px); margin: clamp(36px, 5vw, 56px) 0 0; padding: 0; list-style: none; }
+.lp-shots li { display: grid; justify-items: center; text-align: center; }
+.lp-phone {
+  width: min(260px, 100%); margin: 0 0 14px; padding: 8px; border: 3px solid var(--rv-ink); border-radius: 34px;
+  background: var(--rv-ink); box-shadow: 8px 8px 0 rgb(24 32 59 / 25%);
+}
+.lp-phone img { display: block; width: 100%; height: auto; border-radius: 26px; }
+.lp-shots li:nth-child(1) .lp-phone { transform: rotate(-2deg); }
+.lp-shots li:nth-child(3) .lp-phone { transform: rotate(2deg); }
+.lp-shots__title { font-family: var(--rv-font-display); font-weight: 800; font-size: 1.1rem; }
+.lp-shots__skill { margin-top: 2px !important; color: var(--rv-lab); font-size: .85rem; font-weight: 700; }
+
 /* Responsive */
 @media (max-width: 1000px) {
   .lp-arcade__grid { grid-template-columns: minmax(0, 1fr); }
@@ -209,6 +222,12 @@
   .lp-mock { min-height: 440px; max-width: 500px; width: 100%; margin: 0 auto; }
   .lp-nav__links { display: none; }
   .lp-nav__inner { justify-content: space-between; }
+}
+@media (max-width: 720px) {
+  /* Phones: the screenshots become a strip you swipe along. */
+  .lp-shots { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; margin-inline: -16px; padding: 4px 16px 16px; scrollbar-width: none; }
+  .lp-shots li { flex: 0 0 68%; scroll-snap-align: center; }
+  .lp-shots li .lp-phone { transform: none; }
 }
 @media (max-width: 560px) {
   .lp-hero__actions .lp-btn { flex: 1 1 100%; }
