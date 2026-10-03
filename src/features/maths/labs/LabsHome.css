@@ -66,13 +66,22 @@
   font: 400 1rem/1.5 'Press Start 2P', var(--rv-font-display); letter-spacing: .02em; color: var(--neon);
   text-shadow: 0 0 10px color-mix(in srgb, var(--neon) 60%, transparent), 2px 2px 0 rgb(0 0 0 / 55%);
 }
-.labs-card__hook { margin: 0; color: var(--rv-on-night); line-height: 1.45; }
+.labs-card__hook { margin: 0; color: var(--rv-on-night); line-height: 1.4; }
+/* The game's icon: big, top right, glowing in the area's neon */
+.labs-card__icon {
+  position: absolute; top: 14px; right: 16px; font-size: 2.4rem; line-height: 1;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--neon) 55%, transparent));
+}
+.labs-card h3 { padding-right: 52px; }
+/* Topic and Play share one row at the bottom */
+.labs-card__foot { margin-top: auto; align-self: stretch; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .labs-card__skill {
-  padding: 4px 9px; font-size: .78rem; font-weight: 700; color: var(--neon);
+  min-width: 0; padding: 4px 9px; font-size: .78rem; font-weight: 700; color: var(--neon);
   border: 2px dashed color-mix(in srgb, var(--neon) 70%, transparent); background: color-mix(in srgb, var(--neon) 10%, transparent);
 }
 .labs-card__play {
-  margin-top: auto; align-self: flex-end; flex: none; padding: 10px 14px 9px;
+  flex: none; padding: 10px 14px 9px;
   font: 400 .72rem/1 'Press Start 2P', var(--rv-font-display); color: var(--rv-night); background: var(--neon);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--neon) 55%, #000), 0 0 14px color-mix(in srgb, var(--neon) 55%, transparent);
   animation: labs-insert-coin 1.6s steps(2, jump-none) infinite;
