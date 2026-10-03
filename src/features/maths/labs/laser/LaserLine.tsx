@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -217,16 +217,16 @@ function LaserLineGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
     <LabTop progress={`Round ${roundIndex + 1}/${rounds.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{round.title}</p>
-        <h1 className="lab-title">{round.headline}</h1>
-        <div className="lab-card rv-paper"><Grid m={shot.start.m} c={shot.start.c} drones={shot.drones} phase="aim" triangle={false} /></div>
-        <Quip speaker={VEGA}>{INTROS[roundIndex]}</Quip>
-        <Why>{round.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>Lock on</button>
-      </footer>
+      <IntroSplit
+        key={roundIndex}
+        kicker={round.title}
+        title={round.headline}
+        scene={<div className="lab-card rv-paper"><Grid m={shot.start.m} c={shot.start.c} drones={shot.drones} phase="aim" triangle={false} /></div>}
+        speaker={VEGA} line={INTROS[roundIndex]}
+        why={round.why}
+        start="Lock on"
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && !onSide && <>

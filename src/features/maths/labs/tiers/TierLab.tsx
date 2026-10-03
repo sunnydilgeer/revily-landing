@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain } from '../../step-chain/StepChain'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound, IntroSplit } from '../kit/Lab'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeLists, TIERS, describe, priceQuestion, ranked, showValue, unitChain, unitValue, type Deal, type TierList } from './lists'
@@ -133,18 +133,20 @@ function TierLabGame({ lists, onReplay }: { lists: TierList[]; onReplay: () => v
     <LabTop progress={`List ${listIndex + 1}/${lists.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">Tier list</p>
-        <h1 className="lab-title">{list.emoji} {list.title}: best value to worst</h1>
+      <IntroSplit
+        key={listIndex}
+        kicker="Tier list"
+        title={<>{list.emoji} {list.title}: best value to worst</>}
+        scene={<>
         <div className="tl-grid">
           {list.deals.map(deal => <DealCard key={deal.name} list={list} deal={deal} priced={false} />)}
         </div>
-        <Quip speaker={DEL}>{list.pitch}</Quip>
-        <Why>{list.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen(toPrice.length ? 'price' : 'rank') }}>Price them up</button>
-      </footer>
+        </>}
+        speaker={DEL} line={list.pitch}
+        why={list.why}
+        start="Price them up"
+        onStart={() => { sfx.tick(); setScreen(toPrice.length ? 'price' : 'rank') }}
+      />
     </>}
 
     {screen === 'price' && current && question && <>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useScore, useShare, type Speaker, recordRank , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useScore, useShare, type Speaker, recordRank , livesPerRound, IntroSplit } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -248,16 +248,16 @@ function StormRunGame({ drops, onReplay }: { drops: Drop[]; onReplay: () => void
     <LabTop progress={`Drop ${dropIndex + 1}/${drops.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'drop' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{drop.title}</p>
-        <h1 className="lab-title">{drop.brief}</h1>
-        <div className="lab-card rv-paper"><StormMap drop={drop} distanceKnown={false} measure={null} timerKnown={false} emoji={null} run={null} /></div>
-        <Quip speaker={ACE}>{INTROS[dropIndex]}</Quip>
-        <Why>{drop.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.whoosh(); setScreen('question') }}>Jump 🪂</button>
-      </footer>
+      <IntroSplit
+        key={dropIndex}
+        kicker={drop.title}
+        title={drop.brief}
+        scene={<div className="lab-card rv-paper"><StormMap drop={drop} distanceKnown={false} measure={null} timerKnown={false} emoji={null} run={null} /></div>}
+        speaker={ACE} line={INTROS[dropIndex]}
+        why={drop.why}
+        start="Jump 🪂"
+        onStart={() => { sfx.whoosh(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && <>

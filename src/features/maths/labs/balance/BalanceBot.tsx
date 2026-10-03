@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makePuzzles, sideText, type Scale as ScaleState, type Side, type Puzzle } from './puzzles'
@@ -126,16 +126,16 @@ function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: ()
     <LabTop progress={`Level ${puzzleIndex + 1}/${puzzles.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{puzzle.title}</p>
-        <h1 className="lab-title">What’s in the box? <span className="bb-eq">{puzzle.equation}</span></h1>
-        <div className="lab-card rv-paper"><Balance unit={puzzle.unit} scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>
-        <Quip speaker={BOT}>{INTROS[puzzleIndex]}</Quip>
-        <Why>{puzzle.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>Balance it</button>
-      </footer>
+      <IntroSplit
+        key={puzzleIndex}
+        kicker={puzzle.title}
+        title={<>What’s in the box? <span className="bb-eq">{puzzle.equation}</span></>}
+        scene={<div className="lab-card rv-paper"><Balance unit={puzzle.unit} scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>}
+        speaker={BOT} line={INTROS[puzzleIndex]}
+        why={puzzle.why}
+        start="Balance it"
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && <>
