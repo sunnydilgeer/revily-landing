@@ -179,9 +179,9 @@ function Hero() {
     <section id="top" className="lp-hero">
       <div className="lp-wrap lp-hero__grid">
         <div className="lp-hero__copy">
-          <p className="lp-pill"><span aria-hidden="true">●</span> Alpha · GCSE Maths &amp; Science · Foundation</p>
+          <p className="lp-pill"><span aria-hidden="true">●</span> Alpha · GCSE Maths &amp; Science</p>
           <h1>GCSE revision, one <mark>small step</mark> at a time.</h1>
-          <p className="lp-lede">Bite-sized GCSE Maths and Science for students aiming for a 4 or 5. Plus an Arcade for days you&apos;d rather play.</p>
+          <p className="lp-lede">Bite-sized GCSE Maths and Science that takes you up a grade, one step at a time. Plus an Arcade for days you&apos;d rather play.</p>
           <div className="lp-hero__actions">
             <button type="button" className="lp-btn" onClick={() => scrollToSignup("hero_cta_click")}>
               Join the Alpha <ArrowRight aria-hidden="true" />
@@ -233,14 +233,14 @@ function Subjects() {
             <p className="lp-subject__tag">GCSE Maths · Foundation</p>
             <h3>23 lessons across Number and Algebra</h3>
             <ul className="lp-chips">
-              <li>Number · 14</li><li>Algebra · 9</li><li className="is-soon">Ratio, Geometry and more next</li>
+              <li>Number · 14</li><li>Algebra · 9</li><li className="is-soon">Ratio, Geometry and Higher next</li>
             </ul>
           </article>
           <article className="lp-subject lp-subject--science">
             <p className="lp-subject__tag">AQA Combined Science Trilogy</p>
             <h3>Nearly 200 lessons, in early preview</h3>
             <ul className="lp-chips">
-              <li>Biology</li><li>Chemistry</li><li>Physics</li><li className="is-soon">Being reviewed by teachers</li>
+              <li>Biology</li><li>Chemistry</li><li>Physics</li><li>Foundation &amp; Higher</li><li className="is-soon">Being reviewed by teachers</li>
             </ul>
           </article>
         </div>
@@ -418,7 +418,7 @@ function FAQ() {
     { q: "What's the Arcade?", a: "20 short maths games, from splitting a heist to lining up a trick shot. Each one trains a real GCSE exam question." },
     { q: "Will I be charged?", a: "No. Applying is free, and you won't be charged when the Alpha opens." },
     { q: "Is this an AI chatbot?", a: "No. Lessons follow experienced GCSE tutors' teaching, with reliable marking and original questions." },
-    { q: "Can this guarantee a Grade 4 or 5?", a: "No revision product can. Revily helps students practise the right topics, consistently." },
+    { q: "Can this guarantee a grade?", a: "No revision product can. Revily helps students practise the right topics, consistently, whatever grade they're aiming for." },
   ];
   const [openIndex, setOpenIndex] = useState(0);
   return (
