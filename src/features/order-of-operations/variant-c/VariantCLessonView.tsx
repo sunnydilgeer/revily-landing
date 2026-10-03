@@ -7,6 +7,7 @@ import { Button, CheckBar } from '../../../ui'
 import { diagnoseBidmas } from '../ladder/bidmasDiagnosis'
 import { operationsVariantCLesson, operationsVariantCLabels, type TutorOperationsState } from './variantCLesson'
 import { TutorTeachingMedia } from './TutorTeachingMedia'
+import { OpsBoard } from './OperationsBoard'
 import '../../number-types/RationalNumbersLesson.css'
 import './TutorOperations.css'
 import './VariantC.css'
@@ -47,7 +48,8 @@ export default function OperationsVariantCLessonView() {
     <article className={`opb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1} className={state.content.title === flow.title ? 'sr-only' : undefined}>{shortTitle(state)}</h3>
       {teaching && !state.video && state.content.body && <p className="opb-body">{state.content.body}</p>}
-      <TutorTeachingMedia visual={state.visual} video={state.video} onConsultRule={feedback ? undefined : engine.markHintUsed} />
+      {/* Once answered, the board's first row is the question, so it is shown once. */}
+      {!(feedback && state.working) && <TutorTeachingMedia visual={state.visual} video={state.video} onConsultRule={feedback ? undefined : engine.markHintUsed} />}
 
       {textInput && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && engine.inputValue.trim()) engine.submit() }}>
         <div className={`rung-answer${answerState}`}>
@@ -66,7 +68,8 @@ export default function OperationsVariantCLessonView() {
         </button>
       })}</div>}
 
-      {feedback?.workedExplanation && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
+      {feedback && state.working && <div className="rung-explain opb-stage"><OpsBoard working={state.working} /></div>}
+      {feedback?.workedExplanation && !state.working && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
     </article>
 
     {feedback

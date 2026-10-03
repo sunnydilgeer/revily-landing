@@ -1,4 +1,5 @@
 import { ExplanationSteps } from '../components/ExplanationSteps'
+import { LinesWorking, isLinesWorking } from '../components/LinesWorking'
 import type { Ref } from 'react'
 import { parseDecimalOrFraction } from '../lessonMath'
 import type { useLessonEngine } from '../useLessonEngine'
@@ -15,7 +16,8 @@ export function VariantDActivity({ engine, headingRef, hideActions = false }: Pr
   const multiple = state.interaction.type === 'multiSelect'
   const accepted = Array.isArray(state.interaction.correctAnswer) ? state.interaction.correctAnswer : [state.interaction.correctAnswer]
   return <div className="d-activity">
-    <IntegerValueVisual {...state.component.props} revealed={Boolean(feedback)} answerValue={numeric && feedback?.correct ? parseDecimalOrFraction(engine.inputValue) ?? undefined : undefined} />
+    {/* The working below shows every sum, so the picture doesn't reveal them again (it still marks the student's value). */}
+    <IntegerValueVisual {...state.component.props} revealed={Boolean(feedback)} quiet={Boolean(feedback?.workedExplanation && isLinesWorking(feedback.workedExplanation))} answerValue={numeric && feedback?.correct ? parseDecimalOrFraction(engine.inputValue) ?? undefined : undefined} />
     <h3 ref={headingRef} tabIndex={-1}>{state.content.title}</h3>
     {teaching && state.content.body && <p className="d-body">{state.content.body}</p>}
     {numeric && <div className="d-numeric">
@@ -32,7 +34,7 @@ export function VariantDActivity({ engine, headingRef, hideActions = false }: Pr
         </button>
       })}
     </div>}
-    {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status">{feedback.workedExplanation ? <ExplanationSteps explanation={feedback.workedExplanation} showAnswer={!hideActions} /> : <><strong>Explanation</strong><p>{feedback.evidence}</p></>}</div>}
+    {feedback && <div className={`d-feedback${feedback.correct ? ' d-feedback--correct' : ''}`} role="status">{feedback.workedExplanation ? isLinesWorking(feedback.workedExplanation) ? <LinesWorking explanation={feedback.workedExplanation} /> : <ExplanationSteps explanation={feedback.workedExplanation} showAnswer={!hideActions} /> : <><strong>Explanation</strong><p>{feedback.evidence}</p></>}</div>}
     {!hideActions && <div className="d-actions">
       {engine.canGoBack && !feedback && <button className="lesson-secondary-action" type="button" onClick={engine.back}>← Back</button>}
       {(multiple || numeric) && !feedback && <button className="lesson-primary-action" type="button" disabled={numeric ? !engine.inputValue.trim() : selection.length === 0} onClick={engine.submit}>Check answer</button>}

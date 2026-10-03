@@ -163,18 +163,34 @@ export const variantDMultiplesFactorsStates: LearningState[] = [
   dSelect('D-MF-12', 'multiples-factors', 'Tomas says this. Show that Tomas is wrong. “The LCM of two numbers is always bigger than both numbers.”', { concept: 'mathCard', expression: 'LCM(4, 8)', revealLines: ['LCM of 4 and 8 = 8'] }, options('No — the LCM of 4 and 8 is 8, which is not bigger than 8', 'LCM of 3 and 5 = 15', 'LCM of 2 and 7 = 14'), 'No — the LCM of 4 and 8 is 8, which is not bigger than 8', ''),
 ]
 
+/**
+ * Higher-tier parts of the source sheets, left out of this Foundation lesson (AQA 8300): changing recurring decimals to
+ * fractions (N10), simplifying surds (N8), and sums and products of surds. Screens that led to one now lead past it.
+ */
+export const HIGHER_ONLY = ['D-R-05', 'D-R-07', 'D-IR-03', 'D-IR-07', 'D-IR-09', 'D-IR-11', 'D-IR-13']
+function foundationOnly(states: LearningState[]) {
+  const byId = new Map(states.map(state => [state.id, state]))
+  const past = (id?: string): string | undefined => id && HIGHER_ONLY.includes(id) ? past(byId.get(id)?.transition.onComplete ?? byId.get(id)?.transition.onCorrect) : id
+  return states.filter(state => !HIGHER_ONLY.includes(state.id)).map(state => ({ ...state, transition: {
+    ...state.transition,
+    ...(state.transition.onComplete && { onComplete: past(state.transition.onComplete) }),
+    ...(state.transition.onCorrect && { onCorrect: past(state.transition.onCorrect) }),
+    ...(state.transition.onIncorrect && { onIncorrect: past(state.transition.onIncorrect) }),
+  } }))
+}
+
 export const variantDLesson: LessonDefinition = {
   id: 'L001',
   title: 'Numbers',
   level: 'GCSE Foundation',
   goal: 'I can look at a number, identify what type of number it is, and explain why.',
-  states: withSectionVideos([
+  states: withSectionVideos(foundationOnly([
     ...variantDOpeningStates,
     ...variantDSpecialIntegerStates,
     ...variantDRationalStates,
     ...variantDIrrationalStates,
     ...variantDMultiplesFactorsStates,
-  ]).map(withLessonExplanation),
+  ])).map(withLessonExplanation),
 }
 
 export const variantDMicroSkillLabels: Partial<Record<MicroSkillId, string>> = {

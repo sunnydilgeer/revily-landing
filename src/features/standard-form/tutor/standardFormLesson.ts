@@ -213,7 +213,7 @@ function normalised(raw: number, power: number) {
 const betweenQuestion = (topic: MicroSkillId, title: string, ref: string, lower: number, upper: number, n: number) =>
   practice(topic, title, ref, between(lower, upper, n), `Every number between these two has the same power of 10. Which power?`, lines(`${tex(group(String(lower)))}\\text{ to }${tex(group(String(upper)))}`,
     { title: 'Write both ends in standard form', math: `${sfTex(1, n)}\\text{ to }${sfTex(1, n + 1)}`, say: 'Write each end as 1 × a power of 10.', order: { values: [`Lower: 1 × 10${sup(n)}`, `Upper: 1 × 10${sup(n + 1)}`] } },
-    { title: 'Pick a number in between', math: sfTex(5, n), say: `Any number from 1 to 10 (but not 1 itself) times 10${sup(n)} works, such as 5 × 10${sup(n)}.`, order: { answer: `5 × 10${sup(n)}` } },
+    { title: 'Pick a number in between', math: sfTex(5, n), say: 'Keep the same power of 10 as the lower end. Any front number bigger than 1 and smaller than 10 lands between the two ends.', order: { answer: `5 × 10${sup(n)}` } },
   ), response => diagnoseBetween(response, { lower, upper, n }))
 
 /* ---------- Rung 1: standard form into large numbers (N14.2) ---------- */
