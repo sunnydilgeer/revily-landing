@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makePuzzles, sideText, type Scale as ScaleState, type Side, type Puzzle } from './puzzles'
@@ -108,7 +108,7 @@ function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: ()
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Balance Bot complete</p>
-        <RankCard rank={rank} stats={[['Equations', `${puzzles.length}/${puzzles.length}`], ['Lives kept', `${score.kept}/${puzzles.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Equations', `${puzzles.length}/${puzzles.length}`], ['Lives kept', `${score.kept}/${puzzles.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Do the same to both sides, always.', 'Clear the loose numbers with + or −.', 'Then ÷ by the number of x’s.']} />
       </section>
       <footer className="lab-bar">

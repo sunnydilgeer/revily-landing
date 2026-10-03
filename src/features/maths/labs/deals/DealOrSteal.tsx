@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { gbp, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeDeals, type Item, type Round, type Shows } from './deals'
@@ -126,7 +126,7 @@ function DealOrStealGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () =
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Deal or Steal complete</p>
-        <RankCard rank={rank} stats={[['Deals checked', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Deals checked', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Find 10% by ÷ 10 (or 25% by ÷ 4, 50% by ÷ 2).', 'Scale it up to the % you need.', 'Take it off for a discount, add it on for an increase.']} />
       </section>
       <footer className="lab-bar">

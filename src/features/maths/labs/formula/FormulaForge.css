@@ -1,0 +1,70 @@
+/* Formula Forge: the anvil, the stat tags and the function machine. The shared lab look is in ../kit/lab.css. */
+.ff-anvil, .ff-machine { position: relative; margin: 0; display: grid; gap: 10px; justify-items: center; text-align: center; }
+
+.ff-formula { margin: 0; font: italic 800 1.6rem/1.15 var(--rv-font-display); color: var(--rv-ink); }
+
+/* Stat tags hanging off the weapon */
+.ff-stats { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.ff-tag {
+  display: grid; gap: 2px; min-width: 88px; padding: 6px 12px; border: 2px solid var(--rv-line-strong); border-radius: var(--rv-radius-sm);
+  background: var(--rv-yellow-tint); transform: rotate(-2deg);
+}
+.ff-tag:nth-child(2) { transform: rotate(2deg); }
+.ff-tag b { font: 800 1.15rem/1.1 var(--rv-font-display); font-variant-numeric: tabular-nums; }
+.ff-tag small { font-weight: 600; font-size: .72rem; color: var(--rv-muted); }
+.ff-tag.is-cursed { border-color: var(--rv-redpen); background: var(--rv-redpen-tint); }
+.ff-tag.is-cursed b { color: var(--rv-redpen); }
+
+/* The anvil: hammer up while the dial turns, swings down on Forge */
+.ff-bench { position: relative; width: 160px; height: 84px; }
+.ff-block {
+  position: absolute; left: 20px; right: 20px; bottom: 0; height: 30px; border-radius: 6px 6px 14px 14px;
+  background: var(--rv-ink-2); box-shadow: inset 0 4px 0 var(--rv-muted);
+}
+.ff-block::before { content: ''; position: absolute; left: -22px; top: 0; width: 34px; height: 12px; border-radius: 0 0 0 20px; background: var(--rv-ink-2); }
+.ff-weapon { position: absolute; left: 50%; bottom: 24px; font-size: 2rem; line-height: 1; transform: translateX(-50%) rotate(45deg); z-index: 1; }
+.ff-hammer {
+  position: absolute; right: 4px; top: 0; font-size: 2.2rem; line-height: 1; transform-origin: 90% 90%; transform: rotate(35deg);
+  transition: transform .2s; z-index: 2;
+}
+.ff-sparks { position: absolute; left: 50%; top: 8px; font-size: 1.6rem; opacity: 0; transform: translateX(-50%); }
+.ff-anvil.is-strike .ff-hammer { animation: ff-swing .55s cubic-bezier(.5, 0, .8, .4) both; }
+.ff-anvil.is-hit .ff-sparks { animation: ff-spark .6s ease-out both; }
+.ff-anvil.is-hit .ff-weapon { filter: drop-shadow(0 0 8px var(--rv-yellow)); }
+.ff-anvil.is-miss .ff-weapon { animation: ff-bend .5s ease-out both; filter: grayscale(1); }
+@keyframes ff-swing { 0% { transform: rotate(35deg); } 60% { transform: rotate(60deg); } 100% { transform: rotate(-25deg) translate(-26px, 8px); } }
+@keyframes ff-spark { from { opacity: 1; transform: translateX(-50%) scale(.4); } to { opacity: 0; transform: translateX(-50%) translateY(-18px) scale(1.4); } }
+@keyframes ff-bend { 40% { transform: translateX(-50%) rotate(80deg); } to { transform: translateX(-50%) rotate(110deg) scaleY(.8); } }
+
+.ff-readout { margin: 0; font: 800 1.45rem/1.2 var(--rv-font-display); color: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.ff-readout span { display: inline-block; min-width: 2ch; padding: 0 6px; border-radius: 6px; background: var(--rv-yellow-tint); }
+.ff-anvil.is-hit .ff-readout span { color: #fff; background: var(--rv-good); animation: lab-pop .35s both; }
+.ff-anvil.is-miss .ff-readout span { color: #fff; background: var(--rv-redpen); }
+
+/* The function machine: in → × k → + c → out, wrapping onto two lines at 320px if it must */
+.ff-pipe { width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; }
+.ff-box, .ff-end {
+  display: grid; place-items: center; min-width: 52px; min-height: 52px; padding: 4px 8px; border-radius: 10px;
+  font: 800 1.15rem/1.1 var(--rv-font-display); font-variant-numeric: tabular-nums;
+}
+.ff-box { color: var(--rv-on-night); background: var(--rv-ink-2); box-shadow: inset 0 -4px 0 var(--rv-ink); }
+.ff-end { border: 2px solid var(--rv-line-strong); background: var(--rv-surface); color: var(--rv-ink); }
+.ff-end small { font: 700 .62rem/1 var(--rv-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--rv-muted); }
+.ff-end.is-dial { border-style: dashed; border-color: var(--rv-yellow-deep); background: var(--rv-yellow-tint); }
+.ff-machine.is-hit .ff-end.is-dial { border-style: solid; border-color: var(--rv-good); background: var(--rv-good-tint); }
+.ff-machine.is-miss .ff-end.is-dial { border-style: solid; border-color: var(--rv-redpen); background: var(--rv-redpen-tint); }
+.ff-arrow { font-weight: 800; color: var(--rv-muted); }
+.ff-machine.is-backward .ff-arrow { color: var(--rv-line-strong); }
+.ff-back { margin: 0; font-weight: 700; font-size: .85rem; color: var(--rv-redpen); }
+.ff-ore { font-size: 1.6rem; line-height: 1; }
+.ff-machine.is-strike .ff-box { animation: ff-chug .55s ease-in-out both; }
+.ff-machine.is-strike .ff-box:nth-of-type(2) { animation-delay: .12s; }
+.ff-machine.is-hit .ff-ore { animation: lab-combo .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes ff-chug { 30% { transform: translateY(-4px) scale(1.06); } 60% { transform: translateY(2px); } }
+
+/* The side question: formulas stacked, one per row */
+.ff-side .lab-choice { font-size: 1.1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-anvil .ff-hammer, .ff-anvil .ff-sparks, .ff-anvil .ff-weapon, .ff-anvil .ff-readout span, .ff-machine .ff-box, .ff-machine .ff-ore { animation: none !important; transition: none; }
+}

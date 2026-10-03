@@ -15,7 +15,6 @@ export default function LabsHome() {
     <header className="labs-hero">
       <div className="labs-hero__copy">
         <h1>Games where the maths is the cheat code</h1>
-        <p>Beat each game and you’ve practised a real GCSE Maths skill without noticing.</p>
       </div>
       <div className="labs-hero__score" aria-label={`${played} of ${labCatalog.length} games cleared`}>
         <strong>{played}/{labCatalog.length}</strong>

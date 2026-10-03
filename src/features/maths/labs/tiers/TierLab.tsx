@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain } from '../../step-chain/StepChain'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound } from '../kit/Lab'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeLists, TIERS, describe, priceQuestion, ranked, showValue, unitChain, unitValue, type Deal, type TierList } from './lists'
@@ -117,7 +117,7 @@ function TierLabGame({ lists, onReplay }: { lists: TierList[]; onReplay: () => v
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Tier lists complete</p>
-        <RankCard rank={rank} stats={[['Lists', `${lists.length}/${lists.length}`], ['Lives kept', `${score.kept}/${lists.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Lists', `${lists.length}/${lists.length}`], ['Lives kept', `${score.kept}/${lists.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Don’t compare pack prices straight.', 'Find the price of one (or how many for £1).', 'Then compare like with like.']} />
       </section>
       <footer className="lab-bar">

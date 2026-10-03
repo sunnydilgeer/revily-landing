@@ -23,12 +23,16 @@ const games = {
   heist: ['heist/jobs.ts', 'makeJobs'], storm: ['storm/drops.ts', 'makeDrops'], potion: ['potion/brews.ts', 'makeBrews'],
   tiers: ['tiers/lists.ts', 'makeLists'], trick: ['trick/shots.ts', 'makeShots'], packs: ['packs/rounds.ts', 'makeRounds'], balance: ['balance/puzzles.ts', 'makePuzzles'],
   deals: ['deals/deals.ts', 'makeDeals'], stats: ['stats/rounds.ts', 'makeRounds'], mind: ['mind/tricks.ts', 'makeTricks'], build: ['build/bases.ts', 'makeBases'], levels: ['levels/levels.ts', 'makeGame'], laser: ['laser/lines.ts', 'makeRounds'], stall: ['stall/days.ts', 'makeStall'],
+  formula: ['formula/rounds.ts', 'makeRounds'], loot: ['loot/rounds.ts', 'makeRounds'], viral: ['viral/rounds.ts', 'makeRounds'],
+  slice: ['slice/rounds.ts', 'makeRounds'], supplies: ['supplies/rounds.ts', 'makeRounds'], obby: ['obby/rounds.ts', 'makeRounds'],
 }
+// `node scripts/verify-arcade-numbers.cjs loot slice` checks just those games.
+const only = process.argv.slice(2)
 const visible = line => line.replace(TERM, '$2').replace(/\\text\{([^}]*)\}/g, '$1').replace(/\\(pounds|times|div|circ|frac)/g, 'x').replace(/[{}\\^ ]/g, '')
 
-for (const [name, [file, make]] of Object.entries(games)) {
+for (const [name, [file, make]] of Object.entries(games).filter(([name]) => !only.length || only.includes(name))) {
   const gen = require(path.join(root, 'src/features/maths/labs', file))[make]
-  let questions = 0, widest = ''
+  let questions = 0, dials = 0, widest = ''
   const samples = []
   for (let seed = 1; seed <= 2000; seed++) {
     const rounds = gen(makeRand(seed))
@@ -47,6 +51,14 @@ for (const [name, [file, make]] of Object.entries(games)) {
         if (typeof node.answer === 'number' && !['packs', 'tiers'].includes(name)) assert.ok(Number.isInteger(node.answer), `${name} seed ${seed} ${where}: answer ${node.answer} not whole`)
         for (const text of [node.prompt, node.why, ...node.choices.map(c => c.nope ?? '')]) if (text) assert.ok(!/NaN|undefined|Infinity|\d\.\d{3,}/.test(text), `${name} seed ${seed} ${where}: bad text "${text}"`)
       }
+      // A dial (answer or target, with min/max/step/start): the right value must be reachable and never where it starts.
+      const goal = typeof node.answer === 'number' ? node.answer : node.target
+      if (!Array.isArray(node.choices) && typeof goal === 'number' && ['min', 'max', 'step', 'start'].every(k => typeof node[k] === 'number')) {
+        dials++
+        assert.ok(goal >= node.min && goal <= node.max, `${name} seed ${seed} ${where}: dial answer ${goal} outside ${node.min}..${node.max}`)
+        assert.ok(Math.abs((goal - node.min) / node.step - Math.round((goal - node.min) / node.step)) < 1e-9, `${name} seed ${seed} ${where}: dial answer ${goal} off the ${node.step} grid`)
+        assert.notEqual(goal, node.start, `${name} seed ${seed} ${where}: dial starts on the answer ${goal}`)
+      }
       if (Array.isArray(node.chain)) node.chain.forEach((step, i) => {
         katex.renderToString(`\\displaystyle ${step.line.replace(TERM, (_, k, b) => `\\htmlData{k=${k}}{${b}}`)}`, { trust: true, strict: 'ignore', throwOnError: true })
         if (i > 0) assert.ok(step.op && step.why, `${name} seed ${seed}: chain step ${i} missing op/why`)
@@ -63,6 +75,6 @@ for (const [name, [file, make]] of Object.entries(games)) {
     if (name === 'potion') rounds.forEach(b => Object.values(b.kind === 'mix' ? b.target : b.rival).forEach(n => assert.ok(Number.isInteger(n) && n >= 0 && n <= 16, `potion count ${n}`)))
     if (name === 'tiers') rounds.forEach(list => list.deals.forEach(d => assert.ok(Math.abs(d.price * 100 - Math.round(d.price * 100)) < 1e-6, `tiers price ${d.price}`)))
   }
-  console.log(`${name}: ${questions ? `${questions} questions` : "every round"} over 2000 plays ok`)
+  console.log(`${name}: ${questions ? `${questions} questions` : "every round"}${dials ? `, ${dials} dials` : ''} over 2000 plays ok`)
 }
 console.log('Arcade numbers verified: fresh, friendly and consistent for every game.')

@@ -114,3 +114,14 @@
   .lab-pip, .lab-streak, .lab-combo, .lab-quip__line, .lab-choice.is-wrong, .lab-rank__badge, .lab-sirens { animation: none; transition: none; }
   .lab-burst { display: none; }
 }
+
+/* Hard mode: a chip in the header, and the offer on the rank card for anyone who gets the top rank. */
+.lab-hard { flex: none; padding: 3px 8px; border-radius: 999px; font: 800 .75rem/1 var(--rv-font-display); color: var(--rv-on-night); background: var(--rv-redpen); }
+.lab-rank__hard { margin: 0 0 4px; padding: 4px 10px; border-radius: 999px; font: 800 .8rem/1.2 var(--rv-font-display); color: var(--rv-on-night); background: var(--rv-redpen); }
+.lab-rank__hardlink {
+  display: grid; gap: 2px; justify-items: center; width: 100%; margin-top: 10px; padding: 12px; border-radius: var(--rv-radius-md);
+  border: 2px dashed var(--rv-redpen); color: var(--rv-on-night); text-decoration: none; background: var(--rv-night);
+}
+.lab-rank__hardlink strong { font: 800 1.05rem/1.2 var(--rv-font-display); }
+.lab-rank__hardlink span { font-size: .85rem; color: var(--rv-on-night-muted); }
+.lab-rank__hardlink:focus-visible { outline: none; box-shadow: var(--rv-focus); }

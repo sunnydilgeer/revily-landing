@@ -13,9 +13,21 @@ import './lab.css'
 
 export const LIVES = 3
 
+/**
+ * Hard mode (?hard=1): one life a round, no second chances. It's offered on the rank card to anyone who
+ * gets a game's top rank. Read after the page loads (games render client-side), so server and browser agree.
+ */
+export function isHardMode() {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('hard') === '1'
+}
+
+/** Lives at the start of each round: 3, or 1 in hard mode. */
+export const livesPerRound = () => isHardMode() ? 1 : LIVES
+
 /** Lives and the first-try streak. `hit` counts a right answer; `miss` a wrong one. */
 export function useScore() {
-  const [lives, setLives] = useState(LIVES)
+  const [lives, setLives] = useState(livesPerRound)
   const [streak, setStreak] = useState(0)
   const [best, setBest] = useState(0)
   const [kept, setKept] = useState(0)
@@ -37,10 +49,10 @@ export function useScore() {
       return lives - 1
     },
     /** End of a round: bank the lives left, and start the next round on full lives. */
-    bank() { setKept(kept + lives); setLives(LIVES) },
+    bank() { setKept(kept + lives); setLives(livesPerRound()) },
     /** Retry a round after running out of lives. */
-    refill() { setLives(LIVES) },
-    reset() { setLives(LIVES); setStreak(0); setBest(0); setKept(0) },
+    refill() { setLives(livesPerRound()) },
+    reset() { setLives(livesPerRound()); setStreak(0); setBest(0); setKept(0) },
   }
 }
 
@@ -48,12 +60,14 @@ export function LabTop({ progress, streak, lives }: { progress: string; streak: 
   const [muted, setMutedState] = useState(false)
   useEffect(() => setMutedState(isMuted()), [])
   const toggle = () => { setMuted(!muted); setMutedState(!muted) }
+  const hard = isHardMode(), max = livesPerRound()
   return <header className="lab-top">
     <a className="lab-icon lab-icon--close" href="/preview?view=lab" aria-label="Back to the Arcade">×</a>
     <p className="lab-progress">{progress}</p>
+    {hard && <span className="lab-hard" aria-label="Hard mode">💀 Hard</span>}
     {streak >= 2 && <span className="lab-streak" aria-label={`${streak} in a row`}>🔥 {streak}</span>}
-    <div className="lab-lives" aria-label={`Lives: ${lives} of ${LIVES}`}>
-      {Array.from({ length: LIVES }, (_, index) => <span key={index} className={`lab-pip${index < lives ? '' : ' is-lost'}`} aria-hidden="true">◆</span>)}
+    <div className="lab-lives" aria-label={`Lives: ${lives} of ${max}`}>
+      {Array.from({ length: max }, (_, index) => <span key={index} className={`lab-pip${index < lives ? '' : ' is-lost'}`} aria-hidden="true">◆</span>)}
     </div>
     <button type="button" className="lab-icon" aria-label={muted ? 'Turn sound on' : 'Turn sound off'} aria-pressed={muted} onClick={toggle}>{muted ? '🔇' : '🔊'}</button>
   </header>
@@ -119,8 +133,23 @@ export function Burst({ emoji }: { emoji: string }) {
 
 export type Rank = { badge: string; name: string; line: string }
 
+/** Top ranks handed out by `rankFor`, so the rank card knows when to offer hard mode. */
+const TOP_RANKS = new WeakSet<Rank>()
+
+/** The same game with ?hard=1 (keeping ?seed= for tests), starting from fresh. */
+function hardModeHref() {
+  const url = new URL(window.location.href)
+  url.searchParams.set('hard', '1')
+  return url.pathname + url.search
+}
+
 export function RankCard({ rank, stats }: { rank: Rank; stats: [string, ReactNode][] }) {
+  const [offerHard, setOfferHard] = useState(false)
+  useEffect(() => setOfferHard(TOP_RANKS.has(rank) && !isHardMode()), [rank])
+  const [hardWin, setHardWin] = useState(false)
+  useEffect(() => setHardWin(TOP_RANKS.has(rank) && isHardMode()), [rank])
   return <div className="lab-rank">
+    {hardWin && <p className="lab-rank__hard">💀 Hard mode cleared</p>}
     <span className="lab-rank__badge" aria-hidden="true">{rank.badge}</span>
     <p className="lab-rank__label">Your rank</p>
     <h1 className="lab-rank__name">{rank.name}</h1>
@@ -128,6 +157,10 @@ export function RankCard({ rank, stats }: { rank: Rank; stats: [string, ReactNod
     <dl className="lab-stats">
       {stats.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
     </dl>
+    {offerHard && <a className="lab-rank__hardlink" href={hardModeHref()}>
+      <strong>💀 Try hard mode</strong>
+      <span>One life a round. No second chances.</span>
+    </a>}
   </div>
 }
 
@@ -189,8 +222,8 @@ export function recordRank(lab: string, rank: Rank, names: Rank[]) {
 
 /** Rank from the lives kept across every round. */
 export function rankFor(kept: number, rounds: number, names: [Rank, Rank, Rank, Rank]): Rank {
-  const max = rounds * LIVES
-  if (kept === max) return names[0]
+  const max = rounds * livesPerRound()
+  if (kept === max) { TOP_RANKS.add(names[0]); return names[0] }
   if (kept >= max - 2) return names[1]
   if (kept >= rounds) return names[2]
   return names[3]

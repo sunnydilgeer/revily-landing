@@ -11,7 +11,7 @@ export const labAreas: { id: LabArea; title: string; chip: string }[] = [
 ]
 
 export type LabEntry = {
-  id: 'heist' | 'storm' | 'potion' | 'tiers' | 'balance' | 'trick' | 'packs' | 'deals' | 'stats' | 'mind' | 'build' | 'levels' | 'laser' | 'stall'
+  id: 'heist' | 'storm' | 'potion' | 'tiers' | 'balance' | 'trick' | 'packs' | 'deals' | 'stats' | 'mind' | 'build' | 'levels' | 'laser' | 'stall' | 'formula' | 'loot' | 'viral' | 'slice' | 'supplies' | 'obby'
   area: LabArea
   href: string
   emoji: string
@@ -36,7 +36,7 @@ export const labCatalog: LabEntry[] = [
     id: 'storm', area: 'ratio', href: '/preview/lab/storm', emoji: '🌀', title: 'Storm Run',
     hook: 'Outrun the storm to the safe zone.',
     skill: 'Map scales · speed, distance, time',
-    inGame: 'You sprint at 5 m/s. Do you reach the zone before the storm?',
+    inGame: 'The zone is 400 m away and the storm closes in 80 s. Set your speed.',
     inExam: 'A runner covers 400 m at 5 m/s. How long does it take?',
     minutes: 6,
   },
@@ -68,7 +68,7 @@ export const labCatalog: LabEntry[] = [
     id: 'trick', area: 'geometry', href: '/preview/lab/trick', emoji: '🎱', title: 'Trick Shot',
     hook: 'Find the angle, sink the shot.',
     skill: 'Angle facts',
-    inGame: 'The ball hits the cushion at 50°. What angle does it bounce off at?',
+    inGame: 'The ball hits the cushion at 50°. Turn the cue to the angle it bounces off at.',
     inExam: 'Work out the size of angle x. Give a reason for your answer.',
     minutes: 6,
   },
@@ -136,11 +136,58 @@ export const labCatalog: LabEntry[] = [
     inExam: 'Pens cost £3.50 each. Sam buys 4 and pays with a £50 note. How much change should Sam get?',
     minutes: 5,
   },
+  {
+    id: 'formula', area: 'algebra', href: '/preview/lab/formula', emoji: '🔨', title: 'Formula Forge',
+    hook: 'Grumpy Flint forges fantasy weapons, and every damage stat comes from a formula. Swap in the numbers and strike the anvil.',
+    skill: 'Substitution into formulae · function machines',
+    inGame: 'A sword has a = 6 and b = 5. Damage D = 3a + 2b. Set the damage dial and forge it.',
+    inExam: 'D = 3a + 2b. Work out the value of D when a = 6 and b = 5.',
+    minutes: 5,
+  },
+  {
+    id: 'loot', area: 'geometry', href: '/preview/lab/loot', emoji: '📦', title: 'Loot Packer',
+    hook: 'Pack the loot chests before the drop ship leaves. No gaps, no spills.',
+    skill: 'Volume of cuboids · cm³ and litres',
+    inGame: 'A tank is 50 cm by 30 cm by 20 cm. How many litres of slime fill it?',
+    inExam: 'A cuboid tank measures 50 cm by 30 cm by 20 cm. How many litres of water does it hold?',
+    minutes: 6,
+  },
+  {
+    id: 'viral', area: 'statistics', href: '/preview/lab/viral', emoji: '📱', title: 'Going Viral',
+    hook: 'Turn an influencer’s stats into charts the brand will actually trust.',
+    skill: 'Bar charts · pie charts · misleading graphs',
+    inGame: '120 viewers, 40 are Superfans. What angle is their slice?',
+    inExam: 'Draw a pie chart to show the data. Explain why this graph is misleading.',
+    minutes: 6,
+  },
+  {
+    id: 'slice', area: 'number', href: '/preview/lab/slice', emoji: '🍕', title: 'Slice Wars',
+    hook: 'Out-slice the rival pizza shop with Nonna Rosa. Cut pizzas, combine orders and share out the toppings fairly.',
+    skill: 'Fractions: equivalent fractions, adding fractions, fractions of amounts',
+    inGame: 'Box up 1/2 of a Margherita and 1/3 of a Pepperoni. Cut both pizzas into the same size slices.',
+    inExam: 'Work out 1/2 + 1/3. Give your answer as a fraction.',
+    minutes: 6,
+  },
+  {
+    id: 'supplies', area: 'ratio', href: '/preview/lab/supplies', emoji: '🏕️', title: '99 Nights Supplies',
+    hook: 'Scout’s panicking. Measure out rope, water, rice and night-watch shifts before dark.',
+    skill: 'Unit conversions: length, mass, capacity and time',
+    inGame: 'Share 3 litres of water into 250 ml cups. How many cups?',
+    inExam: 'A bottle holds 3 litres. A cup holds 250 ml. How many cups can be filled?',
+    minutes: 6,
+  },
+  {
+    id: 'obby', area: 'probability', href: '/preview/lab/obby', emoji: '🧱', title: 'Obby Split',
+    hook: 'Blox’s obstacle course is live. Fill the frequency tree to track every player down every branch, then work out the odds.',
+    skill: 'Frequency trees and probability from them',
+    inGame: '200 players start. 120 take the Lava path, the rest take Ice. 3/4 of the Lava players clear the jump. Fill the tree.',
+    inExam: '200 people took a test. 120 were adults, and 3/4 of the adults passed. Complete the frequency tree.',
+    minutes: 5,
+  },
 ]
 
 /** Coming soon: shown locked, so students can see where the labs are heading. */
 export const labTeasers = [
   { emoji: '💱', title: 'Import or Not', skill: 'Ratio · exchange rates' },
-  { emoji: '🧮', title: 'Function Factory', skill: 'Algebra · function machines' },
   { emoji: '📐', title: 'Pythagoras Parkour', skill: 'Geometry · Pythagoras' },
 ]

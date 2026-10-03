@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeGame, num, type Game } from './levels'
@@ -136,7 +136,7 @@ export default function LevelUp() {
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Level Up complete</p>
-        <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Rounds', `${rounds.length}/${rounds.length}`], ['Lives kept', `${score.kept}/${rounds.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Find the difference: that’s the n’s times table.', 'nth term = difference × n + (first term − difference).', 'Use it to jump straight to any level.']} />
       </section>
       <footer className="lab-bar">

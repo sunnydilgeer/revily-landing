@@ -1,0 +1,46 @@
+/* Loot Packer: the chest drawn in 3D, crates dropping in, slime rising. The shared lab look is in ../kit/lab.css. */
+.lp-chest { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.lp-chest svg { display: block; width: 100%; max-width: 360px; height: auto; overflow: visible; }
+
+.lp-wall polygon { fill: var(--rv-yellow-tint); stroke: var(--rv-ink-2); stroke-width: 1.2; stroke-linejoin: round; }
+.lp-chest.is-slime .lp-wall polygon { fill: var(--rv-teal-tint); }
+.lp-grid polyline { fill: none; stroke: var(--rv-line-strong); stroke-width: .8; stroke-dasharray: 2 3; }
+
+.lp-rim polygon { fill: rgb(255 255 255 / 12%); stroke: var(--rv-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.lp-rim polyline { fill: none; stroke: var(--rv-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.lp-chest.is-slime .lp-rim polygon { fill: rgb(255 255 255 / 18%); }
+
+/* Crates: three shaded faces each. Alternate layers swap shade so the stacking reads. */
+.lp-crate polygon { stroke: var(--rv-ink); stroke-width: .9; stroke-linejoin: round; }
+.lp-crate__front { fill: var(--rv-yellow); }
+.lp-crate__top { fill: var(--rv-yellow-tint); }
+.lp-crate__side { fill: var(--rv-yellow-deep); }
+.lp-crate.is-odd .lp-crate__front { fill: var(--rv-step-i-light); }
+.lp-crate.is-odd .lp-crate__side { fill: var(--rv-step-i); }
+.lp-crate { animation: lp-drop .32s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes lp-drop { from { transform: translateY(-26px); opacity: 0; } }
+
+/* Loot (coins) and slime: a block that rises to the level set. */
+.lp-stuff polygon { stroke: var(--rv-ink); stroke-width: 1; stroke-linejoin: round; }
+.lp-stuff__front { fill: var(--rv-yellow); }
+.lp-stuff__top { fill: var(--rv-yellow-tint); }
+.lp-stuff__side { fill: var(--rv-yellow-deep); }
+.lp-chest.is-slime .lp-stuff__front { fill: var(--rv-good); opacity: .85; }
+.lp-chest.is-slime .lp-stuff__top { fill: var(--rv-level-secure-light); opacity: .9; }
+.lp-chest.is-slime .lp-stuff__side { fill: var(--rv-good-ink); opacity: .85; }
+.lp-stuff__spill { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 1; }
+.lp-chest.is-slime .lp-stuff__spill { fill: var(--rv-good); }
+
+.lp-label text { font: 800 11px/1 var(--rv-font-body); fill: var(--rv-ink); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; }
+.lp-over { font: 800 13px/1 var(--rv-font-display); fill: var(--rv-redpen); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; animation: lab-pop .3s both; }
+
+.lp-readout { margin: 0; font: 800 1.2rem/1.2 var(--rv-font-display); color: var(--rv-ink); font-variant-numeric: tabular-nums; text-align: center; }
+.lp-chest.is-hit .lp-readout { color: var(--rv-good-ink); }
+.lp-chest.is-miss .lp-readout { color: var(--rv-redpen); }
+.lp-chest.is-miss svg { animation: lab-shake .4s; }
+.lp-chest.is-hit svg { animation: lp-thud .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes lp-thud { 40% { transform: scale(1.03, .97); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-crate, .lp-over, .lp-chest.is-miss svg, .lp-chest.is-hit svg { animation: none; }
+}

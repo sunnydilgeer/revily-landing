@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain } from '../../step-chain/StepChain'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound } from '../kit/Lab'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeBrews, ingredients, mixColour, type Brew, type Counts, type MixBrew } from './brews'
@@ -149,7 +149,7 @@ function PotionLabGame({ brews, onReplay }: { brews: Brew[]; onReplay: () => voi
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Potion Lab complete</p>
-        <RankCard rank={rank} stats={[['Potions', `${brews.length}/${brews.length}`], ['Lives kept', `${score.kept}/${brews.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <RankCard rank={rank} stats={[['Potions', `${brews.length}/${brews.length}`], ['Lives kept', `${score.kept}/${brews.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
         <Rule steps={['Find what one part was multiplied by.', 'Multiply every part by the same number.', 'Same ratio = same potion, whatever the size.']} />
       </section>
       <footer className="lab-bar">
