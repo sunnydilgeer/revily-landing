@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { labAreas, labCatalog, labTeasers } from './catalog'
 import { readBests, type Best } from './kit/Lab'
+import '@fontsource/press-start-2p/400.css'
 import './LabsHome.css'
 
 /** The Arcade (the 'lab' section in code and URLs): games where the maths is the cheat code, each tied to the exam question it trains. */
@@ -29,7 +30,7 @@ export default function LabsHome() {
       </div>
       <ul className="labs-grid">
         {labCatalog.filter(lab => lab.area === area.id).map(lab => <li key={lab.id}>
-          <a className="labs-card" href={lab.href}>
+          <a className={`labs-card labs-card--${lab.area}`} href={lab.href}>
             <h3>{lab.title}</h3>
             <p className="labs-card__hook">{lab.hook}</p>
             <span className="labs-card__skill">Topic: {lab.skill}</span>
