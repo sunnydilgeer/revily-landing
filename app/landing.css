@@ -57,7 +57,7 @@
 .lp-mock { position: relative; min-height: 560px; padding-top: 18px; }
 .lp-mock__lesson {
   position: relative; z-index: 1; width: min(440px, 92%); padding: 22px; border: 3px solid var(--rv-ink); border-radius: 26px;
-  background: var(--rv-surface); box-shadow: 10px 10px 0 var(--rv-ink); transform: rotate(-1.5deg);
+  background: var(--rv-surface); box-shadow: 10px 10px 0 var(--rv-ink);
 }
 .lp-mock__top { display: flex; justify-content: space-between; align-items: center; font-size: .8rem; color: var(--rv-muted); }
 .lp-mock__crumb b { color: var(--rv-ink); }
@@ -80,19 +80,19 @@
 .lp-mock__card {
   position: absolute; z-index: 2; right: 0; bottom: 8px; width: min(270px, 64%); display: grid; gap: 10px; padding: 46px 20px 22px;
   border: 3px solid var(--rv-ink); border-radius: 22px; background: var(--rv-ink); color: #fff; text-align: center;
-  box-shadow: 0 8px 0 rgb(24 32 59 / 35%); transform: rotate(4deg);
+  box-shadow: 0 8px 0 rgb(24 32 59 / 35%);
 }
 .lp-mock__card strong { font-family: var(--rv-font-display); font-size: 1.12rem; line-height: 1.3; }
 .lp-mock__side { position: absolute; top: 16px; left: 0; right: 0; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
 .lp-mock__stamp {
   position: absolute; top: -16px; left: 16px; padding: 5px 10px; border: 3px solid var(--rv-good); border-radius: 10px; background: #fff;
-  color: var(--rv-good); font: 800 .85rem var(--rv-font-display); text-transform: uppercase; transform: rotate(-8deg);
+  color: var(--rv-good); font: 800 .85rem var(--rv-font-display); text-transform: uppercase;
 }
 .lp-mock__chip {
   position: absolute; z-index: 3; padding: 8px 14px; border: 2.5px solid var(--rv-ink); border-radius: 999px;
   font-weight: 800; font-size: .85rem; box-shadow: 0 3px 0 var(--rv-ink); white-space: nowrap;
 }
-.lp-mock__chip--streak { top: -30px; right: 14%; background: var(--rv-yellow); transform: rotate(5deg); }
+.lp-mock__chip--streak { top: -30px; right: 14%; background: var(--rv-yellow); }
 
 /* Sections */
 .lp-section { padding: clamp(56px, 8vw, 104px) 0; }
@@ -132,8 +132,8 @@
 .lp-tick { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--rv-good); color: #fff; }
 .lp-tick svg { width: 24px; height: 24px; stroke-width: 3.2; }
 .lp-step__visual--remember { position: relative; }
-.lp-mini-card { position: relative; z-index: 1; width: 190px; padding: 18px 12px; border: 2.5px solid #fff; border-radius: 16px; background: var(--rv-ink); color: #fff; font-size: .82rem; font-weight: 700; text-align: center; transform: rotate(3deg); }
-.lp-mini-card--back { position: absolute; z-index: 0; height: 64px; background: var(--rv-cards); border-color: var(--rv-night-3); transform: rotate(-6deg) translateX(-10px); }
+.lp-mini-card { position: relative; z-index: 1; width: 190px; padding: 18px 12px; border: 2.5px solid #fff; border-radius: 16px; background: var(--rv-ink); color: #fff; font-size: .82rem; font-weight: 700; text-align: center; }
+.lp-mini-card--back { position: absolute; z-index: 0; height: 64px; background: var(--rv-cards); border-color: var(--rv-night-3); transform: translate(-14px, -10px); }
 
 
 /* Arcade */
@@ -144,7 +144,7 @@
 .lp-arcade__lede { max-width: 520px; margin-top: 14px; color: var(--rv-ink-2); font-size: 1.08rem; line-height: 1.55; }
 .lp-arcade__pair { display: grid; justify-items: center; gap: 8px; }
 .lp-arcade__card { width: 100%; max-width: 400px; padding: 18px 20px; border: 3px solid var(--rv-ink); border-radius: 20px; background: var(--rv-surface); box-shadow: 6px 6px 0 var(--rv-ink); }
-.lp-arcade__card--game { background: var(--rv-lab); color: #fff; transform: rotate(-1.5deg); }
+.lp-arcade__card--game { background: var(--rv-lab); color: #fff; }
 .lp-arcade__card p:last-child { font-family: var(--rv-font-display); font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
 .lp-arcade__label { margin-bottom: 6px !important; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
 .lp-arcade__arrow { font: 800 1.6rem var(--rv-font-display); color: var(--rv-lab); }
@@ -208,15 +208,11 @@
   background: var(--rv-ink); box-shadow: 8px 8px 0 rgb(24 32 59 / 25%);
 }
 .lp-phone img { display: block; width: 100%; height: auto; border-radius: 26px; }
-.lp-shots li:nth-child(1) .lp-phone { transform: rotate(-2deg); }
-.lp-shots li:nth-child(3) .lp-phone { transform: rotate(2deg); }
 .lp-shots__title { font-family: var(--rv-font-display); font-weight: 800; font-size: 1.1rem; }
 .lp-shots__skill { margin-top: 2px !important; color: var(--rv-lab); font-size: .85rem; font-weight: 700; }
 
 /* A lesson screen at the foot of each subject card */
 .lp-phone--subject { justify-self: center; width: min(250px, 100%); margin: 14px 0 0; }
-.lp-subject--maths .lp-phone--subject { transform: rotate(-1.5deg); }
-.lp-subject--science .lp-phone--subject { transform: rotate(1.5deg); }
 
 /* Responsive */
 @media (max-width: 1000px) {
