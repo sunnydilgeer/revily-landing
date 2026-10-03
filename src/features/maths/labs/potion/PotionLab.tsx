@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain } from '../../step-chain/StepChain'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound, IntroSplit } from '../kit/Lab'
 import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeBrews, ingredients, mixColour, type Brew, type Counts, type MixBrew } from './brews'
@@ -165,18 +165,16 @@ function PotionLabGame({ brews, onReplay }: { brews: Brew[]; onReplay: () => voi
     <LabTop progress={`Potion ${brewIndex + 1}/${brews.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'recipe' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{brew.kind === 'check' ? 'Spot the fake' : 'Order in'}</p>
-        <h1 className="lab-title">{brew.task}</h1>
-        <RecipeCard brew={brew} />
-        <Quip speaker={GRIMBLE}>{INTROS[brewIndex]}</Quip>
-        <Why>{brew.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.bubble(); setScreen('brew') }}>
-          {brew.kind === 'check' ? 'Inspect it' : 'Start brewing'}
-        </button>
-      </footer>
+      <IntroSplit
+        key={brewIndex}
+        kicker={brew.kind === 'check' ? 'Spot the fake' : 'Order in'}
+        title={brew.task}
+        scene={<RecipeCard brew={brew} />}
+        speaker={GRIMBLE} line={INTROS[brewIndex]}
+        why={brew.why}
+        start={brew.kind === 'check' ? 'Inspect it' : 'Start brewing'}
+        onStart={() => { sfx.bubble(); setScreen('brew') }}
+      />
     </>}
 
     {screen === 'brew' && brew.kind === 'mix' && <>

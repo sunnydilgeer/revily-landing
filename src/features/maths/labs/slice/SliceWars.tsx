@@ -3,7 +3,7 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit, whySteps } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -343,16 +343,16 @@ function SliceWarsGame({ rounds, onReplay }: { rounds: Round[]; onReplay: () => 
     <LabTop progress={`Round ${roundIndex + 1}/${rounds.length} · ${Math.min(stepIndex + 1, total)} of ${total}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{round.title}</p>
-        <h1 className="lab-title"><Txt>{round.headline}</Txt></h1>
-        <div className="lab-card rv-paper"><Stage move={round.moves[0]} value={round.moves[0].start} done={null} /></div>
-        <Quip speaker={NONNA}>{INTROS[roundIndex]}</Quip>
-        <Why><Txt>{round.why}</Txt></Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>{roundIndex === 0 ? 'Open the shop' : 'Next orders'}</button>
-      </footer>
+      <IntroSplit
+        key={roundIndex}
+        kicker={round.title}
+        title={<><Txt>{round.headline}</Txt></>}
+        scene={<div className="lab-card rv-paper"><Stage move={round.moves[0]} value={round.moves[0].start} done={null} /></div>}
+        speaker={NONNA} line={INTROS[roundIndex]}
+        why={whySteps(round.why).map((step, i) => <Txt key={i}>{step}</Txt>)}
+        start={roundIndex === 0 ? 'Open the shop' : 'Next orders'}
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && !onSide && <>

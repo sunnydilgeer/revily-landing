@@ -117,6 +117,78 @@ export function Quip({ speaker, children }: { speaker: Speaker; children: ReactN
   </div>
 }
 
+/** Splits a Why paragraph into its sentences, so it reads as short steps rather than a block. */
+export function whySteps(text: string): string[] {
+  return text.match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)?.map(step => step.trim()).filter(Boolean) ?? [text]
+}
+
+/**
+ * The "How it works" screen that follows each round's story screen: the Why on its own, one short step per
+ * line, with a picture of the idea on top. Keeps the story screen to the scene and the banter.
+ */
+export function WhyScreen({ kicker, title = 'How it works', visual, why, children }: {
+  kicker: string
+  title?: string
+  /** A picture of the idea: a mini diagram, the game scene marked up, or a big emoji. */
+  visual: ReactNode
+  /** The Why text: split into steps by sentence. Pass steps yourself for control. */
+  why: string | ReactNode[]
+  /** Usually nothing; extra content under the steps. */
+  children?: ReactNode
+}) {
+  const steps: ReactNode[] = Array.isArray(why) ? why : whySteps(why)
+  return <section className="lab-intro lab-whyscreen">
+    <p className="lab-kicker">{kicker}</p>
+    <h1 className="lab-title">{title}</h1>
+    <div className="lab-whyscreen__visual" aria-hidden="true">{visual}</div>
+    <ol className="lab-whyscreen__steps">{steps.map((step, index) => <li key={index}>{step}</li>)}</ol>
+    {children}
+  </section>
+}
+
+/**
+ * A round's opening, split over two screens so neither is overloaded:
+ * 1. the story: kicker, headline, the scene and the character's banter, with a "How it works" button;
+ * 2. how it works: the scene again (what the steps refer to) and the Why as short numbered steps,
+ *    with Back and the round's own start button.
+ * Remount it per round (key) so each round opens on the story.
+ */
+export function IntroSplit({ kicker, title, scene, speaker, line, why, start, onStart }: {
+  kicker: string
+  title: ReactNode
+  /** The round's scene: shown on both screens. */
+  scene?: ReactNode
+  speaker?: Speaker
+  line?: ReactNode
+  /** A string is split into one step per sentence; pass an array for your own steps. */
+  why: string | ReactNode[]
+  /** The round's start button label: "Check the price". */
+  start: ReactNode
+  onStart: () => void
+}) {
+  const [step, setStep] = useState<'story' | 'why'>('story')
+  if (step === 'story') return <>
+    <section className="lab-intro">
+      <p className="lab-kicker">{kicker}</p>
+      <h1 className="lab-title">{title}</h1>
+      {scene}
+      {speaker && line && <Quip speaker={speaker}>{line}</Quip>}
+    </section>
+    <footer className="lab-bar">
+      <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setStep('why') }}>How it works</button>
+    </footer>
+  </>
+  return <>
+    <WhyScreen kicker={kicker} visual={scene ?? (speaker ? <span className="lab-whyscreen__emoji">{speaker.emoji}</span> : null)} why={why} />
+    <footer className="lab-bar">
+      <div className="lab-bar__actions">
+        <button type="button" className="rv-btn rv-btn--secondary rv-btn--lg rv-icon-btn" aria-label="Back to the story" onClick={() => setStep('story')}>←</button>
+        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={onStart}>{start}</button>
+      </div>
+    </footer>
+  </>
+}
+
 export function Why({ tag = 'Why', children }: { tag?: string; children: ReactNode }) {
   return <p className="lab-why"><span className="lab-why__tag">{tag}</span>{children}</p>
 }

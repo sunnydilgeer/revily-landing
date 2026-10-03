@@ -125,3 +125,21 @@
 .lab-rank__hardlink strong { font: 800 1.05rem/1.2 var(--rv-font-display); }
 .lab-rank__hardlink span { font-size: .85rem; color: var(--rv-on-night-muted); }
 .lab-rank__hardlink:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+
+/* "How it works": the Why on its own screen, a picture of the idea and one short step per line. */
+.lab-whyscreen__visual { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.lab-whyscreen__visual > * { min-width: 0; }
+.lab-whyscreen__visual > .lab-whyscreen__emoji { justify-self: center; }
+.lab-whyscreen__visual svg { display: block; width: 100%; max-width: 320px; height: auto; }
+.lab-whyscreen__emoji { font-size: 4rem; line-height: 1; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+.lab-whyscreen__steps { margin: 0; padding: 0; list-style: none; counter-reset: why; display: grid; gap: 10px; }
+.lab-whyscreen__steps li {
+  counter-increment: why; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start;
+  padding: 10px 12px; border-radius: var(--rv-radius-md); background: var(--rv-night-2); line-height: 1.45; color: var(--rv-on-night);
+}
+.lab-whyscreen__steps li::before {
+  content: counter(why); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  font: 800 .95rem/1 var(--rv-font-display); color: var(--rv-ink); background: var(--rv-yellow);
+}
+/* Keep the steps in view: the picture shrinks to fit on short phones. */
+.lab-whyscreen__visual svg, .lab-whyscreen__visual img { max-height: 32vh; width: auto; max-width: 100%; margin-inline: auto; }

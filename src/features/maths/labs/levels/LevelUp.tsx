@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeGame, num, type Game } from './levels'
@@ -152,16 +152,16 @@ export default function LevelUp() {
     <LabTop progress={`Round ${roundIndex + 1}/${rounds.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{round.title}</p>
-        <h1 className="lab-title">{round.heading}</h1>
-        <div className="lab-card rv-paper lu-stage"><Ladder key={`intro${roundIndex}`} game={game} round={roundIndex} solved={0} /></div>
-        <Quip speaker={PIXEL}>{INTROS[roundIndex]}</Quip>
-        <Why>{round.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>Press start</button>
-      </footer>
+      <IntroSplit
+        key={roundIndex}
+        kicker={round.title}
+        title={round.heading}
+        scene={<div className="lab-card rv-paper lu-stage"><Ladder key={`intro${roundIndex}`} game={game} round={roundIndex} solved={0} /></div>}
+        speaker={PIXEL} line={INTROS[roundIndex]}
+        why={round.why}
+        start="Press start"
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && <>

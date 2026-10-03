@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useCountUp, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useCountUp, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { gbp, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -304,16 +304,16 @@ function StallTycoonGame({ stall, onReplay }: { stall: Stall; onReplay: () => vo
     <LabTop progress={`Day ${roundIndex + 1}/${stall.days.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{day.title}</p>
-        <h1 className="lab-title">{day.headline}</h1>
-        {stage()}
-        <Quip speaker={ZIGGY}>{INTROS[roundIndex]}</Quip>
-        <Why>{day.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>{roundIndex === 0 ? 'Open the stall' : 'Start the day'}</button>
-      </footer>
+      <IntroSplit
+        key={roundIndex}
+        kicker={day.title}
+        title={day.headline}
+        scene={stage()}
+        speaker={ZIGGY} line={INTROS[roundIndex]}
+        why={day.why}
+        start={roundIndex === 0 ? 'Open the stall' : 'Start the day'}
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && <>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
 import { NumberDial } from '../kit/NumberDial'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
@@ -271,16 +271,16 @@ function TrickShotGame({ shots, onReplay }: { shots: Shot[]; onReplay: () => voi
     <LabTop progress={`Shot ${shotIndex + 1}/${shots.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{shot.title}</p>
-        <h1 className="lab-title">{shot.brief}</h1>
-        <div className="lab-card rv-paper ts-card"><Table shot={shot} arcStates={arcStates(0, false)} ball={restBall(shot.questions[0])} banner={null} label={tableLabel} /></div>
-        <Quip speaker={VIC}>{INTROS[shotIndex]}</Quip>
-        <Why>{shot.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>Line it up</button>
-      </footer>
+      <IntroSplit
+        key={shotIndex}
+        kicker={shot.title}
+        title={shot.brief}
+        scene={<div className="lab-card rv-paper ts-card"><Table shot={shot} arcStates={arcStates(0, false)} ball={restBall(shot.questions[0])} banner={null} label={tableLabel} /></div>}
+        speaker={VIC} line={INTROS[shotIndex]}
+        why={shot.why}
+        start="Line it up"
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && !onSide && <>

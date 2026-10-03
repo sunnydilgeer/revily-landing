@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, RankCard, Rule, Why, rankFor, useCountUp, useScore, useShare, recordRank , livesPerRound } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, RankCard, Rule, Why, rankFor, useCountUp, useScore, useShare, recordRank , livesPerRound, IntroSplit } from '../kit/Lab'
 import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
 import { makeJobs, crew, pounds, type Job, type Question } from './jobs'
@@ -191,9 +191,11 @@ function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void 
     </>}
 
     {screen === 'brief' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{job.title}</p>
-        <h1 className="lab-title">{job.brief}</h1>
+      <IntroSplit
+        key={jobIndex}
+        kicker={job.title}
+        title={job.brief}
+        scene={<>
         <ul className="hs-deal" aria-label="The deal">
           {crew.map((member, row) => <li key={member.name}>
             <span className="hs-deal__emoji" aria-hidden="true">{member.emoji}</span>
@@ -202,11 +204,11 @@ function HeistSplitGame({ jobs, onReplay }: { jobs: Job[]; onReplay: () => void 
             <span className="hs-deal__parts">{job.ratio[row]}</span>
           </li>)}
         </ul>
-        <Why>{job.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => setScreen('question')}>Split it</button>
-      </footer>
+        </>}
+        why={job.why}
+        start="Split it"
+        onStart={() => setScreen('question')}
+      />
     </>}
 
     {screen === 'question' && <>
