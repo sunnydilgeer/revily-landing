@@ -10,6 +10,14 @@ import './LabsHome.css'
 export default function LabsHome() {
   const [bests, setBests] = useState<Record<string, Best>>({})
   useEffect(() => setBests(readBests()), [])
+  // Tint the phone's browser bar to match the dark Arcade, and put it back on the way out.
+  useEffect(() => {
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    const before = meta?.content ?? null
+    if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta) }
+    meta.content = '#070a1a'
+    return () => { if (before === null) meta?.remove(); else if (meta) meta.content = before }
+  }, [])
   const played = labCatalog.filter(lab => bests[lab.id]).length
 
   return <div className="labs">
