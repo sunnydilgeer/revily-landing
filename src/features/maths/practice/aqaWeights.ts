@@ -116,6 +116,9 @@ export const aqaMarks: Record<string, number> = {
   '23:sequences-nth-term': 2,
   '23:sequences-in-sequence': 1,
   '23:sequences-consecutive': 1,
+  // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
+  '24:inequalities-number-line': 1,
+  '24:inequalities-two-sided': 1,
 }
 
 /**

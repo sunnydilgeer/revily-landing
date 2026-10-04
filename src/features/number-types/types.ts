@@ -111,6 +111,8 @@ export type MicroSkillId =
   | 'sequences-nth-term'
   | 'sequences-in-sequence'
   | 'sequences-consecutive'
+  | 'inequalities-number-line'
+  | 'inequalities-two-sided'
   | 'mixed'
 
 export type LessonPhase =
@@ -157,8 +159,8 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula' | 'brackets' | 'numberList'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions' | 'list'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula' | 'brackets' | 'numberList' | 'inequality'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions' | 'list' | 'inequality' | 'numbers'
   /** A `list` answer: one box per number in `correctAnswer`, with this word between them ("and", or "," for a row of terms). */
   listJoiner?: string
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */

@@ -104,7 +104,11 @@ export type BracketFrame = { outside: string; inside: { text: string; family: nu
  * Each side is space-separated tokens: `~` in front strikes a token out (it cancels), `^` after it marks the move
  * done to both sides (purple), and `{top|bottom}` is a fraction. Letters are blue, numbers amber. See EquationPictures.tsx.
  */
-export type EquationRow = { left: string; right: string } | { note: string; family?: number } | { answer: string }
+/**
+ * An inequality (lesson 25) uses the same board: `sign` replaces the = sign ("<", "≥", or "[>]" boxed in purple when it
+ * flips), and a row with two signs has a `middle` part between them ("3 < 2x + 1 < 11"), each side worked on alike.
+ */
+export type EquationRow = { left: string; right: string; sign?: string; middle?: string; sign2?: string } | { note: string; family?: number } | { answer: string }
 export type EquationFrame = { rows: EquationRow[] }
 /**
  * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
@@ -172,6 +176,25 @@ export type SequenceFrame = {
   step: number
   adds: 'hops' | 'row' | 'next' | 'lines' | 'answer'
 }
+/**
+ * An inequality on a number line (lessons 24 and 25), the whole picture so far: the numbers under the line, a circle on
+ * each end (filled when that number is included, open when it isn't), the arrow off one end or the line joining two
+ * circles, and whole numbers marked with dots (green: the answer to "list the integers"). Under it, lines of working
+ * and the answer. Each part says which step added it (`at`), so finished parts grey out; `boxed` circles a number in
+ * purple while a step reads or draws it. See InequalityPictures.tsx.
+ */
+export type NumberLineFrame = {
+  ticks: number[]
+  circles?: { value: number; closed: boolean; at: number }[]
+  /** From a circle off the end of the line ('left', 'right'), or to the other circle (a number). */
+  shade?: { from: number; to: number | 'left' | 'right'; at: number }
+  dots?: { values: number[]; at: number }
+  boxed?: number[]
+  lines?: { text: string; family: number; at: number }[]
+  answer?: { text: string; at: number }
+  step: number
+  adds: 'line' | 'lines' | 'answer'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 /** A part of a written method's line: its text, colour (`is-f…`) and whether it is boxed in purple (the carry being added). */
@@ -204,6 +227,7 @@ export type MethodFrame = {
   quadratic?: QuadraticFrame
   solve?: SolveFrame
   sequence?: SequenceFrame
+  numberLine?: NumberLineFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

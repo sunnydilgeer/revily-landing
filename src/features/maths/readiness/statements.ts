@@ -126,6 +126,9 @@ export const canStatements: Record<string, string> = {
   '23:sequences-in-sequence': 'I can decide whether a number is in a sequence by solving, like 5n − 2 = 63 gives n = 13',
   '23:sequences-consecutive': 'I can solve problems with two terms next to each other, using n and n + 1',
 
+  '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
+  '24:inequalities-two-sided': 'I can write and show a two-sided inequality, like 1 ≤ t < 5 as a filled circle at 1 and an open circle at 5, joined',
+
   '22:quadratic-equations': 'I can solve a quadratic like x² + x = 20 by making one side 0, factorising and setting each bracket to 0',
 }
 

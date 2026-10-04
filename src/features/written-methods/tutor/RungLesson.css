@@ -196,3 +196,22 @@
 .rung-formula__key-frac > span:last-child { padding-top: 2px; }
 .rung-answer.is-correct .rung-formula__input { border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint); }
 .rung-answer.is-incorrect .rung-formula__input { border-style: solid; border-color: var(--rv-redpen); color: #a51f1f; background: var(--rv-redpen-tint); }
+
+/* An inequality (InequalityAnswerInput): "x ☐ ☐" or "☐ ☐ x ☐ ☐", each sign slot filled from the four keys underneath. */
+.rung-ineq { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.rung-ineq__row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.rung-ineq label { display: block; margin: 0; }
+.rung-lesson .rung-ineq .rung-answer__input { width: 2.9em; padding: 0 6px; }
+.rung-ineq__letter { color: var(--rv-ink); font-weight: 600; font-style: italic; }
+.rung-ineq__slot { min-width: 48px; height: 56px; padding: 0 4px; border: 3px dashed var(--rv-line-strong); border-radius: 12px; background: var(--rv-surface); color: var(--rv-ink); font: 600 1.6rem var(--rv-font-body); cursor: pointer; }
+.rung-ineq__slot.is-empty { color: var(--rv-muted); }
+.rung-ineq__slot.is-active { border-style: solid; border-color: var(--rv-biro); box-shadow: 0 0 0 4px var(--rv-biro-tint); }
+.rung-ineq__keys { display: flex; gap: 8px; }
+.rung-answer.is-correct .rung-ineq__slot { border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.rung-answer.is-incorrect .rung-ineq__slot { border-style: solid; border-color: var(--rv-redpen); color: #a51f1f; background: var(--rv-redpen-tint); }
+.rung-answer.is-correct .rung-ineq__keys, .rung-answer.is-incorrect .rung-ineq__keys { display: none; }
+@media (max-width: 380px) {
+  .rung-ineq__row { gap: 4px; }
+  .rung-lesson .rung-ineq .rung-answer__input { width: 2.6em; height: 56px; font-size: 1.35rem; }
+  .rung-ineq__slot { min-width: 42px; font-size: 1.35rem; }
+}
