@@ -30,7 +30,7 @@ export function TilePad<S>({ task, picked, onChange, disabled, tone }: {
         const tile = picked[index]
         const next = index === picked.length && !disabled
         return <li key={name}>
-          <button type="button" className={`tp__slot${tile ? ' is-filled' : ''}${next ? ' is-next' : ''}${wrong.has(index) ? ' is-wrong' : ''}`}
+          <button type="button" className={`tp__slot${tile && label(tile).length > 6 ? ' tp__slot--long' : ''}${tile ? ' is-filled' : ''}${next ? ' is-next' : ''}${wrong.has(index) ? ' is-wrong' : ''}`}
             aria-label={tile ? `${name}: ${label(tile)}. Tap to clear` : `${name}: empty`}
             disabled={disabled || !tile} onClick={() => { sfx.tick(); onChange(picked.slice(0, index)) }}>
             {tile ? label(tile) : index + 1}
@@ -39,7 +39,7 @@ export function TilePad<S>({ task, picked, onChange, disabled, tone }: {
       })}
     </ol>
     <div className="tp__palette">
-      {task.palette.map(tile => <button key={tile.value} type="button" className="tp__tile" data-tile={tile.value}
+      {task.palette.map(tile => <button key={tile.value} type="button" className={`tp__tile${(tile.label ?? tile.value).length > 6 ? ' tp__tile--long' : ''}`} data-tile={tile.value}
         disabled={disabled || full} onClick={() => add(tile.value)}>{tile.label ?? tile.value}</button>)}
       <button type="button" className="tp__tile tp__tile--undo" aria-label="Take the last tile back" disabled={disabled || picked.length === 0}
         onClick={() => { sfx.tick(); onChange(picked.slice(0, -1)) }}>←</button>

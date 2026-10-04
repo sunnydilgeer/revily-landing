@@ -1,84 +1,129 @@
-/* Element Hunter: a Bohr atom, the periodic table strip, ions snapping together, a thermometer and a polystyrene cup. The shared lab look is in maths/labs/kit/lab.css. */
-.eh-svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+/* Element Hunter: a packed Bohr atom and its glowing table cell, the periodic table, ions snapping onto a charge meter,
+   reaction cards stamped exo/endo, a thermometer and a polystyrene cup. The shared lab look is in maths/labs/kit/lab.css. */
+.eh-svg { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; overflow: visible; }
 
-.eh-tag text { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.eh-tag text { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
 .eh-tag.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
 .is-hit .eh-tag.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
 .is-high .eh-tag.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
 .is-low .eh-tag.is-dial rect { fill: var(--rv-biro-tint); stroke: var(--rv-biro); stroke-dasharray: none; }
+.is-miss .eh-tag.is-dial rect { stroke-dasharray: none; }
 .eh-note { font: 600 13px var(--rv-font-body); fill: var(--rv-muted); }
-.eh-head { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-head { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-big { font: 800 36px var(--rv-font-display); fill: var(--rv-ink); }
 .eh-tick, .eh-axis { stroke: var(--rv-muted); stroke-width: 1.5; }
 
-/* The 💥 on a too-high answer */
-.eh-pop { font-size: 22px; opacity: 0; transform-box: fill-box; transform-origin: center; }
-.is-high .eh-pop { animation: eh-pop .5s ease-out both; }
-@keyframes eh-pop { 0% { opacity: 0; transform: scale(.4); } 40% { opacity: 1; transform: scale(1.3); } 100% { opacity: .9; transform: scale(1); } }
+/* Bohr atom: the nucleus is a cluster of protons (red) and neutrons (grey) that grows as you dial */
+.eh-shell { fill: none; stroke: var(--rv-line-strong); stroke-width: 2; transition: stroke .2s; }
+.eh-shell.is-empty { stroke-dasharray: 4 4; }
+.eh-shell.is-next { stroke: var(--rv-yellow-deep); stroke-width: 3; stroke-dasharray: 6 4; animation: eh-pulse 1s ease-in-out infinite; }
+.eh-shell.is-wrong { stroke: var(--rv-redpen); stroke-width: 3; }
+.is-hit .eh-shell { stroke: var(--rv-teal); stroke-width: 2.5; stroke-dasharray: none; }
+.eh-electron { fill: var(--rv-biro); stroke: var(--rv-surface); stroke-width: 2; }
+.eh-electron.is-wrong { fill: var(--rv-redpen); }
+.eh-e-in { animation: eh-pop-in .3s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+.eh-nucleus__halo { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; transition: r .25s ease-out; }
+.eh-proton { fill: var(--rv-alarm); stroke: var(--rv-alarm-deep); stroke-width: 1; }
+.eh-neutron { fill: var(--rv-line-strong); stroke: var(--rv-ink-2); stroke-width: 1; }
+.is-hit .eh-nucleus__halo { fill: var(--rv-teal-tint); stroke: var(--rv-teal-ink); }
+.is-high .eh-nucleus__halo { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.is-low .eh-nucleus__halo { fill: var(--rv-biro-tint); stroke: var(--rv-biro); }
+.is-go .eh-orbit, .is-hit .eh-orbit { animation: eh-spin 1.2s cubic-bezier(.4, 0, .2, 1); }
 
-/* The element symbol, with its mass number up top */
-.eh-symbol { font: 800 34px var(--rv-font-display); fill: var(--rv-ink); }
-.eh-symbol__num { font-size: 15px; fill: var(--rv-ink-2); }
+/* The element's own table cell, which glows on a hit */
+.eh-el rect { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; transition: fill .3s; }
+.eh-el__sym { font: 800 40px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-el__num { font: 800 15px var(--rv-font-display); fill: var(--rv-ink-2); font-variant-numeric: tabular-nums; }
+.eh-el__name { font: 700 12px var(--rv-font-body); fill: var(--rv-muted); }
+.eh-el.is-lit rect { fill: var(--rv-teal-tint); stroke: var(--rv-teal-ink); animation: eh-glow 1.2s ease-out; }
 
-/* Bohr atom */
-.eh-shell { fill: none; stroke: var(--rv-line-strong); stroke-width: 1.5; }
-.eh-shell--outer { stroke: var(--rv-ink-2); stroke-dasharray: 3 3; }
-.eh-atom.is-full .eh-shell--outer, .is-hit .eh-shell--outer { stroke: var(--rv-good); stroke-dasharray: none; stroke-width: 2.5; }
-.eh-electron { fill: var(--rv-biro); stroke: var(--rv-surface); stroke-width: 1.5; }
-.eh-nucleus circle { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 2; }
-.eh-nucleus text { font: 800 13px var(--rv-font-display); fill: #1c2230; }
-.eh-electrons { transform-box: view-box; transform-origin: 92px 100px; }
-.is-go .eh-electrons { animation: eh-spin .75s linear; }
-.is-hit .eh-nucleus circle { fill: var(--rv-good-tint); stroke: var(--rv-good); }
-.is-high .eh-nucleus circle { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
-.is-low .eh-nucleus circle { fill: var(--rv-biro-tint); stroke: var(--rv-biro); }
-.is-low .eh-electrons { opacity: .5; }
-@keyframes eh-spin { to { transform: rotate(360deg); } }
-
-/* Periodic table strip */
+/* Periodic table */
 .eh-cell rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; transition: fill .2s, stroke .2s; }
-.eh-cell text { font: 700 13px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-cell text { font: 700 14px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-cell.is-pickable rect { stroke: var(--rv-ink); stroke-width: 2.5; }
+.eh-cell.is-next rect { stroke: var(--rv-yellow-deep); stroke-width: 3; fill: var(--rv-yellow-tint); animation: eh-pulse 1s ease-in-out infinite; }
+.eh-cell.is-metal rect, .eh-legend__metal { fill: var(--rv-teal-tint); stroke: var(--rv-teal-ink); }
+.eh-cell.is-non-metal rect, .eh-legend__non { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); }
+.eh-legend rect { stroke-width: 2; }
+.eh-legend text { font: 700 14px var(--rv-font-body); fill: var(--rv-ink); }
+.eh-cell.is-wrong rect { fill: var(--rv-redpen-tint) !important; stroke: var(--rv-redpen) !important; }
+.eh-cell.is-target rect { fill: var(--rv-teal-tint); stroke: var(--rv-teal-ink); stroke-width: 3; animation: eh-glow 1.2s ease-out; }
+.eh-badge circle { fill: var(--rv-night); }
+.eh-badge text { font: 800 12px var(--rv-font-display); fill: var(--rv-yellow); }
+.eh-stairs { fill: none; stroke: var(--rv-ink); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 400; animation: eh-draw .8s ease-out both; }
 .eh-col { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
 .eh-col-head { fill: var(--rv-ink); font-weight: 800; }
-.eh-cell.is-pick rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2.5; }
-.eh-cell.is-target rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-width: 2.5; }
-.is-hit .eh-col { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; opacity: .7; }
-.is-high .eh-col, .is-high .eh-cell.is-pick rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
-.is-low .eh-col, .is-low .eh-cell.is-pick rect { fill: var(--rv-biro-tint); stroke: var(--rv-biro); }
-.eh-table.is-go .eh-cell rect { animation: eh-scan .7s steps(4) both; }
-@keyframes eh-scan { 50% { fill: var(--rv-yellow-tint); } }
+.is-hit .eh-col { fill: var(--rv-teal-tint); stroke: var(--rv-teal-ink); stroke-dasharray: none; opacity: .7; }
+.is-high .eh-col { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.is-low .eh-col { fill: var(--rv-biro-tint); stroke: var(--rv-biro); }
+.eh-config { font: 800 24px var(--rv-font-display); fill: var(--rv-ink-2); }
+.eh-config__outer { fill: var(--rv-alarm-deep); }
+.is-go .eh-cell rect { animation: eh-scan .7s steps(4) both; }
 
-/* Ions snapping together */
-.eh-ion circle { stroke-width: 2.5; }
-.eh-ion text { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); }
+/* Ions: the electrons that leave fly off; the ion gets its square brackets and charge */
+.eh-fly { animation: eh-fly .5s ease-out both; transform-box: fill-box; transform-origin: center; }
+.eh-bracket path { fill: none; stroke: var(--rv-ink); stroke-width: 3; }
+.eh-bracket text { font: 800 22px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-bracket { animation: eh-pop-in .4s ease-out both; transform-box: fill-box; transform-origin: center; }
+
+/* Ions snapping together on the bench, over a charge meter that must land on 0 */
+.eh-ion circle { stroke-width: 3; }
+.eh-ion text { font: 800 18px var(--rv-font-display); fill: var(--rv-ink); }
 .eh-ion--plus circle { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
 .eh-ion--minus circle { fill: var(--rv-biro-tint); stroke: var(--rv-biro); }
-.eh-link { stroke: var(--rv-line-strong); stroke-width: 3; stroke-dasharray: 4 4; }
-.is-hit .eh-link { stroke: var(--rv-good); stroke-dasharray: none; }
-.eh-snap__ion { animation: eh-snap .3s ease-out both; transform-box: fill-box; transform-origin: center; }
+.is-miss .eh-ion.is-fake circle { stroke-dasharray: 5 4; fill: var(--rv-surface); }
+.eh-drop { animation: eh-drop .35s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
 .eh-snap { transform-box: fill-box; transform-origin: center; }
-.is-go .eh-snap { animation: eh-buzz .2s linear 3; }
-.is-hit .eh-snap { animation: eh-bounce .5s ease-out; }
-.is-high .eh-snap, .is-low .eh-snap { animation: eh-buzz .15s linear 4; }
-@keyframes eh-snap { from { opacity: 0; transform: scale(.4); } }
-@keyframes eh-buzz { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
-@keyframes eh-bounce { 40% { transform: scale(1.06); } }
+.is-go .eh-snap, .is-miss .eh-snap { animation: eh-buzz .15s linear 4; }
+.eh-snap.is-snapped .eh-ion circle { stroke: var(--rv-teal-ink); }
+.eh-snap.is-snapped { animation: eh-bounce .5s ease-out; }
+.eh-formula { font: 800 30px var(--rv-font-display); fill: var(--rv-teal-ink); animation: eh-pop-in .4s .2s ease-out both; transform-box: fill-box; transform-origin: center; }
+.eh-meter__track { fill: var(--rv-line); }
+.eh-meter__zero { fill: none; stroke: var(--rv-good); stroke-width: 2.5; }
+.eh-meter__sign { font: 800 20px var(--rv-font-display); fill: var(--rv-muted); }
+.eh-meter__needle path { fill: var(--rv-ink); transition: d .3s ease-out; }
+.eh-meter.is-zero .eh-meter__needle path { fill: var(--rv-good); }
+.eh-meter.is-plus .eh-meter__needle path { fill: var(--rv-redpen); }
+.eh-meter.is-minus .eh-meter__needle path { fill: var(--rv-biro); }
+.eh-meter.is-zero .eh-meter__zero { fill: var(--rv-good-tint); }
+
+/* Reaction cards: stamped EXO (red, up) or ENDO (blue, down) */
+.eh-card rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; transition: fill .2s; }
+.eh-card.is-next > rect { stroke: var(--rv-yellow-deep); stroke-width: 3; animation: eh-pulse 1s ease-in-out infinite; }
+.eh-card.is-exo > rect { fill: var(--rv-redpen-tint); }
+.eh-card.is-endo > rect { fill: var(--rv-biro-tint); }
+.eh-card.is-wrong > rect { stroke: var(--rv-redpen); stroke-width: 3.5; }
+.is-hit .eh-card > rect { stroke: var(--rv-good); stroke-width: 3; }
+.eh-card__icon { font-size: 40px; }
+.eh-card__name { font: 700 13px var(--rv-font-body); fill: var(--rv-ink); }
+.eh-card__num { fill: var(--rv-night); }
+.eh-card__numt { font: 800 12px var(--rv-font-display); fill: var(--rv-yellow); }
+.eh-stamp { animation: eh-stamp .25s ease-out both; transform-box: fill-box; transform-origin: center; }
+.eh-stamp rect { fill: var(--rv-surface); stroke-width: 2.5; }
+.eh-stamp text { font: 800 14px var(--rv-font-display); }
+.is-exo .eh-stamp rect { stroke: var(--rv-redpen); } .is-exo .eh-stamp text { fill: var(--rv-redpen); }
+.is-endo .eh-stamp rect { stroke: var(--rv-biro); } .is-endo .eh-stamp text { fill: var(--rv-biro); }
+.is-wrong .eh-stamp { animation: eh-buzz .15s linear 4; }
 
 /* Thermometer and cup: red and steaming when too hot, blue and frosty when too cold */
 .eh-glass { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; }
 .eh-liquid, .eh-bulb { fill: var(--rv-alarm); transition: y .5s ease-out, height .5s ease-out, fill .2s; }
 .eh-bulb { stroke: var(--rv-ink); stroke-width: 2.5; }
 .eh-startline { stroke: var(--rv-ink-2); stroke-width: 2; stroke-dasharray: 3 2; }
+.eh-risebar path { fill: none; stroke: var(--rv-ink-2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .is-hit .eh-liquid, .is-hit .eh-bulb { fill: var(--rv-good); }
 .is-high .eh-liquid, .is-high .eh-bulb { fill: var(--rv-redpen); }
 .is-low .eh-liquid, .is-low .eh-bulb { fill: var(--rv-biro); }
-.eh-steam, .eh-frost { font-size: 18px; opacity: 0; transition: opacity .3s; }
-.is-high .eh-steam { opacity: 1; animation: eh-rise 1s ease-in-out infinite; }
+.eh-steam, .eh-frost { font-size: 20px; opacity: 0; transition: opacity .3s; transform-box: fill-box; transform-origin: center; }
+.is-high .eh-steam, .is-hit .eh-steam { opacity: 1; animation: eh-rise 1s ease-in-out infinite; }
 .is-low .eh-frost { opacity: 1; }
-.eh-steam { transform-box: fill-box; transform-origin: center; }
-@keyframes eh-rise { 50% { transform: translateY(-5px); } }
-.eh-item { font-size: 40px; transform-box: fill-box; transform-origin: center; }
-.is-go .eh-item { animation: eh-buzz .2s linear 3; }
-.is-low .eh-item { filter: hue-rotate(180deg) saturate(.6); }
+.eh-item { font-size: 56px; }
+.eh-warmer { transform-box: fill-box; transform-origin: center; }
+.eh-warmer__glow { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 5 5; }
+.is-go .eh-warmer { animation: eh-buzz .2s linear 3; }
+.is-hit .eh-warmer__glow { fill: color-mix(in srgb, var(--rv-alarm) 30%, var(--rv-surface)); stroke: var(--rv-alarm); stroke-dasharray: none; animation: eh-glow 1.2s ease-out; }
+.is-low .eh-warmer__glow { fill: var(--rv-biro-tint); stroke: var(--rv-biro); }
+.is-high .eh-warmer__glow { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
 .eh-cup__body { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; }
 .eh-cup__liquid { fill: color-mix(in srgb, var(--rv-teal) 30%, transparent); }
 .eh-cup__lid { fill: var(--rv-ink-2); }
@@ -86,18 +131,33 @@
 .is-low .eh-cup__liquid { fill: color-mix(in srgb, var(--rv-biro) 35%, transparent); }
 .eh-cup { transform-box: fill-box; transform-origin: center bottom; }
 .is-go .eh-cup { animation: eh-buzz .2s linear 3; }
-@keyframes eh-boil { 50% { transform: translateY(-4px); } }
-.eh-cell-text { font: 700 14px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.eh-row rect { fill: transparent; }
+.eh-row.is-peak rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-width: 2; }
+.eh-cell-text { font: 700 15px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
 
 /* Repeats bar chart */
 .eh-bar rect { fill: color-mix(in srgb, var(--rv-teal) 40%, var(--rv-surface)); stroke: var(--rv-ink); stroke-width: 2; }
-.eh-bar__label { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); }
-.eh-mean { stroke: var(--rv-yellow-deep); stroke-width: 3; stroke-dasharray: 6 4; transition: y1 .3s, y2 .3s; }
+.eh-bar__label { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.eh-mean { stroke: var(--rv-yellow-deep); stroke-width: 3.5; stroke-dasharray: 6 4; transition: y1 .3s, y2 .3s; }
 .is-hit .eh-mean { stroke: var(--rv-good); stroke-dasharray: none; }
 .is-high .eh-mean { stroke: var(--rv-redpen); }
 .is-low .eh-mean { stroke: var(--rv-biro); }
 
+@keyframes eh-spin { to { transform: rotate(360deg); } }
+@keyframes eh-pulse { 50% { stroke-opacity: .35; } }
+@keyframes eh-pop-in { from { opacity: 0; transform: scale(.2); } }
+@keyframes eh-drop { from { opacity: 0; transform: translateY(-40px) scale(.6); } }
+@keyframes eh-fly { from { opacity: 1; transform: translate(-120px, -80px); } }
+@keyframes eh-glow { 0% { filter: drop-shadow(0 0 0 var(--rv-teal)); } 40% { filter: drop-shadow(0 0 10px var(--rv-teal)); } 100% { filter: none; } }
+@keyframes eh-draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+@keyframes eh-scan { 50% { fill: var(--rv-yellow-tint); } }
+@keyframes eh-stamp { from { opacity: 0; transform: scale(1.8); } }
+@keyframes eh-buzz { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+@keyframes eh-bounce { 40% { transform: scale(1.06); } }
+@keyframes eh-rise { 50% { transform: translateY(-5px); } }
+@keyframes eh-boil { 50% { transform: translateY(-4px); } }
+
 @media (prefers-reduced-motion: reduce) {
   .eh-svg, .eh-svg * { animation: none !important; transition: none !important; }
-  .is-high .eh-pop { opacity: .9; }
+  .eh-stairs { stroke-dasharray: none; }
 }

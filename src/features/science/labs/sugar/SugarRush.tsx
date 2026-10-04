@@ -3,8 +3,10 @@
 import type { Speaker } from '../../../maths/labs/kit/Lab'
 import { useGenerated } from '../../../maths/labs/kit/random'
 import { sfx } from '../../../maths/labs/kit/sfx'
-import { DialGame, type DialGameConfig, type Phase, type StageProps } from '../kit/DialGame'
-import { u, type Task } from '../kit/types'
+import type { Phase } from '../kit/DialGame'
+import { PlayGame, type PlayGameConfig, type PlayStageProps } from '../kit/PlayGame'
+import { isTiles, wrongSlots, type TileTask } from '../kit/tiles'
+import { n, u, type Task } from '../kit/types'
 import { makeRounds, ordinal, type Scene } from './rounds'
 import './SugarRush.css'
 
@@ -14,230 +16,428 @@ const KEMI: Speaker = {
   wrong: ['Ooh, that reading made the monitor beep.', 'Not quite, my love. Have another look.', 'Hmm. Even the vending machine knows that’s off.', 'Steady on! Check your working first.'],
 }
 
-/** The scene's mood: plain while setting, playing on Check, then settled (right), too high or too low. */
-function mood(phase: Phase, value: number, answer: number) {
-  if (phase === 'hit') return 'is-hit'
-  if (phase === 'go') return 'is-go'
-  if (phase === 'miss') return value > answer ? 'is-miss is-high' : 'is-miss is-low'
-  return ''
+/** Everything a picture needs: dial state (value, too high/low) or tile state (what's placed, which slots are wrong). */
+type View = {
+  scene: Scene
+  phase: Phase
+  /** Dial: the value to draw (the answer on a hit), and whether the dial is untouched. */
+  shown: number
+  fresh: boolean
+  live: string
+  high: boolean
+  /** Tiles: what's in each slot, its label, and the slots marked wrong. */
+  picked: string[]
+  labels: string[]
+  wrong: Set<number>
+  answer: string[]
 }
 
-const note = (cls: string, hit: string, high: string, low: string) =>
-  cls.includes('is-hit') ? hit : cls.includes('is-high') ? high : cls.includes('is-low') ? low : ''
+/** Greedy word wrap for SVG text: short lines for a narrow card. */
+const wrap = (text: string, max: number) => text.split(' ').reduce<string[]>((lines, word) => {
+  const last = lines[lines.length - 1]
+  if (last !== undefined && (last + ' ' + word).length <= max) lines[lines.length - 1] = `${last} ${word}`
+  else lines.push(word)
+  return lines
+}, [])
 
-/** The readout beside the picture: the given values, then the dial's slot. */
-function Readout({ given, label, live, x = 186, y = 30 }: { given: [string, string][]; label: string; live: string; x?: number; y?: number }) {
-  const rows = [...given, [label, live] as [string, string]]
-  return <g className="sr-readout">
-    {rows.map(([name, text], i) => {
-      const dial = i === rows.length - 1, top = y + i * 50
-      return <g key={name} className={dial ? 'sr-slot is-dial' : 'sr-slot'}>
-        <text x={x} y={top} className="sr-slot__name">{name}</text>
-        {dial && <rect x={x - 4} y={top + 6} width={130} height={26} rx="6" />}
-        <text x={x + 2} y={top + 25} className="sr-slot__value">{text}</text>
+/** A slot's look: empty (dashed), next to fill (pulsing), placed, right (on a hit) or wrong (on a miss). */
+const slotClass = (v: View, i: number) => {
+  if (v.phase === 'hit') return 'is-right'
+  if (v.wrong.has(i)) return 'is-wrong'
+  if (v.picked[i]) return 'is-placed'
+  return v.phase === 'set' && i === v.picked.length ? 'is-next' : 'is-empty'
+}
+
+/** The given values and the dial's slot, as a row of chips along the bottom. */
+function Chips({ given, live, label, y = 206 }: { given: [string, string][]; live?: string; label?: string; y?: number }) {
+  const rows: [string, string, boolean][] = [...given.map(([a, b]) => [a, b, false] as [string, string, boolean]), ...(label ? [[label, live ?? '?', true] as [string, string, boolean]] : [])]
+  const w = (308 - (rows.length - 1) * 6) / rows.length
+  return <g>
+    {rows.map(([name, value, dial], i) => {
+      const x = 6 + i * (w + 6)
+      return <g key={i} className={`sr-chip${dial ? ' is-dial' : ''}`}>
+        <rect x={x} y={y} width={w} height={40} rx="10" />
+        <text x={x + w / 2} y={y + 15} textAnchor="middle" className="sr-chip__name">{name}</text>
+        <text x={x + w / 2} y={y + 34} textAnchor="middle" className="sr-chip__value">{value}</text>
       </g>
     })}
   </g>
 }
 
-type Part = { scene: Scene; shown: number; answer: number; fresh: boolean; label: string; live: string; cls: string }
+/* ---------- Round 1: the body and its reflex arc ---------- */
 
-/** The reflex arc: receptor, sensory neurone up to the spinal cord, relay, motor neurone out to the effector. The impulse runs the path on Check. */
-function Reflex({ scene, shown, answer, fresh, label, live, cls }: Part) {
-  const r = scene.reflex!
-  const lit = fresh ? 0 : Math.max(0.08, Math.min(1, shown / answer)) * 100
-  const path = 'M30 160 C30 110 50 70 92 60 L120 60 C150 70 160 110 160 160'
-  return <svg viewBox="0 0 320 200" className={`sr-board ${cls}`} role="img" aria-label={`Reflex arc from receptor to effector, ${label} ${live}`}>
-    <rect x="62" y="22" width="88" height="54" rx="12" className="sr-cord" />
-    <text x="106" y="42" textAnchor="middle" className="sr-tag">spinal cord</text>
-    <path d={path} className="sr-nerve" fill="none" />
-    <path d={path} className="sr-nerve__lit" pathLength={100} strokeDasharray={`${lit} 100`} fill="none" />
-    <circle cx="106" cy="60" r="5" className="sr-relay" />
-    <text x="30" y="186" textAnchor="middle" className="sr-emoji">{r.from}</text>
-    <text x="160" y="186" textAnchor="middle" className="sr-emoji">{r.to}</text>
-    <text x="44" y="160" className="sr-tag">sensory</text>
-    <text x="148" y="160" textAnchor="end" className="sr-tag">motor</text>
-    <text x="96" y="132" textAnchor="middle" className="sr-note">{scene.given[1][0] === 'Speed' ? note(cls, 'reflex!', 'too slow: ouch', 'impossibly fast') : note(cls, 'reflex!', 'impossibly fast', 'too slow: ouch')}</text>
-    <Readout given={scene.given} label={label} live={live} />
-  </svg>
+const ARC = {
+  receptor: 'M44 146',
+  sensory: 'M44 146 C84 142 124 130 164 120 S230 112 258 112',
+  relay: 'M258 112 C268 104 268 94 258 86',
+  motor: 'M258 86 C242 82 228 86 216 90',
+  all: 'M44 146 C84 142 124 130 164 120 S230 112 258 112 C268 104 268 94 258 86 C242 82 228 86 216 90',
 }
+const ARC_SHORT: Record<string, string> = { receptor: 'receptor', sensory: 'sensory', relay: 'relay', motor: 'motor', effector: 'effector', brain: 'brain?', hormone: 'hormone?' }
+/** Where each part's tag sits, in slot order: receptor, sensory, relay, motor, effector. */
+const ARC_TAGS: [number, number][] = [[54, 100], [124, 158], [280, 160], [216, 128], [160, 64]]
+const ARC_PARTS = ['receptor', 'sensory', 'relay', 'motor', 'effector']
 
-/** The clinic glucose monitor: the trace climbs after the drink and comes back to the healthy band. */
-function Glucose({ scene, shown, fresh, label, live, cls }: Part) {
-  const g = scene.glucose!
-  const X = (min: number) => 22 + Math.min(240, min) * 148 / 240
-  const Y = (mmol: number) => 116 - Math.max(0, Math.min(14, mmol)) * 92 / 14
-  const peak = g.mode === 'rise' ? (fresh ? g.base : g.base + shown) : g.peak
-  const back = g.mode === 'fall' ? (fresh ? g.peakAt : g.peakAt + shown) : g.backAt
-  const d = `M${X(0)} ${Y(g.base)} L${X(10)} ${Y(g.base)} C${X(g.peakAt * 0.6)} ${Y(g.base)} ${X(g.peakAt * 0.7)} ${Y(peak)} ${X(g.peakAt)} ${Y(peak)}`
-    + ` C${X(g.peakAt + (back - g.peakAt) * 0.4)} ${Y(peak)} ${X(back - Math.max(5, (back - g.peakAt) * 0.3))} ${Y(g.base)} ${X(back)} ${Y(g.base)} L${X(240)} ${Y(g.base)}`
-  return <svg viewBox="0 0 320 200" className={`sr-board ${cls}`} role="img" aria-label={`Blood glucose monitor, ${label} ${live}`}>
-    <rect x="6" y="10" width="172" height="134" rx="10" className="sr-mon" />
-    <rect x="22" y={Y(7)} width="148" height={Y(4) - Y(7)} className="sr-band" />
-    <text x="168" y={Y(7) - 4} textAnchor="end" className="sr-mon__tag">healthy</text>
-    <line x1="22" y1="116" x2="170" y2="116" className="sr-axis" />
-    {[0, 60, 120, 180].map(t => <text key={t} x={X(t)} y="134" textAnchor="middle" className="sr-mon__tag">{t}</text>)}
-    {g.mode === 'rise' && <line x1="22" y1={Y(g.peak)} x2="170" y2={Y(g.peak)} className="sr-target" />}
-    {g.mode === 'fall' && <line x1={X(g.backAt)} y1="20" x2={X(g.backAt)} y2="116" className="sr-target" />}
-    <path d={d} className="sr-trace" fill="none" />
-    <text x="92" y="160" textAnchor="middle" className="sr-tag">time after drink (min)</text>
-    <text x="92" y="186" textAnchor="middle" className="sr-note">{note(cls, 'back in the band', g.mode === 'rise' ? 'spiked too high' : 'took too long', g.mode === 'rise' ? 'barely moved' : 'dropped too fast')}</text>
-    <Readout given={scene.given} label={label} live={live} />
-  </svg>
-}
-
-/** The clinic list as 20 dots: type 1 in orange, the dial colours in type 2. */
-function Crowd({ scene, shown, fresh, label, live, cls }: Part) {
-  const c = scene.crowd!
-  const free = 20 - c.type1 - c.matched
-  const marked = fresh ? 0 : Math.max(0, Math.min(free, Math.round(shown / c.per)))
-  const over = !fresh && shown / c.per > free
-  return <svg viewBox="0 0 320 200" className={`sr-board ${cls}`} role="img" aria-label={`Clinic list as 20 dots, ${label} ${live}`}>
-    <rect x="6" y="14" width="172" height="148" rx="12" className="sr-room" />
-    {Array.from({ length: 20 }, (_, i) => {
-      const kind = i < c.type1 ? 'is-t1' : i < c.type1 + c.matched ? 'is-match' : i < c.type1 + c.matched + marked ? 'is-t2' : ''
-      return <circle key={i} cx={30 + (i % 5) * 31} cy={38 + Math.floor(i / 5) * 33} r="12" className={`sr-dot ${kind}`} />
-    })}
-    {over && <text x="92" y="10" textAnchor="middle" className="sr-note">more than there are!</text>}
-    <g className="sr-key">
-      <circle cx="16" cy="180" r="6" className="sr-dot is-t2" /><text x="26" y="185">type 2</text>
-      {c.type1 > 0 && <><circle cx="84" cy="180" r="6" className="sr-dot is-t1" /><text x="94" y="185">type 1</text></>}
+function Reflex(v: View & { dial: boolean }) {
+  const a = v.scene.arc!
+  const part = (i: number) => v.dial ? (v.phase === 'hit' ? 'is-right' : v.phase === 'miss' ? 'is-wrong' : 'is-placed') : slotClass(v, i)
+  const jerk = v.phase === 'hit'
+  const note = v.dial
+    ? v.phase === 'hit' ? `Reflex! Hand off the ${a.what}.` : v.phase === 'miss' ? (v.high ? 'Faster than any nerve!' : 'Too slow… ouch!') : ''
+    : v.phase === 'hit' ? `Reflex! Hand off the ${a.what}.` : v.phase === 'miss' ? `Impulse blocked at step ${[...v.wrong][0] + 1}.` : 'Build it: receptor end first.'
+  return <g className={v.dial && v.phase === 'miss' ? (v.high ? 'is-high' : 'is-low') : ''}>
+    {/* The patient: head, torso with the spinal cord, and an arm reaching for the danger. */}
+    <circle cx="262" cy="22" r="18" className="sr-skin" />
+    <circle cx="256" cy="20" r="2.4" className="sr-ink" /><circle cx="268" cy="20" r="2.4" className="sr-ink" />
+    <path d={v.phase === 'hit' ? 'M255 30 Q262 26 269 30' : v.phase === 'miss' ? 'M256 31 Q262 25 268 31' : 'M256 29 Q262 33 268 29'} className="sr-ink-line" fill="none" />
+    <rect x="226" y="44" width="72" height="156" rx="22" className="sr-skin" />
+    <rect x="255" y="50" width="14" height="146" rx="7" className="sr-cord" />
+    {Array.from({ length: 10 }, (_, i) => <line key={i} x1="255" x2="269" y1={60 + i * 14} y2={60 + i * 14} className="sr-vert" />)}
+    <text x="290" y="194" textAnchor="end" className="sr-tiny">spine</text>
+    <g className={jerk ? 'sr-jerk' : undefined}>
+      <path d="M236 78 L160 112 L66 132" className="sr-arm-out" fill="none" />
+      <path d="M236 78 L160 112 L66 132" className="sr-arm" fill="none" />
+      <circle cx="52" cy="136" r="17" className="sr-skin" />
+      <ellipse cx="200" cy="94" rx="22" ry="11" transform="rotate(-24 200 94)" className={`sr-muscle ${part(4)}`} />
+      <path d={ARC.sensory} className={`sr-nerve ${part(1)}`} fill="none" />
+      <path d={ARC.relay} className={`sr-nerve ${part(2)}`} fill="none" />
+      <path d={ARC.motor} className={`sr-nerve ${part(3)}`} fill="none" />
+      <circle cx="44" cy="146" r="6" className={`sr-receptor ${part(0)}`} />
+      {(v.phase === 'go' || v.phase === 'hit' || (v.dial && v.phase === 'miss')) &&
+        <path d={ARC.all} pathLength={100} className={`sr-pulse${v.phase === 'go' ? ' is-run' : ''}`} fill="none" />}
     </g>
-    <text x="186" y="194" className="sr-tag">{c.key}</text>
-    <Readout given={scene.given} label={label} live={live} />
-  </svg>
-}
-
-/** A month on the clinic calendar: day 1 of the cycle in red, the dial's date ringed. */
-function Calendar({ scene, shown, answer, fresh, label, live, cls }: Part) {
-  const start = scene.calendar!.start
-  return <svg viewBox="0 0 320 200" className={`sr-board ${cls}`} role="img" aria-label={`Calendar, day 1 on the ${ordinal(start)}, ${label} ${live}`}>
-    <rect x="6" y="10" width="172" height="164" rx="10" className="sr-room" />
-    {'MTWTFSS'.split('').map((day, i) => <text key={i} x={20 + i * 24} y="30" textAnchor="middle" className="sr-tag">{day}</text>)}
-    {Array.from({ length: 31 }, (_, i) => {
-      const date = i + 1, cx = 20 + (i % 7) * 24, cy = 50 + Math.floor(i / 7) * 26
-      const period = date >= start && date < start + 5
-      const picked = !fresh && date === shown
-      return <g key={date} className={`sr-day${period ? ' is-period' : ''}${picked ? ' is-picked' : ''}${date === answer && cls.includes('is-hit') ? ' is-egg' : ''}`}>
-        <rect x={cx - 11} y={cy - 12} width="22" height="22" rx="6" />
-        <text x={cx} y={cy + 4} textAnchor="middle">{date}</text>
+    <text x="34" y="190" textAnchor="middle" className={`sr-danger${v.phase === 'miss' ? ' is-ouch' : ''}`}>{a.emoji}</text>
+    {ARC_TAGS.map(([x, y], i) => {
+      const tile = v.dial ? ARC_PARTS[i] : v.phase === 'hit' ? v.answer[i] : v.picked[i]
+      return <g key={i} className={`sr-tag ${v.dial ? 'is-placed' : slotClass(v, i)}`}>
+        <rect x={x - 38} y={y - 10} width="76" height="22" rx="11" />
+        <text x={x} y={y + 5} textAnchor="middle">{tile ? ARC_SHORT[tile] ?? tile : i + 1}</text>
       </g>
     })}
-    <text x="92" y="192" textAnchor="middle" className="sr-note">{note(cls, 'day 14: ovulation', 'too late in the cycle', 'too early in the cycle')}</text>
-    <Readout given={scene.given} label={label} live={live === '?' ? '?' : `the ${ordinal(shown)}`} />
-  </svg>
+    {v.dial
+      ? <><text x="140" y="192" textAnchor="middle" className="sr-note">{note}</text>
+        <Chips given={v.scene.given} label="Speed" live={v.live} /></>
+      : <text x="160" y="232" textAnchor="middle" className="sr-note">{note}</text>}
+  </g>
 }
 
-/** The tracked days as one long bar, a tick every 28 days. The dial drops an egg every cycle at day 14. */
-function Cycles({ scene, shown, fresh, label, live, cls }: Part) {
-  const days = scene.days!, W = 160, X = (day: number) => 14 + day * W / days
-  const eggs = fresh ? 0 : Math.max(0, Math.min(30, shown))
-  return <svg viewBox="0 0 320 200" className={`sr-board ${cls}`} role="img" aria-label={`${days} tracked days, ${label} ${live}`}>
-    <rect x="14" y="88" width={W} height="20" rx="6" className="sr-bar" />
-    {Array.from({ length: Math.floor(days / 28) + 1 }, (_, i) => <line key={i} x1={X(i * 28)} y1="82" x2={X(i * 28)} y2="114" className="sr-tick" />)}
-    {Array.from({ length: eggs }, (_, i) => {
-      const x = X(14 + i * 28), out = 14 + i * 28 > days
-      return <circle key={i} cx={Math.min(x, 178)} cy={out ? 70 : 76} r="5" className={`sr-egg${out ? ' is-out' : ''}`} />
+/* ---------- Round 2: the glucose monitor and the control chain ---------- */
+
+type Shape = 'rise' | 'settle' | 'spike' | 'crash'
+/** A glucose trace: flat at the start, up to the peak, then it stops (rise), settles back into the band, keeps spiking, or crashes below it. */
+function trace(X0: number, X1: number, Y: (mmol: number) => number, base: number, peak: number, shape: Shape) {
+  const w = X1 - X0, px = X0 + w * .38
+  const up = `M${X0} ${Y(base)} L${X0 + w * .12} ${Y(base)} C${X0 + w * .25} ${Y(base)} ${X0 + w * .28} ${Y(peak)} ${px} ${Y(peak)}`
+  if (shape === 'rise') return up
+  if (shape === 'settle') return `${up} C${X0 + w * .5} ${Y(peak)} ${X0 + w * .62} ${Y(base)} ${X0 + w * .78} ${Y(base)} L${X1} ${Y(base)}`
+  if (shape === 'crash') return `${up} C${X0 + w * .48} ${Y(peak)} ${X0 + w * .56} ${Y(1.5)} ${X0 + w * .7} ${Y(1.5)} L${X0 + w * .78} ${Y(2.2)} L${X0 + w * .86} ${Y(1.2)} L${X1} ${Y(1.6)}`
+  return `${up} L${X0 + w * .5} ${Y(peak + .6)} L${X0 + w * .58} ${Y(peak - .4)} L${X0 + w * .68} ${Y(peak + 1)} L${X0 + w * .78} ${Y(peak + .2)} L${X1} ${Y(peak + 1.4)}`
+}
+
+function Monitor(v: View) {
+  const g = v.scene.glucose!
+  const Y = (mmol: number) => 184 - Math.max(0, Math.min(17, mmol)) * 9.6
+  const peak = v.fresh ? g.base : g.base + v.shown
+  const cls = v.phase === 'miss' ? (v.high ? 'is-high' : 'is-low') : ''
+  const shape: Shape = v.phase === 'hit' ? 'settle' : v.phase === 'miss' ? (v.high ? 'spike' : 'crash') : 'rise'
+  return <g className={cls}>
+    <rect x="6" y="6" width="308" height="194" rx="16" className="sr-mon" />
+    <rect x="36" y={Y(7)} width="270" height={Y(4) - Y(7)} className="sr-band" />
+    <text x="300" y={Y(4) - 6} textAnchor="end" className="sr-mon__tag">healthy 4–7</text>
+    {[4, 7, 12].map(m => <text key={m} x="28" y={Y(m) + 4} textAnchor="end" className="sr-mon__tag">{m}</text>)}
+    <line x1="36" y1={Y(g.peak)} x2="306" y2={Y(g.peak)} className="sr-target" />
+    <text x="300" y={Y(g.peak) - 6} textAnchor="end" className="sr-mon__tag">peak</text>
+    <path key={shape} d={trace(36, 306, Y, g.base, peak, shape)} className={`sr-trace${v.phase === 'set' ? '' : ' is-run'}`} fill="none" pathLength={100} />
+    <circle cx={36 + 270 * .38} cy={Y(peak)} r="6" className="sr-blip" />
+    <text x="52" y="192" className="sr-mon__tag">🥤 drink</text>
+    <text x="300" y="30" textAnchor="end" className="sr-mon__big">{v.phase === 'hit' ? 'SETTLED' : v.phase === 'miss' ? (v.high ? 'TOO HIGH' : 'TOO LOW') : 'mmol/L'}</text>
+    <Chips given={v.scene.given} label="Rise" live={v.live} />
+  </g>
+}
+
+const CHAIN_BOX: [number, number][] = [[6, 122], [164, 122], [164, 178], [6, 178]]
+function Control(v: View) {
+  const g = v.scene.glucose!
+  const Y = (mmol: number) => 100 - Math.max(0, Math.min(16, mmol)) * 5.4
+  return <g className={v.phase === 'miss' ? 'is-high' : ''}>
+    <rect x="6" y="6" width="308" height="106" rx="14" className="sr-mon" />
+    <rect x="30" y={Y(7)} width="278" height={Y(4) - Y(7)} className="sr-band" />
+    <text x="302" y={Y(4) - 4} textAnchor="end" className="sr-mon__tag">healthy</text>
+    <path key={v.phase} d={trace(30, 308, Y, g.base, g.peak, v.phase === 'hit' ? 'settle' : 'spike')} className={`sr-trace${v.phase === 'hit' || v.phase === 'miss' ? ' is-run' : ''}`} fill="none" pathLength={100} />
+    <text x="302" y="26" textAnchor="end" className="sr-mon__big">{v.phase === 'hit' ? 'SETTLED' : v.phase === 'miss' ? 'STILL HIGH' : `${g.peak} mmol/L`}</text>
+    {CHAIN_BOX.map(([x, y], i) => {
+      const tile = v.phase === 'hit' ? v.answer[i] : v.picked[i]
+      return <g key={i} className={`sr-card ${slotClass(v, i)}`} style={{ animationDelay: `${i * 140}ms` }}>
+        <rect x={x} y={y} width="150" height="44" rx="12" />
+        <circle cx={x + 18} cy={y + 22} r="11" className="sr-card__num" />
+        <text x={x + 18} y={y + 26} textAnchor="middle" className="sr-card__n">{i + 1}</text>
+        <text x={x + 34} y={y + 17} className="sr-card__slot">{['The change', 'Detected by', 'Releases', 'Result'][i]}</text>
+        <text x={x + 34} y={y + 36} className="sr-card__t is-sm">{tile ? v.labels[i] : '…'}</text>
+      </g>
     })}
-    <text x="14" y="134" className="sr-tag">day 0</text>
-    <text x="174" y="134" textAnchor="end" className="sr-tag">day {days}</text>
-    <text x="92" y="166" textAnchor="middle" className="sr-note">{note(cls, 'one egg every cycle', 'more eggs than cycles', 'missed some cycles')}</text>
-    <Readout given={scene.given} label={label} live={live} />
-  </svg>
+    <text x="160" y="240" textAnchor="middle" className="sr-note">{v.phase === 'hit' ? 'Insulin in, glucose into cells: back in range.' : v.phase === 'miss' ? 'Wrong link: the glucose stays high.' : 'Fill the loop, 1 → 4.'}</text>
+  </g>
 }
 
-/** The ruler drop: the catch mark slides down the ruler with the dial (further = slower), beside the trial results. */
-function Ruler({ scene, shown, fresh, label, live, cls }: Part) {
-  const r = scene.ruler!
-  const time = r.before !== undefined ? r.before - shown : shown
-  const cm = fresh ? 0 : 490 * (time / 1000) ** 2
-  const y = 24 + Math.min(52, Math.max(0, cm)) * 2.6
-  const hit = cls.includes('is-hit')
-  return <svg viewBox="0 0 320 200" className={`sr-board ${cls}`} role="img" aria-label={`Ruler drop test, ${label} ${live}`}>
-    <g className="sr-ruler">
-      <rect x="60" y="20" width="34" height="138" rx="3" className="sr-ruler__body" />
-      {Array.from({ length: 11 }, (_, i) => <g key={i}>
-        <line x1="60" y1={24 + i * 13} x2={i % 2 ? 68 : 74} y2={24 + i * 13} className="sr-tick" />
-        {i % 2 === 0 && <text x="90" y={28 + i * 13} textAnchor="end" className="sr-ruler__num">{i * 5}</text>}
-      </g>)}
-    </g>
-    <text x="40" y="24" textAnchor="middle" className="sr-tag">cm</text>
-    <g className="sr-catch" style={{ transform: `translateY(${y - 24}px)` }}>
-      <line x1="52" y1="24" x2="104" y2="24" className="sr-catch__line" />
-      <text x="128" y="30" textAnchor="middle" className="sr-emoji">🤏</text>
-    </g>
-    {cm > 52 && <text x="77" y="178" textAnchor="middle" className="sr-note">missed it!</text>}
-    <text x="77" y="194" textAnchor="middle" className="sr-note">{cm > 52 ? '' : r.before !== undefined ? note(cls, 'caught it', 'too quick', 'slow catch') : note(cls, 'caught it', 'slow catch', 'too quick')}</text>
-    <g className="sr-trials">
-      {r.before !== undefined && <><text x="186" y="22" className="sr-slot__name">Before</text><text x="188" y="44" className="sr-slot__value">{r.before} ms</text></>}
-      <text x="186" y={r.before !== undefined ? 70 : 22} className="sr-slot__name">{r.before !== undefined ? 'After coffee (ms)' : 'Trials (ms)'}</text>
-      {r.trials.map((t, i) => {
-        const cx = 186 + (i % 3) * 44, cy = (r.before !== undefined ? 78 : 30) + Math.floor(i / 3) * 28
-        const odd = i === r.anomaly
-        return <g key={i} className={`sr-chip${odd ? ' is-odd' : ''}${odd && hit ? ' is-out' : ''}`}>
-          <rect x={cx} y={cy} width="40" height="22" rx="6" />
-          <text x={cx + 20} y={cy + 16} textAnchor="middle">{t}</text>
+/* ---------- Round 3: the clinic list and the diabetes files ---------- */
+
+function Person({ x, y, cls, delay }: { x: number; y: number; cls: string; delay: number }) {
+  return <g className={`sr-person ${cls}`} style={{ animationDelay: `${delay}ms` }}>
+    <circle cx={x} cy={y} r="9" />
+    <path d={`M${x - 11} ${y + 46} V${y + 22} Q${x - 11} ${y + 12} ${x} ${y + 12} Q${x + 11} ${y + 12} ${x + 11} ${y + 22} V${y + 46} Z`} />
+  </g>
+}
+
+function Crowd(v: View) {
+  const per = v.scene.crowd!.per
+  const raw = v.fresh ? 0 : v.shown / per
+  const marked = Math.max(0, Math.min(20, Math.round(raw)))
+  const note = v.phase === 'hit' ? 'Type 2 in teal, type 1 in orange.' : raw > 20 ? 'More than the whole list!' : `1 figure = ${n(per)} patients`
+  return <g>
+    <rect x="6" y="6" width="308" height="168" rx="14" className="sr-room" />
+    {Array.from({ length: 20 }, (_, i) => {
+      const x = 25 + (i % 10) * 30, y = 24 + Math.floor(i / 10) * 76
+      const cls = i < marked ? 'is-t2' : v.phase === 'hit' ? 'is-t1' : ''
+      return <Person key={i} x={x} y={y} cls={`${cls}${v.phase === 'hit' ? ' is-hop' : ''}`} delay={i * 30} />
+    })}
+    <text x="160" y="194" textAnchor="middle" className={`sr-note${raw > 20 ? ' is-bad' : ''}`}>{note}</text>
+    <Chips given={v.scene.given} label="Type 2 count" live={v.live} y={206} />
+  </g>
+}
+
+const FILE_ROWS: [number, number, string][] = [[6, 84, 'Cause'], [6, 160, 'Treated with'], [164, 84, 'Cause'], [164, 160, 'Risk factor']]
+function Files(v: View) {
+  return <g>
+    {[0, 1].map(k => {
+      const x = 6 + k * 158
+      return <g key={k} className={`sr-file is-t${k + 1}`}>
+        <rect x={x} y="10" width="150" height="234" rx="12" className="sr-file__board" />
+        <rect x={x} y="10" width="150" height="44" rx="12" className="sr-file__head" />
+        <rect x={x + 50} y="4" width="50" height="14" rx="5" className="sr-file__clip" />
+        <text x={x + 75} y="42" textAnchor="middle" className="sr-file__title">Type {k + 1}</text>
+        {v.phase === 'hit' && <g className="sr-stamp" style={{ animationDelay: `${k * 200}ms` }}>
+          <text x={x + 75} y="234" textAnchor="middle" className="sr-stamp__t">✓ FILED</text>
+        </g>}
+      </g>
+    })}
+    {FILE_ROWS.map(([x, y, name], i) => {
+      const tile = v.phase === 'hit' ? v.answer[i] : v.picked[i]
+      const lines = tile ? wrap(v.labels[i], 16) : []
+      return <g key={i} className={`sr-row ${slotClass(v, i)}`}>
+        <text x={x + 12} y={y - 8} className="sr-row__name">{name}</text>
+        <rect x={x + 8} y={y} width="134" height="48" rx="10" />
+        {lines.length ? lines.map((line, j) => <text key={j} x={x + 75} y={y + 29 + (j - (lines.length - 1) / 2) * 16} textAnchor="middle" className="sr-row__t">{line}</text>)
+          : <text x={x + 75} y={y + 30} textAnchor="middle" className="sr-row__q">?</text>}
+      </g>
+    })}
+  </g>
+}
+
+/* ---------- Round 4: the cycle wheel and the calendar ---------- */
+
+const CX = 160, CY = 126, R = 62
+const onRing = (day: number, r = R): [number, number] => {
+  const a = (-90 + (day - 1) / 28 * 360) * Math.PI / 180
+  return [CX + r * Math.cos(a), CY + r * Math.sin(a)]
+}
+/** Slot order: egg matures (day 4), egg released (day 14), lining builds (day 10), lining kept (day 21), each with its card corner. */
+const STATIONS: { day: number; box: [number, number]; name: string }[] = [
+  { day: 4, box: [206, 8], name: 'Egg matures' },
+  { day: 14, box: [6, 196], name: 'Egg released' },
+  { day: 10, box: [206, 196], name: 'Lining builds' },
+  { day: 21, box: [6, 8], name: 'Lining kept' },
+]
+function Cycle(v: View) {
+  const arc = (from: number, to: number) => { const [x1, y1] = onRing(from), [x2, y2] = onRing(to); return `M${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2}` }
+  return <g>
+    <circle cx={CX} cy={CY} r={R} className="sr-ring" />
+    <path d={arc(1, 6)} className="sr-ring__period" fill="none" />
+    {[1, 7, 14, 21].map(d => { const [x, y] = onRing(d, R - 20); return <text key={d} x={x} y={y + 4} textAnchor="middle" className="sr-tiny">{d}</text> })}
+    <text x={CX} y={CY - 2} textAnchor="middle" className="sr-ring__big">28</text>
+    <text x={CX} y={CY + 16} textAnchor="middle" className="sr-tiny">day cycle</text>
+    {STATIONS.map((s, i) => {
+      const [dx, dy] = onRing(s.day), [bx, by] = s.box
+      const tile = v.phase === 'hit' ? v.answer[i] : v.picked[i]
+      return <g key={i} className={`sr-card ${slotClass(v, i)}`} style={{ animationDelay: `${i * 140}ms` }}>
+        <line x1={dx} y1={dy} x2={bx + 54} y2={by < 100 ? by + 46 : by} className="sr-lead" />
+        <circle cx={dx} cy={dy} r="7" className="sr-station" />
+        <rect x={bx} y={by} width="108" height="46" rx="12" />
+        <text x={bx + 54} y={by + 17} textAnchor="middle" className="sr-card__slot">{s.name}</text>
+        <text x={bx + 54} y={by + 37} textAnchor="middle" className="sr-card__t is-sm">{tile ? v.labels[i] : '?'}</text>
+      </g>
+    })}
+    {v.phase === 'hit' && <g className="sr-orbit"><circle cx={CX} cy={CY - R} r="8" className="sr-egg" /></g>}
+  </g>
+}
+
+function Calendar(v: View) {
+  const start = v.scene.calendar!.start
+  const pick = v.fresh ? 0 : v.shown
+  const trail = v.phase === 'hit' || v.phase === 'miss'
+  return <g className={v.phase === 'miss' ? (v.high ? 'is-high' : 'is-low') : ''}>
+    {'MTWTFSS'.split('').map((d, i) => <text key={i} x={28 + i * 44} y="16" textAnchor="middle" className="sr-tiny">{d}</text>)}
+    {Array.from({ length: 31 }, (_, i) => {
+      const date = i + 1, x = 8 + (i % 7) * 44, y = 24 + Math.floor(i / 7) * 36
+      const period = date >= start && date < start + 5
+      const mine = date === pick
+      const cycleDay = date - start + 1
+      return <g key={date} className={`sr-day${period ? ' is-period' : ''}${mine ? ' is-picked' : ''}`}>
+        <rect x={x} y={y} width="40" height="32" rx="8" />
+        <text x={x + 6} y={y + 15} className="sr-day__n">{date}</text>
+        {trail && cycleDay >= 1 && date <= pick && !(mine && v.phase === 'hit') && <text x={x + 36} y={y + 28} textAnchor="end" className="sr-day__c">d{cycleDay}</text>}
+        {mine && v.phase === 'hit' && <g className="sr-pop"><text x={x + 30} y={y + 18} textAnchor="middle" className="sr-day__egg">🥚</text></g>}
+      </g>
+    })}
+    <Chips given={v.scene.given} label="Ovulation" live={v.fresh ? '?' : `the ${ordinal(v.shown)}`} />
+  </g>
+}
+
+/* ---------- Round 5: the ruler drop ---------- */
+
+const HAND_Y = 122, K = 2.2
+/** cm a ruler falls in a reaction time (s = ½gt²), shown on the ruler, never asked for. */
+const cmFor = (ms: number) => 490 * (ms / 1000) ** 2
+
+/** The ruler, held with zero at the fingers. `drop` cm is where it's caught; `fell` lets it go right past. */
+function Rig({ drop, ghost, phase, fell }: { drop: number; ghost: number | null; phase: Phase; fell: boolean }) {
+  const moved = phase === 'go' || phase === 'hit' || phase === 'miss'
+  const y = moved ? (fell ? 112 : Math.min(50, drop) * K) : 0
+  const closed = phase === 'hit' || (moved && !fell)
+  return <g>
+    <g className={`sr-rule${moved ? ' is-drop' : ''}${fell ? ' is-fell' : ''}`} style={{ transform: `translateY(${y}px)` }}>
+      <rect x="54" y={HAND_Y - 50 * K - 6} width="40" height={50 * K + 6} rx="4" className="sr-rule__body" />
+      {Array.from({ length: 11 }, (_, i) => {
+        const ty = HAND_Y - i * 5 * K
+        return <g key={i}>
+          <line x1="54" x2={i % 2 ? 62 : 68} y1={ty} y2={ty} className="sr-rule__tick" />
+          {i % 2 === 0 && <text x="90" y={ty + 4} textAnchor="end" className="sr-rule__n">{i * 5}</text>}
         </g>
       })}
+      {ghost !== null && ghost <= 50 && <line x1="48" x2="100" y1={HAND_Y - ghost * K} y2={HAND_Y - ghost * K} className="sr-ghost" />}
     </g>
-    <Readout given={[]} label={label} live={live} y={144} />
+    <g className="sr-finger" style={{ transform: `translateY(${closed ? 0 : -8}px)` }}><rect x="40" y={HAND_Y - 12} width="84" height="10" rx="5" className="sr-skin" /></g>
+    <g className="sr-finger" style={{ transform: `translateY(${closed ? 0 : 8}px)` }}><rect x="40" y={HAND_Y + 2} width="84" height="10" rx="5" className="sr-skin" /></g>
+    <circle cx="130" cy={HAND_Y} r="20" className="sr-skin" />
+    {moved && <text x="146" y={HAND_Y + 50} textAnchor="end" className="sr-note">{fell ? 'Dropped it!' : `caught at ${n(Math.round(Math.min(50, drop)))} cm`}</text>}
+  </g>
+}
+
+function Steps(v: View) {
+  const r = v.scene.ruler!
+  return <g>
+    <rect x="6" y="6" width="146" height="238" rx="14" className="sr-room" />
+    <Rig drop={cmFor(r.mean)} ghost={null} phase={v.phase} fell={v.phase === 'miss'} />
+    {Array.from({ length: 5 }, (_, i) => {
+      const y = 8 + i * 47, tile = v.phase === 'hit' ? v.answer[i] : v.picked[i]
+      return <g key={i} className={`sr-card ${slotClass(v, i)}`} style={{ animationDelay: `${i * 120}ms` }}>
+        <rect x="160" y={y} width="154" height="40" rx="11" />
+        <circle cx="178" cy={y + 20} r="11" className="sr-card__num" />
+        <text x="178" y={y + 25} textAnchor="middle" className="sr-card__n">{i + 1}</text>
+        <text x="194" y={y + 25} className={tile ? 'sr-card__t is-sm' : 'sr-card__slot'}>{tile ? v.labels[i] : 'step ' + (i + 1)}</text>
+      </g>
+    })}
+  </g>
+}
+
+function Ruler(v: View) {
+  const r = v.scene.ruler!
+  const ms = v.fresh ? 0 : v.shown
+  const cm = cmFor(ms)
+  const hit = v.phase === 'hit'
+  return <g className={v.phase === 'miss' ? (v.high ? 'is-high' : 'is-low') : ''}>
+    <rect x="6" y="6" width="146" height="238" rx="14" className="sr-room" />
+    <Rig drop={cm} ghost={v.fresh ? null : cm} phase={v.phase} fell={cm > 50} />
+    <text x="164" y="22" className="sr-chip__name">Dev’s catches (ms)</text>
+    {r.trials.map((t, i) => {
+      const x = 162 + (i % 2) * 78, y = 32 + Math.floor(i / 2) * 38
+      const odd = i === r.anomaly
+      return <g key={i} className={`sr-trial${hit ? (odd ? ' is-out' : ' is-in') : ''}`}>
+        <rect x={x} y={y} width="72" height="30" rx="9" />
+        <text x={x + 36} y={y + 20} textAnchor="middle">{t}</text>
+      </g>
+    })}
+    <g className="sr-chip is-dial">
+      <rect x="162" y="160" width="150" height="56" rx="12" />
+      <text x="237" y="180" textAnchor="middle" className="sr-chip__name">Mean time</text>
+      <text x="237" y="204" textAnchor="middle" className="sr-chip__value">{v.live}</text>
+    </g>
+    <text x="237" y="236" textAnchor="middle" className="sr-note">{hit ? 'Anomaly out. Caught!' : v.phase === 'miss' ? (v.high ? 'Too slow a catch' : 'Too quick a catch') : ''}</text>
+  </g>
+}
+
+function Stage({ task, value, picked, phase }: PlayStageProps<Scene>) {
+  const scene = task.scene
+  const tiles = isTiles(task) ? task as TileTask<Scene> : null
+  const dial = tiles ? null : task as Task<Scene>
+  const fresh = !!dial && phase === 'set' && value === dial.start
+  const shown = dial ? (phase === 'hit' ? dial.answer : value) : 0
+  const placed = tiles ? (phase === 'hit' ? tiles.answer : picked) : []
+  const v: View = {
+    scene, phase, shown, fresh,
+    live: dial ? (fresh ? '?' : /^[a-z]{5,}$/i.test(dial.unit) ? n(shown) : u(shown, dial.unit)) : '',
+    high: !!dial && value > dial.answer,
+    picked, answer: tiles?.answer ?? [],
+    labels: placed.map(p => tiles?.palette.find(t => t.value === p)?.label ?? p),
+    wrong: tiles && phase === 'miss' ? new Set(wrongSlots(tiles, picked)) : new Set<number>(),
+  }
+  const label: Record<Scene['layout'], string> = {
+    arc: `A reflex arc from the hand to the spinal cord and back to the arm muscle`, monitor: 'Blood glucose monitor', control: 'Blood glucose control chain',
+    crowd: 'The clinic list as 20 figures', files: 'Type 1 and type 2 diabetes files', cycle: 'The 28-day menstrual cycle', calendar: 'A month calendar',
+    steps: 'The ruler-drop practical', ruler: 'The ruler-drop practical',
+  }
+  return <svg viewBox="0 0 320 250" className={`sr-board is-${phase}`} role="img" aria-label={`${label[scene.layout]}${dial ? `, ${dial.label} ${v.live}` : ''}`}>
+    {scene.layout === 'arc' && <Reflex {...v} dial={!!dial} />}
+    {scene.layout === 'monitor' && <Monitor {...v} />}
+    {scene.layout === 'control' && <Control {...v} />}
+    {scene.layout === 'crowd' && <Crowd {...v} />}
+    {scene.layout === 'files' && <Files {...v} />}
+    {scene.layout === 'cycle' && <Cycle {...v} />}
+    {scene.layout === 'calendar' && <Calendar {...v} />}
+    {scene.layout === 'steps' && <Steps {...v} />}
+    {scene.layout === 'ruler' && <Ruler {...v} />}
   </svg>
 }
 
-function Stage({ task, value, phase }: StageProps<Scene>) {
-  const t = task as Task<Scene>
-  const fresh = phase === 'set' && value === t.start
-  const shown = phase === 'hit' ? t.answer : value
-  const part: Part = { scene: t.scene, shown, answer: t.answer, fresh, label: t.label, live: fresh ? '?' : u(shown, t.unit), cls: mood(phase, value, t.answer) }
-  switch (t.scene.layout) {
-    case 'reflex': return <Reflex {...part} />
-    case 'glucose': return <Glucose {...part} />
-    case 'crowd': return <Crowd {...part} />
-    case 'calendar': return <Calendar {...part} />
-    case 'cycles': return <Cycles {...part} />
-    default: return <Ruler {...part} />
-  }
-}
-
-const config: DialGameConfig<Scene> = {
+const config: PlayGameConfig<Scene> = {
   labId: 'science-sugar',
   name: 'Sugar Rush',
   speaker: KEMI,
   intros: [
-    'Morning! I’m Kemi, and this is the busiest diabetes and reflex clinic in the NHS. First patient just trod on a drawing pin. Let’s see how fast her nerves are.',
+    'Morning! I’m Kemi, and this is the busiest diabetes and reflex clinic in the NHS. First patient just grabbed something sharp. Let’s trace that reflex.',
     'Next up, a glucose test. Sugary drink in, monitor on, and we watch the pancreas do its thing.',
-    'Millions of people in the UK live with diabetes. Grab the clinic list: I need numbers for the team meeting.',
+    'Millions of people in the UK live with diabetes. Grab the clinic list: I need it sorted for the team meeting.',
     'Hormone clinic this afternoon. All very professional, no giggling at the back.',
     'Boss round: the reaction time practical. Dev the porter has volunteered. Well, I volunteered him.',
   ],
   ranks: [
     { badge: '🏅', name: 'Consultant Endocrinologist', line: 'Every patient steady, first go. Hormones, nerves, the lot. The clinic is yours.' },
-    { badge: '💉', name: 'Diabetes Specialist Nurse', line: 'A wobble or two, but every reading came back into the healthy band.' },
+    { badge: '🩺', name: 'Diabetes Specialist Nurse', line: 'A wobble or two, but every reading came back into the healthy band.' },
     { badge: '📋', name: 'Healthcare Assistant', line: 'You got there. Kemi double-checked the charts, though.' },
     { badge: '🍪', name: 'Biscuit Tin Guard', line: 'You’re guarding the biscuit tin for now. Back to the textbook, then back on shift.' },
   ],
   rule: [
     'Reflex arc: receptor → sensory → relay → motor neurone → effector. Speed = distance ÷ time.',
-    'High blood glucose: the pancreas releases insulin, glucose moves into cells, the liver stores glycogen. Type 1: not enough insulin. Type 2: cells stop responding.',
+    'Glucose high → pancreas → insulin → glucose into cells, liver stores glycogen. Type 1: too little insulin. Type 2: cells stop responding.',
     'Repeat trials, leave out anomalies, then find the mean. Change one variable; control the rest.',
   ],
   start: 'Start the clinic',
-  action: 'Check it',
-  asker: task => `Nurse Kemi · set the ${task.label.charAt(0).toLowerCase() + task.label.slice(1)}, then check it`,
+  action: task => task.scene.layout === 'arc' ? 'Fire the impulse' : task.scene.layout === 'ruler' ? 'Drop the ruler' : task.scene.layout === 'control' ? 'Release insulin' : isTiles(task) ? 'Lock it in' : 'Check it',
+  asker: task => `Nurse Kemi · ${isTiles(task) ? 'tap the tiles in order' : `set the ${task.label.charAt(0).toLowerCase() + task.label.slice(1)}`}`,
   busted: {
     emoji: '🚨', kicker: 'Monitor alarm', title: 'Three slips. Kemi’s taking this patient back.',
-    tip: 'Write the equation first: speed = distance ÷ time. A rise or a “how many more” is a difference: subtract. Leave anomalies out before you find a mean.',
+    tip: 'Reflex: receptor first, effector last. Glucose: pancreas → insulin → glycogen. A rise is a difference: subtract. Leave anomalies out before you find a mean.',
     retry: 'Back on shift',
   },
   burst: '🍬',
   brag: (name, badge) => `I ran a whole diabetes clinic in Sugar Rush and kept every patient’s glucose steady. Rank: ${name} ${badge}`,
   again: 'Next clinic',
   sound: sfx.tick,
+  actionMs: 800,
   Stage,
 }
 
 /** Fresh patients every play: the game remounts with a new set on "again". */
 export default function SugarRush() {
   const { data, play, regenerate } = useGenerated(makeRounds)
-  return data ? <DialGame key={play} rounds={data} onReplay={regenerate} config={config} /> : null
+  return data ? <PlayGame key={play} rounds={data} onReplay={regenerate} config={config} /> : null
 }

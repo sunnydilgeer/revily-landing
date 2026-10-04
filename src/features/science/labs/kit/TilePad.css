@@ -26,3 +26,9 @@
 @keyframes tp-pulse { 50% { box-shadow: 0 0 0 4px rgb(255 211 92 / 25%); } }
 @keyframes tp-drop { from { transform: translateY(-8px) scale(.9); opacity: .4; } }
 @media (prefers-reduced-motion: reduce) { .tp__slot { animation: none !important; } }
+
+/* Word tiles ("soil moisture", "sensory neurone") wrap and shrink instead of pushing the page sideways. */
+.tp__slot, .tp__tile { max-width: 100%; overflow-wrap: anywhere; }
+.tp__tile--long { padding: 6px 8px; font-size: .92rem; line-height: 1.15; }
+.tp__slot--long { height: auto; min-height: 46px; padding: 6px 10px; font-size: .85rem; line-height: 1.15; }
+.tp__palette:has(.tp__tile--long) { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); }

@@ -1,12 +1,13 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { Speaker } from '../../../maths/labs/kit/Lab'
 import { useGenerated } from '../../../maths/labs/kit/random'
 import { sfx } from '../../../maths/labs/kit/sfx'
-import { DialGame, type DialGameConfig, type Phase, type StageProps } from '../kit/DialGame'
+import { PlayGame, type PlayGameConfig, type PlayStageProps } from '../kit/PlayGame'
+import { isTiles } from '../kit/tiles'
 import { n, u } from '../kit/types'
-import { makeRounds, type Scene } from './rounds'
+import { STAGES, STEPS, makeRounds, type Dye, type GasId, type Sample, type Scene, type StageId, type StepId } from './rounds'
 import './RiverRescue.css'
 
 const DEV: Speaker = {
@@ -15,12 +16,41 @@ const DEV: Speaker = {
   wrong: ['Hmm, that answer’s a bit murky.', 'Not quite. The ducks look unimpressed.', 'Oof. That’s gone straight down the drain.', 'Nope. Even the sludge is judging us.'],
 }
 
-/** The scene's mood: calm while setting, flowing while it runs, then clear, overflowing (too high) or thin (too low). */
-function moodFor(phase: Phase, value: number, answer: number) {
-  if (phase === 'hit') return 'is-hit'
-  if (phase === 'go') return 'is-go'
-  if (phase === 'miss') return value > answer ? 'is-high' : 'is-low'
-  return ''
+const H = 270, RIVER_Y = 240
+const ORDER = ['pure', 'chroma', 'acid', 'treat', 'boss']
+
+/* ---------------------------------------------------------------- The river: murky at the start, sparkling by the end */
+
+/** One fish. The jump animates an inner group so the outer translate stays put. */
+function Fish({ x, y, jump, flip }: { x: number; y: number; jump: boolean; flip: boolean }) {
+  return <g transform={`translate(${x} ${y})${flip ? ' scale(-1 1)' : ''}`}><g className={jump ? 'rr-jump' : 'rr-bob'}>
+    <path d="M-10 0 Q-2 -7 8 0 Q-2 7 -10 0 Z" className="rr-fish" />
+    <path d="M-10 0 L-16 -5 V5 Z" className="rr-fish" />
+    <circle cx="4" cy="-1.2" r="1.3" className="rr-fish__eye" />
+  </g></g>
+}
+
+/** Ten jobs clean the river: the water clears, litter goes, fish come back. */
+function River({ progress, jump }: { progress: number; jump: boolean }) {
+  const y = RIVER_Y, clean = Math.round(progress * 10)
+  const fish = Math.floor(clean / 2), junk = 5 - fish
+  return <g className="rr-river" aria-hidden="true">
+    <path d={`M0 ${y} Q40 ${y - 5} 80 ${y} T160 ${y} T240 ${y} T320 ${y} V${H} H0 Z`} className="rr-river__water"
+      style={{ fill: `color-mix(in srgb, var(--rv-teal) ${clean}%, color-mix(in srgb, var(--rv-yellow-deep) 55%, var(--rv-ink-2)))` }} />
+    <g className="rr-river__ripples"><path d={`M14 ${y + 9} q12 -4 24 0 M134 ${y + 14} q12 -4 24 0 M246 ${y + 8} q12 -4 24 0`} className="rr-river__ripple" /></g>
+    {Array.from({ length: junk }, (_, i) => <g key={`j${i}`} transform={`translate(${290 - i * 58} ${y + 15})`}>
+      {i % 2 ? <rect x="-7" y="-4" width="14" height="8" rx="2" className="rr-junk" /> : <circle r="5" className="rr-junk" />}
+    </g>)}
+    {Array.from({ length: fish }, (_, i) => <Fish key={`f${i}`} x={34 + i * 58} y={y + 16 - (i % 2) * 4} flip={i % 2 === 1} jump={jump && i === fish - 1} />)}
+  </g>
+}
+
+function Frame({ label, mood, progress, verdict, children }: { label: string; mood: string; progress: number; verdict?: string; children: ReactNode }) {
+  return <svg viewBox={`0 0 320 ${H}`} className={`rr-svg ${mood}`} role="img" aria-label={label}>
+    {children}
+    <River progress={progress} jump={mood.includes('is-hit')} />
+    {verdict && <g className="rr-verdict"><rect x={318 - verdict.length * 7.6 - 14} y="2" width={verdict.length * 7.6 + 14} height="22" rx="11" /><text x={311} y={18} textAnchor="end">{verdict}</text></g>}
+  </svg>
 }
 
 /** A value on the picture. The dial's value gets a highlighted box. */
@@ -33,206 +63,378 @@ function Tag({ x, y, text, dial = false, anchor = 'middle' }: { x: number; y: nu
   </g>
 }
 
-/** The river along the bottom of every scene: murky until the job is done, then clear with a fish. */
-function River({ y, height = 26 }: { y: number; height?: number }) {
-  return <g className="rr-river" aria-hidden="true">
-    <path d={`M0 ${y} Q40 ${y - 5} 80 ${y} T160 ${y} T240 ${y} T320 ${y} V${y + height} H0 Z`} className="rr-river__water" />
-    <path d={`M20 ${y + 10} q12 -4 24 0 M140 ${y + 14} q12 -4 24 0 M250 ${y + 9} q12 -4 24 0`} className="rr-river__ripple" />
-    <text x="250" y={y + height - 4} className="rr-river__fish">🐟</text>
-    <text x="70" y={y + height - 4} className="rr-river__scum">🫧</text>
+/* ---------------------------------------------------------------- Round 1: the sample shelf and the fertiliser scoop */
+
+const TINT: Record<string, string> = {
+  water: 'var(--rv-teal-tint)', clear: 'var(--rv-surface)', copper: 'var(--rv-step-i)', white: 'var(--rv-surface)', sea: 'var(--rv-teal)',
+  juice: 'var(--rv-yellow)', steel: 'var(--rv-line-strong)', cleaner: 'var(--rv-step-b-light)', river: 'color-mix(in srgb, var(--rv-yellow-deep) 60%, var(--rv-good))',
+}
+
+function Vessel({ s, x, y }: { s: Sample; x: number; y: number }) {
+  const tint = TINT[s.tint] ?? 'var(--rv-surface)'
+  if (s.look === 'liquid') return <g transform={`translate(${x} ${y})`}>
+    <path d="M-8 -30 V-16 L-24 18 Q-26 24 -20 24 H20 Q26 24 24 18 L8 -16 V-30" className="rr-glass" />
+    <path d="M-17 4 L-24 18 Q-26 24 -20 24 H20 Q26 24 24 18 L17 4 Z" style={{ fill: tint }} className="rr-liquid" />
+  </g>
+  if (s.look === 'gas') return <g transform={`translate(${x} ${y})`}>
+    <rect x="-18" y="-26" width="36" height="50" rx="4" className="rr-glass" />
+    <rect x="-22" y="-32" width="44" height="7" rx="2" className="rr-lid" />
+    <path d="M-10 -8 q5 -6 10 0 t10 0 M-10 8 q5 -6 10 0 t10 0" className="rr-swirl" />
+  </g>
+  return <g transform={`translate(${x} ${y})`}>
+    <path d="M-28 12 Q0 30 28 12 Z" className="rr-glass" />
+    {[-12, 0, 12, -6, 6].map((dx, i) => <rect key={i} x={dx - 6} y={i < 3 ? 2 : -8} width="12" height="10" rx="3" style={{ fill: tint }} className="rr-lump" />)}
   </g>
 }
 
-/** The verdict that pops up: too much (overflow) or too little (thin). */
-function Verdict({ x, y, mood }: { x: number; y: number; mood: string }) {
-  if (mood !== 'is-high' && mood !== 'is-low') return null
-  return <text x={x} y={y} textAnchor="end" className="rr-verdict">{mood === 'is-high' ? 'too much ⬆' : 'too little ⬇'}</text>
-}
-
-function Frame({ label, height, mood, children }: { label: string; height: number; mood: string; children: ReactNode }) {
-  return <svg viewBox={`0 0 320 ${height}`} className={`rr-svg ${mood}`} role="img" aria-label={label}>
-    {children}
-    <River y={height - 26} />
-    <Verdict x={314} y={18} mood={mood} />
-  </svg>
-}
-
-/* ---------------------------------------------------------------- Formulation: a bar split into a part and the rest */
-
-function FormulaScene({ s, shown, live, mood }: { s: Extract<Scene, { kind: 'formula' }>; shown: number; live: string; mood: string }) {
-  const frac = s.percent === null ? shown / 100 : shown / s.total
-  const known = (s.percent ?? 0) / 100
-  const width = 260 * Math.max(0, Math.min(1.08, live === '?' ? 0 : frac))
-  return <Frame label={`A ${s.total} g sample split into ${s.name.toLowerCase()} and everything else`} height={200} mood={mood}>
-    <text x="30" y="44" className="rr-emoji">{s.emoji}</text>
-    <Tag x={180} y={36} text={`Sample ${n(s.total)} g`} />
-    <rect x="30" y="64" width="260" height="34" rx="8" className="rr-bar" />
-    <rect x="30" y="64" width={width} height="34" rx="8" className="rr-bar__part" />
-    {s.percent !== null && <line x1={30 + 260 * known} x2={30 + 260 * known} y1="58" y2="104" className="rr-bar__mark" />}
-    {[0, 25, 50, 75, 100].map(p => <text key={p} x={30 + 2.6 * p} y="118" textAnchor="middle" className="rr-note">{p}%</text>)}
-    <Tag x={90} y={150} text={`${s.name} ${s.part === null ? live : `${n(s.part)} g`}`} dial={s.part === null} />
-    <Tag x={236} y={150} text={s.percent === null ? `= ${live}` : `= ${s.percent}%`} dial={s.percent === null} />
+function ShelfScene({ s, picked, phase, mood, progress }: { s: Extract<Scene, { kind: 'shelf' }>; picked: string[]; phase: string; mood: string; progress: number }) {
+  const inTray = phase === 'hit' ? s.samples.filter(x => x.pure).map(x => x.value) : picked
+  const nameOf = (v: string) => s.samples.find(x => x.value === v)?.label ?? v
+  return <Frame label="Six samples on a shelf, and a tray for the pure ones" mood={mood} progress={progress} verdict={phase === 'miss' ? 'not both pure' : undefined}>
+    {s.samples.map((sample, i) => {
+      const cx = 56 + (i % 3) * 104, cy = 46 + Math.floor(i / 3) * 90
+      const on = inTray.includes(sample.value)
+      const bad = phase === 'miss' && on && !sample.pure
+      return <g key={sample.value} className={`rr-cell${on ? ' is-on' : ''}${bad ? ' is-bad' : ''}${phase === 'hit' && sample.pure ? ' is-good' : ''}`}>
+        <rect x={cx - 50} y={cy - 40} width="100" height="84" rx="12" className="rr-cell__card" />
+        <Vessel s={sample} x={cx} y={cy - 2} />
+        <text x={cx} y={cy + 38} textAnchor="middle" className="rr-cell__name" {...(sample.label.length > 12 ? { textLength: 92, lengthAdjust: 'spacingAndGlyphs' } : {})}>{sample.label}</text>
+      </g>
+    })}
+    <g className={`rr-tray is-${phase}`}>
+      <rect x="8" y="196" width="304" height="36" rx="10" />
+      <text x="20" y="219" className="rr-tray__label">PURE</text>
+      {[0, 1].map(k => <g key={k} className={inTray[k] ? 'rr-chip is-on' : 'rr-chip'}>
+        <rect x={66 + k * 122} y="202" width="114" height="24" rx="12" />
+        <text x={66 + k * 122 + 57} y="219" textAnchor="middle">{inTray[k] ? nameOf(inTray[k]) : '?'}</text>
+      </g>)}
+    </g>
   </Frame>
 }
 
-/* ---------------------------------------------------------------- Chromatography paper */
-
-const BASE = 150, CM = 10, PX = 70
-/** The paper: on Rf jobs the spot sits where it ran and a ghost ring shows where the dialled Rf would put it; on distance jobs the spot climbs to the dial. */
-function ChromaScene({ s, shown, live, mood, set }: { s: Extract<Scene, { kind: 'chroma' }>; shown: number; live: string; mood: string; set: boolean }) {
-  const y = (cm: number) => BASE - Math.max(0, Math.min(12.5, cm)) * CM
-  const frontY = y(s.front)
-  const dialCm = set && live === '?' ? 0 : s.rf === null ? shown * s.front : shown
-  const spotY = s.spot !== null ? y(s.spot) : y(dialCm)
-  return <Frame label={`A chromatography paper: the solvent front moved ${s.front} cm`} height={204} mood={mood}>
-    <rect x={PX - 32} y="20" width="64" height="146" rx="3" className="rr-paper" />
-    <rect x={PX - 32} y={frontY} width="64" height={BASE - frontY + 16} className="rr-paper__wet" />
-    <line x1={PX - 32} x2={PX + 32} y1={frontY} y2={frontY} className="rr-front" />
-    <line x1={PX - 32} x2={PX + 32} y1={BASE} y2={BASE} className="rr-start" />
-    <path d={`M${PX - 42} 160 H${PX + 42} V176 H${PX - 42} Z`} className="rr-solvent" />
-    {s.rf === null && !set && <circle cx={PX} cy={y(dialCm)} r="9" className="rr-ghost" />}
-    <circle cx={PX} cy={spotY} r="7" className="rr-spot" />
-    {[0, 5, 10].map(cm => <g key={cm}><line x1={PX - 40} x2={PX - 34} y1={y(cm)} y2={y(cm)} className="rr-tick" />
-      <text x={PX - 44} y={y(cm) + 5} textAnchor="end" className="rr-note">{cm}</text></g>)}
-    <text x={PX - 44} y="16" textAnchor="end" className="rr-note">cm</text>
-    <path d={`M${PX + 32} ${frontY} L132 40`} className="rr-pointer" />
-    <Tag x={132} y={44} text={`Solvent front ${n(s.front)} cm`} anchor="start" />
-    <path d={`M${PX + 9} ${spotY} L132 76`} className="rr-pointer" />
-    <Tag x={132} y={80} text={`Spot ${s.spot === null ? live : `${n(s.spot)} cm`}`} dial={s.spot === null} anchor="start" />
-    <Tag x={132} y={116} text={`Rf ${s.rf === null ? live : n(s.rf)}`} dial={s.rf === null} anchor="start" />
-    <text x="138" y="146" className="rr-note">pencil start line ↙</text>
+function ScoopScene({ s, shown, live, mood, progress, verdict }: { s: Extract<Scene, { kind: 'scoop' }>; shown: number; live: string; mood: string; progress: number; verdict?: string }) {
+  const lit = live === '?' ? 0 : Math.max(0, Math.min(100, Math.round(shown / s.total * 100)))
+  return <Frame label={`A ${s.total} g scoop of fertiliser drawn as 100 squares, ${s.percent}% nitrate`} mood={mood} progress={progress} verdict={verdict}>
+    <text x="90" y="22" textAnchor="middle" className="rr-head">{s.total} g scoop</text>
+    {Array.from({ length: 100 }, (_, i) => {
+      const nitrate = i < s.percent
+      return <rect key={i} x={20 + (i % 10) * 14.2} y={32 + Math.floor(i / 10) * 14.2} width="12.4" height="12.4" rx="2.5"
+        className={`rr-sq${nitrate ? ' is-nitrate' : ''}${i < lit ? ' is-lit' : ''}`} style={{ transitionDelay: `${(i % 10) * 12}ms` }} />
+    })}
+    <rect x="172" y="34" width="14" height="14" rx="3" className="rr-sq is-nitrate" />
+    <text x="192" y="46" className="rr-note">nitrate {s.percent}%</text>
+    <Tag x={244} y={86} text={`1 square = 1%`} />
+    <Tag x={244} y={112} text={`= ${n(s.total / 100)} g`} />
+    <Tag x={244} y={164} text={`Nitrate ${live}`} dial />
+    <text x="244" y="196" textAnchor="middle" className="rr-note">{lit} squares lit</text>
   </Frame>
 }
 
-/* ---------------------------------------------------------------- pH: indicator bar with a marker */
+/* ---------------------------------------------------------------- Round 2: the chromatogram */
+
+const DYE: Record<Dye, string> = { b: 'var(--rv-step-b)', i: 'var(--rv-step-i)', as: 'var(--rv-step-as)', biro: 'var(--rv-biro)', good: 'var(--rv-good)' }
+const START = 186, FRONT = 44
+
+/** A spot that climbs up from the start line when the paper first appears. */
+function Spot({ x, y, dye, r = 8, cls = '' }: { x: number; y: number; dye: Dye; r?: number; cls?: string }) {
+  return <g className="rr-rise" style={{ '--rise': `${START - y}px` } as CSSProperties}>
+    <ellipse cx={x} cy={y} rx={r} ry={r * .8} style={{ fill: DYE[dye] }} className={`rr-spot ${cls}`} />
+  </g>
+}
+
+function ChromaScene({ s, picked, phase, mood, progress, shown, live, verdict }: { s: Extract<Scene, { kind: 'chroma' }>; picked: string[]; phase: string; mood: string; progress: number; shown: number; live: string; verdict?: string }) {
+  const y = (cm: number) => START - cm * (START - FRONT) / s.front
+  const culprit = (k: number) => s.factories.find(f => f.cm === s.river[k].cm && f.dye === s.river[k].dye)!
+  if (s.mode === 'rf') {
+    const f = culprit(0), ghostY = y(Math.max(0, Math.min(1.05, shown)) * s.front)
+    return <Frame label={`Chromatogram: river spot ${s.river[0].cm} cm, solvent front ${s.front} cm`} mood={mood} progress={progress} verdict={verdict}>
+      <rect x="30" y="14" width="120" height="196" rx="4" className="rr-paper" />
+      <rect x="30" y={FRONT} width="120" height={START - FRONT + 24} className="rr-paper__wet" />
+      <line x1="30" x2="150" y1={FRONT} y2={FRONT} className="rr-front" />
+      <line x1="30" x2="150" y1={START} y2={START} className="rr-start" />
+      <rect x="22" y="200" width="136" height="20" rx="4" className="rr-solvent" />
+      <text x="72" y="32" textAnchor="middle" className="rr-lane">River</text>
+      <text x="124" y="32" textAnchor="middle" className="rr-lane">{f.letter}</text>
+      {s.river.map((spot, k) => <Spot key={k} x={72} y={y(spot.cm)} dye={spot.dye} cls={k ? 'is-dim' : ''} />)}
+      <Spot x={124} y={y(f.cm)} dye={f.dye} />
+      {live !== '?' && <ellipse cx="72" cy={ghostY} rx="12" ry="10" className="rr-ghost" />}
+      <path d={`M18 ${START} V${FRONT}`} className="rr-measure" markerEnd="url(#rr-arrow)" />
+      <path d={`M50 ${START} V${y(s.river[0].cm) + 8}`} className="rr-measure is-spot" />
+      <defs><marker id="rr-arrow" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L8 4 L0 8 Z" className="rr-arrowhead" /></marker></defs>
+      <Tag x={168} y={56} text={`Front ${s.front} cm`} anchor="start" />
+      <Tag x={168} y={92} text={`Spot ${s.river[0].cm} cm`} anchor="start" />
+      <Tag x={168} y={140} text={`Rf ${live}`} dial anchor="start" />
+      <text x="174" y="184" className="rr-note">both from the</text>
+      <text x="174" y="200" className="rr-note">pencil line</text>
+    </Frame>
+  }
+  const laneX = (k: number) => 132 + k * 48
+  const shownPicks = phase === 'hit' ? [culprit(0).letter, culprit(1).letter] : picked
+  const wrong = phase === 'miss' ? shownPicks.map((p, k) => p !== culprit(k).letter) : [false, false]
+  return <Frame label="Chromatogram: the river sample beside four factories’ dyes" mood={mood} progress={progress} verdict={phase === 'miss' ? 'fix the red line' : undefined}>
+    <rect x="10" y="14" width="300" height="196" rx="4" className="rr-paper" />
+    <rect x="10" y={FRONT} width="300" height={START - FRONT + 24} className="rr-paper__wet" />
+    <line x1="10" x2="310" y1={FRONT} y2={FRONT} className="rr-front" />
+    <line x1="10" x2="310" y1={START} y2={START} className="rr-start" />
+    <rect x="2" y="200" width="316" height="20" rx="4" className="rr-solvent" />
+    <line x1="96" x2="96" y1="20" y2="204" className="rr-divider" />
+    <text x="50" y="34" textAnchor="middle" className="rr-lane">River</text>
+    {s.factories.map((f, k) => {
+      const culpritHit = phase === 'hit' && shownPicks.includes(f.letter)
+      return <g key={f.letter} className={culpritHit ? 'rr-culprit' : undefined}>
+        {culpritHit && <circle cx={laneX(k)} cy="29" r="12" className="rr-culprit__ring" />}
+        <text x={laneX(k)} y="34" textAnchor="middle" className="rr-lane">{f.letter}</text>
+        <Spot x={laneX(k)} y={y(f.cm)} dye={f.dye} r={7} />
+      </g>
+    })}
+    {s.river.map((spot, k) => {
+      const p = shownPicks[k], at = s.factories.findIndex(f => f.letter === p)
+      return <g key={k}>
+        {at >= 0 && <path d={`M62 ${y(spot.cm)} L${laneX(at) - 10} ${y(s.factories[at].cm)}`} className={`rr-link${wrong[k] ? ' is-bad' : ''}`} />}
+        <Spot x={50} y={y(spot.cm)} dye={spot.dye} r={9} />
+      </g>
+    })}
+    {phase === 'set' && shownPicks.length < 2 && <text x="50" y={y(s.river[shownPicks.length].cm) + 4} textAnchor="middle" className="rr-next">◀</text>}
+  </Frame>
+}
+
+/* ---------------------------------------------------------------- Round 3: the indicator beaker and the gas jars */
 
 const PH_COLOURS = ['var(--rv-redpen)', 'var(--rv-step-i)', 'var(--rv-yellow)', 'var(--rv-good)', 'var(--rv-teal)', 'var(--rv-biro)', 'var(--rv-step-b)']
-function PhBar({ y, ph, cls = 'rr-ph__marker' }: { y: number; ph: number | null; cls?: string }) {
-  const x = (p: number) => 20 + p / 14 * 280
-  return <g>
-    <defs><linearGradient id="rr-ph" x1="0" x2="1">{PH_COLOURS.map((c, i) => <stop key={i} offset={i / (PH_COLOURS.length - 1)} stopColor={c} />)}</linearGradient></defs>
-    <rect x="20" y={y} width="280" height="18" rx="9" fill="url(#rr-ph)" className="rr-ph" />
-    {[0, 7, 14].map(p => <text key={p} x={x(p)} y={y + 36} textAnchor="middle" className="rr-note">{p}</text>)}
-    <text x={x(2)} y={y + 36} textAnchor="middle" className="rr-note">acid</text>
-    <text x={x(12)} y={y + 36} textAnchor="middle" className="rr-note">alkali</text>
-    {ph !== null && <path d={`M${x(ph)} ${y - 2} l-7 -12 h14 Z`} className={cls} />}
+const phColour = (p: number) => PH_COLOURS[p < 3 ? 0 : p < 5 ? 1 : p < 6.5 ? 2 : p < 7.5 ? 3 : p < 10 ? 4 : p < 12 ? 5 : 6]
+
+function PhScene({ readings, shown, live, mood, progress, verdict }: { readings: number[]; shown: number; live: string; mood: string; progress: number; verdict?: string }) {
+  const ph = Math.max(0, Math.min(14, shown))
+  const colour = live === '?' ? 'var(--rv-surface)' : phColour(ph)
+  const cell = 20
+  return <Frame label={`Mine water with universal indicator; probe readings ${readings.map(r => n(r)).join(', ')}`} mood={mood} progress={progress} verdict={verdict}>
+    <path d="M40 28 V150 Q40 166 56 166 H124 Q140 166 140 150 V28" className="rr-beaker" />
+    <rect x="42" y="62" width="96" height="102" rx="12" className="rr-beaker__liquid" style={{ fill: colour }} />
+    <g className="rr-bubbles">{[60, 90, 118].map((x, i) => <circle key={i} cx={x} cy={150} r="3.5" className="rr-bubble" style={{ animationDelay: `${i * 300}ms` }} />)}</g>
+    <line x1="112" y1="14" x2="112" y2="140" className="rr-probe" />
+    <circle cx="112" cy="142" r="5" className="rr-probe__tip" />
+    <text x="236" y="28" textAnchor="middle" className="rr-head">Probe readings</text>
+    {readings.map((r, i) => <g key={i} className="rr-reading">
+      <rect x="196" y={38 + i * 32} width="80" height="26" rx="8" /><text x="236" y={56 + i * 32} textAnchor="middle">pH {n(r)}</text>
+    </g>)}
+    <Tag x={236} y={156} text={`Mean ${live}`} dial />
+    {Array.from({ length: 15 }, (_, p) => <rect key={p} x={10 + p * cell} y="186" width={cell - 2} height="18" rx="3"
+      style={{ fill: PH_COLOURS[Math.round(p / 14 * 6)] }} className={`rr-phcell${live !== '?' && Math.round(ph) === p ? ' is-on' : ''}`} />)}
+    {[0, 7, 14].map(p => <text key={p} x={19 + p * cell} y="222" textAnchor="middle" className="rr-note">{p}</text>)}
+    <text x="72" y="222" textAnchor="middle" className="rr-note">acid</text>
+    <text x="250" y="222" textAnchor="middle" className="rr-note">alkali</text>
+    {live !== '?' && <path d={`M${19 + ph * cell} 184 l-7 -11 h14 Z`} className="rr-ph__marker" />}
+  </Frame>
+}
+
+const FORMULA: Record<string, string> = { h2: 'H₂', o2: 'O₂', co2: 'CO₂', cl2: 'Cl₂', n2: 'N₂' }
+
+/** What each jar's test shows. */
+function TestPicture({ gas }: { gas: GasId }) {
+  switch (gas) {
+    case 'h2': return <g>
+      <line x1="-22" y1="-56" x2="2" y2="-38" className="rr-splint" />
+      <path d="M2 -38 q6 -10 0 -18 q-6 8 0 18" className="rr-flame" />
+      <g className="rr-pop"><path d="M8 -70 l4 8 8 -4 -3 9 9 3 -9 4 4 8 -9 -3 -2 9 -4 -8 -8 4 2 -9 -8 -4 9 -3 -3 -9 8 4 Z" className="rr-burst" /></g>
+      <text x="14" y="-58" textAnchor="middle" className="rr-pop__t">POP!</text>
+    </g>
+    case 'o2': return <g>
+      <line x1="-22" y1="-56" x2="2" y2="-38" className="rr-splint" />
+      <circle cx="2" cy="-38" r="4" className="rr-ember" />
+      <g className="rr-relight"><path d="M2 -40 q10 -14 0 -26 q-10 12 0 26" className="rr-flame" /></g>
+    </g>
+    case 'co2': return <g>
+      <path d="M-10 -66 V-36 Q-10 -28 0 -28 Q10 -28 10 -36 V-66" className="rr-glass" />
+      <path d="M-9 -50 V-36 Q-9 -29 0 -29 Q9 -29 9 -36 V-50 Z" className="rr-milky" />
+      <line x1="0" y1="-74" x2="0" y2="-34" className="rr-tube" />
+    </g>
+    case 'cl2': return <g>
+      <rect x="-6" y="-74" width="12" height="40" rx="2" className="rr-litmus" />
+      <rect x="-6" y="-50" width="12" height="16" rx="2" className="rr-litmus is-bleached" />
+    </g>
+  }
+}
+
+function GasScene({ s, picked, phase, mood, progress }: { s: Extract<Scene, { kind: 'gas' }>; picked: string[]; phase: string; mood: string; progress: number }) {
+  const names = phase === 'hit' ? s.tests : picked
+  const results: Record<GasId, string> = { h2: 'squeaky pop', o2: 'splint relit', co2: 'limewater milky', cl2: 'litmus bleached' }
+  return <Frame label="Four gas jars from the acid outfall, each showing a test result" mood={mood} progress={progress} verdict={phase === 'miss' ? 'fix the red jars' : undefined}>
+    {s.tests.map((gas, k) => {
+      const x = 40 + k * 80, bad = phase === 'miss' && names[k] !== gas, next = phase === 'set' && k === picked.length
+      return <g key={k} className={`rr-jar${bad ? ' is-bad' : ''}${next ? ' is-next' : ''}${names[k] ? ' is-filled' : ''}`}>
+        <text x={x} y="20" textAnchor="middle" className="rr-note">jar {k + 1}</text>
+        <g transform={`translate(${x} 124)`}><TestPicture gas={gas} /></g>
+        <rect x={x - 26} y="94" width="52" height="66" rx="6" className="rr-jar__glass" />
+        <rect x={x - 30} y="88" width="60" height="8" rx="2" className="rr-lid" />
+        <text x={x} y="182" textAnchor="middle" className="rr-jar__result">{results[gas].split(' ')[0]}</text>
+        <text x={x} y="196" textAnchor="middle" className="rr-jar__result">{results[gas].split(' ')[1]}</text>
+        <rect x={x - 30} y="128" width="60" height="26" rx="8" className="rr-jar__tag" />
+        <text x={x} y="147" textAnchor="middle" className="rr-jar__name">{names[k] ? FORMULA[names[k]] ?? names[k] : '?'}</text>
+      </g>
+    })}
+  </Frame>
+}
+
+/* ---------------------------------------------------------------- Round 4: the waterworks and its filter beds */
+
+function StageIcon({ id }: { id: StageId }) {
+  switch (id) {
+    case 'screen': return <g>{[-14, -5, 4, 13].map(x => <line key={x} x1={x} x2={x} y1="-16" y2="16" className="rr-mesh" />)}<path d="M-20 6 l6 -4 4 6 M8 -6 l6 4" className="rr-twig" /></g>
+    case 'settle': return <g><rect x="-22" y="6" width="44" height="12" rx="2" className="rr-sediment" />{[-12, 0, 12].map(x => <circle key={x} cx={x} cy="-6" r="2.5" className="rr-grain" />)}</g>
+    case 'filter': return <g>{Array.from({ length: 12 }, (_, i) => <circle key={i} cx={-18 + (i % 6) * 7.2} cy={i < 6 ? 2 : 12} r={i < 6 ? 2.6 : 3.8} className={i < 6 ? 'rr-sand' : 'rr-gravel'} />)}</g>
+    case 'sterilise': return <g><circle r="15" className="rr-uv" /><text y="6" textAnchor="middle" className="rr-icon__t">Cl</text></g>
+    case 'distil': return <g><path d="M-8 -16 V-4 L-18 14 H18 L8 -4 V-16" className="rr-glass" /><path d="M8 -12 H22" className="rr-tube" /></g>
+    case 'evaporate': return <g><path d="M-18 8 Q0 22 18 8 Z" className="rr-glass" /><path d="M-8 -2 q4 -6 0 -12 M2 -2 q4 -6 0 -12" className="rr-steam-line" /></g>
+  }
+}
+
+function WorksScene({ picked, phase, mood, progress }: { picked: string[]; phase: string; mood: string; progress: number }) {
+  const right: StageId[] = ['screen', 'settle', 'filter', 'sterilise']
+  const placed = (phase === 'hit' ? right : picked) as StageId[]
+  return <Frame label="The waterworks: four empty tanks between the river and the tap" mood={mood} progress={progress} verdict={phase === 'miss' ? 'fix the red tanks' : undefined}>
+    <text x="160" y="22" textAnchor="middle" className="rr-head">River → 4 tanks → tap</text>
+    <path d="M6 112 H312" className="rr-main-pipe" />
+    <path d="M6 112 H312" className={`rr-flow${phase === 'hit' ? ' is-clean' : ''}`} />
+    <g transform="translate(6 70)"><path d="M0 26 q8 -6 16 0 t16 0" className="rr-wave" /><path d="M0 34 q8 -6 16 0 t16 0" className="rr-wave" /></g>
+    {[0, 1, 2, 3].map(k => {
+      const x = 42 + k * 62, id = placed[k], bad = phase === 'miss' && id && id !== right[k], next = phase === 'set' && k === picked.length
+      const water = phase === 'hit' ? `color-mix(in srgb, var(--rv-teal) ${30 + k * 22}%, var(--rv-yellow-deep))` : 'color-mix(in srgb, var(--rv-yellow-deep) 50%, var(--rv-ink-2))'
+      return <g key={k} className={`rr-tank${id ? ' is-filled' : ''}${bad ? ' is-bad' : ''}${next ? ' is-next' : ''}`}>
+        <text x={x + 26} y="54" textAnchor="middle" className="rr-tank__n">{k + 1}</text>
+        <rect x={x} y="64" width="52" height="78" rx="6" className="rr-tank__box" />
+        {id && <rect x={x + 3} y="92" width="46" height="47" rx="4" style={{ fill: water }} className="rr-tank__water" />}
+        {id && <g transform={`translate(${x + 26} 106)`}><g className="rr-drop-in"><StageIcon id={id} /></g></g>}
+        <text x={x + 26} y="162" textAnchor="middle" className="rr-tank__label">{id ? STAGES[id].short : '?'}</text>
+      </g>
+    })}
+    <g transform="translate(300 84)">
+      <path d="M-8 22 V8 H8" className="rr-tap" />
+      <g className={phase === 'hit' ? 'rr-drip' : 'rr-drip is-off'}><path d="M8 14 q4 6 0 10 q-4 -4 0 -10" className="rr-drop" /></g>
+    </g>
+    <g className={`rr-glassful${phase === 'hit' ? ' is-full' : ''}`}>
+      <path d="M286 176 L290 212 H310 L314 176" className="rr-glass" />
+      <rect x="290" y="186" width="20" height="25" className="rr-glassful__water" />
+    </g>
+    <text x="150" y="200" textAnchor="middle" className="rr-note">{phase === 'hit' ? 'Potable water: safe to drink' : 'Which stage goes in each tank?'}</text>
+  </Frame>
+}
+
+function BedsScene({ s, shown, live, mood, progress, verdict }: { s: Extract<Scene, { kind: 'beds' }>; shown: number; live: string; mood: string; progress: number; verdict?: string }) {
+  const on = live === '?' ? 0 : Math.max(0, Math.min(20, Math.round(shown)))
+  return <Frame label={`A waterworks needing ${n(s.need)} cubic metres an hour, ${s.each} per filter bed`} mood={mood} progress={progress} verdict={verdict}>
+    <text x="160" y="22" textAnchor="middle" className="rr-head">Need {n(s.need)} m³ an hour</text>
+    {Array.from({ length: 20 }, (_, i) => {
+      const x = 22 + (i % 5) * 56, y = 36 + Math.floor(i / 5) * 34
+      return <g key={i} className={`rr-bed${i < on ? ' is-on' : ''}`} style={{ transitionDelay: `${i * 25}ms` }}>
+        <rect x={x} y={y} width="50" height="28" rx="5" className="rr-bed__box" />
+        <rect x={x + 3} y={y + 15} width="44" height="10" rx="2" className="rr-bed__sand" />
+        <rect x={x + 3} y={y + 4} width="44" height="11" rx="2" className="rr-bed__water" />
+      </g>
+    })}
+    <Tag x={90} y={196} text={`${s.each} m³ each`} />
+    <Tag x={232} y={196} text={`Running ${live}`} dial />
+    <text x="160" y="224" textAnchor="middle" className="rr-note">{on ? `${on} × ${s.each} = ${n(on * s.each)} m³` : 'beds running: 0'}</text>
+  </Frame>
+}
+
+/* ---------------------------------------------------------------- Round 5: the practical as a comic strip, then the balances */
+
+function Balance({ x, y, reading, residue, dim = false }: { x: number; y: number; reading: string; residue: number; dim?: boolean }) {
+  return <g transform={`translate(${x} ${y})`} className={dim ? 'rr-dim' : undefined}>
+    <path d="M-30 -20 Q0 6 30 -20 Z" className="rr-dish" />
+    {residue > 0 && <ellipse cx="0" cy="-14" rx={residue * 1.6} ry={Math.max(2, residue / 2.4)} className="rr-residue" />}
+    <rect x="-40" y="-4" width="80" height="34" rx="6" className="rr-balance" />
+    <text x="0" y="20" textAnchor="middle" className="rr-balance__read">{reading}</text>
   </g>
 }
 
-function PhScene({ readings, shown, live, mood, set }: { readings: number[]; shown: number; live: string; mood: string; set: boolean }) {
-  return <Frame label={`pH readings of mine water: ${readings.map(r => n(r)).join(', ')}`} height={200} mood={mood}>
-    <text x="22" y="40" className="rr-emoji">⛏️</text>
-    {readings.map((r, i) => <Tag key={i} x={110 + i * 64} y={34} text={n(r)} />)}
-    <text x="174" y="56" textAnchor="middle" className="rr-note">probe readings</text>
-    <PhBar y={90} ph={set && live === '?' ? null : Math.max(0, Math.min(14, shown))} />
-    <Tag x={160} y={160} text={`Mean pH ${live}`} dial />
+function StepPicture({ id, s }: { id: StepId; s: Extract<Scene, { kind: 'practical' }> }) {
+  switch (id) {
+    case 'weigh': return <Balance x={0} y={10} reading={`${n(s.before)} g`} residue={0} />
+    case 'reweigh': return <Balance x={0} y={10} reading={`${n(s.after)} g`} residue={8} />
+    case 'add': return <g><path d="M-30 -10 Q0 16 30 -10 Z" className="rr-dish" /><path d="M-6 -18 Q0 -4 -2 -6" className="rr-pour" /><rect x="-2" y="-42" width="16" height="30" rx="2" transform="rotate(35 6 -27)" className="rr-glass" /><text x="22" y="22" className="rr-mini">{s.sample} cm³</text></g>
+    case 'heat': return <g><path d="M-30 -14 Q0 12 30 -14 Z" className="rr-dish" /><path d="M-24 0 L-30 26 M24 0 L30 26" className="rr-tripod" /><path d="M0 26 q8 -10 0 -20 q-8 10 0 20" className="rr-flame" /><g className="rr-steam"><path d="M-10 -22 q4 -6 0 -12 M8 -22 q4 -6 0 -12" className="rr-steam-line" /></g></g>
+    case 'indicator': return <g><path d="M-30 -6 Q0 20 30 -6 Z" className="rr-dish" /><rect x="-4" y="-40" width="8" height="24" rx="3" className="rr-dropper" /><circle cx="0" cy="-10" r="3" className="rr-drop-ind" /></g>
+    case 'pour': return <g><g transform="rotate(-30)"><path d="M-30 -6 Q0 20 30 -6 Z" className="rr-dish" /></g><path d="M24 4 q4 12 0 22" className="rr-pour" /></g>
+  }
+}
+
+function PracticalScene({ s, picked, phase, mood, progress }: { s: Extract<Scene, { kind: 'practical' }>; picked: string[]; phase: string; mood: string; progress: number }) {
+  const right: StepId[] = ['weigh', 'add', 'heat', 'reweigh']
+  const placed = (phase === 'hit' ? right : picked) as StepId[]
+  return <Frame label="The water practical as four empty comic panels" mood={mood} progress={progress} verdict={phase === 'miss' ? 'fix the red panels' : undefined}>
+    {[0, 1, 2, 3].map(k => {
+      const x = 8 + (k % 2) * 156, y = 6 + Math.floor(k / 2) * 114, id = placed[k]
+      const bad = phase === 'miss' && id && id !== right[k], next = phase === 'set' && k === picked.length
+      return <g key={k} className={`rr-panel${id ? ' is-filled' : ''}${bad ? ' is-bad' : ''}${next ? ' is-next' : ''}`}>
+        <rect x={x} y={y} width="148" height="106" rx="10" className="rr-panel__box" />
+        <circle cx={x + 16} cy={y + 16} r="11" className="rr-panel__n" />
+        <text x={x + 16} y={y + 21} textAnchor="middle" className="rr-panel__nt">{k + 1}</text>
+        {id ? <g transform={`translate(${x + 74} ${y + 46})`}><g className="rr-drop-in"><StepPicture id={id} s={s} /></g></g>
+          : <text x={x + 74} y={y + 62} textAnchor="middle" className="rr-panel__q">?</text>}
+        <text x={x + 74} y={y + 99} textAnchor="middle" className="rr-panel__label">{id ? STEPS[id] : ''}</text>
+      </g>
+    })}
   </Frame>
 }
 
-function LimeScene({ s, shown, live, mood, phase, answer }: { s: Extract<Scene, { kind: 'lime' }>; shown: number; live: string; mood: string; phase: Phase; answer: number }) {
-  // The pond's pH after the lime goes in: 7 on the dot when right, under 7 short, over 7 too much.
-  const ph = phase === 'hit' ? 7 : phase === 'miss' ? Math.max(0, Math.min(14, 7 + (shown - answer) / answer * 6)) : s.startPh
-  return <Frame label={`A settling pond of ${n(s.litres)} litres of acid mine water`} height={200} mood={mood}>
-    <text x="22" y="40" className="rr-emoji">🪣</text>
-    <Tag x={180} y={28} text={`${s.rate} kg per 1,000 litres`} />
-    <Tag x={180} y={54} text={`Pond ${n(s.litres)} litres`} />
-    <PhBar y={86} ph={ph} />
-    <Tag x={160} y={156} text={`Lime ${live}`} dial />
+function DishScene({ s, shown, live, mood, progress, verdict }: { s: Extract<Scene, { kind: 'dish' }>; shown: number; live: string; mood: string; progress: number; verdict?: string }) {
+  const pile = live === '?' ? 0 : Math.max(0, Math.min(18, 3 + shown * 6))
+  return <Frame label={`Evaporating dish: ${n(s.before)} g empty, ${n(s.after)} g after evaporating ${s.sample} cm³`} mood={mood} progress={progress} verdict={verdict}>
+    <text x="78" y="30" textAnchor="middle" className="rr-head">Before</text>
+    <text x="242" y="30" textAnchor="middle" className="rr-head">After</text>
+    <Balance x={78} y={96} reading={`${n(s.before)} g`} residue={0} />
+    <g className="rr-steam is-loop"><path d="M230 52 q4 -6 0 -12 M246 52 q4 -6 0 -12" className="rr-steam-line" /></g>
+    <Balance x={242} y={96} reading={`${n(s.after)} g`} residue={pile} />
+    <text x="160" y="102" textAnchor="middle" className="rr-minus">−</text>
+    <text x="160" y="158" textAnchor="middle" className="rr-note">{s.sample} cm³ of river water, boiled dry</text>
+    <Tag x={160} y={198} text={`Solids ${live}`} dial />
   </Frame>
 }
 
-/* ---------------------------------------------------------------- Waterworks: river → filter beds → sterilise → homes */
+/* ---------------------------------------------------------------- The stage */
 
-function BedsScene({ s, shown, live, mood, set }: { s: Extract<Scene, { kind: 'beds' }>; shown: number; live: string; mood: string; set: boolean }) {
-  const on = set && live === '?' ? 0 : Math.max(0, Math.min(20, Math.round(shown)))
-  return <Frame label={`A waterworks needing ${n(s.need)} cubic metres an hour, ${s.each} per filter bed`} height={214} mood={mood}>
-    <Tag x={160} y={24} text={`Need ${n(s.need)} m³ an hour`} />
-    <text x="10" y="76" className="rr-emoji">🏞️</text>
-    <path d="M44 70 H60 M260 70 H276" className="rr-pipe" />
-    {Array.from({ length: 20 }, (_, i) => <rect key={i} x={64 + (i % 10) * 19.5} y={46 + Math.floor(i / 10) * 26} width="16" height="20" rx="3"
-      className={`rr-bed${i < on ? ' is-on' : ''}`} style={{ transitionDelay: `${i * 25}ms` }} />)}
-    <text x="282" y="64" className="rr-emoji rr-emoji--sm">🧪</text>
-    <text x="282" y="92" className="rr-emoji rr-emoji--sm">🏠</text>
-    <text x="160" y="116" textAnchor="middle" className="rr-note">filter beds · then chlorine · then homes</text>
-    <Tag x={90} y={150} text={`${s.each} m³ each`} />
-    <Tag x={230} y={150} text={`Running ${live}`} dial />
-  </Frame>
-}
-
-function TankScene({ s, shown, live, mood, set }: { s: Extract<Scene, { kind: 'tank' }>; shown: number; live: string; mood: string; set: boolean }) {
-  const depth = set && live === '?' ? 0 : Math.max(0, Math.min(70, shown / 300 * 70))
-  return <Frame label={`A settling tank: ${s.inflow} tonnes in, ${s.outflow} tonnes of liquid out`} height={210} mood={mood}>
-    <path d="M60 40 V140 H260 V40" className="rr-tank" />
-    <rect x="62" y="60" width="196" height="78" className="rr-tank__liquid" />
-    <rect x="62" y={138 - depth} width="196" height={depth} className="rr-tank__sludge" />
-    <path d="M14 52 H62 M258 64 H306" className="rr-pipe" />
-    <Tag x={36} y={40} text={`${s.inflow} t in`} />
-    <Tag x={284} y={52} text={`${s.outflow} t out`} />
-    <Tag x={160} y={164} text={`Sludge ${live}`} dial />
-  </Frame>
-}
-
-/* ---------------------------------------------------------------- The practical: an evaporating dish on a balance */
-
-function DishScene({ s, shown, live, mood, set }: { s: Extract<Scene, { kind: 'dish' }>; shown: number; live: string; mood: string; set: boolean }) {
-  const pile = set && live === '?' ? 0 : Math.max(0, Math.min(16, shown * 5))
-  return <Frame label={`An evaporating dish on a balance: ${n(s.before)} g empty, ${n(s.after)} g after evaporating ${s.sample} cm³`} height={214} mood={mood}>
-    <g className="rr-steam" aria-hidden="true"><text x="140" y="34">♨️</text></g>
-    <path d="M110 70 Q160 110 210 70 Z" className="rr-dish" />
-    <ellipse cx="160" cy={78} rx={pile * 1.8} ry={pile / 2.2} className="rr-residue" />
-    <rect x="96" y="96" width="128" height="40" rx="6" className="rr-balance" />
-    <text x="160" y="122" textAnchor="middle" className="rr-balance__read">{n(s.after)} g</text>
-    <Tag x={60} y={40} text={`Empty ${n(s.before)} g`} />
-    <Tag x={262} y={40} text={`${s.sample} cm³`} />
-    <Tag x={160} y={164} text={`Solids ${live}`} dial />
-  </Frame>
-}
-
-function LitreScene({ s, shown, live, mood, set }: { s: Extract<Scene, { kind: 'litre' }>; shown: number; live: string; mood: string; set: boolean }) {
-  const k = 1000 / s.sample
-  const fill = set && live === '?' ? 0 : Math.max(0, Math.min(1.1, shown / (s.solids * k)))
-  return <Frame label={`Scaling ${s.sample} cubic centimetres of river water up to a litre`} height={214} mood={mood}>
-    <Tag x={70} y={30} text={`${s.sample} cm³ → ${n(s.solids)} g`} />
-    <path d="M220 24 V136 Q220 146 230 146 H282 Q292 146 292 136 V24" className="rr-tank" />
-    <rect x="222" y={144 - 118 * Math.min(1, fill)} width="68" height={118 * Math.min(1, fill)} className="rr-litre" />
-    <text x="256" y="18" textAnchor="middle" className="rr-note">1,000 cm³</text>
-    {Array.from({ length: Math.min(20, k) }, (_, i) => <rect key={i} x={28 + (i % 5) * 32} y={50 + Math.floor(i / 5) * 22} width="24" height="16" rx="3"
-      className={`rr-cup${i < Math.round(fill * k) ? ' is-on' : ''}`} />)}
-    <text x="100" y="146" textAnchor="middle" className="rr-note">{k} samples make a litre</text>
-    <Tag x={160} y={170} text={`Per litre ${live}`} dial />
-  </Frame>
-}
-
-function Stage({ task, value, phase }: StageProps<Scene>) {
+function Stage({ round, task, value, picked, phase }: PlayStageProps<Scene>) {
+  const s = task.scene
+  const progress = Math.min(10, ORDER.indexOf(round.id) * 2 + round.tasks.indexOf(task) + (phase === 'hit' ? 1 : 0)) / 10
+  if (isTiles(task)) {
+    const mood = `is-${phase}`
+    const props = { picked, phase, mood, progress }
+    if (s.kind === 'shelf') return <ShelfScene s={s} {...props} />
+    if (s.kind === 'chroma') return <ChromaScene s={s} {...props} shown={0} live="?" />
+    if (s.kind === 'gas') return <GasScene s={s} {...props} />
+    if (s.kind === 'works') return <WorksScene {...props} />
+    if (s.kind === 'practical') return <PracticalScene s={s} {...props} />
+    return null
+  }
   const set = phase === 'set' && value === task.start
   const live = phase === 'hit' ? u(task.answer, task.unit) : set ? '?' : u(value, task.unit)
-  const mood = moodFor(phase, value, task.answer)
   const shown = phase === 'hit' ? task.answer : value
-  const s = task.scene
-  const props = { shown, live, mood, set }
-  if (s.kind === 'formula') return <FormulaScene s={s} {...props} />
-  if (s.kind === 'chroma') return <ChromaScene s={s} {...props} />
+  const high = phase === 'miss' && value > task.answer
+  const mood = `is-${phase}${phase === 'miss' ? (high ? ' is-high' : ' is-low') : ''}`
+  const verdict = phase === 'miss' ? (high ? 'too high ⬆' : 'too low ⬇') : undefined
+  const props = { shown, live, mood, progress, verdict }
+  if (s.kind === 'scoop') return <ScoopScene s={s} {...props} />
+  if (s.kind === 'chroma') return <ChromaScene s={s} {...props} picked={[]} phase={phase} />
   if (s.kind === 'ph') return <PhScene readings={s.readings} {...props} />
-  if (s.kind === 'lime') return <LimeScene s={s} {...props} phase={phase} answer={task.answer} />
   if (s.kind === 'beds') return <BedsScene s={s} {...props} />
-  if (s.kind === 'tank') return <TankScene s={s} {...props} />
   if (s.kind === 'dish') return <DishScene s={s} {...props} />
-  return <LitreScene s={s} {...props} />
+  return null
 }
 
 /** "Spot distance" → "spot distance", but symbols like "Rf" stay as they are. */
-const lower = (label: string) => label.length > 3 && /^[A-Z][a-z]/.test(label) ?label.charAt(0).toLowerCase() + label.slice(1) : label
+const lower = (label: string) => label.length > 3 && /^[A-Z][a-z]/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label
 
-const config: DialGameConfig<Scene> = {
+const config: PlayGameConfig<Scene> = {
   labId: 'science-river',
   name: 'River Rescue',
   speaker: DEV,
   intros: [
     'Morning, rookie! Inspector Dev Sandhu, Environment Agency. Something’s foaming in the river, and wild-swimming season starts Saturday. First: what’s actually in this stuff?',
-    'A mystery dye is staining the water. Three factories upstream, one culprit. Chromatography will tell us who. Let’s make them dye of embarrassment.',
-    'Orange water from an old mine. That’s acid, I’d bet my wellies on it. Let’s measure the pH and neutralise it.',
-    'The river’s cleaner. Now the town needs drinking water, and the sewage works needs a check-up. Let’s go with the flow.',
-    'Final test before the swimmers dive in. Required practical: is this water fit to drink? No pressure. Well, some water pressure.',
+    'A mystery dye is staining the water. Four factories upstream. Chromatography will tell us who. Let’s make them dye of embarrassment.',
+    'Orange water from an old mine, and it’s fizzing. That’s acid, I’d bet my wellies on it. Let’s measure the pH and test those gases.',
+    'The river’s cleaner. Now the town needs drinking water. Let’s build the waterworks and go with the flow.',
+    'Final test before the swimmers dive in. Required practical: what’s dissolved in this water? No pressure. Well, some water pressure.',
   ],
   ranks: [
     { badge: '🏞️', name: 'Chief Environment Scientist', line: 'Spotless. The river sparkles and the swimmers are in.' },
@@ -240,13 +442,13 @@ const config: DialGameConfig<Scene> = {
     { badge: '🥾', name: 'Field Sampler', line: 'Muddy wellies, but you got there. Dev’s proud.' },
     { badge: '🦆', name: 'Duck Pond Paddler', line: 'The river’s still murky. Wade back in and try again.' },
   ],
-  rule: ['Percentage = part ÷ total × 100. A pure substance is one element or compound.', 'Rf = spot distance ÷ solvent distance. Same dye, same Rf.', 'Below pH 7 is acid. Filter, then sterilise. Solids = dish after − dish before.'],
+  rule: ['A pure substance is one element or compound. Same dye, same Rf: Rf = spot ÷ solvent front.', 'Pop: hydrogen. Relights: oxygen. Milky limewater: CO₂. Bleached litmus: chlorine.', 'Screen, settle, filter, sterilise. Solids = dish after − dish before.'],
   start: 'Wellies on',
-  action: 'Test it',
-  asker: task => `Dev · set the ${lower(task.label)}, then test it`,
+  action: task => isTiles(task) ? 'Lock it in' : 'Test it',
+  asker: task => isTiles(task) ? 'Dev · tap the tiles in order' : `Dev · set the ${lower(task.label)}, then test it`,
   busted: {
     emoji: '🚱', kicker: 'River closed', title: 'Three slips. The “No swimming” signs are going up.',
-    tip: 'Write the rule first, then the numbers. Percentage = part ÷ total × 100. Rf = spot ÷ solvent front, measured from the start line. Mean = total ÷ how many.',
+    tip: 'Pure means one element or compound. Match spots by height: same Rf, same dye. Screen, settle, filter, then sterilise. Weigh the dish empty first.',
     retry: 'Grab a fresh sample',
   },
   burst: '💧',
@@ -260,5 +462,5 @@ const config: DialGameConfig<Scene> = {
 /** Fresh numbers every play: the game remounts with a new set on "again". */
 export default function RiverRescue() {
   const { data, play, regenerate } = useGenerated(makeRounds)
-  return data ? <DialGame key={play} rounds={data} onReplay={regenerate} config={config} /> : null
+  return data ? <PlayGame key={play} rounds={data} onReplay={regenerate} config={config} /> : null
 }
