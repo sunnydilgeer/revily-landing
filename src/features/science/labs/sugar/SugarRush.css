@@ -1,0 +1,87 @@
+/* Sugar Rush: the reflex arc, the glucose monitor, the clinic list, the calendar and the ruler drop. The shared lab look is in maths/labs/kit/lab.css. */
+.sr-board { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+
+/* The readout: given values, then the dial's slot */
+.sr-slot__name { font: 600 14px var(--rv-font-body); fill: var(--rv-muted); }
+.sr-slot__value { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.sr-slot.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.sr-board.is-hit .sr-slot.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.sr-board.is-miss .sr-slot.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.sr-tag { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+.sr-note { font: 700 13px var(--rv-font-body); fill: var(--rv-muted); }
+.sr-board.is-hit .sr-note { fill: var(--rv-good-ink); }
+.sr-board.is-miss .sr-note { fill: var(--rv-redpen); }
+.sr-emoji { font-size: 22px; }
+
+/* The reflex arc */
+.sr-cord { fill: var(--rv-step-b-tint); stroke: var(--rv-step-b); stroke-width: 2; }
+.sr-nerve { stroke: var(--rv-line-strong); stroke-width: 7; stroke-linecap: round; }
+.sr-nerve__lit { stroke: var(--rv-yellow); stroke-width: 7; stroke-linecap: round; transition: stroke-dasharray .2s; }
+.sr-relay { fill: var(--rv-step-b); }
+.sr-board.is-go .sr-nerve__lit { stroke-dasharray: 100 100 !important; animation: sr-impulse .65s linear both; }
+.sr-board.is-hit .sr-nerve__lit { stroke: var(--rv-good); }
+.sr-board.is-high .sr-nerve__lit { stroke: var(--rv-redpen); }
+.sr-board.is-low .sr-nerve__lit { stroke: var(--rv-alarm); stroke-dasharray: 4 6 !important; }
+
+/* The glucose monitor */
+.sr-mon { fill: var(--rv-night); stroke: var(--rv-ink); stroke-width: 2; }
+.sr-mon__tag { font: 600 13px var(--rv-font-body); fill: var(--rv-on-night-muted); }
+.sr-band { fill: var(--rv-good); opacity: .22; }
+.sr-axis { stroke: var(--rv-on-night-muted); stroke-width: 1.5; }
+.sr-target { stroke: var(--rv-on-night-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.sr-trace { stroke: var(--rv-on-night); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.sr-board.is-go .sr-trace { stroke: var(--rv-yellow); stroke-dasharray: 600; animation: sr-sweep .65s linear both; }
+.sr-board.is-hit .sr-trace { stroke: #3ddc84; }
+.sr-board.is-high .sr-trace { stroke: var(--rv-alarm); }
+.sr-board.is-low .sr-trace { stroke: var(--rv-biro-light); }
+.sr-board.is-miss .sr-mon { animation: sr-alarm .5s steps(2) 3; }
+
+/* The clinic list and the calendar */
+.sr-room { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sr-board.is-hit .sr-room { stroke: var(--rv-good); stroke-width: 2.5; }
+.sr-board.is-miss .sr-room { stroke: var(--rv-redpen); stroke-width: 2.5; }
+.sr-dot { fill: var(--rv-line); stroke: var(--rv-ink-2); stroke-width: 1; transition: fill .15s; }
+.sr-dot.is-t2 { fill: var(--rv-teal); }
+.sr-dot.is-t1 { fill: var(--rv-step-i); }
+.sr-dot.is-match { fill: var(--rv-teal-tint); stroke: var(--rv-teal); stroke-dasharray: 3 2; }
+.sr-board.is-go .sr-dot { animation: sr-blink .5s steps(2) both; }
+.sr-key text { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+
+.sr-day rect { fill: var(--rv-paper); stroke: var(--rv-line); stroke-width: 1; }
+.sr-day text { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); font-variant-numeric: tabular-nums; }
+.sr-day.is-period rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.sr-day.is-picked rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2.5; }
+.sr-board.is-hit .sr-day.is-egg rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-width: 3; }
+.sr-board.is-miss .sr-day.is-picked rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.sr-board.is-go .sr-day.is-picked rect { animation: sr-blink .5s steps(2) both; }
+
+/* The cycle timeline */
+.sr-bar { fill: var(--rv-redpen-tint); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sr-tick { stroke: var(--rv-ink-2); stroke-width: 2; }
+.sr-egg { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 2; }
+.sr-egg.is-out { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.sr-board.is-hit .sr-egg { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+
+/* The ruler drop */
+.sr-ruler__body { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; }
+.sr-ruler__num { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+.sr-catch { transition: transform .3s ease-out; }
+.sr-catch__line { stroke: var(--rv-biro); stroke-width: 3; stroke-linecap: round; }
+.sr-board.is-go .sr-catch { animation: sr-drop .6s ease-in both; }
+.sr-board.is-hit .sr-catch__line { stroke: var(--rv-good); }
+.sr-board.is-miss .sr-catch__line { stroke: var(--rv-redpen); }
+.sr-chip rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sr-chip text { font: 700 13px var(--rv-font-body); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.sr-chip.is-odd rect { stroke: var(--rv-alarm); stroke-width: 2; }
+.sr-chip.is-out { opacity: .45; }
+.sr-chip.is-out text { text-decoration: line-through; }
+
+@keyframes sr-impulse { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+@keyframes sr-sweep { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
+@keyframes sr-alarm { 0% { fill: var(--rv-night); } 100% { fill: #4a1420; } }
+@keyframes sr-blink { 0% { opacity: .4; } 100% { opacity: 1; } }
+@keyframes sr-drop { from { transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-board * { animation: none !important; transition: none !important; }
+}

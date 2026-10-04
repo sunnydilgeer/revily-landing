@@ -1,0 +1,64 @@
+/* Gene Detective: the nucleus, the Punnett square and the newborns. The shared lab look is in maths/labs/kit/lab.css. */
+.gd-board { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+
+/* The readout: given values, then the dial's slot */
+.gd-slot__name { font: 600 14px var(--rv-font-body); fill: var(--rv-muted); }
+.gd-slot__value { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.gd-slot.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.gd-board.is-hit .gd-slot.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.gd-board.is-miss .gd-slot.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.gd-note { font: 700 13px var(--rv-font-body); fill: var(--rv-muted); }
+.gd-board.is-miss .gd-note { fill: var(--rv-redpen); }
+.gd-board.is-hit .gd-note { fill: var(--rv-good-ink); }
+
+/* The cell and its nucleus */
+.gd-cell__wall { fill: var(--rv-teal-tint); stroke: var(--rv-teal); stroke-width: 3; }
+.gd-tail { fill: none; stroke: var(--rv-teal); stroke-width: 3; stroke-linecap: round; }
+.gd-nucleus { fill: var(--rv-surface); stroke: var(--rv-ink-2); stroke-width: 2; stroke-dasharray: 5 3; transition: fill .2s; }
+.gd-chromo rect { stroke: none; }
+.gd-chromo.is-mum rect { fill: var(--rv-biro); }
+.gd-chromo.is-dad rect { fill: var(--rv-step-i); }
+.gd-chromo__twin { opacity: .75; }
+.gd-board.is-go .gd-chromo { animation: gd-blink .5s steps(2) both; }
+.gd-board.is-hit .gd-nucleus { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.gd-board.is-high .gd-nucleus { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.gd-board.is-low .gd-nucleus { fill: var(--rv-line); stroke: var(--rv-redpen); }
+.gd-board.is-hit .gd-cell__wall { stroke: var(--rv-good); }
+
+/* The Punnett square */
+.gd-allele { font: 800 20px var(--rv-font-display); fill: var(--rv-ink); }
+.gd-box__frame { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; }
+.gd-box__fill { fill: var(--rv-line); transition: y .25s ease-out, height .25s ease-out; }
+.gd-box__g { font: 800 18px var(--rv-font-display); fill: var(--rv-ink); }
+.gd-box.is-dd .gd-box__fill { fill: var(--rv-biro-light); }
+.gd-box.is-het .gd-box__fill { fill: var(--rv-step-b-light); }
+.gd-box.is-rr .gd-box__fill { fill: var(--rv-step-i-light); }
+.gd-box.is-boy .gd-box__fill { fill: var(--rv-teal-tint); }
+.gd-box.is-girl .gd-box__fill { fill: var(--rv-step-b-tint); }
+.gd-board.is-go .gd-box__fill { animation: gd-blink .5s steps(2) both; }
+.gd-board.is-hit .gd-box.is-target .gd-box__frame { stroke: var(--rv-good); stroke-width: 4; }
+.gd-board.is-high .gd-box.is-lit:not(.is-target) .gd-box__frame { stroke: var(--rv-redpen); stroke-width: 4; }
+.gd-board.is-low .gd-box.is-target:not(.is-lit) .gd-box__frame { stroke: var(--rv-redpen); stroke-width: 4; stroke-dasharray: 6 4; }
+
+/* The newborns (and pups, and kittens) */
+.gd-crowd__bg { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.gd-kid__ring { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1; transition: fill .15s; }
+.gd-kid__icon { font-size: 13px; opacity: .35; transition: opacity .15s; }
+.gd-kid.is-on .gd-kid__icon { opacity: 1; }
+.gd-kid__ring.is-dd, .gd-kid.is-dd .gd-kid__ring { fill: var(--rv-biro-light); }
+.gd-kid__ring.is-het, .gd-kid.is-het .gd-kid__ring { fill: var(--rv-step-b-light); }
+.gd-kid__ring.is-rr, .gd-kid.is-rr .gd-kid__ring { fill: var(--rv-step-i-light); }
+.gd-kid__ring.is-boy, .gd-kid.is-boy .gd-kid__ring { fill: var(--rv-teal-tint); stroke: var(--rv-teal); }
+.gd-kid__ring.is-girl, .gd-kid.is-girl .gd-kid__ring { fill: var(--rv-step-b-tint); stroke: var(--rv-step-b); }
+.gd-board.is-go .gd-kid.is-on { animation: gd-blink .5s steps(2) both; }
+.gd-board.is-hit .gd-crowd__bg { stroke: var(--rv-good); stroke-width: 2.5; }
+.gd-board.is-miss .gd-crowd__bg { stroke: var(--rv-redpen); stroke-width: 2.5; }
+.gd-board.is-high .gd-kid.is-on .gd-kid__ring { stroke: var(--rv-redpen); stroke-width: 1.5; }
+.gd-board.is-low .gd-kid:not(.is-on) .gd-kid__ring { stroke: var(--rv-redpen); stroke-dasharray: 3 2; }
+.gd-key text { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+
+@keyframes gd-blink { 0% { opacity: .35; } 100% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-board * { animation: none !important; transition: none !important; }
+}

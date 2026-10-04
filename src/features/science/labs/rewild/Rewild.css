@@ -1,0 +1,73 @@
+/* Rewild: the valley, its quadrats, transect, population graph and wetland map. The shared lab look is in maths/labs/kit/lab.css. */
+.rw-board { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+
+/* The readout: given values, then the dial's slot */
+.rw-slot__name { font: 600 13px var(--rv-font-body); fill: var(--rv-muted); }
+.rw-slot__value { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.rw-slot__value.is-long { font-size: 13px; }
+.rw-slot.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.rw-board.is-hit .rw-slot.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.rw-board.is-miss .rw-slot.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.rw-mood { font: 700 13px var(--rv-font-body); fill: var(--rv-muted); }
+.rw-board.is-miss .rw-mood { fill: var(--rv-redpen); }
+.rw-board.is-hit .rw-mood { fill: var(--rv-good-ink); }
+.rw-note { font: 700 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+.rw-key { font-size: 14px; }
+
+/* The valley floor */
+.rw-land { fill: var(--rv-good-tint); stroke: var(--rv-line-strong); stroke-width: 1.5; transition: fill .3s; }
+.rw-board.is-hit .rw-land { stroke: var(--rv-good); stroke-width: 2.5; }
+.rw-board.is-low .rw-land { fill: var(--rv-yellow-tint); stroke: var(--rv-redpen); stroke-width: 2.5; }
+.rw-board.is-high .rw-land { fill: var(--rv-teal-tint); stroke: var(--rv-redpen); stroke-width: 2.5; }
+
+/* The river, the dam and the wildlife */
+.rw-river__water { fill: var(--rv-biro-light); transition: opacity .3s; }
+.rw-river__flood { fill: var(--rv-biro-light); opacity: 0; }
+.rw-board.is-high .rw-river__flood { opacity: .7; animation: rw-flood .6s ease-out both; }
+.rw-board.is-low .rw-river__water { opacity: .3; }
+.rw-dam path { stroke: var(--rv-step-i); stroke-width: 3.5; stroke-linecap: round; fill: none; }
+.rw-river__beaver { font-size: 16px; }
+.rw-river__dry { font-size: 16px; }
+.rw-wild text { font-size: 15px; opacity: 0; transition: opacity .3s; }
+.rw-board.is-hit .rw-wild text { opacity: 1; animation: rw-pop .5s ease-out both; }
+.rw-board.is-hit .rw-wild text:nth-child(2) { animation-delay: .08s; }
+.rw-board.is-hit .rw-wild text:nth-child(3) { animation-delay: .16s; }
+.rw-board.is-hit .rw-wild text:nth-child(4) { animation-delay: .24s; }
+.rw-board.is-hit .rw-wild text:nth-child(5) { animation-delay: .32s; }
+
+/* Quadrats */
+.rw-quad { fill: var(--rv-surface); stroke: var(--rv-ink-2); stroke-width: 2.5; }
+.rw-quad__string { stroke: var(--rv-line); stroke-width: 1; }
+.rw-flower { font-size: 14px; dominant-baseline: middle; }
+.rw-board.is-go .rw-flower { animation: rw-sway .5s ease-in-out both; }
+.rw-board.is-low .rw-flower { opacity: .5; }
+
+/* The transect */
+.rw-tape { stroke: var(--rv-yellow-deep); stroke-width: 3; stroke-linecap: round; }
+.rw-sq { fill: var(--rv-line); transition: fill .15s; }
+.rw-sq.is-on { fill: var(--rv-good); }
+.rw-board.is-go .rw-sq.is-on { animation: rw-blink .5s steps(2) both; }
+
+/* The predator–prey graph */
+.rw-axis { fill: none; stroke: var(--rv-ink-2); stroke-width: 2; }
+.rw-curve { fill: none; stroke-width: 2.5; stroke-linejoin: round; }
+.rw-curve--vole { stroke: var(--rv-step-i); }
+.rw-curve--owl { stroke: var(--rv-step-b); stroke-dasharray: 5 3; }
+.rw-peak { stroke: var(--rv-muted); stroke-width: 1; stroke-dasharray: 2 3; }
+.rw-level { stroke: var(--rv-biro); stroke-width: 2.5; transition: all .2s; }
+.rw-board.is-hit .rw-level { stroke: var(--rv-good); }
+.rw-board.is-miss .rw-level { stroke: var(--rv-redpen); }
+
+/* The wetland map */
+.rw-cell { fill: var(--rv-biro-light); stroke: var(--rv-surface); stroke-width: 1.5; transition: fill .15s; }
+.rw-cell.is-dry { fill: var(--rv-step-i-light); }
+.rw-board.is-go .rw-cell { animation: rw-blink .5s steps(2) both; }
+
+@keyframes rw-pop { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rw-flood { from { transform: translateY(10px); } to { transform: none; } }
+@keyframes rw-sway { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+@keyframes rw-blink { 0% { opacity: .4; } 100% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-board * { animation: none !important; transition: none !important; }
+}

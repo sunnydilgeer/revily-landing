@@ -8,8 +8,9 @@ import { Burst, Choices, Combo, IntroSplit, LabTop, RankCard, Rule, Why, livesPe
 import { NumberDial } from '../../../maths/labs/kit/NumberDial'
 import { sfx } from '../../../maths/labs/kit/sfx'
 import { SCIENCE_ARCADE_HREF } from '../catalog'
-import { u, type Round, type Task } from './types'
+import { n, u, type Round, type Task } from './types'
 import '../../../maths/labs/kit/lab.css'
+import './science.css'
 
 /** set: dial live · go: the action is playing out · hit / miss: the result of their number */
 export type Phase = 'set' | 'go' | 'hit' | 'miss'
@@ -131,6 +132,10 @@ export function DialGame<S>({ rounds, onReplay, config }: { rounds: Round<S>[]; 
   const sideWrong = picked !== null && !sideRight
   const tone = phase === 'hit' ? 'right' : phase === 'miss' ? 'wrong' : 'default'
   const mood = (offset: number) => roundIndex * 3 + taskIndex + offset
+  // Word units ("chromosomes", "buttercups") don't fit inside the dial at 320px: show the bare number,
+  // and name the unit in the dial's label unless the label already says it.
+  const wordUnit = /^[a-z]{5,}$/i.test(task.unit)
+  const dialLabel = wordUnit && !task.label.toLowerCase().includes(task.unit.toLowerCase().replace(/s$/, '')) ? `${task.label} (${task.unit})` : task.label
 
   return <main className="lab">
     <LabTop progress={`Round ${roundIndex + 1}/${rounds.length}`} streak={score.streak} lives={score.lives} home={SCIENCE_ARCADE_HREF} />
@@ -151,8 +156,8 @@ export function DialGame<S>({ rounds, onReplay, config }: { rounds: Round<S>[]; 
       <section className="lab-ask">
         <p className="lab-asker"><span aria-hidden="true">{speaker.emoji}</span> {config.asker(task)}</p>
         <h1 className="lab-prompt">{task.prompt}</h1>
-        <NumberDial label={task.label} value={value} onChange={setValue} min={task.min} max={task.max} step={task.step} jump={task.jump}
-          format={v => u(v, task.unit)} target={task.answer} disabled={phase !== 'set'} tone={tone} />
+        <NumberDial label={dialLabel} value={value} onChange={setValue} min={task.min} max={task.max} step={task.step} jump={task.jump}
+          format={v => wordUnit ? n(v) : u(v, task.unit)} target={task.answer} disabled={phase !== 'set'} tone={tone} />
         {phase === 'hit' && <Combo streak={score.streak} />}
       </section>
       {(phase === 'set' || phase === 'go') && <footer className="lab-bar">

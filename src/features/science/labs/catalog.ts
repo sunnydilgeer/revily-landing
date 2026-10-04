@@ -7,7 +7,7 @@ export const scienceAreas: { id: ScienceArea; title: string; chip: string }[] = 
   { id: 'biology', title: 'Biology', chip: '10%+ of marks are maths' },
 ]
 
-export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield'
+export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield' | 'gene' | 'rewild' | 'sugar'
 
 export type ScienceLabEntry = {
   id: ScienceLabId
@@ -77,5 +77,29 @@ export const scienceLabCatalog: ScienceLabEntry[] = [
     practical: 'Microscopy',
     minutes: 6,
     tagline: 'Find the bug. Treat it.', tag: 'Infection',
+  },
+  {
+    id: 'gene', area: 'biology', href: '/preview/lab/gene', emoji: '🧬', title: 'Gene Detective',
+    hook: 'Newborn babies on the NHS get their genome read. Crack the family cases before the parents ask.',
+    skill: 'Inheritance: alleles, Punnett squares, probability and ratios',
+    practical: 'None (inheritance has no required practical)',
+    minutes: 6,
+    tagline: 'Crack the family cases.', tag: 'Genetics',
+  },
+  {
+    id: 'rewild', area: 'biology', href: '/preview/lab/rewild', emoji: '🦫', title: 'Rewild',
+    hook: 'Bring beavers back to a British valley. Count, sample and balance the food web.',
+    skill: 'Ecology: quadrats, population estimates, food chains, biodiversity',
+    practical: 'Field investigation (quadrats)',
+    minutes: 6,
+    tagline: 'Bring the beavers back.', tag: 'Ecology',
+  },
+  {
+    id: 'sugar', area: 'biology', href: '/preview/lab/sugar', emoji: '🍬', title: 'Sugar Rush',
+    hook: 'Run the diabetes clinic. Keep blood sugar steady and catch the reflexes in time.',
+    skill: 'Homeostasis: blood glucose, insulin, the nervous system and hormones',
+    practical: 'Reaction time',
+    minutes: 6,
+    tagline: 'Keep the sugar steady.', tag: 'Homeostasis',
   },
 ]
