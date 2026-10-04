@@ -7,7 +7,7 @@ export const scienceAreas: { id: ScienceArea; title: string; chip: string }[] = 
   { id: 'biology', title: 'Biology', chip: '10%+ of marks are maths' },
 ]
 
-export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen'
+export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield'
 
 export type ScienceLabEntry = {
   id: ScienceLabId
@@ -53,6 +53,14 @@ export const scienceLabCatalog: ScienceLabEntry[] = [
     practical: 'Acceleration (F = ma)',
     minutes: 6,
     tagline: 'Stop before the crossing.', tag: 'Forces',
+  },
+  {
+    id: 'shield', area: 'physics', href: '/preview/lab/shield', emoji: '🛡️', title: 'Sky Shield',
+    hook: 'Rogue drones over the airport. Build, power and fly the defence drones that net them.',
+    skill: 'Weight and thrust, motor power, waves and echoes',
+    practical: 'Waves in a ripple tank',
+    minutes: 6,
+    tagline: 'Guard the skies. Build drones.', tag: 'Waves',
   },
   {
     id: 'hydrogen', area: 'chemistry', href: '/preview/lab/hydrogen', emoji: '🧪', title: 'Green Hydrogen Lab',
