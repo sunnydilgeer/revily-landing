@@ -191,8 +191,15 @@ for (const ref of Object.keys(equations)) {
 }
 
 // ---------- Video ----------
-// Aniksha is re-recording A8.1 with x² + x = 20; until it arrives the worked example has no video.
-assert.equal(states.filter(state => state.video).length, 0, 'The A8.1 video goes in once re-recorded with x² + x = 20')
+// The A8.1 video, remade with x² + x = 20 (Sunny, 4 Oct), on the worked example only.
+assert.equal(states.filter(state => state.video).length, 1, 'One video: A8.1 with x² + x = 20')
+assert.equal(states[0].video?.src, '/media/lesson-22/solving-quadratics.mp4', 'The video is on the worked example')
+{
+  const file = path.join(root, 'public/media/lesson-22/solving-quadratics.mp4')
+  assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex'), '429ba6b9d6bc44ddbcde7f3346c84a55b986316cf707be1c789aa3140459a630', 'solving-quadratics.mp4 must remain as made')
+  assert.ok(fs.readFileSync(file.replace(/\.mp4$/, '.svg'), 'utf8').startsWith('<svg'), 'The video needs an SVG poster')
+  assert.ok(states[0].video.textAlternative.join(' ').includes('x = 4 or x = −5'), 'The text version gives the answer')
+}
 
 // ---------- The course ----------
 const { mathsLessons, lessonCode } = require('../src/features/maths/courseRegistry.ts')
