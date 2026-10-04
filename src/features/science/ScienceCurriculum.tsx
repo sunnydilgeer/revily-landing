@@ -6,7 +6,7 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../ui'
-import { CurriculumSearch, Lock, TocChapter, TocLesson, type SearchResult, type TocStatus } from '../maths/Curriculum'
+import { ChapterAccordion, CurriculumSearch, Lock, TocChapter, TocLesson, useIsPhone, type SearchResult, type TocStatus } from '../maths/Curriculum'
 import { scienceEntryHref, scienceSubjects, scienceSubjectTitle, type ScienceCatalogueEntry } from './lessonNavigation'
 import { scienceLessonMinutes } from './lessonMinutes'
 import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceUnitsForTier, sectionStatus, type ScienceProgressMap } from './scienceProgress'
@@ -62,6 +62,7 @@ export default function ScienceCurriculum() {
   const laterSubject = LATER.find(item => item.code === selected)
   // The unit list shows one subject at a time, starting with the one you're in.
   const [pickedSubject, setListSubject] = useState<string | null>(null)
+  const phone = useIsPhone()
   const listSubject = pickedSubject ?? unit?.subject ?? upNext.subject
 
   // Search matches lesson and section titles in every subject; a section opens its lesson at that section.
@@ -80,15 +81,56 @@ export default function ScienceCurriculum() {
     }))
   }, [query, tier])
 
+  const renderLesson = (item: ScienceCatalogueEntry) => {
+    const record = progress[item.lesson.id]
+    const status: TocStatus = record?.completed ? 'done' : item === upNext ? 'next' : record?.started ? 'progress' : 'todo'
+    const minutes = scienceLessonMinutes(forTier(item, tier).lesson)
+    const detail = upNextStatus?.started
+      ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
+      : `Start here · ${upNextSections.length} sections · ${minutes} min`
+    const tiered = forTier(item, tier)
+    const sections = item === upNext ? upNextSections : sectionStatus(tiered.lesson, tiered.sections, null)
+    return <TocLesson key={item.lesson.id} id={item.lesson.id} status={status} title={item.title} badge={item.higherOnly && <HigherBadge />} minutes={minutes} detail={detail}
+      action={status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(item)}
+      sections={sections.map(section => ({ id: section.id, title: stripChapter(section.title), badge: section.higher && <HigherBadge /> }))}
+      currentSectionId={status === 'next' && upNextStatus?.started ? sections.find(section => section.current)?.id : undefined}
+      onOpenSection={sectionId => onOpenLesson(item, sectionId)} />
+  }
+
+  const tierSwitch = <div className="cur-tier" role="group" aria-label="Tier">
+    {(['foundation', 'higher'] as const).map(option => <button key={option} type="button" aria-pressed={tier === option}
+      onClick={() => chooseTier(option)}>{option === 'higher' ? 'Higher' : 'Foundation'}</button>)}
+  </div>
+
+  // Phones: no header, just the tier, search, a subject switch and every unit in one list, opened at the last
+  // lesson you viewed (or the next one, before you've opened any).
+  if (phone) {
+    const focus = last ?? upNext
+    const phoneSubject = pickedSubject ?? focus.subject
+    return <div className="cur cur--phone">
+      {tierSwitch}
+      <CurriculumSearch query={query} onQuery={setQuery} placeholder="Search lessons and sections" results={results} />
+      {!results && <>
+        <div className="cur-toc__subjects" role="group" aria-label="Subject">
+          {shownSubjects.map(subject => <button key={subject.code} type="button" aria-pressed={subject.subject === phoneSubject}
+            onClick={() => setListSubject(subject.subject)}>{subject.code === 'WS' ? 'Skills' : subject.title}</button>)}
+        </div>
+        <ChapterAccordion label="Units" focusLessonId={focus.lesson.id} chapters={[
+          ...shownUnits.filter(item => item.subject === phoneSubject).map(item => ({ id: item.code, code: item.code, title: item.title,
+            lessonIds: item.lessons.map(entry => entry.lesson.id), lessons: item.lessons.map(renderLesson), locked: item.lessons.length === 0 })),
+          ...LATER.map(subject => ({ id: `later-${subject.code}`, code: subject.code, title: subject.title, lessonIds: [], locked: true })),
+        ]} />
+        <p className="sci-draft-note">Draft content, awaiting review by a qualified teacher.</p>
+      </>}
+    </div>
+  }
+
   return <div className="cur">
     <header className="cur-head">
       <div>
         <h1>Curriculum</h1>
         <p>AQA Combined Science Trilogy · {tier === 'higher' ? 'Higher' : 'Foundation'} · {shownUnits.length} units</p>
-        <div className="cur-tier" role="group" aria-label="Tier">
-          {(['foundation', 'higher'] as const).map(option => <button key={option} type="button" aria-pressed={tier === option}
-            onClick={() => chooseTier(option)}>{option === 'higher' ? 'Higher' : 'Foundation'}</button>)}
-        </div>
+        {tierSwitch}
       </div>
       <div className="cur-overall" aria-label={`${doneLessons} of ${scienceCatalogue.length} lessons complete`}>
         <div className="cur-overall__bar" aria-hidden="true"><span style={{ width: `${doneLessons / scienceCatalogue.length * 100}%` }} /></div>
@@ -121,21 +163,7 @@ export default function ScienceCurriculum() {
             <span>{unit.lessons.length} {unit.lessons.length === 1 ? 'lesson' : 'lessons'}</span>
           </header>
           <ol className="cur-path">
-            {unit.lessons.map(item => {
-              const record = progress[item.lesson.id]
-              const status: TocStatus = record?.completed ? 'done' : item === upNext ? 'next' : record?.started ? 'progress' : 'todo'
-              const minutes = scienceLessonMinutes(forTier(item, tier).lesson)
-              const detail = upNextStatus?.started
-                ? `Up next · section ${upNextIndex + 1} of ${upNextSections.length} · ${upNextSections[upNextIndex]?.title}`
-                : `Start here · ${upNextSections.length} sections · ${minutes} min`
-              const tiered = forTier(item, tier)
-              const sections = item === upNext ? upNextSections : sectionStatus(tiered.lesson, tiered.sections, null)
-              return <TocLesson key={item.lesson.id} id={item.lesson.id} status={status} title={item.title} badge={item.higherOnly && <HigherBadge />} minutes={minutes} detail={detail}
-                action={status === 'done' ? 'Review' : record?.started ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(item)}
-                sections={sections.map(section => ({ id: section.id, title: stripChapter(section.title), badge: section.higher && <HigherBadge /> }))}
-                currentSectionId={status === 'next' && upNextStatus?.started ? sections.find(section => section.current)?.id : undefined}
-                onOpenSection={sectionId => onOpenLesson(item, sectionId)} />
-            })}
+            {unit.lessons.map(renderLesson)}
           </ol>
         </> : <div className="cur-panel__later">
           <h2 id="cur-panel-title">{unit ? `${unit.code} · ${unit.title}` : laterSubject?.title}</h2>

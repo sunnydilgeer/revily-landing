@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Button } from '../../ui'
 import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
@@ -80,7 +80,7 @@ export function TocLesson({ id, status, title, badge, minutes, detail, action, s
       </button>
     </li>)}
   </ol>
-  if (status === 'next') return <li className="cur-lesson is-next">
+  if (status === 'next') return <li className="cur-lesson is-next" data-lesson={id}>
     <div className="cur-lesson__card">
       <span className="cur-lesson__dot" aria-hidden="true" />
       <div className="cur-lesson__body">
@@ -93,7 +93,7 @@ export function TocLesson({ id, status, title, badge, minutes, detail, action, s
     </div>
     {list}
   </li>
-  return <li className={`cur-lesson is-${status}`}>
+  return <li className={`cur-lesson is-${status}`} data-lesson={id}>
     <button type="button" className="cur-lesson__row" aria-expanded={open} aria-controls={listId} onClick={() => setOpen(!open)}>
       <span className="cur-lesson__dot" aria-hidden="true">{status === 'done' ? '✓' : ''}</span>
       <span className="cur-lesson__title">{title}{badge}{status === 'done' && <span className="cur-sr"> (done)</span>}{status === 'progress' && <span className="cur-sr"> (in progress)</span>}</span>
@@ -102,6 +102,58 @@ export function TocLesson({ id, status, title, badge, minutes, detail, action, s
     </button>
     {list}
   </li>
+}
+
+/** True on phone-width screens, where the contents is one long list instead of two columns. */
+export function useIsPhone() {
+  const [phone, setPhone] = useState(false)
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 799px)')
+    const update = () => setPhone(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+  return phone
+}
+
+export type AccordionChapter = { id: string; code: string; title: string; lessonIds: string[]; lessons?: ReactNode; locked?: boolean }
+
+/**
+ * Phones: every chapter in one card, each folding open and closed (and each lesson inside folds too). The chapter
+ * holding the last lesson you viewed starts open, and the page scrolls to that lesson once.
+ */
+export function ChapterAccordion({ chapters, focusLessonId, label }: { chapters: AccordionChapter[]; focusLessonId?: string; label: string }) {
+  const [folds, setFolds] = useState<Record<string, boolean>>({})
+  const focusChapter = chapters.find(chapter => focusLessonId && chapter.lessonIds.includes(focusLessonId))?.id
+  const isOpen = (id: string) => folds[id] ?? id === focusChapter
+  const scrolledTo = useRef<string | null>(null)
+  useEffect(() => {
+    if (!focusLessonId || scrolledTo.current === focusLessonId) return
+    const row = document.querySelector(`.cur-acc [data-lesson="${CSS.escape(focusLessonId)}"]`)
+    if (!row) return
+    scrolledTo.current = focusLessonId
+    window.requestAnimationFrame(() => row.scrollIntoView({ block: 'center' }))
+  })
+  return <div className="cur-acc" role="list" aria-label={label}>
+    {chapters.map(chapter => {
+      const open = isOpen(chapter.id)
+      const bodyId = `cur-acc-${chapter.id}`
+      return <section className={`cur-acc__chapter${chapter.locked ? ' is-locked' : ''}`} key={chapter.id} role="listitem">
+        <h2>
+          <button type="button" className="cur-acc__head" aria-expanded={open} aria-controls={bodyId} onClick={() => setFolds(current => ({ ...current, [chapter.id]: !open }))}>
+            <span className="cur-toc__num" aria-hidden="true">{chapter.code}</span>
+            <span className="cur-acc__title">{chapter.title}</span>
+            <small>{chapter.locked ? <Lock /> : `${chapter.lessonIds.length} ${chapter.lessonIds.length === 1 ? 'lesson' : 'lessons'}`}</small>
+            <Chevron />
+          </button>
+        </h2>
+        {open && <div className="cur-acc__body" id={bodyId}>
+          {chapter.locked ? <p className="cur-acc__later"><Lock /> Coming later. This chapter isn’t built yet.</p> : <ol className="cur-path">{chapter.lessons}</ol>}
+        </div>}
+      </section>
+    })}
+  </div>
 }
 
 export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props) {
@@ -116,6 +168,7 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
   const doneLessons = mathsLessons.filter(entry => progress[entry.lessonId]?.completed).length
   const chapterCount = mathsChapters.length + LATER_CHAPTERS.length
 
+  const phone = useIsPhone()
   // The chapter you're in is open; pick another from the list on the left.
   const [selected, setSelected] = useState<string>(upNext.chapterId)
   const chapterIndex = mathsChapters.findIndex(chapter => chapter.id === selected)
@@ -133,6 +186,28 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
         .map(section => ({ key: `${entry.lessonId}-${section.id}`, title: section.title, label: `Skill · ${entry.title}`, onPick: () => onOpenLesson(entry.number, section.id) })),
     ]))
   }, [onOpenLesson, query])
+
+  const renderLesson = (entry: MathsLessonEntry) => {
+    const snapshot = progress[entry.lessonId]
+    const status: TocStatus = snapshot?.completed ? 'done' : entry.lessonId === upNext.lessonId ? 'next' : snapshot ? 'progress' : 'todo'
+    const minutes = mathsLessonMinutes(entry.definition)
+    const detail = upNextSnapshot
+      ? `Up next · section ${upNextRungIndex + 1} of ${upNextRungs.length} · ${upNextRungs[upNextRungIndex]?.title}`
+      : `Start here · ${upNextRungs.length} sections · ${minutes} min`
+    return <TocLesson key={entry.lessonId} id={entry.lessonId} status={status} title={entry.title} minutes={minutes} detail={detail}
+      action={status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(entry.number)}
+      sections={entry.sections} currentSectionId={status === 'next' ? snapshot?.currentSectionId : undefined}
+      onOpenSection={sectionId => onOpenLesson(entry.number, sectionId)} />
+  }
+
+  // Phones: no header, just search and every chapter in one list, opened at the last lesson you viewed.
+  if (phone) return <div className="cur cur--phone">
+    <CurriculumSearch query={query} onQuery={setQuery} placeholder="Search lessons and skills" results={results} />
+    {!results && <ChapterAccordion label="Chapters" focusLessonId={lastEntry.lessonId} chapters={[
+      ...mathsChapters.map((item, index) => ({ id: item.id, code: String(index + 1), title: item.title, lessonIds: item.lessons.map(entry => entry.lessonId), lessons: item.lessons.map(renderLesson) })),
+      ...LATER_CHAPTERS.map((title, index) => ({ id: `later-${index}`, code: String(mathsChapters.length + index + 1), title, lessonIds: [], locked: true })),
+    ]} />}
+  </div>
 
   return <div className="cur">
     <header className="cur-head">
@@ -166,18 +241,7 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
             <span>{chapter.lessons.length} {chapter.lessons.length === 1 ? 'lesson' : 'lessons'}</span>
           </header>
           <ol className="cur-path">
-            {chapter.lessons.map(entry => {
-              const snapshot = progress[entry.lessonId]
-              const status: TocStatus = snapshot?.completed ? 'done' : entry.lessonId === upNext.lessonId ? 'next' : snapshot ? 'progress' : 'todo'
-              const minutes = mathsLessonMinutes(entry.definition)
-              const detail = upNextSnapshot
-                ? `Up next · section ${upNextRungIndex + 1} of ${upNextRungs.length} · ${upNextRungs[upNextRungIndex]?.title}`
-                : `Start here · ${upNextRungs.length} sections · ${minutes} min`
-              return <TocLesson key={entry.lessonId} id={entry.lessonId} status={status} title={entry.title} minutes={minutes} detail={detail}
-                action={status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(entry.number)}
-                sections={entry.sections} currentSectionId={status === 'next' ? snapshot?.currentSectionId : undefined}
-                onOpenSection={sectionId => onOpenLesson(entry.number, sectionId)} />
-            })}
+            {chapter.lessons.map(renderLesson)}
           </ol>
         </> : <div className="cur-panel__later">
           <h2 id="cur-panel-title">Chapter {mathsChapters.length + laterIndex + 1} · {selected}</h2>

@@ -144,3 +144,23 @@
 .soon p { margin: 0; color: var(--rv-ink-2); line-height: 1.55; }
 .soon .soon__unlock { margin: 8px 0 14px; padding: 8px 14px; border-radius: 999px; background: var(--rv-grid); color: var(--rv-muted); font-size: .9rem; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .cur-chevron { transition: none; } }
+
+/* Phones: no header, every chapter in one card, each folding open and closed. */
+.cur--phone { gap: 14px; }
+.cur--phone .cur-tier { justify-self: start; margin: 0; }
+.cur--phone .cur-toc__subjects { margin: 0; }
+.cur-acc { border: 2px solid var(--rv-line); border-radius: var(--rv-radius-lg); background: var(--rv-surface); overflow: hidden; }
+.cur-acc__chapter + .cur-acc__chapter { border-top: 2px solid var(--rv-grid); }
+.cur-acc__chapter h2 { margin: 0; font-size: inherit; }
+.cur-acc__head {
+  width: 100%; min-height: 60px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-align: left; cursor: pointer;
+  border: 0; background: none; color: var(--rv-ink); font: inherit;
+}
+.cur-acc__head:hover { background: var(--rv-paper); }
+.cur-acc__head:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: -3px; }
+.cur-acc__head[aria-expanded="true"] .cur-toc__num { background: var(--rv-curriculum); color: #fff; }
+.cur-acc__title { flex: 1; min-width: 0; font-family: var(--rv-font-display); font-weight: 800; font-size: 1.08rem; line-height: 1.25; }
+.cur-acc__head small { flex: none; display: inline-flex; color: var(--rv-muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.cur-acc__chapter.is-locked .cur-acc__title { color: var(--rv-ink-2); }
+.cur-acc__body { padding: 0 8px 12px; }
+.cur-acc__later { margin: 0; padding: 4px 8px 6px; display: flex; align-items: center; gap: 8px; color: var(--rv-ink-2); }
