@@ -1,0 +1,6 @@
+/* The science teal, for science games. The app only defines it under [data-subject="science"], which game pages sit outside. */
+.lab-page, .lab {
+  --rv-teal: #2dd4bf;
+  --rv-teal-tint: #ccfbf1;
+  --rv-teal-ink: #0f766e;
+}
