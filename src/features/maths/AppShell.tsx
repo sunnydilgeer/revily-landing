@@ -110,7 +110,7 @@ export default function AppShell({ active, onNavigate, study, subject = 'maths',
     </a>)}
   </nav>
 
-  return <div className="shell" data-subject={subject}>
+  return <div className="shell" data-subject={subject} data-section={active}>
     <aside className="shell-side">
       <RevilyLogo onNight href="/" size={26} />
       {onSwitchSubject && <SubjectSwitch subject={subject} onSwitch={onSwitchSubject} placement="side" />}
