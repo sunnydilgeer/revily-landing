@@ -129,6 +129,11 @@ export const canStatements: Record<string, string> = {
   '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
   '24:inequalities-two-sided': 'I can write and show a two-sided inequality, like 1 ≤ t < 5 as a filled circle at 1 and an open circle at 5, joined',
 
+  '25:inequalities-integers': 'I can list the integers that satisfy an inequality, like 0, 1, 2 for −1 < x < 3',
+  '25:inequalities-solve': 'I can solve a linear inequality, like 4a − 5 > a + 7 gives a > 4',
+  '25:inequalities-solve-two-signs': 'I can solve an inequality with two signs, like 3 < 2x + 1 < 11 gives 1 < x < 5',
+  '25:inequalities-negative': 'I can flip the sign when I multiply or divide by a negative, like −3x > 12 gives x < −4',
+
   '22:quadratic-equations': 'I can solve a quadratic like x² + x = 20 by making one side 0, factorising and setting each bracket to 0',
 }
 

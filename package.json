@@ -31,6 +31,7 @@
         "verify:lesson22:tutor": "node scripts/verify-quadratic-equations-tutor.cjs",
         "verify:lesson23:tutor": "node scripts/verify-sequences-tutor.cjs",
         "verify:lesson24:tutor": "node scripts/verify-inequalities-tutor.cjs",
+        "verify:lesson25:tutor": "node scripts/verify-solving-inequalities-tutor.cjs",
         "verify:file-casing": "node scripts/verify-file-casing.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",
         "verify:fractions:diagnosis": "node scripts/verify-fraction-diagnosis.cjs",

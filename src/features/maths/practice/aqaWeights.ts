@@ -119,6 +119,11 @@ export const aqaMarks: Record<string, number> = {
   // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
   '24:inequalities-number-line': 1,
   '24:inequalities-two-sided': 1,
+  // Estimates, not yet counted from the 18 papers: listing integers and solving an inequality come up most sittings, for 2–3 marks.
+  '25:inequalities-integers': 1,
+  '25:inequalities-solve': 2,
+  '25:inequalities-solve-two-signs': 1,
+  '25:inequalities-negative': 1,
 }
 
 /**

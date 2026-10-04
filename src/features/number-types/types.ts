@@ -113,6 +113,10 @@ export type MicroSkillId =
   | 'sequences-consecutive'
   | 'inequalities-number-line'
   | 'inequalities-two-sided'
+  | 'inequalities-integers'
+  | 'inequalities-solve'
+  | 'inequalities-solve-two-signs'
+  | 'inequalities-negative'
   | 'mixed'
 
 export type LessonPhase =
