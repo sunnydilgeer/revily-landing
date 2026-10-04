@@ -1,86 +1,150 @@
-/* Sugar Rush: the reflex arc, the glucose monitor, the clinic list, the calendar and the ruler drop. The shared lab look is in maths/labs/kit/lab.css. */
-.sr-board { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+/* Sugar Rush: the reflex body, the glucose monitor, the clinic files, the cycle wheel and the ruler drop. Shared lab look: maths/labs/kit/lab.css. */
+.sr-board { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; overflow: visible; }
 
-/* The readout: given values, then the dial's slot */
-.sr-slot__name { font: 600 14px var(--rv-font-body); fill: var(--rv-muted); }
-.sr-slot__value { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
-.sr-slot.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
-.sr-board.is-hit .sr-slot.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
-.sr-board.is-miss .sr-slot.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
-.sr-tag { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+/* Shared bits */
 .sr-note { font: 700 13px var(--rv-font-body); fill: var(--rv-muted); }
 .sr-board.is-hit .sr-note { fill: var(--rv-good-ink); }
-.sr-board.is-miss .sr-note { fill: var(--rv-redpen); }
-.sr-emoji { font-size: 22px; }
-
-/* The reflex arc */
-.sr-cord { fill: var(--rv-step-b-tint); stroke: var(--rv-step-b); stroke-width: 2; }
-.sr-nerve { stroke: var(--rv-line-strong); stroke-width: 7; stroke-linecap: round; }
-.sr-nerve__lit { stroke: var(--rv-yellow); stroke-width: 7; stroke-linecap: round; transition: stroke-dasharray .2s; }
-.sr-relay { fill: var(--rv-step-b); }
-.sr-board.is-go .sr-nerve__lit { stroke-dasharray: 100 100 !important; animation: sr-impulse .65s linear both; }
-.sr-board.is-hit .sr-nerve__lit { stroke: var(--rv-good); }
-.sr-board.is-high .sr-nerve__lit { stroke: var(--rv-redpen); }
-.sr-board.is-low .sr-nerve__lit { stroke: var(--rv-alarm); stroke-dasharray: 4 6 !important; }
-
-/* The glucose monitor */
-.sr-mon { fill: var(--rv-night); stroke: var(--rv-ink); stroke-width: 2; }
-.sr-mon__tag { font: 600 13px var(--rv-font-body); fill: var(--rv-on-night-muted); }
-.sr-band { fill: var(--rv-good); opacity: .22; }
-.sr-axis { stroke: var(--rv-on-night-muted); stroke-width: 1.5; }
-.sr-target { stroke: var(--rv-on-night-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
-.sr-trace { stroke: var(--rv-on-night); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
-.sr-board.is-go .sr-trace { stroke: var(--rv-yellow); stroke-dasharray: 600; animation: sr-sweep .65s linear both; }
-.sr-board.is-hit .sr-trace { stroke: #3ddc84; }
-.sr-board.is-high .sr-trace { stroke: var(--rv-alarm); }
-.sr-board.is-low .sr-trace { stroke: var(--rv-biro-light); }
-.sr-board.is-miss .sr-mon { animation: sr-alarm .5s steps(2) 3; }
-
-/* The clinic list and the calendar */
+.sr-board.is-miss .sr-note, .sr-note.is-bad { fill: var(--rv-redpen); }
+.sr-tiny { font: 600 12px var(--rv-font-body); fill: var(--rv-muted); }
+.sr-ink { fill: var(--rv-ink); }
+.sr-ink-line { stroke: var(--rv-ink); stroke-width: 2.2; stroke-linecap: round; }
+.sr-skin { fill: var(--rv-yellow-tint); stroke: var(--rv-ink); stroke-width: 2; }
 .sr-room { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
 .sr-board.is-hit .sr-room { stroke: var(--rv-good); stroke-width: 2.5; }
 .sr-board.is-miss .sr-room { stroke: var(--rv-redpen); stroke-width: 2.5; }
-.sr-dot { fill: var(--rv-line); stroke: var(--rv-ink-2); stroke-width: 1; transition: fill .15s; }
-.sr-dot.is-t2 { fill: var(--rv-teal); }
-.sr-dot.is-t1 { fill: var(--rv-step-i); }
-.sr-dot.is-match { fill: var(--rv-teal-tint); stroke: var(--rv-teal); stroke-dasharray: 3 2; }
-.sr-board.is-go .sr-dot { animation: sr-blink .5s steps(2) both; }
-.sr-key text { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
 
-.sr-day rect { fill: var(--rv-paper); stroke: var(--rv-line); stroke-width: 1; }
-.sr-day text { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); font-variant-numeric: tabular-nums; }
+/* Value chips along the bottom */
+.sr-chip rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sr-chip__name { font: 600 12px var(--rv-font-body); fill: var(--rv-muted); }
+.sr-chip__value { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.sr-chip.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 5 3; }
+.sr-board.is-hit .sr-chip.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.sr-board.is-miss .sr-chip.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+
+/* Slots in the picture: tags, cards and file rows share one look per state */
+.sr-tag rect, .sr-card rect, .sr-row rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; stroke-dasharray: 5 4; transition: fill .15s, stroke .15s; }
+.sr-tag text { font: 800 12px var(--rv-font-display); fill: var(--rv-muted); }
+.is-placed > rect { stroke-dasharray: none; fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); }
+.is-next > rect { stroke: var(--rv-yellow-deep); stroke-width: 3; animation: sr-pulse 1s ease-in-out infinite; }
+.is-right > rect { stroke-dasharray: none; fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.is-wrong > rect { stroke-dasharray: none; fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.sr-tag.is-placed text, .sr-tag.is-right text { fill: var(--rv-ink); }
+.sr-tag.is-wrong text, .sr-card.is-wrong .sr-card__t, .sr-row.is-wrong .sr-row__t { fill: var(--rv-redpen); }
+:is(.sr-tag, .sr-card, .sr-row):is(.is-placed, .is-right) { animation: sr-land .25s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+.sr-board.is-hit .sr-card.is-right { animation: sr-land .4s cubic-bezier(.3, 1.6, .5, 1) both; }
+
+.sr-card__num { fill: var(--rv-teal); }
+.sr-card__n { font: 800 13px var(--rv-font-display); fill: var(--rv-surface); }
+.sr-card__slot { font: 600 12px var(--rv-font-body); fill: var(--rv-muted); }
+.sr-card__t { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.sr-card__t.is-sm { font-size: 13px; }
+
+/* Round 1: the body and the reflex arc */
+.sr-cord { fill: var(--rv-teal-tint); stroke: var(--rv-teal); stroke-width: 2; }
+.sr-vert { stroke: var(--rv-teal); stroke-width: 1.2; opacity: .6; }
+.sr-arm-out { stroke: var(--rv-ink); stroke-width: 26; stroke-linecap: round; stroke-linejoin: round; }
+.sr-arm { stroke: var(--rv-yellow-tint); stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
+.sr-nerve { stroke: var(--rv-line-strong); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 3 6; }
+.sr-nerve.is-placed { stroke: var(--rv-teal); stroke-dasharray: none; }
+.sr-nerve.is-right { stroke: var(--rv-good); stroke-dasharray: none; }
+.sr-nerve.is-wrong { stroke: var(--rv-redpen); stroke-dasharray: 2 5; }
+.sr-nerve.is-next { stroke: var(--rv-yellow-deep); animation: sr-pulse 1s ease-in-out infinite; }
+.sr-receptor, .sr-muscle { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; stroke-dasharray: 3 3; }
+.sr-receptor.is-placed, .sr-muscle.is-placed { fill: var(--rv-teal-tint); stroke: var(--rv-teal); stroke-dasharray: none; }
+.sr-receptor.is-right, .sr-muscle.is-right { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.sr-receptor.is-wrong, .sr-muscle.is-wrong { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.sr-receptor.is-next, .sr-muscle.is-next { stroke: var(--rv-yellow-deep); animation: sr-pulse 1s ease-in-out infinite; }
+.sr-pulse { stroke: var(--rv-yellow); stroke-width: 9; stroke-linecap: round; stroke-dasharray: 10 90; stroke-dashoffset: 0; opacity: 0; }
+.sr-pulse.is-run { opacity: 1; animation: sr-impulse .8s linear both; }
+.sr-board.is-hit .sr-pulse { opacity: 1; stroke: var(--rv-good); stroke-dasharray: 100 0; stroke-width: 4; }
+.is-high .sr-pulse, .is-low .sr-pulse { opacity: 1; stroke: var(--rv-redpen); stroke-dasharray: 4 6; stroke-width: 4; }
+.sr-danger { font-size: 30px; }
+.sr-danger.is-ouch { animation: sr-shake .4s ease-in-out 2; transform-box: fill-box; transform-origin: center; }
+.sr-jerk { animation: sr-jerk .6s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: view-box; transform-origin: 236px 78px; }
+
+/* Round 2: the glucose monitor and the control chain */
+.sr-mon { fill: var(--rv-night); stroke: var(--rv-ink); stroke-width: 2; }
+.sr-board.is-miss .sr-mon { animation: sr-alarm .5s steps(2) 3; }
+.sr-mon__tag { font: 600 12px var(--rv-font-body); fill: var(--rv-on-night-muted); }
+.sr-mon__big { font: 800 15px var(--rv-font-display); fill: var(--rv-on-night); letter-spacing: .04em; }
+.sr-board.is-hit .sr-mon__big { fill: var(--rv-good); }
+.sr-board.is-miss .sr-mon__big { fill: var(--rv-alarm); }
+.sr-band { fill: var(--rv-good); opacity: .25; }
+.sr-board.is-hit .sr-band { opacity: .45; }
+.sr-target { stroke: var(--rv-on-night-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.sr-trace { stroke: var(--rv-yellow); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+.sr-trace.is-run { stroke-dasharray: 100; animation: sr-sweep .8s ease-out both; }
+.sr-board.is-hit .sr-trace { stroke: var(--rv-good); }
+.is-high .sr-trace { stroke: var(--rv-alarm); }
+.is-low .sr-trace { stroke: var(--rv-biro-light); }
+.sr-blip { fill: var(--rv-yellow); stroke: var(--rv-night); stroke-width: 2; }
+.sr-board.is-hit .sr-blip { fill: var(--rv-good); }
+
+/* Round 3: the clinic list and the files */
+.sr-person { fill: var(--rv-line); stroke: var(--rv-ink-2); stroke-width: 1.5; transition: fill .15s; }
+.sr-person.is-t2 { fill: var(--rv-teal); }
+.sr-person.is-t1 { fill: var(--rv-step-i); }
+.sr-person.is-hop { animation: sr-hop .5s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: 50% 100%; }
+.sr-file__board { fill: var(--rv-paper); stroke: var(--rv-line-strong); stroke-width: 2; }
+.sr-file__head { fill: var(--rv-step-i-tint); }
+.sr-file.is-t2 .sr-file__head { fill: var(--rv-teal-tint); }
+.sr-file__clip { fill: var(--rv-ink-2); }
+.sr-file__title { font: 800 18px var(--rv-font-display); fill: var(--rv-ink); }
+.sr-board.is-hit .sr-file__board { stroke: var(--rv-good); stroke-width: 2.5; }
+.sr-board.is-miss .sr-file__board { stroke: var(--rv-redpen); }
+.sr-row__name { font: 600 12px var(--rv-font-body); fill: var(--rv-muted); }
+.sr-row__t { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); }
+.sr-row__q { font: 800 20px var(--rv-font-display); fill: var(--rv-line-strong); }
+.sr-stamp { animation: sr-stamp .4s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+.sr-stamp__t { font: 800 15px var(--rv-font-display); fill: var(--rv-good-ink); letter-spacing: .06em; }
+
+/* Round 4: the cycle wheel and the calendar */
+.sr-ring { fill: var(--rv-surface); stroke: var(--rv-step-b-tint); stroke-width: 16; }
+.sr-ring__period { stroke: var(--rv-redpen); stroke-width: 16; opacity: .55; }
+.sr-ring__big { font: 800 26px var(--rv-font-display); fill: var(--rv-ink); }
+.sr-station { fill: var(--rv-step-b); stroke: var(--rv-surface); stroke-width: 2; }
+.sr-lead { stroke: var(--rv-line-strong); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.sr-egg { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 2; }
+.sr-orbit { animation: sr-orbit 1.6s ease-in-out both; transform-box: view-box; transform-origin: 160px 126px; }
+.sr-day rect { fill: var(--rv-surface); stroke: var(--rv-line); stroke-width: 1.2; }
+.sr-day__n { font: 700 13px var(--rv-font-body); fill: var(--rv-ink-2); font-variant-numeric: tabular-nums; }
+.sr-day__c { font: 700 12px var(--rv-font-body); fill: var(--rv-step-b); }
 .sr-day.is-period rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
 .sr-day.is-picked rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2.5; }
-.sr-board.is-hit .sr-day.is-egg rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-width: 3; }
+.sr-board.is-hit .sr-day.is-picked rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-width: 3; }
 .sr-board.is-miss .sr-day.is-picked rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
-.sr-board.is-go .sr-day.is-picked rect { animation: sr-blink .5s steps(2) both; }
+.sr-board.is-go .sr-day.is-picked rect { animation: sr-pulse .3s steps(2) 3; }
+.sr-day__egg { font-size: 16px; }
+.sr-pop { animation: sr-land .45s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
 
-/* The cycle timeline */
-.sr-bar { fill: var(--rv-redpen-tint); stroke: var(--rv-line-strong); stroke-width: 1.5; }
-.sr-tick { stroke: var(--rv-ink-2); stroke-width: 2; }
-.sr-egg { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 2; }
-.sr-egg.is-out { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
-.sr-board.is-hit .sr-egg { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+/* Round 5: the ruler drop */
+.sr-rule { transition: transform .1s; }
+.sr-rule.is-drop { transition: transform .55s cubic-bezier(.55, 0, 1, .45); }
+.sr-rule.is-fell { transition: transform .5s cubic-bezier(.55, 0, 1, .45); }
+.sr-rule__body { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 2; }
+.sr-rule__tick { stroke: var(--rv-ink); stroke-width: 1.6; }
+.sr-rule__n { font: 700 12px var(--rv-font-body); fill: var(--rv-ink); }
+.sr-ghost { stroke: var(--rv-biro); stroke-width: 3; stroke-dasharray: 4 3; }
+.sr-board.is-hit .sr-ghost { stroke: var(--rv-good); stroke-dasharray: none; }
+.sr-board.is-miss .sr-ghost { stroke: var(--rv-redpen); }
+.sr-finger { transition: transform .2s ease-out .45s; }
+.sr-trial rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sr-trial text { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.sr-trial.is-in rect { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.sr-trial.is-out { opacity: .45; }
+.sr-trial.is-out rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.sr-trial.is-out text { text-decoration: line-through; fill: var(--rv-redpen); }
 
-/* The ruler drop */
-.sr-ruler__body { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; }
-.sr-ruler__num { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
-.sr-catch { transition: transform .3s ease-out; }
-.sr-catch__line { stroke: var(--rv-biro); stroke-width: 3; stroke-linecap: round; }
-.sr-board.is-go .sr-catch { animation: sr-drop .6s ease-in both; }
-.sr-board.is-hit .sr-catch__line { stroke: var(--rv-good); }
-.sr-board.is-miss .sr-catch__line { stroke: var(--rv-redpen); }
-.sr-chip rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
-.sr-chip text { font: 700 13px var(--rv-font-body); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
-.sr-chip.is-odd rect { stroke: var(--rv-alarm); stroke-width: 2; }
-.sr-chip.is-out { opacity: .45; }
-.sr-chip.is-out text { text-decoration: line-through; }
-
-@keyframes sr-impulse { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-@keyframes sr-sweep { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
-@keyframes sr-alarm { 0% { fill: var(--rv-night); } 100% { fill: #4a1420; } }
-@keyframes sr-blink { 0% { opacity: .4; } 100% { opacity: 1; } }
-@keyframes sr-drop { from { transform: translateY(0); } }
+@keyframes sr-pulse { 50% { stroke-opacity: .35; } }
+@keyframes sr-land { from { transform: scale(.6); opacity: .3; } }
+@keyframes sr-impulse { from { stroke-dashoffset: 10; } to { stroke-dashoffset: -100; } }
+@keyframes sr-sweep { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+@keyframes sr-jerk { 0% { transform: none; } 40% { transform: rotate(-9deg); } 100% { transform: rotate(-6deg); } }
+@keyframes sr-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes sr-alarm { 0% { fill: var(--rv-night); } 100% { fill: var(--rv-alarm-deep); } }
+@keyframes sr-hop { 0% { transform: translateY(0); } 40% { transform: translateY(-8px); } 100% { transform: none; } }
+@keyframes sr-stamp { from { transform: scale(2.2) rotate(-12deg); opacity: 0; } to { transform: rotate(-6deg); opacity: 1; } }
+@keyframes sr-orbit { from { transform: rotate(0); } to { transform: rotate(167deg); } }
 
 @media (prefers-reduced-motion: reduce) {
   .sr-board * { animation: none !important; transition: none !important; }

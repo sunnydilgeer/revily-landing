@@ -4,3 +4,8 @@
   --rv-teal-tint: #ccfbf1;
   --rv-teal-ink: #0f766e;
 }
+
+/* A miss shakes the picture (PlayGame). */
+.pg-shake { animation: pg-shake .42s cubic-bezier(.36, .07, .19, .97) both; }
+@keyframes pg-shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-7px); } 40%, 60% { transform: translateX(7px); } }
+@media (prefers-reduced-motion: reduce) { .pg-shake { animation: none; } }

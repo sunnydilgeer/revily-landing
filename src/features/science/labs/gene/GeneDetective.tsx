@@ -1,158 +1,197 @@
 'use client'
 
+import { useMemo } from 'react'
 import type { Speaker } from '../../../maths/labs/kit/Lab'
 import { useGenerated } from '../../../maths/labs/kit/random'
 import { sfx } from '../../../maths/labs/kit/sfx'
-import { DialGame, type DialGameConfig, type Phase, type StageProps } from '../kit/DialGame'
-import { n, u, type Task } from '../kit/types'
-import { makeRounds, type Scene } from './rounds'
+import type { Phase } from '../kit/DialGame'
+import { PlayGame, type PlayGameConfig, type PlayStageProps } from '../kit/PlayGame'
+import { isTiles, wrongSlots } from '../kit/tiles'
+import { boxesOf, genotype, makeRounds, type Scene, type TraitId } from './rounds'
 import './GeneDetective.css'
 
 const MENSAH: Speaker = {
   name: 'Dr Mensah', emoji: '👩🏾‍🔬',
-  right: ['Case closed. Sherlock wishes he had your alleles.', 'Spot on. That’s going in the family report.', 'Beautiful. Mendel would be proud, and he grew peas for a living.', 'Lovely work. The parents will sleep tonight.', 'Nailed it. You’re a natural, possibly a dominant one.'],
-  wrong: ['Hmm. Let’s not tell the family THAT.', 'Nope. Back to the Punnett square, detective.', 'Close, but the genes don’t lie. Check again.', 'I wouldn’t sign that report. Count the boxes.'],
+  right: ['Case closed. Sherlock wishes he had your alleles.', 'Textbook. I’m framing that square.', 'Spot on. The Blobbits approve.', 'That’s consultant-level genetics.', 'Beautiful. Mendel would be proud.'],
+  wrong: ['Hmm. Let’s not tell the family THAT.', 'The Blobbits look confused. So am I.', 'Close, but genes don’t lie. Check again.', 'One allele from each parent. Always.'],
 }
 
-/** The scene's mood: plain while setting, scanning on Check, then matched (right), too many or too few. */
-function mood(phase: Phase, value: number, answer: number) {
-  if (phase === 'hit') return 'is-hit'
-  if (phase === 'go') return 'is-go'
-  if (phase === 'miss') return value > answer ? 'is-miss is-high' : 'is-miss is-low'
-  return ''
+/** What a genotype looks like for each trait. */
+function lookOf(trait: TraitId, g: string) {
+  switch (trait) {
+    case 'colour': return { kind: 'blob' as const, fill: g.includes('G') ? 'var(--rv-good)' : 'var(--rv-yellow)', glow: false, badge: '' }
+    case 'glow': return { kind: 'blob' as const, fill: g.includes('N') ? 'var(--rv-biro-light)' : 'var(--rv-teal)', glow: !g.includes('N'), badge: '' }
+    case 'sex': return { kind: 'baby' as const, fill: g === 'XY' ? 'var(--rv-teal-tint)' : 'var(--rv-yellow-tint)', glow: false, badge: g === 'XY' ? '♂' : '♀' }
+    case 'cf': return { kind: 'baby' as const, fill: 'var(--rv-yellow-tint)', glow: false, badge: g === 'ff' ? 'CF' : g === 'Ff' ? 'c' : '' }
+    case 'poly': return { kind: 'baby' as const, fill: 'var(--rv-yellow-tint)', glow: false, badge: g.includes('D') ? '6' : '' }
+  }
 }
 
-/** The readout beside the picture: the given values, then the dial's slot. */
-function Readout({ given, label, live, x = 196, y = 30 }: { given: [string, string][]; label: string; live: string; x?: number; y?: number }) {
-  const rows = [...given, [label, live] as [string, string]]
-  return <g className="gd-readout">
-    {rows.map(([name, text], i) => {
-      const dial = i === rows.length - 1, top = y + i * 50
-      return <g key={name + i} className={dial ? 'gd-slot is-dial' : 'gd-slot'}>
-        <text x={x} y={top} className="gd-slot__name">{name}</text>
-        {dial && <rect x={x - 4} y={top + 6} width={122} height={26} rx="6" />}
-        <text x={x + 2} y={top + 25} className="gd-slot__value">{text}</text>
+/** A Blobbit (or, for the NHS rounds, a baby) drawn for a genotype. `g` of '?' draws an egg. */
+function Critter({ x, y, s, trait, g, hop = false }: { x: number; y: number; s: number; trait: TraitId; g: string; hop?: boolean }) {
+  if (g.includes('?')) return <g transform={`translate(${x} ${y})`}><ellipse rx={s * .8} ry={s} className="gd-egg" /><text y={s * .35} textAnchor="middle" className="gd-egg__q" fontSize={s}>?</text></g>
+  const look = lookOf(trait, g)
+  // Too small for a face (a 100-egg clutch): a bright dot in the right colour reads better.
+  if (s < 8) return <g transform={`translate(${x} ${y})`}>{look.glow && <circle r={s * 1.5} className="gd-aura" />}<circle r={s} fill={look.kind === 'baby' && look.badge ? (look.badge === '♂' || look.badge === 'CF' || look.badge === '6' ? 'var(--rv-teal)' : 'var(--rv-yellow)') : look.fill} className="gd-dot" /></g>
+  // The hop animates an inner group: a CSS transform on the outer one would replace its translate.
+  return <g transform={`translate(${x} ${y})`}><g className={hop ? 'gd-hop' : undefined}>
+    {look.glow && <circle r={s * 1.5} className="gd-aura" />}
+    {look.kind === 'blob'
+      ? <>
+        <line x1="0" y1={-s * .8} x2={s * .3} y2={-s * 1.35} className="gd-line" /><circle cx={s * .3} cy={-s * 1.4} r={s * .16} fill={look.fill} className="gd-line" />
+        <ellipse cx={-s * .45} cy={s * .82} rx={s * .3} ry={s * .14} className="gd-foot" /><ellipse cx={s * .45} cy={s * .82} rx={s * .3} ry={s * .14} className="gd-foot" />
+        <ellipse rx={s} ry={s * .88} fill={look.fill} className="gd-body" />
+        <circle cx={-s * .34} cy={-s * .15} r={s * .26} className="gd-eye" /><circle cx={s * .34} cy={-s * .15} r={s * .26} className="gd-eye" />
+        <circle cx={-s * .28} cy={-s * .12} r={s * .12} className="gd-pupil" /><circle cx={s * .4} cy={-s * .12} r={s * .12} className="gd-pupil" />
+        <path d={`M${-s * .25} ${s * .3} Q0 ${s * .5} ${s * .25} ${s * .3}`} className="gd-line" fill="none" />
+      </>
+      : <>
+        <circle r={s} fill={look.fill} className="gd-body" />
+        <path d={`M${-s * .55} ${-s * .55} Q0 ${-s * 1.25} ${s * .4} ${-s * .75}`} className="gd-line" fill="none" />
+        <circle cx={-s * .32} cy={-s * .05} r={s * .1} className="gd-pupil" /><circle cx={s * .32} cy={-s * .05} r={s * .1} className="gd-pupil" />
+        <path d={`M${-s * .25} ${s * .35} Q0 ${s * .55} ${s * .25} ${s * .35}`} className="gd-line" fill="none" />
+        {look.badge && <g transform={`translate(${s * .78} ${-s * .72})`}><circle r={s * .42} className="gd-badge" /><text y={s * .15} textAnchor="middle" fontSize={s * .45} className="gd-badge__t">{look.badge}</text></g>}
+      </>}
+  </g></g>
+}
+
+/** The cross: both parents with their genotype tags. */
+function Parents({ scene, y, compact = false }: { scene: Scene; y: number; compact?: boolean }) {
+  const a = genotype(...scene.top), b = genotype(...scene.side)
+  const s = compact ? 13 : 20
+  return <g>
+    <Critter x={compact ? 98 : 50} y={y} s={s} trait={scene.trait} g={a} />
+    <text x={compact ? 98 : 50} y={y + s + 18} textAnchor="middle" className="gd-gt">{a}</text>
+    <text x="160" y={y + 6} textAnchor="middle" className="gd-cross">×</text>
+    <Critter x={compact ? 222 : 270} y={y} s={s} trait={scene.trait} g={b} />
+    <text x={compact ? 222 : 270} y={y + s + 18} textAnchor="middle" className="gd-gt">{b}</text>
+  </g>
+}
+
+/** The Punnett square: alleles across and down, boxes filling as you tap. A right answer hatches a baby in each box. */
+function Square({ scene, picked, phase, wrong }: { scene: Scene; picked: string[]; phase: Phase; wrong: Set<number> }) {
+  const boxes = phase === 'hit' ? boxesOf(scene.top, scene.side) : picked
+  const X = 128, Y = 64, W = 84
+  return <g>
+    <Critter x={46} y={34} s={15} trait={scene.trait} g={genotype(...scene.top)} />
+    <text x={46} y={66} textAnchor="middle" className="gd-name">{scene.names[0]}</text>
+    <text x={X - 10} y={38} textAnchor="end" className="gd-arrow">→</text>
+    <Critter x={46} y={150} s={15} trait={scene.trait} g={genotype(...scene.side)} />
+    <text x={46} y={182} textAnchor="middle" className="gd-name">{scene.names[1]}</text>
+    <text x={X - 20} y={Y + W * 1.1} textAnchor="end" className="gd-arrow">↓</text>
+    {scene.top.map((allele, col) => <g key={`t${col}`}><circle cx={X + W * col + W / 2} cy={34} r={17} className="gd-allele" /><text x={X + W * col + W / 2} y={41} textAnchor="middle" className="gd-allele__t">{allele}</text></g>)}
+    {scene.side.map((allele, row) => <g key={`s${row}`}><circle cx={X - 2} cy={Y + W * row + W / 2} r={17} className="gd-allele" /><text x={X - 2} y={Y + W * row + W / 2 + 7} textAnchor="middle" className="gd-allele__t">{allele}</text></g>)}
+    {[0, 1, 2, 3].map(i => {
+      const col = i % 2, row = Math.floor(i / 2), bx = X + 20 + W * col - 2, by = Y + W * row
+      const tile = boxes[i]
+      const next = phase === 'set' && i === picked.length
+      return <g key={i} className={`gd-box${tile ? ' is-filled' : ''}${next ? ' is-next' : ''}${wrong.has(i) ? ' is-wrong' : ''}`}>
+        <rect x={bx} y={by} width={W - 6} height={W - 6} rx="12" />
+        {tile && <text x={bx + (phase === 'hit' ? 24 : (W - 6) / 2)} y={by + (phase === 'hit' ? 30 : (W - 6) / 2 + 10)} textAnchor="middle" className={`gd-box__t${phase === 'hit' ? ' is-small' : ''}`}>{tile}</text>}
+        {phase === 'hit' && <Critter x={bx + 50} y={by + 48} s={15} trait={scene.trait} g={tile} hop />}
       </g>
     })}
   </g>
 }
 
-const note = (cls: string, high: string, low: string, hit: string) => cls.includes('is-high') ? high : cls.includes('is-low') ? low : cls.includes('is-hit') ? hit : ''
+/** Who's hiding gold: two green parents, their gold baby, and Blobbit A's genotype tag filling as you tap. */
+function Deduce({ scene, picked, phase }: { scene: Scene; picked: string[]; phase: Phase }) {
+  const tag = phase === 'hit' ? 'Gg' : [0, 1].map(i => picked[i] ?? '?').join('')
+  return <g>
+    <Critter x={80} y={58} s={26} trait="colour" g="GG" />
+    <text x={80} y={112} textAnchor="middle" className="gd-name">{scene.names[0]}</text>
+    <g className={`gd-tag is-${phase}`}><rect x={52} y={120} width={56} height={30} rx="8" /><text x={80} y={142} textAnchor="middle">{tag}</text></g>
+    <text x="160" y="66" textAnchor="middle" className="gd-cross">×</text>
+    <Critter x={240} y={58} s={26} trait="colour" g="GG" />
+    <text x={240} y={112} textAnchor="middle" className="gd-name">{scene.names[1]}</text>
+    <text x={240} y={142} textAnchor="middle" className="gd-gt">G?</text>
+    <path d="M160 88 V170" className="gd-arrow-line" />
+    <Critter x={160} y={196} s={20} trait="colour" g="gg" hop={phase === 'hit'} />
+    <text x={206} y={202} className="gd-name">baby: gold (gg)</text>
+  </g>
+}
 
-/** A cell with its nucleus: one little chromosome per unit on the dial, in mum (blue) and dad (orange) pairs. */
-function Cell({ scene, count, label, live, cls }: { scene: Scene; count: number; label: string; live: string; cls: string }) {
-  const shown = Math.max(0, Math.min(100, Math.round(count)))
-  const gamete = !!scene.gamete
-  const cols = 10, w = 11, h = 9
-  const gx = 92 - (cols * w) / 2, gy = 40
-  return <svg viewBox="0 0 320 200" className={`gd-board ${cls}`} role="img" aria-label={`${gamete ? 'Sex cell' : 'Body cell'} nucleus, ${label} ${live}`}>
-    {gamete
-      ? <g className="gd-cell"><path d="M150 100 q14 -12 26 -4 q-10 4 -26 4 q14 12 26 4" className="gd-tail" /><circle cx="92" cy="100" r="74" className="gd-cell__wall" /></g>
-      : <g className="gd-cell"><path d="M18 100 C18 40 58 16 98 20 C146 24 174 58 168 104 C164 150 128 182 88 180 C44 178 18 150 18 100 Z" className="gd-cell__wall" /></g>}
-    <rect x="30" y="32" width="124" height="136" rx="44" className="gd-nucleus" />
-    {Array.from({ length: shown }, (_, i) => {
-      const col = i % cols, row = Math.floor(i / cols)
-      const x = gx + col * w + 2, y = gy + row * 12
-      return <g key={i} className={`gd-chromo ${gamete || i % 2 === 0 ? 'is-mum' : 'is-dad'}`}>
-        <rect x={x} y={y} width="4" height={h} rx="2" />
-        <rect x={x + 4.2} y={y} width="4" height={h} rx="2" className="gd-chromo__twin" />
-      </g>
+/** Seeded-ish shuffle so a clutch hatches the same way while the screen is up. */
+function hatch(total: number, p: number, seed: string) {
+  let h = 2166136261
+  for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
+  const next = () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296 }
+  return Array.from({ length: total }, () => next() < p)
+}
+
+/** The clutch: a tray of eggs. Predict, then they hatch, and the real count lands near your prediction. */
+function Clutch({ scene, value, phase, id }: { scene: Scene; value: number; phase: Phase; id: string }) {
+  const c = scene.clutch!
+  const result = useMemo(() => hatch(c.total, c.p, id + Date.now()), [c.total, c.p, id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const hits = result.filter(Boolean).length
+  const cols = c.total > 60 ? 20 : Math.min(c.total, 10), rows = Math.ceil(c.total / cols)
+  const cell = Math.min(290 / cols, 118 / rows), left = 160 - (cols * cell) / 2
+  const kinds = boxesOf(scene.top, scene.side)
+  const yes = kinds.find(g => c.kinds.includes(g))!, no = kinds.find(g => !c.kinds.includes(g)) ?? yes
+  const hatched = phase === 'hit'
+  return <g>
+    <Parents scene={scene} y={22} compact />
+    {result.map((isKind, i) => {
+      const x = left + (i % cols) * cell + cell / 2, y = 78 + Math.floor(i / cols) * cell + cell / 2
+      return hatched
+        ? <g key={i} style={{ animationDelay: `${(i % 25) * 18}ms` }} className="gd-pop"><Critter x={x} y={y} s={cell * .36} trait={scene.trait} g={isKind ? yes : no} /></g>
+        : <ellipse key={i} cx={x} cy={y} rx={cell * .3} ry={cell * .38} className={`gd-egg${phase === 'go' ? ' gd-wobble' : ''}`} style={{ animationDelay: `${(i % 7) * 40}ms` }} />
     })}
-    <text x="92" y="197" textAnchor="middle" className="gd-note">{note(cls, 'too many chromosomes', 'some are missing', gamete ? 'one from each pair' : 'all in pairs')}</text>
-    <Readout given={scene.given} label={label} live={live} />
+    <text x="160" y="222" textAnchor="middle" className="gd-result">
+      {hatched ? `Hatched: ${hits} ${c.ask} of ${c.total}. You predicted ${scene.clutch && c.total === 100 ? `${value}%` : value}.`
+        : phase === 'miss' ? `Predicted ${c.total === 100 ? `${value}%` : value}. Dr Mensah isn’t convinced.` : `${c.total} eggs. Predict, then hatch!`}
+    </text>
+    {hatched && <text x="160" y="240" textAnchor="middle" className="gd-note">Chance lands close, not exact. That’s why it’s “expected”.</text>}
+  </g>
+}
+
+function Stage({ task, value, picked, phase }: PlayStageProps<Scene>) {
+  const scene = task.scene
+  const wrong = phase === 'miss' && isTiles(task) ? new Set(wrongSlots(task, picked)) : new Set<number>()
+  return <svg viewBox="0 0 320 250" className={`gd-board is-${phase}`} role="img"
+    aria-label={scene.layout === 'square' ? `Punnett square: ${scene.top.join('')} across, ${scene.side.join('')} down` : scene.layout === 'deduce' ? 'Two green parents and a gold baby' : `A clutch of ${scene.clutch?.total} eggs`}>
+    {scene.layout === 'square' && <Square scene={scene} picked={picked} phase={phase} wrong={wrong} />}
+    {scene.layout === 'deduce' && <Deduce scene={scene} picked={picked} phase={phase} />}
+    {scene.layout === 'clutch' && <Clutch scene={scene} value={value} phase={phase} id={task.id} />}
   </svg>
 }
 
-/** A Punnett square: alleles round the edge, genotypes inside. The dial lights boxes 25% at a time. */
-function Punnett({ scene, value, label, live, cls }: { scene: Scene; value: number; label: string; live: string; cls: string }) {
-  const sq = scene.square!
-  const size = 58, x0 = 44, y0 = 40
-  // Light the boxes the question wants first, then the rest: too high spills into the wrong ones.
-  const order = [...sq.boxes.keys()].sort((a, b) => Number(sq.boxes[b].target) - Number(sq.boxes[a].target))
-  const lit = Math.max(0, Math.min(100, value)) / 25
-  return <svg viewBox="0 0 320 200" className={`gd-board ${cls}`} role="img" aria-label={`Punnett square ${sq.side.join('')} by ${sq.top.join('')}, ${label} ${live}`}>
-    {sq.top.map((a, i) => <text key={`t${i}`} x={x0 + i * size + size / 2} y={y0 - 10} textAnchor="middle" className="gd-allele">{a}</text>)}
-    {sq.side.map((a, i) => <text key={`s${i}`} x={x0 - 14} y={y0 + i * size + size / 2 + 6} textAnchor="middle" className="gd-allele">{a}</text>)}
-    {sq.boxes.map((box, i) => {
-      const x = x0 + (i % 2) * size, y = y0 + Math.floor(i / 2) * size
-      const rank = order.indexOf(i), fill = Math.max(0, Math.min(1, lit - rank))
-      return <g key={i} className={`gd-box is-${box.kind}${box.target ? ' is-target' : ''}${fill >= 1 ? ' is-lit' : ''}`}>
-        <rect x={x} y={y} width={size} height={size} className="gd-box__frame" />
-        {fill > 0 && <rect x={x + 3} y={y + size - 3 - (size - 6) * fill} width={size - 6} height={(size - 6) * fill} rx="4" className="gd-box__fill" />}
-        <text x={x + size / 2} y={y + size / 2 + 7} textAnchor="middle" className="gd-box__g">{box.g}</text>
-      </g>
-    })}
-    <text x={x0 + size} y="196" textAnchor="middle" className="gd-note">{note(cls, 'too many boxes', 'boxes left out', sq.key)}</text>
-    <Readout given={scene.given} label={label} live={live} />
-  </svg>
-}
-
-/** Babies (or pups, or kittens) in rows: the dial paints them one at a time. */
-function Crowd({ scene, value, label, live, cls }: { scene: Scene; value: number; label: string; live: string; cls: string }) {
-  const crowd = scene.crowd!
-  const cols = 8, rows = Math.ceil(crowd.total / cols), gap = Math.min(21, 150 / rows)
-  const marked = Math.max(0, Math.min(crowd.total, Math.round(value)))
-  return <svg viewBox="0 0 320 200" className={`gd-board ${cls}`} role="img" aria-label={`${crowd.total} ${crowd.icon}, ${label} ${live}`}>
-    <rect x="4" y="10" width="180" height={rows * gap + 14} rx="12" className="gd-crowd__bg" />
-    {Array.from({ length: crowd.total }, (_, i) => {
-      const cx = 18 + (i % cols) * 22, cy = 17 + gap / 2 + Math.floor(i / cols) * gap
-      return <g key={i} className={`gd-kid${i < marked ? ` is-on is-${crowd.tint}` : ''}`}>
-        <circle cx={cx} cy={cy} r={Math.min(10, gap / 2)} className="gd-kid__ring" />
-        <text x={cx} y={cy + 5} textAnchor="middle" className="gd-kid__icon">{crowd.icon}</text>
-      </g>
-    })}
-    <g className="gd-key"><circle cx="14" cy="190" r="6" className={`gd-kid__ring is-key is-${crowd.tint}`} /><text x="25" y="195">{crowd.key}</text></g>
-    <Readout given={scene.given} label={label} live={live} />
-  </svg>
-}
-
-function Stage({ task, value, phase }: StageProps<Scene>) {
-  const t = task as Task<Scene>
-  const fresh = phase === 'set' && value === t.start
-  const shown = phase === 'hit' ? t.answer : value
-  const live = fresh ? '?' : t.unit === '%' ? u(shown, '%') : n(shown)
-  const cls = mood(phase, value, t.answer)
-  const scene = t.scene
-  if (scene.layout === 'punnett') return <Punnett scene={scene} value={fresh ? 0 : shown} label={t.label} live={live} cls={cls} />
-  if (scene.layout === 'crowd') return <Crowd scene={scene} value={fresh ? 0 : shown} label={t.label} live={live} cls={cls} />
-  return <Cell scene={scene} count={fresh ? 0 : shown} label={t.label} live={live} cls={cls} />
-}
-
-const config: DialGameConfig<Scene> = {
+const config: PlayGameConfig<Scene> = {
   labId: 'science-gene',
-  name: 'Gene Detective',
+  name: 'Creature Breeder',
   speaker: MENSAH,
   intros: [
-    'Welcome to the genomics lab! Every newborn’s DNA comes through here now. First, let’s check you know what a genome looks like.',
-    'Phone call from a dog breeder. She wants odds before the litter arrives. Grab a Punnett square.',
-    'Family clinic. Baby Zara’s screen flagged something. Her parents are nervous, so be kind and be right.',
-    'Maternity ward wants a quick one, then the ward lab has news. Not good news. Bacterial news.',
-    'The big case: a whole study group of newborns. The consultant is reading your report, so no pressure. Lots of pressure.',
+    'Meet the Blobbits: our lab’s fast-breeding model creatures. Two of them just laid eggs. Let’s predict the babies before they hatch.',
+    'Plot twist: two green Blobbits hatched a GOLD baby. One of them is hiding something in their genes.',
+    'Some Blobbits glow in the dark. It’s rare, because glowing is recessive. Rare, but not impossible…',
+    'Real people now. The NHS maternity ward wants to know: boy or girl? It’s the same square, I promise.',
+    'Newborn genome screening flagged a family. Same genetics, real stakes. Take your time, counsellor.',
   ],
   ranks: [
-    { badge: '🧬', name: 'Consultant Geneticist', line: 'Every family case cracked, first go. Dr Mensah wants you running the lab.' },
+    { badge: '🧬', name: 'Consultant Geneticist', line: 'Every square perfect, first go. The NHS genomics team wants you.' },
     { badge: '🔬', name: 'Genetic Counsellor', line: 'A wobble or two, but every family got the right answer.' },
-    { badge: '🧪', name: 'Lab Trainee', line: 'You got there. Dr Mensah double-checked your Punnett squares, though.' },
-    { badge: '🫙', name: 'Sample Labeller', line: 'You’re on sticky labels for now. Back to the alleles.' },
+    { badge: '🐣', name: 'Blobbit Breeder', line: 'You got there. The Blobbits forgive you. Mostly.' },
+    { badge: '🥚', name: 'Egg Watcher', line: 'Lots of cracked predictions. Breed again and beat it.' },
   ],
-  rule: ['Body cells have chromosomes in pairs (humans: 23 pairs = 46). Meiosis halves it for gametes.', 'Punnett square: one allele from each parent per box. Each box is 25%. Dominant shows with one copy, recessive needs two.', 'Expected number = probability × total. A 3 : 1 ratio means 3 of every 4.'],
-  start: 'Open the case',
-  action: 'Check it',
-  asker: task => `Dr Mensah · ${task.unit === '%' ? 'set the chance' : `count the ${task.unit}`}, then check it`,
+  rule: ['Each parent passes on ONE allele: one from the row, one from the column.', 'Count the boxes you want: each box is 1 in 4, or 25%.', 'Expected number = total ÷ 4 × boxes. Real hatchings land close.'],
+  start: 'Open the lab',
+  action: task => isTiles(task) ? 'Lock it in' : task.scene.layout === 'clutch' ? 'Hatch!' : 'Check it',
+  asker: task => `Dr Mensah · ${isTiles(task) ? 'tap the tiles in order' : 'set your prediction'}`,
   busted: {
-    emoji: '📁', kicker: 'Case reopened', title: 'Three slips. Dr Mensah is taking this family herself.',
-    tip: 'Draw the Punnett square: one parent’s alleles across, the other’s down. Count the boxes you want; each one is 25%. Then probability × total for the number of babies.',
-    retry: 'Reopen the case',
+    emoji: '🥚', kicker: 'Lab locked', title: 'Three wrong calls. The Blobbits have stopped laying.',
+    tip: 'One allele from the row, one from the column, in every box. Big letters hide small ones. Each box is 25%, and the expected number is total ÷ 4 × the boxes you want.',
+    retry: 'Try the round again',
   },
-  burst: '🧬',
-  brag: (name, badge) => `I cracked every family case in Gene Detective. Punnett squares fear me. Rank: ${name} ${badge}`,
-  again: 'Next case file',
-  sound: sfx.tick,
+  burst: '🐣',
+  brag: (name, badge) => `I bred a whole clutch of Blobbits and cracked an NHS genetics case in Creature Breeder. Rank: ${name} ${badge}`,
+  again: 'Breed again',
+  sound: sfx.bubble,
+  actionMs: 900,
   Stage,
 }
 
-/** Fresh families every play: the game remounts with a new set on "again". */
+/** Fresh numbers every play: the game remounts with a new set on "again". */
 export default function GeneDetective() {
   const { data, play, regenerate } = useGenerated(makeRounds)
-  return data ? <DialGame key={play} rounds={data} onReplay={regenerate} config={config} /> : null
+  return data ? <PlayGame key={play} rounds={data} onReplay={regenerate} config={config} /> : null
 }

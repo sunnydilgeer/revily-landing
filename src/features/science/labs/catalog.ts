@@ -7,7 +7,7 @@ export const scienceAreas: { id: ScienceArea; title: string; chip: string }[] = 
   { id: 'biology', title: 'Biology', chip: '10%+ of marks are maths' },
 ]
 
-export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield' | 'gene' | 'rewild' | 'sugar'
+export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield' | 'gene' | 'rewild' | 'sugar' | 'element' | 'river'
 
 export type ScienceLabEntry = {
   id: ScienceLabId
@@ -71,6 +71,22 @@ export const scienceLabCatalog: ScienceLabEntry[] = [
     tagline: 'Brew fuel from water.', tag: 'Rates',
   },
   {
+    id: 'element', area: 'chemistry', href: '/preview/lab/element', emoji: '⛏️', title: 'Element Hunter',
+    hook: 'Hunt lithium in Cornwall and silicon for British chips. Build the atoms, bond them, feel the heat.',
+    skill: 'Atomic structure, the periodic table, bonding and energy changes',
+    practical: 'Temperature changes',
+    minutes: 6,
+    tagline: 'Mine the elements.', tag: 'Atoms',
+  },
+  {
+    id: 'river', area: 'chemistry', href: '/preview/lab/river', emoji: '🏞️', title: 'River Rescue',
+    hook: 'Something is poisoning the river. Test it, trace the polluter and make the water safe to drink.',
+    skill: 'Chemical analysis, acids and pH, and making water safe',
+    practical: 'Chromatography and water purification',
+    minutes: 6,
+    tagline: 'Find the polluter.', tag: 'Analysis',
+  },
+  {
     id: 'rush', area: 'biology', href: '/preview/lab/rush', emoji: '🩺', title: 'A&E Rush',
     hook: 'Triage a packed A&E. Find the bug under the microscope, then treat it right.',
     skill: 'Microscopes, pathogens and treating disease',
@@ -79,12 +95,12 @@ export const scienceLabCatalog: ScienceLabEntry[] = [
     tagline: 'Find the bug. Treat it.', tag: 'Infection',
   },
   {
-    id: 'gene', area: 'biology', href: '/preview/lab/gene', emoji: '🧬', title: 'Gene Detective',
-    hook: 'Newborn babies on the NHS get their genome read. Crack the family cases before the parents ask.',
+    id: 'gene', area: 'biology', href: '/preview/lab/gene', emoji: '🐣', title: 'Creature Breeder',
+    hook: 'Breed Blobbits, predict the clutch, watch it hatch. Then crack a real NHS genetics case.',
     skill: 'Inheritance: alleles, Punnett squares, probability and ratios',
     practical: 'None (inheritance has no required practical)',
     minutes: 6,
-    tagline: 'Crack the family cases.', tag: 'Genetics',
+    tagline: 'Breed it. Predict it.', tag: 'Genetics',
   },
   {
     id: 'rewild', area: 'biology', href: '/preview/lab/rewild', emoji: '🦫', title: 'Rewild',
