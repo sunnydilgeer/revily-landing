@@ -29,7 +29,7 @@ const games = {
 // The Science Arcade (src/features/science/labs): same rules, plus every dial's nope() must read cleanly.
 const SCIENCE = path.join(root, 'src/features/science/labs')
 const scienceGames = {
-  sparky: 'sparky/rounds.ts', grid: 'grid/rounds.ts', pit: 'pit/rounds.ts', hydrogen: 'hydrogen/rounds.ts', rush: 'rush/rounds.ts', shield: 'shield/rounds.ts', gene: 'gene/rounds.ts', rewild: 'rewild/rounds.ts', sugar: 'sugar/rounds.ts',
+  sparky: 'sparky/rounds.ts', grid: 'grid/rounds.ts', pit: 'pit/rounds.ts', hydrogen: 'hydrogen/rounds.ts', rush: 'rush/rounds.ts', shield: 'shield/rounds.ts', gene: 'gene/rounds.ts', rewild: 'rewild/rounds.ts', sugar: 'sugar/rounds.ts', element: 'element/rounds.ts', river: 'river/rounds.ts',
 }
 for (const [name, file] of Object.entries(scienceGames)) if (fs.existsSync(path.join(SCIENCE, file))) games[name] = [path.join(SCIENCE, file), 'makeRounds']
 // `node scripts/verify-arcade-numbers.cjs loot slice` checks just those games.

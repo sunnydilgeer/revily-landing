@@ -7,7 +7,7 @@ export const scienceAreas: { id: ScienceArea; title: string; chip: string }[] = 
   { id: 'biology', title: 'Biology', chip: '10%+ of marks are maths' },
 ]
 
-export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield' | 'gene' | 'rewild' | 'sugar'
+export type ScienceLabId = 'grid' | 'sparky' | 'rush' | 'pit' | 'hydrogen' | 'shield' | 'gene' | 'rewild' | 'sugar' | 'element' | 'river'
 
 export type ScienceLabEntry = {
   id: ScienceLabId
@@ -69,6 +69,22 @@ export const scienceLabCatalog: ScienceLabEntry[] = [
     practical: 'Rates of reaction',
     minutes: 6,
     tagline: 'Brew fuel from water.', tag: 'Rates',
+  },
+  {
+    id: 'element', area: 'chemistry', href: '/preview/lab/element', emoji: '⛏️', title: 'Element Hunter',
+    hook: 'Hunt lithium in Cornwall and silicon for British chips. Read the atoms, bond them, feel the heat.',
+    skill: 'Atomic structure, the periodic table, bonding and energy changes',
+    practical: 'Temperature changes',
+    minutes: 6,
+    tagline: 'Mine the elements.', tag: 'Atoms',
+  },
+  {
+    id: 'river', area: 'chemistry', href: '/preview/lab/river', emoji: '🏞️', title: 'River Rescue',
+    hook: 'Something is poisoning the river. Test it, trace the polluter and make the water safe to drink.',
+    skill: 'Chemical analysis, acids and pH, and making water safe',
+    practical: 'Chromatography and water purification',
+    minutes: 6,
+    tagline: 'Find the polluter.', tag: 'Analysis',
   },
   {
     id: 'rush', area: 'biology', href: '/preview/lab/rush', emoji: '🩺', title: 'A&E Rush',
