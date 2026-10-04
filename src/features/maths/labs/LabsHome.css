@@ -59,6 +59,9 @@
 .labs-card--geometry { --neon: var(--labs-neon-green); }
 .labs-card--probability { --neon: var(--labs-neon-coral); }
 .labs-card--statistics { --neon: var(--labs-neon-aqua); }
+.labs-card--physics { --neon: var(--labs-neon-yellow); }
+.labs-card--chemistry { --neon: var(--labs-neon-teal); }
+.labs-card--biology { --neon: var(--labs-neon-coral); }
 .labs-card:hover { transform: translateY(-3px); }
 .labs-card:active { transform: translateY(2px); }
 .labs-card:focus-visible { outline: 3px solid var(--rv-on-night); outline-offset: 6px; }

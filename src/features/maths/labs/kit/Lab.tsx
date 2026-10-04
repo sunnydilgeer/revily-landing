@@ -56,13 +56,13 @@ export function useScore() {
   }
 }
 
-export function LabTop({ progress, streak, lives }: { progress: string; streak: number; lives: number }) {
+export function LabTop({ progress, streak, lives, home = '/preview?view=lab' }: { progress: string; streak: number; lives: number; home?: string }) {
   const [muted, setMutedState] = useState(false)
   useEffect(() => setMutedState(isMuted()), [])
   const toggle = () => { setMuted(!muted); setMutedState(!muted) }
   const hard = isHardMode(), max = livesPerRound()
   return <header className="lab-top">
-    <a className="lab-icon lab-icon--close" href="/preview?view=lab" aria-label="Back to the Arcade">×</a>
+    <a className="lab-icon lab-icon--close" href={home} aria-label="Back to the Arcade">×</a>
     <p className="lab-progress">{progress}</p>
     {hard && <span className="lab-hard" aria-label="Hard mode">💀 Hard</span>}
     {streak >= 2 && <span className="lab-streak" aria-label={`${streak} in a row`}>🔥 {streak}</span>}

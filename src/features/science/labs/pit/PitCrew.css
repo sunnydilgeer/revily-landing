@@ -1,0 +1,80 @@
+/* Pit Crew: the road, the weighbridge, the trolley bench and the telemetry dash. The shared lab look is in maths/labs/kit/lab.css. */
+.pc-stage { display: grid; gap: 10px; max-width: 420px; margin: 0 auto; }
+.pc-scene { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* The road, from above */
+.pc-road { fill: var(--rv-ink-2); }
+.pc-kerb { stroke: var(--rv-line-strong); stroke-width: 4; }
+.pc-lane { stroke: var(--rv-on-night); stroke-width: 2; stroke-dasharray: 14 10; opacity: .7; }
+.pc-start { stroke: var(--rv-on-night-muted); stroke-width: 2; stroke-dasharray: 3 3; }
+.pc-brakezone { fill: var(--rv-alarm); opacity: .18; }
+.pc-zebra rect { fill: var(--rv-on-night); }
+.pc-ped { font-size: 18px; }
+.pc-beacon { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 1.5; }
+.pc-goal { stroke: var(--rv-yellow); stroke-width: 4; }
+.pc-goal__label { font: 800 13px var(--rv-font-display); fill: var(--rv-ink); }
+.pc-flag { font: 800 13px var(--rv-font-display); fill: var(--rv-muted); }
+.is-hit .pc-flag { fill: var(--rv-good); }
+.is-over .pc-flag, .is-short .pc-flag { fill: var(--rv-redpen); }
+
+/* The car */
+.pc-car__body { fill: var(--rv-teal); stroke: var(--rv-ink); stroke-width: 2; }
+.pc-car__glass { fill: var(--rv-night-3); }
+.pc-car__tyre { fill: var(--rv-ink); }
+.pc-hub { fill: var(--rv-line); }
+.pc-car__lidar { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 1.5; }
+.pc-car__brake { fill: var(--rv-redpen); opacity: .35; }
+.is-hit .pc-car__brake, .is-short .pc-car__brake, .is-over .pc-car__brake { opacity: 1; }
+.is-over .pc-car__body { fill: var(--rv-alarm); }
+
+/* The mover drives to its stopping point: speeds up, then brakes into the line */
+.pc-mover { transition: transform .85s cubic-bezier(.3, .1, .25, 1); }
+.pc-stage:not(.is-go):not(.is-hit):not(.is-over):not(.is-short) .pc-mover { transition: none; }
+.is-over .pc-mover { transition-duration: .9s; }
+
+/* Force arrows */
+.pc-arrow line { stroke-width: 4; stroke-linecap: round; }
+.pc-arrow text { font: 800 13px var(--rv-font-display); paint-order: stroke; stroke: var(--rv-ink-2); stroke-width: 3px; fill: var(--rv-on-night); }
+.pc-arrow--fwd line { stroke: var(--rv-good); } .pc-arrow--fwd path { fill: var(--rv-good); }
+.pc-arrow--back line { stroke: var(--rv-alarm); } .pc-arrow--back path { fill: var(--rv-alarm); }
+.pc-arrow--down line { stroke: var(--rv-biro); } .pc-arrow--down path { fill: var(--rv-biro); }
+
+/* A measured span, or the dial's own readout on the scene */
+.pc-span line { stroke: var(--rv-ink); stroke-width: 1.5; }
+.pc-span rect { fill: none; }
+.pc-span text { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.pc-span.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.is-hit .pc-span.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.is-over .pc-span.is-dial rect, .is-short .pc-span.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+
+/* The weighbridge */
+.pc-ground { stroke: var(--rv-line-strong); stroke-width: 3; }
+.pc-plate { fill: var(--rv-line); stroke: var(--rv-ink); stroke-width: 1.5; }
+.pc-sidecar { transform-box: fill-box; }
+.is-go .pc-sidecar { animation: pc-settle .45s ease-out 2; }
+@keyframes pc-settle { 50% { transform: translateY(3px); } }
+
+/* The trolley bench */
+.pc-bench { fill: var(--rv-yellow-tint); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.pc-pulley { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; }
+.pc-string { stroke: var(--rv-ink); stroke-width: 1.5; }
+.pc-weight { fill: var(--rv-muted); stroke: var(--rv-ink); stroke-width: 1.5; }
+.pc-hang { transition: transform .85s cubic-bezier(.3, .1, .25, 1); }
+.pc-stage:not(.is-go):not(.is-hit):not(.is-over):not(.is-short) .pc-hang { transition: none; }
+.pc-gate rect { fill: var(--rv-ink-2); }
+.pc-beam { stroke: var(--rv-redpen); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.is-hit .pc-beam { stroke: var(--rv-good); stroke-dasharray: none; stroke-width: 2.5; }
+.pc-card { fill: var(--rv-ink); }
+
+/* The telemetry dash: the givens, then the dial's live value */
+.pc-dash { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 6px; padding: 8px; border-radius: var(--rv-radius-md); background: var(--rv-night); color: var(--rv-on-night); }
+.pc-dash div { display: grid; gap: 1px; padding: 4px 8px; border-radius: 6px; min-width: 0; }
+.pc-dash dt { font-weight: 600; font-size: .8125rem; color: var(--rv-on-night-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-dash dd { margin: 0; font: 800 1.05rem/1.2 var(--rv-font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pc-dash .is-dial { outline: 2px dashed var(--rv-yellow); outline-offset: -2px; }
+.is-hit .pc-dash .is-dial { outline: 2px solid var(--rv-good); background: color-mix(in srgb, var(--rv-good) 30%, transparent); }
+.is-over .pc-dash .is-dial, .is-short .pc-dash .is-dial { outline: 2px solid var(--rv-redpen); background: color-mix(in srgb, var(--rv-redpen) 25%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-stage *, .pc-stage { animation: none !important; transition: none !important; }
+}

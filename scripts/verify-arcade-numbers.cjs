@@ -26,12 +26,18 @@ const games = {
   formula: ['formula/rounds.ts', 'makeRounds'], loot: ['loot/rounds.ts', 'makeRounds'], viral: ['viral/rounds.ts', 'makeRounds'],
   slice: ['slice/rounds.ts', 'makeRounds'], supplies: ['supplies/rounds.ts', 'makeRounds'], obby: ['obby/rounds.ts', 'makeRounds'],
 }
+// The Science Arcade (src/features/science/labs): same rules, plus every dial's nope() must read cleanly.
+const SCIENCE = path.join(root, 'src/features/science/labs')
+const scienceGames = {
+  sparky: 'sparky/rounds.ts', grid: 'grid/rounds.ts', pit: 'pit/rounds.ts', hydrogen: 'hydrogen/rounds.ts', rush: 'rush/rounds.ts',
+}
+for (const [name, file] of Object.entries(scienceGames)) if (fs.existsSync(path.join(SCIENCE, file))) games[name] = [path.join(SCIENCE, file), 'makeRounds']
 // `node scripts/verify-arcade-numbers.cjs loot slice` checks just those games.
 const only = process.argv.slice(2)
 const visible = line => line.replace(TERM, '$2').replace(/\\text\{([^}]*)\}/g, '$1').replace(/\\(pounds|times|div|circ|frac)/g, 'x').replace(/[{}\\^ ]/g, '')
 
 for (const [name, [file, make]] of Object.entries(games).filter(([name]) => !only.length || only.includes(name))) {
-  const gen = require(path.join(root, 'src/features/maths/labs', file))[make]
+  const gen = require(path.isAbsolute(file) ? file : path.join(root, 'src/features/maths/labs', file))[make]
   let questions = 0, dials = 0, widest = ''
   const samples = []
   for (let seed = 1; seed <= 2000; seed++) {
@@ -58,6 +64,11 @@ for (const [name, [file, make]] of Object.entries(games).filter(([name]) => !onl
         assert.ok(goal >= node.min && goal <= node.max, `${name} seed ${seed} ${where}: dial answer ${goal} outside ${node.min}..${node.max}`)
         assert.ok(Math.abs((goal - node.min) / node.step - Math.round((goal - node.min) / node.step)) < 1e-9, `${name} seed ${seed} ${where}: dial answer ${goal} off the ${node.step} grid`)
         assert.notEqual(goal, node.start, `${name} seed ${seed} ${where}: dial starts on the answer ${goal}`)
+        if (typeof node.nope === 'function') for (const probe of [node.start, goal + node.step, goal - node.step, node.max]) {
+          const text = node.nope(probe)
+          assert.ok(typeof text === 'string' && text.length > 10 && !/NaN|undefined|Infinity|\d\.\d{4,}/.test(text), `${name} seed ${seed} ${where}: bad nope(${probe}) "${text}"`)
+        }
+        for (const text of [node.prompt, node.win]) if (typeof text === 'string') assert.ok(!/NaN|undefined|Infinity|\d\.\d{4,}/.test(text), `${name} seed ${seed} ${where}: bad text "${text}"`)
       }
       if (Array.isArray(node.chain)) node.chain.forEach((step, i) => {
         katex.renderToString(`\\displaystyle ${step.line.replace(TERM, (_, k, b) => `\\htmlData{k=${k}}{${b}}`)}`, { trust: true, strict: 'ignore', throwOnError: true })
