@@ -98,36 +98,65 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
   // Swipe on a phone: before the answer shows, a swipe either way turns the card over; after it,
   // right is "Got it" and left is "Still learning". The card follows the finger and slides off.
   const [drag, setDrag] = useState<{ x: number; leaving?: 'left' | 'right' } | null>(null)
-  const swipe = useRef<{ x: number; y: number; id: number; moved: boolean } | null>(null)
+  const swipe = useRef<{ x: number; y: number; id: number; moved: boolean; lastX: number; lastT: number; vx: number } | null>(null)
   const swiped = useRef(false)
-  // How far (px) a card must be dragged to count as a swipe: 20% less than the original 80 px, so swipes feel lighter.
-  const SWIPE = 64
+  // How far (px) a card must be dragged to count as a swipe. Left ("Still learning") is a little shorter than right,
+  // because dragging left is the awkward direction for a right thumb. A quick flick counts sooner.
+  const SWIPE_RIGHT = 64
+  const SWIPE_LEFT = 52
+  const FLICK = 32
+  const FLICK_SPEED = 0.4 // px per ms
+  const swipeDistance = (dx: number) => dx < 0 ? SWIPE_LEFT : SWIPE_RIGHT
   function swipeStart(event: React.PointerEvent) {
     // A new touch is a new gesture. The click a swipe would leave behind arrives before this, and browsers often
     // skip it after a drag, so clearing here stops a leftover flag swallowing the next real tap.
     swiped.current = false
     if (event.pointerType === 'mouse' || drag?.leaving) return
-    swipe.current = { x: event.clientX, y: event.clientY, id: event.pointerId, moved: false }
+    swipe.current = { x: event.clientX, y: event.clientY, id: event.pointerId, moved: false, lastX: event.clientX, lastT: event.timeStamp, vx: 0 }
   }
   function swipeMove(event: React.PointerEvent) {
     const start = swipe.current
     if (!start || start.id !== event.pointerId) return
+    const dt = event.timeStamp - start.lastT
+    if (dt > 0) start.vx = (event.clientX - start.lastX) / dt
+    start.lastX = event.clientX
+    start.lastT = event.timeStamp
     const dx = event.clientX - start.x, dy = event.clientY - start.y
-    if (!start.moved && (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy))) return
+    // A thumb sweeping sideways drifts up or down too, so a fairly diagonal drag still counts as sideways.
+    if (!start.moved && (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy) * 0.7)) return
     start.moved = true
     setDrag({ x: dx })
   }
-  function swipeEnd(event: React.PointerEvent) {
-    const start = swipe.current
-    swipe.current = null
-    if (!start || !start.moved || !session) return
+  function finishSwipe(dx: number, vx: number) {
+    if (!session) return
     swiped.current = true
-    const dx = event.clientX - start.x
-    if (Math.abs(dx) < SWIPE) { setDrag(null); return }
+    const flick = Math.abs(dx) >= FLICK && Math.abs(vx) >= FLICK_SPEED && Math.sign(vx) === Math.sign(dx)
+    if (Math.abs(dx) < swipeDistance(dx) && !flick) { setDrag(null); return }
     if (!session.flipped) { setDrag(null); setSession({ ...session, flipped: true }); return }
     setDrag({ x: dx, leaving: dx > 0 ? 'right' : 'left' })
     window.setTimeout(() => { setDrag(null); answer(dx > 0) }, 180)
   }
+  function swipeEnd(event: React.PointerEvent) {
+    const start = swipe.current
+    swipe.current = null
+    if (!start || !start.moved) return
+    finishSwipe(event.clientX - start.x, start.vx)
+  }
+  // If the browser takes the touch over (for scrolling) mid-swipe, finish with how far the card had got.
+  function swipeCancel() {
+    const start = swipe.current
+    swipe.current = null
+    if (start?.moved) finishSwipe(start.lastX - start.x, start.vx)
+    else setDrag(null)
+  }
+  // Once a sideways drag has started, stop the page scrolling under it, so the swipe isn't cancelled halfway.
+  useEffect(() => {
+    const element = cardRef.current
+    if (!element) return
+    const hold = (event: TouchEvent) => { if (swipe.current?.moved && event.cancelable) event.preventDefault() }
+    element.addEventListener('touchmove', hold, { passive: false })
+    return () => element.removeEventListener('touchmove', hold)
+  })
 
   const card = session?.queue[session.index]
   const finished = session && !card
@@ -185,14 +214,14 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
             onPointerDown={swipeStart}
             onPointerMove={swipeMove}
             onPointerUp={swipeEnd}
-            onPointerCancel={() => { swipe.current = null; setDrag(null) }}
+            onPointerCancel={swipeCancel}
             onClick={() => {
               // A swipe ends with a click on the card; it has already done its job.
               if (swiped.current) { swiped.current = false; return }
               setSession({ ...session, flipped: !session.flipped })
             }}
           >
-            {lean && <span className={`rc-card__stamp rc-card__stamp--${lean}`} style={{ opacity: Math.min(1, Math.abs(drag!.x) / SWIPE) }} aria-hidden="true">{lean === 'right' ? 'Got it ✓' : 'Still learning'}</span>}
+            {lean && <span className={`rc-card__stamp rc-card__stamp--${lean}`} style={{ opacity: Math.min(1, Math.abs(drag!.x) / swipeDistance(drag!.x)) }} aria-hidden="true">{lean === 'right' ? 'Got it ✓' : 'Still learning'}</span>}
             <span className="rc-card__side">{session.flipped ? 'Answer' : 'Question'}</span>
             <span className="rc-card__text" aria-live="polite">{session.flipped ? card.back : card.front}</span>
             {!session.flipped && card.frontMath && <span className="rc-card__math"><MathSpan latex={card.frontMath} display /></span>}
