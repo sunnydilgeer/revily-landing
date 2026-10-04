@@ -85,7 +85,7 @@ export const paperTopics: PaperTopic[] = [
   { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [], labs: ['laser'] },
   { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [], labs: ['formula'] },
   { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: lesson(23, 'sequences-special', 'sequences-geometric', 'sequences-nth-term', 'sequences-in-sequence', 'sequences-consecutive'), labs: ['levels'] },
-  { id: 'inequalities', title: 'Inequalities', area: 'algebra', marks30: 30, estimate: true, requires: ['equations'], statements: lesson(24, 'inequalities-number-line', 'inequalities-two-sided') },
+  { id: 'inequalities', title: 'Inequalities', area: 'algebra', marks30: 30, estimate: true, requires: ['equations'], statements: [...lesson(24, 'inequalities-number-line', 'inequalities-two-sided'), ...lesson(25, 'inequalities-integers', 'inequalities-solve', 'inequalities-solve-two-signs', 'inequalities-negative')] },
   { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [...lesson(19,
     'equations-one-unknown', 'equations-squares', 'equations-both-sides', 'equations-brackets', 'equations-fractions'),
     ...lesson(20, 'rearrange-linear', 'rearrange-fractions', 'rearrange-squares', 'rearrange-roots'),

@@ -23,8 +23,9 @@ import { tutorQuadraticsLesson } from '../quadratics/tutor/quadraticsLesson'
 import { tutorQuadraticEquationsLesson } from '../quadratic-equations/tutor/quadraticEquationsLesson'
 import { tutorSequencesLesson } from '../sequences/tutor/sequencesLesson'
 import { tutorInequalitiesLesson } from '../inequalities/tutor/inequalitiesLesson'
+import { tutorSolvingInequalitiesLesson } from '../solving-inequalities/tutor/solvingInequalitiesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25
 
 export type MathsSection = {
   id: MicroSkillId
@@ -115,6 +116,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(22, tutorQuadraticEquationsLesson, 'Solving quadratics', 'Solve quadratic equations like x² + x = 20 by making one side 0 and factorising.', tutorQuadraticEquationsLesson.labels, 'algebra'),
   entry(23, tutorSequencesLesson, 'Sequences', 'Continue sequences, find and use the nth term, check whether a number is a term, and solve problems with terms next to each other.', tutorSequencesLesson.labels, 'algebra'),
   entry(24, tutorInequalitiesLesson, 'Inequalities', 'Write inequalities from words and number lines, and show one- and two-sided inequalities on a number line.', tutorInequalitiesLesson.labels, 'algebra'),
+  entry(25, tutorSolvingInequalitiesLesson, 'Solving inequalities', 'List the integers in an inequality, solve inequalities like 4a − 5 > a + 7 and 3 < 2x + 1 < 11, and flip the sign when dividing by a negative.', tutorSolvingInequalitiesLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

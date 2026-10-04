@@ -242,6 +242,12 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
     'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],
   },
+  25: {
+    'inequalities-integers': [['List the integers that satisfy −1 < x ≤ 3.', '0, 1, 2, 3. < leaves −1 out; ≤ puts 3 in.']],
+    'inequalities-solve': [['Solve 4a − 5 > a + 7.', 'a > 4. Add 5: 4a > a + 12. Subtract a: 3a > 12. Divide by 3.']],
+    'inequalities-solve-two-signs': [['Solve 3 < 2x + 1 < 11.', '1 < x < 5. Do the same to all three parts: subtract 1, then divide by 2.']],
+    'inequalities-negative': [['Solve −3x > 12.', 'x < −4. Dividing by a negative number flips the sign.']],
+  },
   22: {
     'quadratic-equations': [['Solve x² + x = 20.', 'x = 4 or x = −5. Subtract 20: x² + x − 20 = 0. Factorise: (x − 4)(x + 5) = 0. One bracket must be 0, so x − 4 = 0 or x + 5 = 0.']],
   },
