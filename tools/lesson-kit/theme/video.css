@@ -1,0 +1,45 @@
+/* Slides for the lesson videos, in the style of Aniksha's: a white card on a light grid, a small grey label, a bold
+   heading, maths in blue (KaTeX), the move in a pale-yellow box, a blue pill for a halfway result and a green pill
+   for the answer. 960 × 540, rendered at 2× and scaled down so the text stays sharp. */
+@font-face { font-family: Poppins; font-weight: 400; src: url(fonts/poppins-400.woff2) format('woff2'); }
+@font-face { font-family: Poppins; font-weight: 500; src: url(fonts/poppins-500.woff2) format('woff2'); }
+@font-face { font-family: Poppins; font-weight: 600; src: url(fonts/poppins-600.woff2) format('woff2'); }
+@font-face { font-family: Poppins; font-weight: 700; src: url(fonts/poppins-700.woff2) format('woff2'); }
+@font-face { font-family: Poppins; font-weight: 800; src: url(fonts/poppins-800.woff2) format('woff2'); }
+html, body { margin: 0; width: 960px; height: 540px; overflow: hidden; font-family: Poppins, sans-serif; color: #17213a; }
+body { background-color: #f4f7fc; background-image: linear-gradient(#e6ecf6 1px, transparent 1px), linear-gradient(90deg, #e6ecf6 1px, transparent 1px); background-size: 24px 24px; }
+.card { position: absolute; left: 24px; top: 14px; right: 24px; bottom: 14px; overflow: hidden; background: #fff; border: 1.5px solid #dfe5ef; border-radius: 22px; box-shadow: 0 4px 14px rgba(30,50,90,.06); display: flex; flex-direction: column; align-items: center; padding: 34px 40px 20px; box-sizing: border-box; }
+.label { position: absolute; left: 48px; top: 28px; font-size: 13px; color: #4b5874; font-weight: 500; }
+h1 { margin: 22px 0 0; font-size: 40px; font-weight: 800; letter-spacing: -.5px; text-align: center; }
+h2 { margin: 0 0 6px; font-size: 22px; font-weight: 700; text-align: center; }
+.stage { color: #6b7a96; font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin: -4px 0 4px; }
+.sub { color: #4b5874; font-size: 19px; margin: 6px 0 4px; text-align: center; }
+.from { color: #6b7a96; font-size: 18px; margin: 6px 0 4px; }
+.from .m { opacity: .55; }
+.m { color: #3f51b5; }
+.m.big { font-size: 40px; }
+.bigline { margin: 6px 0; }
+.line { font-size: 19px; margin: 10px 0 0; text-align: center; }
+.line b { font-weight: 700; }
+.move { background: #fdf3c4; border-radius: 10px; padding: 8px 22px; }
+.board { display: grid; grid-template-columns: auto auto auto; column-gap: 18px; row-gap: 2px; align-items: end; font-size: 30px; margin-top: 12px; }
+.board .l { text-align: right; } .board .r { text-align: left; }
+.board .u { border-bottom: 2px solid #3f51b5; }
+.p, .p .katex { color: #7c3aed; }
+.small { font-size: 20px; }
+.result, .answer { display: inline-block; margin-top: 14px; padding: 4px 26px; border-radius: 999px; font-size: 30px; }
+.result { border: 2px solid #c5cdf0; background: #eef1fb; }
+.answer { border: 2px solid #8fd1ad; background: #e2f5ea; color: #0d7446; }
+.answer .m { color: #0d7446; }
+.row { display: flex; gap: 60px; align-items: center; justify-content: center; margin-top: 12px; font-size: 28px; }
+.stack { display: grid; grid-template-columns: auto auto; column-gap: 30px; row-gap: 6px; font-size: 26px; margin-top: 10px; }
+.stack .note { font-size: 20px; color: #6b7a96; align-self: center; }
+.pick { background: #efe7fd; border-radius: 8px; padding: 0 8px; }
+.col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.yes { color: #15925a; font-weight: 700; } .no { color: #dc2626; }
+.pill { display: inline-block; margin: 6px; padding: 6px 18px; border-radius: 999px; background: #fdf3c4; border: 1.5px solid #f2d36b; font-size: 17px; font-weight: 500; }
+.tick { color: #15925a; font-size: 70px; line-height: 1; margin-top: 6px; }
+.picture { margin-top: 10px; }
+.item { display: contents; }
+svg text { font-family: Poppins, sans-serif; }
+.line.grey { color: #6b7a96; }

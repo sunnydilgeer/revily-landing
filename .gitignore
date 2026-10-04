@@ -4,3 +4,6 @@ node_modules
 .next-science-build/
 tsconfig.tsbuildinfo
 dist/
+
+# Lesson kit output (videos, PDFs, frames): made on demand, not committed
+tools/lesson-kit/out/
