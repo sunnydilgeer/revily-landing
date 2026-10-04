@@ -123,7 +123,7 @@ function worked(topic: MicroSkillId, title: string, sourceRef: string, model: Tu
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 const media = (name: string, title: string, sourceFile: string, textAlternative: string[]) => ({
-  id: `lesson22-${name}`, src: `/media/lesson-22/${name}.mp4`, poster: `/media/lesson-22/${name}.svg`, title, durationSeconds: 79, sourceFile, textAlternative,
+  id: `lesson22-${name}`, src: `/media/lesson-22/${name}.mp4`, poster: `/media/lesson-22/${name}.svg`, title, durationSeconds: 101, sourceFile, textAlternative,
 })
 /** Keeps an expression on one line in a title, so a phone never breaks it. */
 const nb = (expression: string) => expression.replace(/ /g, ' ')
@@ -150,8 +150,19 @@ const notZero = (middle: number, c: number): [number[], string][] => [
 
 /* ---------- One rung: solving by factorising (A8.1, and the textbook's A8 page) ---------- */
 
-// Aniksha is re-recording the A8.1 video with x² + x = 20 (it was x² + x = 12); it goes on this screen with video().
-worked(solving, `Solve ${nb('x² + x = 20')}.`, 'A8.1 video (x² + x = 20, as re-recorded) + textbook A8 steps', solveModel(1, -20, { start: subtract('x', 1, 20) }), 'Make one side 0. Factorise. One bracket must be 0, so solve each one.')
+// The A8.1 video, remade with x² + x = 20 (the old one used 12) in the style of Aniksha's videos (Sunny, 4 Oct).
+const rug = worked(solving, `Solve ${nb('x² + x = 20')}.`, 'A8.1 video (x² + x = 20, as re-recorded) + textbook A8 steps', solveModel(1, -20, { start: subtract('x', 1, 20) }), 'Make one side 0. Factorise. One bracket must be 0, so solve each one.')
+video(rug, media('solving-quadratics', 'Solve x² + x = 20', 'A8.1_Solving_Quadratics_By_Factorising.mp4', [
+  'A rug has area 20 m². It is x m wide and 1 m longer than it is wide: x(x + 1) = 20. Multiply out: x² + x = 20, a quadratic equation.',
+  'Step 1, make one side 0: take 20 from both sides. x² + x − 20 = 0.',
+  'Why make it 0? If two numbers multiply to make 0, one of them must be 0: 3 × 0 = 0 and 0 × 7 = 0, but 3 × 7 = 21. So write the left side as two brackets multiplied: factorise it.',
+  'Step 2, factorise: the factor pairs of 20 are 1 × 20, 2 × 10 and 4 × 5. −20 is negative, so make the smaller factors negative: −1 × 20 adds to 19, −2 × 10 adds to 8, −4 × 5 adds to 1. The pair is −4 and 5.',
+  'Write the brackets: (x − 4)(x + 5) = 0. Check: −4 × 5 = −20 and −4 + 5 = 1.',
+  'Step 3, two equations: one bracket must be 0, so x − 4 = 0 or x + 5 = 0.',
+  'Step 4, solve each: add 4 to both sides, and take 5 from both sides. x = 4 or x = −5.',
+  'Check both: 4² + 4 = 20 and (−5)² + (−5) = 25 − 5 = 20.',
+  'Where you see it: a width can’t be −5 m, so the rug is 4 m wide and 5 m long. 4 × 5 = 20 m².',
+]))
 
 solveQuestion('A8.1 Q2', `A bridge cable touches the road where ${nb('(x − 2)(x − 6) = 0')}, with x in metres along the road. Solve ${nb('(x − 2)(x − 6) = 0')}.`, -8, 12, [2, 6], 'One of the two brackets must be 0. Solve each one.', { given: [-2, -6] })
 solveQuestion('A8.1 Q1', `A skate bowl’s curved side is modelled by ${nb('y = x² − 7x + 10')}, where x is the distance in metres along the ground. Solve ${nb('x² − 7x + 10 = 0')} to find where the edges are.`, -7, 10, [2, 5], 'It already equals 0. Find two numbers that multiply to 10 and add to −7.')

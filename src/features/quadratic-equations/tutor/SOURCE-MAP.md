@@ -6,7 +6,7 @@ There is one rung. Questions run easiest first: brackets already given, then equ
 
 | Screen | Source | App coverage |
 | --- | --- | --- |
-| Worked example | A8.1 video, re-recorded | x² + x = 20. Aniksha is re-recording the video with 20 in place of 12 (Sunny, 2 Oct); it goes on this screen when it arrives |
+| Worked example | A8.1 video, remade | x² + x = 20. The video was remade with 20 in place of 12, in the style of Aniksha's videos (Sunny, 4 Oct): the rug x by x + 1 with area 20 m², then the same four steps as the working, a check, and the rug's width (4 m, not −5 m) |
 | 1 | A8.1 Q2 | (x − 2)(x − 6) = 0, typed as x = ☐ or x = ☐ |
 | 2 | A8.1 Q1 | x² − 7x + 10 = 0, typed (the PDF's worked example) |
 | 3 | Textbook Your Turn Q2 | x² − 9x + 14 = 0, our own numbers (the book has x² − 8x + 15) |
