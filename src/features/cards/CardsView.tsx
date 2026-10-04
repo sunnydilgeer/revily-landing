@@ -100,7 +100,8 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
   const [drag, setDrag] = useState<{ x: number; leaving?: 'left' | 'right' } | null>(null)
   const swipe = useRef<{ x: number; y: number; id: number; moved: boolean } | null>(null)
   const swiped = useRef(false)
-  const SWIPE = 80
+  // How far (px) a card must be dragged to count as a swipe: 20% less than the original 80 px, so swipes feel lighter.
+  const SWIPE = 64
   function swipeStart(event: React.PointerEvent) {
     // A new touch is a new gesture. The click a swipe would leave behind arrives before this, and browsers often
     // skip it after a drag, so clearing here stops a leftover flag swallowing the next real tap.
