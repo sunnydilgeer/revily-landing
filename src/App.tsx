@@ -53,6 +53,7 @@ import {
 // Science carries its whole lesson catalogue, so Maths students don't download it until they switch.
 const ScienceCurriculum = dynamic(() => import('./features/science/ScienceCurriculum'), { ssr: false })
 const ScienceCards = dynamic(() => import('./features/science/cards/ScienceCards'), { ssr: false })
+const ScienceLabsHome = dynamic(() => import('./features/science/labs/ScienceLabsHome'), { ssr: false })
 
 type MathsView = 'overview' | 'lesson' | 'cards' | 'practice' | 'lab'
 
@@ -197,7 +198,9 @@ function App() {
             ? <ScienceCurriculum />
             : active === 'cards'
               ? <ScienceCards onOpenCurriculum={() => navigate('curriculum')} />
-              : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
+              : active === 'lab'
+                ? <ScienceLabsHome />
+                : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
           : view === 'overview'
             ? <Curriculum progress={progress} lastLesson={lastLesson} onOpenLesson={openLesson} />
             : view === 'cards'

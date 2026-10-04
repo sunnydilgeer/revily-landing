@@ -1,0 +1,60 @@
+/* Sparky: circuit boards and the smart plug. The shared lab look is in maths/labs/kit/lab.css. */
+.sp-board { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+
+.sp-wire { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linejoin: round; }
+.sp-dot { fill: var(--rv-ink); }
+.sp-gap { fill: var(--rv-paper, #fff); }
+.sp-plate { stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; }
+.sp-plate--thick { stroke-width: 6; }
+
+.sp-meter circle { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; }
+.sp-meter text { font: 800 13px var(--rv-font-display); fill: var(--rv-ink); }
+
+.sp-tag text { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.sp-tag.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.sp-board.is-on .sp-tag.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.sp-board.is-fried .sp-tag.is-dial rect, .sp-board.is-dim .sp-tag.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.sp-note { font: 600 11px var(--rv-font-body); fill: var(--rv-muted); }
+
+/* Lamps: off, flickering on Switch on, then lit, dim or fried */
+.sp-lamp__body { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; transition: fill .2s; }
+.sp-lamp__x { stroke: var(--rv-ink); stroke-width: 2.2; }
+.sp-lamp__glow { fill: var(--rv-yellow); opacity: 0; transition: opacity .25s; }
+.sp-lamp__pop { font-size: 16px; opacity: 0; }
+.sp-board.is-go .sp-lamp__glow { animation: sp-flicker .65s steps(2) both; }
+.sp-board.is-on .sp-lamp__glow { opacity: .55; }
+.sp-board.is-on .sp-lamp__body { fill: var(--rv-yellow); }
+.sp-board.is-dim .sp-lamp__glow { opacity: .12; }
+.sp-board.is-fried .sp-lamp__body { fill: var(--rv-ink-2); }
+.sp-board.is-fried .sp-lamp__pop { animation: sp-pop .5s ease-out both; }
+@keyframes sp-flicker { 0%, 40%, 80% { opacity: .1; } 20%, 60%, 100% { opacity: .45; } }
+@keyframes sp-pop { 0% { opacity: 0; transform: scale(.4); } 40% { opacity: 1; transform: scale(1.3); } 100% { opacity: .9; transform: scale(1); } }
+
+/* The wire practical */
+.sp-testwire { stroke: var(--rv-gold, #c98a1b); stroke-width: 4; stroke-linecap: round; }
+.sp-board.is-go .sp-testwire, .sp-board.is-on .sp-testwire { stroke: var(--rv-alarm, #e8590c); }
+.sp-rule { fill: var(--rv-yellow-tint); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sp-tick { stroke: var(--rv-muted); stroke-width: 1.5; }
+.sp-lead { stroke: var(--rv-biro, #2f5bd3); stroke-width: 2; stroke-dasharray: 5 3; }
+.sp-clip { fill: var(--rv-redpen); stroke: var(--rv-ink); stroke-width: 1.5; }
+
+/* The smart plug: what's plugged in, and a little screen of numbers */
+.sp-charger { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px; max-width: 420px; margin: 0 auto; }
+.sp-charger__device { position: relative; font-size: 3rem; line-height: 1; filter: grayscale(.6); transition: filter .2s; }
+.sp-charger.is-on .sp-charger__device { filter: drop-shadow(0 0 10px var(--rv-yellow)); }
+.sp-charger.is-go .sp-charger__device { animation: sp-buzz .2s linear 3; }
+.sp-charger.is-dim .sp-charger__device { opacity: .5; }
+.sp-charger__pop { position: absolute; right: -10px; top: -14px; font-size: 1.4rem; opacity: 0; }
+.sp-charger.is-fried .sp-charger__pop { animation: sp-pop .5s ease-out both; }
+.sp-charger__screen { margin: 0; display: grid; gap: 6px; padding: 10px 12px; border-radius: var(--rv-radius-md); background: var(--rv-night); color: var(--rv-on-night); }
+.sp-charger__screen div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 8px; border-radius: 6px; }
+.sp-charger__screen dt { font-weight: 600; font-size: .85rem; color: var(--rv-on-night-muted); }
+.sp-charger__screen dd { margin: 0; font: 800 1.05rem/1.2 var(--rv-font-display); font-variant-numeric: tabular-nums; }
+.sp-charger__screen .is-dial { outline: 2px dashed var(--rv-yellow); }
+.sp-charger.is-on .is-dial { outline: 2px solid var(--rv-good); background: color-mix(in srgb, var(--rv-good) 30%, transparent); }
+.sp-charger.is-fried .is-dial, .sp-charger.is-dim .is-dial { outline: 2px solid var(--rv-redpen); }
+@keyframes sp-buzz { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-board *, .sp-charger * { animation: none !important; transition: none !important; }
+}
