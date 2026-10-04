@@ -132,6 +132,11 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const actual = parseNumericList(response), wanted = parseNumericList(expected)
     return actual.length === wanted.length && actual.every((value, index) => Math.abs(value - wanted[index]) < 1e-9)
   }
+  if (interaction.acceptanceRule === 'inequality') {
+    // The same set of numbers: x > 4 is 4 < x; −4 ≤ x < 1 must match both ends and whether each is included.
+    const actual = parseInequality(response), wanted = parseInequality(expected)
+    return actual !== null && wanted !== null && actual.letter === wanted.letter && sameEnd(actual.lower, wanted.lower) && sameEnd(actual.upper, wanted.upper)
+  }
   if (interaction.acceptanceRule === 'ordered') {
     const actual = Array.isArray(response) ? response.map(String) : []
     const wanted = Array.isArray(expected) ? expected.map(String) : []
@@ -523,4 +528,39 @@ export function sameBrackets(response: unknown, expected: unknown) {
   const expand = ([[a, b], [c, d]]: [number, number][]) => [a * c, a * d + b * c, b * d]
   const [p, q] = [expand(actual.brackets), expand(wanted.brackets)]
   return p.every((n, i) => Math.abs(n - q[i]) < 1e-9)
+}
+
+/** One end of an inequality: the number and whether it is included (≤, ≥). Missing when the numbers go on for ever. */
+export type InequalityEnd = { value: number; included: boolean }
+export type ParsedInequality = { letter: string; lower?: InequalityEnd; upper?: InequalityEnd }
+const sameEnd = (a?: InequalityEnd, b?: InequalityEnd) => a === undefined || b === undefined ? a === b : Math.abs(a.value - b.value) < 1e-9 && a.included === b.included
+
+/**
+ * "x ≥ −2", "3 > x", "−4 <= x < 1": the letter with the numbers it can be between. Signs may be typed <=, >= or =<.
+ * Two signs must point the same way (−4 ≤ x < 1, or 1 > x ≥ −4). Never evaluated as code.
+ */
+export function parseInequality(value: unknown): ParsedInequality | null {
+  const text = String(value ?? '').replace(/[−–]/g, '-').replace(/<=|=</g, '≤').replace(/>=|=>/g, '≥').replace(/\s+/g, '')
+  const parts = text.split(/([<>≤≥])/)
+  if (parts.length !== 3 && parts.length !== 5) return null
+  const terms = parts.filter((_, i) => i % 2 === 0), signs = parts.filter((_, i) => i % 2 === 1)
+  const letterAt = terms.findIndex(term => /^[a-z]$/i.test(term))
+  if (letterAt < 0 || terms.filter(term => /^[a-z]$/i.test(term)).length !== 1) return null
+  const numbers = terms.map(term => term === terms[letterAt] ? 0 : parseDecimalOrFraction(term))
+  if (numbers.some(n => n === null)) return null
+  const result: ParsedInequality = { letter: terms[letterAt].toLowerCase() }
+  // Read each sign as "left (sign) right" and put the number on the letter's lower or upper side.
+  for (let i = 0; i < signs.length; i++) {
+    const sign = signs[i], less = sign === '<' || sign === '≤', included = sign === '≤' || sign === '≥'
+    if (i === letterAt - 1) {
+      // number (sign) letter: 3 < x puts 3 below x.
+      const end = { value: numbers[i]!, included }
+      if (less) { if (result.lower) return null; result.lower = end } else { if (result.upper) return null; result.upper = end }
+    } else if (i === letterAt) {
+      // letter (sign) number: x < 3 puts 3 above x.
+      const end = { value: numbers[i + 1]!, included }
+      if (less) { if (result.upper) return null; result.upper = end } else { if (result.lower) return null; result.lower = end }
+    } else return null
+  }
+  return result
 }

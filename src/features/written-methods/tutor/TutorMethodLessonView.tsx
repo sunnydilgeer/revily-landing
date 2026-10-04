@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type Ref } from 'react'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
+import { parseInequality } from '../../number-types/lessonMath'
 import { MethodWorkedExample } from './MethodWorkedExample'
 import { StepWorkedExample } from './StepWorkedExample'
 import { FractionWorkedExample } from '../../fractions/tutor/FractionWorkedExample'
@@ -145,6 +146,57 @@ function ListAnswerInput({ id, count, joiner, unit, disabled, onChange }: { id: 
   </div>
 }
 
+const SIGNS = [['<', 'less than'], ['≤', 'less than or equal to'], ['>', 'greater than'], ['≥', 'greater than or equal to']] as const
+
+/**
+ * An inequality, written the way it is on paper: "x ☐ ☐" with one sign, or "☐ ☐ x ☐ ☐" with two. Each sign is a slot
+ * filled from the four keys underneath: tap a key and it goes in the chosen slot, then the next empty one is chosen.
+ * Check is ready once every slot and box is filled. The letter and how many signs come from the right answer.
+ */
+function InequalityAnswerInput({ id, answer, disabled, onChange }: { id: string; answer: string; disabled: boolean; onChange: (value: string) => void }) {
+  const shape = parseInequality(answer)
+  const two = Boolean(shape?.lower && shape?.upper), letter = shape?.letter ?? 'x'
+  const [numbers, setNumbers] = useState(['', '']), [signs, setSigns] = useState(['', ''])
+  const [active, setActive] = useState(0)
+  const count = two ? 2 : 1
+  const update = (nextNumbers: string[], nextSigns: string[]) => {
+    const n = nextNumbers.map(v => v.trim().replace(/^[−–]/, '-'))
+    const full = n.slice(0, count).every(Boolean) && nextSigns.slice(0, count).every(Boolean)
+    onChange(!full ? '' : two ? `${n[0]} ${nextSigns[0]} ${letter} ${nextSigns[1]} ${n[1]}` : `${letter} ${nextSigns[0]} ${n[0]}`)
+  }
+  const press = (sign: string) => {
+    const next = signs.map((old, i) => i === active ? sign : old)
+    setSigns(next); update(numbers, next)
+    const empty = next.slice(0, count).findIndex(v => !v)
+    if (empty >= 0) setActive(empty)
+  }
+  const box = (i: number) => <label htmlFor={`ineq-${i}-${id}`}>
+    <span className="sr-only">{two ? i === 0 ? 'The lower number' : 'The upper number' : 'The number'} (type − first if it is negative)</span>
+    <input id={`ineq-${i}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={numbers[i]}
+      onChange={event => { const next = numbers.map((old, k) => k === i ? event.target.value : old); setNumbers(next); update(next, signs) }} />
+  </label>
+  const slot = (i: number) => <button type="button" className={`rung-ineq__slot${active === i && !disabled ? ' is-active' : ''}${signs[i] ? '' : ' is-empty'}`} disabled={disabled} onClick={() => setActive(i)}
+    aria-label={`${two ? i === 0 ? 'First sign' : 'Second sign' : 'The sign'}: ${SIGNS.find(([sign]) => sign === signs[i])?.[1] ?? 'not chosen yet'}${active === i ? ', chosen' : ''}`}>{signs[i] || '?'}</button>
+  return <div className="rung-ineq" role="group" aria-label={`Write the inequality for ${letter}`}>
+    <div className="rung-ineq__row">
+      {two && <>{box(0)}{slot(0)}</>}
+      <span className="rung-ineq__letter" aria-hidden="true">{letter}</span>
+      {two ? <>{slot(1)}{box(1)}</> : <>{slot(0)}{box(0)}</>}
+    </div>
+    <div className="rung-ineq__keys" role="group" aria-label="Signs">
+      {SIGNS.map(([sign, name]) => <button key={sign} type="button" className="rung-expression__key" disabled={disabled} onClick={() => press(sign)} aria-label={name}>{sign}</button>)}
+    </div>
+  </div>
+}
+
+/** A list of whole numbers in one box, "3, 4, 5, 6", in any order: one box, so it doesn't give away how many there are. */
+function NumbersAnswerInput({ id, value, disabled, onChange }: { id: string; value: string; disabled: boolean; onChange: (value: string) => void }) {
+  return <div className="rung-expression">
+    <label className="sr-only" htmlFor={`answer-${id}`}>Your answer: the numbers, with commas between</label>
+    <input id={`answer-${id}`} className="pvb-input rung-answer__input rung-expression__input rung-numbers__input" type="text" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} value={value} disabled={disabled} placeholder="?, ?, …" onChange={event => onChange(event.target.value)} />
+  </div>
+}
+
 /** One power, as a base with its power box raised beside it (like the power box in standard form). */
 function PowerAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
   const [base, setBase] = useState(''), [power, setPower] = useState('')
@@ -231,7 +283,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.responseShape === 'list' || interaction.type === 'multiSelect') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.responseShape === 'list' || interaction.responseShape === 'inequality' || interaction.responseShape === 'numbers' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -271,6 +323,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const formula = numeric && state.interaction.responseShape === 'formula'
   const dimensions = numeric && state.interaction.responseShape === 'dimensions'
   const list = numeric && state.interaction.responseShape === 'list'
+  const inequality = numeric && state.interaction.responseShape === 'inequality'
+  const numberSet = numeric && state.interaction.responseShape === 'numbers'
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
@@ -299,8 +353,12 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          {!standardForm && !expression && !power && !roots && !dimensions && !list && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
-          {list
+          {!standardForm && !expression && !power && !roots && !dimensions && !list && !inequality && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
+          {inequality
+            ? <InequalityAnswerInput id={state.id} answer={String(state.interaction.correctAnswer)} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : numberSet
+            ? <NumbersAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : list
             ? <ListAnswerInput id={state.id} count={String(state.interaction.correctAnswer).split(',').length} joiner={state.interaction.listJoiner ?? 'and'} unit={state.answerPrefix} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : dimensions
             ? <RootsAnswerInput id={state.id} letter="" unit={state.answerPrefix ?? ''} disabled={Boolean(feedback)} onChange={engine.setInputValue} />

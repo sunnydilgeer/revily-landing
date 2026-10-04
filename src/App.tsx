@@ -26,6 +26,7 @@ import TutorRearrangingLesson from './features/rearranging/tutor/RearrangingLess
 import TutorQuadraticsLesson from './features/quadratics/tutor/QuadraticsLessonView'
 import TutorQuadraticEquationsLesson from './features/quadratic-equations/tutor/QuadraticEquationsLessonView'
 import TutorSequencesLesson from './features/sequences/tutor/SequencesLessonView'
+import TutorInequalitiesLesson from './features/inequalities/tutor/InequalitiesLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -286,6 +287,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorQuadraticEquationsLesson />
     case 23:
       return <TutorSequencesLesson />
+    case 24:
+      return <TutorInequalitiesLesson />
   }
 }
 

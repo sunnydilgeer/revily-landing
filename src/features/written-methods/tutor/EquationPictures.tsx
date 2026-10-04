@@ -82,8 +82,9 @@ function spoken(row: EquationRow) {
     const at = row.answer.indexOf(' = ')
     return `The answer: ${at < 0 ? row.answer : `${row.answer.slice(0, at)} = ${said(row.answer.slice(at + 3))}`}`
   }
-  const struck = [...readTokens(row.left), ...readTokens(row.right)].filter(token => token.struck).map(token => signed(token.text, false))
-  return `${said(row.left)} = ${said(row.right)}${struck.length ? `, with ${struck.join(' and ')} cancelling` : ''}`.replace(/[[\]]/g, '')
+  const struck = [...readTokens(row.left), ...readTokens(row.middle ?? ''), ...readTokens(row.right)].filter(token => token.struck).map(token => signed(token.text, false))
+  const middle = row.middle !== undefined ? `${said(row.middle)} ${row.sign2 ?? '='} ` : ''
+  return `${said(row.left)} ${row.sign ?? '='} ${middle}${said(row.right)}${struck.length ? `, with ${struck.join(' and ')} cancelling` : ''}`.replace(/[[\]]/g, '')
 }
 
 /**
@@ -92,7 +93,9 @@ function spoken(row: EquationRow) {
  */
 export function EquationVisual({ frame, newFrom, heading, plain, focus }: { frame: EquationFrame; newFrom?: number; heading?: ReactNode; plain?: boolean; focus?: boolean }) {
   const done = (i: number) => focus && newFrom !== undefined && i < newFrom - 1 ? ' is-done' : ''
-  return <div className={`ns-eq${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
+  // An inequality with two signs (3 < 2x + 1 < 11) has three parts, each lined up under the one above.
+  const three = frame.rows.some(row => 'left' in row && row.middle !== undefined)
+  return <div className={`ns-eq${three ? ' is-three' : ''}${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
     {frame.rows.map((row, i) => [
       i === newFrom && heading && <div key="heading" className="ns-eq__heading">{heading}</div>,
       'answer' in row
@@ -104,7 +107,8 @@ export function EquationVisual({ frame, newFrom, heading, plain, focus }: { fram
         ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
         : <div key={i} className={`ns-eq__row${done(i)}`} aria-hidden="true">
           <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
-          <span className="ns-eq__equals">=</span>
+          <span className="ns-eq__equals"><Show text={row.sign ?? '='} plain={plain} /></span>
+          {row.middle !== undefined && <><span className="ns-eq__middle"><Side side={row.middle} plain={plain} /></span><span className="ns-eq__equals ns-eq__sign2"><Show text={row.sign2 ?? '='} plain={plain} /></span></>}
           <span className="ns-eq__right"><Side side={row.right} plain={plain} /></span>
         </div>,
     ])}
