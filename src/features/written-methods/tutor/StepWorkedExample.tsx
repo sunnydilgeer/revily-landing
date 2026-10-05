@@ -7,7 +7,7 @@ import { PictureStep, RoundingVisual } from './NumberSenseWorkedExample'
 import { Powers } from './Powers'
 import type { MethodExample, MethodStep } from './methodWorking'
 import { MethodPicture as MethodPictureView } from './MethodWorkedExample'
-import type { BusStopPicture, ColumnsPicture, StepLine, StepPicture, StepWorking } from './stepWorking'
+import type { BusStopPicture, ColumnsPicture, ListsPicture, PlacePicture, StepLine, StepPicture, StepWorking } from './stepWorking'
 
 const cls = (...names: Array<string | false | undefined>) => names.filter(Boolean).join(' ')
 
@@ -59,7 +59,33 @@ function BusStop({ picture }: { picture: BusStopPicture }) {
   </div>
 }
 
+const PLACE = ['units', 'tens', 'hundreds', 'thousands']
+const DECIMAL_PLACE = ['tenths', 'hundredths', 'thousandths', 'ten-thousandths']
+/** A decimal under its column names, the point in its own column; `boxed` counts the digits after the point from 0. */
+function Place({ picture }: { picture: PlacePicture }) {
+  const [whole, decimals = ''] = picture.value.split('.')
+  const cells = [
+    ...[...whole].map((digit, i) => ({ digit, name: PLACE[whole.length - 1 - i], on: false })),
+    { digit: '.', name: '', on: false },
+    ...[...decimals].map((digit, i) => ({ digit, name: DECIMAL_PLACE[i], on: i === picture.boxed })),
+  ]
+  return <table className="sp-place" aria-label={cells.filter(c => c.name).map(c => `${c.digit} ${c.name}`).join(', ')}>
+    <thead><tr>{cells.map((c, i) => <th key={i} className={c.on ? 'is-on' : undefined}>{c.name}</th>)}</tr></thead>
+    <tbody><tr>{cells.map((c, i) => <td key={i} className={c.name ? (c.on ? 'is-boxed' : undefined) : 'sp-place__point'}>{c.digit}</td>)}</tr></tbody>
+  </table>
+}
+
+/** Factor lists for the HCF: the shared factors purple, the HCF boxed. */
+function Lists({ picture }: { picture: ListsPicture }) {
+  return <div className="sp-number-lists">{picture.lists.map(list => <div className="sp-number-list" key={list.label} role="group" aria-label={`${list.label}: ${list.values.join(', ')}`}>
+    <span className="sp-number-list__label">{list.label}</span>
+    <span className="sp-number-list__values" aria-hidden="true">{list.values.map(v => <b key={v} className={v === list.pick ? 'is-pick' : list.shared.includes(v) ? 'is-shared' : undefined}>{v}</b>)}</span>
+  </div>)}</div>
+}
+
 function Picture({ picture }: { picture: StepPicture }) {
+  if (picture.kind === 'place') return <div className="rung-worked__visual sp-picture"><Place picture={picture} /></div>
+  if (picture.kind === 'lists') return <div className="rung-worked__visual sp-picture"><Lists picture={picture} /></div>
   if (picture.kind === 'rounding') return <div className="rung-worked__visual sp-picture"><RoundingVisual frame={picture.frame} /></div>
   if (picture.kind === 'method') return <div className="rung-worked__visual sp-picture"><MethodPictureView example={{ method: picture.method, first: picture.first } as MethodExample} frame={picture.frame} /></div>
   return <div className="rung-worked__visual sp-picture">{picture.kind === 'columns' ? <Columns picture={picture} /> : <BusStop picture={picture} />}</div>
@@ -86,7 +112,10 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
     const index = revealed - 2
     if (index < 0) return <div className="ns-visual sp-working">{given}{working.opening ? <Picture picture={working.opening} /> : working.start && <p className="sp-start"><Powers text={working.start} /></p>}</div>
     const step = working.steps[index]
-    const shown = working.steps.slice(0, index + 1).findLast(s => s.picture)?.picture ?? working.opening
+    // A place-value chart or factor lists belong to their own step: drawn under its heading, after the lines already
+    // worked out, and not carried on. Other pictures (columns, bus stop…) build up on top from step to step.
+    const own = step.picture && (step.picture.kind === 'place' || step.picture.kind === 'lists') ? step.picture : undefined
+    const shown = working.steps.slice(0, index + 1).map(s => s.picture).filter(p => p && p.kind !== 'place' && p.kind !== 'lists').at(-1) ?? working.opening
     const earlier = working.trail ? working.steps.slice(0, index).flatMap(s => s.lines ?? []) : []
     return <div className="ns-visual sp-working" key={revealed}>
       <PictureStep step={{ title: step.title, instruction: step.why, tag: step.tag, operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
@@ -94,6 +123,7 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
         {shown && <Picture picture={shown} />}
         {earlier.length > 0 && <Lines lines={earlier} faded />}
         {heading}
+        {own && <Picture picture={own} />}
         {step.lines && <Lines lines={step.lines} />}
         {step.words && <p className="sp-answer-pill sp-words"><Powers text={step.words} /></p>}
       </>}</PictureStep>

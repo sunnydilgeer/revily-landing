@@ -129,7 +129,7 @@ function RootsAnswerInput({ id, letter, unit, disabled, onChange }: { id: string
  * A short list of numbers, one box each: "☐ and ☐" for the next two terms, or "☐, ☐, ☐, ☐, ☐" for the first five.
  * Each box opens the full keyboard, because a number pad has no minus key.
  */
-function ListAnswerInput({ id, count, joiner, unit, disabled, onChange }: { id: string; count: number; joiner: string; unit?: string; disabled: boolean; onChange: (value: string) => void }) {
+function ListAnswerInput({ id, count, joiner, unit, labels, disabled, onChange }: { id: string; count: number; joiner: string; unit?: string; labels?: string[]; disabled: boolean; onChange: (value: string) => void }) {
   const [values, setValues] = useState<string[]>(() => Array(count).fill(''))
   const update = (i: number, value: string) => {
     const next = values.map((old, k) => k === i ? value : old)
@@ -138,7 +138,8 @@ function ListAnswerInput({ id, count, joiner, unit, disabled, onChange }: { id: 
   }
   return <div className={`rung-roots rung-list${joiner === ',' ? ' rung-list--row' : ''}`} role="group" aria-label={`Enter ${count} numbers, in order`}>
     {values.map((value, i) => <span key={i} className="rung-roots__pair">
-      <label htmlFor={`list-${i}-${id}`}><span className="sr-only">{`Number ${i + 1} of ${count}`}</span>
+      {labels?.[i] && <span className="rung-answer__eq" aria-hidden="true">{labels[i]}</span>}
+      <label htmlFor={`list-${i}-${id}`}><span className="sr-only">{labels?.[i] ? `${labels[i].replace(/=$/, 'equals').trim()}` : `Number ${i + 1} of ${count}`}</span>
         <input id={`list-${i}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value} onChange={event => update(i, event.target.value)} /></label>
       {unit && <span className="rung-answer__eq" aria-hidden="true">{unit}</span>}
       {i < count - 1 && <span className="rung-roots__or" aria-hidden="true">{joiner}</span>}
@@ -359,7 +360,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
             : numberSet
             ? <NumbersAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : list
-            ? <ListAnswerInput id={state.id} count={String(state.interaction.correctAnswer).split(',').length} joiner={state.interaction.listJoiner ?? 'and'} unit={state.answerPrefix} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            ? <ListAnswerInput id={state.id} count={String(state.interaction.correctAnswer).split(',').length} joiner={state.interaction.listJoiner ?? 'and'} unit={state.answerPrefix} labels={state.interaction.listLabels} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : dimensions
             ? <RootsAnswerInput id={state.id} letter="" unit={state.answerPrefix ?? ''} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : formula

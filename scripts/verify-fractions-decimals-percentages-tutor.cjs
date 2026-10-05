@@ -90,3 +90,28 @@ const model = read('src/features/written-methods/tutor/model.ts')
 assert.ok(model.includes('| ConversionWorking'), 'Lesson 9 must use the shared tutor working pipeline')
 
 console.log('Lesson 9 verified: 49 screens, 48 source-aligned examples and practice parts, 6 source-identical videos, exact conversions and canonical course route.')
+
+// Every worked example and answer is a step working (fdpSteps.ts): the checks in step-working-check.cjs pass, and each
+// working ends on its question's answer (for "write down a…" questions, a checked example in words).
+{
+  const ts = require('typescript')
+  for (const ext of ['.ts', '.tsx']) require.extensions[ext] = (module, file) => module._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: 1, target: 99, esModuleInterop: true, jsx: 4 } }).outputText, file)
+  const { checkStepWorking, number } = require('./step-working-check.cjs')
+  const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
+  const loaded = require('../src/features/fractions-decimals-percentages/tutor/fractionsDecimalsPercentagesLesson.ts')
+  const { states } = Object.values(loaded).find(value => value && value.states)
+  let workings = 0
+  for (const state of states) {
+    const working = state.visual.kind === 'step-worked' ? state.visual : state.working
+    if (state.interaction.type === 'continue' && state.visual.kind !== 'step-worked') continue
+    assert.ok(working && working.kind === 'step-worked', `${state.id}: every worked example and answer is a step working`)
+    workings++
+    assert.ok(working.opening || working.start || working.given, `${state.id}: the working opens on its starting picture or number`)
+    const { answer } = checkStepWorking(working, state.id)
+    if (state.interaction.type === 'continue' || state.interaction.type === 'select' || /example|n =|or/i.test(answer)) continue
+    const value = answer.replace(/%$/, '')
+    assert.ok(checkAnswer(state.interaction, value) || checkAnswer(state.interaction, number(value)), `${state.id}: the working ends on ${answer}`)
+  }
+  assert.equal(workings, 48)
+  console.log(`Lesson 9 workings: ${workings} step workings checked, each ending on its answer.`)
+}

@@ -28,6 +28,8 @@ import TutorQuadraticEquationsLesson from './features/quadratic-equations/tutor/
 import TutorSequencesLesson from './features/sequences/tutor/SequencesLessonView'
 import TutorInequalitiesLesson from './features/inequalities/tutor/InequalitiesLessonView'
 import TutorSolvingInequalitiesLesson from './features/solving-inequalities/tutor/SolvingInequalitiesLessonView'
+import TutorSimultaneousEquationsLesson from './features/simultaneous-equations/tutor/SimultaneousEquationsLessonView'
+import TutorProofLesson from './features/proof/tutor/ProofLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -295,6 +297,10 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorInequalitiesLesson />
     case 25:
       return <TutorSolvingInequalitiesLesson />
+    case 27:
+      return <TutorSimultaneousEquationsLesson />
+    case 28:
+      return <TutorProofLesson />
   }
 }
 
