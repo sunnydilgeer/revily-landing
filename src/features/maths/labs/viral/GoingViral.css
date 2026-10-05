@@ -1,0 +1,69 @@
+/* Going Viral: Tia's bar chart, pie chart, fake chart, pictogram and line graph. The shared lab look is in ../kit/lab.css. */
+.gv-chart { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.gv-chart svg { display: block; width: 100%; max-width: 360px; height: auto; overflow: visible; }
+.gv-shake { animation: lab-shake .4s; }
+
+.gv-gridline { stroke: var(--rv-line); stroke-width: 1; }
+.gv-axis { stroke: var(--rv-ink); stroke-width: 2; }
+.gv-tick { font: 700 9.5px/1 var(--rv-font-body); fill: var(--rv-muted); font-variant-numeric: tabular-nums; }
+.gv-tick.is-sus { fill: var(--rv-redpen); font-weight: 800; }
+.gv-axis__name { font: 700 10px/1 var(--rv-font-body); fill: var(--rv-ink-2); letter-spacing: .04em; }
+.gv-zigzag { fill: none; stroke: var(--rv-redpen); stroke-width: 2; }
+
+/* Bars grow from the axis as the dial turns. */
+.gv-bar__fill { transition: y .3s cubic-bezier(.3, 1.4, .5, 1), height .3s cubic-bezier(.3, 1.4, .5, 1); }
+.gv-bar__slot { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.gv-bar.is-active .gv-bar__fill { stroke: var(--rv-ink); stroke-width: 2; }
+.gv-bar__read { font: 800 11px/1 var(--rv-font-display); fill: var(--rv-ink); }
+.gv-bar__emoji, .gv-slice__emoji { font-size: 14px; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+.gv-bar__name { font: 700 9.5px/1 var(--rv-font-body); fill: var(--rv-ink-2); }
+.gv-chart.is-miss .gv-bar.is-active .gv-bar__fill { fill: var(--rv-redpen) !important; }
+.gv-chart.is-miss .gv-slice.is-active path { fill: var(--rv-redpen) !important; }
+
+/* Pie: grey blank circle, slices drawn clockwise from 12 o'clock. */
+.gv-pie__blank { fill: var(--rv-grid); stroke: var(--rv-line-strong); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.gv-pie__tick { stroke: var(--rv-line-strong); stroke-width: 1; }
+.gv-slice path { stroke: var(--rv-surface); stroke-width: 2; stroke-linejoin: round; }
+.gv-slice.is-active path { stroke: var(--rv-ink); stroke-width: 2.5; }
+.gv-slice__deg { font: 800 11px/1 var(--rv-font-display); fill: #fff; paint-order: stroke; stroke: rgb(0 0 0 / 35%); stroke-width: 2.5px; }
+.gv-chart.is-over .gv-pie__blank { stroke: var(--rv-redpen); }
+
+.gv-readout { margin: 0; font: 800 1rem/1.2 var(--rv-font-display); color: var(--rv-ink-2); font-variant-numeric: tabular-nums; }
+.gv-chart.is-over .gv-readout { color: var(--rv-redpen); }
+.gv-chart.is-hit .gv-readout { color: var(--rv-good-ink); }
+
+.gv-stamp { font: 800 11px/1 var(--rv-font-display); fill: var(--rv-redpen); }
+.gv-stamp.is-honest { fill: var(--rv-good-ink); }
+
+/* The data tables under the charts: compact enough for five posts at 320px. */
+.gv-table { width: 100%; margin-top: 10px; border-collapse: collapse; table-layout: fixed; font-size: .74rem; text-align: center; font-variant-numeric: tabular-nums; }
+.gv-table th, .gv-table td { padding: 5px 2px; border: 1px solid var(--rv-line); overflow-wrap: anywhere; }
+.gv-table thead th { font-weight: 700; color: var(--rv-ink-2); background: var(--rv-grid); }
+.gv-table tbody th { font-weight: 700; color: var(--rv-ink-2); }
+.gv-table th[scope="row"] { width: 3.6em; }
+.gv-table td { font: 800 .85rem/1.1 var(--rv-font-display); }
+.gv-table .is-active, .gv-table tr.is-active td, .gv-table tr.is-active th { background: var(--rv-yellow-tint); }
+.gv-table--pie th[scope="row"] { width: auto; text-align: left; padding-left: 8px; }
+.gv-table--pie { font-size: .82rem; }
+.gv-table__total th, .gv-table__total td { border-top: 2px solid var(--rv-ink); }
+.gv-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; }
+
+.gv-side .lab-choice { font-size: 1.02rem; min-height: 54px; padding: 8px 12px; text-align: left; }
+
+/* Pictogram: hearts fill in as the dial turns; dashed ghosts show the row being drawn. */
+.gv-heart { fill: var(--rv-redpen); }
+.gv-heart__ghost { fill: none; stroke: var(--rv-line-strong); stroke-width: 1.2; stroke-dasharray: 2 2; }
+.gv-chart.is-miss .gv-prow.is-active .gv-heart { fill: var(--rv-muted); }
+
+/* Line graph: points joined in week order; the biggest rise lights up once it's found. */
+.gv-line { stroke: var(--rv-biro); stroke-width: 2.5; stroke-linecap: round; }
+.gv-line.is-rise { stroke: var(--rv-good-ink); stroke-width: 4.5; }
+.gv-point { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2.5; transition: cy .3s cubic-bezier(.3, 1.4, .5, 1); }
+.gv-point.is-active { fill: var(--rv-yellow); stroke: var(--rv-ink); }
+.gv-chart.is-miss .gv-point.is-active { fill: var(--rv-redpen); }
+.gv-table--weeks td { font-size: .74rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gv-shake { animation: none; }
+  .gv-bar__fill, .gv-point { transition: none; }
+}

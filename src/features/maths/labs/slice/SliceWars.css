@@ -1,0 +1,96 @@
+/* Slice Wars: the pizzas, the order ticket and the topping piles. The shared lab look is in ../kit/lab.css. */
+.sw {
+  --sw-crust: #d9944a;
+  --sw-crust-edge: #a8642a;
+  --sw-cheese: #ffe08a;
+  --sw-sauce: #e0533d;
+  --sw-spot: #c0392b;
+  --sw-olive: #2f2a28;
+  --sw-mushroom: #c9b49a;
+  --sw-tray: #e7edf4;
+}
+
+.sw-stage { margin: 0; display: grid; gap: 10px; justify-items: center; }
+
+/* The order ticket, clipped above the pizza like a docket on the rail */
+.sw-ticket {
+  justify-self: stretch; margin: 0; padding: 8px 12px; border: 2px dashed var(--rv-ink-2); border-radius: 6px;
+  font: 800 1.05rem/1.3 var(--rv-font-display); text-align: center; color: var(--rv-ink); background: var(--rv-yellow-tint);
+}
+
+/* Fractions in running text: small stacked numbers */
+.sw-frac { display: inline-flex; align-items: baseline; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 800; }
+.sw-frac sup { font-size: .78em; vertical-align: .45em; line-height: 0; }
+.sw-frac sub { font-size: .78em; vertical-align: -.2em; line-height: 0; }
+.sw-frac__bar { padding: 0 .04em; font-weight: 600; }
+
+/* The pizza */
+.sw-pizza { display: block; width: 100%; height: auto; overflow: visible; }
+.sw-pizza--lg { max-width: 260px; }
+.sw-pizza--md { max-width: 180px; }
+.sw-pizza--sm { max-width: 150px; }
+.sw-pizza__tray { fill: var(--sw-tray); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.sw-pizza__crust { fill: var(--sw-crust-edge); opacity: .35; }
+.sw-pizza__base { fill: var(--sw-cheese); stroke: var(--sw-crust); stroke-width: 10; }
+.sw-slice { transition: transform .25s cubic-bezier(.2, 1.4, .4, 1); cursor: default; }
+.sw-slice.is-tappable { cursor: pointer; outline: none; }
+.sw-slice.is-tappable:focus-visible .sw-slice__crust { stroke: var(--rv-biro); stroke-width: 3.5; }
+.sw-slice__crust { fill: var(--sw-crust); stroke: var(--sw-crust-edge); stroke-width: 1; }
+.sw-slice__cheese { fill: var(--sw-cheese); }
+.sw-slice__spot { fill: var(--sw-spot); opacity: .85; }
+/* Slices not served sit back a little, so the served ones pop */
+.sw-slice:not([class*='is-']) .sw-slice__cheese { fill: #f3e2b0; }
+.sw-slice:not([class*='is-']) .sw-slice__spot { opacity: .45; }
+.sw-slice.is-serve .sw-slice__crust { stroke: var(--rv-good-ink); stroke-width: 2.5; }
+.sw-slice.is-two .sw-slice__crust { stroke: var(--rv-biro); stroke-width: 2.5; }
+.sw-slice.is-two .sw-slice__cheese { fill: #ffd0a8; }
+.sw-slice.is-bad .sw-slice__crust { stroke: var(--rv-redpen); stroke-width: 2.5; }
+.sw-slice.is-bad .sw-slice__cheese { fill: var(--rv-redpen-tint); }
+.sw-pizza__cut { stroke: var(--rv-ink); stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
+.sw-pizza__ticket { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linejoin: round; }
+.sw-pizza__mark line { stroke-width: 4.5; stroke-linecap: round; }
+.sw-pizza__mark.is-on line { stroke: var(--rv-good); }
+.sw-pizza__mark.is-off line { stroke: var(--rv-redpen); stroke-dasharray: 5 3; }
+
+.sw-read { margin: 0; font: 800 1.35rem/1.2 var(--rv-font-display); color: var(--rv-ink); font-variant-numeric: tabular-nums; text-align: center; }
+.sw-read.is-bad { color: var(--rv-redpen); }
+
+/* Two pizzas side by side (round 2) */
+.sw-pair { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sw-pair__one { display: grid; justify-items: center; gap: 4px; min-width: 0; }
+.sw-pair__tag { margin: 0; font-weight: 700; font-size: .85rem; text-align: center; color: var(--rv-ink-2); }
+.sw-pair__tag.is-good { color: var(--rv-good-ink); }
+.sw-pair__tag.is-bad { color: var(--rv-redpen); }
+.sw-box { width: 100%; display: grid; justify-items: center; gap: 4px; padding: 8px; border: 3px solid #b98a52; border-radius: 10px; background: #f6ead6; }
+.sw-box__lid { font-weight: 800; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: #7a5228; }
+
+/* Toppings and piles (round 3) */
+.sw-piles { width: 100%; display: grid; gap: 4px; }
+.sw-piles svg { display: block; width: 100%; height: auto; }
+.sw-plate__dish { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; }
+.sw-plate.is-taken .sw-plate__dish { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: 4 3; }
+.sw-plate__more { font: 800 15px/1 var(--rv-font-display); text-anchor: middle; fill: var(--rv-ink); }
+.sw-bit--pepperoni circle { fill: var(--sw-spot); stroke: #8e2a1f; stroke-width: 1; }
+.sw-bit--olive .sw-bit__ring { fill: none; stroke: var(--sw-olive); stroke-width: 2.6; }
+.sw-bit--mushroom path { fill: var(--sw-mushroom); stroke: #8a7457; stroke-width: .8; }
+.sw-bag { margin: 0; padding: 6px 10px; border-radius: var(--rv-radius-sm); font-weight: 700; font-size: .88rem; text-align: center; color: var(--rv-ink-2); background: var(--rv-surface); }
+.sw-bag.is-good { color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.sw-bag.is-bad { color: #fff; background: var(--rv-redpen); }
+
+/* The night's pizzas as dots (round 5) */
+.sw-board { width: 100%; display: grid; gap: 4px; }
+.sw-board svg { display: block; width: 100%; height: auto; }
+.sw-dot { fill: var(--sw-tray); stroke: var(--rv-line-strong); stroke-width: 1.5; transition: fill .2s; }
+.sw-dot.is-m { fill: var(--sw-cheese); stroke: var(--sw-crust); stroke-width: 3; }
+.sw-dot.is-p { fill: var(--sw-sauce); stroke: #8e2a1f; stroke-width: 2; }
+.sw-dot.is-v { fill: var(--rv-good); stroke: var(--rv-good-ink); stroke-width: 2; }
+.sw-dot.is-bad { stroke: var(--rv-redpen); stroke-width: 3; stroke-dasharray: 3 2; }
+
+.sw-hint { margin: -4px 0 0; font-size: .82rem; color: var(--rv-on-night-muted); text-align: center; }
+
+/* Fractions as answer buttons */
+.sw-side .lab-choice { font-size: 1.35rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-slice, .sw-dot { transition: none; }
+}

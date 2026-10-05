@@ -1,0 +1,87 @@
+/* Rig the Stats: Kai's screen-time chart and the rigging stepper. The shared lab look is in ../kit/lab.css. */
+.rs-chart { margin: 0; }
+.rs-chart.is-panic { animation: lab-shake .4s; }
+
+/* Room above for the tallest bar's label, left for the hour labels, right for the range bracket, below for the days. */
+.rs-plot { position: relative; height: 180px; margin: 20px 20px 24px 24px; border-bottom: 2px solid var(--rv-ink); }
+.rs-grid { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed var(--rv-line); }
+.rs-grid span { position: absolute; right: 100%; top: -.5em; padding-right: 5px; font-size: .68rem; line-height: 1; font-weight: 700; color: var(--rv-muted); }
+
+/* Each bar sits in its own slot; sorting the data slides the slots, changing a day grows the bar. */
+.rs-bar { position: absolute; top: 0; bottom: 0; display: flex; justify-content: center; align-items: flex-end; transition: left .6s cubic-bezier(.3, 1.3, .5, 1); }
+.rs-bar__fill {
+  position: relative; width: 66%; max-width: 40px; border-radius: 6px 6px 0 0;
+  background: var(--rv-step-b); box-shadow: inset 0 -3px 0 rgb(0 0 0 / 18%);
+  transition: height .45s cubic-bezier(.3, 1.4, .5, 1), background-color .3s;
+}
+.rs-bar__mins {
+  position: absolute; bottom: 100%; left: 50%; translate: -50% 0; padding-bottom: 2px;
+  font: 800 .72rem/1 var(--rv-font-display); color: var(--rv-ink); white-space: nowrap;
+}
+.rs-bar__day { position: absolute; top: 100%; left: 0; right: 0; padding-top: 5px; text-align: center; font-weight: 700; font-size: .7rem; color: var(--rv-muted); }
+.rs-bar.is-mode .rs-bar__fill { background: var(--rv-teal); }
+.rs-bar.is-median .rs-bar__fill { background: var(--rv-yellow); box-shadow: inset 0 0 0 2px var(--rv-ink); transform-origin: 50% 100%; animation: rs-found .5s; }
+.rs-bar.is-rig .rs-bar__fill { background: repeating-linear-gradient(-45deg, var(--rv-redpen) 0 6px, #c94040 6px 12px); }
+.rs-bar.is-rig .rs-bar__day { color: var(--rv-redpen); }
+
+.rs-mean {
+  position: absolute; left: -4px; right: -4px; height: 0; border-top: 3px dashed var(--rv-ink); pointer-events: none;
+  transition: bottom .45s cubic-bezier(.3, 1.4, .5, 1); animation: lab-pop .35s both;
+}
+/* Range: a bracket in the right margin, from the shortest bar up to the tallest. */
+.rs-range {
+  position: absolute; left: 100%; width: 10px; margin-left: 6px; border: 3px solid var(--rv-step-dm); border-left: 0; border-radius: 0 4px 4px 0;
+  transition: bottom .45s, height .45s; animation: lab-pop .35s both;
+}
+
+.rs-readout { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 28px; margin: 0; padding: 0; list-style: none; }
+.rs-key {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--rv-radius-pill);
+  font-size: .82rem; font-weight: 600; background: var(--rv-surface); border: 1px solid var(--rv-line); animation: lab-pop .35s both;
+}
+.rs-key b { font-family: var(--rv-font-display); font-weight: 800; }
+.rs-key::before { content: ''; flex: none; width: 12px; height: 12px; border-radius: 3px; }
+.rs-key--mean::before { height: 0; border-top: 3px dashed var(--rv-ink); border-radius: 0; }
+.rs-key--median::before { background: var(--rv-yellow); box-shadow: inset 0 0 0 2px var(--rv-ink); }
+.rs-key--mode::before { background: var(--rv-teal); }
+.rs-key--range::before { width: 6px; border: 3px solid var(--rv-step-dm); border-left: 0; border-radius: 0 3px 3px 0; }
+
+/* The rigging stepper: big thumb-sized − and + either side of the day's minutes. */
+.rs-stepper { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; gap: 10px; align-items: stretch; }
+.rs-stepper__btn {
+  min-height: 60px; border: 2px solid var(--rv-night-3); border-radius: var(--rv-radius-md);
+  font: 800 1.8rem/1 var(--rv-font-display); color: var(--rv-on-night); background: var(--rv-night-2);
+  box-shadow: 0 3px 0 var(--rv-night-3); cursor: pointer; transition: transform .08s;
+}
+.rs-stepper__btn:hover:not(:disabled) { border-color: var(--rv-yellow); }
+.rs-stepper__btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--rv-night-3); }
+.rs-stepper__btn:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.rs-stepper__btn:disabled { opacity: .35; cursor: default; }
+.rs-stepper__value {
+  display: grid; place-content: center; text-align: center; border-radius: var(--rv-radius-md);
+  font: 800 1.5rem/1.1 var(--rv-font-display); color: var(--rv-ink); background: var(--rv-surface);
+}
+.rs-stepper__value span { font: 700 .72rem/1 var(--rv-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--rv-redpen); }
+.rs-live { margin: 0; text-align: center; font-weight: 600; color: var(--rv-on-night-muted); }
+.rs-live b { font: 800 1.2rem/1 var(--rv-font-display); color: var(--rv-on-night); }
+
+/* Round 4: the missing day, until it's set. */
+.rs-bar.is-missing .rs-bar__fill { opacity: .45; }
+.rs-bar.is-missing .rs-bar__mins { color: var(--rv-redpen); font-size: .9rem; }
+
+/* Round 5: the frequency table. The hours × days column fills in once the total is found. */
+.rs-table { width: 100%; margin-bottom: 10px; border-collapse: collapse; table-layout: fixed; text-align: center; font-variant-numeric: tabular-nums; }
+.rs-table th, .rs-table td { padding: 6px 4px; border: 1px solid var(--rv-line); }
+.rs-table thead th { font-size: .74rem; font-weight: 700; color: var(--rv-ink-2); background: var(--rv-grid); }
+.rs-table tbody th, .rs-table td { font: 800 1rem/1.1 var(--rv-font-display); color: var(--rv-ink); }
+.rs-table td.is-blank { color: var(--rv-muted); }
+.rs-table td.is-found { background: var(--rv-yellow-tint); animation: lab-pop .35s both; }
+.rs-table tr.is-mode th, .rs-table tr.is-mode td { background: var(--rv-teal); color: var(--rv-ink); }
+.rs-table__total th, .rs-table__total td { border-top: 2px solid var(--rv-ink); }
+
+@keyframes rs-found { 50% { transform: scaleY(1.08); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-chart.is-panic, .rs-bar.is-median .rs-bar__fill, .rs-mean, .rs-range, .rs-key, .rs-table td.is-found { animation: none; }
+  .rs-bar, .rs-bar__fill, .rs-mean, .rs-range { transition: none; }
+}

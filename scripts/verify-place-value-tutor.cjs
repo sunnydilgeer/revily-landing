@@ -8,13 +8,14 @@ function load(relative) {
   const filename = path.join(root, relative)
   const output = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }, fileName: filename }).outputText
   const module = { exports: {} }
-  Function('exports', 'module', 'require', output)(module.exports, module, require)
+  const local = request => request.startsWith('.') ? load(path.relative(root, path.resolve(path.dirname(filename), request)) + '.ts') : require(request)
+  Function('exports', 'module', 'require', output)(module.exports, module, local)
   return module.exports
 }
 const { checkAnswer } = load('src/features/number-types/lessonMath.ts')
 const { tutorPlaceValueLesson: lesson } = load('src/features/place-value/tutor/placeValueLesson.ts')
 const states = lesson.states
-assert.equal(states.length, 23)
+assert.equal(states.length, 25)
 assert.equal(new Set(states.map(s => s.id)).size, states.length)
 for (const [i, s] of states.entries()) {
   assert.equal(s.id, `L3-${String(i + 1).padStart(2, '0')}`)
@@ -59,12 +60,15 @@ assert.equal((6 * 10 + 9) / 10000, .0069)
 const corrected = questions.find(s => s.sourceRef.startsWith('N3.2 Q4b'))
 assert.ok(corrected.feedback.correct.workedExplanation.answer.includes('17.5'))
 const videos = states.filter(s => s.video)
-assert.deepEqual(videos.map(s => s.id), ['L3-02', 'L3-14'])
-assert.deepEqual(videos.map(s => s.visual.value), ['526,908', '0.6059'])
+assert.deepEqual(videos.map(s => s.id), ['L3-02', 'L3-15'])
+assert.deepEqual(videos.map(s => s.visual.opening.value), ['526,908', '0.6059'])
 for (const s of videos) {
   assert.equal(s.interaction.type, 'continue')
-  assert.equal(s.visual.kind, 'cumulative')
-  assert.equal(s.visual.calculation.additionalExamples.length, 1)
+  assert.equal(s.visual.kind, 'place-worked')
+  // The video's two digits are two screens: this one works out the first, the next screen the second.
+  const next = states[states.indexOf(s) + 1]
+  assert.equal(s.visual.steps.filter(step => step.lines?.length).length, 1, 'One digit a screen')
+  assert.ok(next.sourceRef.startsWith('Second example') && next.visual.kind === 'place-worked' && next.visual.opening.value === s.visual.opening.value, 'The video’s second digit is the next screen')
   for (const asset of [s.video.src, s.video.poster]) assert.ok(fs.statSync(path.join(root, 'public', asset)).size > 1000)
   assert.ok(s.video.textAlternative.length >= 3)
 }
@@ -87,7 +91,42 @@ for (const s of states.filter(s => s.visual.kind === 'cumulative')) {
     }
   }
 }
+// Every worked example and answer is a place-value chart, one move a step: every line is true, the working never jumps
+// (each value is the digit times its column's value), and the answer is shown once, by the last move.
+const { placeDigits, columnValue, digitValue } = load('src/features/place-value/tutor/placeWorking.ts')
+const toNumber = text => text.includes('/') ? Number(text.split('/')[0]) / Number(text.split('/')[1]) : Number(text.replace(/,/g, ''))
+let charts = 0
+for (const s of states) {
+  const working = s.visual.kind === 'place-worked' ? s.visual : s.working
+  if (s.interaction.type !== 'continue' && !['N3.1 Q5c'].some(ref => s.sourceRef.startsWith(ref)) && s.interaction.type !== 'select') assert.ok(working, s.id + ': every answer has a chart working')
+  if (!working) continue
+  charts++
+  assert.ok(!working.opening.boxed && !working.opening.answer, s.id + ': the opening screen is plain')
+  working.steps.forEach((step, i) => {
+    assert.ok(step.title.split(' ').length <= 5 && !/\.$/.test(step.title), s.id + ': short heading ' + step.title)
+    assert.ok(!/[=×÷]|\d\s*[+−]\s*\d/.test(step.instruction), s.id + ': the ⓘ is words ' + step.instruction)
+    const answers = (step.lines ?? []).filter(line => line.answer).length + (step.chart.answer ? 1 : 0) + (step.words ? 1 : 0)
+    assert.equal(answers, i === working.steps.length - 1 ? 1 : 0, s.id + ' step ' + (i + 1) + ': the answer appears once, at the end')
+    for (const line of step.lines ?? []) {
+      const text = line.parts.map(part => part.text)
+      if (text.length === 3 && ['×', '÷'].includes(text[1])) {
+        const [a, op, b] = text.map(toNumber)
+        const value = text[1] === '×' ? a * b : a / b
+        assert.ok(Math.abs(value - toNumber(line.result)) < 1e-12, s.id + ': ' + text.join(' ') + ' → ' + line.result)
+      }
+    }
+    if (step.chart.boxed !== undefined && step.lines?.[0]?.parts[1]?.text === '×' && !step.lines[0].parts[2].text.includes('/')) {
+      const d = placeDigits(step.chart.value)[step.chart.boxed]
+      assert.deepEqual(step.lines[0].parts.map(p => p.text), [String(d.digit), '×', columnValue(d.power)], s.id + ': the multiplier is the boxed digit’s column')
+      assert.equal(step.lines[0].result, digitValue(d.digit, d.power))
+    }
+  })
+  const end = working.steps.at(-1)
+  const final = end.chart.answer ? end.chart.value : end.lines?.find(line => line.answer)?.result
+  if (s.interaction.type === 'numericInput' && final) assert.ok(checkAnswer(s.interaction, final.replace(/,/g, '')), s.id + ': the working ends on the answer ' + final)
+}
+assert.equal(charts, 22)
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8')
 assert.ok(!app.includes('placeValueVariant'))
 assert.ok(app.includes('case 3:') && app.includes('return <TutorPlaceValueLesson />'))
-console.log(`Verified Lesson 3: ${states.length} reachable screens, ${questions.length} source practice parts, ${videos.length} matching videos, ${calculations} cumulative calculations, ${transitions} underlined transitions.`)
+console.log(`Verified Lesson 3: ${states.length} reachable screens, ${questions.length} source practice parts, ${videos.length} matching videos, ${charts} place-value chart workings.`)

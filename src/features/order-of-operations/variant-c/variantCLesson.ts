@@ -1,10 +1,11 @@
 import type { FeedbackDefinition, InteractionDefinition, LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
 import type { BidmasContext } from './bidmasRules'
 import type { OperationsVisualDefinition } from './visualTypes'
+import { board, type BoardWorking } from './opsBoard'
 
 type Step = { title: string; math: string; evidence: string; previousMath: string }
 type WorkedCalculation = { math: string; steps: Step[] }
-export type TutorOperationsVisualDefinition = Exclude<OperationsVisualDefinition, { kind: 'worked' }> | { kind: 'tutor-summary' } | { kind: 'ladder-player' } | {
+export type TutorOperationsVisualDefinition = Exclude<OperationsVisualDefinition, { kind: 'worked' }> | BoardWorking | { kind: 'tutor-summary' } | { kind: 'ladder-player' } | {
   kind: 'stacked-worked'
   math: string
   steps: Step[]
@@ -19,7 +20,7 @@ export type LessonVideoDefinition = {
   sourceFile: string
   textAlternative: string[]
 }
-export type TutorOperationsState = LearningState & { visual: TutorOperationsVisualDefinition; sourceRef: string; video?: LessonVideoDefinition }
+export type TutorOperationsState = LearningState & { visual: TutorOperationsVisualDefinition; sourceRef: string; video?: LessonVideoDefinition; working?: BoardWorking }
 type Working = NonNullable<FeedbackDefinition['workedExplanation']>
 
 const expression = (math: string, referenceContext?: BidmasContext): Extract<OperationsVisualDefinition, { kind: 'expression' }> => ({ kind: 'expression', math, referenceContext })
@@ -225,4 +226,64 @@ export const operationsVariantCLabels: Partial<Record<MicroSkillId, string>> = {
   'equal-priority': 'Equal priority',
   'fraction-grouping': 'BIDMAS & fractions',
   mixed: 'BIDMAS & algebra',
+}
+
+// Every worked example and answer as a board, one move a step (opsBoard.ts, src/features/EXPLANATIONS.md).
+const B = 'Brackets first', I = 'Then the power', M = 'Multiply', D = 'Divide', A = 'Add', S = 'Subtract'
+const why = {
+  bracket: 'Brackets come first. Work out what is inside.',
+  power: 'Powers come next. The small number says how many copies to multiply.',
+  times: 'Multiply and divide before you add or subtract.',
+  left: 'Multiply and divide have the same priority, so go from left to right.',
+  addLeft: 'Add and subtract have the same priority, so go from left to right.',
+  last: 'Add and subtract come last.',
+  top: 'The fraction bar groups the whole top. Finish it first.',
+  bottom: 'The fraction bar groups the whole bottom. Finish it too.',
+  divide: 'A fraction bar means divide the top by the bottom.',
+  product: 'Multiply the numbers, then the letters.',
+  collect: 'These are like terms, so collect them.',
+}
+const m = (title: string, instruction: string, part: string, value: string, extra: { notes?: string[]; where?: 'top' | 'bottom'; words?: string } = {}) => ({ title, instruction, part, value, ...extra })
+const boards: Record<string, BoardWorking> = {
+  'L2C-02': board('5 × (2³ − 3) + 6', [m('Inside the bracket', 'Inside the bracket, the power comes first.', '2³', '8', { notes: ['2 × 2 × 2 → 8'] }), m('Finish the bracket', why.bracket, '(8 − 3)', '5'), m(M, why.times, '5 × 5', '25'), m(A, why.last, '25 + 6', '31')]),
+  'L2C-03': board('3 + 4 × 2', [m(M, why.times, '4 × 2', '8'), m(A, why.last, '3 + 8', '11')]),
+  'L2C-04': board('4 + 6 × 3', [m(M, why.times, '6 × 3', '18'), m(A, why.last, '4 + 18', '22')]),
+  'L2C-05': board('20 ÷ (2 + 3) × 4', [m(B, why.bracket, '(2 + 3)', '5'), m('Divide, on the left', why.left, '20 ÷ 5', '4'), m(M, why.left, '4 × 4', '16')]),
+  'L2C-06': board('3 + 4² × (6 − 2)', [m(B, why.bracket, '(6 − 2)', '4'), m(I, why.power, '4²', '16', { notes: ['4 × 4 → 16'] }), m(M, why.times, '16 × 4', '64'), m(A, why.last, '3 + 64', '67')]),
+  'L2C-07': board('(2 + 3) × 4 − 1', [m(B, why.bracket, '(2 + 3)', '5'), m(M, why.times, '5 × 4', '20'), m(S, why.last, '20 − 1', '19')]),
+  'L2C-08': board('3 × (5 − 2)²', [m(B, why.bracket, '(5 − 2)', '3'), m(I, why.power, '3²', '9', { notes: ['3 × 3 → 9'] }), m(M, why.times, '3 × 9', '27')], 'n ='),
+  'L2C-09': board('10 − 4 ÷ 2', [m(D, why.times, '4 ÷ 2', '2'), m(S, why.last, '10 − 2', '8', { words: 'It is 8, not 3' })]),
+  'L2C-10': board('(2 + 3) + 4', [m(B, why.bracket, '(2 + 3)', '5'), m(A, why.last, '5 + 4', '9', { words: 'Same as 2 + 3 + 4, which is 9' })]),
+  'L2C-11': board('24 ÷ 6 × 2', [m('Divide, on the left', why.left, '24 ÷ 6', '4'), m(M, why.left, '4 × 2', '8')]),
+  'L2C-12': board('18 ÷ 3 × 2', [m('Divide, on the left', why.left, '18 ÷ 3', '6'), m(M, why.left, '6 × 2', '12')]),
+  'L2C-13': board('10 − 6 + 2', [m('Subtract, on the left', why.addLeft, '10 − 6', '4'), m(A, why.addLeft, '4 + 2', '6')]),
+  'L2C-14': board('10 − 6 + 2', [m('Subtract, on the left', why.addLeft, '10 − 6', '4'), m(A, why.addLeft, '4 + 2', '6', { words: 'No: go left to right, so it is 6' })]),
+  'L2C-16': board('2 + 2 × 3 | 2 × 2', [m('Multiply on top', why.top, '2 × 3', '6', { where: 'top' }), m('Add on top', why.top, '2 + 6', '8', { where: 'top' }), m('Work out the bottom', why.bottom, '2 × 2', '4', { where: 'bottom' }), m(D, why.divide, '8 | 4', '2')]),
+  'L2C-17': board('3² + 3 | 2 × 4 + 2', [m('Power on top', why.power, '3²', '9', { where: 'top', notes: ['3 × 3 → 9'] }), m('Add on top', why.top, '9 + 3', '12', { where: 'top' }), m('Multiply on the bottom', why.bottom, '2 × 4', '8', { where: 'bottom' }), m('Add on the bottom', why.bottom, '8 + 2', '10', { where: 'bottom' }), m('Simplify', 'Divide the top and the bottom by the same number.', '12 | 10', '6 | 5', { notes: ['12 ÷ 2 → 6', '10 ÷ 2 → 5'] })]),
+  'L2C-18': board('5 + 3 | 2 × 2', [m('Work out the top', why.top, '5 + 3', '8', { where: 'top' }), m('Work out the bottom', why.bottom, '2 × 2', '4', { where: 'bottom' }), m(D, why.divide, '8 | 4', '2')]),
+  'L2C-19': board('4² − 6 | 3 + 2 × 1', [m('Power on top', why.power, '4²', '16', { where: 'top', notes: ['4 × 4 → 16'] }), m('Subtract on top', why.top, '16 − 6', '10', { where: 'top' }), m('Multiply on the bottom', why.bottom, '2 × 1', '2', { where: 'bottom' }), m('Add on the bottom', why.bottom, '3 + 2', '5', { where: 'bottom' }), m(D, why.divide, '10 | 5', '2')]),
+  'L2C-20': board('2 × (1 + 4) | 3² − 4', [m('Bracket on top', why.bracket, '(1 + 4)', '5', { where: 'top' }), m('Multiply on top', why.top, '2 × 5', '10', { where: 'top' }), m('Power on the bottom', why.power, '3²', '9', { where: 'bottom', notes: ['3 × 3 → 9'] }), m('Subtract on the bottom', why.bottom, '9 − 4', '5', { where: 'bottom' }), m(D, why.divide, '10 | 5', '2')]),
+  'L2C-21': board('20 | (2 + 3) × 2', [m('Bracket on the bottom', why.bracket, '(2 + 3)', '5', { where: 'bottom' }), m('Multiply on the bottom', why.bottom, '5 × 2', '10', { where: 'bottom' }), m(D, why.divide, '20 | 10', '2')]),
+  'L2C-22': board('5² − 1 | 3 × 2 − 2', [m('Power on top', why.power, '5²', '25', { where: 'top', notes: ['5 × 5 → 25'] }), m('Subtract on top', why.top, '25 − 1', '24', { where: 'top' }), m('Multiply on the bottom', why.bottom, '3 × 2', '6', { where: 'bottom' }), m('Subtract on the bottom', why.bottom, '6 − 2', '4', { where: 'bottom' }), m(D, why.divide, '24 | 4', '6')], 'n ='),
+  'L2C-23': board('4 + 2 × 3 | 2 × 5', [m('Multiply on top', why.top, '2 × 3', '6', { where: 'top' }), m('Add on top', why.top, '4 + 6', '10', { where: 'top' }), m('Work out the bottom', why.bottom, '2 × 5', '10', { where: 'bottom' }), m(D, why.divide, '10 | 10', '1', { words: 'It is 1, not 5' })]),
+  'L2C-24': board('3 + 3 | 4 − 1', [m('Work out the top', why.top, '3 + 3', '6', { where: 'top' }), m('Work out the bottom', why.bottom, '4 − 1', '3', { where: 'bottom' }), m(D, why.divide, '6 | 3', '2', { words: 'Yes: (3 + 3) ÷ (4 − 1) is 2 too' })]),
+  'L2C-25': board('2x × 3x + x²', [m(M, why.product, '2x × 3x', '6x²', { notes: ['2 × 3 → 6', 'x × x → x²'] }), m(A, why.collect, '6x² + x²', '7x²'),
+    { title: 'Second example', instruction: 'The same order: multiply first, then collect.', start: '5y × 2y − 3 × y²', fresh: true },
+    m('First product', why.product, '5y × 2y', '10y²', { notes: ['5 × 2 → 10', 'y × y → y²'] }), m('Second product', why.product, '3 × y²', '3y²'), m(S, why.collect, '10y² − 3y²', '7y²')]),
+  'L2C-26': board('3ab × 4b − 5 × ab²', [m('First product', why.product, '3ab × 4b', '12ab²', { notes: ['3 × 4 → 12', 'b × b → b²'] }), m('Second product', why.product, '5 × ab²', '5ab²'), m(S, why.collect, '12ab² − 5ab²', '7ab²')]),
+  'L2C-27': board('2x × 3x + 4x²', [m(M, why.product, '2x × 3x', '6x²', { notes: ['2 × 3 → 6', 'x × x → x²'] }), m(A, why.collect, '6x² + 4x²', '10x²')]),
+  'L2C-28': board('5pq × 2q − 3 × pq²', [m('First product', why.product, '5pq × 2q', '10pq²', { notes: ['5 × 2 → 10', 'q × q → q²'] }), m('Second product', why.product, '3 × pq²', '3pq²'), m(S, why.collect, '10pq² − 3pq²', '7pq²')]),
+  'L2C-29': board('4m × 3n + 2m × 5n', [m('First product', why.product, '4m × 3n', '12mn', { notes: ['4 × 3 → 12'] }), m('Second product', why.product, '2m × 5n', '10mn', { notes: ['2 × 5 → 10'] }), m(A, why.collect, '12mn + 10mn', '22mn')]),
+  'L2C-30': board('6x × 2x', [m(M, why.product, '6x × 2x', '12x²', { notes: ['6 × 2 → 12', 'x × x → x²'] }),
+    { title: 'Now add them', instruction: 'Adding like terms adds the numbers in front. The letter stays the same.', start: '6x + 2x', fresh: true },
+    m(A, why.collect, '6x + 2x', '8x', { words: '12x² and 8x are different' })]),
+  'L2C-31': board('7c × 3cd − 4 × c²d', [m('First product', why.product, '7c × 3cd', '21c²d', { notes: ['7 × 3 → 21', 'c × c → c²'] }), m('Second product', why.product, '4 × c²d', '4c²d'), m(S, why.collect, '21c²d − 4c²d', '17c²d')]),
+  'L2C-32': board('3xy × 2x', [m(M, why.product, '3xy × 2x', '6x²y', { notes: ['3 × 2 → 6', 'x × x → x²'], words: 'It is 6x²y, not 5x²y' })]),
+  'L2C-33': board('2a × 3a + a²', [m(M, why.product, '2a × 3a', '6a²', { notes: ['2 × 3 → 6', 'a × a → a²'] }), m(A, why.collect, '6a² + a²', '7a²', { words: 'No: multiply first, so it is 7a²' })]),
+}
+for (const state of states) {
+  const working = boards[state.id]
+  if (!working) continue
+  if (state.visual.kind === 'stacked-worked') state.visual = working
+  else state.working = working
 }

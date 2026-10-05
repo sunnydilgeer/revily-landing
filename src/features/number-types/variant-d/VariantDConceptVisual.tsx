@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { IntegerValueVisualDefinition } from '../types'
 
-type ConceptProps = Extract<IntegerValueVisualDefinition['props'], { kind: 'concept' }> & { revealed: boolean }
+type ConceptProps = Extract<IntegerValueVisualDefinition['props'], { kind: 'concept' }> & { revealed: boolean; quiet?: boolean }
 
 function CounterGrid({ total, columns, capacity = total }: { total: number; columns: number; capacity?: number }) {
   return <div className="d-concept-array" style={{ '--d-array-columns': columns } as React.CSSProperties} aria-hidden="true">
@@ -144,20 +144,20 @@ function LcmCompare() {
   </div>
 }
 
-function MathCard({ expression, caption, revealLines, revealed }: Extract<ConceptProps, { concept: 'mathCard' }>) {
+function MathCard({ expression, caption, revealLines, revealed, quiet }: Extract<ConceptProps, { concept: 'mathCard' }>) {
   return <>
     <div className="d-concept-expression">{expression}</div>
     {caption && <p className="d-concept-caption">{caption}</p>}
-    {revealed && revealLines?.map(line => <p className="d-concept-result" key={line}>{line}</p>)}
+    {revealed && !quiet && revealLines?.map(line => <p className="d-concept-result" key={line}>{line}</p>)}
   </>
 }
 
-function RootInterval({ radicand, lower, upper, decimal, revealed }: Extract<ConceptProps, { concept: 'rootInterval' }>) {
+function RootInterval({ radicand, lower, upper, decimal, revealed, quiet }: Extract<ConceptProps, { concept: 'rootInterval' }>) {
   const position = (Math.sqrt(radicand) - lower) / (upper - lower) * 100
   return <>
     <div className="d-concept-expression">√{radicand}</div>
     <div className="d-root-line" aria-label={`Square root of ${radicand} lies between ${lower} and ${upper}`}><span>{lower}</span><i>{revealed && <b style={{ left: `${position}%` }}>√{radicand}</b>}</i><span>{upper}</span></div>
-    {revealed && <ConceptLines lines={[
+    {revealed && !quiet && <ConceptLines lines={[
       `${lower}² = ${lower ** 2}`,
       `${upper}² = ${upper ** 2}`,
       `${radicand} is between ${lower ** 2} and ${upper ** 2}.`,

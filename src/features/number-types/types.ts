@@ -97,6 +97,26 @@ export type MicroSkillId =
   | 'equations-both-sides'
   | 'equations-brackets'
   | 'equations-fractions'
+  | 'rearrange-linear'
+  | 'rearrange-fractions'
+  | 'rearrange-squares'
+  | 'rearrange-roots'
+  | 'quadratics-positive'
+  | 'quadratics-negative-middle'
+  | 'quadratics-negative-last'
+  | 'quadratics-difference-of-squares'
+  | 'quadratic-equations'
+  | 'sequences-special'
+  | 'sequences-geometric'
+  | 'sequences-nth-term'
+  | 'sequences-in-sequence'
+  | 'sequences-consecutive'
+  | 'inequalities-number-line'
+  | 'inequalities-two-sided'
+  | 'inequalities-integers'
+  | 'inequalities-solve'
+  | 'inequalities-solve-two-signs'
+  | 'inequalities-negative'
   | 'mixed'
 
 export type LessonPhase =
@@ -143,8 +163,10 @@ export type InteractionDefinition = {
   displayAnswer?: string
   placeholder?: string
   submitLabel?: string
-  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power'
-  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots'
+  acceptanceRule?: 'exact' | 'unorderedSet' | 'numeric' | 'normalisedNumber' | 'normalisedAlgebra' | 'nonNegativeInteger' | 'ordered' | 'oneOf' | 'openInterval' | 'integerInterval' | 'greaterThan' | 'exactDecimalPlaces' | 'fraction' | 'rational' | 'rationalInterval' | 'standardForm' | 'collectedExpression' | 'factorisedExpression' | 'power' | 'formula' | 'brackets' | 'numberList' | 'inequality'
+  responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions' | 'list' | 'inequality' | 'numbers'
+  /** A `list` answer: one box per number in `correctAnswer`, with this word between them ("and", or "," for a row of terms). */
+  listJoiner?: string
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
   anyPower?: boolean
   requiredDenominator?: number
@@ -156,7 +178,7 @@ export type InteractionDefinition = {
 }
 
 export type FeedbackDefinition = {
-  workedExplanation?: { steps: Array<{ title: string; lines: string[] }>; answer: string; answerLabel?: string }
+  workedExplanation?: { steps: Array<{ title: string; lines: string[]; /** The ⓘ text: words, not maths. A working whose steps all have one is drawn one move a step (LinesWorking). */ why?: string }>; answer: string; answerLabel?: string }
   message: string
   evidence?: string
   visualAction?: VisualAction

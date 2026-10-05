@@ -1,0 +1,32 @@
+/* The lesson worksheet (PDF), in the layout of Aniksha's: the title and two small lines, then each question as two
+   cards: the question (number, level, marks) and its worked answer (steps in teal, maths in dark red, method marks
+   in purple, the answer in green, each mark as [1] on the right). A4, printed by Chromium. */
+@font-face { font-family: Lato; font-weight: 400; src: url(fonts/lato-400.woff2) format('woff2'); }
+@font-face { font-family: Lato; font-weight: 400; font-style: italic; src: url(fonts/lato-400-italic.woff2) format('woff2'); }
+@font-face { font-family: Lato; font-weight: 700; src: url(fonts/lato-700.woff2) format('woff2'); }
+@font-face { font-family: Lato; font-weight: 900; src: url(fonts/lato-900.woff2) format('woff2'); }
+@page { size: A4; margin: 16mm 14mm; }
+body { margin: 0; font-family: Lato, sans-serif; color: #17213a; font-size: 11pt; }
+h1 { margin: 0 0 4px; font-size: 22pt; font-weight: 900; color: #1f3550; }
+.meta { margin: 0 0 18px; color: #6b7a96; font-size: 7.5pt; font-weight: 700; letter-spacing: .12em; line-height: 1.5; text-transform: uppercase; }
+.q { break-inside: avoid; margin-bottom: 14px; }
+.card { border: 1px solid #dfe5ef; border-radius: 10px; margin-bottom: 8px; }
+.top { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid #edf1f7; font-size: 7.5pt; font-weight: 700; letter-spacing: .08em; }
+.num { display: inline-grid; place-items: center; min-width: 22px; height: 22px; border-radius: 999px; background: #eef1f6; font-size: 8.5pt; letter-spacing: 0; }
+.level { padding: 3px 8px; border-radius: 5px; text-transform: uppercase; }
+.level.worked { background: #eef1f6; color: #34425c; }
+.level.easy { background: #e2f5ea; color: #0d7446; }
+.level.medium { background: #e0f2f4; color: #0f6b78; }
+.level.hard { background: #fdf0d9; color: #a35a05; }
+.level.very-hard { background: #fde4e4; color: #b42318; }
+.marks { margin-left: auto; padding-left: 12px; border-left: 1px solid #dfe5ef; color: #34425c; letter-spacing: 0; }
+.body { padding: 12px 14px; line-height: 1.6; }
+.say { margin: 4px 0; color: #0f6b78; font-size: 9.5pt; }
+.math { margin: 2px 0; text-align: center; color: #8b1e1e; font-size: 12.5pt; }
+.math .katex { color: #8b1e1e; }
+.mark { margin: 2px 0; text-align: right; color: #6d28d9; font-size: 9pt; font-style: italic; }
+.answer { margin: 4px 0 0; text-align: right; color: #0d7446; font-size: 13pt; font-weight: 900; }
+.answer .katex { color: #0d7446; }
+.one { margin-left: 6px; color: #6d28d9; font-size: 8.5pt; font-style: normal; font-weight: 700; }
+.picture { text-align: center; margin: 6px 0; }
+.yes { color: #15925a; font-weight: 700; } .no { color: #dc2626; }

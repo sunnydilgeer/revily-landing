@@ -109,5 +109,31 @@ export const canStatements: Record<string, string> = {
   '19:equations-both-sides': 'I can solve an equation with the unknown on both sides, like 9x + 4 = 4x + 29',
   '19:equations-brackets': 'I can solve an equation with brackets, like 2(3x + 1) = x + 22',
   '19:equations-fractions': 'I can solve an equation with fractions, like (2x + 1)/3 = 5',
+
+  '20:rearrange-linear': 'I can make m the subject of a formula like C = 3m + 5',
+  '20:rearrange-fractions': 'I can rearrange a formula with a fraction, like M = (a + b)/2',
+  '20:rearrange-squares': 'I can rearrange a formula with a square, like A = 6s², to get s = √(A/6)',
+  '20:rearrange-roots': 'I can rearrange a formula with a square root, like t = √(h/5), to get h = 5t²',
+
+  '21:quadratics-positive': 'I can factorise a quadratic like x² + 8x + 15 = (x + 3)(x + 5)',
+  '21:quadratics-negative-middle': 'I can factorise a quadratic with a negative middle term, like x² − 9x + 20 = (x − 4)(x − 5)',
+  '21:quadratics-negative-last': 'I can factorise a quadratic with a negative last term, like x² + 2x − 15 = (x − 3)(x + 5)',
+  '21:quadratics-difference-of-squares': 'I can factorise the difference of two squares, like x² − 49 = (x + 7)(x − 7)',
+
+  '23:sequences-special': 'I can continue square, cube, triangular and Fibonacci-type sequences, like 1, 3, 6, 10, 15, 21',
+  '23:sequences-geometric': 'I can find the common ratio of a geometric sequence and continue it, like 3, 6, 12, 24, 48',
+  '23:sequences-nth-term': 'I can find and use the nth term of a linear sequence, like 4n + 1 for 5, 9, 13, 17',
+  '23:sequences-in-sequence': 'I can decide whether a number is in a sequence by solving, like 5n − 2 = 63 gives n = 13',
+  '23:sequences-consecutive': 'I can solve problems with two terms next to each other, using n and n + 1',
+
+  '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
+  '24:inequalities-two-sided': 'I can write and show a two-sided inequality, like 1 ≤ t < 5 as a filled circle at 1 and an open circle at 5, joined',
+
+  '25:inequalities-integers': 'I can list the integers that satisfy an inequality, like 0, 1, 2 for −1 < x < 3',
+  '25:inequalities-solve': 'I can solve a linear inequality, like 4a − 5 > a + 7 gives a > 4',
+  '25:inequalities-solve-two-signs': 'I can solve an inequality with two signs, like 3 < 2x + 1 < 11 gives 1 < x < 5',
+  '25:inequalities-negative': 'I can flip the sign when I multiply or divide by a negative, like −3x > 12 gives x < −4',
+
+  '22:quadratic-equations': 'I can solve a quadratic like x² + x = 20 by making one side 0, factorising and setting each bracket to 0',
 }
 
