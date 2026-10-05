@@ -1,0 +1,81 @@
+/* A&E Rush: the eyepiece, the ward as dots, the heart monitor and the practical's field of view. The shared lab look is in maths/labs/kit/lab.css. */
+.ae-board { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+
+/* The readout: given values, then the dial's slot */
+.ae-slot__name { font: 600 14px var(--rv-font-body); fill: var(--rv-muted); }
+.ae-slot__value { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.ae-slot.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.ae-board.is-hit .ae-slot.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.ae-board.is-miss .ae-slot.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.ae-eye__note { font: 700 13px var(--rv-font-body); fill: var(--rv-muted); }
+.ae-board.is-miss .ae-eye__note { fill: var(--rv-redpen); }
+.ae-board.is-hit .ae-eye__note { fill: var(--rv-good-ink); }
+
+/* The eyepiece */
+.ae-eye__rim { fill: var(--rv-ink); }
+.ae-eye__glass { fill: var(--rv-surface); }
+.ae-eye__ring { fill: none; stroke: var(--rv-ink-2); stroke-width: 3; }
+.ae-eye__cross { stroke: var(--rv-line); stroke-width: 1; }
+.ae-eye__spec { transition: transform .35s ease-out; }
+.ae-board.is-go .ae-eye__spec { animation: ae-focus .5s ease-in-out both; }
+.ae-board.is-hit .ae-eye__glass { fill: var(--rv-good-tint); }
+.ae-board.is-high .ae-eye__glass { fill: var(--rv-redpen-tint); }
+.ae-board.is-low .ae-eye__glass { fill: var(--rv-line); }
+.ae-board.is-hit .ae-eye__ring { stroke: var(--rv-good); stroke-width: 4; }
+.ae-board.is-miss .ae-eye__ring { stroke: var(--rv-redpen); stroke-width: 4; }
+
+.ae-bug--pollen path { fill: var(--rv-yellow-deep); }
+.ae-bug--pollen circle { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 3; }
+.ae-bug--pollen .ae-bug__core { fill: var(--rv-yellow-deep); }
+.ae-bug--splinter path { fill: #a8763e; stroke: #6b4a22; stroke-width: 2; stroke-linejoin: round; }
+.ae-bug--splinter .ae-bug__grain { fill: none; stroke: #6b4a22; stroke-width: 1.5; }
+.ae-bug--rod rect { fill: var(--rv-step-dm-tint); stroke: var(--rv-teal, #0f8b7a); stroke-width: 3; }
+.ae-bug--rod .ae-bug__twin { opacity: .8; }
+.ae-bug__tail { fill: none; stroke: var(--rv-teal, #0f8b7a); stroke-width: 2.5; stroke-linecap: round; }
+
+/* The ward and the school, as dots */
+.ae-crowd__bg { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.ae-dot { fill: var(--rv-line); stroke: var(--rv-ink-2); stroke-width: 1; transition: fill .15s; }
+.ae-dot.is-fixed { fill: var(--rv-biro-light); }
+.ae-dot.is-bact { fill: var(--rv-teal, #0f8b7a); }
+.ae-dot.is-virus { fill: var(--rv-step-b, #7a4cd6); }
+.ae-dot.is-unvax { fill: var(--rv-alarm); }
+.ae-board.is-hit .ae-dot { stroke: var(--rv-good); }
+.ae-board.is-miss .ae-crowd__bg { stroke: var(--rv-redpen); stroke-width: 2.5; }
+.ae-board.is-hit .ae-crowd__bg { stroke: var(--rv-good); stroke-width: 2.5; }
+.ae-board.is-go .ae-dot { animation: ae-blink .5s steps(2) both; }
+.ae-key text { font: 600 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+
+/* The heart monitor */
+.ae-mon__screen { fill: var(--rv-night); stroke: var(--rv-ink); stroke-width: 2; }
+.ae-mon__trace { stroke: var(--rv-on-night-muted); stroke-width: 2.5; stroke-linejoin: round; }
+.ae-mon__bpm { font: 800 15px var(--rv-font-display); fill: var(--rv-on-night); font-variant-numeric: tabular-nums; }
+.ae-board.is-go .ae-mon__trace { stroke: var(--rv-yellow); stroke-dasharray: 600; animation: ae-sweep .65s linear both; }
+.ae-board.is-hit .ae-mon__trace { stroke: #3ddc84; }
+.ae-board.is-hit .ae-mon__bpm { fill: #3ddc84; }
+.ae-board.is-miss .ae-mon__trace { stroke: var(--rv-alarm); }
+.ae-board.is-miss .ae-mon__bpm { fill: var(--rv-alarm); }
+.ae-board.is-miss .ae-mon__screen { animation: ae-alarm .5s steps(2) 3; }
+.ae-board.is-low .ae-mon__trace { opacity: .7; }
+.ae-bed { fill: var(--rv-biro-tint); stroke: var(--rv-ink-2); stroke-width: 2; }
+.ae-pillow { fill: var(--rv-surface); stroke: var(--rv-ink-2); stroke-width: 1.5; }
+.ae-bed__leg { stroke: var(--rv-ink-2); stroke-width: 3; stroke-linecap: round; }
+.ae-mon__who { font-size: 22px; }
+
+/* The practical's field of view */
+.ae-cell { fill: var(--rv-step-i-tint); stroke: var(--rv-step-i, #d9771a); stroke-width: 1.5; opacity: .55; }
+.ae-cell.is-row { opacity: 1; }
+.ae-cell__nucleus { fill: var(--rv-step-i, #d9771a); }
+.ae-bracket { stroke: var(--rv-biro); stroke-width: 3; stroke-linejoin: round; }
+.ae-board.is-hit .ae-bracket { stroke: var(--rv-good); }
+.ae-board.is-miss .ae-bracket { stroke: var(--rv-redpen); }
+.ae-scale { stroke: var(--rv-ink-2); stroke-width: 2; }
+
+@keyframes ae-focus { 0%, 100% { filter: blur(0); } 50% { filter: blur(3px); } }
+@keyframes ae-blink { 0% { opacity: .4; } 100% { opacity: 1; } }
+@keyframes ae-sweep { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
+@keyframes ae-alarm { 0% { fill: var(--rv-night); } 100% { fill: #4a1420; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ae-board * { animation: none !important; transition: none !important; }
+}

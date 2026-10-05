@@ -37,7 +37,11 @@ const states = variantDLesson.states
 const ids = states.map(state => state.id)
 const idSet = new Set(ids)
 
-assert(states.length === 67, `Expected 67 Lesson 1 states, found ${states.length}`)
+// Higher-tier parts of the source sheets are left out of this Foundation lesson (AQA 8300 N8, N10).
+const higher = ['D-R-05', 'D-R-07', 'D-IR-03', 'D-IR-07', 'D-IR-09', 'D-IR-11', 'D-IR-13']
+assert(states.length === 60, `Expected 60 Lesson 1 states, found ${states.length}`)
+for (const id of higher) assert(!idSet.has(id), `${id} is Higher tier and must not be in the Foundation lesson`)
+assert(!JSON.stringify(states.map(state => [state.content, state.feedback])).match(/a√b|3√5|10x|99x/), 'No recurring-to-fraction algebra or surd simplifying')
 const clips = states.filter(state => state.component.type === 'lessonVideo')
 assert(clips.length === 5, 'Lesson 1 must have one video per topic')
 const videoView = fs.readFileSync(path.join(root, 'src/features/number-types/components/LessonVideoActivity.tsx'), 'utf8')
@@ -89,7 +93,7 @@ const sourceExercises = [
   ...Array.from({ length: 10 }, (_, index) => `D-IR-${String(index + 4).padStart(2, '0')}`),
   ...Array.from({ length: 8 }, (_, index) => `D-MF-${String(index + 5).padStart(2, '0')}`),
 ]
-for (const id of sourceExercises) assert(idSet.has(id), `Missing source exercise state ${id}`)
+for (const id of sourceExercises.filter(id => !higher.includes(id))) assert(idSet.has(id), `Missing source exercise state ${id}`)
 
 const sourceQuestionTitles = {
   'D-I-11': 'Write down all the numbers from the list that are integers.',
@@ -133,7 +137,7 @@ const sourceQuestionTitles = {
   'D-MF-11': 'State whether every number is a factor of itself. Give a reason for your answer.',
   'D-MF-12': 'Tomas says this. Show that Tomas is wrong. “The LCM of two numbers is always bigger than both numbers.”',
 }
-for (const [id, expectedTitle] of Object.entries(sourceQuestionTitles)) {
+for (const [id, expectedTitle] of Object.entries(sourceQuestionTitles).filter(([id]) => !higher.includes(id))) {
   const state = states.find(candidate => candidate.id === id)
   assert(state.content.title === expectedTitle, `${id} source question wording changed`)
 }
@@ -161,11 +165,11 @@ assert(cubeTeaching.content.body === 'A number multiplied by itself three times 
 
 assert(primeCard.component.props.revealLines === undefined, 'D-SI-05 must not reveal calculations in the green card')
 assert(JSON.stringify(primeCard.feedback.correct.workedExplanation.steps[0].lines) === JSON.stringify([
-  '21 = 3 × 7', '22 = 2 × 11', '24 = 2 × 12', '25 = 5 × 5', '26 = 2 × 13', '27 = 3 × 9', '28 = 2 × 14',
+  '21 → 3 × 7', '22 → 2 × 11', '24 → 2 × 12', '25 → 5 × 5', '26 → 2 × 13', '27 → 3 × 9', '28 → 2 × 14',
 ]), 'D-SI-05 composite checks must stay on separate explanation lines')
 const cubeQuestion = states.find(state => state.id === 'D-SI-08')
 assert(JSON.stringify(cubeQuestion.feedback.correct.workedExplanation.steps[0].lines) === JSON.stringify([
-  '1 × 1 × 1 = 1', '2 × 2 × 2 = 8', '3 × 3 × 3 = 27',
+  '1 × 1 × 1 → 1', '2 × 2 × 2 → 8', '3 × 3 × 3 → 27',
 ]), 'D-SI-08 cube calculations must stay on separate explanation lines')
 
 const rationalChoice = states.find(state => state.id === 'D-R-04')
@@ -173,11 +177,24 @@ assert(rationalChoice.component.props.expression === 'π,  √10,  0·6,  √12'
 assert(rationalChoice.interaction.correctAnswer === '0·6', 'D-R-04 must use the plain recurring-decimal display')
 assert(!JSON.stringify(states).includes('̇'), 'Lesson 1 must not display recurring overdot marks')
 
-const irrationalThreeToFour = states.find(state => state.id === 'D-IR-08')
-assert(irrationalThreeToFour.feedback.correct.workedExplanation.steps[0].lines.length === 8, 'D-IR-08 must explain every answer option on a separate line')
-const irrationalTwoToThree = states.find(state => state.id === 'D-IR-12')
-assert(irrationalTwoToThree.feedback.correct.workedExplanation.steps[0].lines.length === 6, 'D-IR-12 must explain every answer option on a separate line')
-
+// Every working follows the explanation style (src/features/EXPLANATIONS.md): short headings, the ⓘ in words, one
+// line of maths per move with every sum true, and the answer once, at the end, never repeated in a line.
+const evaluate = text => Function(`return ${text.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')}`)()
+let checkedLines = 0
+for (const state of states.filter(candidate => candidate.feedback?.correct?.workedExplanation)) {
+  const working = state.feedback.correct.workedExplanation
+  for (const step of working.steps) {
+    assert(step.title.split(' ').length <= 4, `${state.id}: short heading (${step.title})`)
+    assert(step.why && !/[=×÷→]/.test(step.why), `${state.id}: the ⓘ is words (${step.why})`)
+    assert(step.lines.length, `${state.id}: every step shows its maths`)
+    for (const line of step.lines) {
+      assert(line.trim() !== working.answer.trim(), `${state.id}: a line repeats the answer`)
+      const sum = /^([\d ×÷+−().]+) → ([\d.]+)$/.exec(line)
+      if (sum) { checkedLines++; assert(Math.abs(evaluate(sum[1]) - Number(sum[2])) < 1e-9, `${state.id}: ${line}`) }
+    }
+  }
+}
+assert(checkedLines >= 40, `Only ${checkedLines} sums checked`)
 for (const state of states.filter(candidate => candidate.id.startsWith('D-') && candidate.feedback?.correct?.workedExplanation)) {
   for (const step of state.feedback.correct.workedExplanation.steps) {
     for (const line of step.lines) assert(!line.includes(' · '), `${state.id} still compresses explanation calculations with a centred dot`)
@@ -185,26 +202,6 @@ for (const state of states.filter(candidate => candidate.id.startsWith('D-') && 
 }
 const conceptVisualSource = fs.readFileSync(path.join(root, 'src/features/number-types/variant-d/VariantDConceptVisual.tsx'), 'utf8')
 assert(!conceptVisualSource.includes("join(' · ')"), 'Lesson 1 teaching visuals must not join calculations with centred dots')
-
-const lineByLineExpectations = {
-  'D-I-07': 4,
-  'D-P-01': 4,
-  'D-P-02': 5,
-  'D-P-03': 5,
-  'D-R-07': 6,
-  'D-IR-04': 7,
-  'D-IR-06': 7,
-  'D-IR-07': 7,
-  'D-IR-09': 8,
-  'D-MF-05': 4,
-  'D-MF-07': 4,
-  'D-MF-08': 3,
-}
-for (const [id, expectedLineCount] of Object.entries(lineByLineExpectations)) {
-  const state = states.find(candidate => candidate.id === id)
-  const actualLineCount = state.feedback.correct.workedExplanation.steps.reduce((total, step) => total + step.lines.length, 0)
-  assert(actualLineCount === expectedLineCount, `${id} must retain ${expectedLineCount} separate explanation lines; found ${actualLineCount}`)
-}
 
 for (const state of states) {
   const transition = state.transition || {}
@@ -240,4 +237,4 @@ assert(checkAnswer(pairState.interaction, '12 and 18'), 'Corrected HCF task must
 assert(checkAnswer(pairState.interaction, '18 and 24'), 'Corrected HCF task must accept 18 and 24')
 assert(!checkAnswer(pairState.interaction, '12 and 24'), 'Corrected HCF task must reject 12 and 24')
 
-console.log(`Lesson 1 verification passed: ${states.length} states, ${sourceExercises.length} source exercises, all routes reachable.`)
+console.log(`Lesson 1 verification passed: ${states.length} states, ${sourceExercises.length - higher.length} Foundation source exercises, ${checkedLines} checked sums, all routes reachable.`)

@@ -1,0 +1,63 @@
+/* Base Builder: the top-down plan. The shared lab look is in ../kit/lab.css. */
+.bd-stage { display: grid; gap: 8px; }
+.bd-stage.is-shaken { animation: lab-shake .4s; }
+
+.bd-plan { display: block; width: 100%; height: auto; max-height: 52vh; border-radius: var(--rv-radius-md); }
+.bd-ground { fill: #dfe9d3; transition: fill .8s; }
+.bd-plan.is-night .bd-ground { fill: #26306a; }
+.bd-grid line { stroke: #b9c9a8; stroke-width: 1; }
+.bd-plan.is-night .bd-grid line { stroke: #3a4687; }
+
+/* The floor: faint squares until the area is known, then tiles laid one by one. */
+.bd-tile { fill: #c8d6b6; opacity: .45; transition: fill .3s, opacity .3s; }
+.bd-tile.is-laid { fill: #c9955c; opacity: 1; }
+.bd-tile.is-alt { fill: #8e5f34; }
+
+.bd-outline { fill: none; stroke: var(--rv-ink-2); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .55; }
+/* The walls draw themselves round the outline (pathLength 1, so the dash is the whole way round). */
+.bd-walls {
+  fill: none; stroke: #6b4b2a; stroke-width: 6; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.1s ease-in-out;
+}
+.bd-walls.is-up { stroke-dashoffset: 0; }
+.bd-plan.is-night .bd-walls { stroke: var(--rv-yellow); }
+/* A gate: a gap in the wall, which opens once the walls are up. */
+.bd-gate { stroke: #dfe9d3; stroke-width: 7; stroke-linecap: butt; opacity: 0; transition: opacity .3s 1s, stroke .8s; }
+.bd-gate.is-up { opacity: 1; }
+.bd-plan.is-night .bd-gate { stroke: #26306a; }
+.bd-split { stroke: var(--rv-ink); stroke-width: 2; stroke-dasharray: 5 4; animation: lab-pop .35s both; }
+
+.bd-label {
+  font: 800 11px var(--rv-font-display); fill: var(--rv-ink);
+  paint-order: stroke; stroke: #f7fafd; stroke-width: 3px; stroke-linejoin: round;
+}
+.bd-plan.is-night .bd-label { fill: var(--rv-on-night); stroke: #26306a; }
+.bd-label.is-missing { font-size: 15px; fill: var(--rv-redpen); }
+.bd-label.is-found { fill: var(--rv-good-ink); animation: lab-pop .35s both; }
+.bd-plan.is-night .bd-label.is-found { fill: var(--rv-yellow); }
+
+.bd-zombie { font-size: 18px; transition: transform .9s cubic-bezier(.4, 0, .4, 1); }
+
+/* The night meter: a dusk bar with the moon at the end. */
+.bd-night { display: flex; align-items: center; gap: 8px; }
+.bd-night__bar { flex: 1; height: 8px; overflow: hidden; border-radius: var(--rv-radius-pill); background: #e6d9b8; }
+.bd-night__bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f3a35b, var(--rv-night-3)); transition: width .6s; }
+.bd-night__moon { font-size: 1.1rem; line-height: 1; }
+
+.bd-found { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; }
+.bd-found--empty { font-weight: 600; font-size: .85rem; color: var(--rv-muted); }
+.bd-chip {
+  padding: 4px 10px; border-radius: var(--rv-radius-pill); font-weight: 800; font-size: .85rem;
+  color: var(--rv-ink); background: var(--rv-yellow-tint); animation: lab-pop .35s both;
+}
+
+.bd-banner {
+  margin: 0; padding: 8px 12px; border-radius: var(--rv-radius-md); text-align: center;
+  font: 800 1.05rem/1.25 var(--rv-font-display); color: var(--rv-on-night); background: var(--rv-night-2);
+  animation: lab-combo .6s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-stage.is-shaken, .bd-split, .bd-label.is-found, .bd-chip, .bd-banner { animation: none; }
+  .bd-ground, .bd-tile, .bd-walls, .bd-gate, .bd-zombie, .bd-night__bar span { transition: none; }
+}

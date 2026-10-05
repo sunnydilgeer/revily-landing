@@ -17,10 +17,13 @@ export function Powers({ text }: { text: ReactNode }) {
 
 /**
  * Text with parts in [brackets] drawn boxed, like the parts every term shares when factorising: [3] × 2 × [x] × x.
- * Parts in {braces} are boxed and crossed out: taken outside the bracket.
+ * Parts in {braces} are boxed and crossed out: taken outside the bracket. On the equation board, parts in «guillemets»
+ * are crossed out (they cancel) and parts in ‹angles› are the move, in purple: the ² in t‹²›.
  */
 export function Boxed({ text }: { text: string }) {
-  return <>{text.split(/(\[[^\]]*\]|\{[^}]*\})/).map((part, i) => part.startsWith('[') || part.startsWith('{')
+  return <>{text.split(/(\[[^\]]*\]|\{[^}]*\}|«[^»]*»|‹[^›]*›)/).map((part, i) => part.startsWith('[') || part.startsWith('{')
     ? <span key={i} className={`ns-shared${part.startsWith('{') ? ' is-out' : ''}`}><Powers text={part.slice(1, -1)} /></span>
+    : part.startsWith('«') ? <span key={i} className="is-struck"><Powers text={part.slice(1, -1)} /></span>
+    : part.startsWith('‹') ? <span key={i} className="ns-eq__move"><Powers text={part.slice(1, -1)} /></span>
     : <Powers key={i} text={part} />)}</>
 }

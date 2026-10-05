@@ -1,0 +1,112 @@
+/* Sky Shield: the night airfield, our quadcopter, the rogue drone, the sensor dish and the ripple tank. The shared lab look is in maths/labs/kit/lab.css. */
+.ss-stage { display: grid; gap: 10px; max-width: 420px; margin: 0 auto; }
+.ss-scene { display: block; width: 100%; height: auto; overflow: visible; border-radius: var(--rv-radius-md); }
+
+/* The airfield at night (night tokens, so it reads the same in light and dark) */
+.ss-sky { fill: var(--rv-night); }
+.ss-star { fill: var(--rv-on-night); opacity: .7; }
+.ss-ground { fill: var(--rv-night-2); }
+.ss-runway { fill: var(--rv-night-3); }
+.ss-runway__dash { fill: var(--rv-on-night); opacity: .8; }
+.ss-runway__light { fill: var(--rv-yellow); }
+.ss-tower rect { fill: var(--rv-night-3); stroke: var(--rv-on-night-muted); stroke-width: 1; }
+.ss-tower .ss-tower__glass { fill: var(--rv-teal); stroke: none; opacity: .8; }
+.ss-pad { fill: var(--rv-on-night-muted); }
+
+.ss-goal { stroke: var(--rv-yellow); stroke-width: 2.5; stroke-dasharray: 8 5; }
+.ss-goal__label { font: 800 13px var(--rv-font-display); fill: var(--rv-on-night); }
+.ss-flag { font: 800 14px var(--rv-font-display); fill: var(--rv-on-night-muted); }
+.is-hit .ss-flag { fill: var(--rv-good-tint); }
+.is-over .ss-flag, .is-short .ss-flag { fill: var(--rv-alarm); }
+.ss-path { stroke: var(--rv-on-night-muted); stroke-width: 1.5; stroke-dasharray: 3 5; opacity: .6; }
+
+/* Our quadcopter */
+.ss-quad__arm { stroke: var(--rv-on-night); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+.ss-quad__body { fill: var(--rv-teal); stroke: var(--rv-ink); stroke-width: 1.5; }
+.ss-quad__visor { fill: var(--rv-night-3); }
+.ss-quad__pod { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 1.2; }
+.ss-quad__beacon { fill: var(--rv-good-tint); }
+.ss-rotor { fill: var(--rv-on-night); opacity: .55; transform-box: fill-box; transform-origin: center; }
+.ss-rotor--rogue { fill: var(--rv-alarm); opacity: .5; }
+.is-go .ss-rotor, .is-hit .ss-rotor, .is-over .ss-rotor { animation: ss-spin .12s linear infinite; }
+@keyframes ss-spin { 50% { transform: scaleX(.35); } }
+.ss-sparks { font-size: 16px; opacity: 0; }
+.is-over .ss-sparks { animation: ss-pop .5s ease-out both; }
+.is-over .ss-quad__body { fill: var(--rv-alarm); }
+@keyframes ss-pop { 0% { opacity: 0; transform: scale(.4); } 40% { opacity: 1; transform: scale(1.3); } 100% { opacity: .9; transform: scale(1); } }
+
+/* The flight: lift off or fly across, ease into the target */
+.ss-mover { transition: transform .85s cubic-bezier(.3, .1, .25, 1); }
+.ss-stage:not(.is-go):not(.is-hit):not(.is-over):not(.is-short) .ss-mover { transition: none; }
+.is-short .ss-mover { transition-timing-function: cubic-bezier(.3, .1, .4, 1.4); }
+
+/* Force arrows */
+.ss-arrow line { stroke-width: 4; stroke-linecap: round; }
+.ss-arrow text { font: 800 13px var(--rv-font-display); fill: var(--rv-on-night); }
+.ss-arrow--up line { stroke: var(--rv-good-tint); } .ss-arrow--up path { fill: var(--rv-good-tint); }
+.ss-arrow--down line { stroke: var(--rv-alarm); } .ss-arrow--down path { fill: var(--rv-alarm); }
+
+/* The battery */
+.ss-battery rect { fill: none; stroke: var(--rv-on-night); stroke-width: 1.5; }
+.ss-battery .ss-battery__charge { fill: var(--rv-good-tint); stroke: none; transition: width .8s; }
+.is-over .ss-battery .ss-battery__charge { fill: var(--rv-alarm); }
+
+/* The rogue drone and the net */
+.ss-rogue__arm { stroke: var(--rv-on-night-muted); stroke-width: 2; stroke-linecap: round; }
+.ss-rogue__body { fill: var(--rv-night-3); stroke: var(--rv-alarm); stroke-width: 1.5; }
+.ss-rogue__light { fill: var(--rv-alarm); animation: ss-blink 1s steps(2) infinite; }
+@keyframes ss-blink { 50% { opacity: .2; } }
+.ss-net { opacity: 0; transform: scale(.2); transform-box: fill-box; transform-origin: center; }
+.ss-net__ring { fill: color-mix(in srgb, var(--rv-yellow) 15%, transparent); stroke: var(--rv-yellow); stroke-width: 2; }
+.ss-net__mesh { stroke: var(--rv-yellow); stroke-width: 1.2; fill: none; }
+.ss-rogue.is-netted .ss-net { opacity: 1; transform: none; transition: opacity .3s, transform .4s cubic-bezier(.3, 1.5, .5, 1); }
+.ss-rogue.is-netted .ss-rotor--rogue { opacity: .15; animation: none; }
+
+/* The sensor: radar sweep, the buzz, the ping and the lock */
+.ss-sweep path { fill: var(--rv-teal); opacity: .14; transform-origin: 0 0; animation: ss-sweep 4s ease-in-out infinite alternate; }
+@keyframes ss-sweep { from { transform: rotate(-30deg); } to { transform: rotate(25deg); } }
+.ss-dish line, .ss-dish__bowl { stroke: var(--rv-on-night); stroke-width: 2.5; fill: none; stroke-linecap: round; }
+.ss-dish circle { fill: var(--rv-teal); }
+.ss-buzz { fill: none; stroke: var(--rv-teal); stroke-width: 2; opacity: .55; }
+.ss-buzz.is-live { opacity: 1; }
+.is-hit .ss-buzz { stroke: var(--rv-good-tint); }
+.is-over .ss-buzz, .is-short .ss-buzz { stroke: var(--rv-alarm); }
+.ss-ping circle { fill: var(--rv-teal); }
+.ss-ping path { fill: none; stroke: var(--rv-teal); stroke-width: 2; }
+.ss-ping { transition: transform .85s linear; }
+.is-over .ss-ping circle, .is-short .ss-ping circle { fill: var(--rv-alarm); }
+.ss-lock circle, .ss-lock path { fill: none; stroke: var(--rv-alarm); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.is-hit .ss-lock circle, .is-hit .ss-lock path { stroke: var(--rv-good-tint); stroke-dasharray: none; stroke-width: 2.5; }
+
+/* The ripple tank, from above */
+.ss-tank { fill: color-mix(in srgb, var(--rv-biro) 75%, var(--rv-night)); stroke: var(--rv-ink); stroke-width: 2; }
+.ss-bar { fill: var(--rv-line-strong); stroke: var(--rv-ink); stroke-width: 1.5; }
+.ss-crests line { stroke: var(--rv-biro-light); stroke-width: 5; stroke-linecap: round; opacity: .85; }
+.ss-crests.is-live { animation: ss-ripple 1.2s linear infinite; }
+@keyframes ss-ripple { to { transform: translateX(var(--ss-gap)); } }
+.ss-ruler { fill: var(--rv-yellow-tint); stroke: var(--rv-line-strong); stroke-width: 1.5; }
+.ss-ruler__tick { stroke: var(--rv-ink); stroke-width: 1.5; }
+.ss-scene--tank .ss-goal__label { fill: var(--rv-ink); }
+.ss-scene--tank .ss-flag { fill: var(--rv-on-night); }
+.ss-bracket line { stroke: var(--rv-yellow); stroke-width: 2; }
+
+/* A value on the scene; the dial's own tag is boxed */
+.ss-tag rect { fill: var(--rv-night-2); stroke: var(--rv-on-night-muted); stroke-width: 1.5; }
+.ss-tag text { font: 800 14px var(--rv-font-display); fill: var(--rv-on-night); font-variant-numeric: tabular-nums; }
+.ss-tag.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.ss-tag.is-dial text { fill: var(--rv-ink); }
+.is-hit .ss-tag.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.is-over .ss-tag.is-dial rect, .is-short .ss-tag.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+
+/* The ops panel: the givens, then the dial's live value */
+.ss-dash { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 6px; padding: 8px; border-radius: var(--rv-radius-md); background: var(--rv-night); color: var(--rv-on-night); }
+.ss-dash div { display: grid; gap: 1px; padding: 4px 8px; border-radius: 6px; min-width: 0; }
+.ss-dash dt { font-weight: 600; font-size: .8125rem; color: var(--rv-on-night-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ss-dash dd { margin: 0; font: 800 1.05rem/1.2 var(--rv-font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ss-dash .is-dial { outline: 2px dashed var(--rv-yellow); outline-offset: -2px; }
+.is-hit .ss-dash .is-dial { outline: 2px solid var(--rv-good); background: color-mix(in srgb, var(--rv-good) 30%, transparent); }
+.is-over .ss-dash .is-dial, .is-short .ss-dash .is-dial { outline: 2px solid var(--rv-redpen); background: color-mix(in srgb, var(--rv-redpen) 25%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-stage *, .ss-stage { animation: none !important; transition: none !important; }
+}

@@ -25,6 +25,7 @@ const paths: Record<string, ReactNode> = {
   'function-machines': <><rect x="8" y="6" width="8" height="12" rx="2" /><path d="M2 12h6M16 12h6M19 9l3 3-3 3" /><path d="M11 10.5h2M11 13.5h2" /></>,
   substitution: <><rect x="5" y="12" width="14" height="8" rx="2" /><path d="M12 3v7M9 7l3 3 3-3" /></>,
   equations: <><path d="M12 4v16M7 20h10" /><path d="M4 8h16" /><path d="M4 8l-2.5 6h5ZM20 8l-2.5 6h5Z" /></>,
+  inequalities: <><path d="M2 14h20M4 12l-2 2 2 2M20 12l2 2-2 2M8 14h8" /><circle cx="8" cy="14" r="2" /><circle cx="16" cy="14" r="2" fill="currentColor" /><path d="M10 5l-3 2.5 3 2.5M14 5l3 2.5-3 2.5" /></>,
   sequences: <><circle cx="4.5" cy="18" r="1.6" /><circle cx="10" cy="14" r="1.6" /><circle cx="15" cy="10" r="1.6" /><circle cx="19.5" cy="5.5" r="1.6" /><path d="M6 17l2.5-2M11.5 13l2-2M16.4 8.8l1.8-1.9" /></>,
   'straight-lines': <><path d="M4 3v17h17" /><path d="M6 17 19 6" /><circle cx="10" cy="13.6" r="1.3" fill="currentColor" /><circle cx="15" cy="9.4" r="1.3" fill="currentColor" /></>,
   // Ratio

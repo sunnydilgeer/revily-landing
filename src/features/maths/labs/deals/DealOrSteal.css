@@ -1,0 +1,69 @@
+/* Deal or Steal: the price tags. The shared lab look is in ../kit/lab.css. */
+.ds-stage { display: flex; justify-content: center; gap: 10px; padding: 14px 0 6px; overflow-x: clip; overflow-clip-margin: 6px; }
+.ds-stage--two .ds-tag { flex: 1 1 0; min-width: 0; max-width: 200px; }
+
+/* A swing tag: a card with a string hole, the old price, and a sticker slapped on the corner. */
+.ds-tag {
+  position: relative; width: 210px; max-width: 100%; display: grid; justify-items: center; gap: 2px;
+  padding: 24px 10px 14px; border: 3px solid var(--rv-ink); border-radius: 16px 16px 12px 12px;
+  text-align: center; background: var(--rv-surface); box-shadow: 0 4px 0 var(--rv-ink);
+  animation: ds-swing .7s cubic-bezier(.3, 1.6, .5, 1) both; transform-origin: 50% 0;
+}
+.ds-tag__hole { position: absolute; top: 8px; left: 50%; width: 12px; height: 12px; translate: -50% 0; border: 3px solid var(--rv-ink); border-radius: 50%; background: var(--rv-yellow-tint); }
+.ds-tag__shop { margin: 0; font-weight: 800; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--rv-muted); }
+.ds-tag__item { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; font-size: 2.4rem; line-height: 1.1; }
+.ds-tag__name { margin: 0; max-width: 100%; font-weight: 700; font-size: .9rem; overflow-wrap: anywhere; }
+.ds-tag__was { position: relative; margin: 4px 0 0; font: 800 1.6rem/1.1 var(--rv-font-display); }
+.ds-tag__just { font-size: .8rem; font-weight: 700; color: var(--rv-muted); }
+.ds-tag__amount { position: relative; display: inline-block; }
+
+/* The slash: a red-pen line drawn across the old price once the real one is known. */
+.ds-tag__was.is-slashed { color: var(--rv-muted); }
+.ds-tag__was.is-slashed .ds-tag__amount::after {
+  content: ''; position: absolute; left: -6px; right: -6px; top: 50%; height: 4px; border-radius: 2px;
+  background: var(--rv-redpen); rotate: -12deg; transform-origin: 0 50%; animation: ds-slash .3s ease-out both;
+}
+.ds-tag__change {
+  margin: 2px 0 0; padding: 2px 10px; border-radius: var(--rv-radius-pill); font: 800 1rem/1.3 var(--rv-font-display);
+  color: var(--rv-good-ink); background: var(--rv-good-tint); animation: lab-pop .35s both;
+}
+.ds-tag__change.is-rise { color: #a51f1f; background: var(--rv-redpen-tint); }
+.ds-tag__now { margin: 2px 0 0; font: 800 2rem/1.1 var(--rv-font-display); color: var(--rv-ink); animation: ds-stamp .45s .3s cubic-bezier(.2, 1.4, .4, 1) both; }
+
+.ds-sticker {
+  position: absolute; top: -12px; right: -10px; width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%;
+  font: 800 1rem/1 var(--rv-font-display); color: #fff; background: var(--rv-redpen); box-shadow: 0 3px 0 #a51f1f;
+  rotate: 12deg; animation: ds-slap .5s .2s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.ds-sticker.is-rise { color: var(--rv-ink); background: var(--rv-yellow); box-shadow: 0 3px 0 var(--rv-yellow-deep); }
+
+/* REAL DEAL / STEAL: a rubber stamp thumped across the tag. */
+.ds-stamp {
+  position: absolute; left: 50%; top: 50%; padding: 4px 8px; border: 4px solid currentColor; border-radius: 8px;
+  font: 800 1.25rem/1 var(--rv-font-display); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+  background: rgb(255 255 255 / 85%); translate: -50% -50%; rotate: -14deg; animation: ds-stamp .45s .2s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.ds-tag.is-deal { border-color: var(--rv-good-ink); box-shadow: 0 4px 0 var(--rv-good-ink); }
+.ds-tag.is-deal .ds-stamp { color: var(--rv-good-ink); }
+.ds-tag.is-steal { opacity: .85; }
+.ds-tag.is-steal .ds-stamp { color: var(--rv-redpen); }
+
+.ds-verdict { margin: 8px 0 0; text-align: center; font: 800 1.15rem/1.3 var(--rv-font-display); color: var(--rv-good-ink); }
+
+/* Two tags share a narrow card on a phone, so they shrink. */
+.ds-stage--two .ds-tag { padding: 22px 6px 12px; }
+.ds-stage--two .ds-tag__item { font-size: 2rem; }
+.ds-stage--two .ds-tag__name { font-size: .8rem; }
+.ds-stage--two .ds-tag__was { font-size: 1.35rem; }
+.ds-stage--two .ds-tag__now { font-size: 1.6rem; }
+.ds-stage--two .ds-sticker { width: 48px; height: 48px; font-size: .85rem; right: -6px; }
+.ds-stage--two .ds-stamp { font-size: 1rem; padding: 3px 6px; border-width: 3px; }
+
+@keyframes ds-swing { 0% { transform: rotate(-6deg); opacity: 0; } 60% { transform: rotate(3deg); opacity: 1; } }
+@keyframes ds-slap { from { transform: scale(2) rotate(-20deg); opacity: 0; } }
+@keyframes ds-slash { from { transform: scaleX(0); } }
+@keyframes ds-stamp { from { transform: scale(2.4); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-tag, .ds-tag__change, .ds-tag__now, .ds-sticker, .ds-stamp, .ds-tag__was.is-slashed .ds-tag__amount::after { animation: none; }
+}

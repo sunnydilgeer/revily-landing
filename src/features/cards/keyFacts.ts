@@ -219,4 +219,36 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'equations-brackets': [['Solve 2(3x + 1) = x + 22.', 'x = 4. Multiply out: 2 × 3x = 6x and 2 × 1 = 2, so 6x + 2 = x + 22. Then 5x = 20.']],
     'equations-fractions': [['Solve (2x + 1)/3 = 5.', 'x = 7. Multiply both sides by 3: 2x + 1 = 15. Then 2x = 14.']],
   },
+  20: {
+    'rearrange-linear': [['Make m the subject of C = 3m + 5.', 'm = (C − 5)/3. Subtract 5 from both sides: C − 5 = 3m. Then divide all of C − 5 by 3.']],
+    'rearrange-fractions': [['Make a the subject of M = (a + b)/2.', 'a = 2M − b. Multiply both sides by 2 to clear the fraction: 2M = a + b. Then subtract b.']],
+    'rearrange-squares': [['Make s the subject of A = 6s².', 's = √(A/6). Divide both sides by 6: A/6 = s². Then square root the whole of A/6.']],
+    'rearrange-roots': [['Make h the subject of t = √(h/5).', 'h = 5t². Square both sides to undo the root: t² = h/5. Then multiply both sides by 5.']],
+  },
+  21: {
+    'quadratics-positive': [['Factorise x² + 8x + 15.', '(x + 3)(x + 5). 3 and 5 multiply to 15 and add to 8.']],
+    'quadratics-negative-middle': [['Factorise x² − 9x + 20.', '(x − 4)(x − 5). The last number is positive and the middle negative, so both numbers are negative: −4 × −5 = 20 and −4 + −5 = −9.']],
+    'quadratics-negative-last': [['Factorise x² + 2x − 15.', '(x − 3)(x + 5). The last number is negative, so one number is negative: −3 × 5 = −15 and −3 + 5 = 2.']],
+    'quadratics-difference-of-squares': [['Factorise x² − 49.', '(x + 7)(x − 7). 49 is 7 × 7. One bracket plus, one minus, so the middle terms cancel.']],
+  },
+  23: {
+    'sequences-special': [['Next two terms of 1, 3, 6, 10.', '15 and 21. The gaps are 2, 3, 4, so the next gaps are 5 and 6.']],
+    'sequences-geometric': [['Next two terms of 3, 6, 12, 24.', '48 and 96. Each term divided by the one before is 2: the common ratio. Keep multiplying by 2.']],
+    'sequences-nth-term': [['The nth term of 5, 9, 13, 17.', '4n + 1. The gap is 4, so start with 4n: 4, 8, 12, 16. Each term is 1 more.']],
+    'sequences-in-sequence': [['Is 63 a term of 5n − 2?', 'Yes. 5n − 2 = 63, so 5n = 65 and n = 13, a whole number.']],
+    'sequences-consecutive': [['Two terms next to each other of 3n + 2 add to 55. Find them.', '26 and 29. The next term is 3(n + 1) + 2 = 3n + 5. 6n + 7 = 55, so n = 8.']],
+  },
+  24: {
+    'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
+    'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],
+  },
+  25: {
+    'inequalities-integers': [['List the integers that satisfy −1 < x ≤ 3.', '0, 1, 2, 3. < leaves −1 out; ≤ puts 3 in.']],
+    'inequalities-solve': [['Solve 4a − 5 > a + 7.', 'a > 4. Add 5: 4a > a + 12. Subtract a: 3a > 12. Divide by 3.']],
+    'inequalities-solve-two-signs': [['Solve 3 < 2x + 1 < 11.', '1 < x < 5. Do the same to all three parts: subtract 1, then divide by 2.']],
+    'inequalities-negative': [['Solve −3x > 12.', 'x < −4. Dividing by a negative number flips the sign.']],
+  },
+  22: {
+    'quadratic-equations': [['Solve x² + x = 20.', 'x = 4 or x = −5. Subtract 20: x² + x − 20 = 0. Factorise: (x − 4)(x + 5) = 0. One bracket must be 0, so x − 4 = 0 or x + 5 = 0.']],
+  },
 }

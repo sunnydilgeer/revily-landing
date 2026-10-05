@@ -1,0 +1,114 @@
+/* Green Hydrogen Lab: molecules, equations, a balance, a Hofmann voltameter, a gas syringe and the town. The shared lab look is in maths/labs/kit/lab.css. */
+.hl-svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; overflow: visible; }
+
+.hl-tag text { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.hl-tag.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.is-hit .hl-tag.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.is-high .hl-tag.is-dial rect, .is-low .hl-tag.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.hl-note { font: 600 13px var(--rv-font-body); fill: var(--rv-muted); }
+.hl-head { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.hl-sign { font: 700 13px var(--rv-font-body); fill: var(--rv-ink-2); }
+.hl-tick { stroke: var(--rv-muted); stroke-width: 1.5; }
+
+/* The 💥 that pops on a too-high answer */
+.hl-pop { font-size: 22px; opacity: 0; }
+.is-high .hl-pop { animation: hl-pop .5s ease-out both; }
+@keyframes hl-pop { 0% { opacity: 0; transform: scale(.4); } 40% { opacity: 1; transform: scale(1.3); } 100% { opacity: .9; transform: scale(1); } }
+.hl-pop, .hl-svg .hl-bus, .hl-molecule { transform-box: fill-box; transform-origin: center; }
+
+/* Bubbles: still while setting, rising while it runs and on a hit, a trickle when too low */
+.hl-bubbles circle { fill: none; stroke: var(--rv-teal); stroke-width: 1.5; opacity: 0; }
+.is-go .hl-bubbles circle, .is-hit .hl-bubbles circle, .is-high .hl-bubbles circle { animation: hl-rise 1s ease-in infinite; }
+.is-low .hl-bubbles circle:first-child { animation: hl-rise 2.2s ease-in infinite; }
+@keyframes hl-rise { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: .9; } 100% { opacity: 0; transform: translateY(var(--rise, -60px)); } }
+
+/* Molecule */
+.hl-glow { fill: var(--rv-yellow-tint); opacity: .6; transition: fill .2s, opacity .2s; }
+.is-hit .hl-glow { fill: var(--rv-good-tint); opacity: 1; }
+.is-high .hl-glow, .is-low .hl-glow { fill: var(--rv-redpen-tint); opacity: .8; }
+.hl-bond { stroke: var(--rv-ink-2); stroke-width: 5; stroke-linecap: round; }
+.hl-atom circle { stroke: var(--rv-ink); stroke-width: 2; }
+.hl-atom text { font: 800 15px var(--rv-font-display); fill: #fff; pointer-events: none; }
+.hl-atom--H circle { fill: #fff; } .hl-atom--H text { fill: #1c2230; font-size: 13px; }
+.hl-atom--O circle { fill: #e03131; }
+.hl-atom--C circle { fill: #343a40; }
+.hl-atom--N circle { fill: #3b5bdb; }
+.hl-atom--S circle { fill: #f2c94c; } .hl-atom--S text { fill: #1c2230; }
+.hl-atom--Mg circle { fill: #868e96; }
+.is-go .hl-molecule { animation: hl-wobble .4s ease-in-out 2; }
+.is-hit .hl-molecule { animation: hl-bounce .5s ease-out; }
+.is-low .hl-molecule { opacity: .5; }
+@keyframes hl-wobble { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes hl-bounce { 40% { transform: scale(1.08); } }
+
+/* Equation and atom count */
+.hl-eq { position: relative; max-width: 420px; margin: 0 auto; display: grid; gap: 12px; }
+.hl-eq__line { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; font: 800 1.35rem/1.3 var(--rv-font-display); color: var(--rv-ink); }
+.hl-eq__term { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.hl-eq__term b { color: var(--rv-biro); }
+.hl-eq__plus, .hl-eq__arrow { margin: 0 4px; color: var(--rv-muted); }
+.hl-eq__blank { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-right: 2px; text-align: center; border-radius: 6px; background: var(--rv-yellow-tint); outline: 2px dashed var(--rv-yellow-deep); color: var(--rv-ink); }
+.hl-eq.is-hit .hl-eq__blank { background: var(--rv-good-tint); outline: 2px solid var(--rv-good); }
+.hl-eq.is-high .hl-eq__blank, .hl-eq.is-low .hl-eq__blank { background: var(--rv-redpen-tint); outline: 2px solid var(--rv-redpen); }
+.hl-eq__count { display: grid; gap: 6px; padding: 10px 12px; border-radius: var(--rv-radius-md); background: var(--rv-night); color: var(--rv-on-night); }
+.hl-eq__count div { display: grid; grid-template-columns: 1fr 3ch 2ch 3ch; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 6px; font: 800 1rem/1.2 var(--rv-font-display); font-variant-numeric: tabular-nums; text-align: center; }
+.hl-eq__el { text-align: left; font: 600 .9rem var(--rv-font-body); color: var(--rv-on-night-muted); }
+.hl-eq__vs { color: var(--rv-on-night-muted); }
+.hl-eq__count .is-ok { background: color-mix(in srgb, var(--rv-good) 30%, transparent); }
+.hl-eq__count .is-off { outline: 2px solid var(--rv-redpen); }
+.hl-eq.is-go .hl-eq__count { animation: hl-buzz .2s linear 3; }
+.hl-eq__pop { position: absolute; right: 0; top: -10px; font-size: 1.4rem; opacity: 0; }
+.hl-eq.is-high .hl-eq__pop { animation: hl-pop .5s ease-out both; }
+@keyframes hl-buzz { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+
+/* Balance */
+.hl-stand { fill: var(--rv-line-strong); }
+.hl-beam { transform-origin: 160px 120px; transition: transform .45s cubic-bezier(.3, 1.4, .5, 1); }
+.hl-beam__bar { stroke: var(--rv-ink); stroke-width: 4; stroke-linecap: round; }
+.hl-pan { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.hl-pivot { fill: var(--rv-ink); }
+.is-go .hl-beam { animation: hl-teeter .4s ease-in-out 2; }
+@keyframes hl-teeter { 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+
+/* Hofmann voltameter */
+.hl-tube__water { fill: color-mix(in srgb, var(--rv-teal) 22%, transparent); }
+.hl-tube__gas { fill: var(--rv-surface); transition: height .5s ease-out, width .5s ease-out; }
+.hl-tube--hy .hl-tube__gas { fill: color-mix(in srgb, var(--rv-biro) 14%, var(--rv-surface)); }
+.hl-tube__glass { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; }
+.hl-electrode { fill: var(--rv-ink-2); }
+.hl-base { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; }
+.is-hit .hl-tube__glass { stroke: var(--rv-good); }
+.is-high .hl-tube--hy .hl-tube__glass { stroke: var(--rv-redpen); }
+.is-low .hl-tube--hy .hl-tube__gas { opacity: .6; }
+
+/* Flask and gas syringe */
+.hl-flask { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.hl-acid { fill: color-mix(in srgb, var(--rv-teal) 30%, transparent); }
+.hl-mg { fill: var(--rv-muted); }
+.hl-bung { fill: var(--rv-ink-2); }
+.hl-pipe { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linejoin: round; }
+.hl-plunger { transition: transform .7s ease-out; }
+.hl-plunger__head { fill: var(--rv-ink-2); }
+.hl-plunger__rod { stroke: var(--rv-ink-2); stroke-width: 3; }
+.hl-syr__gas { transition: width .7s ease-out; }
+.is-high .hl-flask { stroke: var(--rv-redpen); }
+.is-high .hl-acid { animation: hl-foam .35s ease-in-out 3; }
+@keyframes hl-foam { 50% { transform: translateY(-6px); } }
+
+/* Town */
+.hl-cloud { font-size: 22px; transition: opacity .4s, transform .4s; }
+.hl-cloud.is-gone { opacity: 0; transform: translateY(-14px); }
+.is-low .hl-cloud { filter: grayscale(1); }
+.hl-road { stroke: var(--rv-ink-2); stroke-width: 3; stroke-dasharray: 14 8; }
+.hl-bus__emoji { font-size: 30px; }
+.hl-bus__puff { font-size: 14px; opacity: 0; }
+.is-hit .hl-bus__puff, .is-go .hl-bus__puff { opacity: 1; }
+.is-go .hl-bus, .is-hit .hl-bus { animation: hl-drive .6s ease-in-out 2; }
+@keyframes hl-drive { 50% { transform: translateX(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-svg *, .hl-eq * { animation: none !important; transition: none !important; }
+  .hl-eq, .hl-svg { animation: none !important; }
+  .is-go .hl-bubbles circle, .is-hit .hl-bubbles circle { opacity: .7; }
+  .is-high .hl-pop, .hl-eq.is-high .hl-eq__pop { opacity: .9; }
+}

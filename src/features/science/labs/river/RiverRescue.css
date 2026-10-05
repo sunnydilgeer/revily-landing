@@ -1,0 +1,197 @@
+/* River Rescue: a river along the bottom of every scene that clears and fills with fish as you play, a sample
+   shelf, a chromatogram whose spots climb, gas jars, a waterworks pipeline, filter beds and the dish practical.
+   The shared lab look is in maths/labs/kit/lab.css. */
+.rr-svg { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; overflow: visible; }
+
+/* Labels */
+.rr-tag text { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.rr-tag.is-dial rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; stroke-dasharray: 4 3; }
+.is-hit .rr-tag.is-dial rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.is-miss .rr-tag.is-dial rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.rr-note { font: 600 12px var(--rv-font-body); fill: var(--rv-muted); }
+.rr-head { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.rr-verdict rect { fill: var(--rv-redpen); }
+.rr-verdict text { font: 800 13px var(--rv-font-display); fill: var(--rv-surface); }
+.rr-glass { fill: color-mix(in srgb, var(--rv-teal-tint) 50%, var(--rv-surface)); stroke: var(--rv-ink); stroke-width: 2; stroke-linejoin: round; }
+.rr-lid { fill: var(--rv-ink-2); }
+.rr-tube { stroke: var(--rv-ink-2); stroke-width: 3; stroke-linecap: round; fill: none; }
+
+/* The river: its colour is set inline from progress (murky → teal); fish appear as jobs are done */
+.rr-river__water { stroke: var(--rv-ink); stroke-width: 2; transition: fill .8s; }
+.rr-river__ripple { fill: none; stroke: var(--rv-surface); stroke-width: 2; stroke-linecap: round; opacity: .7; }
+.rr-junk { fill: var(--rv-ink-2); stroke: var(--rv-ink); stroke-width: 1; opacity: .8; }
+.rr-fish { fill: var(--rv-step-i-light); stroke: var(--rv-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.rr-fish__eye { fill: var(--rv-ink); }
+.rr-bob { animation: rr-bob 2.4s ease-in-out infinite; }
+.rr-jump { animation: rr-jump .9s cubic-bezier(.3, 1.4, .5, 1) 2; }
+.is-go .rr-river__ripples { animation: rr-flow .6s linear infinite; }
+@keyframes rr-bob { 50% { transform: translateY(-2px); } }
+@keyframes rr-jump { 0%, 100% { transform: none; } 45% { transform: translateY(-24px) rotate(-25deg); } }
+@keyframes rr-flow { to { transform: translateX(12px); } }
+
+/* Round 1: the sample shelf and the pure tray */
+.rr-cell__card { fill: var(--rv-surface); stroke: var(--rv-line); stroke-width: 2; transition: fill .2s, stroke .2s; }
+.rr-cell__name { font: 700 12px var(--rv-font-body); fill: var(--rv-ink); }
+.rr-cell.is-on .rr-cell__card { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 3; }
+.rr-cell.is-good .rr-cell__card { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.rr-cell.is-bad .rr-cell__card { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.rr-liquid, .rr-lump { stroke: var(--rv-ink); stroke-width: 1.5; }
+.rr-swirl { fill: none; stroke: var(--rv-line-strong); stroke-width: 2; stroke-linecap: round; }
+.rr-tray rect:first-child { fill: var(--rv-night); }
+.rr-tray__label { font: 800 13px var(--rv-font-display); fill: var(--rv-yellow); letter-spacing: .06em; }
+.rr-chip rect { fill: transparent; stroke: var(--rv-on-night-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.rr-chip text { font: 700 12px var(--rv-font-body); fill: var(--rv-on-night-muted); }
+.rr-chip.is-on rect { fill: var(--rv-surface); stroke: none; }
+.rr-chip.is-on text { fill: var(--rv-ink); }
+.rr-tray.is-hit .rr-chip.is-on rect { fill: var(--rv-good-tint); }
+.rr-tray.is-miss .rr-chip.is-on rect { fill: var(--rv-redpen-tint); }
+
+/* Round 1: the 100-square scoop */
+.rr-sq { fill: var(--rv-surface); stroke: var(--rv-line); stroke-width: 1; transition: fill .25s, stroke .25s; }
+.rr-sq.is-nitrate { fill: var(--rv-biro-tint); stroke: var(--rv-biro-light); }
+.rr-sq.is-lit { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); }
+.is-hit .rr-sq.is-lit { fill: var(--rv-good); stroke: var(--rv-good-ink); }
+.is-miss .rr-sq.is-lit:not(.is-nitrate) { fill: var(--rv-redpen); stroke: var(--rv-redpen); }
+.is-low .rr-sq.is-nitrate:not(.is-lit) { stroke: var(--rv-redpen); stroke-width: 1.5; }
+
+/* Round 2: the chromatogram */
+.rr-paper { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2; }
+.rr-paper__wet { fill: color-mix(in srgb, var(--rv-teal) 14%, transparent); }
+.rr-front { stroke: var(--rv-teal-ink); stroke-width: 2; stroke-dasharray: 6 4; }
+.rr-start { stroke: var(--rv-ink-2); stroke-width: 2; }
+.rr-solvent { fill: color-mix(in srgb, var(--rv-teal) 40%, transparent); stroke: var(--rv-ink); stroke-width: 2; }
+.rr-divider { stroke: var(--rv-line-strong); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.rr-lane { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.rr-spot { stroke: var(--rv-ink); stroke-width: 1.5; }
+.rr-spot.is-dim { opacity: .35; }
+.rr-rise { animation: rr-rise 1.2s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes rr-rise { from { transform: translateY(var(--rise)); opacity: .3; } }
+.rr-link { stroke: var(--rv-ink); stroke-width: 2.5; stroke-dasharray: 5 4; fill: none; }
+.is-hit .rr-link { stroke: var(--rv-good); stroke-dasharray: none; }
+.rr-link.is-bad { stroke: var(--rv-redpen); stroke-dasharray: none; }
+.rr-next { font: 800 14px var(--rv-font-display); fill: var(--rv-yellow-deep); animation: rr-blink 1s ease-in-out infinite; }
+.rr-culprit__ring { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 2; }
+.rr-ghost { fill: none; stroke: var(--rv-ink-2); stroke-width: 2; stroke-dasharray: 3 3; transition: cy .4s ease-out; }
+.is-hit .rr-ghost { stroke: var(--rv-good); stroke-width: 3; stroke-dasharray: none; }
+.is-miss .rr-ghost { stroke: var(--rv-redpen); stroke-width: 3; stroke-dasharray: none; }
+.rr-measure { stroke: var(--rv-teal-ink); stroke-width: 2; }
+.rr-measure.is-spot { stroke: var(--rv-ink-2); stroke-dasharray: 3 3; }
+.rr-arrowhead { fill: var(--rv-teal-ink); }
+@keyframes rr-blink { 50% { opacity: .3; } }
+
+/* Round 3: the indicator beaker */
+.rr-beaker { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linejoin: round; }
+.rr-beaker__liquid { stroke: none; opacity: .85; transition: fill .5s; }
+.rr-bubble { fill: var(--rv-surface); stroke: var(--rv-ink-2); stroke-width: 1; animation: rr-fizz 1.6s ease-in infinite; }
+.rr-probe { stroke: var(--rv-ink-2); stroke-width: 5; stroke-linecap: round; }
+.rr-probe__tip { fill: var(--rv-ink); }
+.rr-reading rect { fill: var(--rv-night); }
+.rr-reading text { font: 800 14px var(--rv-font-display); fill: var(--rv-on-night); font-variant-numeric: tabular-nums; }
+.rr-phcell { stroke: var(--rv-ink); stroke-width: 1; transition: transform .3s; }
+.rr-phcell.is-on { stroke-width: 3; }
+.rr-ph__marker { fill: var(--rv-ink); stroke: var(--rv-surface); stroke-width: 1.5; }
+.is-hit .rr-ph__marker { fill: var(--rv-good); }
+.is-miss .rr-ph__marker { fill: var(--rv-redpen); }
+@keyframes rr-fizz { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-80px); opacity: 0; } }
+
+/* Round 3: gas jars and their tests */
+.rr-jar__glass { fill: color-mix(in srgb, var(--rv-teal-tint) 60%, transparent); stroke: var(--rv-ink); stroke-width: 2; }
+.rr-jar__tag { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; stroke-dasharray: 4 3; }
+.rr-jar__name { font: 800 16px var(--rv-font-display); fill: var(--rv-muted); }
+.rr-jar.is-filled .rr-jar__tag { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-dasharray: none; }
+.rr-jar.is-filled .rr-jar__name { fill: var(--rv-ink); }
+.rr-jar.is-next .rr-jar__tag { stroke: var(--rv-yellow-deep); stroke-width: 3; animation: rr-blink 1s ease-in-out infinite; }
+.rr-jar.is-bad .rr-jar__tag { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.rr-jar.is-bad .rr-jar__name { fill: var(--rv-redpen); }
+.is-hit .rr-jar__tag { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.rr-jar__result { font: 700 12px var(--rv-font-body); fill: var(--rv-ink-2); }
+.rr-splint { stroke: var(--rv-step-i); stroke-width: 4; stroke-linecap: round; }
+.rr-flame { fill: var(--rv-yellow); stroke: var(--rv-step-i); stroke-width: 1.5; }
+.rr-ember { fill: var(--rv-alarm); }
+.rr-burst { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 1.2; }
+.rr-pop__t { font: 800 12px var(--rv-font-display); fill: var(--rv-ink); }
+.rr-milky { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 1; }
+.rr-litmus { fill: var(--rv-step-b-light); stroke: var(--rv-ink); stroke-width: 1.2; }
+.rr-litmus.is-bleached { fill: var(--rv-surface); }
+.rr-pop, .rr-relight, .rr-flame { transform-box: fill-box; transform-origin: 50% 100%; }
+.rr-pop { animation: rr-throb 1.4s ease-in-out infinite; }
+.rr-relight { animation: rr-flicker .9s ease-in-out infinite; }
+@keyframes rr-throb { 50% { transform: scale(1.15); } }
+@keyframes rr-flicker { 50% { transform: scaleY(.85); } }
+
+/* Round 4: the waterworks */
+.rr-main-pipe { stroke: var(--rv-ink-2); stroke-width: 12; stroke-linecap: round; }
+.rr-flow { stroke: color-mix(in srgb, var(--rv-yellow-deep) 60%, var(--rv-ink-2)); stroke-width: 6; stroke-dasharray: 10 8; stroke-linecap: round; }
+.rr-flow.is-clean { stroke: var(--rv-teal); animation: rr-pipe .5s linear infinite; }
+.is-go .rr-flow { animation: rr-pipe .5s linear infinite; }
+@keyframes rr-pipe { to { stroke-dashoffset: -18; } }
+.rr-wave { fill: none; stroke: var(--rv-teal-ink); stroke-width: 2.5; stroke-linecap: round; }
+.rr-tank__box { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2.5; stroke-dasharray: 6 4; }
+.rr-tank__n { font: 800 14px var(--rv-font-display); fill: var(--rv-muted); }
+.rr-tank__label { font: 800 13px var(--rv-font-display); fill: var(--rv-ink); }
+.rr-tank.is-filled .rr-tank__box { stroke: var(--rv-ink); stroke-dasharray: none; }
+.rr-tank.is-next .rr-tank__box { stroke: var(--rv-yellow-deep); stroke-width: 3.5; animation: rr-blink 1s ease-in-out infinite; }
+.rr-tank.is-bad .rr-tank__box { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.rr-tank.is-bad .rr-tank__label { fill: var(--rv-redpen); }
+.is-hit .rr-tank__box { stroke: var(--rv-good); stroke-width: 3; }
+.rr-tank__water { transition: fill .6s; }
+.rr-mesh { stroke: var(--rv-ink); stroke-width: 2; }
+.rr-twig { fill: none; stroke: var(--rv-step-i); stroke-width: 2.5; stroke-linecap: round; }
+.rr-sediment { fill: color-mix(in srgb, var(--rv-yellow-deep) 60%, var(--rv-ink-2)); }
+.rr-grain { fill: var(--rv-ink-2); }
+.rr-sand { fill: var(--rv-yellow); stroke: var(--rv-yellow-deep); stroke-width: 1; }
+.rr-gravel { fill: var(--rv-line-strong); stroke: var(--rv-ink-2); stroke-width: 1; }
+.rr-uv { fill: var(--rv-step-b-tint); stroke: var(--rv-step-b); stroke-width: 2; }
+.rr-icon__t { font: 800 15px var(--rv-font-display); fill: var(--rv-step-b); }
+.rr-steam-line { fill: none; stroke: var(--rv-line-strong); stroke-width: 2; stroke-linecap: round; }
+.rr-tap { fill: none; stroke: var(--rv-ink); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.rr-drop { fill: var(--rv-teal); stroke: var(--rv-ink); stroke-width: 1; }
+.rr-drip { animation: rr-drip .8s ease-in infinite; }
+.rr-drip.is-off { opacity: 0; animation: none; }
+@keyframes rr-drip { from { transform: translateY(0); opacity: 1; } to { transform: translateY(70px); opacity: 0; } }
+.rr-glassful__water { fill: var(--rv-teal); transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform 1s ease-out .3s; }
+.rr-glassful.is-full .rr-glassful__water { transform: scaleY(1); }
+.rr-drop-in { animation: rr-drop-in .35s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes rr-drop-in { from { transform: translateY(-14px) scale(.6); opacity: 0; } }
+
+/* Round 4: filter beds */
+.rr-bed__box { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; transition: stroke .3s; }
+.rr-bed__sand { fill: var(--rv-line); transition: fill .3s; }
+.rr-bed__water { fill: transparent; transition: fill .3s; }
+.rr-bed.is-on .rr-bed__box { stroke: var(--rv-ink); }
+.rr-bed.is-on .rr-bed__sand { fill: var(--rv-yellow); }
+.rr-bed.is-on .rr-bed__water { fill: color-mix(in srgb, var(--rv-teal) 55%, var(--rv-surface)); }
+.is-hit .rr-bed.is-on .rr-bed__box { stroke: var(--rv-good); stroke-width: 3; }
+.is-high .rr-bed.is-on .rr-bed__box { stroke: var(--rv-redpen); }
+.is-low .rr-bed:not(.is-on) .rr-bed__box { stroke: var(--rv-redpen); stroke-dasharray: 4 3; }
+
+/* Round 5: comic panels and the balances */
+.rr-panel__box { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2.5; stroke-dasharray: 6 4; }
+.rr-panel__n { fill: var(--rv-night); }
+.rr-panel__nt { font: 800 13px var(--rv-font-display); fill: var(--rv-yellow); }
+.rr-panel__q { font: 800 30px var(--rv-font-display); fill: var(--rv-line); }
+.rr-panel__label { font: 800 13px var(--rv-font-display); fill: var(--rv-ink); }
+.rr-panel.is-filled .rr-panel__box { stroke: var(--rv-ink); stroke-dasharray: none; }
+.rr-panel.is-next .rr-panel__box { stroke: var(--rv-yellow-deep); stroke-width: 3.5; animation: rr-blink 1s ease-in-out infinite; }
+.rr-panel.is-bad .rr-panel__box { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.rr-panel.is-bad .rr-panel__label { fill: var(--rv-redpen); }
+.is-hit .rr-panel__box { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.rr-mini { font: 700 12px var(--rv-font-body); fill: var(--rv-muted); }
+.rr-pour { fill: none; stroke: var(--rv-teal); stroke-width: 3; stroke-linecap: round; }
+.rr-tripod { stroke: var(--rv-ink-2); stroke-width: 3; stroke-linecap: round; }
+.rr-dropper { fill: var(--rv-ink-2); }
+.rr-drop-ind { fill: var(--rv-step-b); }
+.rr-dish { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.rr-residue { fill: var(--rv-muted); transition: rx .5s, ry .5s; }
+.is-hit .rr-residue { fill: var(--rv-good); }
+.is-miss .rr-residue { fill: var(--rv-redpen); }
+.rr-balance { fill: var(--rv-night); }
+.rr-balance__read { font: 800 15px var(--rv-font-display); fill: var(--rv-on-night); font-variant-numeric: tabular-nums; }
+.rr-minus { font: 800 30px var(--rv-font-display); fill: var(--rv-muted); }
+.rr-steam.is-loop { animation: rr-steam 1.8s ease-out infinite; }
+@keyframes rr-steam { 0% { opacity: 0; transform: translateY(8px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-svg *, .rr-svg { animation: none !important; transition: none !important; }
+  .rr-drip.is-off { opacity: 0; }
+}

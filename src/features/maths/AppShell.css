@@ -119,3 +119,15 @@
 @media (min-width: 900px) {
   .shell-nav--bottom { display: none; }
 }
+
+/* ---------- Arcade: the whole screen goes dark (arcade floor), so the neon cabinets never sit on white ---------- */
+html:has(.shell[data-section="lab"]), html:has(.shell[data-section="lab"]) body { background: #070a1a; }
+.shell[data-section="lab"],
+.shell[data-section="lab"] .shell-main { background: #070a1a; background-image: none; }
+@media (max-width: 899px) {
+  .shell[data-section="lab"] .shell-top { background: #070a1a; border-bottom-color: var(--rv-night-3); color: var(--rv-on-night); }
+  .shell[data-section="lab"] .subject-switch--top { background: var(--rv-night-2); }
+  .shell[data-section="lab"] .subject-switch--top button:not([aria-pressed="true"]) { color: var(--rv-on-night-muted); }
+  .shell[data-section="lab"] .shell-top__streak:not(.is-lit) { color: var(--rv-on-night-muted); background: var(--rv-night-2); }
+  .shell[data-section="lab"] .path-pill { box-shadow: inset 0 0 0 1px rgb(255 211 92 / 50%); }
+}

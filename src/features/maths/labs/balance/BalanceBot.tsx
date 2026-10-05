@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain, StepDots, useStepPace } from '../../step-chain/StepChain'
 import { prefersReducedMotion } from '../../step-chain/flip'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, recordRank, say, useScore, useShare, type Speaker, livesPerRound, IntroSplit } from '../kit/Lab'
+import { useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { puzzles, sideText, type Scale as ScaleState, type Side } from './puzzles'
+import { makePuzzles, sideText, type Scale as ScaleState, type Side, type Puzzle } from './puzzles'
 import './BalanceBot.css'
 
 type Screen = 'intro' | 'question' | 'payout' | 'busted' | 'done'
@@ -20,6 +21,18 @@ const INTROS = [
   'Hello, human. I am B-4L. My one job is balance. Please do not tip me over.',
   'Two mystery boxes. My sensors say they weigh the same. Find out what.',
   'Boxes on BOTH sides. This is my favourite. Also my scariest.',
+  'Someone put my boxes in a bracket. Rude. Please get them out.',
+  'BOSS MODE. Heavier blocks, boxes everywhere, and an exam board watching. No pressure.',
+]
+/** The start button for each level. */
+const STARTS = ['Balance it', 'Balance it', 'Balance it', 'Open the bracket', 'Beat the boss']
+/** The busted tip for each level: the slip that most often tips this one over. */
+const TIPS = [
+  'Whatever you do to one side, do to the other. Undo the + with a −.',
+  'Clear the loose numbers first, then share by the number of x’s.',
+  'Boxes both sides? Take the same number of boxes off each side first.',
+  'A number outside a bracket means that many lots. Share by it first and the bracket opens.',
+  'Take the SMALLER number of boxes off both sides. Then clear the loose weights, then share.',
 ]
 const RANKS: Parameters<typeof rankFor>[2] = [
   { badge: '🧠', name: 'Equation Engineer', line: 'Perfect balance every time. B-4L wants to be you.' },
@@ -31,28 +44,28 @@ const RANKS: Parameters<typeof rankFor>[2] = [
 const none: ScaleState = { left: { x: 0, u: 0 }, right: { x: 0, u: 0 } }
 const less = (a: Side, b: Side): Side => ({ x: Math.max(0, a.x - b.x), u: Math.max(0, a.u - b.u) })
 
-function Pan({ side, leaving, reveal }: { side: Side; leaving: Side; reveal: number | null }) {
+function Pan({ side, leaving, reveal, unit }: { side: Side; leaving: Side; reveal: number | null; unit: number }) {
   return <div className="bb-pan__items">
     {Array.from({ length: side.x }, (_, i) => <span key={`x${i}`} className={`bb-box${i >= side.x - leaving.x ? ' is-leaving' : ''}${reveal !== null ? ' is-open' : ''}`}>{reveal ?? 'x'}</span>)}
-    {Array.from({ length: side.u }, (_, i) => <span key={`u${i}`} className={`bb-weight${i >= side.u - leaving.u ? ' is-leaving' : ''}`}>1</span>)}
+    {Array.from({ length: side.u }, (_, i) => <span key={`u${i}`} className={`bb-weight${i >= side.u - leaving.u ? ' is-leaving' : ''}`}>{unit}</span>)}
   </div>
 }
 
 /** The see-saw. It tips when the two sides stop being equal, and the pans stay level as it swings. */
-function Balance({ scale, leaving, tilt, reveal }: { scale: ScaleState; leaving: ScaleState; tilt: number; reveal: number | null }) {
-  return <figure className="bb-scale" style={{ ['--tilt' as string]: `${tilt}deg` }} aria-label={`Scale: ${sideText(scale.left)} on the left, ${sideText(scale.right)} on the right`}>
+function Balance({ scale, leaving, tilt, reveal, unit }: { scale: ScaleState; leaving: ScaleState; tilt: number; reveal: number | null; unit: number }) {
+  return <figure className="bb-scale" style={{ ['--tilt' as string]: `${tilt}deg` }} aria-label={`Scale: ${sideText(scale.left, unit)} on the left, ${sideText(scale.right, unit)} on the right`}>
     <div className="bb-beam" />
-    <div className="bb-pan bb-pan--left"><Pan side={scale.left} leaving={leaving.left} reveal={reveal} /></div>
-    <div className="bb-pan bb-pan--right"><Pan side={scale.right} leaving={leaving.right} reveal={reveal} /></div>
+    <div className="bb-pan bb-pan--left"><Pan side={scale.left} leaving={leaving.left} reveal={reveal} unit={unit} /></div>
+    <div className="bb-pan bb-pan--right"><Pan side={scale.right} leaving={leaving.right} reveal={reveal} unit={unit} /></div>
     <div className="bb-post" />
   </figure>
 }
 
-export default function BalanceBot() {
+function BalanceBotGame({ puzzles, onReplay }: { puzzles: Puzzle[]; onReplay: () => void }) {
   const [puzzleIndex, setPuzzleIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('intro')
   const [moveIndex, setMoveIndex] = useState(0)
-  const [scale, setScale] = useState<ScaleState>(puzzles[0].start)
+  const [scale, setScale] = useState<ScaleState>(() => puzzles[0].start)
   const [leaving, setLeaving] = useState<ScaleState>(none)
   const [tilt, setTilt] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
@@ -99,7 +112,7 @@ export default function BalanceBot() {
     else { score.bank(); setScreen('payout'); sfx.win() }
   }
 
-  const restart = () => { score.reset(); resetShare(); startPuzzle(0) }
+  const restart = onReplay
 
   if (screen === 'done') {
     const rank = rankFor(score.kept, puzzles.length, RANKS)
@@ -107,8 +120,8 @@ export default function BalanceBot() {
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Balance Bot complete</p>
-        <RankCard rank={rank} stats={[['Equations', `${puzzles.length}/${puzzles.length}`], ['Lives kept', `${score.kept}/${puzzles.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Do the same to both sides, always.', 'Clear the loose numbers with + or −.', 'Then ÷ by the number of x’s.']} />
+        <RankCard rank={rank} stats={[['Equations', `${puzzles.length}/${puzzles.length}`], ['Lives kept', `${score.kept}/${puzzles.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <Rule steps={['Do the same to both sides, always.', 'Boxes both sides? Take the fewer off. Bracket? Share first.', 'Clear the loose numbers, then ÷ by the number of x’s.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -119,27 +132,28 @@ export default function BalanceBot() {
     </main>
   }
 
-  const equation = `${sideText(scale.left)} = ${sideText(scale.right)}`
+  // Blocks can't show a bracket, so a level that starts with one shows its own text until the first move.
+  const equation = puzzle.startText && scale === puzzle.start ? puzzle.startText : `${sideText(scale.left, puzzle.unit)} = ${sideText(scale.right, puzzle.unit)}`
 
   return <main className="lab">
     <LabTop progress={`Level ${puzzleIndex + 1}/${puzzles.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">{puzzle.title}</p>
-        <h1 className="lab-title">What’s in the box? <span className="bb-eq">{puzzle.equation}</span></h1>
-        <div className="lab-card rv-paper"><Balance scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>
-        <Quip speaker={BOT}>{INTROS[puzzleIndex]}</Quip>
-        <Why>{puzzle.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen('question') }}>Balance it</button>
-      </footer>
+      <IntroSplit
+        key={puzzleIndex}
+        kicker={puzzle.title}
+        title={<>What’s in the box? <span className="bb-eq">{puzzle.equation}</span></>}
+        scene={<div className="lab-card rv-paper"><Balance unit={puzzle.unit} scale={puzzle.start} leaving={none} tilt={0} reveal={null} /></div>}
+        speaker={BOT} line={INTROS[puzzleIndex]}
+        why={puzzle.why}
+        start={STARTS[puzzleIndex] ?? 'Balance it'}
+        onStart={() => { sfx.tick(); setScreen('question') }}
+      />
     </>}
 
     {screen === 'question' && <>
       <section className="lab-card rv-paper bb-stage">
-        <Balance scale={scale} leaving={leaving} tilt={tilt} reveal={solved && !leaving.left.x && !leaving.right.u ? puzzle.solution : null} />
+        <Balance unit={puzzle.unit} scale={scale} leaving={leaving} tilt={tilt} reveal={solved && !leaving.left.x && !leaving.right.u ? puzzle.solution : null} />
         <p className="bb-equation" aria-live="polite">{equation}</p>
       </section>
       <section className="lab-ask">
@@ -161,7 +175,7 @@ export default function BalanceBot() {
         <span className="lab-sirens" aria-hidden="true">🤖</span>
         <p className="lab-kicker">System crash</p>
         <h1 className="lab-title">B-4L tipped over. Reboot and try again.</h1>
-        <Why tag="Tip">Whatever you do to one side, do to the other. Clear the loose numbers first, then share by the number of x’s.</Why>
+        <Why tag="Tip">{TIPS[puzzleIndex] ?? TIPS[1]}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startPuzzle(puzzleIndex) }}>Reboot</button>
@@ -171,7 +185,7 @@ export default function BalanceBot() {
     {screen === 'payout' && <>
       <Burst key={puzzle.id} emoji="⚖️" />
       <section className="lab-card rv-paper bb-stage bb-stage--solved">
-        <Balance scale={scale} leaving={none} tilt={0} reveal={puzzle.solution} />
+        <Balance unit={puzzle.unit} scale={scale} leaving={none} tilt={0} reveal={puzzle.solution} />
         <p className="bb-equation">x = {puzzle.solution}</p>
       </section>
       <section className="lab-card lab-card--working rv-paper">
@@ -191,4 +205,10 @@ export default function BalanceBot() {
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function BalanceBot() {
+  const { data, play, regenerate } = useGenerated(makePuzzles)
+  return data ? <BalanceBotGame key={play} puzzles={data} onReplay={regenerate} /> : null
 }

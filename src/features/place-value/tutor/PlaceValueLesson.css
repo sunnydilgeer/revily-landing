@@ -14,3 +14,24 @@
   .pvt-working .opc-working-math { font-size: 17px; }
   .pvt-working .opb-toggles button { padding: 8px; font-size: 13px; }
 }
+
+/* Place-value chart workings (placeWorking.ts): column values over the digits, the digit worked on boxed in purple. */
+.pv-working { gap: 14px; min-height: 0; padding: 4px 0 0; }
+.pv-given { margin: 0; text-align: center; color: var(--rv-muted); font-size: 16px; }
+.pv-chart { margin: 0 auto; border-collapse: separate; border-spacing: 3px 4px; font-variant-numeric: tabular-nums; }
+.pv-chart th { padding: 0 2px; color: var(--rv-muted); font-size: 11px; font-weight: 600; white-space: nowrap; text-align: center; }
+.pv-chart th.is-on { color: var(--f); font-weight: 800; }
+.pv-chart td { min-width: 1.15em; padding: 2px 3px; border-radius: 7px; font-size: clamp(28px, 8vw, 36px); font-weight: 600; text-align: center; color: var(--rv-ink); }
+.pv-chart td.pv-chart__point { min-width: 0; padding: 0; }
+.pv-chart td.is-empty { box-shadow: inset 0 0 0 1.5px var(--rv-line); height: 1.2em; }
+.pv-chart td.is-boxed { box-shadow: inset 0 0 0 2.5px #7c3aed; color: #7c3aed; }
+.pv-chart td.is-zero { color: #7c3aed; background: color-mix(in srgb, #7c3aed 12%, transparent); }
+.pv-chart.is-answer tbody tr { background: var(--rv-good-tint); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rv-good) 55%, transparent); }
+.pv-chart.is-answer tbody td { color: var(--rv-good-ink); }
+.pv-chart.is-answer tbody tr td:first-child { border-radius: 999px 0 0 999px; }
+.pv-chart.is-answer tbody tr td:last-child { border-radius: 0 999px 999px 0; }
+.pv-lines li { color: var(--rv-ink); }
+.pv-lines__parts { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: .3em; }
+.pv-lines [class*="is-f"] { color: var(--f); font-weight: 600; }
+.pv-answer { padding: 2px 16px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); font-weight: 700; white-space: nowrap; }
+.pv-words { justify-self: center; margin: 0; max-width: 100%; box-sizing: border-box; border-radius: 18px; font-size: 18px; line-height: 1.3; text-align: center; white-space: normal; }

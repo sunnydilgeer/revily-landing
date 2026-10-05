@@ -65,6 +65,13 @@
 .cur-panel__later p { margin: 0; display: flex; align-items: center; gap: 8px; color: var(--rv-ink-2); line-height: 1.5; }
 .cur-panel__later p svg { flex: none; color: var(--rv-muted); }
 
+/* Search: the Contents drawer's search box and results, on the page. */
+.toc.cur-search { display: grid; gap: 16px; background: none; }
+.cur-search .toc-search { margin: 0; max-width: 560px; }
+.cur-search .toc-search input { background: var(--rv-surface); box-shadow: inset 0 0 0 2px var(--rv-line); }
+.cur-search .toc-search input:focus-visible { box-shadow: inset 0 0 0 2px var(--rv-biro); }
+.cur-search__results { padding: clamp(12px, 2vw, 20px); }
+
 /* The lesson line: one row per lesson, a dot on a vertical line. */
 .cur-path { position: relative; margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
 .cur-path::before { content: ''; position: absolute; left: 21px; top: 18px; bottom: 18px; width: 4px; border-radius: 2px; background: var(--rv-line); }
@@ -83,13 +90,31 @@
 }
 .cur-lesson.is-done .cur-lesson__dot { border-color: var(--rv-good); background: var(--rv-good); }
 .cur-lesson.is-progress .cur-lesson__dot { border-color: var(--rv-ink); background: linear-gradient(90deg, var(--rv-ink) 50%, var(--rv-surface) 50%); }
-.cur-lesson.is-next { display: flex; align-items: center; gap: 12px; margin: 4px 0; padding: 14px 14px 14px 8px; border-radius: var(--rv-radius-md); background: var(--rv-accent-tint); }
+.cur-lesson.is-next { margin: 4px 0; border-radius: var(--rv-radius-md); background: var(--rv-accent-tint); }
+.cur-lesson__card { display: flex; align-items: center; gap: 12px; padding: 14px 8px 14px 8px; }
 .cur-lesson.is-next .cur-lesson__dot { width: 30px; height: 30px; border-color: var(--rv-ink); background: var(--rv-accent); }
 .cur-lesson.is-next .cur-lesson__body { flex: 1; min-width: 0; }
 .cur-lesson.is-next h3 { font-size: 1.1rem; font-weight: 800; }
 .cur-lesson.is-next p { margin: 3px 0 0; color: var(--rv-ink-2); font-size: .88rem; line-height: 1.4; }
 .cur-lesson__go { flex: none; gap: 8px; }
 .cur-lesson__go svg { width: 14px; height: 14px; }
+
+/* Each lesson folds open to its sections, the same as in Contents. */
+.cur-chevron { flex: none; color: var(--rv-muted); transition: transform .2s ease; }
+[aria-expanded="false"] > .cur-chevron { transform: rotate(-90deg); }
+.cur-lesson__fold { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border: 0; border-radius: 10px; background: none; cursor: pointer; }
+.cur-lesson__fold:hover { background: rgb(19 28 48 / 6%); }
+.cur-sections { margin: 0 8px 8px 44px; padding: 2px 0 6px 14px; border-left: 2px solid var(--rv-line); list-style: none; }
+.cur-sections button {
+  width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 6px 10px; text-align: left; cursor: pointer;
+  border: 0; border-radius: 10px; background: none; color: var(--rv-ink-2); font: inherit; font-size: .93rem; line-height: 1.3;
+}
+.cur-sections button:hover { background: rgb(19 28 48 / 5%); }
+.cur-section__dot { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 2px solid var(--rv-line); }
+.cur-sections button[aria-current="step"] { color: var(--rv-ink); font-weight: 700; background: rgb(255 255 255 / 70%); }
+.cur-sections button[aria-current="step"] .cur-section__dot { border-color: var(--rv-ink); background: var(--rv-accent); }
+.cur-lesson__fold:focus-visible, .cur-sections button:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: -3px; }
+.cur-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 @media (max-width: 799px) {
   .cur-toc { grid-template-columns: minmax(0, 1fr); }
@@ -104,8 +129,9 @@
   .cur-toc__title { white-space: nowrap; font-size: .95rem; }
 }
 @media (max-width: 560px) {
-  .cur-lesson.is-next { flex-wrap: wrap; }
-  .cur-lesson__go { margin-left: 42px; width: calc(100% - 42px); }
+  .cur-lesson__card { flex-wrap: wrap; }
+  .cur-lesson__go { order: 2; margin-left: 42px; width: calc(100% - 42px); }
+  .cur-sections { margin-left: 20px; }
 }
 
 /* Coming soon (Revision cards, Practice) */
@@ -117,3 +143,24 @@
 .soon h1 { margin: 0; font-size: clamp(2rem, 6vw, 2.6rem); letter-spacing: -0.015em; }
 .soon p { margin: 0; color: var(--rv-ink-2); line-height: 1.55; }
 .soon .soon__unlock { margin: 8px 0 14px; padding: 8px 14px; border-radius: 999px; background: var(--rv-grid); color: var(--rv-muted); font-size: .9rem; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .cur-chevron { transition: none; } }
+
+/* Phones: no header, every chapter in one card, each folding open and closed. */
+.cur--phone { gap: 14px; }
+.cur--phone .cur-tier { justify-self: start; margin: 0; }
+.cur--phone .cur-toc__subjects { margin: 0; }
+.cur-acc { border: 2px solid var(--rv-line); border-radius: var(--rv-radius-lg); background: var(--rv-surface); overflow: hidden; }
+.cur-acc__chapter + .cur-acc__chapter { border-top: 2px solid var(--rv-grid); }
+.cur-acc__chapter h2 { margin: 0; font-size: inherit; }
+.cur-acc__head {
+  width: 100%; min-height: 60px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-align: left; cursor: pointer;
+  border: 0; background: none; color: var(--rv-ink); font: inherit;
+}
+.cur-acc__head:hover { background: var(--rv-paper); }
+.cur-acc__head:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: -3px; }
+.cur-acc__head[aria-expanded="true"] .cur-toc__num { background: var(--rv-curriculum); color: #fff; }
+.cur-acc__title { flex: 1; min-width: 0; font-family: var(--rv-font-display); font-weight: 800; font-size: 1.08rem; line-height: 1.25; }
+.cur-acc__head small { flex: none; display: inline-flex; color: var(--rv-muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.cur-acc__chapter.is-locked .cur-acc__title { color: var(--rv-ink-2); }
+.cur-acc__body { padding: 0 8px 12px; }
+.cur-acc__later { margin: 0; padding: 4px 8px 6px; display: flex; align-items: center; gap: 8px; color: var(--rv-ink-2); }
