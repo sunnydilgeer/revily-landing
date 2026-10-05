@@ -214,7 +214,7 @@ export type GraphFrame = {
   /** The step from one point to the other: across (change in x) or up/down (change in y), labelled with its size. */
   legs?: { from: GraphPoint; to: GraphPoint; label: string; family: number; at: number }[]
   boxed?: GraphPoint[]
-  /** The numbers on the axes this step reads, highlighted in its colour: x = 3 marks the 3 on the x axis. One step only. */
+  /** The numbers on the axes this step reads, highlighted x amber and y biro blue (as in the brackets): x = 3 marks the 3. One step only. */
   marks?: { axis: 'x' | 'y'; value: number; family: number }[]
   working?: { text: string; family: number; at: number }[]
   answer?: { text: string; at: number }

@@ -299,7 +299,7 @@
 /* Straight line graphs (lesson 26, GR1, GraphPictures.tsx): drawn on the card's own squared paper (one square, one
    unit), so the box around a graph working lets the paper show through. Given lines in ink, a line a step draws in biro
    blue (green once it is the answer), across in amber and up or down in biro blue, the points read ringed in purple,
-   and the axis numbers a step reads highlighted in its colour. Nothing is drawn outside the grid. */
+   and the axis numbers a step reads highlighted x amber and y biro blue, like the brackets. Nothing is drawn outside the grid. */
 .rung-lesson .pvb-stage:has(.ns-graph) { background: transparent; }
 .ns-graph { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
 .ns-graph p { margin: 0; }
@@ -322,7 +322,12 @@
 .ns-graph__point circle { fill: var(--rv-ink); stroke: var(--rv-paper); stroke-width: 2; }
 .ns-graph__point text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
 .ns-graph__point.is-found circle { fill: var(--rv-biro); }
-.ns-graph__point.is-found text { fill: var(--rv-biro); }
+.ns-graph__point.is-found text { fill: var(--rv-ink); }
+.ns-graph__point tspan.is-x { fill: #b45309; }
+.ns-graph__point tspan.is-y { fill: var(--rv-biro); }
+.ns-graph__pair { color: var(--rv-ink); }
+.ns-graph__pair .is-x { color: #b45309; }
+.ns-graph__pair .is-y { color: var(--rv-biro); }
 .ns-graph__leg line { stroke: var(--f); stroke-width: 3.5; stroke-linecap: round; }
 .ns-graph__leg path { fill: none; stroke: var(--f); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .ns-graph__leg text { fill: var(--f); font-size: 18px; font-weight: 800; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }

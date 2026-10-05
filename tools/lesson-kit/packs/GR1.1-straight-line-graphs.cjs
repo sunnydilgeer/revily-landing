@@ -4,6 +4,11 @@
 module.exports = ({ line, big, result, answer, row, picture }) => {
   const INK = '#17213a', BIRO = '#2443b5', AMBER = '#b45309', GREEN = '#0d7446', PURPLE = '#7c3aed', GRID = '#d5ddea', MUTED = '#5e6886'
   const show = n => String(n).replace('-', '−')
+  // x numbers are always amber and y numbers biro blue: on the axes, in a point's brackets and in the working.
+  const AXIS = { x: AMBER, y: BIRO }
+  const pair = (x, y, label) => label === `(${show(x)}, ${show(y)})` ? `(<tspan fill="${AMBER}">${show(x)}</tspan>, <tspan fill="${BIRO}">${show(y)}</tspan>)` : label
+  /** (x, y) in KaTeX, coloured like the axes. */
+  const tex = (x, y) => `(\\textcolor{${AMBER}}{${show(x).replace('−', '-')}}, \\textcolor{${BIRO}}{${show(y).replace('−', '-')}})`
   /**
    * A grid drawn to its numbers: one square per unit, the axes, straight lines edge to edge (each through two points),
    * points with their coordinates, the steps between two points (across amber, up or down biro blue) and rings.
@@ -17,7 +22,7 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
     const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i)
     // Keeps a label of `size` font inside the grid: returns its anchor x and baseline y moved in from any edge.
     const inside = (x, y, text, size, anchor) => {
-      const w = String(text).replace(/<[^>]+>/g, '').length * size * 0.6, pad = 4
+      const w = String(text).replace(/<[^>]+>/g, '').length * size * 0.5, pad = 4
       const left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x
       const nx = x + Math.max(0, px(x0) + pad - left) - Math.max(0, left + w - (px(x1) - pad))
       const ny = Math.min(Math.max(y, py(y1) + pad + size * 0.8), py(y0) - pad - size * 0.2)
@@ -27,7 +32,7 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
       const [nx, ny] = inside(x, y, words, size, anchor)
       return `<text x="${nx}" y="${ny}" font-size="${size}" font-weight="${weight}"${italic ? ' font-style="italic"' : ''} fill="${colour}" text-anchor="${anchor}"${halo ? ' paint-order="stroke" stroke="#fff" stroke-width="5" stroke-linejoin="round"' : ''}>${words}</text>`
     }
-    const parts = []
+    const parts = [], late = []
     for (const x of range(x0, x1)) parts.push(`<line x1="${px(x)}" x2="${px(x)}" y1="${py(y1)}" y2="${py(y0)}" stroke="${GRID}" stroke-width="1"/>`)
     for (const y of range(y0, y1)) parts.push(`<line x1="${px(x0)}" x2="${px(x1)}" y1="${py(y)}" y2="${py(y)}" stroke="${GRID}" stroke-width="1"/>`)
     // The axes, their arrowheads ending just inside the grid's edge.
@@ -35,7 +40,7 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
     parts.push(`<path d="M${px(x0)} ${py(0)}H${ex}M${ex - 8} ${py(0) - 5}L${ex} ${py(0)}L${ex - 8} ${py(0) + 5}M${px(0)} ${py(y0)}V${ey}M${px(0) - 5} ${ey + 8}L${px(0)} ${ey}L${px(0) + 5} ${ey + 8}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`)
     parts.push(text(ex - 4, py(0) - 8, 'x', { size: 16, italic: true, anchor: 'end' }) + text(px(0) + 9, ey + 14, 'y', { size: 16, italic: true }))
     if (numbers) {
-      const marked = (axis, v) => marks.find(m => m.axis === axis && m.value === v)
+      const marked = (axis, v) => marks.find(m => m.axis === axis && m.value === v) && { colour: AXIS[axis] }
       const number = (axis, v, x, y, anchor) => {
         const m = marked(axis, v), words = show(v), [nx, ny] = inside(x, y, words, 12, anchor)
         if (!m) return `<text x="${nx}" y="${ny}" font-size="12" font-weight="600" fill="${MUTED}" text-anchor="${anchor}" paint-order="stroke" stroke="#fff" stroke-width="3" stroke-linejoin="round">${words}</text>`
@@ -43,8 +48,9 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
         return `<rect x="${left}" y="${ny - 12}" width="${w}" height="16" rx="8" fill="${m.colour}"/><text x="${anchor === 'end' ? nx : nx}" y="${ny}" font-size="12" font-weight="800" fill="#fff" text-anchor="${anchor}">${words}</text>`
       }
       // The grid's edge numbers are left off so nothing sits outside; 0 is written once, by the origin.
-      for (const x of range(x0 + 1, x1 - 1).filter(x => x)) parts.push(number('x', x, px(x), py(0) + 15, 'middle'))
-      for (const y of range(y0 + 1, y1 - 1).filter(y => y)) parts.push(number('y', y, px(0) - 6, py(y) + 4, 'end'))
+      // Highlighted numbers go on top of everything, so no line or ring hides them.
+      for (const x of range(x0 + 1, x1 - 1).filter(x => x)) (marked('x', x) ? late : parts).push(number('x', x, px(x), py(0) + 15, 'middle'))
+      for (const y of range(y0 + 1, y1 - 1).filter(y => y)) (marked('y', y) ? late : parts).push(number('y', y, px(0) - 6, py(y) + 4, 'end'))
       parts.push(`<text x="${px(0) - 5}" y="${py(0) + 14}" font-size="12" font-weight="600" fill="${MUTED}" text-anchor="end">0</text>`)
     }
     for (const { from, to, colour = INK, label, labelAt } of lines) {
@@ -68,12 +74,12 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
     for (const p of rings) parts.push(`<circle cx="${px(p.x)}" cy="${py(p.y)}" r="11" fill="none" stroke="${PURPLE}" stroke-width="2.5"/>`)
     for (const { x, y, label = `(${show(x)}, ${show(y)})`, dx = 1, dy = 1 } of points) {
       parts.push(`<circle cx="${px(x)}" cy="${py(y)}" r="5.5" fill="${INK}" stroke="#fff" stroke-width="2"/>`)
-      if (label) parts.push(text(px(x) + dx * 8, py(y) + (dy > 0 ? 22 : -10), label, { anchor: dx > 0 ? 'start' : 'end' }))
+      if (label) parts.push(text(px(x) + dx * 11, py(y) + (dy > 0 ? 25 : -13), label, { anchor: dx > 0 ? 'start' : 'end' }).replace(`>${label}<`, `>${pair(x, y, label)}<`))
     }
-    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Poppins, Lato, sans-serif">${parts.join('')}</svg>`
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Poppins, Lato, sans-serif">${parts.join('')}${late.join('')}</svg>`
   }
-  /** The axis numbers two points sit on, highlighted in `colour`. */
-  const marksOf = (colour, ...ps) => ps.flatMap(p => [{ axis: 'x', value: p.x, colour }, { axis: 'y', value: p.y, colour }])
+  /** The axis numbers in points' brackets, highlighted (x amber, y biro blue). */
+  const marksOf = (...ps) => ps.flatMap(p => [{ axis: 'x', value: p.x }, { axis: 'y', value: p.y }])
   const pt = (x, y, extra = {}) => ({ x, y, ...extra })
   const gradientOf = (a, b) => (b.y - a.y) / (b.x - a.x)
   const onLine = (a, b, p) => (b.x - a.x) * (p.y - a.y) === (b.y - a.y) * (p.x - a.x)
@@ -109,16 +115,16 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
           [picture(graph({ ...base, unit: 19 })), 3.2]] },
         { stage: 'Step 1 · two points', title: 'Pick two points on the line', items: [
           [side(graph(base), line('choose two points where the line crosses grid corners exactly')), 3.2],
-          [side(graph({ ...marked, rings: [A, Bp], marks: marksOf(PURPLE, A, Bp) }), line('choose two points where the line crosses grid corners exactly'), result('(1, 2) \\text{ and } (3, 8)')), 3.6, 0]] },
-        { stage: 'Step 2 · change in y', title: 'Count up', from: '$(1, 2)$ and $(3, 8)$', items: [
-          [side(graph({ ...marked, legs: [upLeg], marks: [{ axis: 'y', value: 2, colour: BIRO }, { axis: 'y', value: 8, colour: BIRO }] }), line('from $y = 2$ up to $y = 8$'), result('\\text{change in } y = 6')), 3.8]] },
+          [side(graph({ ...marked, rings: [A, Bp], marks: marksOf(A, Bp) }), line('choose two points where the line crosses grid corners exactly'), result(`${tex(1, 2)} \\text{ and } ${tex(3, 8)}`)), 3.6, 0]] },
+        { stage: 'Step 2 · change in y', title: 'Count up', from: `$${tex(1, 2)}$ and $${tex(3, 8)}$`, items: [
+          [side(graph({ ...marked, legs: [upLeg], marks: [{ axis: 'y', value: 2 }, { axis: 'y', value: 8 }] }), line('from $y = 2$ up to $y = 8$'), result('\\text{change in } y = 6')), 3.8]] },
         { stage: 'Step 3 · change in x', title: 'Count across', from: 'change in $y$ = $6$', items: [
-          [side(graph({ ...marked, legs: [upLeg, acrossLeg], marks: [{ axis: 'x', value: 1, colour: AMBER }, { axis: 'x', value: 3, colour: AMBER }] }), line('from $x = 1$ across to $x = 3$'), result('\\text{change in } x = 2')), 3.8]] },
+          [side(graph({ ...marked, legs: [upLeg, acrossLeg], marks: [{ axis: 'x', value: 1 }, { axis: 'x', value: 3 }] }), line('from $x = 1$ across to $x = 3$'), result('\\text{change in } x = 2')), 3.8]] },
         { stage: 'Step 4 · divide', title: 'Up over across', from: 'up $6$, across $2$', items: [
           [big('\\text{gradient} = \\dfrac{\\text{change in } y}{\\text{change in } x}'), 3.2],
           [answer('gradient $= \\dfrac{6}{2} = 3$'), 3.2],
           [line('for every **1** square across, the line goes up **3**'), 3.4]] },
-        { title: 'Only the two points?', from: '$(1, 2)$ and $(3, 8)$', items: [
+        { title: 'Only the two points?', from: `$${tex(1, 2)}$ and $${tex(3, 8)}$`, items: [
           [line('no grid needed: subtract, in the same order both times'), 3],
           [row(result('8 - 2 = 6'), result('3 - 1 = 2')), 3.6],
           [answer('gradient $= 6 \\div 2 = 3$ ✓'), 3.4]] },
@@ -134,14 +140,14 @@ module.exports = ({ line, big, result, answer, row, picture }) => {
       title: 'Straight Line Graphs: Gradient',
       questions: [
         { n: '1', level: 'worked', marks: 2, question: 'Work out the gradient of the line drawn below.', figure: graph({ ...base, unit: 26 }), working: [
-          { say: 'Pick two points on grid corners: $(1, 2)$ and $(3, 8)$' },
-          { picture: graph({ ...marked, unit: 26, legs: [upLeg, acrossLeg], marks: [{ axis: 'y', value: 2, colour: BIRO }, { axis: 'y', value: 8, colour: BIRO }, { axis: 'x', value: 1, colour: AMBER }, { axis: 'x', value: 3, colour: AMBER }] }) },
+          { say: `Pick two points on grid corners: $${tex(1, 2)}$ and $${tex(3, 8)}$` },
+          { picture: graph({ ...marked, unit: 26, legs: [upLeg, acrossLeg], marks: [{ axis: 'y', value: 2 }, { axis: 'y', value: 8 }, { axis: 'x', value: 1 }, { axis: 'x', value: 3 }] }) },
           { say: 'Up $6$, across $2$' }, { mark: 'Change in $y$ and change in $x$' },
           { math: '\\text{gradient} = 6 \\div 2' }, { answer: 'Gradient $= 3$' }] },
         { n: '2', level: 'easy', marks: 1, question: 'Write down the equation of the line drawn below.', figure: graph({ x: [-4, 3], y: [-3, 3], unit: 26, lines: [{ from: pt(-1, 0), to: pt(-1, 1) }] }), working: [
           { say: 'It goes up and down, and every point on it has $x = -1$' }, { answer: '$x = -1$' }] },
         { n: '3', level: 'easy', marks: 2, question: 'Draw the lines $y = 1$ and $x = 4$ on the grid.', figure: graph({ x: [-2, 5], y: [-2, 4], unit: 26 }), working: [
-          { picture: graph({ x: [-2, 5], y: [-2, 4], unit: 26, lines: [{ from: pt(0, 1), to: pt(1, 1), colour: GREEN, label: 'y = 1', labelAt: 2 }, { from: pt(4, 0), to: pt(4, 1), colour: GREEN, label: 'x = 4' }], marks: [{ axis: 'y', value: 1, colour: GREEN }, { axis: 'x', value: 4, colour: GREEN }] }) },
+          { picture: graph({ x: [-2, 5], y: [-2, 4], unit: 26, lines: [{ from: pt(0, 1), to: pt(1, 1), colour: GREEN, label: 'y = 1', labelAt: 2 }, { from: pt(4, 0), to: pt(4, 1), colour: GREEN, label: 'x = 4' }], marks: [{ axis: 'y', value: 1 }, { axis: 'x', value: 4 }] }) },
           { mark: '$y = 1$ across, through $(0, 1)$' }, { answer: '$x = 4$ up and down, through $(4, 0)$' }] },
         { n: '4', level: 'medium', marks: 2, question: 'Work out the gradient of the line drawn below.', figure: graph({ x: [-2, 3], y: [-4, 4], unit: 26, lines: [{ from: pt(-1, -3), to: pt(2, 3) }] }), working: [
           { say: 'Two points on grid corners: $(-1, -3)$ and $(2, 3)$' }, { math: '\\text{change in } y = 6, \\quad \\text{change in } x = 3' }, { mark: 'Both changes' },

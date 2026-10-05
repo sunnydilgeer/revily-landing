@@ -38,7 +38,7 @@ function checkGrid(frame, where) {
   assert.ok(frame.x[1] - frame.x[0] <= 9, `${where}: the grid is at most 9 squares across`)
   // The axis numbers sit inside the grid, so there is a square left of the y axis and below the x axis.
   assert.ok(frame.x[0] <= -1 && frame.x[1] >= 1 && frame.y[0] <= -1 && frame.y[1] >= 1, `${where}: both axes, with their numbers, are inside the grid`)
-  for (const mark of frame.marks ?? []) assert.ok(mark.value >= frame[mark.axis][0] && mark.value < frame[mark.axis][1], `${where}: the marked ${mark.axis} = ${mark.value} is numbered on its axis`)
+  for (const mark of frame.marks ?? []) assert.ok(mark.value > frame[mark.axis][0] && mark.value < frame[mark.axis][1], `${where}: the marked ${mark.axis} = ${mark.value} is numbered on its axis`)
   for (const line of frame.lines ?? []) {
     if (!line.label) continue
     const [letter, value] = line.label.replace('−', '-').split(' = ')
@@ -124,6 +124,12 @@ for (const state of states) {
     for (const leg of (own.legs ?? []).filter(leg => leg.at === i)) {
       const axis = leg.from.y === leg.to.y ? 'x' : 'y'
       for (const end of [leg.from, leg.to]) assert.ok(own.marks.some(m => m.axis === axis && m.value === end[axis]), `${state.id} step ${i + 1}: ${axis} = ${end[axis]} is highlighted`)
+    }
+    // x numbers are amber and y numbers biro blue, on the axes as in the brackets; points a step adds or rings have
+    // both their numbers highlighted.
+    for (const m of own.marks ?? []) assert.equal(m.family, m.axis === 'x' ? 1 : 0, `${state.id} step ${i + 1}: ${m.axis} = ${m.value} is highlighted in the ${m.axis} colour`)
+    for (const p of [...(own.points ?? []).filter(p => p.at === i), ...(own.boxed ?? [])]) for (const axis of ['x', 'y']) {
+      if (p[axis] > own[axis][0] && p[axis] < own[axis][1] && !(own.legs ?? []).some(leg => leg.at === i)) assert.ok(own.marks.some(m => m.axis === axis && m.value === p[axis]), `${state.id} step ${i + 1}: (${p.x}, ${p.y}) has its ${axis} highlighted`)
     }
     assert.equal(Boolean(own.answer && own.answer.at === i), i === steps.length - 1, `${state.id} step ${i + 1}: the answer comes once, at the end`)
     if (i < steps.length - 1) assert.ok(!(own.lines ?? []).some(line => line.answer), `${state.id}: nothing green before the answer`)

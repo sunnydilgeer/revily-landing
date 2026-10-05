@@ -101,7 +101,7 @@ practice(lines, 'Which equation is the y axis?', 'GR1 p70 Horizontal and vertica
   ['y = 1', 'y = 1 goes across, one square above the x axis.'],
   ['x = 1', 'x = 1 goes up and down, one square to the right of the y axis.'],
 )), 'The y axis goes up and down. What is x at every point on it?', graphModel('the y axis', grid([-3, 3], [-3, 3]), [
-  plot([pt(0, -2), pt(0, 1), pt(0, 3)], 'Points on the y axis', 'Every point on the y axis has 0 as its first number.'),
+  plot([pt(0, -2), pt(0, 1), pt(0, 2)], 'Points on the y axis', 'Every point on the y axis has 0 as its first number.'),
   answerMove('x = 0', 'Every x is 0', 'It goes up and down, and every x coordinate on it is 0.'),
 ]))
 

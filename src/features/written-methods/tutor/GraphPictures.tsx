@@ -13,15 +13,27 @@ import { Powers } from './Powers'
  * On it: the axes, straight lines edge to edge, points with their coordinates, and the step from one point to another:
  * across (change in x, amber) and up or down (change in y, biro blue). A line the question gives is plain ink; a line a
  * step draws is biro blue, and green once it is the answer. The points a step reads are ringed in purple, and the
- * numbers it reads on the axes are highlighted in its colour, as in EXPLANATIONS.md.
+ * numbers it reads on the axes are highlighted, x amber and y biro blue, the same colours as in a point's brackets.
  */
 
 /** One unit: the side of a square of the page's grid (--rv-paper-grid-size). */
 const UNIT = 32
 const FAMILY = ['var(--rv-biro)', '#b45309', 'var(--rv-good-ink)', '#7c3aed']
+/** x numbers are always amber and y numbers biro blue: on the axes, in a point's brackets and in the working. */
+const AXIS = { x: FAMILY[1], y: FAMILY[0] }
 const fmt = (n: number) => String(n).replace('-', '−')
 const fix = (n: number) => n.toFixed(1)
 export const coordinate = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
+/** A point's coordinates with the x in its amber and the y in its biro blue, as on the axes. */
+const Pair = ({ x, y }: { x: string; y: string }) => <>(<tspan className="is-x">{x}</tspan>, <tspan className="is-y">{y}</tspan>)</>
+/** A line of working with every (x, y) in it coloured like the axes. */
+function Coordinates({ text }: { text: string }) {
+  const parts = text.split(/(\(−?[\d.]+, −?[\d.]+\))/)
+  return <>{parts.map((part, i) => {
+    const pair = /^\((−?[\d.]+), (−?[\d.]+)\)$/.exec(part)
+    return pair ? <span key={i} className="ns-graph__pair">(<span className="is-x">{pair[1]}</span>, <span className="is-y">{pair[2]}</span>)</span> : <Powers key={i} text={part} />
+  })}</>
+}
 
 /** The part of the line through a and b that is inside the grid (Liang–Barsky). */
 export function clip(frame: Pick<GraphFrame, 'x' | 'y'>, a: GraphPoint, b: GraphPoint): [GraphPoint, GraphPoint] {
@@ -123,6 +135,32 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
     return { x: x + dx, y: Math.min(Math.max(y, size + 2), height - 4) }
   }
 
+  /** The axis numbers: the plain ones under everything, the highlighted ones on top so a ring never hides them. */
+  const axisNumbers = (marked: boolean) => <g className="ns-graph__numbers">
+    {range(x0, x1).filter(x => x !== axisX && x !== x0 && x !== x1 && !!markOf('x', x) === marked).map(x => {
+      const mark = markOf('x', x), label = fmt(x)
+      return <g key={`nx${x}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.x } : undefined}>
+        {mark && <rect x={fix(px(x) + 0.5 - label.length * 4.5 - 5)} y={fix(py(axisY) + 4)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
+        <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18)}>{label}</text>
+      </g>
+    })}
+    {range(y0, y1).filter(y => y !== axisY && y !== y0 && y !== y1 && !!markOf('y', y) === marked).map(y => {
+      const mark = markOf('y', y), label = fmt(y)
+      return <g key={`ny${y}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.y } : undefined}>
+        {mark && <rect x={fix(px(axisX) - 4 - label.length * 9 - 6)} y={fix(py(y) - 9)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
+        <text className="is-y" x={fix(px(axisX) - 5)} y={fix(py(y) + 5)}>{label}</text>
+      </g>
+    })}
+    {(() => {
+      const mark = markOf('x', 0) ?? markOf('y', 0)
+      if (!!mark !== marked) return null
+      return <g className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS[mark.axis] } : undefined}>
+        {mark && <rect x={fix(px(axisX) - 20)} y={fix(py(axisY) + 4)} width="19" height="19" rx="9.5" />}
+        <text className="is-y" x={fix(px(axisX) - 5)} y={fix(py(axisY) + 18)}>0</text>
+      </g>
+    })()}
+  </g>
+
   return <div className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
     {head('picture')}
     <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={width + 1} height={height + 1} viewBox={`0 0 ${width + 1} ${height + 1}`}
@@ -135,32 +173,10 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
         <line x1="0" x2={width - 1} y1={fix(py(axisY) + 0.5)} y2={fix(py(axisY) + 0.5)} />
         <line x1={fix(px(axisX) + 0.5)} x2={fix(px(axisX) + 0.5)} y1="1" y2={height} />
         <path d={`M${width - 9} ${fix(py(axisY) - 5)} L${width - 2} ${fix(py(axisY) + 0.5)} L${width - 9} ${fix(py(axisY) + 6)} M${fix(px(axisX) - 5)} 9 L${fix(px(axisX) + 0.5)} 2 L${fix(px(axisX) + 6)} 9`} />
-        <text className="ns-graph__axis-name" x={width - 6} y={fix(py(axisY) - 7)} textAnchor="end">x</text>
+        <text className="ns-graph__axis-name" x={width - 6} y={fix(py(axisY) + 19)} textAnchor="end">x</text>
         <text className="ns-graph__axis-name" x={fix(px(axisX) + 9)} y="15">y</text>
       </g>
-      <g className="ns-graph__numbers">
-        {range(x0, x1).filter(x => x !== axisX && x !== x0 && x !== x1).map(x => {
-          const mark = markOf('x', x), label = fmt(x)
-          return <g key={`nx${x}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: FAMILY[mark.family % 4] } : undefined}>
-            {mark && <rect x={fix(px(x) + 0.5 - label.length * 4.5 - 5)} y={fix(py(axisY) + 4)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
-            <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18)}>{label}</text>
-          </g>
-        })}
-        {range(y0, y1).filter(y => y !== axisY && y !== y0 && y !== y1).map(y => {
-          const mark = markOf('y', y), label = fmt(y)
-          return <g key={`ny${y}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: FAMILY[mark.family % 4] } : undefined}>
-            {mark && <rect x={fix(px(axisX) - 4 - label.length * 9 - 6)} y={fix(py(y) - 9)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
-            <text className="is-y" x={fix(px(axisX) - 5)} y={fix(py(y) + 5)}>{label}</text>
-          </g>
-        })}
-        {(() => {
-          const mark = markOf('x', 0) ?? markOf('y', 0)
-          return <g className={mark ? 'is-marked' : undefined} style={mark ? { color: FAMILY[mark.family % 4] } : undefined}>
-            {mark && <rect x={fix(px(axisX) - 20)} y={fix(py(axisY) + 4)} width="19" height="19" rx="9.5" />}
-            <text className="is-y" x={fix(px(axisX) - 5)} y={fix(py(axisY) + 18)}>0</text>
-          </g>
-        })()}
-      </g>
+      {axisNumbers(false)}
       {lines.map((line, i) => {
         const [a, b] = clip(frame, line.from, line.to)
         // The label sits near one end, nudged off the line: the right end of a line across, the bottom of a line up
@@ -186,7 +202,11 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
         const other = legs.find(o => o !== leg && (across ? o.to.x === leg.from.x && o.to.y === leg.from.y : o.from.x === leg.to.x && o.from.y === leg.to.y))
         const outside = across ? (other ? other.to.y > other.from.y : leg.from.y <= (y0 + y1) / 2) : (other ? other.to.x > other.from.x : false)
         const anchor = across ? 'middle' as const : outside ? 'end' as const : 'start' as const
-        const label = inside(across ? (ax + bx) / 2 : ax + (outside ? -9 : 9), across ? ay + (outside ? -10 : 22) : (ay + by) / 2 + 6, leg.label, 18, anchor)
+        // A size that would sit on an axis (and its numbers) moves to the middle of the leg's longer side of it.
+        const [lo, hi, axisAt] = across ? [Math.min(ax, bx), Math.max(ax, bx), px(axisX) + 0.5] : [Math.min(ay, by), Math.max(ay, by), py(axisY) + 0.5]
+        const middle = lo < axisAt - 14 && hi > axisAt + 14 && Math.abs((lo + hi) / 2 - axisAt) < 24
+          ? (axisAt - lo >= hi - axisAt ? (lo + axisAt) / 2 : (axisAt + hi) / 2) : (lo + hi) / 2
+        const label = inside(across ? middle : ax + (outside ? -9 : 9), across ? ay + (outside ? -10 : 22) : middle + 6, leg.label, 18, anchor)
         return <g key={`g${i}`} className={`ns-graph__leg is-f${leg.family % 4}${done(leg.at)}`}>
           <line x1={fix(ax)} y1={fix(ay)} x2={fix(bx)} y2={fix(by)} />
           <path d={arrow} />
@@ -199,22 +219,24 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
         const onUpDown = lines.some(line => line.from.x === line.to.x && line.from.x === point.x) || points.filter(q => q.x === point.x).length > 2
         const onAcross = !onUpDown && (lines.some(line => line.from.y === line.to.y && line.from.y === point.y) || points.filter(q => q.y === point.y).length > 2)
         const right = point.x <= (x0 + x1) / 2
-        const place = point.place ? { x: point.place.dx * 7, y: point.place.dy > 0 ? 21 : -10, anchor: point.place.dx > 0 ? 'start' as const : 'end' as const }
-          : onUpDown ? { x: right ? 10 : -10, y: 5, anchor: right ? 'start' as const : 'end' as const }
-          : onAcross ? { x: 0, y: 21, anchor: 'middle' as const }
-          : { x: right ? 9 : -9, y: point.y < axisY ? 21 : -9, anchor: right ? 'start' as const : 'end' as const }
+        // Clear of the purple ring (radius 11) a point gets while it is read.
+        const place = point.place ? { x: point.place.dx * 13, y: point.place.dy > 0 ? 27 : -15, anchor: point.place.dx > 0 ? 'start' as const : 'end' as const }
+          : onUpDown ? { x: right ? 15 : -15, y: 5, anchor: right ? 'start' as const : 'end' as const }
+          : onAcross ? { x: 0, y: 27, anchor: 'middle' as const }
+          : { x: right ? 12 : -12, y: point.y < axisY ? 25 : -13, anchor: right ? 'start' as const : 'end' as const }
         const text = point.label ?? coordinate(point)
         const label = inside(px(point.x) + 0.5 + place.x, py(point.y) + 0.5 + place.y, text, 15, place.anchor)
         return <g key={`p${i}`} className={`ns-graph__point${point.at >= 0 ? ' is-found' : ''}${done(point.at)}`}>
           <circle cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r="5" />
-          {text !== '' && <text x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{text}</text>}
+          {text !== '' && <text x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</text>}
         </g>
       })}
       {!plain && (frame.boxed ?? []).map((point, i) => <circle key={`b${i}`} className="ns-graph__box" cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r="11" />)}
+      {axisNumbers(true)}
     </svg>
     {working.map((line, i) => <Fragment key={`w${i}`}>
       {frame.adds === 'lines' && line.at === frame.step && working.findIndex(l => l.at === frame.step) === i && head('lines')}
-      <p className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Powers text={line.text} /></p>
+      <p className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
     </Fragment>)}
     {!plain && frame.answer && <>
       {head('answer')}
