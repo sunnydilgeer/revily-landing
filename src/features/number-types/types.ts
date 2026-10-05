@@ -117,6 +117,9 @@ export type MicroSkillId =
   | 'inequalities-solve'
   | 'inequalities-solve-two-signs'
   | 'inequalities-negative'
+  | 'graphs-horizontal-vertical'
+  | 'graphs-gradient-graph'
+  | 'graphs-gradient-points'
   | 'mixed'
 
 export type LessonPhase =
@@ -167,6 +170,8 @@ export type InteractionDefinition = {
   responseShape?: 'fraction' | 'mixedNumber' | 'standardForm' | 'expression' | 'power' | 'roots' | 'formula' | 'dimensions' | 'list' | 'inequality' | 'numbers'
   /** A `list` answer: one box per number in `correctAnswer`, with this word between them ("and", or "," for a row of terms). */
   listJoiner?: string
+  /** A typed number that may be negative or a fraction (a gradient): the phone shows the full keyboard, which has − and /. */
+  signed?: boolean
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
   anyPower?: boolean
   requiredDenominator?: number

@@ -195,6 +195,30 @@ export type NumberLineFrame = {
   step: number
   adds: 'line' | 'lines' | 'answer'
 }
+/**
+ * A straight line graph (lesson 26, GR1), the whole picture so far: a square grid with its axes, straight lines (each
+ * through two points, drawn edge to edge), points with their coordinates, and the steps between two points: across
+ * (change in x, amber) and up or down (change in y, biro blue), as in the GR1.1 video. Under it, lines of working and the
+ * answer. Each part says which step added it (`at`, −1 for the question's own), so finished parts grey out; `boxed`
+ * rings points in purple while a step reads them. See GraphPictures.tsx.
+ */
+export type GraphPoint = { x: number; y: number }
+export type GraphFrame = {
+  /** The grid runs from x[0] to x[1] across and y[0] to y[1] up, one square per unit. */
+  x: [number, number]
+  y: [number, number]
+  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean }[]
+  /** `place` puts the coordinates to one side (dx −1 left, 1 right) and above or below (dy −1 above, 1 below), clear of
+   *  the line and the steps drawn from the point. */
+  points?: (GraphPoint & { label?: string; at: number; place?: { dx: number; dy: number } })[]
+  /** The step from one point to the other: across (change in x) or up/down (change in y), labelled with its size. */
+  legs?: { from: GraphPoint; to: GraphPoint; label: string; family: number; at: number }[]
+  boxed?: GraphPoint[]
+  working?: { text: string; family: number; at: number }[]
+  answer?: { text: string; at: number }
+  step: number
+  adds: 'picture' | 'lines' | 'answer'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 /** A part of a written method's line: its text, colour (`is-f…`) and whether it is boxed in purple (the carry being added). */
@@ -228,6 +252,7 @@ export type MethodFrame = {
   solve?: SolveFrame
   sequence?: SequenceFrame
   numberLine?: NumberLineFrame
+  graph?: GraphFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

@@ -11,6 +11,7 @@ import { QuadraticVisual } from './QuadraticPictures'
 import { SolveVisual } from './SolvePictures'
 import { SequenceVisual } from './SequencePictures'
 import { NumberLineVisual } from './InequalityPictures'
+import { GraphVisual } from './GraphPictures'
 import { Boxed, Powers } from './Powers'
 import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
@@ -180,7 +181,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
   const answer = own.ordering?.answer ?? (own.rounding?.stage === 'result' ? own.rounding.answer : undefined)
   const rule = own.rounding && own.rounding.stage !== 'identify' && !own.rounding.chop
-  const at = own.quadratic || own.solve || own.sequence || own.numberLine ? 'quadratic' : newTiles ? 'tiles' : own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
+  const at = own.quadratic || own.solve || own.sequence || own.numberLine || own.graph ? 'quadratic' : newTiles ? 'tiles' : own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
   return <>
     {at === 'picture' && heading}
     {terms && <TermsVisual frame={{ terms: terms.terms }} />}
@@ -193,6 +194,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {own.solve && <SolveVisual frame={own.solve} heading={heading} focus={example.focus} />}
     {own.sequence && <SequenceVisual frame={own.sequence} heading={heading} focus={example.focus} />}
     {own.numberLine && <NumberLineVisual frame={own.numberLine} heading={heading} focus={example.focus} />}
+    {own.graph && <GraphVisual frame={own.graph} heading={heading} focus={example.focus} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
     {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
@@ -243,6 +245,7 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
           ? { given: true, grids: first.expand.grids.map(grid => ({ side: grid.side.map(() => '?'), top: grid.top.map(() => '?'), cells: grid.cells?.map(row => row.map(cell => ({ text: cell.text }))) })) }
           : { grids: first.expand.grids.map(grid => ({ ...grid, cells: undefined })) }} /></div>
         // The equation as the question writes it, before any move: the board's first row, in plain ink.
+        if (first?.graph) return <div className="ns-visual rung-worked__visual"><GraphVisual frame={first.graph} plain /></div>
         if (first?.numberLine) return <div className="ns-visual rung-worked__visual"><NumberLineVisual frame={first.numberLine} plain /></div>
         if (first?.sequence) return <div className="ns-visual rung-worked__visual"><SequenceVisual frame={first.sequence} plain /></div>
         if (first?.solve) return <div className="ns-visual rung-worked__visual"><SolveVisual frame={first.solve} plain /></div>
