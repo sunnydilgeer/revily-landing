@@ -22,6 +22,12 @@ import TutorIndicesLesson from './features/indices/tutor/IndicesLessonView'
 import TutorExpandingLesson from './features/expanding/tutor/ExpandingLessonView'
 import TutorFactorisingLesson from './features/factorising/tutor/FactorisingLessonView'
 import TutorEquationsLesson from './features/equations/tutor/EquationsLessonView'
+import TutorRearrangingLesson from './features/rearranging/tutor/RearrangingLessonView'
+import TutorQuadraticsLesson from './features/quadratics/tutor/QuadraticsLessonView'
+import TutorQuadraticEquationsLesson from './features/quadratic-equations/tutor/QuadraticEquationsLessonView'
+import TutorSequencesLesson from './features/sequences/tutor/SequencesLessonView'
+import TutorInequalitiesLesson from './features/inequalities/tutor/InequalitiesLessonView'
+import TutorSolvingInequalitiesLesson from './features/solving-inequalities/tutor/SolvingInequalitiesLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -34,11 +40,12 @@ import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from '
 import dynamic from 'next/dynamic'
 import { RevilyLogo } from './ui'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
-import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber } from './features/maths/courseRegistry'
+import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber, type MathsSection } from './features/maths/courseRegistry'
 import {
   MATHS_LAST_LESSON_STORAGE_KEY,
   MATHS_PROGRESS_EVENT,
   readMathsProgress,
+  requestMathsState,
   type LessonProgressMap,
   type LessonProgressSnapshot,
 } from './features/maths/lessonProgress'
@@ -46,6 +53,7 @@ import {
 // Science carries its whole lesson catalogue, so Maths students don't download it until they switch.
 const ScienceCurriculum = dynamic(() => import('./features/science/ScienceCurriculum'), { ssr: false })
 const ScienceCards = dynamic(() => import('./features/science/cards/ScienceCards'), { ssr: false })
+const ScienceLabsHome = dynamic(() => import('./features/science/labs/ScienceLabsHome'), { ssr: false })
 
 type MathsView = 'overview' | 'lesson' | 'cards' | 'practice' | 'lab'
 
@@ -59,12 +67,14 @@ function lessonFromUrl() {
   return isMathsLessonNumber(value) ? value : null
 }
 
-function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice') {
+function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice', skill?: string) {
   const url = new URL(window.location.href)
   url.searchParams.delete('view')
   url.searchParams.delete('subject')
   if (lesson) url.searchParams.set('lesson', String(lesson))
   else url.searchParams.delete('lesson')
+  // The lesson opens at this skill (its engine reads ?section= once, then removes it).
+  if (skill) url.searchParams.set('section', skill)
   if (section) url.searchParams.set('view', section)
   window.history.pushState({}, '', `${url.pathname}${url.search}${url.hash}`)
 }
@@ -136,13 +146,13 @@ function App() {
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [])
 
-  const openLesson = useCallback((number: MathsLessonNumber) => {
+  const openLesson = useCallback((number: MathsLessonNumber, skill?: string) => {
     setLesson(number)
     setLastLesson(number)
     setView('lesson')
     setDrawerOpen(false)
     window.localStorage.setItem(MATHS_LAST_LESSON_STORAGE_KEY, String(number))
-    pushLessonQuery(number)
+    pushLessonQuery(number, undefined, skill)
   }, [])
 
   const showOverview = useCallback(() => {
@@ -172,6 +182,13 @@ function App() {
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [openLesson])
 
+  // A skill in the open lesson moves within it; a skill in another lesson opens that lesson at the skill.
+  const selectSkillFromDrawer = useCallback((number: MathsLessonNumber, section: MathsSection) => {
+    if (number === lesson) requestMathsState(getMathsLesson(number).lessonId, section.startStateId)
+    else openLesson(number, section.id)
+    window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
+  }, [lesson, openLesson])
+
   if (subject === 'science' || view !== 'lesson') {
     const active: AppSection = view === 'overview' || view === 'lesson' ? 'curriculum' : view
     return <div className="app-shell app-shell--course">
@@ -181,7 +198,9 @@ function App() {
             ? <ScienceCurriculum />
             : active === 'cards'
               ? <ScienceCards onOpenCurriculum={() => navigate('curriculum')} />
-              : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
+              : active === 'lab'
+                ? <ScienceLabsHome />
+                : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
           : view === 'overview'
             ? <Curriculum progress={progress} lastLesson={lastLesson} onOpenLesson={openLesson} />
             : view === 'cards'
@@ -219,7 +238,7 @@ function App() {
       progress={progress}
       onClose={closeDrawer}
       onSelectLesson={selectLessonFromDrawer}
-      onShowAll={showOverview}
+      onSelectSkill={selectSkillFromDrawer}
     />
   </div>
 }
@@ -264,6 +283,18 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorFactorisingLesson />
     case 19:
       return <TutorEquationsLesson />
+    case 20:
+      return <TutorRearrangingLesson />
+    case 21:
+      return <TutorQuadraticsLesson />
+    case 22:
+      return <TutorQuadraticEquationsLesson />
+    case 23:
+      return <TutorSequencesLesson />
+    case 24:
+      return <TutorInequalitiesLesson />
+    case 25:
+      return <TutorSolvingInequalitiesLesson />
   }
 }
 

@@ -10,6 +10,8 @@ import {
 } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
+import type { StepWorking } from '../../written-methods/tutor/stepWorking'
+import { countPlaces, decimalAddition, decimalDivision, decimalMultiplication, decimalSubtraction, digitValue, roundToPenny, scaleBoth } from './decimalSteps'
 
 const { add, finish } = author(6)
 const addition = 'decimal-addition', subtraction = 'decimal-subtraction', multiplication = 'decimal-multiplication', division = 'decimal-division'
@@ -107,6 +109,50 @@ practice(division, 'Zara says: “To divide by a decimal, only move the divisor�
 add('mixed', 'Line up, regroup, count and scale', 'N6.1-N6.4 consolidation', text('Add and subtract: align decimal points', 'Multiply: calculate whole-number digits, then restore the places', 'Divide: make the divisor whole and scale both numbers equally'), undefined, undefined, undefined, 'Choose the rule that matches the operation, keep every place value visible, and check that the answer is sensible.')
 
 const states = finish()
+
+/** Two subtractions one after the other: the first answer isn't the answer yet, so it isn't green. */
+function then(first: StepWorking, second: StepWorking, title: string): StepWorking {
+  const steps = first.steps.map((step, i) => i === first.steps.length - 1 && step.picture?.kind === 'columns' ? { ...step, picture: { ...step.picture, done: false } } : step)
+  return { ...first, steps: [...steps, { title, why: 'Subtractions are done from left to right, so take the next number from this answer.', picture: second.opening }, ...second.steps] }
+}
+// Every worked example and answer as pictures and lines, one move a step (decimalSteps.ts, src/features/EXPLANATIONS.md).
+const worked: Record<string, StepWorking> = {
+  'N6.1 Q1': decimalAddition(['5.6', '2.75']),
+  'N6.1 Q2': decimalAddition(['3.2', '4.5']),
+  'N6.1 Q3': decimalAddition(['12.08', '5.9']),
+  'N6.1 Q4a': decimalAddition(['23.45', '6.708']),
+  'N6.1 Q4b': roundToPenny('30.158'),
+  'N6.1 Q5a': decimalAddition(['14.6', '8.75', '3.081']),
+  'N6.1 Q5b': digitValue('26.431', '4', -1),
+  'N6.2 Q1': decimalSubtraction('8.35', '2.6'),
+  'N6.2 Q2': decimalSubtraction('5.8', '2.3'),
+  'N6.2 Q3': decimalSubtraction('14.2', '5.75'),
+  'N6.2 Q4a': decimalSubtraction('40', '17.85'),
+  'N6.2 Q4b': decimalSubtraction('40', '17.85', '£40 − £17.85'),
+  'N6.2 Q5a': then(decimalSubtraction('21.4', '8.75'), decimalSubtraction('12.65', '3.6'), 'Then take 3.6'),
+  'N6.2 Q5b': digitValue('9.05', '5', -2),
+  'N6.3 Q1': decimalMultiplication('3.4', '1.2'),
+  'N6.3 Q2': decimalMultiplication('2.5', '3'),
+  'N6.3 Q3': decimalMultiplication('4.6', '0.5'),
+  'N6.3 Q4a': decimalMultiplication('5.2', '3.4'),
+  'N6.3 Q4b': decimalMultiplication('5.2', '3.4', '£5.20 × 3.4'),
+  'N6.3 Q5a': decimalMultiplication('6.25', '1.6'),
+  'N6.3 Q5b': countPlaces('6.25', '1.6'),
+  'N6.4 Q1': decimalDivision('5.46', '0.6'),
+  'N6.4 Q2': decimalDivision('8.4', '2'),
+  'N6.4 Q3': decimalDivision('9.36', '1.2'),
+  'N6.4 Q4a': decimalDivision('12.6', '0.3'),
+  'N6.4 Q4b': decimalDivision('12.6', '0.3', '12.6 ÷ 0.3'),
+  'N6.4 Q5a': decimalDivision('15.75', '2.5'),
+  'N6.4 Q5b': scaleBoth('15.75', '2.5'),
+}
+for (const state of states) {
+  const key = state.sourceRef.split(/[;(]/)[0].trim()
+  const working = worked[key]
+  if (!working) continue
+  if (state.visual.kind === 'method-worked') state.visual = working
+  else state.working = working
+}
 export const tutorDecimalsLesson: TutorMethodLesson = {
   id: 'L006', number: 6, title: 'Decimal calculations', level: 'GCSE Foundation',
   goal: 'Add, subtract, multiply and divide decimals accurately using place value.',

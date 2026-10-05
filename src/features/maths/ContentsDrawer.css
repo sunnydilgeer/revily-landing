@@ -1,0 +1,104 @@
+/* Contents drawer (Maths and Science): an open book. Search, where you are, then chapters that fold open to lessons, and lessons that fold open to skills. No progress tracking. */
+
+.toc { background: var(--rv-surface, #fff); color: var(--rv-ink, #131c30); }
+.toc button, .toc a { font: inherit; color: inherit; text-decoration: none; }
+.toc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.toc-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 22px 20px 12px; }
+.toc-head p { margin: 0 0 2px; color: var(--rv-muted, #5d6679); font-size: .82rem; font-weight: 600; }
+.toc-head h2 { margin: 0; font-size: 2rem; line-height: 1; letter-spacing: -.02em; }
+.toc-close {
+  width: 40px; height: 40px; flex: none; display: grid; place-items: center; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--rv-grid, #eef1f6); color: var(--rv-ink-2, #3a4357);
+}
+.toc-close:hover { background: var(--rv-line, #dfe4ec); }
+
+.toc-search { position: relative; margin: 0 20px 6px; }
+.toc-search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--rv-muted, #5d6679); pointer-events: none; }
+.toc-search input {
+  width: 100%; min-height: 46px; padding: 0 14px 0 42px; border: 0; border-radius: 14px; outline: none;
+  background: var(--rv-grid, #eef1f6); color: var(--rv-ink, #131c30); font: 500 1rem var(--rv-font-body, inherit);
+}
+.toc-search input::placeholder { color: var(--rv-muted, #5d6679); }
+.toc-search input:focus-visible { box-shadow: 0 0 0 3px var(--rv-biro, #3b5bdb); }
+
+.toc-body { flex: 1; overflow-y: auto; padding: 10px 12px 32px; overscroll-behavior: contain; }
+
+/* You're here */
+.toc-here {
+  width: calc(100% - 16px); margin: 4px 8px 18px; display: grid; gap: 2px; padding: 14px 16px; text-align: left; cursor: pointer;
+  border: 0; border-radius: 18px; background: var(--rv-night, #131c30); color: #fff !important;
+}
+.toc-here__kicker { color: var(--rv-accent, #ffd35c); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.toc-here strong { font-size: 1.15rem; line-height: 1.25; }
+.toc-here__skill { color: rgb(255 255 255 / 75%); font-size: .9rem; }
+.toc-here__meta { margin-top: 8px; color: rgb(255 255 255 / 70%); font-size: .8rem; font-weight: 600; }
+
+/* Chevrons */
+.toc-chevron { flex: none; color: var(--rv-muted, #5d6679); transition: transform .2s ease; }
+[aria-expanded="false"] > .toc-chevron { transform: rotate(-90deg); }
+
+/* Chapters */
+.toc-chapter + .toc-chapter { margin-top: 6px; border-top: 1px solid var(--rv-line, #dfe4ec); padding-top: 6px; }
+.toc-chapter h3 { margin: 0; }
+.toc-chapter__head {
+  width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 10px; text-align: left; cursor: pointer;
+  border: 0; border-radius: 14px; background: none;
+}
+.toc-chapter__head:hover { background: var(--rv-grid, #eef1f6); }
+.toc-chapter__copy { flex: 1; min-width: 0; display: grid; }
+.toc-chapter__eyebrow { color: var(--rv-curriculum, #6d3fd8); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.toc-chapter__eyebrow--code { text-transform: none; letter-spacing: .04em; }
+.toc-chapter__title { font-size: 1.45rem; font-weight: 800; letter-spacing: -.015em; line-height: 1.2; }
+.toc-chapter__meta { color: var(--rv-muted, #5d6679); font-size: .85rem; font-weight: 500; }
+
+/* Lessons */
+.toc-lessons, .toc-skills { margin: 0; padding: 0; list-style: none; }
+.toc-lessons { padding-bottom: 6px; }
+.toc-lesson { border-radius: 14px; }
+.toc-lesson.is-current { background: var(--rv-accent-tint, #fff4d1); }
+.toc-lesson__open {
+  flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 10px; text-align: left; cursor: pointer;
+  width: 100%;
+  border: 0; border-radius: 14px; background: none;
+}
+.toc-lesson__open:hover { background: rgb(19 28 48 / 5%); }
+.toc-lesson__num { width: 22px; flex: none; color: var(--rv-muted, #5d6679); font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.toc-lesson__title { flex: 1; min-width: 0; font-size: 1.02rem; font-weight: 650; line-height: 1.3; }
+.toc-lesson.is-current .toc-lesson__title { font-weight: 800; }
+.toc-lesson__open small { flex: none; color: var(--rv-muted, #5d6679); font-size: .8rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Skills */
+.toc-skills { position: relative; margin: 0 0 8px 22px; padding: 2px 0 4px 18px; border-left: 2px solid var(--rv-line, #dfe4ec); }
+.toc-skills button, .toc-skills a {
+  width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 6px 10px; text-align: left; cursor: pointer;
+  border: 0; border-radius: 10px; background: none; color: var(--rv-ink-2, #3a4357); font-size: .93rem; line-height: 1.3;
+}
+.toc-skills button:hover, .toc-skills a:hover { background: rgb(19 28 48 / 5%); }
+.toc-skill__dot { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 2px solid var(--rv-line, #c9d0dc); }
+.toc-skills button[aria-current="step"] { color: var(--rv-ink, #131c30); font-weight: 700; background: rgb(255 255 255 / 70%); }
+.toc-skills button[aria-current="step"] .toc-skill__dot { border-color: var(--rv-ink, #131c30); background: var(--rv-accent, #ffd35c); }
+
+/* Search results */
+.toc-results-count { margin: 4px 10px 8px; color: var(--rv-muted, #5d6679); font-size: .85rem; }
+.toc-results { margin: 0; padding: 0; list-style: none; }
+.toc-results button, .toc-results a {
+  width: 100%; display: grid; gap: 1px; padding: 10px 12px; text-align: left; cursor: pointer; border: 0; border-radius: 12px; background: none;
+}
+.toc-results button:hover, .toc-results a:hover { background: var(--rv-grid, #eef1f6); }
+.toc-results strong { font-size: 1rem; }
+.toc-results span { color: var(--rv-muted, #5d6679); font-size: .82rem; }
+
+/* Subject switch (Science) */
+.toc-subjects { display: flex; gap: 4px; margin: 0 8px 10px; padding: 4px; border-radius: 999px; background: var(--rv-grid, #eef1f6); }
+.toc-subjects button {
+  flex: 1; min-height: 38px; padding: 0 8px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  color: var(--rv-ink-2, #3a4357) !important; font-size: .85rem !important; font-weight: 700 !important;
+}
+.toc-subjects button[aria-pressed="true"] { background: var(--rv-surface, #fff); color: var(--rv-ink, #131c30) !important; box-shadow: 0 1px 4px rgb(19 28 48 / 14%); }
+
+.toc a:focus-visible, .toc button:focus-visible { outline: 3px solid var(--rv-biro, #3b5bdb); outline-offset: -3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-chevron { transition: none; }
+}

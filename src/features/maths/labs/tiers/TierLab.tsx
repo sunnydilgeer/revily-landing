@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { CheckBar } from '../../../../ui'
 import { StepChain } from '../../step-chain/StepChain'
-import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank } from '../kit/Lab'
+import { Burst, Choices, Combo, LabTop, Quip, RankCard, Rule, Why, rankFor, say, useAutoReveal, useScore, useShare, type Speaker, recordRank , livesPerRound, IntroSplit } from '../kit/Lab'
+import { isTestMode, useGenerated } from '../kit/random'
 import { sfx } from '../kit/sfx'
-import { TIERS, describe, lists, priceQuestion, ranked, showValue, unitChain, unitValue, type Deal, type TierList } from './lists'
+import { makeLists, TIERS, describe, priceQuestion, ranked, showValue, unitChain, unitValue, type Deal, type TierList } from './lists'
 import './TierLab.css'
 
 type Screen = 'intro' | 'price' | 'rank' | 'busted' | 'done'
@@ -23,12 +24,6 @@ const DEL: Speaker = {
   right: ['Ugh. You’re good.', 'Stop checking the price of one!', 'There goes my profit.', 'Who told you about dividing?!', 'Fine. FINE.'],
   wrong: ['Ka-ching! Thanks for the money 🤑', 'Pleasure doing business.', 'Another happy customer.', 'I love a shopper who doesn’t check.'],
 }
-const PITCHES = [
-  'Trust me, the “2 for £2.50” is a proper offer. It says OFFER on it.',
-  'Everyone wants the 100 GB plan. Biggest is best, innit?',
-  'Starter pack, perfect for you. Small price, big fun. Don’t look at the maths.',
-]
-
 /** The working for one deal, played a line at a time once they get it right. */
 function DealWorking({ list, deal }: { list: TierList; deal: Deal }) {
   const steps = unitChain(list, deal)
@@ -45,7 +40,7 @@ function DealCard({ list, deal, priced, big = false }: { list: TierList; deal: D
   </div>
 }
 
-export default function TierLab() {
+function TierLabGame({ lists, onReplay }: { lists: TierList[]; onReplay: () => void }) {
   const [listIndex, setListIndex] = useState(0)
   const [screen, setScreen] = useState<Screen>('intro')
   const [dealIndex, setDealIndex] = useState(0)
@@ -110,7 +105,7 @@ export default function TierLab() {
     else setScreen('done')
   }
 
-  const restart = () => { score.reset(); resetShare(); startList(0) }
+  const restart = onReplay
 
   useEffect(() => {
     if (screen === 'done') recordRank('tiers', rankFor(score.kept, lists.length, RANKS), RANKS)
@@ -122,8 +117,8 @@ export default function TierLab() {
     return <main className="lab">
       <section className="lab-intro">
         <p className="lab-kicker">Tier lists complete</p>
-        <RankCard rank={rank} stats={[['Lists', `${lists.length}/${lists.length}`], ['Lives kept', `${score.kept}/${lists.length * 3}`], ['Best streak', `🔥 ${score.best}`]]} />
-        <Rule steps={['Don’t compare pack prices straight.', 'Find the price of one (or how many for £1).', 'Then compare like with like.']} />
+        <RankCard rank={rank} stats={[['Lists', `${lists.length}/${lists.length}`], ['Lives kept', `${score.kept}/${lists.length * livesPerRound()}`], ['Best streak', `🔥 ${score.best}`]]} />
+        <Rule steps={['Don’t compare pack prices straight. Work out what you really pay and get (offers, kg to g).', 'Find the price of one (or of 100 g, or how many for £1).', 'Then compare like with like.']} />
       </section>
       <footer className="lab-bar">
         <div className="lab-bar__actions lab-bar__actions--stack">
@@ -138,18 +133,20 @@ export default function TierLab() {
     <LabTop progress={`List ${listIndex + 1}/${lists.length}`} streak={score.streak} lives={score.lives} />
 
     {screen === 'intro' && <>
-      <section className="lab-intro">
-        <p className="lab-kicker">Tier list</p>
-        <h1 className="lab-title">{list.emoji} {list.title}: best value to worst</h1>
+      <IntroSplit
+        key={listIndex}
+        kicker={`${list.kicker ?? 'Tier list'} · ${listIndex + 1} of ${lists.length}`}
+        title={<>{list.emoji} {list.title}: best value to worst</>}
+        scene={<>
         <div className="tl-grid">
           {list.deals.map(deal => <DealCard key={deal.name} list={list} deal={deal} priced={false} />)}
         </div>
-        <Quip speaker={DEL}>{PITCHES[listIndex]}</Quip>
-        <Why>{list.why}</Why>
-      </section>
-      <footer className="lab-bar">
-        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setScreen(toPrice.length ? 'price' : 'rank') }}>Price them up</button>
-      </footer>
+        </>}
+        speaker={DEL} line={list.pitch}
+        why={list.why}
+        start="Price them up"
+        onStart={() => { sfx.tick(); setScreen(toPrice.length ? 'price' : 'rank') }}
+      />
     </>}
 
     {screen === 'price' && current && question && <>
@@ -192,6 +189,7 @@ export default function TierLab() {
             key={deal.name}
             type="button"
             className={`tl-pick${wrongTap === index ? ' is-wrong' : ''}`}
+            data-rank={isTestMode() ? order.indexOf(deal) : undefined}
             disabled={wrongTap !== null}
             onClick={() => place(index)}
           ><DealCard list={list} deal={deal} priced /></button>)}
@@ -210,11 +208,21 @@ export default function TierLab() {
         <span className="lab-sirens" aria-hidden="true">💸</span>
         <p className="lab-kicker">Ripped off</p>
         <h1 className="lab-title">The shop saw you coming.</h1>
-        <Why tag="Tip">Divide the price by how many you get. That’s the price of one, and now the deals are fair to compare.</Why>
+        <Why tag="Tip">{list.deals.some(deal => deal.offer?.kind === 'grams')
+          ? 'Count the lots of 100 g in each bag (1 kg = 1,000 g = 10 lots). Then divide the price by the lots.'
+          : list.deals.some(deal => deal.offer)
+            ? 'Sort the offer out first: what do you actually pay, and how many do you actually get? Then divide.'
+            : 'Divide the price by how many you get. That’s the price of one, and now the deals are fair to compare.'}</Why>
       </section>
       <footer className="lab-bar">
         <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { score.refill(); startList(listIndex) }}>Try this list again</button>
       </footer>
     </>}
   </main>
+}
+
+/** Fresh numbers every play: the game remounts with a new set on "again". */
+export default function TierLab() {
+  const { data, play, regenerate } = useGenerated(makeLists)
+  return data ? <TierLabGame key={play} lists={data} onReplay={regenerate} /> : null
 }

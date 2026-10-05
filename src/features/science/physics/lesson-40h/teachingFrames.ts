@@ -1,0 +1,30 @@
+import type { TeachingFrame } from '../../teachingFrame'
+
+// Calculating forces builds on resultant forces in a straight line (add or subtract) and force arrows as vectors, without
+// re-teaching them. Each teaching section keeps one drawing on screen and changes it frame by frame: a metal ring pulled
+// by two strings (8 N right, 6 N up) beside its scale drawing on squared paper (1 cm = 2 N); the same ring held still by a
+// third string, drawn as a closed triangle; and a sledge rope pulling at an angle, drawn on a square grid and split into
+// two components. Numbers are 3-4-5 triangles, so every measurement comes out whole. The last frame puts it together.
+const f = (label: string, summary: string, cue: string, text: string, focus: string): TeachingFrame => ({ label, summary, cue: `Think: ${cue}`, text, diagram: 'cellBiology', focus })
+
+export const calcForceFrames: Record<string, TeachingFrame[]> = {
+  'P40H-02': [
+    f('Forces at an angle', 'When two forces act at right angles, you cannot just add or subtract them.', '8 N right, 6 N up: not 14 N', 'Two strings pull a metal ring. One pulls 8 N to the right. The other pulls 6 N straight up. The forces are not along one line, so adding gives the wrong answer. The ring is pulled up and to the right at the same time.', 'hfdraw-res-forces'),
+    f('Choose a scale', 'Pick a scale that turns each force into a length, such as 1 cm = 2 N.', '8 N → 4 cm, 6 N → 3 cm', 'You can find the resultant with an accurate drawing. First choose a sensible scale, such as 1 cm = 2 N. Then 8 N is drawn 4 cm long and 6 N is drawn 3 cm long. A drawing where every length stands for a force is called a scale drawing.', 'hfdraw-res-scale'),
+    f('Tip-to-tail', 'Start each new arrow where the last one ended.', 'tip of the first → tail of the next', 'Draw the 8 N arrow first, 4 cm to the right, with a ruler. Then start the 6 N arrow at the tip of the first one. Draw it 3 cm straight up. Joining arrows like this, the start of one at the end of the last, is called tip-to-tail.', 'hfdraw-res-tiptotail'),
+    f('Draw the resultant', 'The resultant goes in a straight line from the start of the first arrow to the tip of the last.', 'start of first → tip of last', 'Now draw a straight line from the start of the first arrow to the tip of the last arrow. Put the arrowhead at the tip end. This line is the resultant force. It shows the one force that has the same effect as both strings.', 'hfdraw-res-line'),
+    f('Put it together', 'Measure the resultant: its length gives the size, and its angle gives the direction.', '5 cm × 2 = 10 N, at 37°', 'Measure the resultant with a ruler. It is 5 cm long, and 1 cm = 2 N, so it stands for 10 N. Use a protractor to measure its angle from the horizontal: 37°. The resultant is 10 N at 37° above the horizontal.', 'hfdraw-res-measure'),
+  ],
+  'P40H-07': [
+    f('Balanced forces', 'If the forces on an object add up to a resultant of zero, the object is in equilibrium.', 'resultant = 0 N → equilibrium', 'Now a third string pulls the ring down and to the left. The ring does not move, because the three forces balance. When all the forces add up to a resultant of zero, the forces are balanced. The object is then said to be in equilibrium.', 'hfdraw-eq-balanced'),
+    f('A closed triangle', 'Forces in equilibrium, drawn tip-to-tail, make a closed shape.', 'last tip ends at the first tail', 'Draw the three forces tip-to-tail, to scale. The tip of the last arrow lands exactly where the first arrow started. The arrows make a closed triangle, so there is no gap left for a resultant. A closed shape means the resultant is zero.', 'hfdraw-eq-triangle'),
+    f('Finding a missing force', 'If you know all but one force, draw the ones you know tip-to-tail and close the gap.', 'close the gap → missing force', 'Suppose you know the ring is in equilibrium, but you only know the 8 N and 6 N forces. Draw those two tip-to-tail. Then join the tip of the last arrow back to the start of the first. That line is the missing force.', 'hfdraw-eq-missing'),
+    f('Put it together', 'Measure the missing force. It is the same size as the resultant of the others, but opposite in direction.', '5 cm → 10 N, back to the start', 'The missing force is 5 cm long, so it is 10 N. It points down and to the left, back to the start. Its angle is 37° below the horizontal. It is the same size as the resultant of the other two, but in the opposite direction.', 'hfdraw-eq-together'),
+  ],
+  'P40H-11': [
+    f('One pull, two jobs', 'A force at an angle does two jobs at once: part of it acts sideways and part acts up or down.', 'rope at an angle: forwards and up', 'A child pulls a sledge with a rope at an angle. The 10 N pull moves the sledge forwards, and it also lifts the front a little. You can split the force into two forces at right angles. These two parts are called components.', 'hfdraw-comp-pull'),
+    f('Draw it on a grid', 'Draw the force to scale on a square grid, starting at a corner of a square.', '1 square = 1 N', 'To find the components, draw the force to scale on a square grid. Here each square stands for 1 N. Start the arrow at a corner where grid lines cross. Draw it the right length and at the right angle.', 'hfdraw-comp-grid'),
+    f('Follow the grid lines', 'Draw the horizontal component along a grid line, then the vertical component up to the tip.', 'across, then up to the tip', 'From the start of the force, draw a line across along a grid line, to below the tip. This is the horizontal component. Then draw a line straight up to the tip. This is the vertical component. The two make a right angle.', 'hfdraw-comp-lines'),
+    f('Put it together', 'Count the squares to measure each component. Together they have the same effect as the single force.', '8 squares across, 6 squares up', 'Count the squares along each component. The horizontal component is 8 squares, so 8 N pulls the sledge forwards. The vertical component is 6 squares, so 6 N lifts it. Together, the two components have the same effect as the single 10 N pull.', 'hfdraw-comp-together'),
+  ],
+}

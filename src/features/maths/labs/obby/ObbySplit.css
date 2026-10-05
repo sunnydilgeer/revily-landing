@@ -1,0 +1,58 @@
+/* Obby Split: the frequency tree, its boxes and the players streaming down the branches. Shared look in ../kit/lab.css. */
+.ob-tree { position: relative; margin: 0 auto; width: 100%; max-width: 340px; }
+.ob-tree svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+
+.ob-edge path { fill: none; stroke-linecap: round; }
+.ob-edge__track { stroke: var(--rv-line-strong); stroke-dasharray: 4 4; transition: stroke-width .4s; }
+.ob-edge.is-live .ob-edge__track { stroke: var(--rv-teal-tint); stroke-dasharray: none; }
+/* Players: a dotted stream that runs down a branch once its number is known. */
+.ob-edge__players { stroke: var(--rv-teal); stroke-dasharray: 1 7; animation: ob-run 1s linear infinite; transition: stroke-width .4s; }
+.ob-edge.is-sum .ob-edge__players { stroke: var(--rv-gold); }
+@keyframes ob-run { to { stroke-dashoffset: -16; } }
+
+.ob-edge__tag rect { fill: var(--rv-yellow); stroke: var(--rv-ink); stroke-width: 1.2; }
+.ob-edge__tag text { font: 800 11px/1 var(--rv-font-body); fill: var(--rv-ink); }
+
+/* Boxes sit over the SVG as HTML, so the empty ones are real buttons. */
+.ob-box {
+  position: absolute; box-sizing: border-box; display: grid; place-content: center; gap: 1px; padding: 0 2px;
+  border: 2px solid var(--rv-ink-2); border-radius: var(--rv-radius-sm); text-align: center;
+  color: var(--rv-ink); background: var(--rv-surface); font-family: var(--rv-font-body); line-height: 1;
+}
+.ob-box__tag { font-weight: 700; font-size: .62rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--rv-muted); }
+.ob-box__num { font: 800 1.15rem/1 var(--rv-font-display); font-variant-numeric: tabular-nums; }
+.ob-box.is-given { background: var(--rv-surface); }
+.ob-box.is-filled { border-color: var(--rv-good-ink); background: var(--rv-good-tint); animation: ob-land .45s cubic-bezier(.2, 1.6, .4, 1) both; }
+.ob-box.is-filled .ob-box__num { color: var(--rv-good-ink); }
+.ob-box.is-total { border-color: var(--rv-gold); }
+
+.ob-box.is-empty { border-style: dashed; border-color: var(--rv-muted); background: var(--rv-paper); cursor: pointer; }
+.ob-box.is-empty .ob-box__num { color: var(--rv-muted); }
+.ob-box.is-empty:hover:not(:disabled) { border-color: var(--rv-accent); }
+.ob-box.is-empty:focus-visible { outline: none; box-shadow: var(--rv-focus); }
+.ob-box.is-empty:disabled { cursor: default; }
+.ob-box.is-selected { border-style: solid; border-color: var(--rv-accent); background: var(--rv-yellow-tint); box-shadow: 0 0 0 3px var(--rv-yellow); }
+.ob-box.is-selected .ob-box__num { color: var(--rv-ink); }
+.ob-box.is-wrong { border-style: solid; border-color: var(--rv-redpen); background: var(--rv-redpen-tint); animation: lab-shake .4s; }
+.ob-box.is-wrong .ob-box__num { color: var(--rv-redpen); }
+.ob-box.is-picked-right { border-color: var(--rv-good-ink); background: var(--rv-good-tint); box-shadow: 0 0 0 3px var(--rv-good); animation: ob-land .45s both; }
+@keyframes ob-land { from { transform: scale(.7); } }
+
+/* What Blox knows: the facts behind the tree */
+.ob-clues {
+  margin: 0; padding: 10px 14px 10px 30px; border-radius: var(--rv-radius-md); background: var(--rv-night-2);
+  display: grid; gap: 4px; font-size: .92rem; line-height: 1.4; color: var(--rv-on-night);
+}
+
+/* Fractions are short: two columns of answers fit at 320px. */
+.ob-side .lab-choice { font-size: 1.15rem; white-space: nowrap; }
+
+@media (max-width: 359px) {
+  .ob-box__tag { font-size: .56rem; }
+  .ob-box__num { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-edge__players, .ob-box.is-filled, .ob-box.is-wrong, .ob-box.is-picked-right { animation: none; }
+  .ob-edge__track, .ob-edge__players { transition: none; }
+}

@@ -18,8 +18,14 @@ import { tutorIndicesLesson } from '../indices/tutor/indicesLesson'
 import { tutorExpandingLesson } from '../expanding/tutor/expandingLesson'
 import { tutorFactorisingLesson } from '../factorising/tutor/factorisingLesson'
 import { tutorEquationsLesson } from '../equations/tutor/equationsLesson'
+import { tutorRearrangingLesson } from '../rearranging/tutor/rearrangingLesson'
+import { tutorQuadraticsLesson } from '../quadratics/tutor/quadraticsLesson'
+import { tutorQuadraticEquationsLesson } from '../quadratic-equations/tutor/quadraticEquationsLesson'
+import { tutorSequencesLesson } from '../sequences/tutor/sequencesLesson'
+import { tutorInequalitiesLesson } from '../inequalities/tutor/inequalitiesLesson'
+import { tutorSolvingInequalitiesLesson } from '../solving-inequalities/tutor/solvingInequalitiesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25
 
 export type MathsSection = {
   id: MicroSkillId
@@ -105,6 +111,12 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(17, tutorExpandingLesson, 'Expanding brackets', 'Expand single and double brackets, and simplify the result.', tutorExpandingLesson.labels, 'algebra'),
   entry(18, tutorFactorisingLesson, 'Factorising', 'Factorise expressions fully by taking out the highest common factor.', tutorFactorisingLesson.labels, 'algebra'),
   entry(19, tutorEquationsLesson, 'Solving equations', 'Solve equations with one unknown, including brackets, fractions, the unknown on both sides and squares.', tutorEquationsLesson.labels, 'algebra'),
+  entry(20, tutorRearrangingLesson, 'Rearranging formulae', 'Change the subject of a formula, including formulae with fractions, squares and square roots.', tutorRearrangingLesson.labels, 'algebra'),
+  entry(21, tutorQuadraticsLesson, 'Factorising quadratics', 'Factorise quadratics like x² + 8x + 15 into two brackets, including the difference of two squares.', tutorQuadraticsLesson.labels, 'algebra'),
+  entry(22, tutorQuadraticEquationsLesson, 'Solving quadratics', 'Solve quadratic equations like x² + x = 20 by making one side 0 and factorising.', tutorQuadraticEquationsLesson.labels, 'algebra'),
+  entry(23, tutorSequencesLesson, 'Sequences', 'Continue sequences, find and use the nth term, check whether a number is a term, and solve problems with terms next to each other.', tutorSequencesLesson.labels, 'algebra'),
+  entry(24, tutorInequalitiesLesson, 'Inequalities', 'Write inequalities from words and number lines, and show one- and two-sided inequalities on a number line.', tutorInequalitiesLesson.labels, 'algebra'),
+  entry(25, tutorSolvingInequalitiesLesson, 'Solving inequalities', 'List the integers in an inequality, solve inequalities like 4a − 5 > a + 7 and 3 < 2x + 1 < 11, and flip the sign when dividing by a negative.', tutorSolvingInequalitiesLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

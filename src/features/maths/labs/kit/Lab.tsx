@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import { prefersReducedMotion } from '../../step-chain/flip'
+import { isTestMode } from './random'
 import { isMuted, setMuted, sfx } from './sfx'
 import './lab.css'
 
@@ -12,9 +13,21 @@ import './lab.css'
 
 export const LIVES = 3
 
+/**
+ * Hard mode (?hard=1): one life a round, no second chances. It's offered on the rank card to anyone who
+ * gets a game's top rank. Read after the page loads (games render client-side), so server and browser agree.
+ */
+export function isHardMode() {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('hard') === '1'
+}
+
+/** Lives at the start of each round: 3, or 1 in hard mode. */
+export const livesPerRound = () => isHardMode() ? 1 : LIVES
+
 /** Lives and the first-try streak. `hit` counts a right answer; `miss` a wrong one. */
 export function useScore() {
-  const [lives, setLives] = useState(LIVES)
+  const [lives, setLives] = useState(livesPerRound)
   const [streak, setStreak] = useState(0)
   const [best, setBest] = useState(0)
   const [kept, setKept] = useState(0)
@@ -36,23 +49,25 @@ export function useScore() {
       return lives - 1
     },
     /** End of a round: bank the lives left, and start the next round on full lives. */
-    bank() { setKept(kept + lives); setLives(LIVES) },
+    bank() { setKept(kept + lives); setLives(livesPerRound()) },
     /** Retry a round after running out of lives. */
-    refill() { setLives(LIVES) },
-    reset() { setLives(LIVES); setStreak(0); setBest(0); setKept(0) },
+    refill() { setLives(livesPerRound()) },
+    reset() { setLives(livesPerRound()); setStreak(0); setBest(0); setKept(0) },
   }
 }
 
-export function LabTop({ progress, streak, lives }: { progress: string; streak: number; lives: number }) {
+export function LabTop({ progress, streak, lives, home = '/preview?view=lab' }: { progress: string; streak: number; lives: number; home?: string }) {
   const [muted, setMutedState] = useState(false)
   useEffect(() => setMutedState(isMuted()), [])
   const toggle = () => { setMuted(!muted); setMutedState(!muted) }
+  const hard = isHardMode(), max = livesPerRound()
   return <header className="lab-top">
-    <a className="lab-icon lab-icon--close" href="/preview?view=lab" aria-label="Back to the Arcade">×</a>
+    <a className="lab-icon lab-icon--close" href={home} aria-label="Back to the Arcade">×</a>
     <p className="lab-progress">{progress}</p>
+    {hard && <span className="lab-hard" aria-label="Hard mode">💀 Hard</span>}
     {streak >= 2 && <span className="lab-streak" aria-label={`${streak} in a row`}>🔥 {streak}</span>}
-    <div className="lab-lives" aria-label={`Lives: ${lives} of ${LIVES}`}>
-      {Array.from({ length: LIVES }, (_, index) => <span key={index} className={`lab-pip${index < lives ? '' : ' is-lost'}`} aria-hidden="true">◆</span>)}
+    <div className="lab-lives" aria-label={`Lives: ${lives} of ${max}`}>
+      {Array.from({ length: max }, (_, index) => <span key={index} className={`lab-pip${index < lives ? '' : ' is-lost'}`} aria-hidden="true">◆</span>)}
     </div>
     <button type="button" className="lab-icon" aria-label={muted ? 'Turn sound on' : 'Turn sound off'} aria-pressed={muted} onClick={toggle}>{muted ? '🔇' : '🔊'}</button>
   </header>
@@ -77,6 +92,7 @@ export function Choices({ choices, picked, answer, onPick, columns }: {
         className={`lab-choice${state}`}
         disabled={picked !== null && picked !== choice.value}
         aria-pressed={picked === choice.value}
+        data-correct={isTestMode() && choice.value === answer ? '' : undefined}
         onClick={() => picked === null && onPick(choice.value)}
       >{choice.label}</button>
     })}
@@ -101,6 +117,78 @@ export function Quip({ speaker, children }: { speaker: Speaker; children: ReactN
   </div>
 }
 
+/** Splits a Why paragraph into its sentences, so it reads as short steps rather than a block. */
+export function whySteps(text: string): string[] {
+  return text.match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)?.map(step => step.trim()).filter(Boolean) ?? [text]
+}
+
+/**
+ * The "How it works" screen that follows each round's story screen: the Why on its own, one short step per
+ * line, with a picture of the idea on top. Keeps the story screen to the scene and the banter.
+ */
+export function WhyScreen({ kicker, title = 'How it works', visual, why, children }: {
+  kicker: string
+  title?: string
+  /** A picture of the idea: a mini diagram, the game scene marked up, or a big emoji. */
+  visual: ReactNode
+  /** The Why text: split into steps by sentence. Pass steps yourself for control. */
+  why: string | ReactNode[]
+  /** Usually nothing; extra content under the steps. */
+  children?: ReactNode
+}) {
+  const steps: ReactNode[] = Array.isArray(why) ? why : whySteps(why)
+  return <section className="lab-intro lab-whyscreen">
+    <p className="lab-kicker">{kicker}</p>
+    <h1 className="lab-title">{title}</h1>
+    <div className="lab-whyscreen__visual" aria-hidden="true">{visual}</div>
+    <ol className="lab-whyscreen__steps">{steps.map((step, index) => <li key={index}>{step}</li>)}</ol>
+    {children}
+  </section>
+}
+
+/**
+ * A round's opening, split over two screens so neither is overloaded:
+ * 1. the story: kicker, headline, the scene and the character's banter, with a "How it works" button;
+ * 2. how it works: the scene again (what the steps refer to) and the Why as short numbered steps,
+ *    with Back and the round's own start button.
+ * Remount it per round (key) so each round opens on the story.
+ */
+export function IntroSplit({ kicker, title, scene, speaker, line, why, start, onStart }: {
+  kicker: string
+  title: ReactNode
+  /** The round's scene: shown on both screens. */
+  scene?: ReactNode
+  speaker?: Speaker
+  line?: ReactNode
+  /** A string is split into one step per sentence; pass an array for your own steps. */
+  why: string | ReactNode[]
+  /** The round's start button label: "Check the price". */
+  start: ReactNode
+  onStart: () => void
+}) {
+  const [step, setStep] = useState<'story' | 'why'>('story')
+  if (step === 'story') return <>
+    <section className="lab-intro">
+      <p className="lab-kicker">{kicker}</p>
+      <h1 className="lab-title">{title}</h1>
+      {scene}
+      {speaker && line && <Quip speaker={speaker}>{line}</Quip>}
+    </section>
+    <footer className="lab-bar">
+      <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={() => { sfx.tick(); setStep('why') }}>How it works</button>
+    </footer>
+  </>
+  return <>
+    <WhyScreen kicker={kicker} visual={scene ?? (speaker ? <span className="lab-whyscreen__emoji">{speaker.emoji}</span> : null)} why={why} />
+    <footer className="lab-bar">
+      <div className="lab-bar__actions">
+        <button type="button" className="rv-btn rv-btn--secondary rv-btn--lg rv-icon-btn" aria-label="Back to the story" onClick={() => setStep('story')}>←</button>
+        <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={onStart}>{start}</button>
+      </div>
+    </footer>
+  </>
+}
+
 export function Why({ tag = 'Why', children }: { tag?: string; children: ReactNode }) {
   return <p className="lab-why"><span className="lab-why__tag">{tag}</span>{children}</p>
 }
@@ -117,8 +205,23 @@ export function Burst({ emoji }: { emoji: string }) {
 
 export type Rank = { badge: string; name: string; line: string }
 
+/** Top ranks handed out by `rankFor`, so the rank card knows when to offer hard mode. */
+const TOP_RANKS = new WeakSet<Rank>()
+
+/** The same game with ?hard=1 (keeping ?seed= for tests), starting from fresh. */
+function hardModeHref() {
+  const url = new URL(window.location.href)
+  url.searchParams.set('hard', '1')
+  return url.pathname + url.search
+}
+
 export function RankCard({ rank, stats }: { rank: Rank; stats: [string, ReactNode][] }) {
+  const [offerHard, setOfferHard] = useState(false)
+  useEffect(() => setOfferHard(TOP_RANKS.has(rank) && !isHardMode()), [rank])
+  const [hardWin, setHardWin] = useState(false)
+  useEffect(() => setHardWin(TOP_RANKS.has(rank) && isHardMode()), [rank])
   return <div className="lab-rank">
+    {hardWin && <p className="lab-rank__hard">💀 Hard mode cleared</p>}
     <span className="lab-rank__badge" aria-hidden="true">{rank.badge}</span>
     <p className="lab-rank__label">Your rank</p>
     <h1 className="lab-rank__name">{rank.name}</h1>
@@ -126,6 +229,10 @@ export function RankCard({ rank, stats }: { rank: Rank; stats: [string, ReactNod
     <dl className="lab-stats">
       {stats.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
     </dl>
+    {offerHard && <a className="lab-rank__hardlink" href={hardModeHref()}>
+      <strong>💀 Try hard mode</strong>
+      <span>One life a round. No second chances.</span>
+    </a>}
   </div>
 }
 
@@ -187,8 +294,8 @@ export function recordRank(lab: string, rank: Rank, names: Rank[]) {
 
 /** Rank from the lives kept across every round. */
 export function rankFor(kept: number, rounds: number, names: [Rank, Rank, Rank, Rank]): Rank {
-  const max = rounds * LIVES
-  if (kept === max) return names[0]
+  const max = rounds * livesPerRound()
+  if (kept === max) { TOP_RANKS.add(names[0]); return names[0] }
   if (kept >= max - 2) return names[1]
   if (kept >= rounds) return names[2]
   return names[3]

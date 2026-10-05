@@ -54,14 +54,12 @@ button.rc-deck:focus-visible { outline: 3px solid var(--rv-biro); outline-offset
 /* Swiping: the card follows the finger (vertical scrolling still works), then slides off the way it was thrown. */
 .rc-card { position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .rc-card.is-dragging { transition: none; }
-.rc-card.is-leaving-right, .rc-card.is-leaving-left { transition: transform .18s ease-in, opacity .18s ease-in; opacity: 0; }
-.rc-card.is-leaving-right { transform: translateX(120%) rotate(12deg); }
+.rc-card.is-leaving-left { transition: transform .18s ease-in, opacity .18s ease-in; opacity: 0; }
 .rc-card.is-leaving-left { transform: translateX(-120%) rotate(-12deg); }
 .rc-card__stamp {
   position: absolute; top: 20px; padding: 6px 12px; border: 3px solid; border-radius: 12px;
   font: 800 1rem/1 var(--rv-font-display); text-transform: uppercase; letter-spacing: .04em; pointer-events: none;
 }
-.rc-card__stamp--right { left: 20px; color: var(--rv-good); border-color: var(--rv-good); transform: rotate(-8deg); background: #fff; }
 .rc-card__stamp--left { right: 20px; color: var(--rv-redpen); border-color: var(--rv-redpen); transform: rotate(8deg); background: #fff; }
 .rc-answer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .rc-end { justify-self: center; min-height: 44px; border: 0; background: none; color: var(--rv-muted); font: 600 .95rem var(--rv-font-body); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }

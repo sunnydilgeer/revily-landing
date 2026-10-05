@@ -127,6 +127,16 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     const expectedValues = [...new Set(parseNumericList(expected))].sort((a, b) => a - b)
     return actualValues.length === expectedValues.length && actualValues.every((value, index) => value === expectedValues[index])
   }
+  if (interaction.acceptanceRule === 'numberList') {
+    // The same numbers in the same order: the next two terms, or the first five.
+    const actual = parseNumericList(response), wanted = parseNumericList(expected)
+    return actual.length === wanted.length && actual.every((value, index) => Math.abs(value - wanted[index]) < 1e-9)
+  }
+  if (interaction.acceptanceRule === 'inequality') {
+    // The same set of numbers: x > 4 is 4 < x; −4 ≤ x < 1 must match both ends and whether each is included.
+    const actual = parseInequality(response), wanted = parseInequality(expected)
+    return actual !== null && wanted !== null && actual.letter === wanted.letter && sameEnd(actual.lower, wanted.lower) && sameEnd(actual.upper, wanted.upper)
+  }
   if (interaction.acceptanceRule === 'ordered') {
     const actual = Array.isArray(response) ? response.map(String) : []
     const wanted = Array.isArray(expected) ? expected.map(String) : []
@@ -134,6 +144,8 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
   }
   if (interaction.acceptanceRule === 'collectedExpression') return sameCollectedExpression(response, expected)
   if (interaction.acceptanceRule === 'factorisedExpression') return sameFactorised(response, expected)
+  if (interaction.acceptanceRule === 'formula') return sameFormula(response, expected)
+  if (interaction.acceptanceRule === 'brackets') return sameBrackets(response, expected)
   if (interaction.acceptanceRule === 'power') {
     // One power, base and index both as written: 3^6 is right for 3⁶; 729 or 9^3 is not the power asked for.
     const actual = parsePower(response), wanted = parsePower(expected)
@@ -399,3 +411,156 @@ export function prettyTerm({ coefficient, key }: Term, first = true) {
 }
 /** Terms as an expression: "7ab − 3a". */
 export const prettyExpression = (terms: Term[]) => terms.filter(term => term.coefficient !== 0).map((term, i) => prettyTerm(term, i === 0)).join(' ') || '0'
+
+/*
+ * Formulas such as "(C − 5)/3", "√(A/6)" or "T²/4": the right-hand side of a rearranged formula. Read with a small
+ * parser (the learner's text is never run as code) and marked by trying numbers, so every correct form is right:
+ * (C − 5)/3, C/3 − 5/3 and (C − 5) ÷ 3 all are. Letters are read in lower case: no formula in the course uses
+ * the same letter twice in different cases, and phone keyboards often type the wrong case.
+ */
+type FormulaNode = (values: Record<string, number>) => number
+
+/** The text as tokens, or null if something in it can't be part of a formula. "m = 2x" reads only the "2x". */
+function formulaTokens(value: unknown): string[] | null {
+  const text = plainPowers(String(value ?? '').toLowerCase())
+    .replace(/^\s*[a-z]\s*=/, '')
+    .replace(/[−–]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/sqrt/g, '√').replace(/\s+/g, '')
+  if (!text || /[^a-z\d.+\-*/^()√]/.test(text)) return null
+  return text.match(/\d+(?:\.\d+)?|[a-z]|[+\-*/^()√]/g)
+}
+
+/** Parses a formula into something that works it out for given letters, or null if it isn't one. */
+export function readFormula(value: unknown): { letters: string[]; at: FormulaNode } | null {
+  const tokens = formulaTokens(value)
+  if (!tokens) return null
+  let i = 0
+  const letters = new Set<string>()
+  const peek = () => tokens[i]
+  const sum = (): FormulaNode | null => {
+    let left = product()
+    while (left && (peek() === '+' || peek() === '-')) {
+      const op = tokens[i++], right = product()
+      if (!right) return null
+      const a = left
+      left = op === '+' ? v => a(v) + right(v) : v => a(v) - right(v)
+    }
+    return left
+  }
+  const product = (): FormulaNode | null => {
+    let left = signed()
+    // Two things side by side multiply: 2a, bh, 3(x + 1), (c − 5)√a.
+    while (left && (peek() === '*' || peek() === '/' || (peek() !== undefined && /^[\da-z(√]/.test(peek())))) {
+      const op = peek() === '*' || peek() === '/' ? tokens[i++] : '*'
+      const right = signed()
+      if (!right) return null
+      const a = left
+      left = op === '/' ? v => a(v) / right(v) : v => a(v) * right(v)
+    }
+    return left
+  }
+  const signed = (): FormulaNode | null => {
+    if (peek() === '-') { i++; const inner = signed(); return inner && (v => -inner(v)) }
+    if (peek() === '+') { i++; return signed() }
+    return power()
+  }
+  const power = (): FormulaNode | null => {
+    const base = atom()
+    if (!base || peek() !== '^') return base
+    i++
+    const exponent = signed()
+    return exponent && (v => base(v) ** exponent(v))
+  }
+  const atom = (): FormulaNode | null => {
+    const token = tokens[i++]
+    if (token === undefined) return null
+    if (token === '√') { const inner = power(); return inner && (v => Math.sqrt(inner(v))) }
+    if (token === '(') {
+      const inner = sum()
+      if (tokens[i++] !== ')') return null
+      return inner
+    }
+    if (/^\d/.test(token)) { const n = Number(token); return () => n }
+    if (/^[a-z]$/.test(token)) { letters.add(token); return v => v[token] ?? NaN }
+    return null
+  }
+  const at = sum()
+  return at && i === tokens.length ? { letters: [...letters], at } : null
+}
+
+/** Numbers to try for the letters: not whole, not small, so different formulas don't agree by chance. */
+const TRIAL_VALUES = [7.3, 11.9, 5.7, 13.1, 9.4, 17.3, 6.1]
+
+/** Right when the response works out the same as the answer for every set of numbers tried, using no other letters. */
+export function sameFormula(response: unknown, expected: unknown) {
+  const actual = readFormula(response), wanted = readFormula(expected)
+  if (!actual || !wanted || actual.letters.some(letter => !wanted.letters.includes(letter))) return false
+  return [0, 1, 2, 3].every(trial => {
+    const values = Object.fromEntries(wanted.letters.map((letter, k) => [letter, TRIAL_VALUES[(trial * 3 + k) % TRIAL_VALUES.length]]))
+    const a = actual.at(values), b = wanted.at(values)
+    return Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b))
+  })
+}
+
+/**
+ * A quadratic factorised into two brackets, "(x + 3)(x − 5)": each bracket's number of x and number, or null.
+ * A × or * between the brackets is fine.
+ */
+export function readBrackets(value: unknown): { letter: string; brackets: [number, number][] } | null {
+  const text = plainPowers(String(value ?? '').toLowerCase().replace(/[−–]/g, '-')).replace(/[\s×*·]/g, '')
+  const match = text.match(/^\(([^()]+)\)\(([^()]+)\)$/)
+  if (!match) return null
+  let letter = ''
+  const brackets: [number, number][] = []
+  for (const inside of [match[1], match[2]]) {
+    const terms = readTerms(inside)
+    if (!terms || terms.some(term => term.key !== '' && !/^[a-z]$/.test(term.key))) return null
+    for (const term of terms) if (term.key) { if (letter && term.key !== letter) return null; letter = term.key }
+    const totals = collect(terms)
+    brackets.push([totals.get(letter) ?? 0, totals.get('') ?? 0])
+  }
+  return letter && brackets.every(([x]) => x !== 0) ? { letter, brackets } : null
+}
+
+/** Right when the two brackets multiply out to the same quadratic as the answer's, in either order. */
+export function sameBrackets(response: unknown, expected: unknown) {
+  const actual = readBrackets(response), wanted = readBrackets(expected)
+  if (!actual || !wanted || actual.letter !== wanted.letter) return false
+  const expand = ([[a, b], [c, d]]: [number, number][]) => [a * c, a * d + b * c, b * d]
+  const [p, q] = [expand(actual.brackets), expand(wanted.brackets)]
+  return p.every((n, i) => Math.abs(n - q[i]) < 1e-9)
+}
+
+/** One end of an inequality: the number and whether it is included (≤, ≥). Missing when the numbers go on for ever. */
+export type InequalityEnd = { value: number; included: boolean }
+export type ParsedInequality = { letter: string; lower?: InequalityEnd; upper?: InequalityEnd }
+const sameEnd = (a?: InequalityEnd, b?: InequalityEnd) => a === undefined || b === undefined ? a === b : Math.abs(a.value - b.value) < 1e-9 && a.included === b.included
+
+/**
+ * "x ≥ −2", "3 > x", "−4 <= x < 1": the letter with the numbers it can be between. Signs may be typed <=, >= or =<.
+ * Two signs must point the same way (−4 ≤ x < 1, or 1 > x ≥ −4). Never evaluated as code.
+ */
+export function parseInequality(value: unknown): ParsedInequality | null {
+  const text = String(value ?? '').replace(/[−–]/g, '-').replace(/<=|=</g, '≤').replace(/>=|=>/g, '≥').replace(/\s+/g, '')
+  const parts = text.split(/([<>≤≥])/)
+  if (parts.length !== 3 && parts.length !== 5) return null
+  const terms = parts.filter((_, i) => i % 2 === 0), signs = parts.filter((_, i) => i % 2 === 1)
+  const letterAt = terms.findIndex(term => /^[a-z]$/i.test(term))
+  if (letterAt < 0 || terms.filter(term => /^[a-z]$/i.test(term)).length !== 1) return null
+  const numbers = terms.map(term => term === terms[letterAt] ? 0 : parseDecimalOrFraction(term))
+  if (numbers.some(n => n === null)) return null
+  const result: ParsedInequality = { letter: terms[letterAt].toLowerCase() }
+  // Read each sign as "left (sign) right" and put the number on the letter's lower or upper side.
+  for (let i = 0; i < signs.length; i++) {
+    const sign = signs[i], less = sign === '<' || sign === '≤', included = sign === '≤' || sign === '≥'
+    if (i === letterAt - 1) {
+      // number (sign) letter: 3 < x puts 3 below x.
+      const end = { value: numbers[i]!, included }
+      if (less) { if (result.lower) return null; result.lower = end } else { if (result.upper) return null; result.upper = end }
+    } else if (i === letterAt) {
+      // letter (sign) number: x < 3 puts 3 above x.
+      const end = { value: numbers[i + 1]!, included }
+      if (less) { if (result.upper) return null; result.upper = end } else { if (result.lower) return null; result.lower = end }
+    } else return null
+  }
+  return result
+}
