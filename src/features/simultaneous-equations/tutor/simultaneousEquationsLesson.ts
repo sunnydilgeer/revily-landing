@@ -72,12 +72,12 @@ const takeOff = (n: number, rows: string[]): BoardMove => ({
 /* ---------- Rung 1: elimination (A12.1) ---------- */
 
 const cafe = worked(eliminate, `Solve the simultaneous equations ${nb('3x + 2y = 16')} and ${nb('x + 2y = 8')}.`, 'Solve', 'A12.1 video + Q1', boardModel(['① 3x +2y = 16', '② x +2y = 8'], [
-  { title: 'Take ② away from ①', say: 'Both equations have the boxed +2y. Take ② away from ①: the y terms cancel, so only x is left.', marks: [[0, box('+2y')], [1, box('+2y')]], rows: ['3x −x^ ~+2y ~−2y^ = 16 −8^', '2x = 8'] },
+  { title: 'Take ② away from ①', say: 'Get rid of one letter, so you can find the other. Both equations have the boxed +2y, so take ② away from ①: the y terms cancel, leaving only x.', marks: [[0, box('+2y')], [1, box('+2y')]], rows: ['3x −x^ ~+2y ~−2y^ = 16 −8^', '2x = 8'] },
   divide(2, '2x', '2x', '8', 'x = 4'),
   swapIn('x', '4', 1, 'x', '4 +2y = 8', '[x]'),
   takeOff(4, ['~4 ~−4^ +2y = 8 −4^', '2y = 4']),
   divide(2, '2y', '2y', '4', '! x = 4, y = 2'),
-]), 'Make one letter disappear: take one equation away from the other. Find that letter, then put it back in to find the other.')
+]), 'Our aim: make x or y disappear, leaving one letter to solve.')
 video(cafe, media('elimination', 'Solve 3x + 2y = 16 and x + 2y = 8', 'A12.1_Simultaneous_Equations_Elimination.mp4', 124, [
   'Two equations at once: 3x + 2y = 16 and x + 2y = 8. Find x and y.',
   'x and y are two mystery numbers. One equation is not enough, so we need both. The trick: make one letter disappear, then there is only one left.',
