@@ -36,10 +36,10 @@ const unit = /\s?(kg|cm|m|s|L|°C)$/
 const numeric = (text: string) => text.replace(/^[^:]*:\s*/, '').replace(/[£%]|\s?(kg|cm|m|s|L|°C)$/g, '').replace(/−/g, '-').replace(/\s/g, '')
 const words = (text: string) => !/[=→<>]|\d\s*[×÷+−-]\s*\d/.test(text)
 const firstTitle: Record<string, string> = {
-  [decimals]: 'Add zeros', [largeNumbers]: 'Count the digits', [negatives]: 'Split at zero', [mixedForms]: 'Change to decimals',
+  [decimals]: 'Fill gaps with 0', [largeNumbers]: 'Count the digits', [negatives]: 'Split at zero', [mixedForms]: 'Change to decimals',
 }
 const firstMove: Record<string, string> = {
-  [decimals]: 'Add zeros so every number has the same number of decimal places. Then the columns line up.',
+  [decimals]: 'Line up the decimal points. Where a number has an empty place after the point, write a 0 in it. A 0 on the end does not change the value, but now every number has the same number of digits after the point.',
   [largeNumbers]: 'Count the digits first. A whole number with fewer digits is smaller.',
   [negatives]: 'Numbers below zero come first. The further below zero, the smaller the number.',
   [mixedForms]: 'Change every value to a decimal, so they are all in the same form.',
@@ -105,7 +105,7 @@ const decimalsVideo = worked(decimals, 'Order 3.7 kg, 3.07 kg, 3.72 kg and 2.9 k
   original: ['3.7 kg', '3.07 kg', '3.72 kg', '2.9 kg'],
   comparable: ['2.90', '3.07', '3.70', '3.72'], comparison: '2.90<3.07<3.70<3.72',
   answer: '2.9 kg, 3.07 kg, 3.7 kg, 3.72 kg',
-  method: 'Compare whole-number parts first. Add trailing zeroes so tied decimal places line up: 3.7 becomes 3.70.',
+  method: 'Line up the decimal points. 3.7 and 2.9 have an empty hundredths place, so write a 0 there. 3.7 is the same as 3.70, so the value does not change, but now every number has 2 digits after the point.',
 }, 'Line up decimal places and compare one column at a time; having more written digits does not make a decimal larger.')
 video(decimalsVideo, {
   id: 'lesson11-ordering-decimals', src: '/media/lesson-11/ordering-decimals.mp4', poster: '/media/lesson-11/ordering-decimals.svg', title: 'Ordering decimal parcel masses', durationSeconds: 55, sourceFile: 'N11.1_Ordering_Decimals.mp4',
@@ -143,12 +143,12 @@ practice(decimals, 'Order 1.25 L, 1.205 L, 1.3 L and 1.052 L from smallest to la
   expression: '1.25,\\;1.205,\\;1.3,\\;1.052', label: 'Order bottle sizes', original: ['1.25 L', '1.205 L', '1.3 L', '1.052 L'], comparable: ['1.250', '1.205', '1.300', '1.052'], comparison: '1.052<1.205<1.250<1.300', answer: '1.052 L, 1.205 L, 1.25 L, 1.3 L', method: 'Write all four values to three decimal places, then compare each column from left to right.',
 })
 practice(decimals, 'A new bottle holds more than 1.3 L but less than 1.31 L. Write a possible size.', 'N11.1 Q5b', openInterval(1.305, 1.3, 1.31, 'Any value strictly between 1.3 and 1.31, for example 1.305 L'), 'for example, 1.305 L', 'Write the limits as 1.300 and 1.310, then choose a value strictly between them.', {
-  expression: '1.3<x<1.31', label: 'Choose a decimal in an interval', original: ['Lower limit: 1.3 L', 'Upper limit: 1.31 L'], comparable: ['1.300', '1.305', '1.310'], comparison: '1.300<1.305<1.310', answer: 'for example, 1.305 L', method: 'Add trailing zeroes to align the limits. The endpoints are excluded, so choose a value strictly between them.',
+  expression: '1.3<x<1.31', label: 'Choose a decimal in an interval', original: ['Lower limit: 1.3 L', 'Upper limit: 1.31 L'], comparable: ['1.300', '1.305', '1.310'], comparison: '1.300<1.305<1.310', answer: 'for example, 1.305 L', method: 'Write 0s on the end so both limits have 3 digits after the point. The end values are not allowed, so choose a value strictly between them.',
 }, undefined, 'Bottle size (L)')
 practice(decimals, 'Sam says 1.205 is bigger than 1.25 because 205 is bigger than 25. Is Sam correct?', 'N11.1 Q5c', select([
   'No. Write 1.25 as 1.250; 1.250 is greater than 1.205 because 5 hundredths is greater than 0 hundredths.',
   'Yes. Compare the whole strings of digits after the decimal point as integers.',
-  'No. 1.205 and 1.25 are equal because trailing zeroes do not matter.',
+  'No. 1.205 and 1.25 are equal, because zeros do not change the value.',
 ], 0), 'No - 1.25 is greater than 1.205.', 'Compare tenths, hundredths and thousandths in aligned columns.', {
   expression: '1.205\\;?\\;1.25', label: 'Test Sam’s claim', original: ['1.205', '1.25'], comparable: ['1.205', '1.250'], comparison: '1.205<1.250', answer: 'No - 1.25 is greater than 1.205', method: 'Write 1.25 as 1.250. Both have 2 tenths, but 1.250 has 5 hundredths while 1.205 has 0 hundredths.',
 })
@@ -293,7 +293,7 @@ practice(mixedForms, 'Ali says 18/25 is less than 71% because 18 is less than 71
 })
 
 add('mixed', 'Make values comparable before deciding their order', 'N11.1-N11.4 consolidation', text(
-  'Decimals: align place-value columns with trailing zeroes.',
+  'Decimals: line up the points and fill empty places with 0.',
   'Large positive whole numbers: compare digit counts, then compare from the left.',
   'Negative numbers: values farther below zero are smaller.',
   'Fractions, decimals and percentages: convert to one common form, compare, then restore the original forms.',
