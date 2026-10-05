@@ -116,6 +116,14 @@ export const aqaMarks: Record<string, number> = {
   '23:sequences-nth-term': 2,
   '23:sequences-in-sequence': 1,
   '23:sequences-consecutive': 1,
+  // Estimates, not yet counted from the 18 papers: simultaneous equations come up about every other sitting, for 3–4 marks.
+  '27:simultaneous-elimination': 2,
+  '27:simultaneous-words': 1,
+  // Estimates, not yet counted from the 18 papers: a counterexample or a show-that comes up some sittings, for 1–2 marks.
+  '28:proof-counterexample': 1,
+  '28:proof-identity': 1,
+  '28:proof-geometric': 1,
+  '28:proof-algebraic': 1,
   // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
   '24:inequalities-number-line': 1,
   '24:inequalities-two-sided': 1,

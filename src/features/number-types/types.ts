@@ -111,6 +111,12 @@ export type MicroSkillId =
   | 'sequences-nth-term'
   | 'sequences-in-sequence'
   | 'sequences-consecutive'
+  | 'simultaneous-elimination'
+  | 'simultaneous-words'
+  | 'proof-counterexample'
+  | 'proof-identity'
+  | 'proof-geometric'
+  | 'proof-algebraic'
   | 'inequalities-number-line'
   | 'inequalities-two-sided'
   | 'inequalities-integers'
@@ -170,6 +176,8 @@ export type InteractionDefinition = {
   /** Expression answers: also offer the xⁿ key, which types any power (x⁷, a⁻⁴). */
   anyPower?: boolean
   requiredDenominator?: number
+  /** A `list` answer's words before each box, in order: ["x =", "y ="] for simultaneous equations (lesson 27). */
+  listLabels?: string[]
   requiredDecimalPlaces?: number
   requireSimplest?: boolean
   requireMixedForm?: boolean
