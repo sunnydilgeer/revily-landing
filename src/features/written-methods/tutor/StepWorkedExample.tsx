@@ -7,7 +7,7 @@ import { PictureStep, RoundingVisual } from './NumberSenseWorkedExample'
 import { Powers } from './Powers'
 import type { MethodExample, MethodStep } from './methodWorking'
 import { MethodPicture as MethodPictureView } from './MethodWorkedExample'
-import type { BusStopPicture, ColumnsPicture, StepLine, StepPicture, StepWorking } from './stepWorking'
+import type { BusStopPicture, ColumnsPicture, ListsPicture, PlacePicture, StepLine, StepPicture, StepWorking } from './stepWorking'
 
 const cls = (...names: Array<string | false | undefined>) => names.filter(Boolean).join(' ')
 
@@ -59,7 +59,30 @@ function BusStop({ picture }: { picture: BusStopPicture }) {
   </div>
 }
 
+const PLACE = ['units', 'tens', 'hundreds', 'thousands']
+const DECIMAL_PLACE = ['tenths', 'hundredths', 'thousandths', 'ten-thousandths']
+/** A decimal under its column names, the point in its own column, one digit boxed. */
+function Place({ picture }: { picture: PlacePicture }) {
+  const [whole, decimals = ''] = picture.value.split('.')
+  const cells = [...[...whole].map((digit, i) => ({ digit, name: PLACE[whole.length - 1 - i] })), { digit: '.', name: '' }, ...[...decimals].map((digit, i) => ({ digit, name: DECIMAL_PLACE[i] }))]
+  let index = -1
+  return <table className="sp-place" aria-label={cells.filter(c => c.name).map(c => `${c.digit} ${c.name}`).join(', ')}>
+    <thead><tr>{cells.map((c, i) => { if (c.name) index++; return <th key={i} className={c.name && index === picture.boxed ? 'is-on' : undefined}>{c.name}</th> })}</tr></thead>
+    <tbody><tr>{(() => { let k = -1; return cells.map((c, i) => { if (c.name) k++; return <td key={i} className={c.name ? (k === picture.boxed ? 'is-boxed' : undefined) : 'sp-place__point'}>{c.digit}</td> }) })()}</tr></tbody>
+  </table>
+}
+
+/** Factor lists for the HCF: the shared factors purple, the HCF boxed. */
+function Lists({ picture }: { picture: ListsPicture }) {
+  return <div className="sp-number-lists">{picture.lists.map(list => <div className="sp-number-list" key={list.label} role="group" aria-label={`${list.label}: ${list.values.join(', ')}`}>
+    <span className="sp-number-list__label">{list.label}</span>
+    <span className="sp-number-list__values" aria-hidden="true">{list.values.map(v => <b key={v} className={v === list.pick ? 'is-pick' : list.shared.includes(v) ? 'is-shared' : undefined}>{v}</b>)}</span>
+  </div>)}</div>
+}
+
 function Picture({ picture }: { picture: StepPicture }) {
+  if (picture.kind === 'place') return <div className="rung-worked__visual sp-picture"><Place picture={picture} /></div>
+  if (picture.kind === 'lists') return <div className="rung-worked__visual sp-picture"><Lists picture={picture} /></div>
   if (picture.kind === 'rounding') return <div className="rung-worked__visual sp-picture"><RoundingVisual frame={picture.frame} /></div>
   if (picture.kind === 'method') return <div className="rung-worked__visual sp-picture"><MethodPictureView example={{ method: picture.method, first: picture.first } as MethodExample} frame={picture.frame} /></div>
   return <div className="rung-worked__visual sp-picture">{picture.kind === 'columns' ? <Columns picture={picture} /> : <BusStop picture={picture} />}</div>

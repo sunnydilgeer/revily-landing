@@ -37,12 +37,20 @@ function shift(value: string, by: number) {
 const times100 = (value: string) => shift(value, 2)
 const over100 = (value: string) => shift(value, -2)
 
-/** Simplify a fraction one division at a time (by the HCF), writing the top and bottom. */
+const factorsOf = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter(f => n % f === 0)
+/**
+ * Simplify: first find the HCF from the factors of the top and the bottom (the shared ones marked, the HCF boxed), then
+ * divide the top and the bottom by it.
+ */
 function simplifySteps(n: number, d: number, answer: boolean): WorkedStep[] {
   const h = gcd(n, d)
   if (h === 1) return []
+  const top = factorsOf(n), bottom = factorsOf(d), shared = top.filter(f => bottom.includes(f))
   return [{
-    title: 'Simplify', why: 'Divide the top and the bottom by the biggest number that goes into both.',
+    title: 'Find the HCF', why: 'List the factors of the top and the bottom. The biggest number in both lists is the highest common factor: the biggest number you can divide both by.',
+    picture: { kind: 'lists', lists: [{ label: `Factors of ${n}`, values: top, shared, pick: h }, { label: `Factors of ${d}`, values: bottom, shared, pick: h }] },
+  }, {
+    title: 'Divide top and bottom', why: 'Dividing the top and the bottom by the same number keeps the fraction the same size.',
     lines: [says(`${n} ÷ ${h} → ${n / h}`), says(`${d} ÷ ${h} → ${d / h}`), line([part(frac(n, d))], frac(n / h, d / h), { eq: true, answer })],
   }]
 }
@@ -74,8 +82,11 @@ export const fractionToDecimal = (n: number, d: number, round?: number): StepWor
 export function decimalToFraction(value: string): StepWorking {
   const p = places(value), d = 10 ** p, n = Math.round(Number(value) * d)
   const simplify = simplifySteps(n, d, true)
+  const name = d === 10 ? 'tenths' : d === 100 ? 'hundredths' : 'thousandths'
   return { kind: 'step-worked', start: value, trail: true, steps: [
-    { title: `Write it over ${d}`, why: `${p} decimal place${p === 1 ? '' : 's'} means ${d === 10 ? 'tenths' : d === 100 ? 'hundredths' : 'thousandths'}.`, lines: [line([part(value)], frac(n, d), { answer: !simplify.length })] },
+    // The place value first: the last digit's column (hundredths) is why the bottom is 100.
+    { title: 'Find the last column', why: 'The columns after the point are tenths, hundredths, then thousandths. The column of the last digit says what the fraction is out of.', picture: { kind: 'place', value, boxed: p - 1 }, lines: [line([part(value)], `${n} ${name}`)] },
+    { title: `Write it over ${d}`, why: `${name[0].toUpperCase()}${name.slice(1)} means out of ${d}, so the bottom is ${d}.`, lines: [line([part(`${n} ${name}`)], frac(n, d), { answer: !simplify.length })] },
     ...simplify,
   ] }
 }
