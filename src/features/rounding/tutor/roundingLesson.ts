@@ -44,6 +44,13 @@ function carryLines(kept: string): StepLine[] {
   return lines
 }
 
+const COLUMN: Record<string, string> = { '10': 'tens', '100': 'hundreds', '1000': 'thousands', '10 000': 'ten-thousands' }
+/** The first step's heading names what is kept: "Mark 2 decimal places", "Mark the hundreds column". */
+function markTitle(target: string) {
+  const nearest = /^nearest (.+)$/.exec(target)
+  return nearest ? `Mark the ${COLUMN[nearest[1]] ?? nearest[1]} column` : `Mark ${target}`
+}
+
 /**
  * The number plain, then one move a step (src/features/EXPLANATIONS.md): draw the cut after the last digit kept, check
  * the next digit, round the kept digit up (a line for each carry), and write the answer once, in green.
@@ -57,8 +64,8 @@ function roundingModel(model: RoundModel): StepWorking {
   const counting = /significant/.test(model.target) && model.original.startsWith('0') ? ' Start counting at the first digit that is not zero.' : ''
   const carry = carryLines(kept)
   const steps: WorkedStep[] = [
-    { title: 'Draw the cut', why: `For ${model.target}, keep up to the ${model.keptDigit}.${counting}`, picture },
-    { title: 'Check the next digit', why: '5 or more rounds up. Less than 5 keeps the digit the same.', lines: [line([part(model.cutDigit, 1), sign(roundsUp ? '≥' : '<'), part(5)], undefined, { mark: roundsUp ? 'round up' : 'keep' })] },
+    { title: markTitle(model.target), why: `For ${model.target}, keep up to the ${model.keptDigit}.${counting}`, picture },
+    { title: 'Check the decision digit', why: '5 or more rounds up. Less than 5 keeps the digit the same.', lines: [line([part(model.cutDigit, 1), sign(roundsUp ? '≥' : '<'), part(5)], undefined, { mark: roundsUp ? `round up the ${lastKept}` : `keep the ${lastKept}` })] },
     ...(roundsUp ? [{ title: `Round the ${lastKept} up`, why: carry.length > 1 ? 'A 9 that rounds up becomes 10: write 0 and carry the 1 to the digit on its left.' : 'Add 1 to the last digit kept.', lines: carry }] : []),
     { title: 'Write the answer', why: model.finalNote ?? (whole ? 'Every digit after the cut becomes a zero, so the number keeps its size.' : 'Leave off every digit after the cut.'), lines: [line([part(model.original)], model.answer, { answer: true })] },
   ]
@@ -77,7 +84,7 @@ function practice(
 ) {
   const steps = feedbackSteps ?? [
     ['Find the last digit to keep.', `For ${model.target}, split the number as ${model.split}.`],
-    ['Check the next digit.', `${model.cutDigit} is ${model.cutDigit >= 5 ? '5 or more, so round up' : 'below 5, so the kept digit stays the same'}.${model.carry ? ` ${model.carry}` : ''}`],
+    ['Check the decision digit.', `${model.cutDigit} is ${model.cutDigit >= 5 ? '5 or more, so round up' : 'below 5, so the kept digit stays the same'}.${model.carry ? ` ${model.carry}` : ''}`],
     ['Write the rounded value.', `${model.original} rounds to ${answer}.`],
   ]
   const state = add(topic, title, sourceRef, text(title), interaction, explain(answer, ...steps), hint)
