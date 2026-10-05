@@ -34,7 +34,6 @@ function shift(value: string, by: number) {
   const out = `${digits.slice(0, point)}.${digits.slice(point)}`.replace(/^0+(?=\d)/, '')
   return out.includes('.') ? out.replace(/0+$/, '').replace(/\.$/, '') : out
 }
-const times100 = (value: string) => shift(value, 2)
 const over100 = (value: string) => shift(value, -2)
 
 const factorsOf = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter(f => n % f === 0)
@@ -59,13 +58,19 @@ function simplifySteps(n: number, d: number, answer: boolean): WorkedStep[] {
 const columnName = (power: number) => power === 1 ? 'tenths' : power === 2 ? 'hundredths' : 'thousandths'
 
 /**
- * Make the bottom 10, 100 or 1000 (or any target): how many of the bottom make the target, then multiply the top and the
- * bottom by that, so "100 ÷ 20 → 5" has a reason and "7 × 5" has a reason.
+ * Make the bottom 10, 100 or 1000 (or any target): the reason on screen ("Per cent means out of 100"), then the bottom
+ * times what makes the target ("20 × 5 → 100"), showing a power of ten it doesn't go into first (17/40: 40 × ? → 100 ✗).
+ * Then multiply the top and the bottom by that number.
  */
 export function makeBottomSteps(n: number, d: number, target: number, reason: string): WorkedStep[] {
   const by = target / d
+  const tries = [10, 100, 1000].filter(t => t < target && t >= d && t % d !== 0)
   return [
-    { title: `Make the bottom ${target}`, why: `${reason} Work out how many ${d}s make ${target}: divide ${target} by ${d}.`, lines: [says(`${target} ÷ ${d} → ${by}`)] },
+    { title: `Make the bottom ${target}`, why: `Think: ${d} times what makes ${target}? That is how many lots of ${d} fit into ${target}.`, lines: [
+      line([part(reason)]),
+      ...tries.map(t => line([part(d), sign('×'), part('?')], t, { mark: 'doesn’t go' })),
+      line([part(d), sign('×'), part(by, 3)], target, { mark: '✓' }),
+    ] },
     { title: 'Multiply top and bottom', why: 'Multiply the top by the same number as the bottom, so the fraction keeps its size.', lines: [line([part(n), sign('×'), part(by, 3)], n * by), line([part(d), sign('×'), part(by, 3)], target), line([part(frac(n, d))], frac(n * by, target), { eq: true })] },
   ]
 }
@@ -76,7 +81,7 @@ export function fractionToDecimalSteps(n: number, d: number, answer = true): Wor
   if (scale) {
     const p = places(value)
     return [
-      ...makeBottomSteps(n, d, scale.target, 'Decimals count in tenths, hundredths and thousandths, so make the bottom 10, 100 or 1000.'),
+      ...makeBottomSteps(n, d, scale.target, `Decimals are tenths, hundredths or thousandths`),
       { title: 'Write the decimal', why: `The last digit goes in the ${columnName(p)} column.`, picture: { kind: 'place', value, boxed: p - 1 }, lines: [line([part(frac(n * scale.by, scale.target))], value, { answer })] },
     ]
   }
@@ -113,28 +118,47 @@ export function overPowerSteps(value: string): WorkedStep[] {
   ]
 }
 
-/** Decimal → percentage: × 100. */
-export const decimalToPercentage = (value: string): StepWorking => ({ kind: 'step-worked', start: value, steps: [
-  { title: 'Multiply by 100', why: 'Per cent means out of 100, so multiply by 100. The digits move two places left.', lines: [line([part(value), sign('×'), part(100, 3)], `${times100(value)}%`, { answer: true })] },
-] })
+/** A decimal written as hundredths: tenths × 10, thousandths ÷ 10 ("0.4 → 4 tenths → 40 hundredths"). */
+function asHundredths(value: string): { steps: WorkedStep[]; hundredths: string } {
+  const p = places(value), n = Math.round(Number(value) * 10 ** p)
+  const steps: WorkedStep[] = [{ title: 'Find the last column', why: 'The columns after the point are tenths, hundredths, then thousandths. The last digit says what the number counts in.', picture: { kind: 'place', value, boxed: p - 1 }, lines: [line([part(value)], `${n} ${columnName(p)}`)] }]
+  if (p === 2) return { steps, hundredths: String(n) }
+  const hundredths = p === 1 ? String(n * 10) : shift(String(n), -1)
+  steps.push(p === 1
+    ? { title: 'Make it hundredths', why: 'One tenth is the same as ten hundredths.', lines: [line([part(`${n} tenths`)], `${hundredths} hundredths`)] }
+    : { title: 'Make it hundredths', why: 'Ten thousandths make one hundredth.', lines: [line([part(`${n} thousandths`)], `${hundredths} hundredths`)] })
+  return { steps, hundredths }
+}
+const perCentStep = (hundredths: string, answer = true): WorkedStep => ({ title: 'Hundredths are per cent', why: 'Per cent means out of 100, so a number of hundredths is that many per cent.', lines: [line([part(`${hundredths} hundredths`)], `${hundredths}%`, { answer })] })
 
-/** Percentage → decimal: ÷ 100. */
-export const percentageToDecimal = (value: string, first?: StepLine): StepWorking => ({ kind: 'step-worked', start: first ? undefined : `${value}%`, trail: Boolean(first), steps: [
-  ...(first ? [{ title: 'Work out the top', why: 'Work out the fraction first.', lines: [first] }] : []),
-  { title: 'Divide by 100', why: 'Per cent means out of 100, so divide by 100. The digits move two places right.', lines: [line([part(`${value}%`), sign('÷'), part(100, 3)], over100(value), { answer: true })] },
-] })
+/** Decimal → percentage: find the last column, make it hundredths, and hundredths are per cent. */
+export function decimalToPercentage(value: string): StepWorking {
+  const { steps, hundredths } = asHundredths(value)
+  return { kind: 'step-worked', start: value, trail: true, steps: [...steps, perCentStep(hundredths)] }
+}
+
+/** Percentage → decimal: per cent is hundredths, then write the decimal in its columns. */
+export function percentageToDecimal(value: string, first?: StepLine): StepWorking {
+  const q = places(value)
+  const count = q ? shift(value, 1) : value, power = q ? 3 : 2
+  const digits = Math.round(Number(count)), decimal = over100(value)
+  const padded = `${Math.floor(digits / 10 ** power)}.${String(digits % 10 ** power).padStart(power, '0')}`
+  return { kind: 'step-worked', start: first ? undefined : `${value}%`, trail: true, steps: [
+    ...(first ? [{ title: 'Work out the top', why: 'Work out the fraction first.', lines: [first] }] : []),
+    { title: 'Per cent is hundredths', why: 'Per cent means out of 100, so the percentage is a number of hundredths.', lines: [line([part(`${value}%`)], `${value} hundredths`)] },
+    ...(q ? [{ title: 'Make it thousandths', why: 'One hundredth is the same as ten thousandths, so the point goes.', lines: [line([part(`${value} hundredths`)], `${count} thousandths`)] }] : []),
+    { title: 'Write the decimal', why: `The last digit goes in the ${columnName(power)} column.${padded !== decimal ? ' A zero at the end of a decimal can go.' : ''}`, picture: { kind: 'place', value: padded, boxed: power - 1 }, lines: [line([part(`${count} ${columnName(power)}`)], decimal, { answer: true })] },
+  ] }
+}
 
 /** Fraction → percentage: out of 100 when the bottom goes into 100, otherwise as a decimal first, then × 100. */
 export function fractionToPercentage(n: number, d: number): StepWorking {
   if (100 % d === 0) return { kind: 'step-worked', start: frac(n, d), trail: true, steps: [
-    ...makeBottomSteps(n, d, 100, 'Per cent means out of 100, so make the bottom 100.'),
-    { title: 'Write the percentage', why: 'A number out of 100 is that many per cent.', lines: [line([part(frac(n * 100 / d, 100))], `${n * 100 / d}%`, { answer: true })] },
+    ...makeBottomSteps(n, d, 100, 'Per cent means out of 100'),
+    { title: 'Hundredths are per cent', why: 'Out of 100 means hundredths, and a number of hundredths is that many per cent.', lines: [line([part(frac(n * 100 / d, 100))], `${n * 100 / d}%`, { answer: true })] },
   ] }
-  const value = exact(n, d), steps = fractionToDecimalSteps(n, d, false)
-  return { kind: 'step-worked', ...(steps[0].picture ? { opening: steps[0].picture } : { start: frac(n, d) }), steps: [
-    ...steps,
-    { title: 'Multiply by 100', why: 'Per cent means out of 100, so multiply by 100.', lines: [line([part(value), sign('×'), part(100, 3)], `${times100(value)}%`, { answer: true })] },
-  ] }
+  const value = exact(n, d), steps = fractionToDecimalSteps(n, d, false), { steps: columns, hundredths } = asHundredths(value)
+  return { kind: 'step-worked', ...(steps[0].picture ? { opening: steps[0].picture } : { start: frac(n, d) }), steps: [...steps, ...columns, perCentStep(hundredths)] }
 }
 
 /** Percentage → fraction: over 100 (clearing a decimal), then simplify. */

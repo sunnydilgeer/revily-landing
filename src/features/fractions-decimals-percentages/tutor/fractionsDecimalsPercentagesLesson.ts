@@ -91,20 +91,20 @@ practice(decimalToFraction, 'Priya says: “Every decimal with 2 decimal places 
   'No. Every two-place decimal simplifies to a fraction with denominator 10.',
 ], 0), 'No - 0.75 simplifies to 3/4.', 'Test the claim by simplifying 75/100.', decimalToFractionWorking('0.75', 3, 4), ['Test the claim with 0.75'])
 
-const dtpVideo = worked(decimalToPercentage, 'Write 0.68 as a percentage.', 'N9.3 Q1; video N9.3', decimalToPercentageWorking('0.68', '68'), 'Multiply the decimal by 100 and attach the percent sign.')
+const dtpVideo = worked(decimalToPercentage, 'Write 0.68 as a percentage.', 'N9.3 Q1; video N9.3', decimalToPercentageWorking('0.68', '68'), 'Read the decimal as hundredths: hundredths are per cent.')
 video(dtpVideo, {
   id: 'lesson9-decimal-to-percentage', src: '/media/lesson-9/decimal-to-percentage.mp4', poster: '/media/lesson-9/decimal-to-percentage.jpg', title: 'Decimal to percentage: 0.68', durationSeconds: 29, sourceFile: 'N9.3_Decimal_to_Percentage.mp4',
   textAlternative: ['Start with 0.68.', 'Multiply by 100.', 'The digits move two place-value columns to give 68.', '0.68 equals 68%.'],
 })
-practice(decimalToPercentage, 'Write 0.4 as a percentage.', 'N9.3 Q2', numeric(40), '40%', 'Multiply 0.4 by 100.', decimalToPercentageWorking('0.4', '40'), undefined, 'Percentage (%)')
-practice(decimalToPercentage, 'Write 0.056 as a percentage.', 'N9.3 Q3', numeric(5.6), '5.6%', 'Multiply by 100; a placeholder zero keeps the place value clear.', decimalToPercentageWorking('0.056', '5.6'), undefined, 'Percentage (%)')
-practice(decimalToPercentage, 'Write 1.25 as a percentage.', 'N9.3 Q4a', numeric(125), '125%', 'Multiply by 100 even though the decimal is greater than 1.', decimalToPercentageWorking('1.25', '125'), undefined, 'Percentage (%)')
+practice(decimalToPercentage, 'Write 0.4 as a percentage.', 'N9.3 Q2', numeric(40), '40%', '4 tenths is 40 hundredths, and hundredths are per cent.', decimalToPercentageWorking('0.4', '40'), undefined, 'Percentage (%)')
+practice(decimalToPercentage, 'Write 0.056 as a percentage.', 'N9.3 Q3', numeric(5.6), '5.6%', '56 thousandths is 5.6 hundredths, and hundredths are per cent.', decimalToPercentageWorking('0.056', '5.6'), undefined, 'Percentage (%)')
+practice(decimalToPercentage, 'Write 1.25 as a percentage.', 'N9.3 Q4a', numeric(125), '125%', 'Read 1.25 as hundredths, even though it is more than 1.', decimalToPercentageWorking('1.25', '125'), undefined, 'Percentage (%)')
 practice(decimalToPercentage, 'Explain why 1.25 converts to a percentage bigger than 100%.', 'N9.3 Q4b', select([
   '1.25 is greater than one whole, so its percentage must be greater than 100%.',
   'Every decimal with two digits becomes a percentage over 100%.',
   'The percentage is over 100% because 1.25 is less than 1.',
 ], 0), '1.25 is more than one whole.', 'Compare 1.25 with 1, which is 100%.', decimalToPercentageWorking('1.25', '125'), ['Compare 1.25 with one whole'])
-practice(decimalToPercentage, 'A decimal converts to 4.5%. Work out the original decimal.', 'N9.3 Q5a', numeric(0.045), '0.045', 'Undo multiplying by 100 by dividing 4.5 by 100.', percentageToDecimalWorking('4.5', '0.045'))
+practice(decimalToPercentage, 'A decimal converts to 4.5%. Work out the original decimal.', 'N9.3 Q5a', numeric(0.045), '0.045', '4.5% is 4.5 hundredths, which is 45 thousandths.', percentageToDecimalWorking('4.5', '0.045'))
 practice(decimalToPercentage, 'Write down a decimal that converts to a percentage bigger than 200%.', 'N9.3 Q5b', openNumber(2), 'for example, 2.5', 'Choose any decimal greater than 2.', decimalToPercentageWorking('2.5', '250'), undefined, 'Your decimal')
 practice(decimalToPercentage, 'Tom says: “A decimal that is already bigger than 1 will convert to a percentage over 1000%.” Is Tom correct?', 'N9.3 Q5c', select([
   'No. For example, 1.5 is greater than 1 but converts to 150%, not more than 1000%.',
@@ -112,20 +112,20 @@ practice(decimalToPercentage, 'Tom says: “A decimal that is already bigger tha
   'No. Decimals above 1 always convert to exactly 100%.',
 ], 0), 'No - 1.5 = 150%.', 'Test the statement using a value just above 1.', decimalToPercentageWorking('1.5', '150'), ['Test the claim with 1.5'])
 
-const ptdVideo = worked(percentageToDecimal, 'Write 72% as a decimal.', 'N9.4 Q1; video N9.4', percentageToDecimalWorking('72', '0.72'), 'Divide the percentage by 100.')
+const ptdVideo = worked(percentageToDecimal, 'Write 72% as a decimal.', 'N9.4 Q1; video N9.4', percentageToDecimalWorking('72', '0.72'), 'Per cent is hundredths: write the hundredths as a decimal.')
 video(ptdVideo, {
   id: 'lesson9-percentage-to-decimal', src: '/media/lesson-9/percentage-to-decimal.mp4', poster: '/media/lesson-9/percentage-to-decimal.jpg', title: 'Percentage to decimal: 72%', durationSeconds: 29.8, sourceFile: 'N9.4_Percentage_to_Decimal.mp4',
   textAlternative: ['Start with 72%.', 'Divide by 100.', 'The digits move two place-value columns to the right.', '72% equals 0.72.'],
 })
-practice(percentageToDecimal, 'Write 9% as a decimal.', 'N9.4 Q2', numeric(0.09), '0.09', 'Divide 9 by 100 and include the placeholder zero.', percentageToDecimalWorking('9', '0.09'))
-practice(percentageToDecimal, 'Write 3.5% as a decimal.', 'N9.4 Q3', numeric(0.035), '0.035', 'Divide 3.5 by 100.', percentageToDecimalWorking('3.5', '0.035'))
-practice(percentageToDecimal, 'Write 240% as a decimal.', 'N9.4 Q4a', numeric(2.4), '2.4', 'Divide by 100 even though the percentage is over 100%.', percentageToDecimalWorking('240', '2.4'))
+practice(percentageToDecimal, 'Write 9% as a decimal.', 'N9.4 Q2', numeric(0.09), '0.09', '9% is 9 hundredths. The 9 goes in the hundredths column.', percentageToDecimalWorking('9', '0.09'))
+practice(percentageToDecimal, 'Write 3.5% as a decimal.', 'N9.4 Q3', numeric(0.035), '0.035', '3.5% is 3.5 hundredths, which is 35 thousandths.', percentageToDecimalWorking('3.5', '0.035'))
+practice(percentageToDecimal, 'Write 240% as a decimal.', 'N9.4 Q4a', numeric(2.4), '2.4', '240% is 240 hundredths, even though it is more than 100%.', percentageToDecimalWorking('240', '2.4'))
 practice(percentageToDecimal, 'Explain why 240% converts to a decimal bigger than 1.', 'N9.4 Q4b', select([
   '240% is more than 100%, so it represents more than one whole and its decimal is greater than 1.',
   'Every percentage with three digits becomes a decimal greater than 1.',
   '240% is less than one whole because percent means divide by 100.',
 ], 0), '240% is more than one whole.', 'Compare 240% with 100%, which equals 1.', percentageToDecimalWorking('240', '2.4'), ['Compare 240% with 100%'])
-practice(percentageToDecimal, 'Write 25/2% as a decimal.', 'N9.4 Q5a', numeric(0.125), '0.125', 'First convert 25/2 to 12.5, then divide by 100.', percentageToDecimalWorking('12.5', '0.125'), ['25/2% = 12.5%', 'Now convert to a decimal'])
+practice(percentageToDecimal, 'Write 25/2% as a decimal.', 'N9.4 Q5a', numeric(0.125), '0.125', 'First work out 25/2, then write the hundredths as a decimal.', percentageToDecimalWorking('12.5', '0.125'), ['25/2% = 12.5%', 'Now convert to a decimal'])
 practice(percentageToDecimal, 'Write down a percentage that converts to a decimal bigger than 5.', 'N9.4 Q5b', openNumber(500), 'for example, 600%', 'Choose any percentage greater than 500%.', percentageToDecimalWorking('600', '6'), undefined, 'Percentage (%)')
 practice(percentageToDecimal, 'Aisha says: “You can convert any percentage to a decimal just by removing the % sign.” Is Aisha correct?', 'N9.4 Q5c', select([
   'No. For example, 50% = 0.5, not 50; you must divide by 100.',
@@ -133,14 +133,14 @@ practice(percentageToDecimal, 'Aisha says: “You can convert any percentage to 
   'No. You must multiply every percentage by 100.',
 ], 0), 'No - 50% = 0.5.', 'The percent sign means out of 100.', percentageToDecimalWorking('50', '0.5'), ['Test the claim with 50%'])
 
-const ftpVideo = worked(fractionToPercentage, 'Write 7/20 as a percentage.', 'N9.5 Q1; video N9.5', fractionToPercentageWorking(7, 20, '35'), 'Multiply the fraction by 100 and complete the division.')
+const ftpVideo = worked(fractionToPercentage, 'Write 7/20 as a percentage.', 'N9.5 Q1; video N9.5', fractionToPercentageWorking(7, 20, '35'), 'Make the bottom 100: out of 100 is per cent.')
 video(ftpVideo, {
   id: 'lesson9-fraction-to-percentage', src: '/media/lesson-9/fraction-to-percentage.mp4', poster: '/media/lesson-9/fraction-to-percentage.jpg', title: 'Fraction to percentage: 7/20', durationSeconds: 41.6, sourceFile: 'N9.5_Fraction_to_Percentage.mp4',
   textAlternative: ['Start with 7/20.', 'Multiply the fraction by 100.', 'Calculate 700 divided by 20.', '7/20 equals 35%.'],
 })
-practice(fractionToPercentage, 'Write 1/4 as a percentage.', 'N9.5 Q2', numeric(25), '25%', 'Multiply 1/4 by 100.', fractionToPercentageWorking(1, 4, '25'), undefined, 'Percentage (%)')
-practice(fractionToPercentage, 'Write 9/25 as a percentage.', 'N9.5 Q3', numeric(36), '36%', 'Multiply 9/25 by 100 and simplify before dividing.', fractionToPercentageWorking(9, 25, '36'), undefined, 'Percentage (%)')
-practice(fractionToPercentage, 'Write 11/8 as a percentage.', 'N9.5 Q4a', numeric(137.5), '137.5%', 'Multiply by 100 even though the fraction is greater than one.', fractionToPercentageWorking(11, 8, '137.5'), undefined, 'Percentage (%)')
+practice(fractionToPercentage, 'Write 1/4 as a percentage.', 'N9.5 Q2', numeric(25), '25%', 'Make the bottom 100: 4 times what makes 100?', fractionToPercentageWorking(1, 4, '25'), undefined, 'Percentage (%)')
+practice(fractionToPercentage, 'Write 9/25 as a percentage.', 'N9.5 Q3', numeric(36), '36%', 'Make the bottom 100: 25 times what makes 100?', fractionToPercentageWorking(9, 25, '36'), undefined, 'Percentage (%)')
+practice(fractionToPercentage, 'Write 11/8 as a percentage.', 'N9.5 Q4a', numeric(137.5), '137.5%', '8 does not go into 100, so divide 11 by 8, then read the decimal as hundredths.', fractionToPercentageWorking(11, 8, '137.5'), undefined, 'Percentage (%)')
 practice(fractionToPercentage, 'Explain why 11/8 converts to a percentage bigger than 100%.', 'N9.5 Q4b', select([
   '11/8 has a numerator greater than its denominator, so it is more than one whole and more than 100%.',
   'Every fraction with denominator 8 is more than 100%.',
@@ -162,8 +162,8 @@ video(ptfVideo, {
 practice(percentageToFraction, 'Write 40% as a fraction in its simplest form.', 'N9.6 Q2', fractionAnswer('2/5'), '2/5', 'Write 40/100, then simplify.', percentageToFractionWorking('40', 2, 5))
 practice(percentageToFraction, 'Write 28% as a fraction in its simplest form.', 'N9.6 Q3', fractionAnswer('7/25'), '7/25', 'Write 28/100 and divide both parts by 4.', percentageToFractionWorking('28', 7, 25))
 practice(percentageToFraction, 'Write 12.5% as a fraction in its simplest form.', 'N9.6 Q4a', fractionAnswer('1/8'), '1/8', 'Write 12.5/100, clear the decimal, then simplify.', percentageToFractionWorking('12.5', 1, 8))
-practice(percentageToFraction, 'Convert 1/8 back to a percentage to check the answer to part (a).', 'N9.6 Q4b', numeric(12.5), '12.5%', 'Multiply 1/8 by 100.', fractionToPercentageWorking(1, 8, '12.5'), undefined, 'Percentage (%)')
-practice(percentageToFraction, 'p% converts to 9/20 in its simplest form. Find the value of p.', 'N9.6 Q5a', numeric(45), 'p = 45', 'Convert 9/20 back to a percentage by multiplying by 100.', fractionToPercentageWorking(9, 20, '45'), ['p% = 9/20', 'Find p'])
+practice(percentageToFraction, 'Convert 1/8 back to a percentage to check the answer to part (a).', 'N9.6 Q4b', numeric(12.5), '12.5%', 'Divide 1 by 8, then read the decimal as hundredths.', fractionToPercentageWorking(1, 8, '12.5'), undefined, 'Percentage (%)')
+practice(percentageToFraction, 'p% converts to 9/20 in its simplest form. Find the value of p.', 'N9.6 Q5a', numeric(45), 'p = 45', 'Make the bottom of 9/20 into 100: out of 100 is per cent.', fractionToPercentageWorking(9, 20, '45'), ['p% = 9/20', 'Find p'])
 practice(percentageToFraction, 'Write down a percentage bigger than 50% that converts to a fraction with denominator 4.', 'N9.6 Q5b', numberChoices(75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575, 625, 675, 725, 775, 825, 875, 925, 975), 'for example, 75%', 'Choose an odd number of quarters greater than two quarters.', percentageToFractionWorking('75', 3, 4), undefined, 'Percentage (%)')
 practice(percentageToFraction, 'Maya says: “Every whole-number percentage converts to a fraction with denominator 100.” Is Maya correct?', 'N9.6 Q5c', select([
   'No. For example, 50% = 50/100 = 1/2, so the simplified denominator is 2.',
@@ -174,8 +174,8 @@ practice(percentageToFraction, 'Maya says: “Every whole-number percentage conv
 add('mixed', 'Choose a route and check the size', 'N9.1-N9.6 consolidation', text(
   'Fraction to decimal: numerator ÷ denominator',
   'Decimal to fraction: use a power of 10, then simplify',
-  'Decimal ↔ percentage: multiply or divide by 100',
-  'Fraction to percentage: multiply by 100',
+  'Decimal ↔ percentage: per cent means hundredths',
+  'Fraction to percentage: make the bottom 100',
   'Percentage to fraction: write over 100, then simplify',
 ), undefined, undefined, undefined, 'Use the direction of the conversion to choose the inverse operation. Check against the benchmarks 0, 1 and 100% so the final size makes sense.')
 
