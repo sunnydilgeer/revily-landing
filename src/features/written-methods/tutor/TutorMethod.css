@@ -149,9 +149,9 @@
 .sp-picture .wms-venn-wrap { zoom: .78; }
 /* A decimal under its column names (lesson 9): the last digit's column, boxed, says what the bottom is. */
 .sp-place { margin: 0 auto; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.sp-place th { padding: 0 6px 4px; color: var(--rv-muted); font-size: 11px; font-weight: 650; }
+.sp-place th { padding: 0 3px 4px; color: var(--rv-muted); font-size: 10px; font-weight: 650; }
 .sp-place th.is-on { color: #7c3aed; }
-.sp-place td { min-width: 1.1em; padding: 2px 6px; font-size: clamp(28px, 8vw, 36px); font-weight: 700; text-align: center; color: var(--rv-ink); }
+.sp-place td { min-width: 1.1em; padding: 2px 3px; font-size: clamp(28px, 8vw, 36px); font-weight: 700; text-align: center; color: var(--rv-ink); }
 .sp-place td.is-boxed { border: 2px solid #7c3aed; border-radius: 10px; background: color-mix(in srgb, #7c3aed 10%, transparent); color: #7c3aed; }
 .sp-place .sp-place__point { min-width: .3em; padding: 2px 0; }
 /* Factor lists for the HCF step: the shared factors purple, the HCF boxed (the same look as lesson 8). */

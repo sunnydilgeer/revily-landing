@@ -61,14 +61,17 @@ function BusStop({ picture }: { picture: BusStopPicture }) {
 
 const PLACE = ['units', 'tens', 'hundreds', 'thousands']
 const DECIMAL_PLACE = ['tenths', 'hundredths', 'thousandths', 'ten-thousandths']
-/** A decimal under its column names, the point in its own column, one digit boxed. */
+/** A decimal under its column names, the point in its own column; `boxed` counts the digits after the point from 0. */
 function Place({ picture }: { picture: PlacePicture }) {
   const [whole, decimals = ''] = picture.value.split('.')
-  const cells = [...[...whole].map((digit, i) => ({ digit, name: PLACE[whole.length - 1 - i] })), { digit: '.', name: '' }, ...[...decimals].map((digit, i) => ({ digit, name: DECIMAL_PLACE[i] }))]
-  let index = -1
+  const cells = [
+    ...[...whole].map((digit, i) => ({ digit, name: PLACE[whole.length - 1 - i], on: false })),
+    { digit: '.', name: '', on: false },
+    ...[...decimals].map((digit, i) => ({ digit, name: DECIMAL_PLACE[i], on: i === picture.boxed })),
+  ]
   return <table className="sp-place" aria-label={cells.filter(c => c.name).map(c => `${c.digit} ${c.name}`).join(', ')}>
-    <thead><tr>{cells.map((c, i) => { if (c.name) index++; return <th key={i} className={c.name && index === picture.boxed ? 'is-on' : undefined}>{c.name}</th> })}</tr></thead>
-    <tbody><tr>{(() => { let k = -1; return cells.map((c, i) => { if (c.name) k++; return <td key={i} className={c.name ? (k === picture.boxed ? 'is-boxed' : undefined) : 'sp-place__point'}>{c.digit}</td> }) })()}</tr></tbody>
+    <thead><tr>{cells.map((c, i) => <th key={i} className={c.on ? 'is-on' : undefined}>{c.name}</th>)}</tr></thead>
+    <tbody><tr>{cells.map((c, i) => <td key={i} className={c.name ? (c.on ? 'is-boxed' : undefined) : 'sp-place__point'}>{c.digit}</td>)}</tr></tbody>
   </table>
 }
 

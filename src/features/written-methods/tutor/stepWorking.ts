@@ -45,7 +45,10 @@ export type BusStopPicture = {
 export type MethodPicture = { kind: 'method'; method: 'factor-tree' | 'number-lists' | 'venn'; first: number; frame: MethodFrame }
 /** A number with a cut after the last digit kept and the next digit marked (rounding). */
 export type RoundingPicture = { kind: 'rounding'; frame: RoundingFrame }
-/** A decimal under its column names (units, tenths, hundredths…), one digit boxed: the last one says the bottom. */
+/**
+ * A decimal under its column names (units, tenths, hundredths…), one digit after the point boxed (`boxed` counts them
+ * from 0): the last one says the bottom.
+ */
 export type PlacePicture = { kind: 'place'; value: string; boxed?: number }
 /** Factors (or multiples) of each number, the ones in every list marked and the one used (`pick`) boxed: the HCF step. */
 export type NumberList = { label: string; values: number[]; shared: number[]; pick: number }
