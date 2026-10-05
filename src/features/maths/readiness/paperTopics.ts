@@ -48,14 +48,14 @@ const lesson = (number: number, ...sections: string[]) => sections.map(section =
 
 export const paperTopics: PaperTopic[] = [
   // Number
-  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [] },
-  { id: 'percentages', title: 'Percentages', short: 'Percent', area: 'number', marks30: 130, sittings: 10, requires: ['fdp'], statements: [] },
+  { id: 'money', title: 'Money problems', short: 'Money', area: 'number', marks30: 231, sittings: 10, requires: ['decimals', 'percentages'], statements: [], labs: ['stall'] },
+  { id: 'percentages', title: 'Percentages', short: 'Percent', area: 'number', marks30: 130, sittings: 10, requires: ['fdp'], statements: [], labs: ['deals'] },
   { id: 'factors', title: 'Factors and multiples', short: 'Factors', area: 'number', marks30: 49, sittings: 9, requires: ['number-types'], statements: [
     ...lesson(1, 'multiples-factors'), ...lesson(7, 'prime-factorisation', 'hcf-lcm-listing', 'hcf-lcm-venn'),
   ] },
   { id: 'fractions', title: 'Fractions', area: 'number', marks30: 46, sittings: 10, requires: ['factors'], statements: lesson(8,
     'simplifying-fractions', 'mixed-improper-fractions', 'adding-fractions', 'subtracting-fractions',
-    'multiplying-fractions', 'dividing-fractions', 'mixed-fraction-calculations', 'fractions-of-amounts') },
+    'multiplying-fractions', 'dividing-fractions', 'mixed-fraction-calculations', 'fractions-of-amounts'), labs: ['slice'] },
   { id: 'decimals', title: 'Decimals', area: 'number', marks30: 28, sittings: 6, requires: ['written-methods', 'place-value'], statements: lesson(6,
     'decimal-addition', 'decimal-subtraction', 'decimal-multiplication', 'decimal-division') },
   { id: 'written-methods', title: 'Written methods', short: 'Written methods', area: 'number', marks30: 60, estimate: true, requires: ['place-value'], statements: [
@@ -82,40 +82,44 @@ export const paperTopics: PaperTopic[] = [
     'standard-form-to-large', 'standard-form-to-small', 'standard-form-write-large', 'standard-form-write-small', 'standard-form-multiply', 'standard-form-divide') },
 
   // Algebra
-  { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [] },
-  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [] },
-  { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: [] },
-  { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: lesson(19,
-    'equations-one-unknown', 'equations-squares', 'equations-both-sides', 'equations-brackets', 'equations-fractions') },
+  { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [], labs: ['laser'] },
+  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [], labs: ['formula'] },
+  { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: lesson(23, 'sequences-special', 'sequences-geometric', 'sequences-nth-term', 'sequences-in-sequence', 'sequences-consecutive'), labs: ['levels'] },
+  { id: 'inequalities', title: 'Inequalities', area: 'algebra', marks30: 30, estimate: true, requires: ['equations'], statements: [...lesson(24, 'inequalities-number-line', 'inequalities-two-sided'), ...lesson(25, 'inequalities-integers', 'inequalities-solve', 'inequalities-solve-two-signs', 'inequalities-negative')] },
+  { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [...lesson(19,
+    'equations-one-unknown', 'equations-squares', 'equations-both-sides', 'equations-brackets', 'equations-fractions'),
+    ...lesson(20, 'rearrange-linear', 'rearrange-fractions', 'rearrange-squares', 'rearrange-roots'),
+    ...lesson(22, 'quadratic-equations')], labs: ['balance'] },
   { id: 'simplifying', title: 'Simplifying expressions', short: 'Simplifying', area: 'algebra', marks30: 43, sittings: 9, statements: [...lesson(15,
     'like-terms-one-letter', 'like-terms-different-letters', 'like-terms-powers', 'like-terms-mixed'),
     ...lesson(16, 'indices-power-one', 'indices-multiply', 'indices-divide', 'indices-power-zero', 'indices-one', 'indices-power-of-power', 'indices-fraction', 'roots'),
     ...lesson(17, 'expand-single', 'expand-double'),
     ...lesson(18, 'factorise-two-terms', 'factorise-three-terms'),
-  ] },
-  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [] },
+    ...lesson(21, 'quadratics-positive', 'quadratics-negative-middle', 'quadratics-negative-last', 'quadratics-difference-of-squares'),
+  ], labs: ['mind'] },
+  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [], labs: ['formula'] },
 
   // Ratio, proportion and rates of change
   { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: [], labs: ['heist', 'potion', 'tiers'] },
-  { id: 'conversions', title: 'Unit conversions', short: 'Units', area: 'ratio', marks30: 57, sittings: 10, statements: [] },
+  { id: 'conversions', title: 'Unit conversions', short: 'Units', area: 'ratio', marks30: 57, sittings: 10, statements: [], labs: ['supplies'] },
   { id: 'speed', title: 'Speed, distance, time', short: 'Speed', area: 'ratio', marks30: 37, sittings: 8, requires: ['conversions'], statements: [], labs: ['storm'] },
 
   // Geometry and measures
-  { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, requires: ['shapes'], statements: [] },
-  { id: 'area', title: 'Area and perimeter', short: 'Area', area: 'geometry', marks30: 58, sittings: 10, requires: ['shapes'], statements: [] },
-  { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, requires: ['area'], statements: [] },
+  { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, requires: ['shapes'], statements: [], labs: ['trick'] },
+  { id: 'area', title: 'Area and perimeter', short: 'Area', area: 'geometry', marks30: 58, sittings: 10, requires: ['shapes'], statements: [], labs: ['build'] },
+  { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, requires: ['area'], statements: [], labs: ['loot'] },
   { id: 'shapes', title: 'Properties of shapes', short: 'Shapes', area: 'geometry', marks30: 31, sittings: 8, statements: [] },
   { id: 'transformations', title: 'Transformations', short: 'Transform', area: 'geometry', marks30: 23, sittings: 7, requires: ['shapes'], statements: [] },
   { id: 'trigonometry', title: 'Trigonometry', short: 'Trig', area: 'geometry', marks30: 22, sittings: 8, requires: ['pythagoras'], statements: [] },
   { id: 'pythagoras', title: 'Pythagoras', area: 'geometry', marks30: 17, sittings: 5, requires: ['area'], statements: [] },
 
   // Probability
-  { id: 'probability', title: 'Probability', area: 'probability', marks30: 59, sittings: 10, statements: [] },
-  { id: 'frequency-trees', title: 'Frequency trees', short: 'Freq. trees', area: 'probability', marks30: 38, sittings: 9, requires: ['probability'], statements: [] },
+  { id: 'probability', title: 'Probability', area: 'probability', marks30: 59, sittings: 10, statements: [], labs: ['packs'] },
+  { id: 'frequency-trees', title: 'Frequency trees', short: 'Freq. trees', area: 'probability', marks30: 38, sittings: 9, requires: ['probability'], statements: [], labs: ['obby'] },
 
   // Statistics
-  { id: 'charts', title: 'Charts and graphs', short: 'Charts', area: 'statistics', marks30: 56, sittings: 10, statements: [] },
-  { id: 'averages', title: 'Averages', area: 'statistics', marks30: 26, sittings: 7, requires: ['charts'], statements: [] },
+  { id: 'charts', title: 'Charts and graphs', short: 'Charts', area: 'statistics', marks30: 56, sittings: 10, statements: [], labs: ['viral'] },
+  { id: 'averages', title: 'Averages', area: 'statistics', marks30: 26, sittings: 7, requires: ['charts'], statements: [], labs: ['stats'] },
 ]
 
 const totalMarks30 = paperTopics.reduce((sum, topic) => sum + topic.marks30, 0)

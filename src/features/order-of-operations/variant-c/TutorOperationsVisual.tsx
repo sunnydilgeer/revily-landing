@@ -3,6 +3,7 @@ import type { OperationsVisualDefinition } from './visualTypes'
 import type { TutorOperationsVisualDefinition } from './variantCLesson'
 import dynamic from 'next/dynamic'
 import { StackedWorkedExample } from './StackedWorkedExample'
+import { OpsBoard } from './OperationsBoard'
 
 // Loaded only when the ladder screen opens; it runs entirely in the browser.
 const LadderPlayer = dynamic(() => import('../ladder/LadderPlayer'), { ssr: false, loading: () => <div className="lp lp--loading" aria-busy="true">Loading the ladder…</div> })
@@ -12,6 +13,7 @@ export function TutorOperationsVisual({ visual, onConsultRule }: {
   onConsultRule?: () => void
 }) {
   if (visual.kind === 'ladder-player') return <LadderPlayer />
+  if (visual.kind === 'board') return <div className="opb-stage"><OpsBoard working={visual} /></div>
   if (visual.kind === 'stacked-worked') return <StackedWorkedExample visual={visual} />
   if (visual.kind !== 'tutor-summary') {
     return <OperationsVisual visual={visual as OperationsVisualDefinition} onConsultRule={onConsultRule} />

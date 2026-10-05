@@ -2,6 +2,7 @@
 .pl-recipe { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--rv-radius-md); color: var(--rv-ink); background: var(--rv-surface); border: 2px solid var(--rv-line); }
 .pl-swatch { width: 44px; height: 44px; flex: none; border-radius: 50%; border: 3px solid var(--rv-surface); box-shadow: 0 0 0 2px var(--rv-line-strong); }
 .pl-recipe__name { margin: 0; font-weight: 700; font-size: .9rem; color: var(--rv-ink-2); }
+.pl-recipe__makes { color: var(--rv-ink); }
 .pl-recipe__parts { margin: 2px 0 0; font: 800 1.35rem/1.2 var(--rv-font-display); }
 .pl-recipe__parts b { color: var(--rv-muted); }
 

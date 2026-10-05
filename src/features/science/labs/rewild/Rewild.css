@@ -1,0 +1,137 @@
+/* Rewild: a valley that rewilds round by round, with quadrats, a transect, a food chain, a beaver dam and the field practical. Shared lab look: maths/labs/kit/lab.css. */
+.rw-board { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; overflow: visible; border-radius: 12px; }
+.rw-emoji { dominant-baseline: auto; }
+
+/* The valley backdrop */
+.rw-sky { fill: var(--rv-biro-tint); }
+.rw-sun { fill: var(--rv-yellow); }
+.rw-hill { fill: var(--rv-step-i-tint); stroke: var(--rv-yellow-deep); stroke-width: 1.5; transition: fill .5s; }
+.rw-hill.is-wild { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.rw-river { fill: var(--rv-biro-light); }
+.rw-ripple { fill: none; stroke: var(--rv-surface); stroke-width: 2; stroke-linecap: round; opacity: .7; }
+.rw-sticks { stroke: var(--rv-step-i); stroke-width: 3.5; stroke-linecap: round; fill: none; }
+.rw-sticks--big { stroke-width: 5; }
+.rw-arrive { animation: rw-arrive .7s cubic-bezier(.3, 1.5, .5, 1) both; transform-box: fill-box; transform-origin: center bottom; }
+
+/* Flowers */
+.rw-petal { stroke: var(--rv-ink); stroke-width: .8; }
+.rw-flower--orchid .rw-petal { fill: var(--rv-step-as-light); }
+.rw-flower--buttercup .rw-petal { fill: var(--rv-yellow); }
+.rw-flower--sweet .rw-petal { fill: var(--rv-surface); }
+.rw-centre { fill: var(--rv-yellow-deep); }
+.rw-flower--sweet .rw-centre { fill: var(--rv-yellow); }
+.rw-board.is-go .rw-flower { animation: rw-sway .35s ease-in-out 2; transform-box: fill-box; transform-origin: center bottom; }
+
+/* Labels and pills */
+.rw-head { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); }
+.rw-note { font: 700 12px var(--rv-font-body); fill: var(--rv-ink-2); }
+.rw-tick { font: 700 12px var(--rv-font-body); fill: var(--rv-muted); }
+.rw-way { font: 800 13px var(--rv-font-display); fill: var(--rv-redpen); }
+.rw-count { font: 800 16px var(--rv-font-display); fill: var(--rv-ink); }
+.rw-pill rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; }
+.rw-pill text { font: 800 14px var(--rv-font-display); fill: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.rw-pill.is-hit rect { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.rw-pill.is-miss rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.rw-pill.is-miss text { fill: var(--rv-redpen); }
+
+/* Round 1: quadrat columns and the mean line */
+.rw-quadcol { fill: var(--rv-surface); stroke: var(--rv-ink-2); stroke-width: 2; opacity: .9; }
+.rw-level-bar { fill: var(--rv-good); opacity: .25; animation: rw-fill .5s ease-out both; transform-box: fill-box; transform-origin: center bottom; }
+.rw-meanline line { stroke: var(--rv-biro); stroke-width: 3; stroke-dasharray: 8 5; transition: all .15s; }
+.rw-meanline.is-hit line { stroke: var(--rv-good); stroke-dasharray: none; }
+.rw-meanline.is-miss line { stroke: var(--rv-redpen); }
+
+/* The meadow grid of square metres */
+.rw-plot { fill: var(--rv-good); stroke: var(--rv-ink-2); stroke-width: 2; }
+.rw-plot.is-over { stroke: var(--rv-redpen); stroke-width: 3; }
+.rw-m2 { fill: var(--rv-good-tint); }
+.rw-pop { animation: rw-pop .4s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+
+/* The transect */
+.rw-tape { stroke: var(--rv-yellow-deep); stroke-width: 4; stroke-linecap: round; }
+.rw-frame { fill: none; stroke: var(--rv-ink); stroke-width: 3; }
+.rw-sq { fill: var(--rv-surface); stroke: var(--rv-line); stroke-width: 1; }
+.rw-sq.is-on { fill: var(--rv-good); }
+.rw-board.is-hit .rw-sq.is-on { fill: var(--rv-good-ink); }
+.rw-sq__t { font: 800 12px var(--rv-font-display); fill: var(--rv-surface); }
+.rw-gauge { fill: var(--rv-surface); stroke: var(--rv-ink-2); stroke-width: 2; }
+.rw-gauge__fill { fill: var(--rv-biro); transition: all .15s; }
+.rw-gauge__fill.is-hit { fill: var(--rv-good); }
+.rw-gauge__fill.is-miss { fill: var(--rv-redpen); }
+
+/* Abiotic bubbles */
+.rw-stem { fill: none; stroke: var(--rv-good-ink); stroke-width: 3; stroke-linecap: round; }
+.rw-leaf { fill: var(--rv-good); stroke: var(--rv-good-ink); stroke-width: 1.5; }
+.rw-grow { animation: rw-grow .7s cubic-bezier(.3, 1.5, .5, 1) both; transform-box: fill-box; transform-origin: center bottom; }
+.rw-bubble circle, .rw-ring circle { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2.5; stroke-dasharray: 7 5; }
+.rw-bubble.is-filled circle, .rw-ring.is-filled circle { stroke-dasharray: none; fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); }
+.rw-bubble.is-next circle, .rw-ring.is-next circle, .rw-plaque.is-next rect { stroke: var(--rv-yellow-deep); stroke-width: 3.5; animation: rw-pulse 1s ease-in-out infinite; }
+.rw-bubble.is-wrong circle, .rw-ring.is-wrong circle, .rw-plaque.is-wrong rect { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); stroke-dasharray: none; }
+.rw-bubble.is-hit circle, .rw-ring.is-hit circle, .rw-plaque.is-hit rect { fill: var(--rv-good-tint); stroke: var(--rv-good); stroke-dasharray: none; }
+.rw-bubble__t, .rw-ring__t { font: 800 13px var(--rv-font-display); fill: var(--rv-ink); }
+.rw-bubble__q { font: 800 24px var(--rv-font-display); fill: var(--rv-muted); }
+.rw-board.is-miss .rw-bubble:not(.is-wrong) circle { stroke: var(--rv-redpen); }
+.rw-land-in { animation: rw-land .3s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+
+/* The food chain */
+.rw-arrow path { fill: none; stroke: var(--rv-ink-2); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.rw-arrow.is-flow path { stroke: var(--rv-good); stroke-dasharray: 6 5; animation: rw-flow .6s linear infinite; }
+.rw-role { font: 700 12px var(--rv-font-body); fill: var(--rv-ink-2); }
+.rw-hop { animation: rw-hop .7s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center bottom; }
+
+/* Predator–prey */
+.rw-axis { fill: none; stroke: var(--rv-ink-2); stroke-width: 2; }
+.rw-curve { fill: none; stroke-width: 3; stroke-linejoin: round; }
+.rw-curve--vole { stroke: var(--rv-step-i); }
+.rw-curve--owl { stroke: var(--rv-step-b); stroke-dasharray: 6 4; }
+.rw-ground { stroke: var(--rv-ink-2); stroke-width: 2; }
+.rw-share { fill: var(--rv-step-i-light); stroke: var(--rv-step-i); stroke-width: 1.5; transition: all .15s; }
+.rw-share.is-hit { fill: var(--rv-good); stroke: var(--rv-good-ink); }
+.rw-share.is-miss { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+
+/* The wetland map */
+.rw-cell { fill: var(--rv-biro-light); stroke: var(--rv-surface); stroke-width: 1.5; transition: fill .15s; }
+.rw-cell.is-dry { fill: var(--rv-step-i-light); }
+.rw-wave { fill: none; stroke: var(--rv-surface); stroke-width: 2; stroke-linecap: round; }
+.rw-furrow { stroke: var(--rv-step-i); stroke-width: 2; stroke-linecap: round; }
+.rw-board.is-miss .rw-cell.is-dry { fill: var(--rv-redpen-tint); }
+
+/* The beaver dam */
+.rw-bank { fill: var(--rv-step-i-tint); stroke: var(--rv-step-i); stroke-width: 1.5; }
+.rw-water { fill: var(--rv-biro-light); transition: all .3s; }
+.rw-water.is-low { opacity: .5; }
+.rw-water.is-flood { fill: var(--rv-biro); opacity: .6; }
+.rw-floodwave { fill: none; stroke: var(--rv-biro); stroke-width: 2.5; stroke-linecap: round; }
+.rw-rise { animation: rw-rise .5s ease-out both; transform-box: fill-box; transform-origin: center bottom; }
+.rw-plaque rect { fill: var(--rv-surface); stroke: var(--rv-line-strong); stroke-width: 2; stroke-dasharray: 6 4; }
+.rw-plaque.is-filled rect { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-dasharray: none; }
+.rw-plaque__t { font: 800 13px var(--rv-font-display); fill: var(--rv-ink); }
+.rw-plaque.is-wrong .rw-plaque__t { fill: var(--rv-redpen); }
+
+/* The field practical */
+.rw-field { fill: var(--rv-good-tint); stroke: var(--rv-good-ink); stroke-width: 2; }
+.rw-gridline { stroke: var(--rv-yellow-deep); stroke-width: 1; opacity: .7; }
+.rw-spot circle { fill: var(--rv-biro); }
+.rw-mini-quad { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2; }
+.rw-spot.is-biased .rw-mini-quad { stroke: var(--rv-redpen); fill: var(--rv-redpen-tint); }
+.rw-mini-count { font: 800 12px var(--rv-font-display); fill: var(--rv-ink); }
+.rw-meanbox { fill: var(--rv-yellow-tint); stroke: var(--rv-yellow-deep); stroke-width: 2; }
+.rw-meanbox.is-hit { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.rw-meanbox.is-miss { fill: var(--rv-redpen-tint); stroke: var(--rv-redpen); }
+.rw-meanbox__t { font: 800 15px var(--rv-font-display); fill: var(--rv-ink); }
+.rw-board.is-hit .rw-spot .rw-mini-quad { stroke: var(--rv-good); animation: rw-pop .4s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+
+@keyframes rw-arrive { from { transform: translateY(14px) scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rw-sway { 50% { transform: rotate(10deg); } }
+@keyframes rw-fill { from { transform: scaleY(0); } to { transform: none; } }
+@keyframes rw-pop { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rw-grow { 0% { transform: scale(.85); } 60% { transform: scale(1.08); } 100% { transform: none; } }
+@keyframes rw-pulse { 50% { stroke-opacity: .35; } }
+@keyframes rw-land { from { transform: translateY(-14px) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rw-flow { to { stroke-dashoffset: -11; } }
+@keyframes rw-hop { 0% { transform: none; } 40% { transform: translateY(-12px); } 100% { transform: none; } }
+@keyframes rw-rise { from { transform: scaleY(.6); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-board * { animation: none !important; transition: none !important; }
+}

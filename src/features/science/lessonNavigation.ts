@@ -496,6 +496,10 @@ export type ScienceCatalogueEntry = {
   readonly lesson: ScienceLesson
   readonly sections: readonly ScienceSection[]
   readonly frames: Record<string, TeachingFrame[]>
+  /** A whole Higher-only lesson (registered in higher/lessons.ts, never in a subject catalogue below). See ARCHITECTURE.md. */
+  readonly higherOnly?: true
+  /** What students see and what the URL carries when it is not `number`, e.g. '20H' for the Higher-only lesson after Lesson 20. */
+  readonly label?: string
 }
 export type ScienceChapter = { readonly subject: ScienceSubject; readonly code: string; readonly title: string; readonly lessonNumbers: readonly number[] }
 export type ScienceLessonRef = { subject: ScienceSubject; number: number }
@@ -713,8 +717,16 @@ export function getScienceLesson(subject: ScienceSubject, number: number): Scien
 export function scienceEntryById(id: string): ScienceCatalogueEntry | null {
   return allScienceLessons.find(item => item.lesson.id === id) ?? null
 }
+/** Whether the lesson is in this chapter. A Higher-only lesson (number N + 0.5) is in Lesson N's chapter. */
+export function chapterHasLesson(chapter: ScienceChapter, entry: ScienceLessonRef) {
+  return chapter.subject === entry.subject && chapter.lessonNumbers.includes(Math.floor(entry.number))
+}
 export function scienceChapterFor(entry: ScienceLessonRef): ScienceChapter | null {
-  return scienceChaptersFor(entry.subject).find(chapter => chapter.lessonNumbers.includes(entry.number)) ?? null
+  return scienceChaptersFor(entry.subject).find(chapter => chapterHasLesson(chapter, entry)) ?? null
+}
+/** The lesson number students see and the URL uses: `number`, or a Higher-only lesson's label ('20H'). */
+export function scienceLessonLabel(entry: Pick<ScienceCatalogueEntry, 'number' | 'label'>) {
+  return entry.label ?? String(entry.number)
 }
 /** The next lesson in the same subject, or null at the end of the subject. */
 export function nextScienceLesson(entry: ScienceLessonRef): ScienceCatalogueEntry | null {
@@ -724,10 +736,14 @@ export function nextScienceLesson(entry: ScienceLessonRef): ScienceCatalogueEntr
 export function scienceLessonDir(entry: Pick<ScienceCatalogueEntry, 'subject' | 'folder'>) {
   return `${entry.subject === 'biology' ? '' : entry.subject + '/'}lesson-${entry.folder}`
 }
-/** Biology keeps `/preview/science?lesson=N`; other subjects add `subject=<subject>`. */
-export function scienceSubjectLessonHref(subject: ScienceSubject, number: number, activity?: string | null) {
-  if (subject === 'biology') return scienceLessonHref(number as LessonNumber, activity)
-  return `/preview/science?subject=${subject}&lesson=${number}${activity ? '&activity=' + encodeURIComponent(activity) : ''}`
+/** Biology keeps `/preview/science?lesson=N`; other subjects add `subject=<subject>`. `lesson` is a number or a Higher-only label ('20H'). */
+export function scienceSubjectLessonHref(subject: ScienceSubject, lesson: number | string, activity?: string | null) {
+  if (subject === 'biology') return scienceLessonHref(lesson as LessonNumber, activity)
+  return `/preview/science?subject=${subject}&lesson=${lesson}${activity ? '&activity=' + encodeURIComponent(activity) : ''}`
+}
+/** The link to any catalogue entry, Higher-only lessons included (`?subject=chemistry&lesson=20H`). */
+export function scienceEntryHref(entry: Pick<ScienceCatalogueEntry, 'subject' | 'number' | 'label'>, activity?: string | null) {
+  return scienceSubjectLessonHref(entry.subject, scienceLessonLabel(entry), activity)
 }
 /** Reads `subject` + `lesson` query values. No subject (or `biology`) means Biology, as before. */
 export function parseScienceLessonRef(subjectValue: string | string[] | undefined, lessonValue: string | string[] | undefined): ScienceLessonRef | null {

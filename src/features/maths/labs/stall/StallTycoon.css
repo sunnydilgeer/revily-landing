@@ -1,0 +1,119 @@
+/* Stall Tycoon: the cash ledger, the market stall and the money panels. The shared lab look is in ../kit/lab.css. */
+.st-stage { display: grid; gap: 12px; overflow: clip; }
+
+/* Cash ledger: a dark till strip that money lands on */
+.st-ledger {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; padding: 8px 12px; border-radius: var(--rv-radius-md);
+  color: var(--rv-on-night); background: var(--rv-night);
+}
+.st-ledger__label { font-weight: 700; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--rv-on-night-muted); }
+.st-ledger__cash { font: 800 1.35rem/1 var(--rv-font-display); font-variant-numeric: tabular-nums; color: var(--rv-yellow); }
+.st-ledger__entry {
+  margin-left: auto; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 3px 8px; border-radius: var(--rv-radius-pill); font-weight: 700; font-size: .78rem; animation: st-drop .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.st-ledger__entry.is-in { color: #fff; background: var(--rv-good); }
+.st-ledger__entry.is-out { color: #fff; background: var(--rv-redpen); }
+@keyframes st-drop { from { transform: translateY(-14px); opacity: 0; } }
+
+/* The stall */
+.st-stall { margin: 0; display: grid; }
+.st-awning {
+  position: relative; height: 26px; border-radius: 10px 10px 0 0;
+  background: repeating-linear-gradient(90deg, var(--rv-redpen) 0 24px, var(--rv-surface) 24px 48px);
+}
+/* Scalloped edge: alternate red and white half-circles under the stripes */
+.st-awning::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 12px;
+  background:
+    radial-gradient(circle at 12px 0, var(--rv-redpen) 11.5px, transparent 12px) 0 0 / 48px 12px repeat-x,
+    radial-gradient(circle at 12px 0, var(--rv-surface) 11.5px, transparent 12px) 24px 0 / 48px 12px repeat-x;
+}
+.st-sign {
+  justify-self: center; margin: 16px 0 6px; padding: 4px 12px; border: 2px solid #8a5a2b; border-radius: 8px;
+  font: 800 .95rem/1.2 var(--rv-font-display); text-align: center; color: var(--rv-ink); background: var(--rv-yellow-tint);
+}
+.st-front { display: grid; grid-template-columns: minmax(0, 1fr) 64px; align-items: end; gap: 6px; }
+.st-booth { display: grid; gap: 4px; padding: 0 6px; border-left: 6px solid #8a5a2b; border-right: 6px solid #8a5a2b; }
+.st-shelf { min-height: 64px; display: flex; flex-wrap: wrap; align-content: flex-end; align-items: flex-end; gap: 4px; padding-top: 4px; }
+.st-crate {
+  width: 30px; height: 26px; display: grid; place-items: center; border: 2px solid #8a5a2b; border-radius: 4px;
+  font-size: .85rem; background: #e9c48f; animation: st-stack .35s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.st-crate.is-bad { border-color: var(--rv-redpen); background: var(--rv-redpen-tint); animation: st-stack .35s both, lab-shake .4s .4s; }
+.st-crate.is-sold { animation: st-sold .5s ease-in both; }
+@keyframes st-stack { from { transform: translateY(-24px); opacity: 0; } }
+@keyframes st-sold { to { transform: translate(60px, -20px) scale(.4); opacity: 0; } }
+.st-more { font: 800 1rem/26px var(--rv-font-display); color: var(--rv-ink-2); }
+.st-helper, .st-upgrade { position: relative; margin-left: auto; font-size: 1.7rem; line-height: 1; animation: lab-pop .35s both; }
+.st-helper + .st-upgrade { margin-left: 2px; }
+.st-upgrade.is-forsale { opacity: .45; filter: grayscale(1); outline: 2px dashed var(--rv-line-strong); outline-offset: 2px; border-radius: 6px; }
+.st-upgrade.is-bought { filter: drop-shadow(0 0 8px var(--rv-yellow)); animation: lab-combo .6s cubic-bezier(.2, 1.6, .4, 1) both; }
+.st-mood { position: absolute; right: -8px; top: -10px; font-size: .95rem; }
+.st-count { margin: 0; font-weight: 700; font-size: .8rem; color: var(--rv-ink-2); }
+.st-counter {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 36px; margin: 0 -12px; padding: 4px 10px;
+  border-radius: 6px; background: #b07a43; box-shadow: inset 0 -4px 0 #8a5a2b;
+}
+.st-tag {
+  padding: 2px 8px; border-radius: 6px; font: 800 1rem/1.3 var(--rv-font-display); font-variant-numeric: tabular-nums;
+  flex: none; white-space: nowrap; color: var(--rv-ink); background: var(--rv-surface); transform: rotate(-3deg); animation: lab-pop .25s both;
+}
+.st-tag small { font: 600 .7rem var(--rv-font-body); color: var(--rv-muted); }
+.st-till { min-width: 0; overflow: hidden; font-size: .8rem; letter-spacing: -2px; white-space: nowrap; }
+
+/* The customer walks in from the right, and off again once served */
+.st-lane { position: relative; min-height: 72px; display: grid; justify-items: center; align-items: end; overflow: visible; }
+.st-customer { position: relative; display: grid; justify-items: center; font-size: 2.1rem; line-height: 1; animation: st-walk-in .6s ease-out both; }
+.st-customer.is-leaving { animation: st-walk-out .7s .9s ease-in both; }
+@keyframes st-walk-in { from { transform: translateX(60px); opacity: 0; } }
+@keyframes st-walk-out { to { transform: translateX(70px); opacity: 0; } }
+.st-bubble {
+  margin-bottom: 4px; padding: 3px 6px; border-radius: 8px; font: 700 .7rem/1.3 var(--rv-font-body); white-space: pre-line; text-align: center;
+  color: var(--rv-ink); background: var(--rv-surface); border: 1.5px solid var(--rv-line-strong);
+}
+.st-bubble--mood { font-size: 1.1rem; padding: 1px 4px; animation: lab-pop .3s both; }
+.st-coins-fly { position: absolute; bottom: 0; right: 100%; font-size: .9rem; animation: st-coins .6s ease-out both; }
+@keyframes st-coins { from { transform: translateX(-70px); } to { transform: translateX(10px); opacity: 0; } }
+
+/* Callouts and money panels under the stall */
+.st-callout { margin: 0; padding: 8px 12px; border-radius: var(--rv-radius-sm); font-weight: 700; font-size: .9rem; animation: lab-pop .3s both; }
+.st-callout.is-good { color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.st-callout.is-bad { color: #fff; background: var(--rv-redpen); }
+.st-panel { display: grid; gap: 6px; padding: 10px 12px; border-radius: var(--rv-radius-md); border: 2px solid var(--rv-line); background: var(--rv-surface); animation: lab-pop .3s both; }
+.st-panel.is-good { border-color: var(--rv-good); }
+.st-panel.is-bad { border-color: var(--rv-redpen); }
+.st-panel__sum { margin: 0; display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: .95rem; font-variant-numeric: tabular-nums; }
+.st-panel__sum b { font: 800 1.05rem/1.2 var(--rv-font-display); }
+.st-panel.is-good .st-panel__result { color: var(--rv-good-ink); }
+.st-panel.is-bad .st-panel__result { color: var(--rv-redpen); }
+.st-panel__note { margin: 0; font-weight: 700; font-size: .82rem; color: var(--rv-ink-2); }
+
+/* Payback meter: the dashed box is what the upgrade cost, each green block is one day's extra */
+.st-meter { position: relative; height: 26px; border-radius: 6px; background: var(--rv-paper); overflow: hidden; }
+.st-meter__cost { position: absolute; top: 0; bottom: 0; left: 0; border: 2px dashed var(--rv-ink-2); border-radius: 6px; box-sizing: border-box; }
+.st-meter__day {
+  position: absolute; top: 4px; bottom: 4px; border-right: 2px solid var(--rv-surface); box-sizing: border-box;
+  background: var(--rv-good); animation: st-fill .3s both;
+}
+.st-meter__day.is-over { background: var(--rv-redpen); }
+@keyframes st-fill { from { transform: scaleX(0); transform-origin: left; } }
+
+/* End of day: the money in and out */
+.st-day { display: grid; gap: 4px; margin: 0; padding: 10px 12px; list-style: none; border-radius: var(--rv-radius-md); background: var(--rv-surface); border: 2px solid var(--rv-line); }
+.st-day li { display: flex; justify-content: space-between; gap: 8px; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.st-day li.is-in b { color: var(--rv-good-ink); }
+.st-day li.is-out b { color: var(--rv-redpen); }
+.st-day__net { margin-top: 4px; padding-top: 6px; border-top: 2px solid var(--rv-line); font-weight: 800; }
+
+@media (max-width: 359px) {
+  .st-front { grid-template-columns: minmax(0, 1fr) 54px; }
+  .st-crate { width: 26px; height: 24px; font-size: .75rem; }
+  .st-ledger__cash { font-size: 1.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-ledger__entry, .st-crate, .st-crate.is-bad, .st-helper, .st-upgrade, .st-upgrade.is-bought, .st-tag, .st-customer,
+  .st-bubble--mood, .st-callout, .st-panel, .st-meter__day { animation: none; }
+  .st-crate.is-sold, .st-customer.is-leaving { animation: none; opacity: 0; }
+  .st-coins-fly { display: none; }
+}

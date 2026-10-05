@@ -1,0 +1,151 @@
+/* /preview lock as an 8-bit arcade level: pixel sky, HUD, question blocks, coins and a running student. */
+
+.arcade {
+  --px: 'Press Start 2P', ui-monospace, monospace;
+  --night: #0b0f2a; --night-2: #1b1f5e; --ink: #1b1f3b; --gold: #ffd35c; --gold-2: #f0a020; --brick: #c8553d; --brick-2: #8f3324;
+  --mint: #2ee6b0; --violet: #6d3fd8; --pink: #ff5c8a;
+  position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden;
+  display: grid; grid-template-rows: auto 1fr auto; justify-items: center; align-items: center;
+  background: linear-gradient(var(--night) 0%, var(--night-2) 70%, #3a2a7a 100%);
+  color: #fff; font-family: var(--rv-font-body, system-ui, sans-serif);
+  image-rendering: pixelated;
+}
+
+/* Sky */
+.arcade-sky { position: absolute; inset: 0; pointer-events: none; }
+.arcade-sky span { position: absolute; background: #fff; animation: arcade-twinkle 2.4s steps(2) infinite; }
+.arcade-cloud {
+  position: absolute; width: 8px; height: 8px; background: transparent; pointer-events: none; opacity: .9;
+  box-shadow:
+    16px 0 #fff, 24px 0 #fff, 32px 0 #fff,
+    8px 8px #fff, 16px 8px #fff, 24px 8px #fff, 32px 8px #fff, 40px 8px #fff, 48px 8px #fff,
+    0 16px #fff, 8px 16px #fff, 16px 16px #fff, 24px 16px #fff, 32px 16px #fff, 40px 16px #fff, 48px 16px #fff, 56px 16px #fff,
+    8px 24px #dfe6ff, 16px 24px #dfe6ff, 24px 24px #dfe6ff, 32px 24px #dfe6ff, 40px 24px #dfe6ff, 48px 24px #dfe6ff;
+  animation: arcade-drift 38s linear infinite;
+}
+.arcade-cloud--one { top: 16%; left: -80px; }
+.arcade-cloud--two { top: 34%; left: -80px; transform: scale(.7); animation-duration: 56s; animation-delay: -24s; opacity: .55; }
+
+/* HUD */
+.arcade-hud {
+  position: relative; z-index: 2; width: min(960px, 100%); display: flex; justify-content: space-between; gap: 12px;
+  padding: 18px 20px 0; font: 400 clamp(.6rem, 1.6vw, .85rem)/1.6 var(--px); letter-spacing: .04em;
+}
+.arcade-hud span { display: grid; gap: 4px; text-align: center; }
+.arcade-hud small { color: var(--gold); font-size: .8em; }
+.arcade-hearts, .arcade-hud span:last-child { font-size: 1.5em; line-height: 1; }
+.arcade-hearts { color: var(--pink); font-weight: 400; letter-spacing: .1em; }
+.arcade-hud span:last-child small { font-size: .53em; line-height: 1.6; }
+.arcade-hearts i { color: rgb(255 255 255 / 22%); font-style: normal; }
+
+/* Card */
+.arcade-card {
+  position: relative; z-index: 2; width: min(540px, calc(100vw - 40px)); margin: 18px 0 150px; padding: clamp(20px, 5vw, 32px);
+  background: rgb(11 15 42 / 88%);
+  box-shadow: 0 -6px 0 0 #fff, 0 6px 0 0 #fff, -6px 0 0 0 #fff, 6px 0 0 0 #fff, 0 0 0 6px var(--ink), 12px 12px 0 6px rgb(0 0 0 / 35%);
+}
+.arcade--wrong .arcade-card { animation: arcade-shake .4s steps(4); }
+.arcade--wrong::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: var(--pink); animation: arcade-flash .35s steps(2) forwards; }
+.arcade-kicker { margin: 0 0 12px; color: var(--mint); font: 400 .62rem var(--px); letter-spacing: .08em; }
+.arcade-card h1 { margin: 0; color: var(--gold); font: 400 clamp(1.05rem, 4.4vw, 1.7rem)/1.45 var(--px); text-shadow: 4px 4px 0 var(--brick-2); }
+.arcade-sub { margin: 14px 0 20px; color: rgb(255 255 255 / 85%); line-height: 1.55; font-size: .98rem; }
+
+.arcade-loading { display: grid; gap: 10px; margin-bottom: 22px; }
+.arcade-loading__bar { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; padding: 4px; border: 3px solid #fff; }
+.arcade-loading__bar span { height: 14px; background: var(--mint); }
+.arcade-loading__bar span.is-last { animation: arcade-blink 1s steps(2) infinite; }
+.arcade-loading__meta { display: flex; justify-content: space-between; gap: 12px; font: 400 .58rem/1.6 var(--px); color: rgb(255 255 255 / 80%); }
+.arcade-loading__meta strong { color: var(--mint); font-weight: 400; }
+
+.arcade-form label { display: block; margin-bottom: 10px; font: 400 .7rem var(--px); color: #fff; }
+.arcade-form__row { display: flex; gap: 10px; }
+.arcade-form input {
+  flex: 1; min-width: 0; min-height: 52px; padding: 0 14px; border: 0; border-radius: 0;
+  background: #000; color: var(--mint); font: 400 .9rem var(--px); letter-spacing: .12em;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+.arcade-form input::placeholder { color: rgb(46 230 176 / 45%); }
+.arcade-form input:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.arcade-form button {
+  min-height: 52px; padding: 0 16px; border: 0; border-radius: 0; cursor: pointer; white-space: nowrap;
+  background: var(--gold); color: var(--ink); font: 400 .72rem var(--px);
+  box-shadow: inset -4px -4px 0 var(--gold-2), 4px 4px 0 var(--ink);
+}
+.arcade-form button:hover { background: #ffe07f; }
+.arcade-form button:active { transform: translate(4px, 4px); box-shadow: inset -4px -4px 0 var(--gold-2); }
+.arcade-form button:disabled { cursor: default; }
+.arcade-form button:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+.arcade-blink { display: inline-block; animation: arcade-blink 1s steps(2) infinite; }
+.arcade-message { min-height: 1.6em; margin: 14px 0 0; font: 400 .62rem/1.6 var(--px); color: var(--gold); }
+.arcade--wrong .arcade-message { color: var(--pink); }
+.arcade--open .arcade-message { color: var(--mint); animation: arcade-blink .5s steps(2) 3; }
+
+/* The world at the bottom */
+.arcade-world { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; pointer-events: none; z-index: 1; }
+.arcade-ground {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 56px;
+  background:
+    linear-gradient(var(--mint) 0 8px, transparent 8px),
+    repeating-linear-gradient(90deg, var(--brick-2) 0 3px, transparent 3px 48px) 0 8px / 48px 24px,
+    repeating-linear-gradient(90deg, var(--brick-2) 0 3px, transparent 3px 48px) 24px 32px / 48px 24px,
+    repeating-linear-gradient(var(--brick) 0 21px, var(--brick-2) 21px 24px);
+  background-repeat: repeat-x, repeat-x, repeat-x, repeat;
+  animation: arcade-scroll 1.6s linear infinite;
+}
+.arcade-hill {
+  position: absolute; right: 8%; bottom: 56px; width: 180px; height: 72px; background: #1e9e6a;
+  clip-path: polygon(0 100%, 10% 100%, 10% 75%, 22% 75%, 22% 50%, 34% 50%, 34% 25%, 66% 25%, 66% 50%, 78% 50%, 78% 75%, 90% 75%, 90% 100%, 100% 100%);
+}
+.arcade-runner { position: absolute; left: 14%; bottom: 56px; width: 48px; animation: arcade-jump 3.2s steps(8) infinite; }
+.arcade-sprite { display: block; width: 100%; height: auto; animation: arcade-bob .3s steps(2) infinite; }
+.arcade-blocks { position: absolute; left: calc(14% - 40px); bottom: 150px; display: flex; gap: 0; }
+.arcade-blocks span {
+  width: 40px; height: 40px; display: grid; place-items: center; color: #fff; font: 400 .7rem var(--px);
+  background: var(--brick); box-shadow: inset -4px -4px 0 var(--brick-2), inset 4px 4px 0 #e98a6a;
+}
+.arcade-blocks span.is-mystery { background: var(--gold); color: var(--ink); box-shadow: inset -4px -4px 0 var(--gold-2), inset 4px 4px 0 #fff3c4; }
+.arcade-blocks span:nth-child(2) { animation: arcade-bump 3.2s steps(4) infinite; }
+.arcade-coins { position: absolute; right: 22%; bottom: 120px; display: flex; gap: 22px; }
+.arcade-coins span {
+  width: 30px; height: 30px; display: grid; place-items: center; color: var(--ink); font: 400 .6rem var(--px);
+  background: var(--gold); box-shadow: inset -3px -3px 0 var(--gold-2), 0 0 0 3px var(--ink);
+  clip-path: polygon(25% 0, 75% 0, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0 75%, 0 25%);
+  animation: arcade-coin 1.2s steps(4) infinite;
+}
+
+/* Success burst */
+.arcade-burst { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+.arcade-burst span {
+  position: absolute; bottom: -40px; width: 30px; height: 30px; display: grid; place-items: center; color: var(--ink); font: 400 .6rem var(--px);
+  background: var(--gold); clip-path: polygon(25% 0, 75% 0, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0 75%, 0 25%);
+  animation: arcade-rise 1.3s steps(10) forwards;
+}
+
+/* CRT */
+.arcade-scanlines {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  background: repeating-linear-gradient(rgb(0 0 0 / 0%) 0 2px, rgb(0 0 0 / 18%) 2px 4px), radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 45%) 100%);
+}
+
+@keyframes arcade-twinkle { 50% { opacity: .2; } }
+@keyframes arcade-drift { to { transform: translateX(calc(100vw + 160px)); } }
+@keyframes arcade-blink { 50% { opacity: 0; } }
+@keyframes arcade-shake { 25% { transform: translate(-8px, 4px); } 50% { transform: translate(8px, -4px); } 75% { transform: translate(-4px, -4px); } }
+@keyframes arcade-flash { from { opacity: .35; } to { opacity: 0; } }
+@keyframes arcade-scroll { to { background-position: -48px 0, -48px 8px, -24px 32px, -48px 0; } }
+@keyframes arcade-bob { 50% { transform: translateY(-3px); } }
+@keyframes arcade-jump { 0%, 45%, 100% { transform: translateY(0); } 60% { transform: translateY(-58px); } 75% { transform: translateY(-20px); } }
+@keyframes arcade-bump { 0%, 55%, 70%, 100% { transform: translateY(0); } 62% { transform: translateY(-10px); } }
+@keyframes arcade-coin { 50% { transform: scaleX(.35); } }
+@keyframes arcade-rise { to { transform: translateY(-110vh); } }
+
+@media (max-width: 560px) {
+  .arcade-form__row { flex-direction: column; }
+  .arcade-hud { padding-inline: 12px; }
+  .arcade-card { margin-bottom: 170px; }
+  .arcade-coins { right: 6%; gap: 12px; }
+  .arcade-hill { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arcade *, .arcade *::before, .arcade *::after, .arcade::after { animation: none !important; }
+}

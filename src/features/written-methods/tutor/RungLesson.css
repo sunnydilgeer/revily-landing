@@ -54,7 +54,7 @@
 /* ---------- "= ?" answer box ---------- */
 .rung-answer-form { margin: 8px 0 4px; }
 .rung-answer { display: inline-flex; align-items: center; gap: 14px; font-size: 2rem; }
-.rung-answer__eq { color: var(--rv-ink); font-weight: 500; }
+.rung-answer__eq { color: var(--rv-ink); font-weight: 500; white-space: nowrap; }
 .rung-answer__unit { color: var(--rv-muted); font-size: 1.1rem; }
 .rung-lesson .rung-answer__input,
 .rung-fraction input {
@@ -176,3 +176,42 @@
 .rung-roots__or { color: var(--rv-muted); font-weight: 600; }
 .rung-roots__pair { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .rung-lesson .rung-roots .rung-answer__input { width: 3.6em; }
+/* A row of five terms ("☐, ☐, ☐, ☐, ☐"): narrower boxes, so a phone fits three on a line. */
+.rung-list--row { gap: 8px 4px; }
+.rung-list--row .rung-roots__pair { gap: 4px; }
+.rung-lesson .rung-list--row .rung-answer__input { width: 3em; }
+
+/* A rearranged formula after "m =" (FormulaAnswerInput): one box or a fraction, a √ over everything, keys underneath. */
+.rung-formula { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; max-width: 100%; }
+.rung-lesson .rung-formula__input { width: min(7.5em, calc(100vw - 150px)); text-align: center; }
+.rung-lesson .rung-formula__input.is-long { font-size: 1.15rem; }
+.rung-formula__frac { display: inline-grid; justify-items: center; gap: 6px; }
+.rung-formula__root { display: inline-flex; align-items: stretch; }
+.rung-formula__radical { display: flex; width: 20px; margin-right: -2px; color: var(--rv-ink); }
+.rung-formula__radical svg { width: 100%; height: 100%; overflow: visible; }
+.rung-formula__under { display: inline-flex; align-items: center; padding: 6px 4px 0; border-top: 3px solid var(--rv-ink); }
+.rung-formula__keys { display: flex; flex-basis: 100%; justify-content: center; gap: 10px; }
+.rung-formula__key-frac { display: inline-grid; justify-items: center; font-size: .8em; line-height: 1; }
+.rung-formula__key-frac > span:first-child { padding: 0 3px 2px; border-bottom: 2px solid currentColor; }
+.rung-formula__key-frac > span:last-child { padding-top: 2px; }
+.rung-answer.is-correct .rung-formula__input { border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.rung-answer.is-incorrect .rung-formula__input { border-style: solid; border-color: var(--rv-redpen); color: #a51f1f; background: var(--rv-redpen-tint); }
+
+/* An inequality (InequalityAnswerInput): "x ☐ ☐" or "☐ ☐ x ☐ ☐", each sign slot filled from the four keys underneath. */
+.rung-ineq { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.rung-ineq__row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.rung-ineq label { display: block; margin: 0; }
+.rung-lesson .rung-ineq .rung-answer__input { width: 2.9em; padding: 0 6px; }
+.rung-ineq__letter { color: var(--rv-ink); font-weight: 600; font-style: italic; }
+.rung-ineq__slot { min-width: 48px; height: 56px; padding: 0 4px; border: 3px dashed var(--rv-line-strong); border-radius: 12px; background: var(--rv-surface); color: var(--rv-ink); font: 600 1.6rem var(--rv-font-body); cursor: pointer; }
+.rung-ineq__slot.is-empty { color: var(--rv-muted); }
+.rung-ineq__slot.is-active { border-style: solid; border-color: var(--rv-biro); box-shadow: 0 0 0 4px var(--rv-biro-tint); }
+.rung-ineq__keys { display: flex; gap: 8px; }
+.rung-answer.is-correct .rung-ineq__slot { border-style: solid; border-color: var(--rv-good); color: var(--rv-good-ink); background: var(--rv-good-tint); }
+.rung-answer.is-incorrect .rung-ineq__slot { border-style: solid; border-color: var(--rv-redpen); color: #a51f1f; background: var(--rv-redpen-tint); }
+.rung-answer.is-correct .rung-ineq__keys, .rung-answer.is-incorrect .rung-ineq__keys { display: none; }
+@media (max-width: 380px) {
+  .rung-ineq__row { gap: 4px; }
+  .rung-lesson .rung-ineq .rung-answer__input { width: 2.6em; height: 56px; font-size: 1.35rem; }
+  .rung-ineq__slot { min-width: 42px; font-size: 1.35rem; }
+}

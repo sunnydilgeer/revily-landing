@@ -11,6 +11,10 @@
   font: 800 .42px var(--rv-font-display); fill: #fff; text-anchor: middle;
   paint-order: stroke; stroke: var(--rv-ink); stroke-width: .1px; animation: lab-pop .35s both;
 }
+.sr-measure line { stroke-width: .07; stroke-linecap: round; }
+.sr-measure text { font: 800 .38px var(--rv-font-display); text-anchor: middle; fill: #fff; paint-order: stroke; stroke: var(--rv-ink); stroke-width: .1px; }
+.sr-measure.is-right line { stroke: var(--rv-good); }
+.sr-measure.is-wrong line { stroke: var(--rv-redpen); }
 .sr-storm { fill: rgb(116 70 214 / 62%); }
 .sr-you { font-size: .75px; text-anchor: middle; dominant-baseline: central; }
 
@@ -27,6 +31,8 @@
 }
 .sr-banner.is-safe { color: #fff; background: var(--rv-good); }
 .sr-banner.is-caught { color: #fff; background: var(--rv-step-b); }
+
+.sr-side .lab-choice { font-size: 1.05rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .sr-distance, .sr-banner { animation: none; }
