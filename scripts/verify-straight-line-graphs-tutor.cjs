@@ -34,7 +34,11 @@ const label = n => String(n).replace('-', '−')
 const onLine = (line, p) => (line.to.x - line.from.x) * (p.y - line.from.y) === (line.to.y - line.from.y) * (p.x - line.from.x)
 const inside = (frame, p) => p.x >= frame.x[0] && p.x <= frame.x[1] && p.y >= frame.y[0] && p.y <= frame.y[1]
 function checkGrid(frame, where) {
-  assert.ok(frame.x[0] <= 0 && frame.x[1] >= 0 && frame.y[0] <= 0 && frame.y[1] >= 0, `${where}: both axes are on the grid`)
+  // One unit is one square of the page's grid (32px), so a grid fits a phone: at most 9 squares across.
+  assert.ok(frame.x[1] - frame.x[0] <= 9, `${where}: the grid is at most 9 squares across`)
+  // The axis numbers sit inside the grid, so there is a square left of the y axis and below the x axis.
+  assert.ok(frame.x[0] <= -1 && frame.x[1] >= 1 && frame.y[0] <= -1 && frame.y[1] >= 1, `${where}: both axes, with their numbers, are inside the grid`)
+  for (const mark of frame.marks ?? []) assert.ok(mark.value >= frame[mark.axis][0] && mark.value < frame[mark.axis][1], `${where}: the marked ${mark.axis} = ${mark.value} is numbered on its axis`)
   for (const line of frame.lines ?? []) {
     if (!line.label) continue
     const [letter, value] = line.label.replace('−', '-').split(' = ')
@@ -110,6 +114,17 @@ for (const state of states) {
     assert.ok(step.title.split(' ').length <= 5, `${state.id} step ${i + 1}: heading "${step.title}" is short`)
     assert.ok(step.instruction && !step.instruction.includes('='), `${state.id} step ${i + 1}: ⓘ is words, not a sum`)
     const own = step.frame.graph
+    checkGrid(own, `${state.id} step ${i + 1}`)
+    // A step that puts down dots, a line across or up and down, or a step between points highlights the axis numbers it uses.
+    const before = i ? steps[i - 1].frame.graph : { points: [], lines: [], legs: [] }
+    const added = (own.points ?? []).length > (before.points ?? []).filter(p => p.at >= 0).length + (own.points ?? []).filter(p => p.at < 0).length
+      || (own.lines ?? []).some(line => line.at === i && (line.from.x === line.to.x || line.from.y === line.to.y))
+      || (own.legs ?? []).some(leg => leg.at === i)
+    if (added) assert.ok(own.marks?.length, `${state.id} step ${i + 1}: highlights the axis numbers it uses`)
+    for (const leg of (own.legs ?? []).filter(leg => leg.at === i)) {
+      const axis = leg.from.y === leg.to.y ? 'x' : 'y'
+      for (const end of [leg.from, leg.to]) assert.ok(own.marks.some(m => m.axis === axis && m.value === end[axis]), `${state.id} step ${i + 1}: ${axis} = ${end[axis]} is highlighted`)
+    }
     assert.equal(Boolean(own.answer && own.answer.at === i), i === steps.length - 1, `${state.id} step ${i + 1}: the answer comes once, at the end`)
     if (i < steps.length - 1) assert.ok(!(own.lines ?? []).some(line => line.answer), `${state.id}: nothing green before the answer`)
   })

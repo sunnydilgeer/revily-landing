@@ -9,13 +9,15 @@ From the GR1 pages of Sunny's book scan (p70–71: horizontal and vertical lines
 | Rung | Idea | Worked example | Questions |
 | --- | --- | --- | --- |
 | Across and up | y = a is across, x = a is up and down | Draw y = 3 and x = −2: plot points with y 3, join; points with x −2, join | which equation is this line (y = 4, choice); line drawn → x = 3; horizontal through (6, −1) → y = −1; which point is on x = −4 (choice); which equation is the y axis (choice) |
-| Gradient from a graph | change in y ÷ change in x | Line through (1, 2) and (3, 8): up 6, across 2, gradient 3 (video) | gradient 4; −2 (goes down); 1/2 (shallow); positive or negative (choice) |
-| Gradient from two points | subtract in the same order both times | (1, 2) and (4, 8): 8 − 2 = 6, 4 − 1 = 3, gradient 2 | (2, 5) and (4, 11) → 3; (−2, 7) and (1, −5) → −4; (−3, −3) and (5, 1) → 1/2; (6, 2) and (2, 10) → −2; Sam divided across by up (choice) |
+| Gradient from a graph | change in y ÷ change in x | Line through (1, 2) and (3, 8): up 6, across 2, gradient 3 (video) | through (1, −2) and (3, 6) → 4; (1, 5) and (3, 1) → −2 (goes down); (2, 2) and (6, 4) → 1/2 (shallow); positive or negative (choice) |
+| Gradient from two points | subtract in the same order both times | (1, 2) and (4, 8): 8 − 2 = 6, 4 − 1 = 3, gradient 2 | (2, 3) and (4, 9) → 3; (−2, 5) and (1, −4) → −3; (−3, −2) and (3, 1) → 1/2; (5, 1) and (1, 9) → −2; Sam divided across by up for (1, 3) and (3, 9) (choice) |
 | Review | the four facts | | |
 
 ## How each working looks (EXPLANATIONS.md)
 
-- The question's own grid is the picture (`GraphPictures.tsx`): a square grid with its axes, the line drawn edge to edge, points with their coordinates. A line the question gives is ink; a line a step draws is biro blue, then green as the answer.
+- The question's own grid is the picture (`GraphPictures.tsx`), drawn on the page's own squares: the axes sit on the card's paper grid lines, so there is no second grid on top. At most 9 squares across, so it fits a phone. The line runs edge to edge, points carry their coordinates. A line the question gives is ink; a line a step draws is biro blue, then green as the answer.
+- Whenever a step plots dots, draws a line or counts an arrow, the x or y numbers it uses light up on the axes in that step's colour (a coloured pill behind the number): y = 3 lights the 3 on the y axis, an up arrow from 2 to 8 lights 2 and 8. Only the current step's numbers light up.
+- Nothing leaves the grid: arrowheads end inside its edge, the x and y names sit inside, edge numbers are left off, and every label is moved in from the edge.
 - One move a step, always in the same order: pick two points (ringed in purple), change in y (an up or down arrow in biro blue, its size beside it), change in x (an across arrow in amber), then divide, in the green answer box. Each step writes its own line under the grid, in its arrow's colour.
 - With only two points, the same grid is drawn from the points, so the student still sees the triangle, and the lines read "Change in y = 10 − 2 = 8": second point take away the first, both times.
 - Gradient answers are typed any way that has the value (3, −2, 1/2, 0.5), with "Gradient =" before the box; the phone shows the full keyboard so − and / are there. Line answers have "x =" or "y =" before the box.
@@ -27,7 +29,7 @@ From the GR1 pages of Sunny's book scan (p70–71: horizontal and vertical lines
 
 ## The worksheet (GR1.1, 8 questions, 15 marks)
 
-Worked example (gradient 3 from the graph), then easy (equation of x = −1; draw y = 1 and x = 4), medium (gradient 2 from a graph; (3, 4) and (7, 16) → 3), hard (−1/2 from a graph), very hard ((−5, 2) and (3, −6) → −1; Priya subtracts in different orders). The kit's worksheet now takes a `figure` (the grid) on a question.
+Same graph style as the app: highlighted axis numbers on the worked steps, everything inside the grid. Worked example (gradient 3 from the graph), then easy (equation of x = −1; draw y = 1 and x = 4), medium (gradient 2 from a graph; (3, 4) and (7, 16) → 3), hard (−1/2 from a graph), very hard ((−5, 2) and (3, −6) → −1; Priya subtracts in different orders). The kit's worksheet now takes a `figure` (the grid) on a question.
 
 ## Questions for Sunny
 

@@ -83,7 +83,7 @@ practice(lines, 'Write down the equation of the line drawn on the grid.', 'GR1 p
   plot([pt(3, -2), pt(3, 2)], 'Read two points', 'Read the coordinates of two points on the line. Their x coordinates are both 3.'),
   answerMove('x = 3', 'Every x is 3', 'The line goes up and down, so every point on it has the same x coordinate.', [0]),
 ]), [[-3, 'The line is to the right of the y axis, so its x coordinates are positive.'], [0, 'That’s the y axis. This line is 3 squares to the right of it.']])
-practice(lines, 'A horizontal line goes through the point (6, −1). Write down its equation.', 'GR1 p71 Q4 (own numbers)', grid([-2, 7], [-3, 3], [], [pt(6, -1)]), value(-1, 'y ='), 'Horizontal means across. Which coordinate stays the same all the way along?', graphModel('(6, −1)', grid([-2, 7], [-3, 3], [], [pt(6, -1)]), [
+practice(lines, 'A horizontal line goes through the point (6, −1). Write down its equation.', 'GR1 p71 Q4 (own numbers)', grid([-1, 7], [-3, 3], [], [pt(6, -1)]), value(-1, 'y ='), 'Horizontal means across. Which coordinate stays the same all the way along?', graphModel('(6, −1)', grid([-1, 7], [-3, 3], [], [pt(6, -1)]), [
   draw({ ...across(-1), label: undefined }, 'Draw it across', 'A horizontal line goes straight across through the point.'),
   answerMove('y = −1', 'Every y is −1', 'Every point on it has the same y coordinate as (6, −1), the second number.', [0]),
 ]), [[6, '6 is the x coordinate. A horizontal line keeps the same y all the way along, so use the second number.'], [1, 'Check the sign: the point is below the x axis, so y is negative.']])
@@ -109,7 +109,7 @@ practice(lines, 'Which equation is the y axis?', 'GR1 p70 Horizontal and vertica
 
 {
   const line = { from: pt(1, 2), to: pt(3, 8) }
-  const start = grid([-1, 4], [-2, 9], [line])
+  const start = grid([-1, 5], [-2, 9], [line])
   const first = worked(fromGraph, 'Work out the gradient of the line drawn on the grid.', 'Find the gradient', 'GR1.1 video + GR1 p70 Finding the gradient (own numbers)', graphModel('the line drawn', start, [
     pick([pt(1, 2), pt(3, 8)], '(1, 2) and (3, 8)', 'Pick two points', 'Choose two points where the line crosses grid corners exactly, not too close together.'),
     leg(pt(1, 2), pt(1, 8), 'Change in y = 6', 'Change in y', 'Count the squares up from the lower point to the height of the other one.'),
@@ -131,7 +131,7 @@ practice(lines, 'Which equation is the y axis?', 'GR1 p70 Horizontal and vertica
   })
 }
 {
-  const start = grid([-1, 4], [-3, 7], [{ from: pt(1, -2), to: pt(3, 6) }])
+  const start = grid([-1, 5], [-3, 7], [{ from: pt(1, -2), to: pt(3, 6) }])
   practice(fromGraph, 'Work out the gradient of the line drawn on the grid.', 'GR1 p71 Q1 (own numbers)', start, slope(4, '4'), 'Pick two points on grid corners. Count up, then across.', graphModel('the line drawn', start, [
     pick([pt(1, -2), pt(3, 6)], '(1, −2) and (3, 6)', 'Pick two points', 'Choose two points where the line crosses grid corners exactly.'),
     leg(pt(1, -2), pt(1, 6), 'Change in y = 8', 'Change in y', 'Count the squares up from the lower point to the height of the other one.'),
@@ -140,7 +140,7 @@ practice(lines, 'Which equation is the y axis?', 'GR1 p70 Horizontal and vertica
   ]), gradientSlips(8, 2))
 }
 {
-  const start = grid([-1, 4], [-1, 7], [{ from: pt(1, 5), to: pt(3, 1) }])
+  const start = grid([-1, 5], [-1, 7], [{ from: pt(1, 5), to: pt(3, 1) }])
   practice(fromGraph, 'Work out the gradient of the line drawn on the grid.', 'GR1 p71 Q2 (own numbers)', start, slope(-2, '−2'), 'The line goes down from left to right. What does that tell you about the gradient?', graphModel('the line drawn', start, [
     pick([pt(1, 5), pt(3, 1)], '(1, 5) and (3, 1)', 'Pick two points', 'Choose two points where the line crosses grid corners exactly. Work from left to right.'),
     leg(pt(1, 5), pt(1, 1), 'Change in y = −4', 'Change in y', 'From the left point the line goes down 4 squares, so the change in y is negative.'),
@@ -149,7 +149,7 @@ practice(lines, 'Which equation is the y axis?', 'GR1 p70 Horizontal and vertica
   ]), gradientSlips(-4, 2))
 }
 {
-  const start = grid([-1, 7], [-1, 5], [{ from: pt(2, 2), to: pt(6, 4) }])
+  const start = grid([-1, 8], [-1, 5], [{ from: pt(2, 2), to: pt(6, 4) }])
   practice(fromGraph, 'Work out the gradient of the line drawn on the grid.', 'GR1 p70 Finding the gradient (a fraction, own numbers)', start, slope(0.5, '1/2'), 'This line is not very steep: it goes up less than one for every one across.', graphModel('the line drawn', start, [
     pick([pt(2, 2), pt(6, 4)], '(2, 2) and (6, 4)', 'Pick two points', 'Choose two points where the line crosses grid corners exactly.'),
     leg(pt(2, 2), pt(2, 4), 'Change in y = 2', 'Change in y', 'Count the squares up from the lower point to the height of the other one.'),
@@ -175,7 +175,9 @@ practice(lines, 'Which equation is the y axis?', 'GR1 p70 Horizontal and vertica
 /** The two points on a grid that fits them, with a square of room around. */
 function twoPoints(a: [number, number], b: [number, number]): GraphGrid {
   const xs = [a[0], b[0], 0], ys = [a[1], b[1], 0]
-  return grid([Math.min(...xs) - 1, Math.max(...xs) + 1], [Math.min(...ys) - 1, Math.max(...ys) + 1], [], placed(pt(...a), pt(...b)))
+  // Two squares of room on the side the coordinates are written, so they stay inside the grid.
+  const right = b[0] > a[0] ? 2 : 1, left = b[0] > a[0] ? 1 : 2
+  return grid([Math.min(...xs) - left, Math.max(...xs) + right], [Math.min(...ys) - 1, Math.max(...ys) + 1], [], placed(pt(...a), pt(...b)))
 }
 /** Change in y, then change in x (second point take away the first, both times), then divide. */
 function pointsModel(a: [number, number], b: [number, number], sayY = 'Take the first point’s y from the second point’s y.', sayX = 'Take the x coordinates in the same order: the second point’s take away the first’s.') {
@@ -193,20 +195,20 @@ const gcd = (a: number, b: number): number => b === 0 ? Math.abs(a) : gcd(b, a %
 
 worked(fromPoints, 'Work out the gradient of the line that passes through (1, 2) and (4, 8).', 'Gradient through (1, 2) and (4, 8)', 'GR1 p70 Example 1 (own numbers)', pointsModel([1, 2], [4, 8]),
   'Gradient = change in y ÷ change in x. Subtract in the same order both times: the second point take away the first.')
-practice(fromPoints, 'Work out the gradient of the line that passes through (2, 5) and (4, 11).', 'GR1 p71 Q3 (own numbers)', undefined, slope(3, '3'), 'Change in y first: 11 take away 5.', pointsModel([2, 5], [4, 11]), gradientSlips(6, 2))
-practice(fromPoints, 'Work out the gradient of the line that passes through (−2, 7) and (1, −5).', 'GR1 p71 Q3 (negatives, own numbers)', undefined, slope(-4, '−4'), 'Take care with the negatives: 1 − (−2) is 1 + 2.', pointsModel([-2, 7], [1, -5]), gradientSlips(-12, 3))
-practice(fromPoints, 'Work out the gradient of the line that passes through (−3, −3) and (5, 1).', 'GR1 p70 Example 1 (a fraction, own numbers)', undefined, slope(0.5, '1/2'), 'The change in y is smaller than the change in x, so the answer is a fraction.', pointsModel([-3, -3], [5, 1]), gradientSlips(4, 8))
-practice(fromPoints, 'Work out the gradient of the line that passes through (6, 2) and (2, 10).', 'GR1 p70 Example 1 (same order)', undefined, slope(-2, '−2'), 'Subtract in the same order both times: 10 − 2, then 2 − 6.', pointsModel([6, 2], [2, 10], 'Take the first point’s y from the second point’s y.', 'Same order: the second point’s x take away the first’s. The second point is to the left, so it is negative.'), [
-  [2, 'Take both coordinates in the same order. If you start with 10 − 2, the x’s must be 2 − 6, which is −4.'],
+practice(fromPoints, 'Work out the gradient of the line that passes through (2, 3) and (4, 9).', 'GR1 p71 Q3 (own numbers)', undefined, slope(3, '3'), 'Change in y first: 9 take away 3.', pointsModel([2, 3], [4, 9]), gradientSlips(6, 2))
+practice(fromPoints, 'Work out the gradient of the line that passes through (−2, 5) and (1, −4).', 'GR1 p71 Q3 (negatives, own numbers)', undefined, slope(-3, '−3'), 'Take care with the negatives: 1 − (−2) is 1 + 2.', pointsModel([-2, 5], [1, -4]), gradientSlips(-9, 3))
+practice(fromPoints, 'Work out the gradient of the line that passes through (−3, −2) and (3, 1).', 'GR1 p70 Example 1 (a fraction, own numbers)', undefined, slope(0.5, '1/2'), 'The change in y is smaller than the change in x, so the answer is a fraction.', pointsModel([-3, -2], [3, 1]), gradientSlips(3, 6))
+practice(fromPoints, 'Work out the gradient of the line that passes through (5, 1) and (1, 9).', 'GR1 p70 Example 1 (same order)', undefined, slope(-2, '−2'), 'Subtract in the same order both times: 9 − 1, then 1 − 5.', pointsModel([5, 1], [1, 9], 'Take the first point’s y from the second point’s y.', 'Same order: the second point’s x take away the first’s. The second point is to the left, so it is negative.'), [
+  [2, 'Take both coordinates in the same order. If you start with 9 − 1, the x’s must be 1 − 5, which is −4.'],
   [-0.5, 'That’s the change in x ÷ the change in y. The gradient is the change in y ÷ the change in x.'],
-  [8, 'That’s only the change in y. Divide it by the change in x, 2 − 6 = −4.'],
+  [8, 'That’s only the change in y. Divide it by the change in x, 1 − 5 = −4.'],
 ])
 {
-  const a: [number, number] = [1, 4], b: [number, number] = [3, 10]
-  practice(fromPoints, 'Sam works out the gradient of the line through (1, 4) and (3, 10) as (3 − 1) ÷ (10 − 4) = 1/3. Is Sam correct?', 'GR1 p70 Gradient formula (a common mistake)', undefined, pickOne(choose(
+  const a: [number, number] = [1, 3], b: [number, number] = [3, 9]
+  practice(fromPoints, 'Sam works out the gradient of the line through (1, 3) and (3, 9) as (3 − 1) ÷ (9 − 3) = 1/3. Is Sam correct?', 'GR1 p70 Gradient formula (a common mistake)', undefined, pickOne(choose(
     'No: it is 3. Sam divided the change in x by the change in y',
     ['Yes: the differences are 2 and 6', 'Which goes on top? The gradient is the change in y ÷ the change in x: 6 ÷ 2.'],
-    ['No: it is −3', 'The line goes up from (1, 4) to (3, 10), so the gradient is positive.'],
+    ['No: it is −3', 'The line goes up from (1, 3) to (3, 9), so the gradient is positive.'],
     ['No: it is 6', '6 is only the change in y. Divide it by the change in x, 2.'],
   )), 'Which change goes on top: x or y?', pointsModel(a, b))
 }

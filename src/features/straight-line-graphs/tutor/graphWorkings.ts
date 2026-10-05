@@ -34,16 +34,25 @@ export type GraphMove = { title: string; say: string; equation: string; adds: Gr
 export function graphModel(question: string, start: GraphGrid, moves: GraphMove[], label = 'Work it out'): TutorWorking {
   let frame: GraphFrame = { ...start, step: 0, adds: 'picture' }
   const steps: MethodStep[] = moves.map((move, step) => {
-    frame = { ...move.change({ ...frame, boxed: undefined }, step), step, adds: move.adds }
+    frame = { ...move.change({ ...frame, boxed: undefined, marks: undefined }, step), step, adds: move.adds }
     return { title: move.title, operation: latex(question), equation: move.equation, instruction: move.say, frame: { graph: frame } }
   })
   return { kind: 'method-worked', examples: [{ method: 'ordering', expression: latex(question), label, first: 0, second: 0, steps, pictureOnly: true, focus: true }] }
 }
 
-/** Moves: points on the grid, with their coordinates, ringed in purple while they are read. */
+type Mark = NonNullable<GraphFrame['marks']>[number]
+/** The axis numbers points share: points in a row across all have the same y, so that y is marked; up and down, x. */
+function shared(points: GraphPoint[], family: number): Mark[] {
+  const unique = (values: number[]) => [...new Set(values)]
+  if (points.length > 1 && unique(points.map(p => p.y)).length === 1) return [{ axis: 'y', value: points[0].y, family }]
+  if (points.length > 1 && unique(points.map(p => p.x)).length === 1) return [{ axis: 'x', value: points[0].x, family }]
+  return [...unique(points.map(p => p.x)).map(value => ({ axis: 'x' as const, value, family })), ...unique(points.map(p => p.y)).map(value => ({ axis: 'y' as const, value, family }))]
+}
+
+/** Moves: points on the grid, with their coordinates, ringed in purple while they are read; their axis numbers marked. */
 export const plot = (points: GraphPoint[], title: string, say: string): GraphMove => ({
   title, say, equation: latex(points.map(p => `(${show(p.x)}, ${show(p.y)})`).join(', ')), adds: 'picture',
-  change: (frame, step) => ({ ...frame, points: [...(frame.points ?? []), ...points.map(p => ({ ...p, at: step }))], boxed: points }),
+  change: (frame, step) => ({ ...frame, points: [...(frame.points ?? []), ...points.map(p => ({ ...p, at: step }))], boxed: points, marks: shared(points, 0) }),
 })
 /** Moves: rings points already on the grid (the two a gradient is read from), with a line of working. */
 /**
@@ -58,15 +67,18 @@ export function placed(a: GraphPoint, b: GraphPoint) {
 export const pick = (points: [GraphPoint, GraphPoint], lineText: string, title: string, say: string): GraphMove => ({
   title, say, equation: latex(lineText), adds: 'lines',
   change: (frame, step) => ({
-    ...frame, boxed: points,
+    ...frame, boxed: points, marks: shared(points, 3),
     points: [...(frame.points ?? []).filter(p => !points.some(q => q.x === p.x && q.y === p.y)), ...placed(...points).map(p => ({ ...p, at: step }))],
     working: [...(frame.working ?? []), { text: lineText, family: 3, at: step }],
   }),
 })
-/** Moves: a straight line drawn through two points, biro blue (a halfway result). */
+/** Moves: a straight line drawn through two points, biro blue (a halfway result); y = 3 marks the 3 on the y axis. */
 export const draw = (line: { from: GraphPoint; to: GraphPoint; label?: string }, title: string, say: string): GraphMove => ({
   title, say, equation: latex(line.label ?? 'join the points'), adds: 'picture',
-  change: (frame, step) => ({ ...frame, lines: [...(frame.lines ?? []), { ...line, at: step }] }),
+  change: (frame, step) => ({
+    ...frame, lines: [...(frame.lines ?? []), { ...line, at: step }],
+    marks: line.from.y === line.to.y ? [{ axis: 'y', value: line.from.y, family: 0 }] : line.from.x === line.to.x ? [{ axis: 'x', value: line.from.x, family: 0 }] : undefined,
+  }),
 })
 /**
  * Moves: the step between two points, across (change in x, amber) or up or down (change in y, biro blue), labelled
@@ -81,6 +93,8 @@ export const leg = (from: GraphPoint, to: GraphPoint, lineText: string, title: s
     change: (frame, step) => ({
       ...frame, boxed: [from, to].filter(p => (frame.points ?? []).some(q => q.x === p.x && q.y === p.y)),
       legs: [...(frame.legs ?? []), { from, to, label: show(size), family, at: step }],
+      // The two ends of the step on its axis: up from y = 2 to y = 8 marks 2 and 8 on the y axis.
+      marks: isAcross ? [{ axis: 'x', value: from.x, family }, { axis: 'x', value: to.x, family }] : [{ axis: 'y', value: from.y, family }, { axis: 'y', value: to.y, family }],
       working: [...(frame.working ?? []), { text: lineText, family, at: step }],
     }),
   }
@@ -90,7 +104,10 @@ export const answerMove = (answerText: string, title: string, say: string, lines
   title, say, equation: latex(answerText), adds: 'answer',
   change: (frame, step) => {
     const drawn = extra ? extra.change(frame, step) : frame
-    return { ...drawn, lines: (drawn.lines ?? []).map((line, i) => lines.includes(i) ? { ...line, answer: true } : line), answer: { text: answerText, at: step } }
+    const answers = (drawn.lines ?? []).map((line, i) => lines.includes(i) ? { ...line, answer: true } : line)
+    // A line across or up and down that is the answer has its axis number marked green: y = 4 marks the 4.
+    const marks = answers.filter(line => line.answer).flatMap((line): Mark[] => line.from.y === line.to.y ? [{ axis: 'y', value: line.from.y, family: 2 }] : line.from.x === line.to.x ? [{ axis: 'x', value: line.from.x, family: 2 }] : [])
+    return { ...drawn, lines: answers, marks: marks.length ? marks : drawn.marks, answer: { text: answerText, at: step } }
   },
 })
 

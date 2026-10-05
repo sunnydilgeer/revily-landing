@@ -196,7 +196,7 @@ export type NumberLineFrame = {
   adds: 'line' | 'lines' | 'answer'
 }
 /**
- * A straight line graph (lesson 26, GR1), the whole picture so far: a square grid with its axes, straight lines (each
+ * A straight line graph (lesson 26, GR1), the whole picture so far: the page's own squared paper with the axes on it, straight lines (each
  * through two points, drawn edge to edge), points with their coordinates, and the steps between two points: across
  * (change in x, amber) and up or down (change in y, biro blue), as in the GR1.1 video. Under it, lines of working and the
  * answer. Each part says which step added it (`at`, −1 for the question's own), so finished parts grey out; `boxed`
@@ -214,6 +214,8 @@ export type GraphFrame = {
   /** The step from one point to the other: across (change in x) or up/down (change in y), labelled with its size. */
   legs?: { from: GraphPoint; to: GraphPoint; label: string; family: number; at: number }[]
   boxed?: GraphPoint[]
+  /** The numbers on the axes this step reads, highlighted in its colour: x = 3 marks the 3 on the x axis. One step only. */
+  marks?: { axis: 'x' | 'y'; value: number; family: number }[]
   working?: { text: string; family: number; at: number }[]
   answer?: { text: string; at: number }
   step: number
