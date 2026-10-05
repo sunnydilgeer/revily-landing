@@ -126,6 +126,14 @@ export const canStatements: Record<string, string> = {
   '23:sequences-in-sequence': 'I can decide whether a number is in a sequence by solving, like 5n − 2 = 63 gives n = 13',
   '23:sequences-consecutive': 'I can solve problems with two terms next to each other, using n and n + 1',
 
+  '27:simultaneous-elimination': 'I can solve simultaneous equations by taking one from the other, like 3x + 2y = 16 and x + 2y = 8 give x = 4, y = 2',
+  '27:simultaneous-words': 'I can write two equations from a problem in words and solve them, like 2 teas and a cake for £7',
+
+  '28:proof-counterexample': 'I can show a statement is wrong with one counterexample, like 2n + 1 is 9 when n = 4, and 9 isn’t prime',
+  '28:proof-identity': 'I can show two expressions are identical by expanding one side, like (x + 3)² − x² ≡ 6x + 9',
+  '28:proof-geometric': 'I can prove an angle fact with reasons, like the angles in a triangle add to 180° using a parallel line',
+  '28:proof-algebraic': 'I can prove facts about odd and even numbers with n, like n + (n + 1) = 2n + 1 is always odd',
+
   '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
   '24:inequalities-two-sided': 'I can write and show a two-sided inequality, like 1 ≤ t < 5 as a filled circle at 1 and an open circle at 5, joined',
 
