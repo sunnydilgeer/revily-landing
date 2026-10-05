@@ -83,7 +83,7 @@ practice(decimalToFraction, 'Write 0.6 as a fraction in its simplest form.', 'N9
 practice(decimalToFraction, 'Write 0.35 as a fraction in its simplest form.', 'N9.2 Q3', fractionAnswer('7/20'), '7/20', 'Write 0.35 as 35/100 and divide both parts by 5.', decimalToFractionWorking('0.35', 7, 20))
 practice(decimalToFraction, 'Write 0.375 as a fraction in its simplest form.', 'N9.2 Q4a', fractionAnswer('3/8'), '3/8', 'Three decimal places means start with 375/1000.', decimalToFractionWorking('0.375', 3, 8))
 practice(decimalToFraction, 'Convert 3/8 back to a decimal to check the answer to part (a).', 'N9.2 Q4b', numeric(0.375), '0.375', 'Divide 3 by 8.', fractionToDecimalWorking(3, 8, '0.375'))
-practice(decimalToFraction, 'n/20 = 0.45. Find the value of n.', 'N9.2 Q5a', numeric(9), 'n = 9', 'Multiply 0.45 by 20.', fractionToDecimalWorking(9, 20, '0.45'), ['n/20 = 0.45', 'Find n'])
+practice(decimalToFraction, 'n/20 = 0.45. Find the value of n.', 'N9.2 Q5a', numeric(9), 'n = 9', 'Write 0.45 over 100, then make the bottom 20.', fractionToDecimalWorking(9, 20, '0.45'), ['n/20 = 0.45', 'Find n'])
 practice(decimalToFraction, 'Write a fraction with denominator 20 that converts to a decimal smaller than 0.45.', 'N9.2 Q5b', fractionRange('8/20', 20, 0, 0.45), 'for example, 8/20', 'Because 9/20 = 0.45, choose a positive numerator smaller than 9.', fractionToDecimalWorking(8, 20, '0.4'), undefined, 'Your fraction')
 practice(decimalToFraction, 'Priya says: “Every decimal with 2 decimal places simplifies to a fraction with denominator 100.” Is Priya correct?', 'N9.2 Q5c', select([
   'No. For example, 0.75 = 75/100 = 3/4, so the simplified denominator is 4.',
@@ -146,7 +146,7 @@ practice(fractionToPercentage, 'Explain why 11/8 converts to a percentage bigger
   'Every fraction with denominator 8 is more than 100%.',
   '11/8 is less than one whole because 8 is less than 11.',
 ], 0), '11/8 is greater than one whole.', 'Compare the numerator and denominator.', fractionToPercentageWorking(11, 8, '137.5'), ['Compare 11/8 with 8/8'])
-practice(fractionToPercentage, 'n/40 converts to 65%. Find the value of n.', 'N9.5 Q5a', numeric(26), 'n = 26', 'Solve n ÷ 40 × 100 = 65.', fractionToPercentageWorking(26, 40, '65'), ['n/40 = 65%', 'Find n'])
+practice(fractionToPercentage, 'n/40 converts to 65%. Find the value of n.', 'N9.5 Q5a', numeric(26), 'n = 26', 'Write 65% over 100, simplify it, then make the bottom 40.', fractionToPercentageWorking(26, 40, '65'), ['n/40 = 65%', 'Find n'])
 practice(fractionToPercentage, 'Write a fraction with denominator 8 that converts to a percentage bigger than 100%.', 'N9.5 Q5b', fractionRange('9/8', 8, 1), 'for example, 9/8', 'Choose a numerator bigger than 8.', fractionToPercentageWorking(9, 8, '112.5'), undefined, 'Your fraction')
 practice(fractionToPercentage, 'Leo says: “A fraction with a numerator smaller than its denominator always converts to a percentage under 50%.” Is Leo correct?', 'N9.5 Q5c', select([
   'No. For example, 3/4 has a smaller numerator but converts to 75%, which is over 50%.',
@@ -206,7 +206,12 @@ const stepWorkings: Record<string, StepWorking> = {
   'N9.2 Q3': fdp.decimalToFraction('0.35'),
   'N9.2 Q4a': fdp.decimalToFraction('0.375'),
   'N9.2 Q4b': fdp.fractionToDecimal(3, 8),
-  'N9.2 Q5a': fdp.findN('0.45', [{ title: 'Multiply by 20', why: 'n over 20 is the decimal, so n is the decimal times 20.', lines: [fdp.line([fdp.part('0.45'), fdp.sign('×'), fdp.part(20, 3)], 9, { answer: true })] }]),
+  'N9.2 Q5a': fdp.findN('0.45', [
+    ...fdp.overPowerSteps('0.45'),
+    { title: 'Make the bottom 20', why: 'n is over 20, so the bottom has to be 20. Work out how many 20s make 100: divide 100 by 20.', lines: [fdp.says('100 ÷ 20 → 5')] },
+    { title: 'Divide top and bottom', why: 'Divide the top by the same number as the bottom, so the fraction keeps its size.', lines: [fdp.says('45 ÷ 5 → 9'), fdp.says('100 ÷ 5 → 20'), fdp.line([fdp.part('45/100')], '9/20', { eq: true })] },
+    { title: 'Read off n', why: 'n is the top of the fraction over 20.', lines: [fdp.line([fdp.part('n')], 9, { eq: true, answer: true })] },
+  ]),
   'N9.2 Q5b': thenWords({ kind: 'step-worked', start: '9/20', steps: plainSteps(fdp.fractionToDecimalSteps(9, 20)) }, 'Pick a smaller top', 'With 20 on the bottom, a smaller top gives a smaller decimal.', 'For example, 8/20'),
   'N9.2 Q5c': fdp.decimalToFraction('0.75'),
   'N9.3 Q1': fdp.decimalToPercentage('0.68'),
@@ -231,8 +236,10 @@ const stepWorkings: Record<string, StepWorking> = {
   'N9.5 Q4a': fdp.fractionToPercentage(11, 8),
   'N9.5 Q4b': fdp.fractionToPercentage(11, 8),
   'N9.5 Q5a': fdp.findN('65%', [
-    { title: 'As a decimal', why: 'Per cent means out of 100, so divide by 100.', lines: [fdp.line([fdp.part('65%'), fdp.sign('÷'), fdp.part(100, 3)], '0.65')] },
-    { title: 'Multiply by 40', why: 'n over 40 is the decimal, so n is the decimal times 40.', lines: [fdp.line([fdp.part('0.65'), fdp.sign('×'), fdp.part(40, 3)], 26, { answer: true })] },
+    { title: 'Write it over 100', why: 'Per cent means out of 100.', lines: [fdp.line([fdp.part('65%')], '65/100')] },
+    ...fdp.simplifySteps(65, 100, false),
+    ...fdp.makeBottomSteps(13, 20, 40, 'n is over 40, so the bottom has to be 40.'),
+    { title: 'Read off n', why: 'n is the top of the fraction over 40.', lines: [fdp.line([fdp.part('n')], 26, { eq: true, answer: true })] },
   ]),
   'N9.5 Q5b': thenWords(fdp.fractionToPercentage(9, 8), 'Check it', 'A top bigger than 8 makes more than one whole, so more than 100%.', 'For example, 9/8'),
   'N9.5 Q5c': fdp.fractionToPercentage(3, 4),

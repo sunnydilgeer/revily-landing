@@ -112,7 +112,10 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
     const index = revealed - 2
     if (index < 0) return <div className="ns-visual sp-working">{given}{working.opening ? <Picture picture={working.opening} /> : working.start && <p className="sp-start"><Powers text={working.start} /></p>}</div>
     const step = working.steps[index]
-    const shown = working.steps.slice(0, index + 1).findLast(s => s.picture)?.picture ?? working.opening
+    // A place-value chart or factor lists belong to their own step: drawn under its heading, after the lines already
+    // worked out, and not carried on. Other pictures (columns, bus stop…) build up on top from step to step.
+    const own = step.picture && (step.picture.kind === 'place' || step.picture.kind === 'lists') ? step.picture : undefined
+    const shown = working.steps.slice(0, index + 1).map(s => s.picture).filter(p => p && p.kind !== 'place' && p.kind !== 'lists').at(-1) ?? working.opening
     const earlier = working.trail ? working.steps.slice(0, index).flatMap(s => s.lines ?? []) : []
     return <div className="ns-visual sp-working" key={revealed}>
       <PictureStep step={{ title: step.title, instruction: step.why, tag: step.tag, operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
@@ -120,6 +123,7 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
         {shown && <Picture picture={shown} />}
         {earlier.length > 0 && <Lines lines={earlier} faded />}
         {heading}
+        {own && <Picture picture={own} />}
         {step.lines && <Lines lines={step.lines} />}
         {step.words && <p className="sp-answer-pill sp-words"><Powers text={step.words} /></p>}
       </>}</PictureStep>
