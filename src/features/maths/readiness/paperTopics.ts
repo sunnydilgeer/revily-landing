@@ -105,7 +105,7 @@ export const paperTopics: PaperTopic[] = [
   { id: 'speed', title: 'Speed, distance, time', short: 'Speed', area: 'ratio', marks30: 37, sittings: 8, requires: ['conversions'], statements: [], labs: ['storm'] },
 
   // Geometry and measures
-  { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, requires: ['shapes'], statements: [], labs: ['trick'] },
+  { id: 'angles', title: 'Angles', area: 'geometry', marks30: 143, sittings: 10, requires: ['shapes'], statements: lesson(26, 'angles-straight-line', 'angles-around-point', 'angles-vertically-opposite'), labs: ['trick'] },
   { id: 'area', title: 'Area and perimeter', short: 'Area', area: 'geometry', marks30: 58, sittings: 10, requires: ['shapes'], statements: [], labs: ['build'] },
   { id: 'volume', title: 'Volume', area: 'geometry', marks30: 56, sittings: 10, requires: ['area'], statements: [], labs: ['loot'] },
   { id: 'shapes', title: 'Properties of shapes', short: 'Shapes', area: 'geometry', marks30: 31, sittings: 8, statements: [] },

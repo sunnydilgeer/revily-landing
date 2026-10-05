@@ -1,9 +1,12 @@
+import type { AngleFrame } from './tutor/methodWorking'
 import type { FeedbackDefinition, InteractionDefinition, LearningState, LessonDefinition, MicroSkillId } from '../number-types/types'
 
 export type Diagram =
   | { kind: 'division'; dividend: string; divisor: number; quotient?: string; active?: number; carry?: { index: number; value: number } }
   | { kind: 'multiply'; top: string; bottom: string; ones?: string; tens?: string; total?: string; carry?: { column: number; value: number }; active?: 'ones' | 'tens' }
   | { kind: 'text'; lines: string[] }
+  /** A geometry question's own angle diagram (lesson 26), drawn plain: AnglePictures.tsx. */
+  | { kind: 'angles'; frame: AngleFrame }
 export type MethodVisual = Diagram
   | { kind: 'groups' } | { kind: 'exchange' } | { kind: 'area' } | { kind: 'scale' }
   | { kind: 'worked'; initial: Diagram; steps: Array<{ diagram: Diagram; text: string }> }

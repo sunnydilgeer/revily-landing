@@ -11,9 +11,10 @@ import { quadraticsTemplates } from './quadratics'
 import { quadraticEquationsTemplates } from './quadraticEquations'
 import { sequencesTemplates } from './sequences'
 import { inequalitiesTemplates } from './inequalities'
+import { anglesTemplates } from './angles'
 import { calculationTemplates } from './calculation'
 import { fractionTemplates } from './fractions'
 import { moneyTemplates } from './money'
 
 /** Every Practice template. Number only for now: the other branches are not taught yet. */
-export const templates: Template[] = [...calculationTemplates, ...moneyTemplates, ...fractionTemplates, ...accuracyTemplates, ...standardFormTemplates, ...likeTermsTemplates, ...indicesTemplates, ...expandingTemplates, ...factorisingTemplates, ...equationsTemplates, ...rearrangingTemplates, ...quadraticsTemplates, ...quadraticEquationsTemplates, ...sequencesTemplates, ...inequalitiesTemplates]
+export const templates: Template[] = [...calculationTemplates, ...moneyTemplates, ...fractionTemplates, ...accuracyTemplates, ...standardFormTemplates, ...likeTermsTemplates, ...indicesTemplates, ...expandingTemplates, ...factorisingTemplates, ...equationsTemplates, ...rearrangingTemplates, ...quadraticsTemplates, ...quadraticEquationsTemplates, ...sequencesTemplates, ...inequalitiesTemplates, ...anglesTemplates]

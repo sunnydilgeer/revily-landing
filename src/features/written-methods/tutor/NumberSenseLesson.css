@@ -274,7 +274,7 @@
 .ns-seq .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* A board or quadratic picture takes the frame's full width, so a short formula (A = 6s²) doesn't squeeze its step
    headings and ⓘ text into a narrow column; the rows stay centred. */
-.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad, > .ns-seq, > .ns-nl) { flex: 1; min-width: 0; }
+.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad, > .ns-seq, > .ns-nl, > .ns-ang) { flex: 1; min-width: 0; }
 /* Inequalities on a number line (lessons 24 and 25, InequalityPictures.tsx): filled and open circles, the arrow or the
    joining line in biro blue, the number a step reads boxed in purple, and the whole numbers that fit in green. */
 .ns-nl { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
@@ -296,6 +296,23 @@
 .ns-nl__text { color: var(--f); }
 .ns-nl .is-done { opacity: .35; transition: opacity .2s ease; }
 .ns-nl .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
+.ns-ang { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-ang p { margin: 0; }
+.ns-ang__heading { align-self: stretch; contain: inline-size; }
+.ns-ang__picture { display: block; width: 100%; max-width: 340px; overflow: visible; color: var(--rv-ink); }
+.ns-ang__ray { stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
+.ns-ang__point { fill: currentColor; }
+.ns-ang__arc { fill: none; stroke: currentColor; stroke-width: 2.5; }
+.ns-ang__arc text { fill: currentColor; stroke: none; font-size: 21px; font-weight: 700; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.ns-ang__arc.is-letter { color: var(--rv-biro); }
+.ns-ang__arc.is-letter text { font-style: italic; }
+.ns-ang__arc.is-found { color: var(--rv-biro); }
+.ns-ang__arc.is-boxed { color: #7c3aed; }
+.ns-ang__arc.is-answer { color: var(--rv-good-ink); }
+.ns-ang__arc.is-answer text { font-style: normal; font-size: 23px; font-weight: 800; }
+.ns-ang__text { color: var(--f); }
+.ns-ang .is-done { opacity: .35; transition: opacity .2s ease; }
+.ns-ang .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* An inequality with two signs on the board (lesson 25): three parts, each column lined up down the board. */
 .ns-eq.is-three { grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto minmax(0, max-content) auto minmax(0, max-content) minmax(0, 1fr); column-gap: 6px; }
 .ns-eq.is-three .ns-eq__middle { grid-column: 4; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 5px; }

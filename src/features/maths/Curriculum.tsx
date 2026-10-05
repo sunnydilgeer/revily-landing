@@ -15,7 +15,7 @@ type Props = {
   onOpenLesson: (lesson: MathsLessonNumber, skill?: string) => void
 }
 
-const LATER_CHAPTERS = ['Ratio and proportion', 'Geometry and measures', 'Probability', 'Statistics']
+const LATER_CHAPTERS = ['Ratio and proportion', 'Probability', 'Statistics']
 
 /** Rung status for one lesson (done = finished, current = where the student is now). */
 export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnapshot) {

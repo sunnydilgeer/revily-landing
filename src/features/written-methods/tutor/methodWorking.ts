@@ -195,6 +195,26 @@ export type NumberLineFrame = {
   step: number
   adds: 'line' | 'lines' | 'answer'
 }
+/**
+ * Angles at a point or on a straight line (lesson 26, G1), the whole picture so far: the lines from one point (`rays`,
+ * in degrees, 0 to the right and turning anticlockwise), and an arc for each angle, labelled with its size or letter.
+ * A step boxes the angles it uses in purple; an angle it finds shows its size (blue halfway, green for the answer).
+ * Under the picture, lines of working and the answer. Each part says which step added it (`at`), so finished parts grey
+ * out. See AnglePictures.tsx.
+ */
+export type AngleFrame = {
+  rays: number[]
+  /** Angles on a straight line: the point sits low, with the line along the bottom. */
+  straight?: boolean
+  arcs: { from: number; to: number; label: string }[]
+  /** The arcs (by index) this step works on, in purple. */
+  boxed?: number[]
+  found?: { arc: number; text: string; at: number; answer?: boolean }[]
+  lines?: { text: string; family: number; at: number }[]
+  answer?: { text: string; at: number }
+  step: number
+  adds: 'picture' | 'lines' | 'answer'
+}
 /** A line of working built up under a picture, e.g. "8.4 − 0.05 → 8.35", coloured like its family (`is-f…`). */
 export type WorkingLine = { parts?: string; total: string; family: number }
 /** A part of a written method's line: its text, colour (`is-f…`) and whether it is boxed in purple (the carry being added). */
@@ -228,6 +248,7 @@ export type MethodFrame = {
   solve?: SolveFrame
   sequence?: SequenceFrame
   numberLine?: NumberLineFrame
+  angles?: AngleFrame
   ones?: string; tens?: string; total?: string; carry?: Carry
   quotient?: string; remainder?: number; divisionCarry?: { index: number; value: number }
   cells?: Record<string, number>

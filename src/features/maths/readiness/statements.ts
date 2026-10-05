@@ -133,6 +133,9 @@ export const canStatements: Record<string, string> = {
   '25:inequalities-solve': 'I can solve a linear inequality, like 4a − 5 > a + 7 gives a > 4',
   '25:inequalities-solve-two-signs': 'I can solve an inequality with two signs, like 3 < 2x + 1 < 11 gives 1 < x < 5',
   '25:inequalities-negative': 'I can flip the sign when I multiply or divide by a negative, like −3x > 12 gives x < −4',
+  '26:angles-straight-line': 'I can find a missing angle on a straight line, like 180° − 135° = 45°, and give the reason',
+  '26:angles-around-point': 'I can find a missing angle around a point, like 360° − 305° = 55°, and give the reason',
+  '26:angles-vertically-opposite': 'I can use vertically opposite angles, like the angle opposite 58° is 58°, and give the reason',
 
   '22:quadratic-equations': 'I can solve a quadratic like x² + x = 20 by making one side 0, factorising and setting each bracket to 0',
 }

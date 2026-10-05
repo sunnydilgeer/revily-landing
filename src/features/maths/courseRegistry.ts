@@ -24,8 +24,9 @@ import { tutorQuadraticEquationsLesson } from '../quadratic-equations/tutor/quad
 import { tutorSequencesLesson } from '../sequences/tutor/sequencesLesson'
 import { tutorInequalitiesLesson } from '../inequalities/tutor/inequalitiesLesson'
 import { tutorSolvingInequalitiesLesson } from '../solving-inequalities/tutor/solvingInequalitiesLesson'
+import { tutorAnglesLesson } from '../angles/tutor/anglesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26
 
 export type MathsSection = {
   id: MicroSkillId
@@ -34,7 +35,7 @@ export type MathsSection = {
   startIndex: number
 }
 
-export type MathsChapterId = 'number' | 'algebra'
+export type MathsChapterId = 'number' | 'algebra' | 'geometry'
 
 export type MathsLessonEntry = {
   /** The course-wide number: the URL (?lesson=15) and progress key (L015) use it. */
@@ -117,17 +118,19 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(23, tutorSequencesLesson, 'Sequences', 'Continue sequences, find and use the nth term, check whether a number is a term, and solve problems with terms next to each other.', tutorSequencesLesson.labels, 'algebra'),
   entry(24, tutorInequalitiesLesson, 'Inequalities', 'Write inequalities from words and number lines, and show one- and two-sided inequalities on a number line.', tutorInequalitiesLesson.labels, 'algebra'),
   entry(25, tutorSolvingInequalitiesLesson, 'Solving inequalities', 'List the integers in an inequality, solve inequalities like 4a − 5 > a + 7 and 3 < 2x + 1 < 11, and flip the sign when dividing by a negative.', tutorSolvingInequalitiesLesson.labels, 'algebra'),
+  entry(26, tutorAnglesLesson, 'Angle facts', 'Find missing angles on a straight line, around a point and where two lines cross, and give the reason.', tutorAnglesLesson.labels, 'geometry'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([
   { id: 'number', title: 'Number', description: 'Build secure number sense and reliable written calculation methods.' },
   { id: 'algebra', title: 'Algebra', description: 'Use letters for numbers: simplify, expand and solve.' },
+  { id: 'geometry', title: 'Geometry and measures', description: 'Angles, shapes and space: find what is missing and give the reason.' },
 ] as const).map(chapter => ({ ...chapter, lessons: mathsLessons.filter(entry => entry.chapterId === chapter.id) }))
 
 // Number each lesson within its chapter.
 for (const chapter of mathsChapters) chapter.lessons.forEach((entry, i) => { entry.position = i + 1 })
 
-/** A short name for a lesson in a list of every lesson: "14" in Number, "A1" in Algebra. */
+/** A short name for a lesson in a list of every lesson: "14" in Number, "A1" in Algebra, "G1" in Geometry. */
 export const lessonCode = (entry: MathsLessonEntry) => entry.chapterId === 'number' ? String(entry.position) : `${entry.chapterId[0].toUpperCase()}${entry.position}`
 
 export function getMathsLesson(number: MathsLessonNumber) {

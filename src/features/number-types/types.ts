@@ -117,6 +117,9 @@ export type MicroSkillId =
   | 'inequalities-solve'
   | 'inequalities-solve-two-signs'
   | 'inequalities-negative'
+  | 'angles-straight-line'
+  | 'angles-around-point'
+  | 'angles-vertically-opposite'
   | 'mixed'
 
 export type LessonPhase =

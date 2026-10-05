@@ -286,8 +286,9 @@ export function parseStandardForm(value: unknown): { a: number; n: number; value
 }
 
 function parseFormattedNumber(value: unknown): number | null {
-  // A leading £ is harmless: students often type the unit shown beside the box. So is "x =" before a solution.
-  const text = String(value ?? '').trim().replace(/^[a-z]\s*=\s*/i, '').replace(/^£\s?/, '').replace(/^[−–]/, '-')
+  // A leading £ is harmless: students often type the unit shown beside the box. So is "x =" before a solution, and
+  // a ° after an angle.
+  const text = String(value ?? '').trim().replace(/^[a-z]\s*=\s*/i, '').replace(/^£\s?/, '').replace(/\s*°$/, '').replace(/^[−–]/, '-')
   const plain = /^[+-]?\d+(?:\.\d+)?$/
   const commaGrouped = /^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/
   const spaceGrouped = /^[+-]?\d{1,3}(?: \d{3})+(?:\.\d+)?$/

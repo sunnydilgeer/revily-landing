@@ -49,9 +49,11 @@ function recallCards(entry: MathsLessonEntry, rung: string, rungTitle: string): 
     const title = state.content.title?.trim()
     const answer = answerFor(state.interaction)
     if (!title || !answer || answer.length > 14 || title.length > 110 || NEEDS_CONTEXT.test(title) || /any value/i.test(answer)) continue
-    const unit = (state as LearningState & { answerLabel?: string }).answerLabel?.match(/\((.+)\)/)?.[1]
-    const back = unit === '£' ? `£${answer}` : unit === '%' ? `${answer}%` : answer
     const visual = (state as LearningState & { visual?: { kind?: string; math?: string } }).visual
+    // A question whose numbers are only in its diagram (an angle with no sizes in the words) can't be a card.
+    if (visual?.kind === 'diagram' && !/\d/.test(title)) continue
+    const unit = (state as LearningState & { answerLabel?: string }).answerLabel?.match(/\((.+)\)/)?.[1]
+    const back = unit === '£' ? `£${answer}` : unit === '%' ? `${answer}%` : unit === '°' ? answer.replace(/(\d)$/, '$1°') : answer
     const frontMath = visual?.kind === 'expression' && visual.math && !/\d/.test(title) ? visual.math : undefined
     cards.push({ id: `q-${state.id}`, lesson: entry.number, rung, rungTitle, kind: 'recall', front: title, frontMath, back, note: firstStep(state) })
   }

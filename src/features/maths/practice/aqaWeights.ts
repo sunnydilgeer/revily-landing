@@ -124,6 +124,10 @@ export const aqaMarks: Record<string, number> = {
   '25:inequalities-solve': 2,
   '25:inequalities-solve-two-signs': 1,
   '25:inequalities-negative': 1,
+  // Estimates, not yet counted from the 18 papers: basic angle facts come up every sitting, often inside a bigger angles question.
+  '26:angles-straight-line': 2,
+  '26:angles-around-point': 1,
+  '26:angles-vertically-opposite': 1,
 }
 
 /**

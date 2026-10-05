@@ -238,6 +238,11 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'sequences-in-sequence': [['Is 63 a term of 5n − 2?', 'Yes. 5n − 2 = 63, so 5n = 65 and n = 13, a whole number.']],
     'sequences-consecutive': [['Two terms next to each other of 3n + 2 add to 55. Find them.', '26 and 29. The next term is 3(n + 1) + 2 = 3n + 5. 6n + 7 = 55, so n = 8.']],
   },
+  26: {
+    'angles-straight-line': [['Angles on a straight line add up to…?', '180°: a half turn. 135° and x on a straight line: x = 180° − 135° = 45°.']],
+    'angles-around-point': [['Angles around a point add up to…?', '360°: a full turn. 90°, 140°, 75° and z at a point: z = 360° − 305° = 55°.']],
+    'angles-vertically-opposite': [['Two lines cross. What do you know about the angles opposite each other?', 'They are equal (vertically opposite angles). Opposite 125° is 125°; the angle next to it is 55°.']],
+  },
   24: {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
     'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],
