@@ -147,6 +147,21 @@
 .wc--picture:has(.sp-working) .wc-controls .sc-dots { flex: 0 1 auto; min-width: 0; }
 .ns-visual:has(.wms-venn-wrap) { flex: 1 1 auto; min-width: 0; }
 .sp-picture .wms-venn-wrap { zoom: .78; }
+/* A decimal under its column names (lesson 9): the last digit's column, boxed, says what the bottom is. */
+.sp-place { margin: 0 auto; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.sp-place th { padding: 0 3px 4px; color: var(--rv-muted); font-size: 10px; font-weight: 650; }
+.sp-place th.is-on { color: #7c3aed; }
+.sp-place td { min-width: 1.1em; padding: 2px 3px; font-size: clamp(28px, 8vw, 36px); font-weight: 700; text-align: center; color: var(--rv-ink); }
+.sp-place td.is-boxed { border: 2px solid #7c3aed; border-radius: 10px; background: color-mix(in srgb, #7c3aed 10%, transparent); color: #7c3aed; }
+.sp-place .sp-place__point { min-width: .3em; padding: 2px 0; }
+/* Factor lists for the HCF step: the shared factors purple, the HCF boxed (the same look as lesson 8). */
+.sp-number-lists { display: grid; gap: 10px; width: min(100%, 460px); margin: 0 auto; }
+.sp-number-list { display: grid; gap: 5px; justify-items: center; }
+.sp-number-list__label { color: var(--rv-muted); font-size: 14px; font-weight: 650; }
+.sp-number-list__values { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.sp-number-list__values b { box-sizing: border-box; min-width: 32px; height: 32px; display: inline-grid; place-items: center; padding: 0 7px; border: 1px solid var(--rv-line); border-radius: 999px; background: #fff; color: var(--rv-ink); font-size: 15px; font-weight: 600; }
+.sp-number-list__values b.is-shared { border-color: color-mix(in srgb, #7c3aed 45%, transparent); color: #7c3aed; }
+.sp-number-list__values b.is-pick { border: 2px solid #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; font-weight: 800; }
 /* Written methods drawn as pictures, one move a step (src/features/EXPLANATIONS.md): the part a move uses is coloured
    like its line of working (top number amber, multiplier or divisor blue), what the step adds to is boxed in purple,
    used carries are struck out, and the row the last move writes is the green answer. */
