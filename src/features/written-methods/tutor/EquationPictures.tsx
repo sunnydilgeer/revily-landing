@@ -84,7 +84,7 @@ function spoken(row: EquationRow) {
   }
   const struck = [...readTokens(row.left), ...readTokens(row.middle ?? ''), ...readTokens(row.right)].filter(token => token.struck).map(token => signed(token.text, false))
   const middle = row.middle !== undefined ? `${said(row.middle)} ${row.sign2 ?? '='} ` : ''
-  return `${said(row.left)} ${row.sign ?? '='} ${middle}${said(row.right)}${struck.length ? `, with ${struck.join(' and ')} cancelling` : ''}`.replace(/[[\]]/g, '')
+  return `${row.label ? `Equation ${row.label === '①' ? 1 : 2}: ` : ''}${said(row.left)} ${row.sign ?? '='} ${middle}${said(row.right)}${struck.length ? `, with ${struck.join(' and ')} cancelling` : ''}`.replace(/[[\]]/g, '')
 }
 
 /**
@@ -92,10 +92,15 @@ function spoken(row: EquationRow) {
  * working. With `focus`, rows above the one the step works on are greyed out.
  */
 export function EquationVisual({ frame, newFrom, heading, plain, focus }: { frame: EquationFrame; newFrom?: number; heading?: ReactNode; plain?: boolean; focus?: boolean }) {
-  const done = (i: number) => focus && newFrom !== undefined && i < newFrom - 1 ? ' is-done' : ''
+  // A row with a boxed part is being worked on again (both equations, when one is taken away from the other), so it stays clear.
+  const working = (row: EquationRow) => 'left' in row && /\[/.test(`${row.left} ${row.middle ?? ''} ${row.right}`)
+  const done = (i: number) => focus && newFrom !== undefined && i < newFrom - 1 && !working(frame.rows[i]) ? ' is-done' : ''
   // An inequality with two signs (3 < 2x + 1 < 11) has three parts, each lined up under the one above.
   const three = frame.rows.some(row => 'left' in row && row.middle !== undefined)
-  return <div className={`ns-eq${three ? ' is-three' : ''}${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
+  // A proof carries on down the = column with no left side (= x² + 6x + 9), or shows two sides identical (≡). On a phone its rows are written one under
+  // another from the left instead, so a long side wraps across the whole board rather than a narrow column.
+  const proof = !three && frame.rows.some(row => 'left' in row && (!row.left || row.sign === '≡'))
+  return <div className={`ns-eq${three ? ' is-three' : ''}${proof ? ' is-proof' : ''}${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
     {frame.rows.map((row, i) => [
       i === newFrom && heading && <div key="heading" className="ns-eq__heading">{heading}</div>,
       'answer' in row
@@ -105,7 +110,8 @@ export function EquationVisual({ frame, newFrom, heading, plain, focus }: { fram
           : <Powers text={row.answer} />}</p>
         : 'note' in row
         ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
-        : <div key={i} className={`ns-eq__row${done(i)}`} aria-hidden="true">
+        : <div key={i} className={`ns-eq__row${proof && !row.left ? ' is-carry' : ''}${done(i)}`} aria-hidden="true">
+          {row.label && <span className="ns-eq__label">{row.label}</span>}
           <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
           <span className="ns-eq__equals"><Show text={row.sign ?? '='} plain={plain} /></span>
           {row.middle !== undefined && <><span className="ns-eq__middle"><Side side={row.middle} plain={plain} /></span><span className="ns-eq__equals ns-eq__sign2"><Show text={row.sign2 ?? '='} plain={plain} /></span></>}

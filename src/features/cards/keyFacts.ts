@@ -238,6 +238,16 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'sequences-in-sequence': [['Is 63 a term of 5n − 2?', 'Yes. 5n − 2 = 63, so 5n = 65 and n = 13, a whole number.']],
     'sequences-consecutive': [['Two terms next to each other of 3n + 2 add to 55. Find them.', '26 and 29. The next term is 3(n + 1) + 2 = 3n + 5. 6n + 7 = 55, so n = 8.']],
   },
+  27: {
+    'simultaneous-elimination': [['Solve 3x + 2y = 16 and x + 2y = 8.', 'x = 4, y = 2. Both have +2y, so take one from the other: 2x = 8. Put x = 4 back in to find y.']],
+    'simultaneous-words': [['2 teas and a cake cost £7. 2 teas and 3 cakes cost £13.', 'Tea £2, cake £3. Write 2t + c = 7 and 2t + 3c = 13, take one from the other: 2c = 6.']],
+  },
+  28: {
+    'proof-counterexample': [['“2n + 1 is always prime.” Show it is wrong.', 'One counterexample is enough: n = 4 gives 9, and 9 = 3 × 3 isn’t prime.']],
+    'proof-identity': [['Show (x + 3)² − x² ≡ 6x + 9.', 'Work on the left only: x² + 6x + 9 − x² = 6x + 9. ≡ means equal for every x.']],
+    'proof-geometric': [['Prove the angles in a triangle add to 180°.', 'Draw a line through the top, parallel to the base. Alternate angles copy a and b to the top, and angles on a straight line add to 180°.']],
+    'proof-algebraic': [['Prove two numbers in a row add to an odd number.', 'n + (n + 1) = 2n + 1. 2n is even, so 2n + 1 is odd.']],
+  },
   24: {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
     'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],

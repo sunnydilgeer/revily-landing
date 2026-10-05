@@ -7,6 +7,7 @@ import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
 import { ExpandVisual } from './GridPictures'
 import { EquationVisual } from './EquationPictures'
+import { AngleVisual } from './AnglePictures'
 import { QuadraticVisual } from './QuadraticPictures'
 import { SolveVisual } from './SolvePictures'
 import { SequenceVisual } from './SequencePictures'
@@ -174,8 +175,9 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const squares = upTo.findLast(step => step.frame.squares)?.frame.squares
   const expand = upTo.findLast(step => step.frame.expand)?.frame.expand
   const board = upTo.findLast(step => step.frame.equation)?.frame.equation
+  const angles = upTo.findLast(step => step.frame.angles)?.frame.angles
   // The question's own row is on the opening screen, so the first step's heading goes under it, above what the step adds.
-  const boardBefore = example.steps.slice(0, index).findLast(step => step.frame.equation)?.frame.equation?.rows.length ?? 1
+  const boardBefore = example.steps.slice(0, index).findLast(step => step.frame.equation)?.frame.equation?.rows.length ?? own.equation?.given ?? 1
   const lines = upTo.findLast(step => step.frame.sums)?.frame.sums ?? []
   const before = example.steps.slice(0, index).findLast(step => step.frame.sums)?.frame.sums?.length ?? 0
   const values = upTo.findLast(step => step.frame.ordering?.values)?.frame.ordering
@@ -189,6 +191,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
     {expand && <ExpandVisual frame={expand} />}
+    {angles && <AngleVisual frame={angles} />}
     {board && <EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} focus={example.focus} />}
     {own.quadratic && <QuadraticVisual frame={own.quadratic} heading={heading} />}
     {own.solve && <SolveVisual frame={own.solve} heading={heading} focus={example.focus} />}
@@ -250,7 +253,9 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.sequence) return <div className="ns-visual rung-worked__visual"><SequenceVisual frame={first.sequence} plain /></div>
         if (first?.solve) return <div className="ns-visual rung-worked__visual"><SolveVisual frame={first.solve} plain /></div>
         if (first?.quadratic) return <div className="ns-visual rung-worked__visual"><QuadraticVisual frame={first.quadratic} plain /></div>
-        if (first?.equation) return <div className="ns-visual rung-worked__visual"><EquationVisual frame={{ rows: first.equation.rows.slice(0, 1) }} plain /></div>
+        // A geometric proof opens on the question's own picture (lesson 28), with any rows the question gives under it.
+        if (first?.angles) return <div className="ns-visual rung-worked__visual"><AngleVisual frame={first.angles.before ?? first.angles} plain />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
+        if (first?.equation) return first.equation.given === 0 ? null : <div className="ns-visual rung-worked__visual"><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given ?? 1) }} plain /></div>
         if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null

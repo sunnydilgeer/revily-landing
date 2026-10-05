@@ -24,8 +24,10 @@ import { tutorQuadraticEquationsLesson } from '../quadratic-equations/tutor/quad
 import { tutorSequencesLesson } from '../sequences/tutor/sequencesLesson'
 import { tutorInequalitiesLesson } from '../inequalities/tutor/inequalitiesLesson'
 import { tutorSolvingInequalitiesLesson } from '../solving-inequalities/tutor/solvingInequalitiesLesson'
+import { tutorSimultaneousEquationsLesson } from '../simultaneous-equations/tutor/simultaneousEquationsLesson'
+import { tutorProofLesson } from '../proof/tutor/proofLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28
 
 export type MathsSection = {
   id: MicroSkillId
@@ -117,6 +119,8 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(23, tutorSequencesLesson, 'Sequences', 'Continue sequences, find and use the nth term, check whether a number is a term, and solve problems with terms next to each other.', tutorSequencesLesson.labels, 'algebra'),
   entry(24, tutorInequalitiesLesson, 'Inequalities', 'Write inequalities from words and number lines, and show one- and two-sided inequalities on a number line.', tutorInequalitiesLesson.labels, 'algebra'),
   entry(25, tutorSolvingInequalitiesLesson, 'Solving inequalities', 'List the integers in an inequality, solve inequalities like 4a − 5 > a + 7 and 3 < 2x + 1 < 11, and flip the sign when dividing by a negative.', tutorSolvingInequalitiesLesson.labels, 'algebra'),
+  entry(27, tutorSimultaneousEquationsLesson, 'Simultaneous equations', 'Solve two equations at once, like 3x + 2y = 16 and x + 2y = 8, by making one letter disappear, and write them from a problem in words.', tutorSimultaneousEquationsLesson.labels, 'algebra'),
+  entry(28, tutorProofLesson, 'Proof', 'Disprove a claim with one counterexample, show two expressions are identical, prove angle facts, and prove facts about odd and even numbers with algebra.', tutorProofLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([
@@ -135,5 +139,5 @@ export function getMathsLesson(number: MathsLessonNumber) {
 }
 
 export function isMathsLessonNumber(value: number): value is MathsLessonNumber {
-  return Number.isInteger(value) && value >= 1 && value <= mathsLessons.length
+  return Number.isInteger(value) && mathsLessons.some(entry => entry.number === value)
 }
