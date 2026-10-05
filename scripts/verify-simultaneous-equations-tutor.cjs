@@ -12,6 +12,7 @@ const at = checkStructure(lesson, { id: 'L027', number: 27, code: 'A12', rungs: 
 const solutions = {
   'A12.1 video + Q1': { x: 4, y: 2 }, 'A12.1 Q2': { x: 6, y: 3 }, 'A12.1 Q3': { x: 3.5, y: 4 }, 'A12.1 Q4a': { x: 2, y: 3 }, 'A12.1 Q4b': { x: 2, y: 3 },
   'A12.1 Q5a': { x: 3.5, y: 3 }, 'A12.1 Q5b': { x: 3.5, y: 3 }, 'A12.1 Q5c': { x: 6, y: 4 },
+  'A12.1 extra worked (× 3 and × 2)': { x: 2, y: 3 }, 'A12.1 extra (× 2 and × 3)': { x: 5, y: 2 },
   'A12.2 video + Q1': { t: 2, c: 3 }, 'A12.2 Q2': { p: 1, r: 2 }, 'A12.2 Q3': { a: 8, c: 5 }, 'A12.2 Q4a': { b: 4, d: 3 }, 'A12.2 Q4b': { b: 4, d: 3 },
   'A12.2 Q5a': { n: 90, p: 30 }, 'A12.2 Q5b': { n: 90, p: 30 }, 'A12.2 Q5c': { a: 1.5, b: 0.5 },
 }
@@ -40,7 +41,7 @@ assert.equal(boardOf(at('A12.1 video + Q1')).at(-1).answer, 'x = 4, y = 2')
 assert.equal(boardOf(at('A12.2 video + Q1')).at(-1).answer, 'Tea £2, cake £3')
 
 // ---------- The answers ----------
-const listAnswers = { 'A12.1 Q2': [6, 3], 'A12.1 Q3': [3.5, 4], 'A12.1 Q4a': [2, 3], 'A12.1 Q5a': [3.5, 3], 'A12.2 Q3': [8, 5], 'A12.2 Q5a': [90, 30] }
+const listAnswers = { 'A12.1 extra (× 2 and × 3)': [5, 2], 'A12.1 Q2': [6, 3], 'A12.1 Q3': [3.5, 4], 'A12.1 Q4a': [2, 3], 'A12.1 Q5a': [3.5, 3], 'A12.2 Q3': [8, 5], 'A12.2 Q5a': [90, 30] }
 for (const [ref, [first, second]] of Object.entries(listAnswers)) {
   const { interaction } = at(ref)
   assert.equal(interaction.responseShape, 'list', `${ref} is two boxes`)
@@ -71,6 +72,13 @@ for (const [ref, response, expected] of cases) {
   assert.ok(message && message.toLowerCase().includes(expected), `${ref} → ${response} should mention "${expected}", got: ${message}`)
 }
 
+// Sunny, 5 Oct: an extra worked example and question where both equations are multiplied (× 3 and × 2) before taking away.
+for (const ref of ['A12.1 extra worked (× 3 and × 2)', 'A12.1 extra (× 2 and × 3)']) {
+  const notes = boardOf(at(ref)).filter(row => 'note' in row).map(row => row.note)
+  assert.equal(notes.length, 2, `${ref}: both equations are multiplied`)
+  assert.deepEqual(notes.map(note => note.match(/× (\d)/)[1]).sort(), ['2', '3'], `${ref}: one by 2, the other by 3`)
+}
+
 // ---------- The workings ----------
 const { steps } = checkWorkings(states)
 // Both equations start on the board, labelled ① and ②. (A12.2 writes them from the words first.)
@@ -88,4 +96,4 @@ checkVideos(states, 'lesson-27', {
 })
 checkCourse(27, 'A12', 'TutorSimultaneousEquationsLesson')
 
-console.log(`Lesson 27 (A12) verified: ${states.length} screens, all 16 source questions, ${rows} board rows balanced at their solutions, ${pairs} pairs of equations solved again, ${choices} choices, ${cases.length} wrong-answer messages, ${steps} steps, 2 videos and the route.`)
+console.log(`Lesson 27 (A12) verified: ${states.length} screens, all 16 source questions plus the × 2 and × 3 example, ${rows} board rows balanced at their solutions, ${pairs} pairs of equations solved again, ${choices} choices, ${cases.length} wrong-answer messages, ${steps} steps, 2 videos and the route.`)

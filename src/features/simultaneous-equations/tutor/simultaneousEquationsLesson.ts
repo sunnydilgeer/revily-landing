@@ -138,6 +138,26 @@ practice(eliminate, `Sam solves ${nb('x + y = 10')} and ${nb('x − y = 2')} by 
   takeOff(4, ['x ~+4 ~−4^ = 10 −4^', '! x = 6, y = 4']),
 ]))
 
+// Sunny, 5 Oct: neither letter matches until both equations are multiplied, one by 2 and the other by 3.
+worked(eliminate, `Solve the simultaneous equations ${nb('2x + 3y = 13')} and ${nb('3x + 2y = 12')}.`, 'Solve', 'A12.1 extra worked (× 3 and × 2)', boardModel(['① 2x +3y = 13', '② 3x +2y = 12'], [
+  { title: 'Multiply ① by 3', say: 'Neither letter matches yet: 2x and 3x. 2x × 3 and 3x × 2 both make 6x. Start with every term in ① times 3, the number after the equals sign too.', marks: [[0, box('2x')]], rows: ['> ① × 3', '6x +9y = 39'] },
+  { title: 'Multiply ② by 2', say: 'Every term in ② times 2. Now both have 6x.', marks: [[1, box('3x')]], rows: ['> ② × 2', '6x +4y = 24'] },
+  { title: 'Take one away from the other', say: 'Both new equations have the boxed 6x. Take the second away from the first: the x terms cancel.', marks: [[3, box('6x')], [5, box('6x')]], rows: ['~6x ~−6x^ +9y −4y^ = 39 −24^', '5y = 15'] },
+  divide(5, '5y', '5y', '15', 'y = 3'),
+  { title: 'Put y = 3 into ①', say: 'y is 3 in both equations. Swap the boxed y for 3: 3 × 3 is 9.', marks: [[0, box('+3y', '+3[y]')], [-1, box('3')]], rows: ['2x +3×3 = 13', '2x +9 = 13'] },
+  takeOff(9, ['2x ~+9 ~−9^ = 13 −9^', '2x = 4']),
+  divide(2, '2x', '2x', '4', '! x = 2, y = 3'),
+]), 'When neither letter matches, multiply both equations. Pick numbers that give the same x term in both, like 6x from 2x × 3 and 3x × 2.')
+practice(eliminate, `Solve the simultaneous equations ${nb('3x + 2y = 19')} and ${nb('2x + 3y = 16')}.`, 'A12.1 extra (× 2 and × 3)', pair(['x =', 'y ='], [5, 2], 'x = 5, y = 2'), 'Multiply ① by 2 and ② by 3, so both have 6x.', boardModel(['① 3x +2y = 19', '② 2x +3y = 16'], [
+  { title: 'Multiply ① by 2', say: 'Neither letter matches yet: 3x and 2x. 3x × 2 and 2x × 3 both make 6x. Every term in ① times 2.', marks: [[0, box('3x')]], rows: ['> ① × 2', '6x +4y = 38'] },
+  { title: 'Multiply ② by 3', say: 'Every term in ② times 3. Now both have 6x.', marks: [[1, box('2x')]], rows: ['> ② × 3', '6x +9y = 48'] },
+  { title: 'Take one away from the other', say: 'Both new equations have the boxed 6x. Take the first away from the second: the x terms cancel.', marks: [[3, box('6x')], [5, box('6x')]], rows: ['~6x ~−6x^ +9y −4y^ = 48 −38^', '5y = 10'] },
+  divide(5, '5y', '5y', '10', 'y = 2'),
+  { title: 'Put y = 2 into ①', say: 'Swap the boxed y for 2: 2 × 2 is 4.', marks: [[0, box('+2y', '+2[y]')], [-1, box('2')]], rows: ['3x +2×2 = 19', '3x +4 = 19'] },
+  takeOff(4, ['3x ~+4 ~−4^ = 19 −4^', '3x = 15']),
+  divide(3, '3x', '3x', '15', '! x = 5, y = 2'),
+]), both(['x', 'y'], [5, 2]))
+
 /* ---------- Rung 2: from words (A12.2) ---------- */
 
 const teas = worked(words, 'A café sells teas and cakes. 2 teas and 1 cake cost £7. 2 teas and 3 cakes cost £13. Work out the cost of one tea and one cake.', '2 teas + 1 cake: £7. 2 teas + 3 cakes: £13', 'A12.2 video + Q1', boardModel([], [
