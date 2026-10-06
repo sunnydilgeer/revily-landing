@@ -141,6 +141,24 @@ export type AngleFrame = {
   before?: Omit<AngleFrame, 'before'>
 }
 /**
+ * A function machine (lesson 29, A14), drawn above the board: the word Input, one coloured box per operation and the word
+ * Output, joined by arrows, with the numbers underneath (the input, the number after each box, the output; null
+ * leaves a gap). `lit` rings the box being worked on in purple, and the number it makes.
+ * Going backwards (`back`), `undo` names the opposite of each box under it. A box
+ * written "?" is still to be found (creating a machine). `answer` is the number that answers the question, in green.
+ * See MachinePictures.tsx.
+ */
+export type MachineFrame = {
+  boxes: string[]
+  values: (string | null)[]
+  lit?: number
+  back?: boolean
+  undo?: (string | null)[]
+  answer?: number
+  /** The machine on the opening screen, before the first step changes it. */
+  before?: Omit<MachineFrame, 'before'>
+}
+/**
  * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
  * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
  * of two squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
@@ -255,6 +273,7 @@ export type MethodFrame = {
   bracket?: BracketFrame
   equation?: EquationFrame
   angles?: AngleFrame
+  machine?: MachineFrame
   quadratic?: QuadraticFrame
   solve?: SolveFrame
   sequence?: SequenceFrame
