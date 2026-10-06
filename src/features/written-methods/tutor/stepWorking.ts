@@ -53,7 +53,52 @@ export type PlacePicture = { kind: 'place'; value: string; boxed?: number }
 /** Factors (or multiples) of each number, the ones in every list marked and the one used (`pick`) boxed: the HCF step. */
 export type NumberList = { label: string; values: number[]; shared: number[]; pick: number }
 export type ListsPicture = { kind: 'lists'; lists: NumberList[] }
-export type StepPicture = ColumnsPicture | BusStopPicture | MethodPicture | RoundingPicture | PlacePicture | ListsPicture
+/**
+ * Numbers to order, in a place-value chart (lesson 11): one row each, the points (or units) lined up and empty places
+ * drawn as dashed boxes. `filled` writes a purple 0 in each empty place after the point. `focus` is the column being
+ * compared (from the left), `active` the rows still tied at it (the others faded), `ranks` each placed row's position
+ * (`fresh` ones placed by this step, in purple) and `pick` a row chosen between two others.
+ */
+export type OrderChartPicture = {
+  kind: 'order-chart'
+  rows: Array<{ label?: string; value: string }>
+  whole: number
+  places: number
+  filled?: boolean
+  focus?: number
+  active?: number[]
+  ranks?: Record<number, number>
+  fresh?: number[]
+  pick?: number
+}
+/**
+ * A thermometer (`vertical`) or number line from `min` to `max`, 0 marked. `marks` are dots with labels, `boxed` while
+ * compared and `pick` for a value chosen between; `read` draws the arrow the answer is read along.
+ */
+export type NumberLinePicture = {
+  kind: 'number-line'
+  vertical?: boolean
+  min: number
+  max: number
+  tick: number
+  marks: Array<{ value: number; label: string; boxed?: boolean; pick?: boolean }>
+  read?: 'up' | 'down' | 'left' | 'right'
+}
+const WHOLE_NAMES = ['units', 'tens', 'hundreds', 'thousands', 'ten thousands', 'hundred thousands']
+const DECIMAL_NAMES = ['tenths', 'hundredths', 'thousandths']
+export const ordinal = (n: number) => `${n}${n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th'}`
+
+/** Each row's digit in each column, from the left: null is an empty place, `added` a 0 written in a gap. */
+export function chartCells(picture: Pick<OrderChartPicture, 'whole' | 'places' | 'filled'>, value: string) {
+  const [i, d = ''] = value.replace(/\s/g, '').split('.')
+  return [
+    ...Array.from({ length: picture.whole }, (_, k) => { const at = k - (picture.whole - i.length); return at >= 0 ? { digit: i[at], added: false } : null }),
+    ...Array.from({ length: picture.places }, (_, k) => k < d.length ? { digit: d[k], added: false } : picture.filled ? { digit: '0', added: true } : null),
+  ]
+}
+export const columnName = (picture: Pick<OrderChartPicture, 'whole'>, col: number) => col < picture.whole ? WHOLE_NAMES[picture.whole - 1 - col] : DECIMAL_NAMES[col - picture.whole]
+
+export type StepPicture = ColumnsPicture | BusStopPicture | MethodPicture | RoundingPicture | PlacePicture | ListsPicture | OrderChartPicture | NumberLinePicture
 
 export type WorkedStep = { title: string; why: string; tag?: string; picture?: StepPicture; lines?: StepLine[]; words?: string }
 /**

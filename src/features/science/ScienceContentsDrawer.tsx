@@ -11,6 +11,7 @@ import type { PreviewSession } from './previewSession'
 import { sectionStatus } from './scienceProgress'
 import { chapterLessonsForTier, forTier, getScienceLessonForTier, type ScienceTier } from './tier'
 import '../maths/ContentsDrawer.css'
+import { scrollContentsToCurrent } from '../maths/MathsContentsDrawer'
 import { HigherBadge } from './higher/HigherBadge'
 
 type Props = {
@@ -58,11 +59,14 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
     if (!open) { setConfirmRestart(false); setClearHistory(false); return }
     setQuery('')
     setListSubject(subject)
-    setFolds(readFolds())
+    // The unit you're in always opens, so the lesson you're on is there to scroll to.
+    const unitCode = scienceChaptersFor(subject).find(chapter => chapterLessonsForTier(chapter, tier).some(item => item.number === lessonNumber))?.code
+    setFolds(unitCode ? { ...readFolds(), [unitCode]: true } : readFolds())
     setOpenSections({})
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     closeButtonRef.current?.focus()
+    const stopScroll = scrollContentsToCurrent(drawerRef.current)
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') { event.preventDefault(); onClose(); return }
       if (event.key !== 'Tab' || !drawerRef.current) return
@@ -74,10 +78,11 @@ export default function ScienceContentsDrawer({ open, subject, lessonNumber, tie
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => {
+      stopScroll()
       document.body.style.overflow = previousOverflow
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [onClose, open, subject])
+  }, [lessonNumber, onClose, open, subject, tier])
 
   // Search matches lesson and section titles in every subject.
   const results = useMemo(() => {

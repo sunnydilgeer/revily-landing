@@ -1,7 +1,8 @@
 import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import { numberSenseWorking } from '../../written-methods/tutor/numberSenseWorking'
-import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
+import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
+import { line, part, sign, type StepLine, type StepWorking } from '../../written-methods/tutor/stepWorking'
+import { chartWorking, lineWorking } from './orderingSteps'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 
 const { add, finish } = author(11)
@@ -30,27 +31,83 @@ type OrderModel = {
   conclusion?: string
 }
 
-function orderingModel(model: OrderModel): TutorWorking {
-  return numberSenseWorking(model.expression, model.label, [
-    {
-      title: 'Make the values comparable',
-      equation: model.expression,
-      instruction: model.method,
-      ordering: { values: model.comparable },
-    },
-    {
-      title: 'Compare the values',
-      equation: model.comparison,
-      instruction: model.conclusion ?? (model.comparison.includes('-') ? 'On a number line, values farther left are smaller. Read each comparison in the direction shown.' : 'Compare the greatest place value first. If the digits match, move one place to the right.'),
-      ordering: { comparison: model.comparison },
-    },
-    {
-      title: 'Write the answer',
-      equation: model.comparison,
-      instruction: 'Use the original forms and units, and check that your answer follows the question’s requested direction.',
-      ordering: { answer: model.answer },
-    },
-  ])
+// Keeps "12 750" and "3.7 kg" on one line: the gap inside a number, or before its unit, never wraps.
+const keep = (text: string) => text.replace(/(\d) (?=\d|kg|cm|m\b|s\b|L\b|°C)/g, '$1\u00a0').replace(/−/g, '−\u2060')
+const unit = /\s?(kg|cm|m|s|L|°C)$/
+const numeric = (text: string) => text.replace(/^[^:]*:\s*/, '').replace(/[£%]|\s?(kg|cm|m|s|L|°C)$/g, '').replace(/−/g, '-').replace(/\s/g, '')
+const words = (text: string) => !/[=→<>]|\d\s*[×÷+−-]\s*\d/.test(text)
+const firstTitle: Record<string, string> = {
+  [decimals]: 'Fill gaps with 0', [largeNumbers]: 'Count the digits', [negatives]: 'Split at zero', [mixedForms]: 'Change to decimals',
+}
+const firstMove: Record<string, string> = {
+  [decimals]: 'Line up the decimal points. Where a number has an empty place after the point, write a 0 in it. A 0 on the end does not change the value, but now every number has the same number of digits after the point.',
+  [largeNumbers]: 'Count the digits first. A whole number with fewer digits is smaller.',
+  [negatives]: 'Numbers below zero come first. The further below zero, the smaller the number.',
+  [mixedForms]: 'Change every value to a decimal, so they are all in the same form.',
+}
+const compareMove: Record<string, string> = {
+  [decimals]: 'Compare the biggest place value first. If the digits match, move one place to the right.',
+  [largeNumbers]: 'With the same number of digits, compare from the left, one place at a time.',
+  [negatives]: 'On a number line, further left is smaller.',
+  [mixedForms]: 'Compare the decimals one place at a time.',
+}
+
+/**
+ * The values plain, then one move a step (src/features/EXPLANATIONS.md): make them comparable (each value that changes
+ * form shown with what it becomes), compare them in the question's direction, and write the answer once, in green.
+ */
+function orderingModel(topic: MicroSkillId, model: OrderModel): StepWorking {
+  const changed = (value: string): StepLine => {
+    const sides = value.split(' = ')
+    if (sides.length > 1) return sides[0] === sides[sides.length - 1] ? line([part(keep(sides[0]))]) : line(sides.slice(0, -1).flatMap((side, i) => [...(i ? [sign('=')] : []), part(keep(side), 0)]), keep(sides[sides.length - 1]), { eq: true })
+    const from = model.original.find(original => numeric(original) !== numeric(value) && Number(numeric(original)) === Number(numeric(value)) && /^[\d.−-]+$/.test(numeric(value)))
+    return from ? line([part(keep(from.replace(/^[^:]*:\s*/, '').replace(unit, '')), 0)], keep(value.replace(/^[^:]*:\s*/, '')), { eq: true }) : line([part(keep(value))])
+  }
+  const chain = model.comparison.replaceAll('\\,', ' ').replaceAll('\\%', '%').replace(/-/g, '−').split(/([<>])/)
+  return {
+    kind: 'step-worked', start: keep(model.original.map(value => value.replace(/^[^:]*:\s*/, '')).join(', ')),
+    steps: [
+      { ...(model.answer.startsWith('for example') ? { title: 'Pick one between', why: 'The two end values are not allowed, so pick a value strictly between them.' } : model.comparable.every(value => value.endsWith('%')) ? { title: 'Change to percentages', why: 'Change both values to percentages, so they are in the same form.' } : { title: firstTitle[topic], why: words(model.method) ? model.method : firstMove[topic] }), lines: model.comparable.map(changed) },
+      { title: 'Compare them', why: model.conclusion ?? compareMove[topic], lines: [line(chain.map((piece, i) => i % 2 ? sign(piece) : part(keep(piece.trim()), 0)))] },
+      { title: 'Write the answer', why: 'Use the values as the question wrote them, in the order it asks for.', words: keep(model.answer) },
+    ],
+  }
+}
+
+const rows = (...values: string[]) => values.map(value => ({ value }))
+const named = (...pairs: Array<[string, string]>) => pairs.map(([label, value]) => ({ label, value }))
+const temps = (...values: number[]) => values.map(value => ({ value, label: `${value < 0 ? '−' : ''}${Math.abs(value)} °C` }))
+const money = (...values: number[]) => values.map(value => ({ value, label: `${value < 0 ? '−' : ''}£${Math.abs(value)}` }))
+const metres = (...values: number[]) => values.map(value => ({ value, label: `${value < 0 ? '−' : ''}${Math.abs(value)} m` }))
+/**
+ * Decimals and whole numbers in a place-value chart, negatives on a thermometer or number line (orderingSteps.ts), by
+ * source question. Mixed forms keep the change-then-compare working (orderingModel).
+ */
+const workings: Record<string, StepWorking> = {
+  'N11.1 Q1': chartWorking({ rows: rows('3.7', '3.07', '3.72', '2.9'), answer: '2.9 kg, 3.07 kg, 3.7 kg, 3.72 kg' }),
+  'N11.1 Q2': chartWorking({ rows: named(['Monday', '2.4'], ['Tuesday', '2.04'], ['Wednesday', '2.14']), largestFirst: true, answer: 'Monday', finish: { title: 'Pick the most rain', why: 'The 1st is the biggest amount, so that day had the most rain.' } }),
+  'N11.1 Q3': chartWorking({ rows: rows('1.85', '1.58', '1.5', '1.08', '1.8'), largestFirst: true, answer: '1.85 m, 1.8 m, 1.58 m, 1.5 m, 1.08 m' }),
+  'N11.1 Q4a': chartWorking({ rows: named(['Amir', '28.6'], ['Beth', '28.06'], ['Cai', '28.66'], ['Dee', '28.16']), answer: '28.06 s, 28.16 s, 28.6 s, 28.66 s', finish: { title: 'Write the answer', why: 'Fastest means the smallest time, so the 1st is the fastest.' } }),
+  'N11.1 Q4b': chartWorking({ rows: named(['Beth', '28.06'], ['Amir', '28.6']), answer: 'No - 28.06 s is smaller, so it is faster', finish: { title: 'Answer Ravi', why: 'More digits does not make a number bigger. The smaller time is the faster one.' } }),
+  'N11.1 Q5a': chartWorking({ rows: rows('1.25', '1.205', '1.3', '1.052'), answer: '1.052 L, 1.205 L, 1.25 L, 1.3 L' }),
+  'N11.1 Q5b': chartWorking({ rows: rows('1.3', '1.31'), between: '1.305', places: 3, answer: 'for example, 1.305 L' }),
+  'N11.1 Q5c': chartWorking({ rows: rows('1.205', '1.25'), answer: 'No - 1.25 is greater than 1.205', finish: { title: 'Answer Sam', why: 'Compare one column at a time. The digits after the point are not one big number.' } }),
+  'N11.2 Q1': chartWorking({ rows: rows('8204', '12 750', '8240', '9006', '12 705'), answer: '8204, 8240, 9006, 12 705, 12 750' }),
+  'N11.2 Q2': chartWorking({ rows: named(['Mount A', '3845'], ['Mount B', '4120'], ['Mount C', '3890']), largestFirst: true, answer: 'Mount B', finish: { title: 'Pick the tallest', why: 'The 1st is the biggest height, so that mountain is the tallest.' } }),
+  'N11.2 Q3': chartWorking({ rows: rows('4316', '4361', '4136', '4613', '4163'), largestFirst: true, answer: '4613, 4361, 4316, 4163, 4136' }),
+  'N11.2 Q4a': chartWorking({ rows: rows('25 480', '25 084', '2548', '25 840'), answer: '2548, 25 084, 25 480, 25 840' }),
+  'N11.2 Q4b': chartWorking({ rows: rows('2548', '25 084'), answer: '2548 is smaller because it has fewer digits', finish: { title: 'Explain why', why: 'The empty box shows 2548 has no ten thousands, so it is the smaller number.' } }),
+  'N11.2 Q5a': chartWorking({ rows: rows('18 605', '18 065', '19 002', '9990', '18 650'), largestFirst: true, answer: '£19 002, £18 650, £18 605, £18 065, £9990' }),
+  'N11.2 Q5b': chartWorking({ rows: rows('18 605', '18 650'), between: '18 620', answer: 'for example, £18 620' }),
+  'N11.2 Q5c': chartWorking({ rows: rows('9990', '18 065'), largestFirst: true, answer: 'No - £9990 is smaller', finish: { title: 'Answer Leah', why: 'Count the digits before you compare first digits. The amount with more digits is bigger.' } }),
+  'N11.3 Q1': lineWorking({ values: temps(-7, 2, -12, 5), thermometer: true, scale: { min: -12, max: 6, tick: 1 }, answer: '−12 °C, −7 °C, 2 °C, 5 °C', compare: { why: 'Further below zero means colder, even though 12 is a bigger number than 7.' } }),
+  'N11.3 Q2': lineWorking({ values: temps(-18, -24, -20), thermometer: true, scale: { min: -26, max: 2, tick: 2 }, answer: '−24 °C', finish: { title: 'Pick the coldest', why: 'The lowest dot on the thermometer is the coldest.' } }),
+  'N11.3 Q3': lineWorking({ values: temps(-3.5, 2.4, -3.05, -4.2, 0), thermometer: true, scale: { min: -5, max: 3, tick: 0.5 }, answer: '−4.2 °C, −3.5 °C, −3.05 °C, 0 °C, 2.4 °C', compare: { lines: [line([part('3.5'), sign('='), part('3.50', 0), sign('>'), part('3.05')])] } }),
+  'N11.3 Q4a': lineWorking({ values: metres(-86, 120, -8.6, -68, 12), scale: { min: -120, max: 120, tick: 20 }, answer: '−86 m, −68 m, −8.6 m, 12 m, 120 m' }),
+  'N11.3 Q4b': lineWorking({ values: metres(-86, -68), scale: { min: -100, max: 0, tick: 10 }, between: { value: -75, label: '−75 m' }, answer: 'for example, −75 m' }),
+  'N11.3 Q5a': lineWorking({ values: money(-60, 25, -140, -15, 0), scale: { min: -160, max: 40, tick: 20 }, largestFirst: true, answer: '£25, £0, −£15, −£60, −£140', compare: { why: 'Further below zero means less money. Owing more is a lower balance.' } }),
+  'N11.3 Q5b': lineWorking({ values: money(-60, 25, -140, -15, 0), scale: { min: -160, max: 40, tick: 20 }, answer: '−£140 owes the most', compare: { why: 'Further below zero means less money. Owing more is a lower balance.' }, finish: { title: 'Find the lowest', why: 'Owing the most money is the lowest balance, the dot furthest left.' } }),
+  'N11.3 Q5c': lineWorking({ values: money(-140, -60), scale: { min: -160, max: 0, tick: 20 }, answer: 'No - −£140 is less than −£60', compare: { why: 'Owing £140 is further below zero than owing £60, so it is less.' }, finish: { title: 'Answer Ravi', why: 'The dot further left is the smaller balance.' } }),
 }
 
 function practice(
@@ -70,13 +127,13 @@ function practice(
     ['State the answer.', model.answer],
   ]
   const state = add(topic, title, sourceRef, text(title), interaction, explain(answer, ...steps), hint)
-  state.working = orderingModel(model)
+  state.working = workings[sourceRef] ?? orderingModel(topic, model)
   if (answerLabel) state.answerLabel = answerLabel
   return state
 }
 
 function worked(topic: MicroSkillId, title: string, sourceRef: string, model: OrderModel, body: string) {
-  return add(topic, title, sourceRef, orderingModel(model), undefined, undefined, undefined, body)
+  return add(topic, title, sourceRef, workings[sourceRef.split(';')[0]] ?? orderingModel(topic, model), undefined, undefined, undefined, body)
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 
@@ -85,7 +142,7 @@ const decimalsVideo = worked(decimals, 'Order 3.7 kg, 3.07 kg, 3.72 kg and 2.9 k
   original: ['3.7 kg', '3.07 kg', '3.72 kg', '2.9 kg'],
   comparable: ['2.90', '3.07', '3.70', '3.72'], comparison: '2.90<3.07<3.70<3.72',
   answer: '2.9 kg, 3.07 kg, 3.7 kg, 3.72 kg',
-  method: 'Compare whole-number parts first. Add trailing zeroes so tied decimal places line up: 3.7 becomes 3.70.',
+  method: 'Line up the decimal points. 3.7 and 2.9 have an empty hundredths place, so write a 0 there. 3.7 is the same as 3.70, so the value does not change, but now every number has 2 digits after the point.',
 }, 'Line up decimal places and compare one column at a time; having more written digits does not make a decimal larger.')
 video(decimalsVideo, {
   id: 'lesson11-ordering-decimals', src: '/media/lesson-11/ordering-decimals.mp4', poster: '/media/lesson-11/ordering-decimals.svg', title: 'Ordering decimal parcel masses', durationSeconds: 55, sourceFile: 'N11.1_Ordering_Decimals.mp4',
@@ -123,12 +180,12 @@ practice(decimals, 'Order 1.25 L, 1.205 L, 1.3 L and 1.052 L from smallest to la
   expression: '1.25,\\;1.205,\\;1.3,\\;1.052', label: 'Order bottle sizes', original: ['1.25 L', '1.205 L', '1.3 L', '1.052 L'], comparable: ['1.250', '1.205', '1.300', '1.052'], comparison: '1.052<1.205<1.250<1.300', answer: '1.052 L, 1.205 L, 1.25 L, 1.3 L', method: 'Write all four values to three decimal places, then compare each column from left to right.',
 })
 practice(decimals, 'A new bottle holds more than 1.3 L but less than 1.31 L. Write a possible size.', 'N11.1 Q5b', openInterval(1.305, 1.3, 1.31, 'Any value strictly between 1.3 and 1.31, for example 1.305 L'), 'for example, 1.305 L', 'Write the limits as 1.300 and 1.310, then choose a value strictly between them.', {
-  expression: '1.3<x<1.31', label: 'Choose a decimal in an interval', original: ['Lower limit: 1.3 L', 'Upper limit: 1.31 L'], comparable: ['1.300', '1.305', '1.310'], comparison: '1.300<1.305<1.310', answer: 'for example, 1.305 L', method: 'Add trailing zeroes to align the limits. The endpoints are excluded, so choose a value strictly between them.',
+  expression: '1.3<x<1.31', label: 'Choose a decimal in an interval', original: ['Lower limit: 1.3 L', 'Upper limit: 1.31 L'], comparable: ['1.300', '1.305', '1.310'], comparison: '1.300<1.305<1.310', answer: 'for example, 1.305 L', method: 'Write 0s on the end so both limits have 3 digits after the point. The end values are not allowed, so choose a value strictly between them.',
 }, undefined, 'Bottle size (L)')
 practice(decimals, 'Sam says 1.205 is bigger than 1.25 because 205 is bigger than 25. Is Sam correct?', 'N11.1 Q5c', select([
   'No. Write 1.25 as 1.250; 1.250 is greater than 1.205 because 5 hundredths is greater than 0 hundredths.',
   'Yes. Compare the whole strings of digits after the decimal point as integers.',
-  'No. 1.205 and 1.25 are equal because trailing zeroes do not matter.',
+  'No. 1.205 and 1.25 are equal, because zeros do not change the value.',
 ], 0), 'No - 1.25 is greater than 1.205.', 'Compare tenths, hundredths and thousandths in aligned columns.', {
   expression: '1.205\\;?\\;1.25', label: 'Test Sam’s claim', original: ['1.205', '1.25'], comparable: ['1.205', '1.250'], comparison: '1.205<1.250', answer: 'No - 1.25 is greater than 1.205', method: 'Write 1.25 as 1.250. Both have 2 tenths, but 1.250 has 5 hundredths while 1.205 has 0 hundredths.',
 })
@@ -273,7 +330,7 @@ practice(mixedForms, 'Ali says 18/25 is less than 71% because 18 is less than 71
 })
 
 add('mixed', 'Make values comparable before deciding their order', 'N11.1-N11.4 consolidation', text(
-  'Decimals: align place-value columns with trailing zeroes.',
+  'Decimals: line up the points and fill empty places with 0.',
   'Large positive whole numbers: compare digit counts, then compare from the left.',
   'Negative numbers: values farther below zero are smaller.',
   'Fractions, decimals and percentages: convert to one common form, compare, then restore the original forms.',
