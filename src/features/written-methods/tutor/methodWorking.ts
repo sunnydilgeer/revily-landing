@@ -141,10 +141,10 @@ export type AngleFrame = {
   before?: Omit<AngleFrame, 'before'>
 }
 /**
- * A function machine (lesson 29, A14), drawn above the board like the A14 videos: the input hopper, one coloured box per
- * operation, the output tray, and the numbers under the belt (the input, the number after each box, the output; null
+ * A function machine (lesson 29, A14), drawn above the board: the word Input, one coloured box per operation and the word
+ * Output, joined by arrows, with the numbers underneath (the input, the number after each box, the output; null
  * leaves a gap). `lit` rings the box being worked on in purple, and the number it makes.
- * Going backwards (`back`), the belt runs right to left and `undo` names the opposite of each box under it. A box
+ * Going backwards (`back`), `undo` names the opposite of each box under it. A box
  * written "?" is still to be found (creating a machine). `answer` is the number that answers the question, in green.
  * See MachinePictures.tsx.
  */

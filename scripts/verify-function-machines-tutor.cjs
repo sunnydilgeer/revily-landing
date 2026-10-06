@@ -46,15 +46,17 @@ function checkMachine(label, frame) {
   frame.undo?.forEach((op, i) => op && assert.equal(op, `${opposite[frame.boxes[i][0]]}${frame.boxes[i].slice(1)}`, `${label}: box ${i + 1} is undone by its opposite`))
   // Going backwards, the ring is on a box whose opposite is written under it.
   if (frame.back && frame.lit !== undefined) assert.ok(frame.undo?.[frame.lit], `${label}: the box being undone shows its opposite`)
-  // The picture stays inside its box, and no two numbers (or opposites) under the belt overlap.
+  // The picture stays inside its box, and no two numbers (or opposites) underneath overlap.
   const svg = renderToStaticMarkup(React.createElement(MachineVisual, { frame }))
-  const { height, valueAt, at: slotAt } = machineLayout(frame)
+  const { height, valueAt, at: slotAt, arrows } = machineLayout(frame)
+  // Input, every box and Output are joined by an arrow long enough to see (Sunny, 6 Oct), inside the picture.
+  for (const [from, to] of arrows) assert.ok(to - from >= 10 && from >= 0 && to <= MACHINE_WIDTH, `${label}: an arrow from ${from} to ${to} is too short or off the edge`)
   for (const [, x, y, w, h] of svg.matchAll(/<rect x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)) {
     assert.ok(+x >= 0 && +x + +w <= MACHINE_WIDTH && +y >= 0 && +y + +h <= height, `${label}: a shape at ${x}, ${y} sits inside the picture`)
   }
   const spans = (list, size, pad) => list.filter(Boolean).map(([centre, text]) => [centre - pillWidth(text, size, pad) / 2, centre + pillWidth(text, size, pad) / 2]).sort((a, b) => a[0] - b[0])
   for (const row of [spans(frame.values.map((v, j) => v && [valueAt(j), v]), VALUE_SIZE, 16), spans((frame.undo ?? []).map((op, i) => op && [slotAt(i + 1), `undo ${op}`]), undoSize(frame.boxes.length), undoPad(frame.boxes.length))]) {
-    row.forEach((span, i) => i && assert.ok(span[0] >= row[i - 1][1] - 0.5, `${label}: two labels under the belt overlap`))
+    row.forEach((span, i) => i && assert.ok(span[0] >= row[i - 1][1] - 0.5, `${label}: two labels underneath overlap`))
   }
   machines++
 }
