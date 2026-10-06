@@ -325,6 +325,8 @@
 /* Function machines (lesson 29, MachinePictures.tsx): box 1 amber, box 2 blue, box 3 teal, as in the A14 videos; the
    box being worked on and the number it makes are ringed in purple, like the move on the board. */
 .ns-machine { display: flex; justify-content: center; width: 100%; margin-bottom: 6px; }
+/* The opening screen's picture sits in a flex row: let it fill the row, so the machine is the same size before and after the first step. */
+.ns-visual:has(> .ns-machine) { flex: 1 1 auto; min-width: 0; width: 100%; }
 .ns-machine svg { display: block; width: 100%; max-width: 440px; font-family: var(--rv-font-body); }
 .ns-machine text { text-anchor: middle; dominant-baseline: central; }
 .ns-machine__caption { fill: var(--rv-muted); font-size: 12px; font-weight: 700; }
