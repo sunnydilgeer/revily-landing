@@ -322,3 +322,31 @@
   .ns-eq.is-proof .ns-eq__row.is-done { opacity: .35; }
   .ns-eq.is-proof .ns-eq__answer { align-self: center; }
 }
+/* Function machines (lesson 29, MachinePictures.tsx): box 1 amber, box 2 blue, box 3 teal, as in the A14 videos; the
+   box being worked on and the number it makes are ringed in purple, like the move on the board. */
+.ns-machine { display: flex; justify-content: center; width: 100%; margin-bottom: 6px; }
+.ns-machine svg { display: block; width: 100%; max-width: 440px; font-family: var(--rv-font-body); }
+.ns-machine text { text-anchor: middle; dominant-baseline: central; }
+.ns-machine__caption { fill: var(--rv-muted); font-size: 12px; font-weight: 700; }
+.ns-machine__belt { stroke: var(--rv-line-strong); stroke-width: 5; stroke-linecap: round; }
+.ns-machine__arrow { fill: none; stroke: var(--rv-surface); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ns-machine__hopper { fill: var(--rv-surface); stroke: var(--rv-ink); stroke-width: 2; stroke-linejoin: round; }
+.ns-machine__tray { fill: var(--rv-good-tint); stroke: var(--rv-good-ink); stroke-width: 2; }
+.ns-machine__box { --b: var(--rv-ink); --bt: var(--rv-surface); }
+.ns-machine__box.is-b0 { --b: #b45309; --bt: #fef3c7; }
+.ns-machine__box.is-b1 { --b: var(--rv-biro); --bt: var(--rv-biro-tint); }
+.ns-machine__box.is-b2 { --b: #0f766e; --bt: #ccfbf1; }
+.ns-machine__box rect:first-child { fill: var(--bt); stroke: var(--b); stroke-width: 2; }
+.ns-machine__box text { fill: var(--b); font-size: 20px; font-weight: 800; }
+.ns-machine__box.is-unknown rect:first-child { fill: var(--rv-surface); stroke: var(--rv-muted); stroke-dasharray: 5 4; }
+.ns-machine__box.is-unknown text { fill: var(--rv-muted); }
+.ns-machine__lit { fill: none; stroke: #7c3aed; stroke-width: 3; }
+.ns-machine__value { --v: var(--rv-ink); }
+.ns-machine__value rect { fill: var(--rv-surface); stroke: var(--v); stroke-width: 2; }
+.ns-machine__value text { fill: var(--v); font-size: 17px; font-weight: 700; }
+.ns-machine__value.is-answer rect { fill: var(--rv-good-tint); stroke: var(--rv-good-ink); }
+.ns-machine__value.is-answer text { fill: var(--rv-good-ink); }
+.ns-machine__value.is-lit rect { stroke: #7c3aed; stroke-width: 3; }
+.ns-machine__undo rect { fill: var(--rv-surface); stroke: #c4b5fd; stroke-width: 1.5; }
+.ns-machine__undo text { fill: #7c3aed; font-weight: 700; }
+.ns-machine__undo.is-lit rect { stroke: #7c3aed; stroke-width: 2.5; }

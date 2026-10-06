@@ -124,6 +124,10 @@ export const aqaMarks: Record<string, number> = {
   '28:proof-identity': 1,
   '28:proof-geometric': 1,
   '28:proof-algebraic': 1,
+  // Estimates, not yet counted from the 18 papers: function machines come up most sittings (7 of 10 in the 30-paper analysis), usually for 1–3 marks.
+  '29:function-machines-forwards': 2,
+  '29:function-machines-backwards': 1,
+  '29:function-machines-creating': 1,
   // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
   '24:inequalities-number-line': 1,
   '24:inequalities-two-sided': 1,
