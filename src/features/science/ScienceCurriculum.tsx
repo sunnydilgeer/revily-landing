@@ -6,7 +6,7 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../ui'
-import { ChapterAccordion, CurriculumSearch, Lock, TocChapter, TocLesson, useIsPhone, type SearchResult, type TocStatus } from '../maths/Curriculum'
+import { ChapterAccordion, CurriculumSearch, Lock, TocChapter, TocLesson, useIsPhone, useScrollToLesson, type SearchResult, type TocStatus } from '../maths/Curriculum'
 import { scienceEntryHref, scienceSubjects, scienceSubjectTitle, type ScienceCatalogueEntry } from './lessonNavigation'
 import { scienceLessonMinutes } from './lessonMinutes'
 import { readScienceLastLesson, readScienceProgress, saveScienceLastLesson, scienceUnitsForTier, sectionStatus, type ScienceProgressMap } from './scienceProgress'
@@ -57,12 +57,16 @@ export default function ScienceCurriculum() {
   const upNextUnit = shownUnits.find(unit => unit.lessons.includes(upNext))!.code
   // The unit you're in is shown until you pick another; the saved last lesson arrives after the first render.
   const [picked, setPicked] = useState<string | null>(null)
-  const selected = picked ?? upNextUnit
+  // The unit holding the last lesson you viewed (or the next one, before you've opened any) is shown and scrolled to.
+  const focus = last ?? upNext
+  const focusUnit = shownUnits.find(unit => unit.lessons.includes(focus))?.code ?? upNextUnit
+  const selected = picked ?? focusUnit
   const unit = shownUnits.find(item => item.code === selected)
   const laterSubject = LATER.find(item => item.code === selected)
   // The unit list shows one subject at a time, starting with the one you're in.
   const [pickedSubject, setListSubject] = useState<string | null>(null)
   const phone = useIsPhone()
+  useScrollToLesson(phone ? undefined : focus.lesson.id, '.cur-panel')
   const listSubject = pickedSubject ?? unit?.subject ?? upNext.subject
 
   // Search matches lesson and section titles in every subject; a section opens its lesson at that section.
@@ -105,7 +109,6 @@ export default function ScienceCurriculum() {
   // Phones: no header, just the tier, search, a subject switch and every unit in one list, opened at the last
   // lesson you viewed (or the next one, before you've opened any).
   if (phone) {
-    const focus = last ?? upNext
     const phoneSubject = pickedSubject ?? focus.subject
     return <div className="cur cur--phone">
       {tierSwitch}
