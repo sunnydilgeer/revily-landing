@@ -64,12 +64,31 @@ type Round = [string, string, string, string?]
 const withUnit = (value: string, unit?: string) => !unit ? value : unit === '£' ? `£${value}` : `${value} ${unit}`
 const tex = (value: string) => value.replaceAll(' ', '\\,')
 
-function roundStep(rounds: Round[], say = 'Round each number to 1 significant figure.'): Step {
+/**
+ * Lesson 10's verdict for rounding to 1 s.f. ("8 ≥ 5, round up the 4"): the first digit that is not zero is kept, the
+ * digit after it decides. Left off when the rounding is not to 1 s.f.
+ */
+function verdict(from: string, to: string) {
+  const digits = from.replace(/[^\d.]/g, '')
+  const value = Number(digits)
+  if (!value) return undefined
+  const power = 10 ** Math.floor(Math.log10(value))
+  const rounded = Math.round(value / power) * power
+  if (Math.abs(rounded - Number(to.split(' ')[0].replace(/[^\d.]/g, ''))) > 1e-9 * power) return undefined
+  const figures = digits.replace('.', '').replace(/^0+/, '')
+  const [kept, decision = '0'] = [figures[0], figures[1]]
+  return Number(decision) >= 5 ? `${decision} ≥ 5, round up the ${kept}` : `${decision} < 5, keep the ${kept}`
+}
+
+function roundStep(rounds: Round[], say = 'Round each number to 1 significant figure. The decision digit is the one after the first significant figure: 5 or more rounds up.'): Step {
   return {
     title: 'Round to 1 s.f.',
     math: rounds.map(([, from, to]) => `${tex(from)}\\to${tex(to)}`).join(',\\;'),
     say,
-    lines: rounds.map(([label, from, to, unit]) => line([...(label ? [part(`${label}:`)] : []), part(unit === '£' ? withUnit(from, unit) : from, 0)], unit === '£' ? withUnit(to, unit) : to)),
+    lines: rounds.map(([label, from, to, unit]) => {
+      const mark = verdict(from, to)
+      return line([...(label ? [part(`${label}:`)] : []), part(unit === '£' ? withUnit(from, unit) : from, 0)], unit === '£' ? withUnit(to, unit) : to, mark ? { mark } : {})
+    }),
   }
 }
 
@@ -109,17 +128,31 @@ function worked(topic: MicroSkillId, title: string, sourceRef: string, model: St
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
 
+/** "4 + 1 → 5", or with a 9 a line for each carry: the carried 1 boxed in purple (lesson 10). */
+function carryLines(kept: string): StepLine[] {
+  const lines: StepLine[] = []
+  for (let i = kept.length - 1; i >= 0; i--) {
+    const digit = Number(kept[i])
+    if (!/\d/.test(kept[i])) continue
+    lines.push(line([part(digit, 0), sign('+'), part(1, 3, { boxed: lines.length > 0 })], digit + 1))
+    if (digit < 9) break
+  }
+  return lines
+}
+
 /** Rounding one number to 1 significant figure, shown with the shared kept-digit / decision-digit picture. */
 type SigFig = { original: string; kept: string; decision: string; rest?: string; point?: boolean; answer: string; keptDigit: string; carry?: string; fill?: string }
 function sigFig(model: SigFig): StepWorking {
   const up = Number(model.decision) >= 5
   const picture: StepPicture = { kind: 'rounding', frame: { original: model.original, target: '1 significant figure', kept: model.kept, decisionDigit: model.decision, remaining: model.rest ?? '', pointAfterKept: model.point, stage: 'identify', roundsUp: up } }
   const digit = Number(model.kept.slice(-1))
+  const carry = carryLines(model.kept)
+  const counting = model.original.startsWith('0') ? ' Start counting at the first digit that is not zero.' : ''
   return { kind: 'step-worked', start: model.original, steps: [
-    { title: 'Draw the cut', why: `The first digit that is not zero is ${model.keptDigit}. Keep it and cut after it.`, picture },
-    { title: 'Check the next digit', why: '5 or more rounds up. Less than 5 keeps the digit the same.', lines: [line([part(model.decision, 1), sign(up ? '≥' : '<'), part(5)], undefined, { mark: up ? 'round up' : 'keep' })] },
-    ...(up ? [{ title: `Round the ${digit} up`, why: 'Add 1 to the digit you kept.', lines: [line([part(digit, 0), sign('+'), part(1, 3)], digit + 1)] }] : []),
-    { title: 'Write the answer', why: model.fill ?? 'Leave out the digits after it.', lines: [line([part(model.original)], model.answer, { answer: true })] },
+    { title: 'Mark 1 significant figure', why: `For 1 significant figure, keep up to ${model.keptDigit}.${counting}`, picture },
+    { title: 'Check the decision digit', why: '5 or more rounds up. Less than 5 keeps the digit the same.', lines: [line([part(model.decision, 1), sign(up ? '≥' : '<'), part(5)], undefined, { mark: up ? `round up the ${digit}` : `keep the ${digit}` })] },
+    ...(up ? [{ title: `Round the ${digit} up`, why: carry.length > 1 ? 'A 9 that rounds up becomes 10: write 0 and carry the 1 to the digit on its left.' : 'Add 1 to the last digit kept.', lines: carry }] : []),
+    { title: 'Write the answer', why: model.fill ?? (model.answer.includes('.') ? 'Leave off every digit after the cut.' : 'Every digit after the cut becomes a zero, so the number keeps its size.'), lines: [line([part(model.original)], model.answer, { answer: true })] },
   ] }
 }
 
