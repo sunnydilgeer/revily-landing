@@ -117,6 +117,18 @@ export function useIsPhone() {
   return phone
 }
 
+/** Scrolls the lesson you last viewed into the middle of the screen, once per lesson, as soon as its row is shown. */
+export function useScrollToLesson(lessonId: string | undefined, scope: string) {
+  const scrolledTo = useRef<string | null>(null)
+  useEffect(() => {
+    if (!lessonId || scrolledTo.current === lessonId) return
+    const row = document.querySelector(`${scope} [data-lesson="${CSS.escape(lessonId)}"]`)
+    if (!row) return
+    scrolledTo.current = lessonId
+    window.requestAnimationFrame(() => row.scrollIntoView({ block: 'center' }))
+  })
+}
+
 export type AccordionChapter = { id: string; code: string; title: string; lessonIds: string[]; lessons?: ReactNode; locked?: boolean }
 
 /**
@@ -127,14 +139,7 @@ export function ChapterAccordion({ chapters, focusLessonId, label }: { chapters:
   const [folds, setFolds] = useState<Record<string, boolean>>({})
   const focusChapter = chapters.find(chapter => focusLessonId && chapter.lessonIds.includes(focusLessonId))?.id
   const isOpen = (id: string) => folds[id] ?? id === focusChapter
-  const scrolledTo = useRef<string | null>(null)
-  useEffect(() => {
-    if (!focusLessonId || scrolledTo.current === focusLessonId) return
-    const row = document.querySelector(`.cur-acc [data-lesson="${CSS.escape(focusLessonId)}"]`)
-    if (!row) return
-    scrolledTo.current = focusLessonId
-    window.requestAnimationFrame(() => row.scrollIntoView({ block: 'center' }))
-  })
+  useScrollToLesson(focusLessonId, '.cur-acc')
   return <div className="cur-acc" role="list" aria-label={label}>
     {chapters.map(chapter => {
       const open = isOpen(chapter.id)
@@ -169,8 +174,10 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
   const chapterCount = mathsChapters.length + LATER_CHAPTERS.length
 
   const phone = useIsPhone()
-  // The chapter you're in is open; pick another from the list on the left.
-  const [selected, setSelected] = useState<string>(upNext.chapterId)
+  // The chapter holding the last lesson you viewed is open (and scrolled to); pick another from the list on the left.
+  const [picked, setSelected] = useState<string | null>(null)
+  const selected = picked ?? lastEntry.chapterId
+  useScrollToLesson(phone ? undefined : lastEntry.lessonId, '.cur-panel')
   const chapterIndex = mathsChapters.findIndex(chapter => chapter.id === selected)
   const chapter = mathsChapters[chapterIndex]
   const laterIndex = LATER_CHAPTERS.indexOf(selected)

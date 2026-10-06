@@ -26,8 +26,9 @@ import { tutorInequalitiesLesson } from '../inequalities/tutor/inequalitiesLesso
 import { tutorSolvingInequalitiesLesson } from '../solving-inequalities/tutor/solvingInequalitiesLesson'
 import { tutorSimultaneousEquationsLesson } from '../simultaneous-equations/tutor/simultaneousEquationsLesson'
 import { tutorProofLesson } from '../proof/tutor/proofLesson'
+import { tutorFunctionMachinesLesson } from '../function-machines/tutor/functionMachinesLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29
 
 export type MathsSection = {
   id: MicroSkillId
@@ -121,6 +122,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(25, tutorSolvingInequalitiesLesson, 'Solving inequalities', 'List the integers in an inequality, solve inequalities like 4a − 5 > a + 7 and 3 < 2x + 1 < 11, and flip the sign when dividing by a negative.', tutorSolvingInequalitiesLesson.labels, 'algebra'),
   entry(27, tutorSimultaneousEquationsLesson, 'Simultaneous equations', 'Solve two equations at once, like 3x + 2y = 16 and x + 2y = 8, by making one letter disappear, and write them from a problem in words.', tutorSimultaneousEquationsLesson.labels, 'algebra'),
   entry(28, tutorProofLesson, 'Proof', 'Disprove a claim with one counterexample, show two expressions are identical, prove angle facts, and prove facts about odd and even numbers with algebra.', tutorProofLesson.labels, 'algebra'),
+  entry(29, tutorFunctionMachinesLesson, 'Function machines', 'Put a number through a function machine, work backwards from the output to the input, and turn an equation like y = 3x + 4 into a machine.', tutorFunctionMachinesLesson.labels, 'algebra'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

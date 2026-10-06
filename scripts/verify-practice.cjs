@@ -203,10 +203,13 @@ assert.ok(templateWeight(byId('decimal-multiply')) > 2 * templateWeight(byId('bo
 const counts = {}
 for (let run = 0; run < 400; run++) for (const q of buildSprint(templates, none, {}, random)) counts[q.id] = (counts[q.id] ?? 0) + 1
 assert.ok((counts['bounds-counting'] ?? 0) > 1.3 * (counts['bounds-truncation'] ?? 0), `bounds-counting (${counts['bounds-counting']}) should come up more than truncation (${counts['bounds-truncation']}), same topic and ramp`)
+// Everything comes round: within three times the sprints a ramp needs to serve each of its templates once (it was a
+// fixed 40, which the bank outgrew: the multistep ramp has one place a sprint and 21 templates to share it).
+const rounds = Math.max(40, ...Object.entries(SPRINT_SHAPE).map(([ramp, places]) => Math.ceil(3 * templates.filter(t => t.ramp === ramp).length / places)))
 const rotation = {}
-for (let run = 0; run < 40; run++) for (const q of buildSprint(templates, none, rotation, random)) rotation[q.id] = (rotation[q.id] ?? 0) + 1
+for (let run = 0; run < rounds; run++) for (const q of buildSprint(templates, none, rotation, random)) rotation[q.id] = (rotation[q.id] ?? 0) + 1
 const never = templates.filter(t => !rotation[t.id]).map(t => t.id)
-assert.deepEqual(never, [], `templates never served in 40 sprints: ${never.join(', ')}`)
+assert.deepEqual(never, [], `templates never served in ${rounds} sprints: ${never.join(', ')}`)
 
 // Saving: parts add up per statement, and enough right-first-time Practice turns a secure skill gold.
 let records = addAttempt({}, ['8:adding-fractions'], true, '2026-09-27')
