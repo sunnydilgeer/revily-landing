@@ -129,7 +129,7 @@ function RootsAnswerInput({ id, letter, unit, disabled, onChange }: { id: string
  * A short list of numbers, one box each: "☐ and ☐" for the next two terms, or "☐, ☐, ☐, ☐, ☐" for the first five.
  * Each box opens the full keyboard, because a number pad has no minus key.
  */
-function ListAnswerInput({ id, count, joiner, unit, disabled, onChange }: { id: string; count: number; joiner: string; unit?: string; disabled: boolean; onChange: (value: string) => void }) {
+function ListAnswerInput({ id, count, joiner, unit, labels, disabled, onChange }: { id: string; count: number; joiner: string; unit?: string; labels?: string[]; disabled: boolean; onChange: (value: string) => void }) {
   const [values, setValues] = useState<string[]>(() => Array(count).fill(''))
   const update = (i: number, value: string) => {
     const next = values.map((old, k) => k === i ? value : old)
@@ -138,7 +138,8 @@ function ListAnswerInput({ id, count, joiner, unit, disabled, onChange }: { id: 
   }
   return <div className={`rung-roots rung-list${joiner === ',' ? ' rung-list--row' : ''}`} role="group" aria-label={`Enter ${count} numbers, in order`}>
     {values.map((value, i) => <span key={i} className="rung-roots__pair">
-      <label htmlFor={`list-${i}-${id}`}><span className="sr-only">{`Number ${i + 1} of ${count}`}</span>
+      {labels?.[i] && <span className="rung-answer__eq" aria-hidden="true">{labels[i]}</span>}
+      <label htmlFor={`list-${i}-${id}`}><span className="sr-only">{labels?.[i] ? `${labels[i].replace(/=$/, 'equals').trim()}` : `Number ${i + 1} of ${count}`}</span>
         <input id={`list-${i}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value} onChange={event => update(i, event.target.value)} /></label>
       {unit && <span className="rung-answer__eq" aria-hidden="true">{unit}</span>}
       {i < count - 1 && <span className="rung-roots__or" aria-hidden="true">{joiner}</span>}
@@ -339,7 +340,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const answerState = feedback ? feedback.correct ? ' is-correct' : ' is-incorrect' : ''
   const extraLines = state.visual.kind === 'text' && !repeatsTitle(state)
   // The question's own grid or bus stop is drawn again, step by step, in its working; once that is open, show it once.
-  const drawnInWorking = Boolean(feedback && showWorking && state.working && (state.visual.kind === 'diagram' || state.visual.kind === 'grid'))
+  const drawnInWorking = Boolean(feedback && showWorking && state.working && (state.visual.kind === 'diagram' || state.visual.kind === 'grid' || state.visual.kind === 'machine'))
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
   const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
@@ -348,7 +349,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.heading ? <><span aria-hidden="true"><Powers text={state.content.heading} /></span><span className="sr-only">{state.content.title}</span></> : <Powers text={state.content.title} />}</h3>
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
-      {(teaching || !numberSense || extraLines) && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
+      {(teaching || !numberSense || extraLines || state.visual.kind === 'machine') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
@@ -359,7 +360,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
             : numberSet
             ? <NumbersAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : list
-            ? <ListAnswerInput id={state.id} count={String(state.interaction.correctAnswer).split(',').length} joiner={state.interaction.listJoiner ?? 'and'} unit={state.answerPrefix} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            ? <ListAnswerInput id={state.id} count={String(state.interaction.correctAnswer).split(',').length} joiner={state.interaction.listJoiner ?? 'and'} unit={state.answerPrefix} labels={state.interaction.listLabels} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : dimensions
             ? <RootsAnswerInput id={state.id} letter="" unit={state.answerPrefix ?? ''} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : formula

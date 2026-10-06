@@ -86,6 +86,8 @@ export const paperTopics: PaperTopic[] = [
   { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [], labs: ['formula'] },
   { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: lesson(23, 'sequences-special', 'sequences-geometric', 'sequences-nth-term', 'sequences-in-sequence', 'sequences-consecutive'), labs: ['levels'] },
   { id: 'inequalities', title: 'Inequalities', area: 'algebra', marks30: 30, estimate: true, requires: ['equations'], statements: [...lesson(24, 'inequalities-number-line', 'inequalities-two-sided'), ...lesson(25, 'inequalities-integers', 'inequalities-solve', 'inequalities-solve-two-signs', 'inequalities-negative')] },
+  { id: 'simultaneous', title: 'Simultaneous equations', short: 'Simultaneous', area: 'algebra', marks30: 25, estimate: true, requires: ['equations'], statements: lesson(27, 'simultaneous-elimination', 'simultaneous-words') },
+  { id: 'proof', title: 'Proof', area: 'algebra', marks30: 15, estimate: true, requires: ['simplifying'], statements: lesson(28, 'proof-counterexample', 'proof-identity', 'proof-geometric', 'proof-algebraic') },
   { id: 'equations', title: 'Solving equations', short: 'Equations', area: 'algebra', marks30: 50, sittings: 10, requires: ['function-machines', 'simplifying'], statements: [...lesson(19,
     'equations-one-unknown', 'equations-squares', 'equations-both-sides', 'equations-brackets', 'equations-fractions'),
     ...lesson(20, 'rearrange-linear', 'rearrange-fractions', 'rearrange-squares', 'rearrange-roots'),
@@ -97,7 +99,7 @@ export const paperTopics: PaperTopic[] = [
     ...lesson(18, 'factorise-two-terms', 'factorise-three-terms'),
     ...lesson(21, 'quadratics-positive', 'quadratics-negative-middle', 'quadratics-negative-last', 'quadratics-difference-of-squares'),
   ], labs: ['mind'] },
-  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [], labs: ['formula'] },
+  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: lesson(29, 'function-machines-forwards', 'function-machines-backwards', 'function-machines-creating'), labs: ['formula'] },
 
   // Ratio, proportion and rates of change
   { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: [], labs: ['heist', 'potion', 'tiers'] },

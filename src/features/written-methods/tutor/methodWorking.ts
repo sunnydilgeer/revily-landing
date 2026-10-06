@@ -108,8 +108,56 @@ export type BracketFrame = { outside: string; inside: { text: string; family: nu
  * An inequality (lesson 25) uses the same board: `sign` replaces the = sign ("<", "≥", or "[>]" boxed in purple when it
  * flips), and a row with two signs has a `middle` part between them ("3 < 2x + 1 < 11"), each side worked on alike.
  */
-export type EquationRow = { left: string; right: string; sign?: string; middle?: string; sign2?: string } | { note: string; family?: number } | { answer: string }
-export type EquationFrame = { rows: EquationRow[] }
+/**
+ * Simultaneous equations (lesson 27) put two equations on the board at once: each is a row with a `label` (① or ②) in
+ * the gutter, and `given` says how many rows the question itself shows before the first move (1 when left out).
+ */
+export type EquationRow = { left: string; right: string; sign?: string; middle?: string; sign2?: string; label?: string } | { note: string; family?: number } | { answer: string }
+export type EquationFrame = { rows: EquationRow[]; given?: number }
+/**
+ * An angle picture for geometric proof (lesson 28, A13.3), drawn above the board: a triangle drawn to its angles, the
+ * same with the base carried on past the right corner (an exterior angle), a straight line with a line from it, or a
+ * quadrilateral cut into two triangles. `labels` name the angles in order: triangle left, right, top (exterior: then the
+ * outside angle); straight line: right, then left. A line through the top parallel to the base (`parallel`) makes two
+ * new angles, `copies`, and `zig` draws the Z of alternate angles in purple. `boxed` labels are ringed in purple.
+ * See AnglePictures.tsx.
+ */
+export type AngleFrame = {
+  shape: 'triangle' | 'exterior' | 'line' | 'quad'
+  /** Triangle: the two base angles in degrees (left, right), drawn to scale. Straight line: the angle on the right. */
+  angles: number[]
+  labels: string[]
+  /** Which label colours (`is-f…`) each angle takes, in the same order. */
+  families?: number[]
+  /** Two equal sides (isosceles): a tick on each. */
+  equal?: boolean
+  parallel?: boolean
+  copies?: [string | null, string | null]
+  zig?: 'left' | 'right'
+  boxed?: number[]
+  /** A quadrilateral's diagonal, cutting it into two triangles. */
+  split?: boolean
+  /** The picture on the opening screen, before the first step changes it. */
+  before?: Omit<AngleFrame, 'before'>
+}
+/**
+ * A function machine (lesson 29, A14), drawn above the board: the word Input, one coloured box per operation and the word
+ * Output, joined by arrows, with the numbers underneath (the input, the number after each box, the output; null
+ * leaves a gap). `lit` rings the box being worked on in purple, and the number it makes.
+ * Going backwards (`back`), `undo` names the opposite of each box under it. A box
+ * written "?" is still to be found (creating a machine). `answer` is the number that answers the question, in green.
+ * See MachinePictures.tsx.
+ */
+export type MachineFrame = {
+  boxes: string[]
+  values: (string | null)[]
+  lit?: number
+  back?: boolean
+  undo?: (string | null)[]
+  answer?: number
+  /** The machine on the opening screen, before the first step changes it. */
+  before?: Omit<MachineFrame, 'before'>
+}
 /**
  * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
  * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
@@ -224,6 +272,8 @@ export type MethodFrame = {
   expand?: ExpandFrame
   bracket?: BracketFrame
   equation?: EquationFrame
+  angles?: AngleFrame
+  machine?: MachineFrame
   quadratic?: QuadraticFrame
   solve?: SolveFrame
   sequence?: SequenceFrame

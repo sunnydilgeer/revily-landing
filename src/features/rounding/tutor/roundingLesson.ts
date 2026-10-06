@@ -1,7 +1,7 @@
 import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import { numberSenseWorking } from '../../written-methods/tutor/numberSenseWorking'
-import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
+import type { TutorMethodLesson, TutorMethodState } from '../../written-methods/tutor/model'
+import { line, part, sign, type StepLine, type StepPicture, type StepWorking, type WorkedStep } from '../../written-methods/tutor/stepWorking'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 
 const { add, finish } = author(10)
@@ -32,41 +32,44 @@ type RoundModel = {
   finalNote?: string
 }
 
-function roundingModel(model: RoundModel): TutorWorking {
+/** The digits a kept digit becomes when it rounds up: each 9 turns to 0 and carries 1 to the digit on its left. */
+function carryLines(kept: string): StepLine[] {
+  const lines: StepLine[] = []
+  for (let i = kept.length - 1; i >= 0; i--) {
+    const digit = Number(kept[i])
+    if (!/\d/.test(kept[i])) continue
+    lines.push(line([part(digit, 0), sign('+'), part(1, 3, { boxed: lines.length > 0 })], digit + 1))
+    if (digit < 9) break
+  }
+  return lines
+}
+
+const COLUMN: Record<string, string> = { '10': 'tens', '100': 'hundreds', '1000': 'thousands', '10 000': 'ten-thousands' }
+/** The first step's heading names what is kept: "Mark 2 decimal places", "Mark the hundreds column". */
+function markTitle(target: string) {
+  const nearest = /^nearest (.+)$/.exec(target)
+  return nearest ? `Mark the ${COLUMN[nearest[1]] ?? nearest[1]} column` : `Mark ${target}`
+}
+
+/**
+ * The number plain, then one move a step (src/features/EXPLANATIONS.md): draw the cut after the last digit kept, check
+ * the next digit, round the kept digit up (a line for each carry), and write the answer once, in green.
+ */
+function roundingModel(model: RoundModel): StepWorking {
   const roundsUp = model.cutDigit >= 5
-  const answerWithUnit = `${model.answer}${model.suffix ? ` ${model.suffix}` : ''}`
-  const [kept = '', discarded = ''] = model.split.split('|').map(part => part.trim())
-  const decisionDigit = discarded.charAt(0)
-  const roundingFrame = (stage: 'identify' | 'decide' | 'result') => ({
-    original: model.original,
-    target: model.target,
-    kept,
-    decisionDigit,
-    remaining: discarded.slice(1),
-    stage,
-    roundsUp,
-    answer: stage === 'result' ? answerWithUnit : undefined,
-  })
-  return numberSenseWorking(model.expression ?? model.original.replaceAll(' ', '\\,'), `Round to ${model.target}`, [
-    {
-      title: 'Find the last digit to keep',
-      equation: model.split.replace('|', '\\mid').replaceAll(' ', '\\,'),
-      instruction: `For ${model.target}, the ${model.keptDigit} is the last digit kept. The digit immediately after it is the decision digit.`,
-      rounding: roundingFrame('identify'),
-    },
-    {
-      title: 'Use the decision digit',
-      equation: roundsUp ? `${model.cutDigit}\\geq5` : `${model.cutDigit}<5`,
-      instruction: `${model.cutDigit} is ${roundsUp ? '5 or more, so round the kept digit up' : 'below 5, so leave the kept digit unchanged'}.${model.carry ? ` ${model.carry}` : ''}`,
-      rounding: roundingFrame('decide'),
-    },
-    {
-      title: 'Write the rounded value',
-      equation: `${model.original.replaceAll(' ', '\\,')}\\to${model.answer.replaceAll(' ', '\\,')}`,
-      instruction: model.finalNote ?? 'Remove decimal digits to the right of the rounding point, or replace later whole-number digits with zeroes.',
-      rounding: roundingFrame('result'),
-    },
-  ])
+  const [kept = '', discarded = ''] = model.split.split('|').map(p => p.trim())
+  const lastKept = kept.replace(/\D/g, '').slice(-1)
+  const picture: StepPicture = { kind: 'rounding', frame: { original: model.original, target: model.target, kept, decisionDigit: discarded.charAt(0), remaining: discarded.slice(1), stage: 'identify', roundsUp } }
+  const whole = !model.answer.includes('.')
+  const counting = /significant/.test(model.target) && model.original.startsWith('0') ? ' Start counting at the first digit that is not zero.' : ''
+  const carry = carryLines(kept)
+  const steps: WorkedStep[] = [
+    { title: markTitle(model.target), why: `For ${model.target}, keep up to the ${model.keptDigit}.${counting}`, picture },
+    { title: 'Check the decision digit', why: '5 or more rounds up. Less than 5 keeps the digit the same.', lines: [line([part(model.cutDigit, 1), sign(roundsUp ? '≥' : '<'), part(5)], undefined, { mark: roundsUp ? `round up the ${lastKept}` : `keep the ${lastKept}` })] },
+    ...(roundsUp ? [{ title: `Round the ${lastKept} up`, why: carry.length > 1 ? 'A 9 that rounds up becomes 10: write 0 and carry the 1 to the digit on its left.' : 'Add 1 to the last digit kept.', lines: carry }] : []),
+    { title: 'Write the answer', why: model.finalNote ?? (whole ? 'Every digit after the cut becomes a zero, so the number keeps its size.' : 'Leave off every digit after the cut.'), lines: [line([part(model.original)], model.answer, { answer: true })] },
+  ]
+  return { kind: 'step-worked', start: model.original, steps }
 }
 
 function practice(
@@ -81,7 +84,7 @@ function practice(
 ) {
   const steps = feedbackSteps ?? [
     ['Find the last digit to keep.', `For ${model.target}, split the number as ${model.split}.`],
-    ['Check the next digit.', `${model.cutDigit} is ${model.cutDigit >= 5 ? '5 or more, so round up' : 'below 5, so the kept digit stays the same'}.${model.carry ? ` ${model.carry}` : ''}`],
+    ['Check the decision digit.', `${model.cutDigit} is ${model.cutDigit >= 5 ? '5 or more, so round up' : 'below 5, so the kept digit stays the same'}.${model.carry ? ` ${model.carry}` : ''}`],
     ['Write the rounded value.', `${model.original} rounds to ${answer}.`],
   ]
   const state = add(topic, title, sourceRef, text(title), interaction, explain(answer, ...steps), hint)
