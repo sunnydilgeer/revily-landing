@@ -4,6 +4,7 @@ import type { CSSProperties } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
 import { PictureStep, RoundingVisual } from './NumberSenseWorkedExample'
+import { NumberLine, OrderChart } from './OrderPictures'
 import { Powers } from './Powers'
 import type { MethodExample, MethodStep } from './methodWorking'
 import { MethodPicture as MethodPictureView } from './MethodWorkedExample'
@@ -85,6 +86,8 @@ function Lists({ picture }: { picture: ListsPicture }) {
 
 function Picture({ picture }: { picture: StepPicture }) {
   if (picture.kind === 'place') return <div className="rung-worked__visual sp-picture"><Place picture={picture} /></div>
+  if (picture.kind === 'order-chart') return <div className="rung-worked__visual sp-picture"><OrderChart picture={picture} /></div>
+  if (picture.kind === 'number-line') return <div className="rung-worked__visual sp-picture"><NumberLine picture={picture} /></div>
   if (picture.kind === 'lists') return <div className="rung-worked__visual sp-picture"><Lists picture={picture} /></div>
   if (picture.kind === 'rounding') return <div className="rung-worked__visual sp-picture"><RoundingVisual frame={picture.frame} /></div>
   if (picture.kind === 'method') return <div className="rung-worked__visual sp-picture"><MethodPictureView example={{ method: picture.method, first: picture.first } as MethodExample} frame={picture.frame} /></div>

@@ -162,6 +162,42 @@
 .sp-number-list__values b { box-sizing: border-box; min-width: 32px; height: 32px; display: inline-grid; place-items: center; padding: 0 7px; border: 1px solid var(--rv-line); border-radius: 999px; background: #fff; color: var(--rv-ink); font-size: 15px; font-weight: 600; }
 .sp-number-list__values b.is-shared { border-color: color-mix(in srgb, #7c3aed 45%, transparent); color: #7c3aed; }
 .sp-number-list__values b.is-pick { border: 2px solid #7c3aed; background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; font-weight: 800; }
+/* Ordering (lesson 11): the numbers in a place-value chart, points lined up, empty places dashed, the 0 written in a gap
+   purple; the column compared is tinted, rows already placed carry their position. Negatives on a thermometer or line. */
+.oc-chart { width: max-content; max-width: 100%; margin: 0 auto; font-variant-numeric: tabular-nums; }
+.oc-row { display: grid; grid-template-columns: var(--oc-template); align-items: center; column-gap: 2px; min-height: 1.35em; font-size: clamp(24px, 7.5vw, 32px); font-weight: 650; color: var(--rv-ink); transition: opacity .2s; }
+.oc-head { min-height: 0; padding-bottom: 2px; line-height: 1; }
+.oc-head > span { font-size: 12px; font-weight: 700; color: var(--rv-muted); }
+.oc-row.is-out { opacity: .35; }
+.oc-cell { display: grid; place-items: center; align-self: stretch; }
+.oc-cell.is-focus { background: color-mix(in srgb, #7c3aed 12%, transparent); }
+.oc-head .oc-cell.is-focus { border-radius: 6px 6px 0 0; color: #7c3aed; }
+.oc-row:last-child .oc-cell.is-focus { border-radius: 0 0 6px 6px; }
+.oc-row.is-active .oc-cell.is-focus { color: #7c3aed; }
+.oc-point { text-align: center; }
+.oc-head .oc-point { visibility: hidden; }
+.oc-gap { display: block; width: .62em; height: .9em; border: 2px dashed color-mix(in srgb, var(--rv-muted) 70%, transparent); border-radius: 5px; box-sizing: border-box; }
+.oc-chart .is-added { color: #7c3aed; }
+.oc-label { padding-right: 8px; font-size: 15px; font-weight: 600; color: var(--rv-muted); text-align: right; }
+.oc-rank { font-size: 12px; font-weight: 700; color: var(--rv-muted); text-align: left; }
+.oc-rank.is-fresh { color: #7c3aed; }
+.oc-row.is-pick > span:not(.oc-rank):not(.oc-label) { color: #7c3aed; }
+.nl-picture { display: block; width: 100%; max-width: 340px; margin: 0 auto; overflow: visible; font-family: inherit; }
+.nl-picture.is-vertical { max-width: 240px; }
+.nl-tube { fill: none; stroke: var(--rv-muted); stroke-width: 2; }
+.nl-bulb { fill: color-mix(in srgb, #dc2626 18%, transparent); stroke: var(--rv-muted); stroke-width: 2; }
+.nl-axis { stroke: var(--rv-ink); stroke-width: 2; }
+.nl-tick { stroke: var(--rv-muted); stroke-width: 1.5; }
+.nl-tick.is-zero { stroke: var(--rv-ink); stroke-width: 3; }
+.nl-scale { fill: var(--rv-muted); font-size: 12px; font-weight: 600; }
+.nl-scale.is-zero { fill: var(--rv-ink); font-size: 14px; font-weight: 800; }
+.nl-mark circle { fill: var(--rv-biro); }
+.nl-mark text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
+.nl-leader { stroke: var(--rv-muted); stroke-width: 1; stroke-dasharray: 2 2; }
+.nl-mark.is-boxed rect { fill: color-mix(in srgb, #7c3aed 10%, transparent); stroke: #7c3aed; stroke-width: 2; }
+.nl-mark.is-boxed text, .nl-mark.is-pick text { fill: #7c3aed; }
+.nl-mark.is-pick circle { fill: #7c3aed; }
+.nl-read line, .nl-read path { fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 /* Written methods drawn as pictures, one move a step (src/features/EXPLANATIONS.md): the part a move uses is coloured
    like its line of working (top number amber, multiplier or divisor blue), what the step adds to is boxed in purple,
    used carries are struck out, and the row the last move writes is the green answer. */
