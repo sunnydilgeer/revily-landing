@@ -144,7 +144,7 @@ for (const [name, expected] of Object.entries(mediaHashes)) {
 
 // ---------- The Algebra chapter ----------
 const { mathsChapters, mathsLessons, lessonCode } = require('../src/features/maths/courseRegistry.ts')
-assert.deepEqual(mathsChapters.map(chapter => chapter.id), ['number', 'algebra'], 'Number, then Algebra')
+assert.deepEqual(mathsChapters.map(chapter => chapter.id), ['number', 'algebra', 'ratio'], 'Number, then Algebra, then Ratio')
 const a1 = mathsLessons.find(entry => entry.number === 15)
 assert.equal(a1.chapterId, 'algebra')
 assert.equal(a1.position, 1, 'Students see A1 as Algebra lesson 1')

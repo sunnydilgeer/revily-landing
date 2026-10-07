@@ -102,7 +102,7 @@ export const paperTopics: PaperTopic[] = [
   { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: lesson(29, 'function-machines-forwards', 'function-machines-backwards', 'function-machines-creating'), labs: ['formula'] },
 
   // Ratio, proportion and rates of change
-  { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: [], labs: ['heist', 'potion', 'tiers'] },
+  { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: lesson(30, 'ratio-difference', 'ratio-changing', 'ratio-unit-form'), labs: ['heist', 'potion', 'tiers'] },
   { id: 'conversions', title: 'Unit conversions', short: 'Units', area: 'ratio', marks30: 57, sittings: 10, statements: [], labs: ['supplies'] },
   { id: 'speed', title: 'Speed, distance, time', short: 'Speed', area: 'ratio', marks30: 37, sittings: 8, requires: ['conversions'], statements: [], labs: ['storm'] },
 

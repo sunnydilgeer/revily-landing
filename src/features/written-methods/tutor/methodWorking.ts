@@ -159,6 +159,26 @@ export type MachineFrame = {
   before?: Omit<MachineFrame, 'before'>
 }
 /**
+ * Ratio bars (lesson 30, R1), like the R1 videos: one bar per share, one block per part (bar 1 amber, bar 2 blue, bar 3
+ * teal), the name on the left and a pill after the bar (`tag`: a share's amount, or 7x). `each` writes the value of one
+ * part in every block. `rings` circle blocks in purple (from and to count blocks, and can be halves), and `note` is the
+ * purple line under the bars that says what they are. `groups` splits every bar into that many equal groups, for 1 : n.
+ * `lit` makes those bars' pills purple. `room` is the width kept for pills, the widest any step of the working needs,
+ * so the picture keeps its size from step to step. See RatioPictures.tsx.
+ */
+export type RatioBar = { name: string; parts: number; tag?: string }
+export type RatioFrame = {
+  bars: RatioBar[]
+  each?: string
+  rings?: { bar: number; from: number; to: number }[]
+  groups?: number
+  note?: string
+  lit?: number[]
+  room?: number
+  /** The bars on the opening screen, before the first step changes them. */
+  before?: Omit<RatioFrame, 'before'>
+}
+/**
  * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
  * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
  * of two squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
@@ -307,6 +327,7 @@ export type MethodFrame = {
   equation?: EquationFrame
   angles?: AngleFrame
   machine?: MachineFrame
+  ratio?: RatioFrame
   quadratic?: QuadraticFrame
   solve?: SolveFrame
   sequence?: SequenceFrame

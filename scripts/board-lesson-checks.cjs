@@ -57,7 +57,7 @@ function randomScopes(count = 12, extra = scope => scope) {
   })
 }
 
-function checkStructure(lesson, { id, number, rungs, code, parts }) {
+function checkStructure(lesson, { id, number, rungs, code, parts, pdfs = rungs.map((_, i) => `${code}.${i + 1}`) }) {
   const states = lesson.states
   assert.equal(lesson.id, id, `${code} keeps the stable progress key ${id}`)
   assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Rungs easiest first, in the PDFs’ order, then Review')
@@ -71,7 +71,7 @@ function checkStructure(lesson, { id, number, rungs, code, parts }) {
   })
   const at = ref => states.find(state => state.sourceRef === ref)
   rungs.forEach((rung, i) => {
-    const pdf = `${code}.${i + 1}`, first = states.find(state => state.microSkillId === rung)
+    const pdf = pdfs[i], first = states.find(state => state.microSkillId === rung)
     assert.ok(first.video && first.sourceRef === `${pdf} video + Q1`, `${pdf}'s rung opens with its video and Q1`)
     for (const question of parts) {
       const covered = at(`${pdf} ${question}`)
@@ -148,10 +148,10 @@ function checkVideos(states, folder, hashes) {
   }
 }
 
-function checkCourse(number, code, view) {
+function checkCourse(number, code, view, chapter = 'algebra') {
   const { mathsLessons, lessonCode } = require('../src/features/maths/courseRegistry.ts')
   const entry = mathsLessons.find(lesson => lesson.number === number)
-  assert.equal(entry.chapterId, 'algebra')
+  assert.equal(entry.chapterId, chapter)
   assert.equal(lessonCode(entry), code, `Students see lesson ${number} as ${code}`)
   const app = read('src/App.tsx')
   assert.ok(app.includes(`case ${number}:`) && app.includes(`return <${view} />`), `Lesson ${number} must open from the course and its direct route`)
