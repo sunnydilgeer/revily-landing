@@ -139,6 +139,7 @@ export type MicroSkillId =
   | 'graphs-equation-graph'
   | 'graphs-equation-points'
   | 'graphs-equation-rearrange'
+  | 'graphs-equation-draw'
   | 'mixed'
 
 export type LessonPhase =
