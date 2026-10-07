@@ -343,6 +343,7 @@
 .ns-graph__leg line { stroke: var(--f); stroke-width: 3.5; stroke-linecap: round; }
 .ns-graph__leg path { fill: none; stroke: var(--f); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .ns-graph__leg text { fill: var(--f); font-size: 18px; font-weight: 800; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
+.ns-graph__leg.is-dashed line { stroke-width: 3; stroke-dasharray: 2 7; }
 .ns-graph__box { fill: none; stroke: #7c3aed; stroke-width: 2.5; }
 .ns-graph__text { color: var(--f); }
 .ns-graph .is-done { opacity: .35; transition: opacity .2s ease; }

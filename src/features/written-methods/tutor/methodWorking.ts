@@ -255,12 +255,14 @@ export type GraphFrame = {
   /** The grid runs from x[0] to x[1] across and y[0] to y[1] up, one square per unit. */
   x: [number, number]
   y: [number, number]
-  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean }[]
+  /** `segment` draws only from one point to the other (a midpoint question), not edge to edge. */
+  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean }[]
   /** `place` puts the coordinates to one side (dx −1 left, 1 right) and above or below (dy −1 above, 1 below), clear of
    *  the line and the steps drawn from the point. */
   points?: (GraphPoint & { label?: string; at: number; place?: { dx: number; dy: number } })[]
   /** The step from one point to the other: across (change in x) or up/down (change in y), labelled with its size. */
-  legs?: { from: GraphPoint; to: GraphPoint; label: string; family: number; at: number }[]
+  /** `dashed` is a reading line from a point to an axis: no arrowhead, no size. */
+  legs?: { from: GraphPoint; to: GraphPoint; label: string; family: number; at: number; dashed?: boolean }[]
   boxed?: GraphPoint[]
   /** The numbers on the axes this step reads, highlighted x amber and y biro blue (as in the brackets): x = 3 marks the 3. One step only. */
   marks?: { axis: 'x' | 'y'; value: number; family: number }[]

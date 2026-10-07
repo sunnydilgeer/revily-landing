@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useLayoutEffect, useRef, useState, type ReactNode, type SVGProps } from 'react'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { Powers } from './Powers'
 
@@ -17,11 +17,11 @@ import { Powers } from './Powers'
  */
 
 /** One unit: the side of a square of the page's grid (--rv-paper-grid-size). */
-const UNIT = 32
+export const UNIT = 32
 const FAMILY = ['var(--rv-biro)', '#b45309', 'var(--rv-good-ink)', '#7c3aed']
 /** x numbers are always amber and y numbers biro blue: on the axes, in a point's brackets and in the working. */
-const AXIS = { x: FAMILY[1], y: FAMILY[0] }
-const fmt = (n: number) => String(n).replace('-', '−')
+export const AXIS = { x: FAMILY[1], y: FAMILY[0] }
+export const fmt = (n: number) => String(n).replace('-', '−')
 const fix = (n: number) => n.toFixed(1)
 export const coordinate = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
 /** A point's coordinates with the x in its amber and the y in its biro blue, as on the axes. */
@@ -58,7 +58,7 @@ function spoken(frame: GraphFrame, plain?: boolean) {
   for (const line of own(frame.lines)) parts.push(`The line ${spokenLine(line)}.`)
   for (const point of own(frame.points)) parts.push(`A point at ${coordinate(point)}.`)
   if (!plain) {
-    for (const leg of frame.legs ?? []) parts.push(`${leg.from.y === leg.to.y ? 'Across' : leg.to.y > leg.from.y ? 'Up' : 'Down'} ${leg.label}.`)
+    for (const leg of (frame.legs ?? []).filter(leg => !leg.dashed)) parts.push(`${leg.from.y === leg.to.y ? 'Across' : leg.to.y > leg.from.y ? 'Up' : 'Down'} ${leg.label}.`)
     for (const line of frame.working ?? []) parts.push(`${line.text}.`)
     if (frame.answer) parts.push(`The answer: ${frame.answer.text}.`)
   }
@@ -108,7 +108,13 @@ function useGridAlignment() {
 }
 
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
-export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean }) {
+/** What the graph board (GraphBoard.tsx) draws inside the picture, over the question's own parts and under the highlighted axis numbers. */
+export type GraphLive = {
+  draw: (at: { px: (x: number) => number; py: (y: number) => number; width: number; height: number }) => ReactNode
+  svg?: SVGProps<SVGSVGElement>
+}
+
+export function GraphVisual({ frame, heading, plain, focus, live }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean; live?: GraphLive }) {
   // Older parts grey out; what the step before added stays clear, because this step works on it (Sunny, 1 Oct).
   // A part with `at` −1 is the question's own picture: it is shown from the start and never greyed.
   const done = (at: number) => focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''
@@ -164,7 +170,7 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
   return <div className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
     {head('picture')}
     <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={width + 1} height={height + 1} viewBox={`0 0 ${width + 1} ${height + 1}`}
-      style={shift ? { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)` } : undefined} aria-hidden="true">
+      {...live?.svg} style={shift ? { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)`, ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
       {!shift && <g className="ns-graph__grid">
         {range(x0, x1).map(x => <line key={`gx${x}`} x1={fix(px(x) + 0.5)} x2={fix(px(x) + 0.5)} y1="0" y2={height + 1} />)}
         {range(y0, y1).map(y => <line key={`gy${y}`} x1="0" x2={width + 1} y1={fix(py(y) + 0.5)} y2={fix(py(y) + 0.5)} />)}
@@ -178,10 +184,10 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
       </g>
       {axisNumbers(false)}
       {lines.map((line, i) => {
-        const [a, b] = clip(frame, line.from, line.to)
+        const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to)
         // The label sits near one end, nudged off the line: the right end of a line across, the bottom of a line up
         // and down (so it doesn't meet a line across the top), and the top end of a sloping line.
-        const vertical = a.x === b.x
+        const vertical = a.x === b.x && !line.segment
         const end = vertical ? (a.y < b.y ? a : b) : b.y > a.y || (b.y === a.y && b.x > a.x) ? b : a, other = end === b ? a : b
         const along = { x: px(other.x) - px(end.x), y: py(other.y) - py(end.y) }, size = Math.hypot(along.x, along.y)
         // A line up and down is named at the bottom of the grid, below the axis numbers.
@@ -207,6 +213,9 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
         const middle = lo < axisAt - 14 && hi > axisAt + 14 && Math.abs((lo + hi) / 2 - axisAt) < 24
           ? (axisAt - lo >= hi - axisAt ? (lo + axisAt) / 2 : (axisAt + hi) / 2) : (lo + hi) / 2
         const label = inside(across ? middle : ax + (outside ? -9 : 9), across ? ay + (outside ? -10 : 22) : middle + 6, leg.label, 18, anchor)
+        if (leg.dashed) return <g key={`g${i}`} className={`ns-graph__leg is-dashed is-f${leg.family % 4}${done(leg.at)}`}>
+          <line x1={fix(ax)} y1={fix(ay)} x2={fix(bx)} y2={fix(by)} />
+        </g>
         return <g key={`g${i}`} className={`ns-graph__leg is-f${leg.family % 4}${done(leg.at)}`}>
           <line x1={fix(ax)} y1={fix(ay)} x2={fix(bx)} y2={fix(by)} />
           <path d={arrow} />
@@ -231,6 +240,7 @@ export function GraphVisual({ frame, heading, plain, focus }: { frame: GraphFram
           {text !== '' && <text x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</text>}
         </g>
       })}
+      {live?.draw({ px, py, width, height })}
       {!plain && (frame.boxed ?? []).map((point, i) => <circle key={`b${i}`} className="ns-graph__box" cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r="11" />)}
       {axisNumbers(true)}
     </svg>

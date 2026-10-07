@@ -42,9 +42,9 @@ export function graphModel(question: string, start: GraphGrid, moves: GraphMove[
 
 type Mark = NonNullable<GraphFrame['marks']>[number]
 /** One axis number to highlight, in its axis's colour: x amber (1), y biro blue (0), as in a point's brackets. */
-const mark = (axis: 'x' | 'y', value: number): Mark => ({ axis, value, family: axis === 'x' ? 1 : 0 })
+export const mark = (axis: 'x' | 'y', value: number): Mark => ({ axis, value, family: axis === 'x' ? 1 : 0 })
 /** The axis numbers in points' brackets: each x on the x axis and each y on the y axis. */
-function shared(points: GraphPoint[]): Mark[] {
+export function shared(points: GraphPoint[]): Mark[] {
   const unique = (values: number[]) => [...new Set(values)]
   return [...unique(points.map(p => p.x)).map(value => mark('x', value)), ...unique(points.map(p => p.y)).map(value => mark('y', value))]
 }
