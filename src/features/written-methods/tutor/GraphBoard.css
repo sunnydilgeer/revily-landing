@@ -1,0 +1,40 @@
+/* The graph board (GraphBoard.tsx): a dot that snaps to the page's own grid corners. */
+.graph-board { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.graph-board__surface { border-radius: 6px; outline: none; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.graph-board__surface:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--rv-biro) 45%, transparent); }
+.graph-board .ns-graph__picture { overflow: visible; }
+.graph-board__dot circle { fill: var(--rv-biro); stroke: var(--rv-paper); stroke-width: 2.5; transition: fill .2s ease; }
+.graph-board__dot .graph-board__halo { fill: color-mix(in srgb, var(--rv-biro) 16%, transparent); stroke: none; }
+.graph-board.is-held .graph-board__halo { fill: color-mix(in srgb, var(--rv-biro) 26%, transparent); }
+.graph-board__dot.is-right circle:not(.graph-board__halo) { fill: var(--rv-good-ink); }
+.graph-board__dot.is-right .graph-board__halo { fill: color-mix(in srgb, var(--rv-good-ink) 22%, transparent); }
+.graph-board__dot.is-wrong circle { fill: var(--rv-redpen); }
+.graph-board__dot.is-answer circle { fill: var(--rv-good-ink); }
+.graph-board__dot.is-right, .graph-board__dot.is-pop { transform-box: fill-box; transform-origin: center; animation: graph-board-pop .32s ease-out; }
+.graph-board__brackets { font-size: 16px; font-weight: 800; fill: var(--rv-ink); paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
+.graph-board__brackets.is-answer { fill: var(--rv-good-ink); }
+.graph-board__handle { fill: var(--f); fill-opacity: .25; stroke: var(--f); stroke-width: 3; }
+.graph-board.is-held .graph-board__handle { fill-opacity: .4; }
+.graph-board__tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 14px; }
+.graph-board__note { margin: 0; font-size: 16px; font-weight: 600; color: var(--rv-muted); text-align: center; }
+.graph-board__note.is-right { color: var(--rv-good-ink); font-weight: 800; }
+.graph-board__note .is-x { color: #b45309; font-weight: 800; }
+.graph-board__note .is-y { color: var(--rv-biro); font-weight: 800; }
+.graph-board__again { border: 0; background: none; padding: 4px 2px; font: inherit; font-size: 15px; font-weight: 700; color: var(--rv-biro); text-decoration: underline; cursor: pointer; }
+@keyframes graph-board-pop { 0% { transform: scale(.4); opacity: .4; } 70% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .graph-board__dot.is-right, .graph-board__dot.is-pop { animation: none; } }
+
+/* Typed coordinates: ( [x] , [y] ), the x box amber and the y box blue. */
+.rung-point { display: inline-flex; align-items: center; gap: 6px; font-size: 30px; font-weight: 700; }
+.rung-point__bracket { color: var(--rv-ink); }
+.rung-point input { width: 3.2em; text-align: center; }
+.rung-point .is-x input { border-color: #b45309; }
+.rung-point .is-y input { border-color: var(--rv-biro); }
+
+/* Rule play screen: the rule's sum at the dot, y = 2 × 1 − 1 = 1. Draw-a-line mode: the keyboard ring. */
+.graph-board__sum { color: var(--rv-ink); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.graph-board__cursor { fill: none; stroke: var(--rv-biro); stroke-width: 2.5; stroke-dasharray: 4 3; }
+/* Counting a gradient's triangle: each arrow's length beside it. Tilt mode: the gradient's value. */
+.graph-board__count { font-size: 18px; font-weight: 800; fill: var(--f); }
+.graph-board__count.is-halo { stroke-width: 5px; stroke-linejoin: round; }
+.graph-board__gradient { color: var(--rv-good-ink); font-weight: 800; }

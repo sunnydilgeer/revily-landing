@@ -11,6 +11,7 @@ export function MethodVisual({ visual }: { visual: Visual }) {
   return <StaticDiagram diagram={visual} />
 }
 function StaticDiagram({ diagram }: { diagram: Diagram }) {
+  if (diagram.kind === 'graph') return null // drawn by TeachingVisual (tutor/GraphPictures.tsx)
   if (diagram.kind === 'text') return <div className="wm-statements">{diagram.lines.map((line, i) => <p key={i}>{line}</p>)}</div>
   if (diagram.kind === 'division') {
     const quotient = (diagram.quotient ?? '').padEnd(diagram.dividend.length, ' ')

@@ -1,0 +1,12 @@
+import type { Metadata } from 'next'
+import StraightLineGraphsPreview from '../../../src/features/straight-line-graphs/StraightLineGraphsPreview'
+
+// Unlisted: only someone with this address and the preview password can open it, and search engines are told to skip it.
+export const metadata: Metadata = {
+  title: 'Preview | Revily',
+  robots: { index: false, follow: false },
+}
+
+export default function Page() {
+  return <StraightLineGraphsPreview />
+}

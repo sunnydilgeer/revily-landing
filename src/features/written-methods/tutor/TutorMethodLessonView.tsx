@@ -10,6 +10,7 @@ import { ConversionWorkedExample } from '../../fractions-decimals-percentages/tu
 import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fractionDiagnosis'
 import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
+import { GraphBoard } from './GraphBoard'
 import { Powers } from './Powers'
 import { Button, CheckBar } from '../../../ui'
 import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
@@ -190,6 +191,28 @@ function InequalityAnswerInput({ id, answer, disabled, onChange }: { id: string;
   </div>
 }
 
+/**
+ * Coordinates, typed as they are written: ( [x] , [y] ), the x box amber and the y box biro blue. Each box opens the full
+ * keyboard (a number pad has no minus key). "4, 2" typed in the first box is taken as both numbers.
+ */
+function PointAnswerInput({ id, disabled, onChange }: { id: string; disabled: boolean; onChange: (value: string) => void }) {
+  const [x, setX] = useState(''), [y, setY] = useState('')
+  const update = (nextX: string, nextY: string) => {
+    const clean = (v: string) => v.trim().replace(/[()]/g, '').replace(/^[−–]/, '-')
+    const both = nextX.split(',').map(clean)
+    if (both.length === 2 && !nextY.trim()) return onChange(both.every(Boolean) ? both.join(', ') : '')
+    onChange(clean(nextX) && clean(nextY) ? `${clean(nextX)}, ${clean(nextY)}` : '')
+  }
+  const box = (which: 'x' | 'y', value: string, set: (value: string) => void) => <label className={`is-${which}`} htmlFor={`point-${which}-${id}`}>
+    <span className="sr-only">{which === 'x' ? 'x, the first number: across' : 'y, the second number: up or down'} (type − first if it is negative)</span>
+    <input id={`point-${which}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={which} disabled={disabled} value={value}
+      onChange={event => { set(event.target.value); update(which === 'x' ? event.target.value : x, which === 'x' ? y : event.target.value) }} />
+  </label>
+  return <div className="rung-point" role="group" aria-label="Enter the coordinates">
+    <span className="rung-point__bracket" aria-hidden="true">(</span>{box('x', x, setX)}<span className="rung-point__bracket" aria-hidden="true">,</span>{box('y', y, setY)}<span className="rung-point__bracket" aria-hidden="true">)</span>
+  </div>
+}
+
 /** A list of whole numbers in one box, "3, 4, 5, 6", in any order: one box, so it doesn't give away how many there are. */
 function NumbersAnswerInput({ id, value, disabled, onChange }: { id: string; value: string; disabled: boolean; onChange: (value: string) => void }) {
   return <div className="rung-expression">
@@ -284,7 +307,7 @@ function explainMistake(state: TutorMethodState, response: string) {
   const { interaction } = state
   const own = state.diagnose?.(response)
   if (own) return own
-  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.responseShape === 'list' || interaction.responseShape === 'inequality' || interaction.responseShape === 'numbers' || interaction.type === 'multiSelect') return null
+  if (interaction.responseShape === 'standardForm' || interaction.responseShape === 'expression' || interaction.responseShape === 'power' || interaction.responseShape === 'roots' || interaction.responseShape === 'formula' || interaction.responseShape === 'dimensions' || interaction.responseShape === 'list' || interaction.responseShape === 'inequality' || interaction.responseShape === 'numbers' || interaction.responseShape === 'point' || interaction.type === 'multiSelect') return null
   if (interaction.type === 'fractionInput' && typeof interaction.correctAnswer === 'string') {
     return diagnoseFraction({
       question: state.content.title,
@@ -326,6 +349,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const list = numeric && state.interaction.responseShape === 'list'
   const inequality = numeric && state.interaction.responseShape === 'inequality'
   const numberSet = numeric && state.interaction.responseShape === 'numbers'
+  const point = numeric && state.interaction.responseShape === 'point'
+  // A graph board question is answered by moving the dot; on a teaching screen it is a play screen.
+  const board = state.board
+  const boardAnswer = (() => { const [x, y] = String(state.interaction.correctAnswer ?? '').split(',').map(Number); return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined })()
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
   const choices = !teaching && !numeric && !fraction && !pair
@@ -339,6 +366,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const canCheck = pair ? Boolean(engine.quotientValue.trim() && engine.remainderValue.trim()) : Boolean(engine.inputValue.trim())
   const answerState = feedback ? feedback.correct ? ' is-correct' : ' is-incorrect' : ''
   const extraLines = state.visual.kind === 'text' && !repeatsTitle(state)
+  // A graph question needs its own grid to be answered, so it is drawn above the answer box.
+  const figure = state.visual.kind === 'diagram' && state.visual.diagram.kind === 'graph'
   // The question's own grid or bus stop is drawn again, step by step, in its working; once that is open, show it once.
   const drawnInWorking = Boolean(feedback && showWorking && state.working && (state.visual.kind === 'diagram' || state.visual.kind === 'grid' || state.visual.kind === 'machine'))
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
@@ -349,13 +378,17 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.heading ? <><span aria-hidden="true"><Powers text={state.content.heading} /></span><span className="sr-only">{state.content.title}</span></> : <Powers text={state.content.title} />}</h3>
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
-      {(teaching || !numberSense || extraLines || state.visual.kind === 'machine') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
+      {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
+      {teaching && board && <GraphBoard spec={board} />}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
-        {numeric || fraction ? <div className={`rung-answer${answerState}`}>
-          {!standardForm && !expression && !power && !roots && !dimensions && !list && !inequality && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
-          {inequality
+        {board ? <GraphBoard spec={board} answer={boardAnswer} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />
+          : numeric || fraction ? <div className={`rung-answer${answerState}`}>
+          {!standardForm && !expression && !power && !roots && !dimensions && !list && !inequality && !point && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
+          {point
+            ? <PointAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+            : inequality
             ? <InequalityAnswerInput id={state.id} answer={String(state.interaction.correctAnswer)} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : numberSet
             ? <NumbersAnswerInput id={state.id} value={engine.inputValue} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
@@ -375,7 +408,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
             ? <StandardFormAnswerInput id={state.id} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
             : numeric
             ? <><label className="sr-only" htmlFor={`answer-${state.id}`}>{state.answerLabel ?? 'Your answer'}</label>
-              <input id={`answer-${state.id}`} className="pvb-input rung-answer__input" inputMode="decimal" type="text" autoComplete="off" spellCheck={false} value={engine.inputValue} disabled={Boolean(feedback)} placeholder="?" onChange={event => engine.setInputValue(event.target.value)} /></>
+              <input id={`answer-${state.id}`} className="pvb-input rung-answer__input" inputMode={state.interaction.signed ? 'text' : 'decimal'} type="text" autoComplete="off" spellCheck={false} value={engine.inputValue} disabled={Boolean(feedback)} placeholder="?" onChange={event => engine.setInputValue(event.target.value)} /></>
             : <FractionAnswerInput id={state.id} mixed={state.interaction.responseShape === 'mixedNumber'} disabled={Boolean(feedback)} onChange={engine.setInputValue} />}
           {state.answerLabel && numeric && <span className="rung-answer__unit" aria-hidden="true">{state.answerLabel.replace(/^.*\((.*)\).*$/, '$1')}</span>}
         </div> : <div className="wm-pair-input">{(['quotient', 'remainder'] as const).map(field => <label key={field} htmlFor={`${field}-${state.id}`}><span>{field === 'quotient' ? 'Full boxes' : 'Buns left over'}</span><input id={`${field}-${state.id}`} className="pvb-input" type="text" inputMode="numeric" autoComplete="off" value={field === 'quotient' ? engine.quotientValue : engine.remainderValue} disabled={Boolean(feedback)} onChange={event => (field === 'quotient' ? engine.setQuotientValue : engine.setRemainderValue)(event.target.value)} /></label>)}</div>}

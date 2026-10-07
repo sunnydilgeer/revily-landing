@@ -32,7 +32,7 @@ function html(pack) {
       : step.mark !== undefined ? `<p class="mark">${h.t(step.mark)}<span class="one">[1]</span></p>`
       : `<p class="answer">${h.t(step.answer)}<span class="one">[1]</span></p>`).join('')
     return `<section class="q"><div class="card"><div class="top"><span class="num">${h.esc(q.n)}</span><span class="level ${q.level.replace(' ', '-')}">${q.level === 'worked' ? 'Worked example' : h.esc(q.level)}</span><span class="marks">${q.marks} mark${q.marks === 1 ? '' : 's'}</span></div>
-      <div class="body">${q.question.map ? q.question.map(part => `<p>${h.t(part)}</p>`).join('') : `<p>${h.t(q.question)}</p>`}</div></div>
+      <div class="body">${q.question.map ? q.question.map(part => `<p>${h.t(part)}</p>`).join('') : `<p>${h.t(q.question)}</p>`}${q.figure ? `<div class="picture">${q.figure}</div>` : ''}</div></div>
       <div class="card"><div class="body">${working}</div></div></section>`
   }).join('')
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${katexCss}"><link rel="stylesheet" href="file://${theme}/worksheet.css"></head><body>

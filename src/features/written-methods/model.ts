@@ -1,9 +1,12 @@
+import type { GraphFrame } from './tutor/methodWorking'
 import type { FeedbackDefinition, InteractionDefinition, LearningState, LessonDefinition, MicroSkillId } from '../number-types/types'
 
 export type Diagram =
   | { kind: 'division'; dividend: string; divisor: number; quotient?: string; active?: number; carry?: { index: number; value: number } }
   | { kind: 'multiply'; top: string; bottom: string; ones?: string; tens?: string; total?: string; carry?: { column: number; value: number }; active?: 'ones' | 'tens' }
   | { kind: 'text'; lines: string[] }
+  /** A straight line graphs question's own grid (lesson 26, GR1), drawn plain: GraphPictures.tsx. */
+  | { kind: 'graph'; frame: GraphFrame }
 export type MethodVisual = Diagram
   | { kind: 'groups' } | { kind: 'exchange' } | { kind: 'area' } | { kind: 'scale' }
   | { kind: 'worked'; initial: Diagram; steps: Array<{ diagram: Diagram; text: string }> }
