@@ -11,9 +11,10 @@ const tex = (x, y) => `(\\textcolor{${AMBER}}{${show(x).replace('−', '-')}}, \
  * A grid drawn to its numbers: one square per unit, the axes, straight lines edge to edge (each through two points),
  * points with their coordinates, the steps between two points (across amber, up or down biro blue) and rings.
  * Everything (arrowheads, axis names, labels) stays inside the grid. `marks` highlights the axis numbers a step
- * reads, in that step's colour: [{ axis: 'x' | 'y', value, colour }].
+ * reads, in that step's colour: [{ axis: 'x' | 'y', value, colour }]. `numbersOver` draws every axis number on top of
+ * the lines, in its white halo, for a steep line that crosses the axis beside a number (off by default).
  */
-function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], points = [], legs = [], rings = [], marks = [], numbers = true }) {
+function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], points = [], legs = [], rings = [], marks = [], numbers = true, numbersOver = false }) {
   const L = 1, T = 1
   const W = 2 + (x1 - x0) * unit, H = 2 + (y1 - y0) * unit
   const px = x => L + (x - x0) * unit, py = y => T + (y1 - y) * unit
@@ -47,8 +48,8 @@ function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], points = [], l
     }
     // The grid's edge numbers are left off so nothing sits outside; 0 is written once, by the origin.
     // Highlighted numbers go on top of everything, so no line or ring hides them.
-    for (const x of range(x0 + 1, x1 - 1).filter(x => x)) (marked('x', x) ? late : parts).push(number('x', x, px(x), py(0) + 15, 'middle'))
-    for (const y of range(y0 + 1, y1 - 1).filter(y => y)) (marked('y', y) ? late : parts).push(number('y', y, px(0) - 6, py(y) + 4, 'end'))
+    for (const x of range(x0 + 1, x1 - 1).filter(x => x)) (marked('x', x) || numbersOver ? late : parts).push(number('x', x, px(x), py(0) + 15, 'middle'))
+    for (const y of range(y0 + 1, y1 - 1).filter(y => y)) (marked('y', y) || numbersOver ? late : parts).push(number('y', y, px(0) - 6, py(y) + 4, 'end'))
     parts.push(`<text x="${px(0) - 5}" y="${py(0) + 14}" font-size="12" font-weight="600" fill="${MUTED}" text-anchor="end">0</text>`)
   }
   for (const { from, to, colour = INK, label, labelAt, segment } of lines) {

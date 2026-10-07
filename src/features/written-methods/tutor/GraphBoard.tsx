@@ -1,9 +1,10 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, HaloText, UNIT, dotBox, fmt, labelWidth, placeLabel } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, dotBox, fitLabel, fmt, labelWidth, placeLabel } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
+import { TiltBoard } from './TiltBoard'
 import './GraphBoard.css'
 
 /*
@@ -19,6 +20,8 @@ import './GraphBoard.css'
  * - midpoint: a play screen: the dot's two halves of the line, across and up from each end, lock green when they match.
  * - rule: a play screen: the dot slides along a line's rule, y = mx + c, and each x it visits fills in the table.
  * - line: tap two corners and a straight line runs through them, edge to edge (LineBoard.tsx).
+ * - tilt: drag either end of a line and watch its gradient, across then up (TiltBoard.tsx).
+ * A walk starts at 0, or at `start`: from one point of a line, across and then up to the other (a gradient's triangle).
  *
  * Only the play screens show the dot's brackets while it moves (they would give the answer away in a question).
  * After Check, the dot shows its brackets, and a wrong one shows the right point, green, beside it.
@@ -26,7 +29,7 @@ import './GraphBoard.css'
 
 export type GraphBoardGrid = Omit<GraphFrame, 'step' | 'adds'>
 export type GraphBoardSpec = {
-  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line'
+  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt'
   grid: GraphBoardGrid
   /** Where the dot starts (drag, explore, midpoint). */
   start?: GraphPoint
@@ -37,6 +40,12 @@ export type GraphBoardSpec = {
   rule?: { m: number; c: number }
   /** line: the right line, through two of its points (drawn green after a wrong answer). With none it is a play screen. */
   line?: [GraphPoint, GraphPoint]
+  /** tilt: the gradient to tilt the line to (TiltBoard.tsx). With none it is a play screen. */
+  target?: number
+  /** tilt: show the gradient as two subtractions, from the dots' coordinates. */
+  subtract?: boolean
+  /** walk: write how far each arrow goes beside it, across amber and up blue (counting a gradient's triangle). */
+  counts?: boolean
 }
 
 /**
@@ -64,7 +73,7 @@ type BoardProps = {
 }
 
 export function GraphBoard(props: BoardProps) {
-  return props.spec.mode === 'line' ? <LineBoard {...props} /> : <PointBoard {...props} />
+  return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : <PointBoard {...props} />
 }
 
 /** y = 2 × (−1) − 1 = −3: the rule's sum at x, x amber and y biro blue. */
@@ -82,7 +91,9 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   const walk = mode === 'walk'
   const play = mode === 'explore' || mode === 'midpoint' || mode === 'rule'
   const rule = mode === 'rule' ? spec.rule : undefined
-  const [dot, setDot] = useState<GraphPoint | null>(walk ? { x: 0, y: 0 } : spec.start ?? null)
+  // A walk starts at 0, or at its `start` (one point of a line, for a gradient's triangle).
+  const origin = walk ? spec.start ?? { x: 0, y: 0 } : { x: 0, y: 0 }
+  const [dot, setDot] = useState<GraphPoint | null>(walk ? origin : spec.start ?? null)
   const [visited, setVisited] = useState<number[]>(rule && spec.start ? [spec.start.x] : [])
   const [stage, setStage] = useState<'across' | 'up'>('across')
   const [held, setHeld] = useState(false)
@@ -99,7 +110,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   function moveTo(target: GraphPoint) {
     const snapped = clamp(target)
     // Walking: along the x axis first, then straight up or down from there.
-    const next = walk ? stage === 'across' ? { x: snapped.x, y: 0 } : { x: dot?.x ?? 0, y: snapped.y } : rule ? { x: snapped.x, y: rule.m * snapped.x + rule.c } : snapped
+    const next = walk ? stage === 'across' ? { x: snapped.x, y: origin.y } : { x: dot?.x ?? origin.x, y: snapped.y } : rule ? { x: snapped.x, y: rule.m * snapped.x + rule.c } : snapped
     if (same(next, dot)) return
     // On a rule the dot stays on the grid: an x whose y would be off it is skipped.
     if (rule && (next.y <= y0 || next.y >= y1)) return
@@ -111,10 +122,10 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT), y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) }
   }
   function finishWalkStage() {
-    if (walk && stage === 'across' && dot && dot.x !== 0) { setStage('up'); report(dot, 'up') }
+    if (walk && stage === 'across' && dot && dot.x !== origin.x) { setStage('up'); report(dot, 'up') }
   }
   function restart() {
-    setDot({ x: 0, y: 0 }); setStage('across'); setMoved(false); report(null, 'across')
+    setDot(origin); setStage('across'); setMoved(false); report(null, 'across')
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -122,12 +133,12 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     const step = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[event.key]
     if (!step) return
     event.preventDefault()
-    const from = dot ?? { x: 0, y: 0 }
+    const from = dot ?? origin
     if (walk) {
       // Left and right walk across; up and down start the second part of the walk.
-      if (step[0] !== 0 && stage === 'across') return moveTo({ x: from.x + step[0], y: 0 })
+      if (step[0] !== 0 && stage === 'across') return moveTo({ x: from.x + step[0], y: origin.y })
       if (step[1] !== 0) {
-        if (from.x === 0) return
+        if (from.x === origin.x) return
         const next = clamp({ x: from.x, y: from.y + step[1] })
         setStage('up'); setDot(next); setMoved(true); report(next, 'up')
       }
@@ -144,7 +155,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   // The dot's own numbers light up on the axes as it moves: only x while walking across.
   const marks: NonNullable<GraphFrame['marks']> = []
   if (dot && showDot) {
-    if (!walk || dot.x !== 0 || stage === 'up') marks.push({ axis: 'x', value: dot.x, family: 1 })
+    if (!walk || dot.x !== origin.x || stage === 'up') marks.push({ axis: 'x', value: dot.x, family: 1 })
     if (!walk || stage === 'up') marks.push({ axis: 'y', value: dot.y, family: 0 })
   }
   if (result === 'incorrect' && answer && !same(answer, dot)) {
@@ -203,10 +214,31 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
           }
           const parts = []
           if (walk && dot) {
-            parts.push(arrow({ x: 0, y: 0 }, { x: dot.x, y: 0 }, 1, 'across'))
-            if (stage === 'up') parts.push(arrow({ x: dot.x, y: 0 }, dot, 0, 'up'))
+            const turn = { x: dot.x, y: origin.y }
+            parts.push(arrow(origin, turn, 1, 'across'))
+            if (stage === 'up') parts.push(arrow(turn, dot, 0, 'up'))
+            // Counting a gradient: how far each arrow goes, beside it in its colour.
+            if (spec.counts) {
+              // Each count keeps off the axes, their numbers and the dots' brackets, like every label (fitLabel).
+              const a = at(origin), t = at(turn), d = at(dot), below = dot.y >= origin.y
+              const box = (text: string, l: number, base: number) => ({ l, r: l + text.length * 11 + 4, t: base - 14, b: base + 4, base })
+              const count = (text: string, candidates: ReturnType<typeof box>[], family: number, key: string) => {
+                const c = fitLabel(candidates, room)
+                return <HaloText key={key} className={`graph-board__count is-f${family}`} x={c.l + 2} y={c.base}>{text}</HaloText>
+              }
+              if (dot.x !== origin.x) {
+                // Under (or over) the middle of the arrow first, then nearer either end, clear of an axis it crosses.
+                const text = String(Math.abs(dot.x - origin.x)), w = text.length * 11 + 4
+                const spots = [0.5, 0.75, 0.25].map(f => a.x + (t.x - a.x) * f - w / 2), rows = below ? [t.y + 22, t.y - 8] : [t.y - 8, t.y + 22]
+                parts.push(count(text, rows.flatMap(base => spots.map(l => box(text, l, base))), 1, 'nx'))
+              }
+              if (stage === 'up' && dot.y !== origin.y) {
+                const text = String(Math.abs(dot.y - origin.y)), w = text.length * 11 + 4, mid = (t.y + d.y) / 2 + 6, out = dot.x > origin.x
+                parts.push(count(text, out ? [box(text, t.x + 8, mid), box(text, t.x - 8 - w, mid)] : [box(text, t.x - 8 - w, mid), box(text, t.x + 8, mid)], 0, 'ny'))
+              }
+            }
             if (!disabled) {
-              const handle = stage === 'across' ? { x: dot.x, y: 0 } : dot
+              const handle = stage === 'across' ? turn : dot
               parts.push(<circle key="handle" className={`graph-board__handle is-f${stage === 'across' ? 1 : 0}`} cx={at(handle).x} cy={at(handle).y} r="11" />)
             }
           }

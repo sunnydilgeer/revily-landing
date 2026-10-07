@@ -135,6 +135,7 @@ export type MicroSkillId =
   | 'graphs-straight-lines'
   | 'graphs-table-of-values'
   | 'graphs-plot-and-join'
+  | 'graphs-gradient-sign'
   | 'mixed'
 
 export type LessonPhase =

@@ -35,6 +35,7 @@
         "verify:lesson26:tutor": "node scripts/verify-straight-line-graphs-tutor.cjs",
         "verify:graphs1:tutor": "node scripts/verify-coordinates-tutor.cjs",
         "verify:graphs2:tutor": "node scripts/verify-lines-tutor.cjs",
+        "verify:graphs3:tutor": "node scripts/verify-gradient-tutor.cjs",
         "verify:lesson27:tutor": "node scripts/verify-simultaneous-equations-tutor.cjs",
         "verify:lesson28:tutor": "node scripts/verify-proof-tutor.cjs",
         "verify:lesson29:tutor": "node scripts/verify-function-machines-tutor.cjs",

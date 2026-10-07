@@ -34,3 +34,7 @@
 /* Rule play screen: the rule's sum at the dot, y = 2 × 1 − 1 = 1. Draw-a-line mode: the keyboard ring. */
 .graph-board__sum { color: var(--rv-ink); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .graph-board__cursor { fill: none; stroke: var(--rv-biro); stroke-width: 2.5; stroke-dasharray: 4 3; }
+/* Counting a gradient's triangle: each arrow's length beside it. Tilt mode: the gradient's value. */
+.graph-board__count { font-size: 18px; font-weight: 800; fill: var(--f); }
+.graph-board__count.is-halo { stroke-width: 5px; stroke-linejoin: round; }
+.graph-board__gradient { color: var(--rv-good-ink); font-weight: 800; }
