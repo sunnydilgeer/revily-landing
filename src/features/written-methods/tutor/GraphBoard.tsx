@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, HaloText, UNIT, fmt } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, dotBox, fmt, labelWidth, placeLabel } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import './GraphBoard.css'
 
@@ -143,7 +143,7 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
           onPointerCancel: () => { pressed.current = false; setHeld(false) },
           style: { touchAction: 'none', cursor: 'pointer' },
         },
-        draw: ({ px, py, width, height }) => {
+        draw: ({ px, py, width, height, room }) => {
           const at = (p: GraphPoint) => ({ x: px(p.x) + 0.5, y: py(p.y) + 0.5 })
           const arrow = (from: GraphPoint, to: GraphPoint, family: number, key: string) => {
             if (same(from, to)) return null
@@ -158,25 +158,17 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
           /** Brackets beside a point, x amber and y blue, kept inside the grid: above it, or below when `below`. */
           // After a wrong answer the two sets of brackets go on opposite sides, away from each other.
           const apart = result === 'incorrect' && answer && dot && !same(answer, dot) ? { dx: Math.sign(dot.x - answer.x) || -1, dy: Math.sign(answer.y - dot.y) || -1 } : null
-          // Brackets never sit on the axis numbers, off the grid or on another set of brackets: the preferred corner
-          // beside the dot first, then the other three.
-          const taken: { l: number; r: number; t: number; b: number }[] = []
-          const axisX = px(Math.min(Math.max(0, x0), x1)), axisY = py(Math.min(Math.max(0, y0), y1))
+          // Brackets never sit on the axis numbers, off the grid, on a dot or on other brackets (placeLabel).
+          if (dot && showDot) room.taken.push(dotBox(at(dot).x, at(dot).y))
+          if (apart && answer) room.taken.push(dotBox(at(answer).x, at(answer).y))
           const brackets = (p: GraphPoint, className: string, flip = false) => {
-            const text = pair(p), w = text.length * 8.6, { x, y } = at(p)
+            const text = pair(p), w = labelWidth(text), { x, y } = at(p)
             const side = apart ? (flip ? { dx: -apart.dx, dy: -apart.dy } : apart) : ends ? clearSide(ends[0], ends[1], p, grid) : null
             // Below the x axis the brackets go under the dot, clear of the axis numbers.
             const below = side ? side.dy > 0 : p.y < 0
             const right = side ? side.dx > 0 : x + 12 + w < width - 3
-            const box = (r: boolean, b: boolean) => { const l = r ? x + 12 : x - 12 - w, base = b ? y + 27 : y - 14; return { l, r: l + w, t: base - 14, b: base + 4, base } }
-            const clear = (c: ReturnType<typeof box>) => c.l >= 3 && c.r <= width - 3 && c.t >= 2 && c.b <= height - 2
-              && !(c.l < axisX + 4 && c.r > axisX - 30) && !(c.b > axisY - 2 && c.t < axisY + 24)
-              && !taken.some(o => c.l < o.r && c.r > o.l && c.t < o.b && c.b > o.t)
-            const fallback = box(right, below)
-            const pick = [box(right, below), box(!right, below), box(right, !below), box(!right, !below)].find(clear)
-              ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
-            taken.push(pick)
-            return <HaloText key={`${p.x},${p.y}`} className={`graph-board__brackets ${className}`} x={pick.l} y={pick.base}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</HaloText>
+            const pick = placeLabel(x, y, w, { right, below }, room)
+            return <HaloText key={`${p.x},${p.y}`} className={`graph-board__brackets ${className}`} x={pick.l + 2} y={pick.base}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</HaloText>
           }
           const parts = []
           if (walk && dot) {
@@ -191,6 +183,8 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
             parts.push(arrow(ends[0], { x: dot.x, y: ends[0].y }, 1, 'a1'), arrow({ x: dot.x, y: ends[0].y }, dot, 0, 'a2'))
             parts.push(arrow(dot, { x: ends[1].x, y: dot.y }, 1, 'b1'), arrow({ x: ends[1].x, y: dot.y }, ends[1], 0, 'b2'))
           }
+          // The student's brackets are placed first, beside their own dot; the right answer's then find room around them.
+          const own = dot && showDot && labelled ? brackets(dot, '') : null
           if (result === 'incorrect' && answer && !same(answer, dot)) {
             parts.push(<g key="answer" className="graph-board__dot is-answer"><circle cx={at(answer).x} cy={at(answer).y} r="7" />{brackets(answer, 'is-answer', true)}</g>)
           }
@@ -199,7 +193,7 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
             parts.push(<g key={`dot${dot.x},${dot.y}`} className={`graph-board__dot${status}${walk ? ' is-pop' : ''}`}>
               {!disabled && !walk && <circle className="graph-board__halo" cx={at(dot).x} cy={at(dot).y} r="16" />}
               <circle cx={at(dot).x} cy={at(dot).y} r="7" />
-              {labelled && brackets(dot, '')}
+              {own}
             </g>)
           }
           return parts

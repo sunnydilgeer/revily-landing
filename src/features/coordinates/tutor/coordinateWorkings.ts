@@ -66,10 +66,12 @@ export const readMoves = (p: GraphPoint) => p.x === 0
 const half = (a: number, b: number) => (a + b) / 2
 export const midpoint = (a: GraphPoint, b: GraphPoint) => pt(half(a.x, b.x), half(a.y, b.y))
 
-/** The two points joined, on a grid around them (and 0), at most 9 squares across. */
+/** The two points joined, on a grid around them (and 0), at most 9 squares across: a spare square on the right, room
+ * for the brackets of a point at the right-hand edge. */
 export function midGrid(a: GraphPoint, b: GraphPoint): GraphGrid {
   const xs = [a.x, b.x, 0], ys = [a.y, b.y, 0]
-  const frame = { x: [Math.min(...xs) - 1, Math.max(...xs) + 1] as [number, number], y: [Math.min(...ys) - 1, Math.max(...ys) + 1] as [number, number] }
+  const left = Math.min(...xs) - 1, right = Math.max(...xs) + 1
+  const frame = { x: [left, right + (right - left < 9 ? 1 : 0)] as [number, number], y: [Math.min(...ys) - 1, Math.max(...ys) + 1] as [number, number] }
   return { ...frame, lines: [{ from: a, to: b, at: -1, segment: true }], points: [a, b].map(p => ({ ...p, at: -1, place: clearSide(a, b, p, frame) })) }
 }
 export const halfwayAcross = (a: GraphPoint, b: GraphPoint): GraphMove => ({

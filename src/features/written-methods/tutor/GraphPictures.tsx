@@ -36,6 +36,46 @@ export function HaloText({ children, className, ...props }: SVGProps<SVGTextElem
     <text {...props} className={`${className ?? ''} is-ink`}>{children}</text>
   </>
 }
+/** A label's box on the picture: its left, right, top and bottom edges, and the baseline its text sits on. */
+export type LabelBox = { l: number; r: number; t: number; b: number; base: number }
+type Box = Omit<LabelBox, 'base'>
+/** What a label must keep off: the axes, their numbers, arrowheads and names, every dot and placed label, and the lines. */
+export type LabelRoom = { width: number; height: number; taken: Box[]; segments: { x1: number; y1: number; x2: number; y2: number }[] }
+/** How wide a point's brackets are, with their halo: about 7.4px a character at 16px. */
+export const labelWidth = (text: string) => text.length * 7.4 + 4
+const overlaps = (c: Box, o: Box) => c.l < o.r && c.r > o.l && c.t < o.b && c.b > o.t
+/**
+ * Where a point's coordinates go: beside the dot at (x, y), `w` wide. The preferred corner first, then the other three,
+ * then centred above or below it, then level with the dot on either side, then a row further out. A place is taken
+ * only if it stays inside the grid with 3px to spare round everything in `room`. The box chosen joins `room.taken`.
+ */
+export function placeLabel(x: number, y: number, w: number, prefer: { right: boolean; below: boolean }, room: LabelRoom): LabelBox {
+  const { width, height, taken, segments } = room
+  const box = (right: boolean, base: number) => { const l = right ? x + 10 : x - 10 - w; return { l, r: l + w, t: base - 14, b: base + 4, base } }
+  const centred = (base: number) => ({ l: x - w / 2, r: x + w / 2, t: base - 14, b: base + 4, base })
+  const row = (below: boolean, far = false) => y + (below ? 25 : -13) + (far ? (below ? 24 : -24) : 0)
+  const { right, below } = prefer
+  const candidates = [
+    box(right, row(below)), box(!right, row(below)), box(right, row(!below)), box(!right, row(!below)),
+    centred(row(below)), centred(row(!below)), box(right, y + 5), box(!right, y + 5),
+    box(right, row(below, true)), box(!right, row(below, true)), box(right, row(!below, true)), box(!right, row(!below, true)),
+  ]
+  const crosses = (c: Box) => segments.some(({ x1, y1, x2, y2 }) => {
+    for (let i = 0; i <= 24; i++) { const sx = x1 + (x2 - x1) * i / 24, sy = y1 + (y2 - y1) * i / 24; if (sx > c.l && sx < c.r && sy > c.t && sy < c.b) return true }
+    return false
+  })
+  const clear = (c: LabelBox) => {
+    const padded = { l: c.l - 3, r: c.r + 3, t: c.t - 3, b: c.b + 3 }
+    return c.l >= 3 && c.r <= width - 3 && c.t >= 2 && c.b <= height - 2 && !taken.some(o => overlaps(padded, o)) && !crosses(padded)
+  }
+  const fallback = candidates[0]
+  const pick = candidates.find(clear) ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
+  const placed = { ...pick, r: pick.l + w, t: pick.base - 14, b: pick.base + 4 }
+  taken.push(placed)
+  return placed
+}
+/** The box a dot covers, so no label is put on it (a label keeps a further 3px off it). */
+export const dotBox = (x: number, y: number, r = 6) => ({ l: x - r, r: x + r, t: y - r, b: y + r })
 /** A line of working with every (x, y) in it coloured like the axes. */
 function Coordinates({ text }: { text: string }) {
   const parts = text.split(/(\(−?[\d.]+, −?[\d.]+\))/)
@@ -120,7 +160,7 @@ function useGridAlignment() {
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
 /** What the graph board (GraphBoard.tsx) draws inside the picture, over the question's own parts and under the highlighted axis numbers. */
 export type GraphLive = {
-  draw: (at: { px: (x: number) => number; py: (y: number) => number; width: number; height: number }) => ReactNode
+  draw: (at: { px: (x: number) => number; py: (y: number) => number; width: number; height: number; room: LabelRoom }) => ReactNode
   svg?: SVGProps<SVGSVGElement>
 }
 
@@ -142,6 +182,22 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
   const working = plain ? [] : frame.working ?? []
   const marks = plain ? [] : frame.marks ?? []
   const markOf = (axis: 'x' | 'y', value: number) => marks.find(mark => mark.axis === axis && mark.value === value)
+
+  // What a point's brackets keep off: the axes with their numbers, arrowheads and names, every dot, the lines, and each
+  // label once it is placed (Sunny, 7 Oct: nothing on the axis numbers, the arrows or another label).
+  const ax = px(axisX) + 0.5, ay = py(axisY) + 0.5
+  const room: LabelRoom = {
+    width, height,
+    taken: [
+      { l: 0, r: width, t: ay - 2, b: ay + 2 }, { l: ax - 2, r: ax + 2, t: 0, b: height },
+      { l: ax - 7, r: ax + 7, t: 0, b: 10 }, { l: ax + 7, r: ax + 18, t: 3, b: 18 }, { l: width - 10, r: width, t: ay - 7, b: ay + 7 }, { l: width - 17, r: width - 3, t: ay + 6, b: ay + 22 },
+      ...range(x0, x1).filter(x => x !== axisX && x !== x0 && x !== x1).map(x => { const half = fmt(x).length * 4.5 + 5; return { l: px(x) + 0.5 - half, r: px(x) + 0.5 + half, t: ay + 3, b: ay + 23 } }),
+      ...range(y0, y1).filter(y => y !== axisY && y !== y0 && y !== y1).map(y => ({ l: ax - 10 - fmt(y).length * 9, r: ax - 2, t: py(y) - 9, b: py(y) + 10 })),
+      { l: ax - 20, r: ax - 2, t: ay + 3, b: ay + 23 },
+      ...points.map(point => dotBox(px(point.x) + 0.5, py(point.y) + 0.5)),
+    ],
+    segments: lines.map(line => { const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to); return { x1: px(a.x) + 0.5, y1: py(a.y) + 0.5, x2: px(b.x) + 0.5, y2: py(b.y) + 0.5 } }),
+  }
 
   /** Keeps a label of `text` at (x, y) inside the grid: `size` is its font size, `anchor` how it hangs off x. */
   function inside(x: number, y: number, text: string, size: number, anchor: 'start' | 'middle' | 'end') {
@@ -244,14 +300,19 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
           : onAcross ? { x: 0, y: 27, anchor: 'middle' as const }
           : { x: right ? 12 : -12, y: point.y < axisY ? 25 : -13, anchor: right ? 'start' as const : 'end' as const }
         const text = point.label ?? coordinate(point)
-        const label = inside(px(point.x) + 0.5 + place.x, py(point.y) + 0.5 + place.y, text, 15, place.anchor)
+        // A label in a corner beside its dot keeps off the axes, their numbers and the other labels (Sunny, 7 Oct).
+        const cx = px(point.x) + 0.5, cy = py(point.y) + 0.5
+        const corner = text !== '' && (point.place || (!onUpDown && !onAcross))
+          ? placeLabel(cx, cy, labelWidth(text), { right: place.anchor === 'start', below: place.y > 0 }, room) : null
+        const label = corner ? { x: corner.l + 2, y: corner.base } : inside(cx + place.x, cy + place.y, text, 15, place.anchor)
+        const anchor = corner ? 'start' as const : place.anchor
         // An answer point is drawn like a right answer on the graph board: a larger green dot (Sunny's reference, 7 Oct).
         return <g key={`p${i}`} className={`ns-graph__point${point.at >= 0 ? ' is-found' : ''}${point.answer ? ' is-answer' : ''}${done(point.at)}`}>
           <circle cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r={point.answer ? 7 : 5} />
-          {text !== '' && <HaloText x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</HaloText>}
+          {text !== '' && <HaloText x={fix(label.x)} y={fix(label.y)} textAnchor={anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</HaloText>}
         </g>
       })}
-      {live?.draw({ px, py, width, height })}
+      {live?.draw({ px, py, width, height, room })}
       {!plain && (frame.boxed ?? []).map((point, i) => <circle key={`b${i}`} className="ns-graph__box" cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r="11" />)}
       {axisNumbers(true)}
     </svg>
