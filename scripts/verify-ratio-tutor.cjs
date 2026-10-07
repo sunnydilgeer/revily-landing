@@ -26,7 +26,7 @@ for (const ref of refs) {
 
 // ---------- Every ratio picture ----------
 const amount = text => /^£?\d+(\.\d+)?$/.test(text ?? '') ? Number(text.replace('£', '')) : null
-let pictures = 0, sums = 0
+let pictures = 0, sums = 0, pairs = 0
 function checkPicture(label, frame) {
   const { block, width, height, eachSize } = ratioLayout(frame)
   assert.ok(block >= 8.5, `${label}: blocks ${block.toFixed(1)} wide are too thin to read`)
@@ -37,6 +37,14 @@ function checkPicture(label, frame) {
   for (const ring of frame.rings ?? []) {
     const bar = frame.bars[ring.bar]
     assert.ok(bar && ring.from >= 0 && ring.to <= bar.parts && ring.to > ring.from, `${label}: a ring sits on its bar`)
+  }
+  // Lining two bars up (Sunny: explain the difference better): the line sits at the end of the smaller bar, and the
+  // ringed extra parts start there and run to the end of the bigger one, so the ring is exactly the difference.
+  if (frame.match) {
+    const [small, big] = frame.match.bars.map(i => frame.bars[i])
+    assert.ok(small && big && frame.match.at === small.parts && big.parts > small.parts, `${label}: the line is at the end of the smaller bar`)
+    assert.ok(frame.rings?.some(ring => ring.bar === frame.match.bars[1] && ring.from === small.parts && ring.to === big.parts), `${label}: the extra parts are ringed`)
+    pairs++
   }
   // A share's pill is its parts times the 1 part written in each block (or one group's worth, for 1 : n). Once an
   // amount changes, the blocks lose their numbers, so a pill never disagrees with its blocks.
@@ -51,6 +59,7 @@ function checkPicture(label, frame) {
   for (const [, x, y, w, h] of svg.matchAll(/<rect [^>]*?x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)) {
     assert.ok(+x >= 0 && +x + +w <= width && +y >= 0 && +y + +h <= height, `${label}: a shape at ${x}, ${y} sits inside the picture`)
   }
+  for (const [, x1, y1, , y2] of svg.matchAll(/class="ns-ratio__match" d="M([-\d.]+) ([-\d.]+) L([-\d.]+) ([-\d.]+)"/g)) assert.ok(+x1 <= width && +y1 >= 0 && +y2 <= height, `${label}: the matching line sits inside the picture`)
   // Names sit inside the left edge, and pills end inside the right one.
   for (const bar of frame.bars) {
     const { barX, tagX } = ratioLayout(frame)
@@ -122,6 +131,7 @@ for (const [ref, response, expected] of cases) {
 // ---------- The workings ----------
 const { steps } = checkWorkings(states)
 // Sunny: each method's aim is said up front, in one short line, where students first meet it.
+assert.ok(states.filter(state => /^R1\.6 /.test(state.sourceRef) && ['Q4b', 'Q5b'].every(part => !state.sourceRef.endsWith(part))).every(state => ((state.working ?? state.visual)?.examples?.[0]?.steps ?? []).some(step => step.frame.ratio?.match)), 'R1.6: every difference working lines the two bars up')
 for (const ref of pdfs.map(pdf => `${pdf} video + Q1`)) assert.match(at(ref).content.body, /^Our aim: /, `${ref} states its aim first`)
 
 // ---------- Videos, the course ----------
@@ -133,4 +143,4 @@ checkVideos(states, 'lesson-30', {
 })
 checkCourse(30, 'R1', 'TutorRatioLesson', 'ratio')
 
-console.log(`Lesson 30 (R1) verified: ${states.length} screens, all 24 source questions, ${rows} board rows balanced, ${pictures} ratio pictures with ${sums} shares checked, one size each and nothing off the edge, ${choices} choices, ${cases.length} wrong-answer messages, ${steps} steps, 3 videos and the route.`)
+console.log(`Lesson 30 (R1) verified: ${states.length} screens, all 24 source questions, ${rows} board rows balanced, ${pictures} ratio pictures with ${sums} shares and ${pairs} lined-up differences checked, one size each and nothing off the edge, ${choices} choices, ${cases.length} wrong-answer messages, ${steps} steps, 3 videos and the route.`)

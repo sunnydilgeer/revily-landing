@@ -33,19 +33,23 @@ export function ratioLayout(frame: RatioFrame) {
 
 function spoken(frame: RatioFrame) {
   const bars = frame.bars.map(bar => `${bar.name}, ${bar.parts} ${bar.parts === 1 ? 'part' : 'parts'}${bar.tag ? `: ${bar.tag}` : ''}`).join('; ')
-  return `Ratio bars. ${bars}.${frame.each ? ` Each part is ${frame.each}.` : ''}${frame.groups ? ` Split into ${frame.groups} equal groups.` : ''}${frame.note ? ` ${frame.note}.` : ''}`
+  return `Ratio bars. ${bars}.${frame.each ? ` Each part is ${frame.each}.` : ''}${frame.groups ? ` Split into ${frame.groups} equal groups.` : ''}${frame.match ? ` ${frame.bars[frame.match.bars[0]].name} and ${frame.bars[frame.match.bars[1]].name} lined up: the first ${frame.match.at} parts match.` : ''}${frame.note ? ` ${frame.note}.` : ''}`
 }
 
 export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boolean }) {
   const { block, rowY, barX, width, tagX, noteY, height, eachSize } = ratioLayout(frame)
   const lit = plain ? [] : frame.lit ?? []
+  // Lining two bars up: the bigger bar's parts that match the smaller bar fade, so only its extra parts (the difference) stand out.
+  const match = plain ? undefined : frame.match
+  const faded = (i: number, k: number) => !!match && (!match.bars.includes(i) || (i === match.bars[1] && k < match.at))
+  const [top, bottom] = match ? [Math.min(...match.bars), Math.max(...match.bars)] : [0, 0]
   return <div className={`ns-ratio${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame)}>
     <svg viewBox={`0 0 ${width} ${height}`} style={{ maxWidth: Math.round(width * 1.375) }} aria-hidden="true">
       {frame.bars.map((bar, i) => {
         const y = rowY(i)
-        return <g key={i} className={`ns-ratio__bar is-b${i % 3}`}>
+        return <g key={i} className={`ns-ratio__bar is-b${i % 3}${match && !match.bars.includes(i) ? ' is-out' : ''}`}>
           <text className="ns-ratio__name" x={barX - GAP} y={y + BAR_H / 2}>{bar.name}</text>
-          {Array.from({ length: bar.parts }, (_, k) => <rect key={k} className="ns-ratio__block" x={barX + k * block} y={y} width={block} height={BAR_H} rx="2" />)}
+          {Array.from({ length: bar.parts }, (_, k) => <rect key={k} className={`ns-ratio__block${faded(i, k) ? ' is-faded' : ''}`} x={barX + k * block} y={y} width={block} height={BAR_H} rx="2" />)}
           {frame.each && Array.from({ length: bar.parts }, (_, k) => <text key={k} className="ns-ratio__each" x={barX + (k + 0.5) * block} y={y + BAR_H / 2} fontSize={eachSize}>{frame.each}</text>)}
           {frame.groups && Array.from({ length: frame.groups }, (_, k) => {
             // Every other group is shaded, so the equal groups read at a glance even on thin blocks.
@@ -61,6 +65,7 @@ export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boole
           </g>}
         </g>
       })}
+      {match && <path className="ns-ratio__match" d={`M${barX + match.at * block} ${rowY(top) - 4} L${barX + match.at * block} ${rowY(bottom) + BAR_H + 4}`} />}
       {!plain && frame.rings?.map((ring, i) => <rect key={i} className="ns-ratio__ring" x={barX + ring.from * block - 3} y={rowY(ring.bar) - 4} width={(ring.to - ring.from) * block + 6} height={BAR_H + 8} rx="5" />)}
       {!plain && frame.note && <text className="ns-ratio__note" x={width / 2} y={noteY}>{frame.note}</text>}
     </svg>
