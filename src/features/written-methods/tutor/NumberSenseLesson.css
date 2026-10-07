@@ -339,6 +339,8 @@
 .ns-graph__table th { font-style: italic; font-weight: 800; }
 .ns-graph__table .is-x > * { color: #b45309; }
 .ns-graph__table .is-y > * { color: var(--rv-biro); }
+.ns-graph__table th .ns-graph__rule { color: var(--rv-ink); font-size: 15px; font-style: normal; font-weight: 700; white-space: nowrap; }
+.ns-graph__table th .ns-graph__rule .is-x { color: #b45309; font-style: italic; font-weight: 800; }
 .ns-graph__table td.is-lit { background: color-mix(in srgb, #7c3aed 12%, var(--rv-paper)); }
 .ns-graph__table .is-y td.is-answer { color: var(--rv-good-ink); font-weight: 800; }
 .ns-graph__table .is-y td.is-ask { color: #7c3aed; font-weight: 800; }

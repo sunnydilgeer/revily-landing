@@ -80,13 +80,14 @@ export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox {
 }
 /** The box a dot covers, so no label is put on it (a label keeps a further 3px off it). */
 export const dotBox = (x: number, y: number, r = 6) => ({ l: x - r, r: x + r, t: y - r, b: y + r })
-/** A table of values: x (amber) along the top, y (biro blue) underneath, one column a point. */
+/** A table of values: x (amber) along the top, y (biro blue) underneath, one column a point. The y row's heading
+ *  can carry the rule, y = 2x − 1, its x amber, so each y in the row says where it comes from. */
 export function ValueTable({ table }: { table: GraphTable }) {
   const cell = (i: number) => `${table.lit === i ? ' is-lit' : ''}${table.answer === i ? ' is-answer' : ''}${table.ask === i ? ' is-ask' : ''}`
   return <table className="ns-graph__table">
     <tbody>
       <tr className="is-x"><th scope="row">x</th>{table.xs.map((x, i) => <td key={i} className={cell(i)}>{fmt(x)}</td>)}</tr>
-      <tr className="is-y"><th scope="row">y</th>{table.ys.map((y, i) => <td key={i} className={cell(i)}>{table.ask === i ? '?' : y === null ? '' : fmt(y)}</td>)}</tr>
+      <tr className="is-y"><th scope="row">y{table.rule && <span className="ns-graph__rule"> = {table.rule.split('x').flatMap((part, i) => i ? [<span key={i} className="is-x">x</span>, part] : [part])}</span>}</th>{table.ys.map((y, i) => <td key={i} className={cell(i)}>{table.ask === i ? '?' : y === null ? '' : fmt(y)}</td>)}</tr>
     </tbody>
   </table>
 }

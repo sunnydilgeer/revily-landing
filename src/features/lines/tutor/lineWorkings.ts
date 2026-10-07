@@ -61,7 +61,7 @@ export const straightMoves = (s: Straight, along: number[]) => [sharing(s, along
 /* ---------- A table of values ---------- */
 
 /** The table with every y so far: `filled` columns have theirs. */
-export const tableOf = (r: Rule, xs: number[], filled: number[] = []): GraphTable => ({ xs, ys: xs.map((x, i) => filled.includes(i) ? yOf(r, x) : null) })
+export const tableOf = (r: Rule, xs: number[], filled: number[] = []): GraphTable => ({ xs, ys: xs.map((x, i) => filled.includes(i) ? yOf(r, x) : null), rule: r.text.replace(/^y = /, '') })
 
 /**
  * Moves: one column. Its x lights up, the sum goes under the grid (amber x in, blue y out), its y drops into the
@@ -103,7 +103,8 @@ export const plotColumn = (r: Rule, i: number): GraphMove => ({
       ...(p.y ? [{ from: pt(p.x, 0), to: p, label: '', family: 0, at: step }] : []),
     ]
     // Only the point being plotted has its brackets: the earlier ones are just dots (Sunny, 7 Oct: minimal).
-    return { ...frame, table: { ...t, lit: i }, legs, marks: shared([p]), points: [...(frame.points ?? []).map(q => ({ ...q, label: '' })), { ...p, at: step }] }
+    // The column's sum under the grid, so the y being plotted says where it came from: 2 × (−1) − 1 = −3.
+    return { ...frame, table: { ...t, lit: i }, legs, marks: shared([p]), points: [...(frame.points ?? []).map(q => ({ ...q, label: '' })), { ...p, at: step }], working: [{ text: sum(r, p.x), family: 0, at: step }] }
   },
 })
 export function plotMoves(r: Rule, xs: number[]): GraphMove[] {
