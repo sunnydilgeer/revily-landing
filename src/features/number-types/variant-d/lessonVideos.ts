@@ -52,7 +52,7 @@ export const lessonOneVideos: SectionClip[] = [
         'An irrational number cannot be written exactly as a fraction of two integers. Its decimal neither terminates nor repeats a fixed block.',
         '√16 = 4 and √25 = 5 are exact integer roots. √20 lies between 4 and 5 and is irrational.',
         '√20 ≈ 4.47213595… . These displayed digits are only the beginning of its decimal.',
-        '3 × √5 is still irrational. In general, multiplying an irrational number by a non-zero rational number gives an irrational result; multiplying by zero gives zero.',
+        'π is irrational too. Its decimal, 3.14159…, goes on forever without repeating.',
       ],
     },
   },
