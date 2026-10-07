@@ -39,13 +39,13 @@ export type MathsSection = {
 
 export type MathsChapterId = 'number' | 'algebra'
 
-export type MathsLessonEntry = {
+export type MathsLessonEntry<N extends number = MathsLessonNumber, C extends string = MathsChapterId> = {
   /** The course-wide number: the URL (?lesson=15) and progress key (L015) use it. */
-  number: MathsLessonNumber
+  number: N
   /** The lesson's place in its own chapter, which is what students see: Algebra's first lesson is 1. */
   position: number
   lessonId: string
-  chapterId: MathsChapterId
+  chapterId: C
   title: string
   description: string
   stateCount: number
@@ -54,14 +54,14 @@ export type MathsLessonEntry = {
   definition: LessonDefinition
 }
 
-export type MathsChapter = {
-  id: MathsChapterId
+export type MathsChapter<N extends number = MathsLessonNumber, C extends string = MathsChapterId> = {
+  id: C
   title: string
   description: string
-  lessons: MathsLessonEntry[]
+  lessons: MathsLessonEntry<N, C>[]
 }
 
-function sectionsFor(lesson: LessonDefinition, labels: Partial<Record<MicroSkillId, string>>): MathsSection[] {
+export function sectionsFor(lesson: LessonDefinition, labels: Partial<Record<MicroSkillId, string>>): MathsSection[] {
   return [...new Set(lesson.states.map(state => state.microSkillId))].map(id => {
     const startIndex = lesson.states.findIndex(state => state.microSkillId === id)
     return {

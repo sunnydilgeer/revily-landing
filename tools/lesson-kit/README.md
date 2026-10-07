@@ -29,7 +29,7 @@ Copy `packs/A8.1-solving-quadratics.cjs` and change it. A pack is a function tha
 - `worksheet.title` and `worksheet.questions`: each has `n` ("1", "5a"), `level` (worked, easy, medium, hard,
   very hard: easiest first), `marks`, `question` (a string, or a list of paragraphs) and `working`: steps that are
   `{ say }` (teal words), `{ math }` (a line of maths), `{ picture }`, `{ mark }` (a method mark) or `{ answer }`
-  (the final answer). The marks must equal the number of `mark` and `answer` steps.
+  (the final answer). A question can carry its own `figure` (an SVG, such as a grid), drawn under its words. The marks must equal the number of `mark` and `answer` steps.
 
 Words take maths between `$…$` (`'take $20$ from both sides'`), `**bold**`, and ✓ and ✗, which are coloured.
 The helpers for slides: `line`, `big`, `board` (a move written under both sides), `result` (a halfway result, blue),

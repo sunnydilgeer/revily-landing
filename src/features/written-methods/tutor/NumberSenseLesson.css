@@ -286,7 +286,7 @@
 .ns-seq .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* A board or quadratic picture takes the frame's full width, so a short formula (A = 6s²) doesn't squeeze its step
    headings and ⓘ text into a narrow column; the rows stay centred. */
-.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad, > .ns-seq, > .ns-nl) { flex: 1; min-width: 0; }
+.wc-picture > .ns-visual:has(> .ns-eq, > .ns-quad, > .ns-seq, > .ns-nl, > .ns-graph) { flex: 1; min-width: 0; }
 /* Inequalities on a number line (lessons 24 and 25, InequalityPictures.tsx): filled and open circles, the arrow or the
    joining line in biro blue, the number a step reads boxed in purple, and the whole numbers that fit in green. */
 .ns-nl { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
@@ -308,6 +308,62 @@
 .ns-nl__text { color: var(--f); }
 .ns-nl .is-done { opacity: .35; transition: opacity .2s ease; }
 .ns-nl .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
+/* Straight line graphs (lesson 26, GR1, GraphPictures.tsx): drawn on the card's own squared paper (one square, one
+   unit), so the box around a graph working lets the paper show through. Given lines in ink, a line a step draws in biro
+   blue (green once it is the answer), across in amber and up or down in biro blue, the points read ringed in purple,
+   and the axis numbers a step reads highlighted x amber and y biro blue, like the brackets. Nothing is drawn outside the grid. */
+.rung-lesson .pvb-stage:has(.ns-graph) { background: transparent; }
+.ns-graph { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; text-align: center; }
+.ns-graph p { margin: 0; }
+.ns-graph__heading { align-self: stretch; contain: inline-size; }
+.ns-graph__picture { display: block; flex: none; max-width: none; overflow: hidden; color: var(--rv-ink); }
+.ns-graph__picture.has-grid { background: var(--rv-paper); }
+.ns-graph__grid line { stroke: var(--rv-grid); stroke-width: 1; }
+.ns-graph__axes line, .ns-graph__axes path { fill: none; stroke: var(--rv-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ns-graph__axis-name { fill: var(--rv-ink); font-size: 16px; font-style: italic; font-weight: 700; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 4px; }
+.ns-graph__numbers text { fill: var(--rv-muted); font-size: 13px; font-weight: 600; text-anchor: middle; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; stroke-linejoin: round; }
+.ns-graph__numbers text.is-y { text-anchor: end; }
+.ns-graph__numbers .is-marked rect { fill: currentColor; }
+.ns-graph__numbers .is-marked text { fill: #fff; stroke: none; font-weight: 800; }
+.ns-graph__line line { stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; }
+.ns-graph__line text { fill: var(--rv-ink); font-size: 17px; font-weight: 700; font-style: italic; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
+.ns-graph__line.is-found line { stroke: var(--rv-biro); }
+.ns-graph__line.is-found text { fill: var(--rv-biro); }
+.ns-graph__line.is-answer line { stroke: var(--rv-good-ink); stroke-width: 4; }
+.ns-graph__line.is-answer text { fill: var(--rv-good-ink); font-weight: 800; }
+.ns-graph__line.is-wrong line { stroke: var(--rv-redpen); }
+.ns-graph__line.is-wrong text { fill: var(--rv-redpen); }
+/* A table of values (graphs lesson 2): x amber along the top, y biro blue underneath. */
+.ns-graph__table { border-collapse: collapse; background: var(--rv-paper); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ns-graph__table th, .ns-graph__table td { min-width: 40px; height: 34px; padding: 0 6px; border: 2px solid var(--rv-ink); text-align: center; }
+.ns-graph__table th { font-style: italic; font-weight: 800; }
+.ns-graph__table .is-x > * { color: #b45309; }
+.ns-graph__table .is-y > * { color: var(--rv-biro); }
+.ns-graph__table td.is-lit { background: color-mix(in srgb, #7c3aed 12%, var(--rv-paper)); }
+.ns-graph__table .is-y td.is-answer { color: var(--rv-good-ink); font-weight: 800; }
+.ns-graph__table .is-y td.is-ask { color: #7c3aed; font-weight: 800; }
+.ns-graph__point circle { fill: var(--rv-ink); stroke: var(--rv-paper); stroke-width: 2; }
+.ns-graph__point text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
+.ns-graph__point.is-found circle { fill: var(--rv-biro); }
+.ns-graph__point.is-found text { fill: var(--rv-ink); }
+/* A label's halo is a copy underneath it (HaloText): Safari draws a stroked tspan's halo over its own letters. */
+.ns-graph text.is-halo, .ns-graph text.is-halo tspan { fill: var(--rv-paper) !important; stroke: var(--rv-paper) !important; }
+.ns-graph text.is-ink { stroke: none !important; }
+.ns-graph__point.is-answer circle { fill: var(--rv-good-ink); stroke-width: 2.5; }
+.ns-graph__point.is-answer text { font-size: 16px; font-weight: 800; }
+.ns-graph__point tspan.is-x { fill: #b45309; }
+.ns-graph__point tspan.is-y { fill: var(--rv-biro); }
+.ns-graph__pair { color: var(--rv-ink); }
+.ns-graph__pair .is-x { color: #b45309; }
+.ns-graph__pair .is-y { color: var(--rv-biro); }
+.ns-graph__leg line { stroke: var(--f); stroke-width: 3.5; stroke-linecap: round; }
+.ns-graph__leg path { fill: none; stroke: var(--f); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ns-graph__leg text { fill: var(--f); font-size: 18px; font-weight: 800; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
+.ns-graph__leg.is-dashed line { stroke-width: 3; stroke-dasharray: 2 7; }
+.ns-graph__box { fill: none; stroke: #7c3aed; stroke-width: 2.5; }
+.ns-graph__text { color: var(--f); }
+.ns-graph .is-done { opacity: .35; transition: opacity .2s ease; }
+.ns-graph .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* An inequality with two signs on the board (lesson 25): three parts, each column lined up down the board. */
 .ns-eq.is-three { grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto minmax(0, max-content) auto minmax(0, max-content) minmax(0, 1fr); column-gap: 6px; }
 .ns-eq.is-three .ns-eq__middle { grid-column: 4; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 5px; }

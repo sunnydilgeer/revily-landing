@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { mathsChapters, type MathsLessonEntry, type MathsLessonNumber, type MathsSection } from './courseRegistry'
+import { mathsChapters, type MathsChapter, type MathsLessonEntry, type MathsLessonNumber, type MathsSection } from './courseRegistry'
 import type { LessonProgressMap } from './lessonProgress'
 import './ContentsDrawer.css'
 
@@ -8,13 +8,15 @@ import './ContentsDrawer.css'
  * tracking. Chapters fold, and tapping a lesson folds its skills open (a skill opens the lesson), and search jumps straight to a lesson or skill. Open/closed
  * chapters are remembered. Progress is only read to know which skill you're on.
  */
-type Props = {
+type Props<N extends number, C extends string> = {
   open: boolean
-  currentLesson: MathsLessonEntry
+  currentLesson: MathsLessonEntry<N, C>
   progress: LessonProgressMap
   onClose: () => void
-  onSelectLesson: (lesson: MathsLessonNumber) => void
-  onSelectSkill: (lesson: MathsLessonNumber, section: MathsSection) => void
+  onSelectLesson: (lesson: N) => void
+  onSelectSkill: (lesson: N, section: MathsSection) => void
+  /** The chapters to list: the course's own unless a page passes its own shelf. */
+  chapters?: MathsChapter<N, C>[]
 }
 
 /**
@@ -43,7 +45,7 @@ function readFolds(): Record<string, boolean> {
 
 const Chevron = () => <svg className="toc-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
 
-export default function MathsContentsDrawer({ open, currentLesson, progress, onClose, onSelectLesson, onSelectSkill }: Props) {
+export default function MathsContentsDrawer<N extends number = MathsLessonNumber, C extends string = string>({ open, currentLesson, progress, onClose, onSelectLesson, onSelectSkill, chapters = mathsChapters as unknown as MathsChapter<N, C>[] }: Props<N, C>) {
   const drawerRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const [query, setQuery] = useState('')
@@ -94,11 +96,11 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return null
-    return mathsChapters.flatMap(chapter => chapter.lessons.flatMap(entry => [
+    return chapters.flatMap(chapter => chapter.lessons.flatMap(entry => [
       ...(entry.title.toLowerCase().includes(q) ? [{ entry, chapter: chapter.title, section: undefined }] : []),
       ...entry.sections.filter(section => section.title.toLowerCase().includes(q)).map(section => ({ entry, chapter: chapter.title, section })),
     ]))
-  }, [query])
+  }, [chapters, query])
 
   if (!open) return null
   const currentSnapshot = progress[currentLesson.lessonId]
@@ -109,11 +111,11 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
     setFolds(next)
     try { window.localStorage.setItem(FOLDS_KEY, JSON.stringify(next)) } catch { /* storage unavailable */ }
   }
-  const pickSkill = (entry: MathsLessonEntry, section: MathsSection) => {
+  const pickSkill = (entry: MathsLessonEntry<N, C>, section: MathsSection) => {
     onSelectSkill(entry.number, section)
     onClose()
   }
-  const pickLesson = (entry: MathsLessonEntry) => entry.lessonId === currentLesson.lessonId ? onClose() : onSelectLesson(entry.number)
+  const pickLesson = (entry: MathsLessonEntry<N, C>) => entry.lessonId === currentLesson.lessonId ? onClose() : onSelectLesson(entry.number)
 
   return <div className="maths-drawer-backdrop" onMouseDown={event => {
     if (event.target === event.currentTarget) onClose()
@@ -153,7 +155,7 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
             <span className="toc-here__meta">Back to lesson →</span>
           </button>
 
-          {mathsChapters.map((chapter, index) => {
+          {chapters.map((chapter, index) => {
             const chapterOpen = isChapterOpen(chapter.id)
             return <section className="toc-chapter" key={chapter.id}>
               <h3>
