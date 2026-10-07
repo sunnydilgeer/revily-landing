@@ -76,8 +76,8 @@ module.exports = ({ m, line, big, answer, row, picture }) => {
       'Q4: line through (−1, 3) and (2, −3): across 3, down 6 → −2': q4.b.x - q4.a.x === 3 && q4.b.y - q4.a.y === -6 && gradientOf(q4.a, q4.b) === -2,
       'Q5: (2, 3) and (4, 9): 4 − 2 = 2, 9 − 3 = 6 → 3': 4 - 2 === 2 && 9 - 3 === 6 && gradientOf(pt(2, 3), pt(4, 9)) === 3,
       'Q6: (−2, 5) and (1, −4): 1 − (−2) = 3, −4 − 5 = −9 → −3': 1 - -2 === 3 && -4 - 5 === -9 && gradientOf(pt(-2, 5), pt(1, -4)) === -3,
-      'Q7: (−3, −2) and (3, 1): 3 − (−3) = 6, 1 − (−2) = 3 → 1/2': 3 - -3 === 6 && 1 - -2 === 3 && gradientOf(pt(-3, -2), pt(3, 1)) === 1 / 2,
-      'Q8: (5, 1) and (1, 9): 1 − 5 = −4, 9 − 1 = 8 → −2, and it goes down left to right': 1 - 5 === -4 && 9 - 1 === 8 && gradientOf(pt(5, 1), pt(1, 9)) === -2 && pt(1, 9).y > pt(5, 1).y,
+      'Q7: (−3, 2) and (3, −1): 3 − (−3) = 6, −1 − 2 = −3 → −1/2': 3 - -3 === 6 && -1 - 2 === -3 && gradientOf(pt(-3, 2), pt(3, -1)) === -1 / 2,
+      'Q8: (2, 1) and (−2, 2): −2 − 2 = −4, 2 − 1 = 1 → −1/4, and it goes down left to right': -2 - 2 === -4 && 2 - 1 === 1 && gradientOf(pt(2, 1), pt(-2, 2)) === -1 / 4 && pt(-2, 2).y > pt(2, 1).y,
       'Q9: Sam’s across ÷ up for (1, 3) and (3, 9) is 1/3, the gradient is 3': (3 - 1) / (9 - 3) === 1 / 3 && gradientOf(pt(1, 3), pt(3, 9)) === 3,
       'every point is inside its grid': inside(upGrid, A, B) && inside(downGrid, C, D) && graphs.every(q => inside(q.grid, q.a, q.b)),
       'every point is on its line': graphs.every(q => onLine(q.a, q.b, q.a) && onLine(q.a, q.b, q.b)) && onLine(C, D, pt(0, 7)),
@@ -108,9 +108,10 @@ module.exports = ({ m, line, big, answer, row, picture }) => {
           [work(`${tex(1, 2)} \\text{ and } ${tex(4, 8)}`), 2.4],
           [line('no grid: take the first point from the second, the same order both times'), 3],
           [row(work(`\\text{across: } ${X(4)} - ${X(1)} = ${X(3)}`), work(`\\text{up: } ${Y(8)} - ${Y(2)} = ${Y(6)}`)), 3.6],
-          [answer(upOver(6, 3, 2)), 3.4]] },
+          [answer(upOver(6, 3, 2)), 3.4],
+          [big(`\\textcolor{${INK}}{\\text{gradient} = \\dfrac{${Y('\\text{change in } y')}}{${X('\\text{change in } x')}} = \\dfrac{${Y('y_2 - y_1')}}{${X('x_2 - x_1')}}}`), 4]] },
       ],
-      recap: ['Across first, then up', 'Gradient = up ÷ across', 'Up from left to right: positive. Down: negative'],
+      recap: ['Across first, then up', 'Gradient = up ÷ across = change in y ÷ change in x', 'From two points: (y₂ − y₁) ÷ (x₂ − x₁)', 'Up from left to right: positive. Down: negative'],
     },
 
     worksheet: {
@@ -141,13 +142,14 @@ module.exports = ({ m, line, big, answer, row, picture }) => {
         { n: '6', level: 'hard', marks: 2, question: 'Work out the gradient of the line through $(-2, 5)$ and $(1, -4)$.', working: [
           ...fromPoints(pt(-2, 5), pt(1, -4)), { mark: 'Across and up, signs right' },
           { answer: `Gradient $= ${Y(-9)} \\div ${X(3)} = -3$` }] },
-        { n: '7', level: 'hard', marks: 2, question: 'Work out the gradient of the line through $(-3, -2)$ and $(3, 1)$.', working: [
-          ...fromPoints(pt(-3, -2), pt(3, 1)), { mark: 'Across and up, signs right' },
-          { answer: `Gradient $= ${Y(3)} \\div ${X(6)} = \\tfrac{1}{2}$` }] },
-        { n: '8', level: 'very hard', marks: 2, question: 'Work out the gradient of the line through $(5, 1)$ and $(1, 9)$.', working: [
+        { n: '7', level: 'hard', marks: 2, question: 'Work out the gradient of the line through $(-3, 2)$ and $(3, -1)$.', working: [
+          { say: 'Gradient $= \\dfrac{y_2 - y_1}{x_2 - x_1}$: the change in $y$ over the change in $x$' },
+          ...fromPoints(pt(-3, 2), pt(3, -1)), { mark: 'Across and up, signs right' },
+          { answer: `Gradient $= ${Y(-3)} \\div ${X(6)} = -\\tfrac{1}{2}$` }] },
+        { n: '8', level: 'very hard', marks: 2, question: 'Work out the gradient of the line through $(2, 1)$ and $(-2, 2)$.', working: [
           { say: 'The second point is on the left, so across is negative. Keep the same order for both' },
-          ...fromPoints(pt(5, 1), pt(1, 9)), { mark: 'Same order both times' },
-          { answer: `Gradient $= ${Y(8)} \\div ${bx(-4)} = -2$` }] },
+          ...fromPoints(pt(2, 1), pt(-2, 2)), { mark: 'Same order both times' },
+          { answer: `Gradient $= ${Y(1)} \\div ${bx(-4)} = -\\tfrac{1}{4}$` }] },
         { n: '9', level: 'very hard', marks: 2, question: ['Sam works out the gradient of the line through $(1, 3)$ and $(3, 9)$.', 'He writes $3 - 1 = 2$ and $9 - 3 = 6$, so the gradient is $2 \\div 6 = \\tfrac{1}{3}$. Is Sam correct? Explain.'], working: [
           { say: 'Sam divided across by up. The gradient is up over across' },
           { math: `${ink('across:')}\\ ${X(3)} - ${X(1)} = ${X(2)}, \\quad ${ink('up:')}\\ ${Y(9)} - ${Y(3)} = ${Y(6)}` }, { mark: 'Says he divided across by up' },

@@ -5,7 +5,7 @@ import type { GraphBoardSpec } from '../../written-methods/tutor/GraphBoard'
 import type { GraphPoint } from '../../written-methods/tutor/methodWorking'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { text } from '../../inequalities/tutor/inequalityWorkings'
-import { answerMove, figure, graphModel, grid, pt, type GraphGrid } from '../../straight-line-graphs/tutor/graphWorkings'
+import { answerMove, figure, graphModel, grid, pt, across as acrossLine, upDown as upDownLine, type GraphGrid } from '../../straight-line-graphs/tutor/graphWorkings'
 import {
   across, at, column, ends, lineAnswer, named, pair, plotMoves, rule, ruleLineSlips, straightMoves, straightSlips, sum, tableMoves, tableOf, through,
   upDown, value, valueSlips, yOf, type Rule, type Straight,
@@ -77,12 +77,13 @@ explore(straight, 'Drag the dot along y = 3. Which number never changes?', 'GR1 
 worked(straight, 'Draw the line y = 3.', 'Draw y = 3', 'GR1 p70 Horizontal lines (own numbers)', straightModel(across(3), [-3, 1, 3], [-4, 5], [-1, 5]),
   'Every point on y = 3 has y 3, whatever its x. So the line goes straight across.').video = {
   id: 'graphs-2-lines', src: `/media/${LINES_PREVIEW_ID}/lines.mp4`, poster: `/media/${LINES_PREVIEW_ID}/lines.svg`,
-  title: 'From a rule to a line', durationSeconds: 57, sourceFile: 'GR4.1_Lines_from_coordinates.mp4 (tools/lesson-kit/packs/GR4.1-lines-from-coordinates.cjs)',
+  title: 'From a rule to a line', durationSeconds: 63, sourceFile: 'GR4.1_Lines_from_coordinates.mp4 (tools/lesson-kit/packs/GR4.1-lines-from-coordinates.cjs)',
   textAlternative: [
     'A line is made of points that follow a rule: here is how to go from a rule to a line.',
     'The line y = 3: every point on it, like (−3, 3), (1, 3) and (3, 3), has y 3, so it goes across.',
     'A table for y = 2x − 1: put each x into the rule, double it and take 1, so x = −1, 0, 1, 2 give y = −3, −1, 1, 3.',
     'Plot each pair across, then up (or down); the four points line up, so join them with one straight line.',
+    'A rule with no x², x³ or y² always makes a straight line.',
     'Recap: y = a goes across and x = a goes up and down; put each x into the rule to fill the table; plot and join with one straight line.',
   ],
 }
@@ -99,6 +100,23 @@ worked(straight, 'Draw the line x = −2.', 'Draw x = −2', 'GR1 p70 Vertical l
     response => /^\s*−?-?\d/.test(response) && Number(response.replace('−', '-')) === -3 ? 'The line is right of the y axis, so its x is positive.' : null)
   draw(across(-1), 'Draw the line across through (6, −1).', 'GR1 p70 Q3 (own numbers)', [-1, 8], [-3, 3], [0, 3, 6], 'Across means y stays the same. Which number is y?', [pt(6, -1)])
   draw(upDown(-4), 'Draw the line up and down through (−4, 2).', 'GR1 p70 Q3 (own numbers)', [-6, 3], [-2, 4], [-1, 0, 2], 'Up and down means x stays the same. Which number is x?', [pt(-4, 2)])
+  // GR1 p71 Q4: two lines on one graph, then where they cross.
+  {
+    const yMinus3 = across(-3), gx: Range = [-3, 5], gy: Range = [-5, 3]
+    const given = grid(gx, gy, [upDownLine(2)])
+    practice(straight, 'x = 2 is drawn. Draw y = −3 on the same graph.', 'GR1 p71 Q4 (own numbers)',
+      { interaction: lineAnswer(...ends(yMinus3)), board: { mode: 'line', grid: given, line: ends(yMinus3) } },
+      'Every point on y = −3 has y −3. Tap two of them.', graphModel(named(yMinus3), given, straightMoves(yMinus3, [-2, 0, 4]), 'Across'), straightSlips(yMinus3))
+    const both = grid(gx, gy, [upDownLine(2), acrossLine(-3)])
+    practice(straight, 'Tap where x = 2 and y = −3 cross.', 'GR1 p71 Q4 (own numbers)', { interaction: at(pt(2, -3)), board: { mode: 'plot', grid: both } },
+      'On x = 2, x is 2. On y = −3, y is −3. The crossing is on both.', graphModel('x = 2 and y = −3', both, [
+        answerMove(pair(pt(2, -3)), 'On both lines', 'The crossing is on x = 2, so its x is 2, and on y = −3, so its y is −3.', [], {
+          title: '', say: '', equation: '', adds: 'picture',
+          change: (frame, step) => ({ ...frame, points: [{ ...pt(2, -3), at: step, answer: true }], marks: [{ axis: 'x', value: 2, family: 1 }, { axis: 'y', value: -3, family: 0 }] }),
+        }),
+      ], 'Read both'),
+      response => response.replace(/\s/g, '') === '-3,2' ? 'Across first: x is 2, then down to −3.' : null)
+  }
   practice(straight, 'The y axis is a straight line. Write down its equation.', 'GR1 p70 Axes', { interaction: value(0), picture: grid([-3, 4], [-3, 4]), prefix: 'x =' },
     'Every point on the y axis is 0 across.', straightModel(upDown(0), [-2, 1, 3], [-3, 4], [-3, 4]),
     response => /^\s*\d/.test(response) && Number(response) !== 0 ? 'On the y axis you don’t move across at all.' : null)
@@ -128,7 +146,7 @@ for (const [r, xs, i, x, y, hint, extra] of [
 
 explore(join, 'Tap two points. Watch the line go through them.', 'GR4 p76 Plot and join (play)', { mode: 'line', grid: grid([-4, 5], [-3, 5]) })
 worked(join, 'Draw the graph of y = 2x − 1.', 'Plot y = 2x − 1', 'GR4 p76 Method 1: plot and join (own numbers)', plotModel(double, [-1, 0, 1, 2], [-3, 4], [-4, 5]),
-  'Each column of the table is a point. Plot them across, then up. They line up, so join them with one straight line.')
+  'Each column of the table is a point. Plot them across, then up. They line up, so join them with one straight line. Any equation with x and y and no x², x³ or y² makes a straight line; an x² would make a curve.')
 {
   const plus = rule(1, 1, 'y = x + 1', 'add 1')
   const xs = [-2, -1, 0, 1, 2]
@@ -169,6 +187,7 @@ add('mixed', 'Lines from coordinates', 'GR1 and GR4 consolidation', text(
   'y = 3 goes straight across: every point on it has y 3.',
   'x = −2 goes straight up and down: every point on it has x −2.',
   'A table of values: put each x into the rule to get its y.',
+  'An equation with no x², x³ or y² makes a straight line.',
   'Each column is a point. Plot them across, then up, and join them with one straight line.',
 ))
 

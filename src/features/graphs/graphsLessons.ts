@@ -25,7 +25,7 @@ function entry(lesson: TutorMethodLesson & { number: GraphsLessonNumber }, title
 export const graphsLessons = [
   entry(tutorCoordinatesLesson as TutorMethodLesson & { number: 101 }, 'Coordinates', 'Plot and read points: across, then up, in all four quadrants, and find a midpoint.'),
   entry(tutorLinesLesson as TutorMethodLesson & { number: 102 }, 'Lines from coordinates', 'Lines like x = 3 and y = −2, tables of values, and plotting a straight line graph.'),
-  entry(tutorGradientLesson as TutorMethodLesson & { number: 103 }, 'Gradient', 'Find a gradient from a graph or two points: up over across.'),
+  entry(tutorGradientLesson as TutorMethodLesson & { number: 103 }, 'Gradient and y = mx + c', 'Find a gradient from a graph or two points, and a line’s equation y = mx + c.'),
 ]
 
 export const graphsChapter: MathsChapter<GraphsLessonNumber, 'graphs'> = {
