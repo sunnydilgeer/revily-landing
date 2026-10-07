@@ -83,6 +83,10 @@ export type NumberLinePicture = {
   tick: number
   marks: Array<{ value: number; label: string; boxed?: boolean; pick?: boolean }>
   read?: 'up' | 'down' | 'left' | 'right'
+  /** The only scale values written under the line (otherwise every other tick). */
+  labels?: number[]
+  /** An error interval shaded along the line: a filled dot at `from` (included), an open one at `to` (not). */
+  span?: { from: number; to: number }
 }
 const WHOLE_NAMES = ['units', 'tens', 'hundreds', 'thousands', 'ten thousands', 'hundred thousands']
 const DECIMAL_NAMES = ['tenths', 'hundredths', 'thousandths']

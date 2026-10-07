@@ -31,7 +31,7 @@ export function OrderChart({ picture }: { picture: OrderChartPicture }) {
   </div>
 }
 
-const fmt = (n: number) => (n < 0 ? '−' : '') + String(Math.abs(Math.round(n * 1000) / 1000))
+const fmt = (n: number) => (n < 0 ? '−' : '') + String(Math.abs(Number(n.toPrecision(10))))
 /** Spreads labels along one axis so none overlap, keeping each as near its own point as it can. */
 function spread(points: number[], gap: number, lo: number, hi: number) {
   const order = points.map((p, i) => ({ p, i })).sort((a, b) => a.p - b.p)
@@ -47,8 +47,8 @@ function spread(points: number[], gap: number, lo: number, hi: number) {
 /** A thermometer or a number line, 0 drawn across it, each value a dot with its label; the reading arrow in purple. */
 export function NumberLine({ picture }: { picture: NumberLinePicture }) {
   const ticks: number[] = []
-  for (let v = picture.min; v <= picture.max + 1e-9; v += picture.tick) ticks.push(Math.round(v * 1000) / 1000)
-  const major = (v: number) => v === 0 || v === picture.min || v === picture.max || Math.abs(Math.round(v / (picture.tick * 2)) * picture.tick * 2 - v) < 1e-9
+  for (let k = 0; picture.min + k * picture.tick <= picture.max + picture.tick / 1000; k++) ticks.push(Number((picture.min + k * picture.tick).toPrecision(10)))
+  const major = (v: number) => picture.labels ? picture.labels.some(l => Math.abs(l - v) < picture.tick / 100) : v === 0 || v === picture.min || v === picture.max || Math.abs(Math.round(v / (picture.tick * 2)) * picture.tick * 2 - v) < 1e-9
   const spoken = `${picture.vertical ? 'Thermometer' : 'Number line'} from ${fmt(picture.min)} to ${fmt(picture.max)}${picture.marks.length ? `, marked ${picture.marks.map(m => m.label).join(', ')}` : ''}`
   if (picture.vertical) {
     const top = 18, bottom = 262, x = 96
@@ -77,6 +77,7 @@ export function NumberLine({ picture }: { picture: NumberLinePicture }) {
   const rows = picture.marks.map(m => ({ m, x: xAt(m.value) })).sort((a, b) => a.x - b.x).map(({ m, x }) => {
     const w = m.label.length * 8 + 10
     let row = 0
+    if (!m.label) return { m, x, dot: x, row, w }
     while (ends[row] !== undefined && ends[row] > x - w / 2 - 2) row++
     ends[row] = x + w / 2
     return { m, x: Math.min(Math.max(x, left + w / 2 - 14), right - w / 2 + 14), dot: x, row, w }
@@ -88,11 +89,16 @@ export function NumberLine({ picture }: { picture: NumberLinePicture }) {
       {major(v) && <text className={cls('nl-scale', v === 0 && 'is-zero')} x={xAt(v)} y={base + 28} textAnchor="middle">{fmt(v)}</text>}
     </g>)}
     {picture.read && <g className="nl-read"><line x1={picture.read === 'right' ? left : right} x2={picture.read === 'right' ? right - 8 : left + 8} y1={base + 42} y2={base + 42} /><path d={picture.read === 'right' ? `M${right - 12} ${base + 34} L${right} ${base + 42} L${right - 12} ${base + 50}` : `M${left + 12} ${base + 34} L${left} ${base + 42} L${left + 12} ${base + 50}`} /></g>}
-    {rows.map(({ m, x, dot, row, w }) => <g key={m.label} className={cls('nl-mark', m.boxed && 'is-boxed', m.pick && 'is-pick')}>
-      <line className="nl-leader" x1={dot} x2={x} y1={base} y2={base - 22 - row * 24} />
-      <circle cx={dot} cy={base} r="6" />
-      {m.boxed && <rect x={x - w / 2} y={base - 40 - row * 24} width={w} height="22" rx="6" />}
-      <text x={x} y={base - 24 - row * 24} textAnchor="middle">{m.label}</text>
+    {picture.span && <g className="nl-span">
+      <rect x={xAt(picture.span.from)} y={base - 7} width={xAt(picture.span.to) - xAt(picture.span.from)} height="14" rx="7" />
+      <circle className="is-in" cx={xAt(picture.span.from)} cy={base} r="7" />
+      <circle className="is-out" cx={xAt(picture.span.to)} cy={base} r="7" />
+    </g>}
+    {rows.map(({ m, x, dot, row, w }) => <g key={`${m.value}${m.label}`} className={cls('nl-mark', m.boxed && 'is-boxed', m.pick && 'is-pick')}>
+      {m.label && <line className="nl-leader" x1={dot} x2={x} y1={base} y2={base - 22 - row * 24} />}
+      {!(picture.span && (Math.abs(m.value - picture.span.from) < 1e-9 || Math.abs(m.value - picture.span.to) < 1e-9)) && <circle cx={dot} cy={base} r="6" />}
+      {m.boxed && m.label && <rect x={x - w / 2} y={base - 40 - row * 24} width={w} height="22" rx="6" />}
+      {m.label && <text x={x} y={base - 24 - row * 24} textAnchor="middle">{m.label}</text>}
     </g>)}
   </svg>
 }

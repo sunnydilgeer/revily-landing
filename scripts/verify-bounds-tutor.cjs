@@ -135,3 +135,19 @@ assert.ok(read('src/features/maths/courseRegistry.ts').includes("entry(13, tutor
 assert.ok(read('src/features/cards/keyFacts.ts').includes('  13: {'), 'Lesson 13 needs key-fact cards')
 
 console.log(`Lesson 13 verified: ${states.length} screens, all 16 source questions, ${numeric.length} numeric answers, ${intervals.length} error-interval choices, ${cases.length + 4} wrong-answer messages, 2 source-identical videos and the course route.`)
+
+// Bounds and truncation intervals are step workings (src/features/EXPLANATIONS.md): the step size, the neighbours, the
+// halfway points (rounding only), then the bound, the shaded interval or a test, the answer once in green.
+{
+  const { checkStepWorking } = require('./step-working-check.cjs')
+  let workings = 0
+  for (const state of states) {
+    const working = state.visual.kind === 'step-worked' ? state.visual : state.working
+    if (!working || working.kind !== 'step-worked') continue
+    workings++
+    const { answer } = checkStepWorking(working, state.id)
+    if (state.interaction.type === 'numericInput') assert.equal(Number(answer), state.interaction.correctAnswer, `${state.id}: the working ends on ${answer}`)
+  }
+  assert.ok(workings >= 24, `Every bound and interval is a step working (${workings})`)
+  console.log(`Lesson 13 workings: ${workings} step workings checked, each ending on its answer.`)
+}
