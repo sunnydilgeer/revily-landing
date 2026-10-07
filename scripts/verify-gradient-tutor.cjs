@@ -1,7 +1,9 @@
-// Checks graphs lesson 3 (Gradient, from GR1): three rungs, each opening with a play screen on the graph board; the
+// Checks graphs lesson 3 (Gradient and y = mx + c, from GR1 and GR2). The gradient: three rungs, each opening with a play screen on the graph board; the
 // workings across first, then up (amber, then biro blue), ending "up over across"; every gradient worked out again
 // from the question's own points; tilt questions reachable on their board; slips explained; and the lesson hidden:
-// only the noindexed Graphs shelf page opens it.
+// only the noindexed Graphs shelf page opens it. Then y = mx + c: from a graph, from two points and by rearranging,
+// every equation worked out again from the question's own line, points or equation, typed answers accepted in any
+// form, and the usual slips (m and c swapped, a lost sign) explained.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -20,8 +22,9 @@ const pairs = text => [...text.matchAll(/\((−?\d+),\s(−?\d+)\)/g)].map(m => 
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-gradient-graph', 'graphs-gradient-sign', 'graphs-gradient-points']
+const lineRungs = ['graphs-equation-graph', 'graphs-equation-points', 'graphs-equation-rearrange']
 assert.equal(lesson.id, 'L103', 'Hidden graphs lessons are numbered from 101')
-assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
+assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, ...lineRungs, 'mixed'], 'Six rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L103-${String(index + 1).padStart(2, '0')}`)
   assert.equal(state.transition.onComplete, states[index + 1]?.id)
@@ -30,14 +33,20 @@ for (const rung of rungs) {
   const own = states.filter(state => state.microSkillId === rung)
   assert.ok(own[0].interaction.type === 'continue' && own[0].board?.mode === 'tilt', `${rung} opens with a tilt play screen`)
   assert.ok(own[1].interaction.type === 'continue' && own[1].visual.kind === 'method-worked', `${rung}: then its worked example`)
-  assert.ok(own.filter(state => state.interaction.type !== 'continue').length >= 5, `${rung} has at least five questions`)
+  assert.ok(own.filter(state => state.interaction.type !== 'continue').length >= 4, `${rung} has at least four questions`)
 }
+for (const rung of lineRungs) {
+  const own = states.filter(state => state.microSkillId === rung)
+  assert.ok(own.some(state => state.interaction.type === 'continue' && state.visual.kind === 'method-worked'), `${rung} has its worked example`)
+  assert.ok(own.filter(state => state.interaction.type !== 'continue').length >= 3, `${rung} has at least three questions`)
+}
+assert.ok(states.find(state => state.microSkillId === lineRungs[0]).board?.mode === 'equation', 'y = mx + c opens with the m-and-c play screen')
 assert.equal(states.filter(state => state.interaction.type === 'select').length, 1, 'Multiple choice only for the one concept check')
 for (const mode of ['tilt', 'walk']) assert.ok(states.filter(state => state.board?.mode === mode && state.interaction.type !== 'continue').length >= 2, `Questions on the board's ${mode} mode`)
 
 // ---------- Workings: across first, then up, up over across ----------
 let checked = 0
-for (const state of states) {
+for (const state of states.filter(state => rungs.includes(state.microSkillId))) {
   const model = state.interaction.type === 'continue' ? state.visual : state.working
   if (model?.kind !== 'method-worked') continue
   const steps = model.examples[0].steps
@@ -80,6 +89,72 @@ for (const state of states) {
   }
   if (interaction.type === 'select') { assert.match(interaction.options[0].label, /across ÷ up/); checked++ }
 }
+
+// ---------- y = mx + c: every equation worked out again ----------
+const lineText = (m, c) => {
+  const [n, d] = (() => { for (let d = 1; d <= 12; d++) if (Math.abs(Math.round(m * d) - m * d) < 1e-9) return [Math.round(m * d), d] })()
+  const vulgar = { '1/2': '½', '1/3': '⅓', '2/3': '⅔', '1/4': '¼', '3/4': '¾', '1/5': '⅕' }
+  const mText = d === 1 ? String(n).replace('-', '−') : `${n < 0 ? '−' : ''}${vulgar[`${Math.abs(n)}/${d}`] ?? `${Math.abs(n)}/${d}`}`
+  const mx = n === 0 ? '' : d === 1 && Math.abs(n) === 1 ? (n < 0 ? '−x' : 'x') : `${mText}x`
+  return `y = ${mx}${c === 0 ? '' : c < 0 ? ` − ${-c}` : ` + ${c}`}`
+}
+/** The line a question is about, worked out from the question alone: its drawn line, its two points or its equation. */
+function lineOf(state) {
+  const title = state.content.title.replace(/−/g, '-')
+  const named = pairs(state.content.title)
+  if (named.length === 2) { const [a, b] = named, m = (b.y - a.y) / (b.x - a.x); return { m, c: a.y - m * a.x } }
+  let match = /y = (-?\d*)x ([+-]) (\d+)\.$/.exec(title)
+  if (match) return { m: match[1] === '' ? 1 : match[1] === '-' ? -1 : Number(match[1]), c: Number(match[2] + match[3]) }
+  if ((match = /y = (\d+) - (\d*)x\.$/.exec(title))) return { m: -(Number(match[2]) || 1), c: Number(match[1]) }
+  // ax + by = k, in either order: 2x + y = 7, 4y - 8x = 12.
+  if ((match = /(-?\d*)([xy]) ([+-]) (\d*)([xy]) = (-?\d+)/.exec(title))) {
+    const coef = { [match[2]]: match[1] === '' ? 1 : match[1] === '-' ? -1 : Number(match[1]), [match[5]]: Number(match[3] + (match[4] || '1')) }
+    return { m: -coef.x / coef.y, c: Number(match[6]) / coef.y }
+  }
+  const line = (state.visual.diagram?.frame ?? {}).lines?.[0]
+  if (line) { const m = (line.to.y - line.from.y) / (line.to.x - line.from.x); return { m, c: line.from.y - m * line.from.x } }
+  return null
+}
+for (const state of states.filter(state => lineRungs.includes(state.microSkillId))) {
+  const model = state.interaction.type === 'continue' ? state.visual : state.working
+  if (model?.kind !== 'method-worked') continue
+  const frames = model.examples[0].steps.map(step => step.frame.graph)
+  for (const frame of frames) {
+    assert.ok(frame.x[1] - frame.x[0] <= 9, `${state.id}: at most 9 squares across`)
+    for (const m of frame.marks ?? []) assert.equal(m.family, m.axis === 'x' ? 1 : 0, `${state.id}: ${m.axis} highlighted in its colour`)
+  }
+  const last = frames.at(-1)
+  const drawn = last.lines.at(-1), m = (drawn.to.y - drawn.from.y) / (drawn.to.x - drawn.from.x), c = drawn.from.y - m * drawn.from.x
+  assert.ok(drawn.answer, `${state.id}: the line ends green`)
+  assert.ok(last.marks.some(mark => mark.axis === 'y' && mark.value === c), `${state.id}: c lit on the y axis`)
+  const own = state.interaction.type === 'continue' && !/through|of /.test(state.content.title) ? null : lineOf(state)
+  if (own) assert.ok(Math.abs(own.m - m) < 1e-9 && Math.abs(own.c - c) < 1e-9, `${state.id}: the working's line is the question's (m ${own.m}, c ${own.c})`)
+  if (/^y = /.test(last.answer.text)) assert.equal(last.answer.text, lineText(m, c), `${state.id}: the answer is ${lineText(m, c)}`)
+  else assert.match(last.answer.text.replace(/−/g, '-'), new RegExp(`^(Gradient = ${m}|m = .*, c = ${c})$`), `${state.id}: m and c read off`)
+  const { interaction } = state
+  if (interaction.type === 'continue') continue
+  if (interaction.acceptanceRule === 'formula') {
+    assert.equal(state.answerPrefix, 'y =', `${state.id}: "y =" before the box`)
+    const [n, d] = (() => { for (let d = 1; d <= 12; d++) if (Math.abs(Math.round(m * d) - m * d) < 1e-9) return [Math.round(m * d), d] })()
+    const mx = d === 1 ? `${n}x` : `${n}/${d}x`
+    for (const way of [`${mx}${c < 0 ? '' : '+'}${c}`, `${mx} ${c < 0 ? '−' : '+'} ${Math.abs(c)}`.replace('-', '−'), `y = ${mx}+${c}`.replace('+-', '-'), `${c}+${mx}`.replace('+-', '-')])
+      assert.ok(checkAnswer(interaction, way), `${state.id} accepts ${way}`)
+    assert.ok(!checkAnswer(interaction, `${c}x+${m}`), `${state.id}: m and c swapped is wrong`)
+    assert.ok(state.diagnose(`${c}x+${m}`), `${state.id}: m and c swapped is explained`)
+    assert.ok(state.diagnose(`${mx}${-c < 0 ? '' : '+'}${-c}`), `${state.id}: c's lost sign is explained`)
+  } else if (interaction.acceptanceRule === 'openInterval') {
+    assert.equal(interaction.correctAnswer, m, `${state.id}: the gradient is ${m}`)
+    assert.ok(state.diagnose(String(c)), `${state.id}: giving c for m is explained`)
+  } else if (state.board?.mode === 'equation') {
+    assert.equal(interaction.correctAnswer, `${m}, ${c}`, `${state.id}: the board's answer is m, c`)
+    assert.deepEqual(state.board.equation, { m, c }, `${state.id}: the board's target is the line`)
+    assert.ok(checkAnswer(interaction, `${m}, ${c}`) && !checkAnswer(interaction, `${state.board.rule.m}, ${state.board.rule.c}`), `${state.id}: the board doesn't start at the answer`)
+    assert.ok(c > state.board.grid.y[0] && c < state.board.grid.y[1], `${state.id}: c is on the board`)
+  } else if (state.board?.mode === 'plot') {
+    assert.equal(interaction.correctAnswer, `0, ${c}`, `${state.id}: the line crosses the y axis at (0, ${c})`)
+  } else assert.fail(`${state.id}: an unchecked question`)
+  checked++
+}
 assert.ok(checked === states.filter(state => state.interaction.type !== 'continue').length, `Every question's answer is worked out again (${checked})`)
 for (const state of states.filter(state => state.board?.mode === 'tilt' && state.interaction.type === 'continue')) {
   const [a, b] = state.board.ends, { grid } = state.board
@@ -93,9 +168,10 @@ for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/fea
   for (const file of walk(dir)) assert.ok(!read(file).includes('features/gradient') && !read(file).includes('L103'), `Gradient is not in ${file}`)
 }
 assert.ok(states.find(state => state.visual.kind === 'method-worked').video, 'The first worked example carries the GR1.2 video')
-for (const file of [`public/media/${previewId}/gradient.mp4`, `public/media/${previewId}/gradient.svg`]) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`)
+assert.ok(states.find(state => state.microSkillId === lineRungs[0] && state.visual.kind === 'method-worked').video, 'The first y = mx + c worked example carries the GR2.1 video')
+for (const file of [`public/media/${previewId}/gradient.mp4`, `public/media/${previewId}/gradient.svg`, `public/media/${previewId}/equation.mp4`, `public/media/${previewId}/equation.svg`]) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`)
 assert.match(read(`app/preview/${require('../src/features/graphs/graphsLessons.ts').GRAPHS_SHELF_ID}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
-console.log(`Gradient: ${states.length} screens, ${checked} answers worked out again, hidden on the Graphs shelf`)
+console.log(`Gradient and y = mx + c: ${states.length} screens, ${checked} answers worked out again, hidden on the Graphs shelf`)
 
 // ---------- The Graphs shelf: only its own page imports it ----------
 {

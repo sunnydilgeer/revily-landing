@@ -136,6 +136,9 @@ export type MicroSkillId =
   | 'graphs-table-of-values'
   | 'graphs-plot-and-join'
   | 'graphs-gradient-sign'
+  | 'graphs-equation-graph'
+  | 'graphs-equation-points'
+  | 'graphs-equation-rearrange'
   | 'mixed'
 
 export type LessonPhase =

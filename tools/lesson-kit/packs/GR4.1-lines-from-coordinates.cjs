@@ -76,9 +76,10 @@ module.exports = ({ m, line, answer, row, picture }) => {
         { stage: 'Step 2 · plot and join', title: 'Across, then up', from: 'the table', items: [
           ...xs.map((v, i) => [side(picture(graph({ ...lineGrid, points: P.slice(0, i + 1), legs: legsTo(P[i]), marks: marksOf(P[i]) })), table({ x: xs, y: ys, lit: i }), line(words(v))), i ? 2.8 : 3.4, i ? i - 1 : undefined]),
           [side(picture(graph({ ...lineGrid, points: P, lines: [ruleLine] })), table({ x: xs, y: ys }), line('they line up: join them'), answer('one straight line')), 3.8, 3],
+          [side(picture(graph({ ...lineGrid, points: P, lines: [ruleLine] })), table({ x: xs, y: ys }), line('they line up: join them'), answer('one straight line'), line('no $x^2$, $x^3$ or $y^2$ in the rule: always a straight line')), 3.8, 4],
         ] },
       ],
-      recap: ['y = a goes across, x = a goes up and down', 'Put each x into the rule to fill the table', 'Plot and join with one straight line'],
+      recap: ['y = a goes across, x = a goes up and down', 'Put each x into the rule to fill the table', 'No x², x³ or y²: a straight line', 'Plot and join with one straight line'],
     },
 
     worksheet: {

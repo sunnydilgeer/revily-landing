@@ -5,6 +5,7 @@ import { AXIS, GraphVisual, HaloText, UNIT, dotBox, fitLabel, fmt, labelWidth, p
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
+import { EquationBoard } from './EquationBoard'
 import './GraphBoard.css'
 
 /*
@@ -21,6 +22,7 @@ import './GraphBoard.css'
  * - rule: a play screen: the dot slides along a line's rule, y = mx + c, and each x it visits fills in the table.
  * - line: tap two corners and a straight line runs through them, edge to edge (LineBoard.tsx).
  * - tilt: drag either end of a line and watch its gradient, across then up (TiltBoard.tsx).
+ * - equation: step m and c up and down and watch y = mx + c move (EquationBoard.tsx).
  * A walk starts at 0, or at `start`: from one point of a line, across and then up to the other (a gradient's triangle).
  *
  * Only the play screens show the dot's brackets while it moves (they would give the answer away in a question).
@@ -29,7 +31,7 @@ import './GraphBoard.css'
 
 export type GraphBoardGrid = Omit<GraphFrame, 'step' | 'adds'>
 export type GraphBoardSpec = {
-  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt'
+  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt' | 'equation'
   grid: GraphBoardGrid
   /** Where the dot starts (drag, explore, midpoint). */
   start?: GraphPoint
@@ -38,6 +40,8 @@ export type GraphBoardSpec = {
   /** rule (a play screen): the dot slides along y = mx + c, a whole number of squares across at a time. Each x it
    *  visits leaves a dot behind and fills its y in the grid's table. */
   rule?: { m: number; c: number }
+  /** equation: the line to make, y = mx + c (EquationBoard.tsx; `rule` is where it starts). With none it is a play screen. */
+  equation?: { m: number; c: number }
   /** line: the right line, through two of its points (drawn green after a wrong answer). With none it is a play screen. */
   line?: [GraphPoint, GraphPoint]
   /** tilt: the gradient to tilt the line to (TiltBoard.tsx). With none it is a play screen. */
@@ -73,7 +77,7 @@ type BoardProps = {
 }
 
 export function GraphBoard(props: BoardProps) {
-  return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : <PointBoard {...props} />
+  return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : props.spec.mode === 'equation' ? <EquationBoard {...props} /> : <PointBoard {...props} />
 }
 
 /** y = 2 × (−1) − 1 = −3: the rule's sum at x, x amber and y biro blue. */

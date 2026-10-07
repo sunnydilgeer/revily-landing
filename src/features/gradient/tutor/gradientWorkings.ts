@@ -26,7 +26,7 @@ const pickTwo = (a: GraphPoint, b: GraphPoint, given: boolean): GraphMove => ({
   }),
 })
 /** Moves: across from the first point to under (or over) the second, amber; its count, or subtraction, under the grid. */
-const acrossFrom = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
+export const acrossFrom = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   const n = b.x - a.x
   const text = subtract ? `across: ${show(b.x)} − ${bracket(a.x)} = ${show(n)}` : `across ${show(n)}`
   return {
@@ -41,7 +41,7 @@ const acrossFrom = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove 
   }
 }
 /** Moves: then up (or down) to the second point, biro blue. */
-const upTo = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
+export const upTo = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   const n = b.y - a.y
   const text = subtract ? `up: ${show(b.y)} − ${bracket(a.y)} = ${show(n)}` : n < 0 ? `down ${show(-n)}` : `up ${show(n)}`
   return {
@@ -55,16 +55,18 @@ const upTo = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   }
 }
 /** The answer: up over across. */
-const overAcross = (a: GraphPoint, b: GraphPoint): GraphMove => {
+const overAcross = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   const up = b.y - a.y, across = b.x - a.x
   const down = up < 0 && across > 0
+  // GR1's formula, said beside ours: up is the change in y and across the change in x.
+  const formula = subtract ? ' That’s the formula gradient = (y₂ − y₁) ÷ (x₂ − x₁): the change in y over the change in x.' : ''
   return answerMove(`Gradient = ${show(up)} ÷ ${show(across)} = ${gradientText(a, b)}`, 'Up over across',
-    down ? 'Divide the up by the across. The line goes down from left to right, so its gradient is negative.' : 'Divide the up by the across: how far the line goes up for every one square across.', [],
+    (down ? 'Divide the up by the across. The line goes down from left to right, so its gradient is negative.' : 'Divide the up by the across: how far the line goes up for every one square across.') + formula, [],
     { title: '', say: '', equation: '', adds: 'answer', change: frame => ({ ...frame, marks: shared([a, b]) }) })
 }
 /** Across, then up, then up over across. `given`: the points are named in the question (from two points). */
 export function gradientMoves(a: GraphPoint, b: GraphPoint, { subtract = false, given = false } = {}) {
-  return [pickTwo(a, b, given), acrossFrom(a, b, subtract), upTo(a, b, subtract), overAcross(a, b)]
+  return [pickTwo(a, b, given), acrossFrom(a, b, subtract), upTo(a, b, subtract), overAcross(a, b, subtract)]
 }
 
 /** A grid around two points (and 0), a square spare all round, for a gradient from two points. */

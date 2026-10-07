@@ -38,3 +38,11 @@
 .graph-board__count { font-size: 18px; font-weight: 800; fill: var(--f); }
 .graph-board__count.is-halo { stroke-width: 5px; stroke-linejoin: round; }
 .graph-board__gradient { color: var(--rv-good-ink); font-weight: 800; }
+
+/* y = mx + c mode: a stepper for m (the gradient, green) and one for c (where it crosses the y axis, biro blue). */
+.graph-board__stepper { display: inline-flex; align-items: center; gap: 8px; }
+.graph-board__stepper button { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--rv-line, #d6dbe6); background: var(--rv-paper); color: var(--rv-ink); font: inherit; font-size: 24px; font-weight: 800; line-height: 1; cursor: pointer; touch-action: manipulation; }
+.graph-board__stepper button:disabled { opacity: .4; cursor: default; }
+.graph-board__stepper-value { min-width: 4.6em; text-align: center; font-size: 20px; font-weight: 700; color: var(--rv-ink); font-variant-numeric: tabular-nums; }
+.graph-board__stepper-value i { font-family: 'Times New Roman', serif; font-size: 22px; }
+.graph-board__stepper-value .is-y { color: var(--rv-biro); font-weight: 800; }
