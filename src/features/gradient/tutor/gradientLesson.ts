@@ -8,13 +8,15 @@ import { diagnoseSlips } from '../../equations/tutor/equationsDiagnosis'
 import { choose, latex, text } from '../../inequalities/tutor/inequalityWorkings'
 import { answerMove, figure, gradient, graphModel, grid, mark, pt, type GraphGrid } from '../../straight-line-graphs/tutor/graphWorkings'
 import { gradientMoves, gradientOf, gradientSlips, gradientText, gridAround, pair } from './gradientWorkings'
-import { fromGraphMoves, fromPointsMoves, gridFor, lineSlips, lineText, rearrangeMoves, typedLine } from './equationWorkings'
+import { lineAnswer as drawnLine } from '../../lines/tutor/lineWorkings'
+import { drawMoves, drawSlips, fromGraphMoves, fromPointsMoves, gridFor, lineSlips, lineText, rearrangeMoves, rearrangedMoves, typedLine, type Move } from './equationWorkings'
 
 /*
- * Graphs lesson 3: Gradient and y = mx + c. From GR1 (p70–71) and GR2 (p72–73), with our own numbers; the storyboard
- * is /mnt/project-files/lessons/graphs/L3-gradient/STORYBOARD.md. Six rungs, easiest first: the gradient from a graph;
+ * Graphs lesson 3: Gradient and y = mx + c. From GR1 (p70–71), GR2 (p72–73) and GR4 (p76–78), with our own numbers; the storyboard
+ * is /mnt/project-files/lessons/graphs/L3-gradient/STORYBOARD.md. Seven rungs, easiest first: the gradient from a graph;
  * up or down (positive and negative); from two points, with GR1's formula (y₂ − y₁) ÷ (x₂ − x₁); then GR2's three
- * skills: y = mx + c from a graph, from two points, and rearranging into y = mx + c. Across first, then up, said "up over across" (Sunny, 7 Oct).
+ * skills: y = mx + c from a graph, from two points, and rearranging into y = mx + c; last, GR4's method 2 (p76–78):
+ * drawing a line from its equation, c first and then a step of the gradient. Across first, then up, said "up over across" (Sunny, 7 Oct).
  * Hands-on: each rung opens with a play screen on the graph board (tilt a line), and the questions mix walking the
  * triangle, tilting the line to a gradient and typing it. Multiple choice only for the one concept check.
  *
@@ -30,6 +32,7 @@ const fromPoints = 'graphs-gradient-points'
 const lineGraph = 'graphs-equation-graph'
 const linePoints = 'graphs-equation-points'
 const rearrange = 'graphs-equation-rearrange'
+const drawLine = 'graphs-equation-draw'
 
 /* ---------- Screens ---------- */
 
@@ -237,17 +240,58 @@ practice(rearrange, '3x + 2y = 10. Tap where the line crosses the y axis.', 'GR2
   'Make y the subject. c is where it crosses the y axis.', rearrangeModel(3, 2, 10, [-2, 5], [-2, 7]),
   response => response.replace(/\s/g, '') === '0,10' ? 'Divide the 10 by 2 as well: y = −3/2x + 5.' : response.replace(/\s/g, '') === '5,0' ? 'On the y axis x is 0: across 0, then up.' : null)
 
+/* ---------- Rung 7: drawing a line from y = mx + c (GR4 method 2) ---------- */
+
+/** Make y the subject (if it isn't), plot c, step the gradient, join. */
+const drawModel = (question: string, moves: Move[], up: number, across: number, c: number, x: Range, y: Range) =>
+  graphModel(question, grid(x, y), drawMoves(moves, up, across, c), 'c, then the gradient')
+function drawFrom(title: string, question: string, sourceRef: string, moves: Move[], up: number, across: number, c: number, x: Range, y: Range, hint: string) {
+  const ends: [GraphPoint, GraphPoint] = [pt(0, c), pt(across, c + up)]
+  return practice(drawLine, title, sourceRef, { interaction: drawnLine(...ends), board: { mode: 'line', grid: grid(x, y), line: ends } },
+    hint, drawModel(question, moves, up, across, c, x, y), drawSlips(up, across, c))
+}
+
+explore(drawLine, 'Tap where a line crosses the y axis, then tap one step of a gradient on. Watch the line go through them.', 'GR4 p76 Method 2: using y = mx + c (play)',
+  { mode: 'line', grid: grid([-3, 5], [-3, 6]) })
+worked(drawLine, 'Draw the graph of 2y + 4x = 10.', 'Draw it from y = mx + c', 'GR4 p76 Method 2: using y = mx + c (own numbers)',
+  drawModel('2y + 4x = 10', [['Take 4x from both sides', '2y = −4x + 10', 'Get it into y = mx + c first. Take the x term to the other side.'], ['Divide by 2', 'y = −2x + 5', 'Divide every term by 2, so y is on its own.']], -2, 1, 5, [-1, 4], [-2, 7]),
+  'No table needed. Get the equation into y = mx + c, plot c on the y axis, then step the gradient from there: across 1, then up or down by m. Join the points with one straight line.').video = {
+  id: 'graphs-3-drawing', src: `/media/${GRADIENT_PREVIEW_ID}/drawing.mp4`, poster: `/media/${GRADIENT_PREVIEW_ID}/drawing.svg`,
+  title: 'Drawing a line from y = mx + c', durationSeconds: 72, sourceFile: 'GR4.2_Drawing_from_y_mx_c.mp4 (tools/lesson-kit/packs/GR4.2-drawing-from-y-mx-c.cjs)',
+  textAlternative: [
+    'To draw a straight line from its equation you don’t need a table: plot c on the y axis, step the gradient m, and join with one straight line.',
+    'Get it into y = mx + c first. 2y + 4x = 10: take 4x from both sides, 2y = −4x + 10, then divide every term by 2, y = −2x + 5. So m = −2 and c = 5.',
+    'c = 5: the line crosses the y axis at (0, 5).',
+    'm = −2: for every 1 across, down 2. From (0, 5), across 1 and down 2 lands on (1, 3). Join them, right across the grid: that is y = −2x + 5.',
+    'A half: y − 1 = −½x is y = −½x + 1. Start at 1 on the y axis; a half is across 2, down 1, to (2, 0). Join them.',
+    'Recap: get it into y = mx + c first; plot c on the y axis; step the gradient, across then up or down; join with one straight line.',
+  ],
+}
+drawFrom('Draw the line y = 3x − 4.', 'y = 3x − 4', 'GR4 p76 Method 2 (own numbers)', [], 3, 1, -4, [-2, 4], [-5, 4],
+  'Plot c, −4, on the y axis. Then across 1 and up 3.')
+practice(drawLine, 'Write 2y − 1 = 4x in the form y = mx + c.', 'GR4 p77 Q2 (own numbers)', { interaction: lineAnswer(2, 1, 0.5), prefix: 'y =' },
+  'Add 1 to both sides, then divide every term by 2.',
+  graphModel('2y − 1 = 4x', grid([-2, 3], [-3, 5]), rearrangedMoves([['Add 1 to both sides', '2y = 4x + 1', 'Get the y term on its own first.'], ['Divide by 2', 'y = 2x + ½', 'Divide every term by 2, the 1 too: 1 ÷ 2 = ½.']], 2, 1, 0.5), 'Make y the subject'),
+  lineSlips(2, 1, 0.5))
+drawFrom('Draw the graph of 2y + 4 = 3x.', '2y + 4 = 3x', 'GR4 p78 Q4 (own numbers)', [['Take 4 from both sides', '2y = 3x − 4', 'Get the y term on its own first.'], ['Divide by 2', 'y = 3/2x − 2', 'Divide every term by 2: the gradient is 3/2.']], 3, 2, -2, [-1, 5], [-3, 5],
+  'Make y the subject: y = 3/2x − 2. Plot −2 on the y axis, then across 2 and up 3.')
+drawFrom('Draw the graph of y + 3x − 1 = 0.', 'y + 3x − 1 = 0', 'GR4 p78 Q5 (own numbers)', [['Take 3x from both sides', 'y − 1 = −3x', 'Move the x term to the other side.'], ['Add 1 to both sides', 'y = −3x + 1', 'Now y is on its own.']], -3, 1, 1, [-2, 3], [-4, 5],
+  'Make y the subject: y = −3x + 1. Plot 1 on the y axis, then across 1 and down 3.')
+drawFrom('Draw the graph of y − 1 = −½x.', 'y − 1 = −½x', 'GR4 p77 Q3 (own numbers)', [['Add 1 to both sides', 'y = −½x + 1', 'One move and y is on its own.']], -1, 2, 1, [-3, 5], [-2, 4],
+  'y = −½x + 1. Plot 1 on the y axis. A half: across 2, then down 1.')
+
 add('mixed', 'Gradient and y = mx + c', 'GR1 and GR2 consolidation', text(
   'Gradient is how steep a line is: up over across, the change in y over the change in x.',
   'From two points: gradient = (y₂ − y₁) ÷ (x₂ − x₁), the same order top and bottom.',
   'Going up from left to right is positive; going down is negative.',
   'Every straight line is y = mx + c: m is the gradient and c is where it crosses the y axis.',
   'From two points: find m, then put one point in to find c. Otherwise make y the subject first.',
+  'To draw y = mx + c: plot c on the y axis, step the gradient from there, and join with one straight line.',
 ))
 
 export const tutorGradientLesson: TutorMethodLesson = {
   id: 'L103', number: 103, title: 'Gradient and y = mx + c', level: 'GCSE Foundation',
-  goal: 'Find the gradient of a straight line from a graph or from two points, and its equation y = mx + c from a graph, from two points or by rearranging.',
-  labels: { [fromGraph]: 'Gradient from a graph', [sign]: 'Up or down', [fromPoints]: 'Gradient from two points', [lineGraph]: 'y = mx + c from a graph', [linePoints]: 'y = mx + c from two points', [rearrange]: 'Rearranging to y = mx + c', mixed: 'Review' },
+  goal: 'Find the gradient of a straight line from a graph or from two points, and its equation y = mx + c from a graph, from two points or by rearranging, and draw a line from its equation.',
+  labels: { [fromGraph]: 'Gradient from a graph', [sign]: 'Up or down', [fromPoints]: 'Gradient from two points', [lineGraph]: 'y = mx + c from a graph', [linePoints]: 'y = mx + c from two points', [rearrange]: 'Rearranging to y = mx + c', [drawLine]: 'Drawing from y = mx + c', mixed: 'Review' },
   states: finish(),
 }

@@ -27,11 +27,13 @@ export function numberText(top: number, bottom = 1) {
   const plain = `${Math.abs(n)}/${d}`
   return `${n < 0 ? '−' : ''}${VULGAR[plain] ?? plain}`
 }
-/** y = 3x − 2, y = −½x + 4, y = x + 1, y = 5. m as top/bottom so a third stays exact. */
+/** c as the lesson writes it: 5, −2, ½. */
+const cText = (c: number) => Number.isInteger(c) ? show(c) : numberText(Math.round(c * 6), 6)
+/** y = 3x − 2, y = −½x + 4, y = x + 1, y = 5, y = 2x + ½. m as top/bottom so a third stays exact. */
 export function lineText(mTop: number, mBottom: number, c: number) {
   const [n, d] = ratio(mTop, mBottom)
   const mx = n === 0 ? '' : d === 1 && Math.abs(n) === 1 ? (n < 0 ? '−x' : 'x') : `${numberText(n, d)}x`
-  const cc = c === 0 ? (mx ? '' : '0') : !mx ? show(c) : c < 0 ? ` − ${show(-c)}` : ` + ${show(c)}`
+  const cc = c === 0 ? (mx ? '' : '0') : !mx ? cText(c) : c < 0 ? ` − ${cText(-c)}` : ` + ${cText(c)}`
   return `y = ${mx}${cc}`
 }
 /** What a student types after "y =": 3x-2, -1/2x+4. Checked as a formula, so any way of writing it passes. */
@@ -129,6 +131,72 @@ export function rearrangeMoves(a: number, b: number, k: number): GraphMove[] {
       change: (frame, step) => ({ ...frame, lines: [{ from: pt(0, c), to: pt(b, c - a), at: step }], marks: [mark('y', c)] }),
     }),
   ]
+}
+
+/** A rearranging step: its title, the line it leaves, and what to say. */
+export type Move = [title: string, text: string, say: string]
+const moveLine = ([title, text, say]: Move): GraphMove => ({
+  title, equation: latex(text), adds: 'lines', say,
+  change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), { text, family: 3, at: step }] }),
+})
+/** The line y = mx + c drawn through (0, c) and one gradient step on, green, c lit on the y axis. */
+const joined = (mTop: number, mBottom: number, c: number, title: string, say: string): GraphMove => {
+  const [n, d] = ratio(mTop, mBottom)
+  return answerMove(lineText(n, d, c), title, say, [0], {
+    title: '', say: '', equation: '', adds: 'answer',
+    change: (frame, step) => ({ ...frame, lines: [{ from: pt(0, c), to: pt(d, c + n), at: step }, ...(frame.lines ?? [])], marks: [mark('y', c)] }),
+  })
+}
+
+/** Rearranging into y = mx + c, one move a line; the line comes in green at the end. */
+export function rearrangedMoves(moves: Move[], mTop: number, mBottom: number, c: number): GraphMove[] {
+  return [...moves.map(moveLine), joined(mTop, mBottom, c, 'y = mx + c', 'Now it is y = mx + c.')]
+}
+
+/**
+ * Drawing a line from its equation (GR4 method 2): make y the subject if it isn't, plot c on the y axis, step the
+ * gradient from there (across, then up or down: across 2 for a half), plot that point, then join them with one
+ * straight line. No dot at (0, c): its lit number on the y axis marks it. The grid starts empty.
+ */
+export function drawMoves(moves: Move[], mTop: number, mBottom: number, c: number): GraphMove[] {
+  const [n, d] = ratio(mTop, mBottom)
+  const a = pt(0, c), b = pt(d, c + n)
+  const m = numberText(n, d)
+  return [
+    ...moves.map(moveLine),
+    {
+      title: 'Plot c', equation: latex(`c = ${show(c)}`), adds: 'picture',
+      say: `c is where the line crosses the y axis: at ${pair(a)}.`,
+      // c's number lit on the y axis marks the spot, as in "Find c": a dot there would sit on top of the number.
+      change: (frame, step) => ({ ...frame, marks: [mark('y', c)], working: [...(frame.working ?? []), { text: `c = ${show(c)}: ${pair(a)}`, family: 0, at: step }] }),
+    },
+    { ...acrossFrom(a, b, false), say: d === 1 ? `The gradient is ${m}: for every 1 across, ${n < 0 ? 'down' : 'up'} ${show(Math.abs(n))}. Across 1 first.` : `The gradient is ${m}: for every ${d} across, ${n < 0 ? 'down' : 'up'} ${show(Math.abs(n))}. Across ${d} first.` },
+    upTo(a, b, false),
+    {
+      title: 'Plot it', equation: latex(pair(b)), adds: 'picture', say: `That lands on ${pair(b)}: plot it.`,
+      change: (frame, step) => ({ ...frame, points: [...(frame.points ?? []), { ...b, at: step }], boxed: [b], marks: shared([b]) }),
+    },
+    joined(n, d, c, 'Join', 'Join the two points with one straight line, right across the grid. Another step of the gradient lands on it too.'),
+  ]
+}
+
+/** Slips drawing y = mx + c on the board (the board sends the line as "a, b, k", ax + by = k): c or m's sign lost, m upside down, c and m swapped. */
+export function drawSlips(mTop: number, mBottom: number, c: number) {
+  const m = mTop / mBottom
+  const near = (p: number, q: number) => Math.abs(p - q) < 1e-9
+  return (response: string) => {
+    const [a, b, k] = response.replace(/−/g, '-').split(',').map(Number)
+    if ([a, b, k].some(Number.isNaN) || b === undefined) return null
+    if (b === 0) return 'That line goes straight up and down. Plot c on the y axis, then step across and up.'
+    const slope = -a / b, crosses = k / b
+    if (near(slope, m) && near(crosses, c)) return null
+    if (near(slope, m)) return `Right gradient, but it should cross the y axis at ${cText(c)}: c, with its sign.`
+    if (near(crosses, c) && near(slope, -m)) return m < 0 ? 'The gradient is negative: from c, across, then down.' : 'The gradient is positive: from c, across, then up.'
+    if (near(crosses, c) && m !== 0 && near(slope, 1 / m)) return 'That’s across over up. Across first, then up or down by the top of the gradient.'
+    if (near(crosses, c)) return `It crosses at ${cText(c)}, good. Now step the gradient: across ${mBottom}, then ${mTop < 0 ? 'down' : 'up'} ${Math.abs(mTop)}.`
+    if (near(slope, c) && near(crosses, m)) return 'That’s m and c swapped. c is where it crosses the y axis; m is how it steps.'
+    return null
+  }
 }
 
 /** The usual slips with y = mx + c, each a whole line: m and c swapped, c's sign lost, m's sign lost, m upside down. */
