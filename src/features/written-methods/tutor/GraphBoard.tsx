@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, UNIT, fmt } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, fmt } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import './GraphBoard.css'
 
@@ -176,7 +176,7 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
             const pick = [box(right, below), box(!right, below), box(right, !below), box(!right, !below)].find(clear)
               ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
             taken.push(pick)
-            return <text className={`graph-board__brackets ${className}`} x={pick.l} y={pick.base}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</text>
+            return <HaloText key={`${p.x},${p.y}`} className={`graph-board__brackets ${className}`} x={pick.l} y={pick.base}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</HaloText>
           }
           const parts = []
           if (walk && dot) {

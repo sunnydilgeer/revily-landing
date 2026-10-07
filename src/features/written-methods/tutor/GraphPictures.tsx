@@ -26,6 +26,16 @@ const fix = (n: number) => n.toFixed(1)
 export const coordinate = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
 /** A point's coordinates with the x in its amber and the y in its biro blue, as on the axes. */
 const Pair = ({ x, y }: { x: string; y: string }) => <>(<tspan className="is-x">{x}</tspan>, <tspan className="is-y">{y}</tspan>)</>
+/**
+ * Text with coloured parts (tspans) and a halo that keeps grid lines off it. Safari ignores paint-order on tspans, so
+ * a stroked label draws its halo over its own letters and the digits look doubled; the halo is a copy underneath.
+ */
+export function HaloText({ children, className, ...props }: SVGProps<SVGTextElement>) {
+  return <>
+    <text {...props} className={`${className ?? ''} is-halo`} aria-hidden="true">{children}</text>
+    <text {...props} className={`${className ?? ''} is-ink`}>{children}</text>
+  </>
+}
 /** A line of working with every (x, y) in it coloured like the axes. */
 function Coordinates({ text }: { text: string }) {
   const parts = text.split(/(\(−?[\d.]+, −?[\d.]+\))/)
@@ -238,7 +248,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
         // An answer point is drawn like a right answer on the graph board: a larger green dot (Sunny's reference, 7 Oct).
         return <g key={`p${i}`} className={`ns-graph__point${point.at >= 0 ? ' is-found' : ''}${point.answer ? ' is-answer' : ''}${done(point.at)}`}>
           <circle cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r={point.answer ? 7 : 5} />
-          {text !== '' && <text x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</text>}
+          {text !== '' && <HaloText x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</HaloText>}
         </g>
       })}
       {live?.draw({ px, py, width, height })}
