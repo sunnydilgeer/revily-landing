@@ -58,3 +58,27 @@ const registry = read('src/features/maths/courseRegistry.ts')
 assert.ok(registry.includes("entry(11, tutorOrderingLesson, 'Ordering numbers'"), 'Lesson 11 must be appended to the canonical course order')
 
 console.log('Lesson 11 verified: 33 screens, 32 source-aligned examples and practice parts, 4 source-identical videos, open-range grading and canonical course route.')
+
+// Every worked example and "See the working" is a step working (src/features/EXPLANATIONS.md): the values plain, then
+// made comparable, compared, and the answer written once in green.
+{
+  const ts = require('typescript')
+  for (const ext of ['.ts', '.tsx']) require.extensions[ext] = (module, file) => module._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: 1, target: 99, esModuleInterop: true, jsx: 4 } }).outputText, file)
+  const { checkStepWorking } = require('./step-working-check.cjs')
+  const { tutorOrderingLesson } = require('../src/features/ordering/tutor/orderingLesson.ts')
+  let workings = 0
+  for (const state of tutorOrderingLesson.states) {
+    const working = state.visual.kind === 'step-worked' ? state.visual : state.working
+    if (state.interaction.type === 'continue' && state.visual.kind !== 'step-worked') continue
+    assert.ok(working && working.kind === 'step-worked', `${state.id}: every worked example and answer is a step working`)
+    workings++
+    assert.ok(working.start, `${state.id}: the working opens on the plain values`)
+    const { answer } = checkStepWorking(working, state.id)
+    if (state.interaction.type === 'numericInput') {
+      const example = Number(answer.replace(/[^\d.−-]/g, '').replace('−', '-'))
+      assert.equal(example, state.interaction.correctAnswer, `${state.id}: the working ends on its example ${answer}`)
+    }
+  }
+  assert.equal(workings, 32)
+  console.log(`Lesson 11 workings: ${workings} step workings checked, each ending on its answer.`)
+}

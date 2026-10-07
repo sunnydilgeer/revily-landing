@@ -17,6 +17,23 @@ type Props = {
   onSelectSkill: (lesson: MathsLessonNumber, section: MathsSection) => void
 }
 
+/**
+ * When Contents opens, scroll its list to the lesson you're on: the lesson row sits about a quarter of the way down,
+ * so its sections show underneath. Waits two frames for the open chapter to render. Returns a cancel function.
+ */
+export function scrollContentsToCurrent(drawer: HTMLElement | null) {
+  let frame = window.requestAnimationFrame(() => {
+    frame = window.requestAnimationFrame(() => {
+      const list = drawer?.querySelector<HTMLElement>('.toc-body')
+      const row = drawer?.querySelector<HTMLElement>('.toc-lesson.is-current')
+      if (!list || !row) return
+      const offset = row.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop
+      list.scrollTop = Math.max(0, offset - list.clientHeight * 0.25)
+    })
+  })
+  return () => window.cancelAnimationFrame(frame)
+}
+
 const focusableSelector = 'a[href], button:not([disabled]), input, summary, [tabindex]:not([tabindex="-1"])'
 const FOLDS_KEY = 'revily:maths-contents-folds:v1'
 
@@ -36,12 +53,14 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
 
   useEffect(() => {
     if (!open) return
-    setFolds(readFolds())
+    // The chapter you're in always opens, so the lesson you're on is there to scroll to.
+    setFolds({ ...readFolds(), [currentLesson.chapterId]: true })
     setOpenSkills({ [currentLesson.lessonId]: true })
     setQuery('')
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     closeButtonRef.current?.focus()
+    const stopScroll = scrollContentsToCurrent(drawerRef.current)
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -65,6 +84,7 @@ export default function MathsContentsDrawer({ open, currentLesson, progress, onC
 
     document.addEventListener('keydown', handleKeyDown)
     return () => {
+      stopScroll()
       document.body.style.overflow = previousOverflow
       document.removeEventListener('keydown', handleKeyDown)
     }

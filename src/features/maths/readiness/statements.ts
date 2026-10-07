@@ -134,6 +134,10 @@ export const canStatements: Record<string, string> = {
   '28:proof-geometric': 'I can prove an angle fact with reasons, like the angles in a triangle add to 180° using a parallel line',
   '28:proof-algebraic': 'I can prove facts about odd and even numbers with n, like n + (n + 1) = 2n + 1 is always odd',
 
+  '29:function-machines-forwards': 'I can put a number through a function machine, box by box, like 7 → × 4 → + 3 gives 31',
+  '29:function-machines-backwards': 'I can work backwards through a function machine, undoing the last box first, like 26 back through × 5, − 4 gives 6',
+  '29:function-machines-creating': 'I can turn an equation into a function machine in BIDMAS order, like y = 3x + 4 is × 3, then + 4',
+
   '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
   '24:inequalities-two-sided': 'I can write and show a two-sided inequality, like 1 ≤ t < 5 as a filled circle at 1 and an open circle at 5, joined',
 

@@ -99,7 +99,7 @@ export const paperTopics: PaperTopic[] = [
     ...lesson(18, 'factorise-two-terms', 'factorise-three-terms'),
     ...lesson(21, 'quadratics-positive', 'quadratics-negative-middle', 'quadratics-negative-last', 'quadratics-difference-of-squares'),
   ], labs: ['mind'] },
-  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: [], labs: ['formula'] },
+  { id: 'function-machines', title: 'Function machines', short: 'Functions', area: 'algebra', marks30: 19, sittings: 7, statements: lesson(29, 'function-machines-forwards', 'function-machines-backwards', 'function-machines-creating'), labs: ['formula'] },
 
   // Ratio, proportion and rates of change
   { id: 'ratio', title: 'Ratio and proportion', short: 'Ratio', area: 'ratio', marks30: 89, sittings: 10, statements: [], labs: ['heist', 'potion', 'tiers'] },
