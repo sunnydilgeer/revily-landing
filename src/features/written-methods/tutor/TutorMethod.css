@@ -197,6 +197,10 @@
 .nl-mark.is-boxed rect { fill: color-mix(in srgb, #7c3aed 10%, transparent); stroke: #7c3aed; stroke-width: 2; }
 .nl-mark.is-boxed text, .nl-mark.is-pick text { fill: #7c3aed; }
 .nl-mark.is-pick circle { fill: #7c3aed; }
+.nl-span rect { fill: color-mix(in srgb, #7c3aed 22%, transparent); }
+.nl-span circle { stroke: #7c3aed; stroke-width: 3; }
+.nl-span .is-in { fill: #7c3aed; }
+.nl-span .is-out { fill: var(--rv-surface, #fff); }
 .nl-read line, .nl-read path { fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 /* Written methods drawn as pictures, one move a step (src/features/EXPLANATIONS.md): the part a move uses is coloured
    like its line of working (top number amber, multiplier or divisor blue), what the step adds to is boxed in purple,

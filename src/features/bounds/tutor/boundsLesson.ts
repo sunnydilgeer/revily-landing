@@ -2,6 +2,7 @@ import { select, working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
 import type { IntervalFrame, MethodStep, WorkingLine } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from '../../written-methods/tutor/model'
+import { line, part, sign, type NumberLinePicture, type StepWorking, type WorkedStep } from '../../written-methods/tutor/stepWorking'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { diagnoseBound, diagnoseCut, type BoundCheck, type CutCheck } from './boundsDiagnosis'
 
@@ -44,36 +45,84 @@ function lines(question: string, ...list: Step[]): TutorWorking {
   return { kind: 'method-worked', examples: [{ method: 'ordering', expression: question, label: 'Bounds', first: 0, second: 0, steps, pictureOnly: true }] }
 }
 
-/** A rounded value: half the unit, each bound, then the error interval. */
-type Rounded = { value: number; unit: number; target: string; letter: string; test?: string }
-function roundedBounds({ value, unit, target, letter, test }: Rounded, extra: Step[] = []): TutorWorking {
-  const half = show(unit / 2), lower = show(value - unit / 2), upper = show(value + unit / 2), v = show(value)
+type Ask = 'half' | 'lower' | 'upper' | 'interval'
+type Test = { value: number; to: number; answer: string; why: string }
+const nl = (min: number, max: number, tick: number, labels: number[], marks: NumberLinePicture['marks'] = [], span?: NumberLinePicture['span']): NumberLinePicture =>
+  ({ kind: 'number-line', min, max, tick, labels, marks, ...(span ? { span } : {}) })
+
+/**
+ * A rounded value, the why first (src/features/EXPLANATIONS.md): the step size the question rounded to, the rounded
+ * values either side, the halfway points between them (anything between rounds to the value), then the bound, the
+ * shaded interval or a test of one value. The answer is written once, in green.
+ */
+type Rounded = { value: number; unit: number; target: string; letter: string; ask?: Ask; test?: Test }
+function roundedBounds({ value, unit, target, letter, ask = 'interval', test }: Rounded): StepWorking {
+  const n = (x: number) => Number(x.toPrecision(10))
+  const v = show(value), u = show(unit), half = show(unit / 2), lo = show(n(value - unit)), hi = show(n(value + unit))
+  const lower = show(n(value - unit / 2)), upper = show(n(value + unit / 2))
   const decimals = /decimal/.test(target)
-  const line = (stage: IntervalFrame['stage']): IntervalFrame => ({ lower, upper, value: v, stage })
-  // Half the unit in amber, the bounds in blue: built up one line per step under the number line.
-  const halving: WorkingLine = { parts: `${show(unit)} ÷ 2`, total: half, family: 1 }
-  const low: WorkingLine = { parts: `${v} − ${half}`, total: lower, family: 0 }, high: WorkingLine = { parts: `${v} + ${half}`, total: upper, family: 0 }
-  return lines(`${letter}=${tex(v)}`,
-    { title: decimals ? `Rounded to the nearest ${show(unit)}` : `Rounded to ${target[0].toLowerCase()}${target.slice(1)}`, math: `${show(unit)}\\div2=${half}`, say: `${decimals ? `${target} means rounded to the nearest ${show(unit)}. ` : ''}The real value can be up to half of that away, either side.`, line: line('value'), sums: [halving] },
-    { title: 'Lower bound', math: `${v}-${half}=${lower}`, say: 'Take half a unit off.', line: line('lower'), sums: [halving, low] },
-    { title: 'Upper bound', math: `${v}+${half}=${upper}`, say: 'Add half a unit on.', line: line('bounds'), sums: [halving, low, high] },
-    { title: 'Error interval', math: `${lower}\\leq ${letter}<${upper}`, say: 'The lower bound is included. The upper bound is not, because it would round up.', line: { ...line('interval'), test }, answer: `${lower} ≤ ${letter} < ${upper}` },
-    ...extra,
-  )
+  const scale = (marks: NumberLinePicture['marks'] = [], span?: NumberLinePicture['span'], labels = [value - unit, value, value + unit]) =>
+    nl(n(value - 1.5 * unit), n(value + 1.5 * unit), unit / 2, labels.map(n), marks, span)
+  const halfway = [{ value: n(value - unit / 2), label: lower, boxed: true }, { value: n(value + unit / 2), label: upper, boxed: true }]
+  const steps: WorkedStep[] = [
+    {
+      title: 'Find the step size',
+      why: decimals
+        ? `${target[0].toUpperCase()}${target.slice(1)} means rounded to the nearest ${u}, so the rounded values go up in steps of ${u}.`
+        : `${target} means the rounded values go up in steps of ${u}.`,
+      picture: scale([{ value, label: '' }], undefined, [value]),
+      lines: [line([part(decimals ? target : target.replace(/^The /, 'the '))], `steps of ${u}`)],
+    },
+    {
+      title: 'Mark the neighbours',
+      why: `The rounded values next to ${v} are ${lo} and ${hi}. The real value is somewhere near ${v}.`,
+      picture: scale([{ value, label: '' }]),
+      lines: [line([part(v), sign('−'), part(u, 1)], lo), line([part(v), sign('+'), part(u, 1)], hi)],
+    },
+    {
+      title: 'Find the halfway points',
+      why: `Anything between the halfway points is closer to ${v} than to ${lo} or ${hi}, so it rounds to ${v}. Each halfway point is half a step, ${half}, from ${v}.`,
+      picture: scale([{ value, label: '' }, ...halfway]),
+      lines: [line([part(lo), sign('…'), part(v)], lower, { mark: 'halfway' }), line([part(v), sign('…'), part(hi)], upper, { mark: 'halfway' })],
+    },
+  ]
+  const shaded = scale([{ value, label: '' }, ...halfway.map(h => ({ ...h, boxed: false }))], { from: n(value - unit / 2), to: n(value + unit / 2) })
+  const shade: WorkedStep = {
+    title: 'Shade the interval',
+    why: `${lower} rounds up to ${v}, so it is in: a filled dot. ${upper} rounds up to ${hi}, so it is not: an open dot.`,
+    picture: shaded,
+    lines: [line([part(lower)], v, { mark: 'in' }), line([part(upper)], hi, { mark: 'not in' })],
+  }
+  if (ask === 'half') steps.push({ title: 'Half a step', why: 'Half the unit is the gap from the value to a halfway point.', lines: [line([part(v), sign('−'), part(lower)], half, { answer: true })] })
+  else if (ask === 'lower') steps.push({ title: 'Read the lower bound', why: `The lower bound is the halfway point below ${v}. It is the smallest value that rounds to ${v}.`, picture: shaded, lines: [line([part('Lower bound')], lower, { answer: true })] })
+  else if (ask === 'upper') steps.push({ title: 'Read the upper bound', why: `The upper bound is the halfway point above ${v}. It is the edge of the interval: it rounds up to ${hi} itself.`, picture: shaded, lines: [line([part('Upper bound')], upper, { answer: true })] })
+  else if (test) steps.push(shade, { title: `Test ${show(test.value)}`, why: test.why, picture: shaded, lines: [line([part(show(test.value), 0)], show(test.to))], words: test.answer })
+  else steps.push(shade, { title: 'Write the interval', why: 'Use ≤ at the filled dot, because it is included, and < at the open dot, because it is not.', picture: shaded, words: `${lower} ≤ ${letter} < ${upper}` })
+  return { kind: 'step-worked', start: `${letter} = ${v}, ${decimals ? `to ${target}` : target.replace(/^The /, 'to the ')}`, steps }
 }
 
-/** A truncated value: the value itself is the smallest it can be; one whole unit up is never reached. */
-type Truncated = { value: number; unit: number; letter: string; test?: string }
-function truncatedBounds({ value, unit, letter, test }: Truncated, extra: Step[] = []): TutorWorking {
-  const v = show(value), upper = show(value + unit)
-  const line = (stage: IntervalFrame['stage']): IntervalFrame => ({ lower: v, upper, value: v, stage })
-  const low: WorkingLine = { total: v, family: 0 }, high: WorkingLine = { parts: `${v} + ${show(unit)}`, total: upper, family: 0 }
-  return lines(`${letter}=${tex(v)}`,
-    { title: 'Lower bound', math: `${letter}\\geq ${v}`, say: 'Truncating only chops digits off, so the value can’t be smaller than this.', line: line('lower'), sums: [low] },
-    { title: 'Upper bound', math: `${v}+${show(unit)}=${upper}`, say: 'Add one whole unit. It can get close to this but never reach it.', line: line('bounds'), sums: [low, high] },
-    { title: 'Error interval', math: `${v}\\leq ${letter}<${upper}`, say: 'The lower bound is included. The upper bound is not.', line: { ...line('interval'), test }, answer: `${v} ≤ ${letter} < ${upper}` },
-    ...extra,
-  )
+/**
+ * A truncated value: the step size, the next value up, then everything from the value up to (not including) the next
+ * one chops to the value. No halfway points: truncating never rounds up.
+ */
+type Truncated = { value: number; unit: number; letter: string; ask?: 'upper' | 'interval'; test?: Test }
+function truncatedBounds({ value, unit, letter, ask = 'interval', test }: Truncated): StepWorking {
+  const n = (x: number) => Number(x.toPrecision(10))
+  const v = show(value), u = show(unit), hi = show(n(value + unit)), inside = show(n(value + 0.9 * unit))
+  const places = u.split('.')[1]?.length ?? 0
+  const target = `${places} decimal place${places === 1 ? '' : 's'}`
+  const scale = (marks: NumberLinePicture['marks'] = [], span?: NumberLinePicture['span']) =>
+    nl(n(value - unit / 2), n(value + 1.5 * unit), unit / 2, [value, n(value + unit)], marks, span)
+  const shaded = scale([], { from: value, to: n(value + unit) })
+  const steps: WorkedStep[] = [
+    { title: 'Find the step size', why: `Truncated to ${target}, so the values go up in steps of ${u}.`, picture: nl(n(value - unit / 2), n(value + 1.5 * unit), unit / 2, [value], [{ value, label: '' }]), lines: [line([part(target)], `steps of ${u}`)] },
+    { title: 'Mark the next value', why: `Truncating chops digits off and never rounds up, so ${v} is the smallest the value can be. The next value up is ${hi}.`, picture: scale([{ value, label: '' }, { value: n(value + unit), label: '' }]), lines: [line([part(v), sign('+'), part(u, 1)], hi)] },
+    { title: 'Shade the interval', why: `Every value from ${v} up to just below ${hi} chops to ${v}. ${hi} itself chops to ${hi}, so it is not in.`, picture: shaded, lines: [line([part(inside)], v, { mark: 'in' }), line([part(hi)], hi, { mark: 'not in' })] },
+  ]
+  if (ask === 'upper') steps.push({ title: 'Read the upper bound', why: `The upper bound is ${hi}, the edge of the interval. The value gets close to it but never reaches it.`, picture: shaded, lines: [line([part('Upper bound')], hi, { answer: true })] })
+  else if (test) steps.push({ title: `Test ${show(test.value)}`, why: test.why, picture: scale([{ value: test.value, label: show(test.value), boxed: true }], { from: value, to: n(value + unit) }), lines: [line([part(show(test.value), 0)], show(test.to))], words: test.answer })
+  else steps.push({ title: 'Write the interval', why: 'Use ≤ at the filled dot, because it is included, and < at the open dot, because it is not.', picture: shaded, words: `${v} ≤ ${letter} < ${hi}` })
+  return { kind: 'step-worked', start: `${letter} = ${v}, truncated to ${target}`, steps }
 }
 
 /** Truncating (chop) or rounding one number, using the shared kept-digit picture. */
@@ -95,7 +144,8 @@ function cut({ original, kept, next, rest = '', answer, places, mode }: Cut): Tu
 
 /* ---------- Screens ---------- */
 
-function workingSteps(visual: TutorWorking) {
+function workingSteps(visual: TutorWorking | StepWorking) {
+  if (visual.kind === 'step-worked') return visual.steps.map(step => [step.title, step.why] as [string, string])
   return visual.kind === 'method-worked' ? visual.examples.flatMap(example => example.steps).map(step => [step.title, step.instruction] as [string, string]) : []
 }
 
@@ -106,7 +156,7 @@ function practice(
   interaction: InteractionDefinition,
   answer: string,
   hint: string,
-  model: TutorWorking,
+  model: TutorWorking | StepWorking,
   options: { unit?: string; bound?: BoundCheck; cut?: CutCheck } = {},
 ) {
   const state = add(topic, title, sourceRef, text(title), interaction, working(answer, ...workingSteps(model)), hint)
@@ -118,7 +168,7 @@ function practice(
   return state
 }
 
-function worked(topic: MicroSkillId, title: string, sourceRef: string, model: TutorWorking, body?: string) {
+function worked(topic: MicroSkillId, title: string, sourceRef: string, model: TutorWorking | StepWorking, body?: string) {
   return add(topic, title, sourceRef, model, undefined, undefined, undefined, body)
 }
 function video(state: TutorMethodState, definition: NonNullable<TutorMethodState['video']>) { state.video = definition }
@@ -132,7 +182,7 @@ video(boundsVideo, {
   id: 'lesson13-upper-and-lower-bounds', src: '/media/lesson-13/upper-and-lower-bounds.mp4', poster: '/media/lesson-13/upper-and-lower-bounds.svg', title: 'Error interval for a pencil’s length', durationSeconds: 56, sourceFile: 'N13.1_Upper_and_Lower_Bounds.mp4',
   textAlternative: ['Lengths such as 8.37, 8.42 and 8.44 cm all round to 8.4 cm.', '1 decimal place means the unit is 0.1. Half of that is 0.05.', 'The lower bound is 8.4 − 0.05 = 8.35 and the upper bound is 8.4 + 0.05 = 8.45.', 'The error interval is 8.35 ≤ l < 8.45.'],
 })
-const halfPractice = (title: string, ref: string, unit: number, target: string, value: number, letter: string) => practice(halfUnit, title, ref, number(unit / 2), show(unit / 2), 'Find the unit, then halve it.', roundedBounds({ value, unit, target, letter }), { bound: { value, unit, side: 'half' } })
+const halfPractice = (title: string, ref: string, unit: number, target: string, value: number, letter: string) => practice(halfUnit, title, ref, number(unit / 2), show(unit / 2), 'Find the unit, then halve it.', roundedBounds({ value, unit, target, letter, ask: 'half' }), { bound: { value, unit, side: 'half' } })
 halfPractice('y = 6, to the nearest whole number. What is half the unit?', 'N13.1 Q2', 1, 'The nearest whole number', 6, 'y')
 halfPractice('A jar holds 250 ml, to the nearest 10 ml. What is half the unit?', 'N13.1 Q3', 10, 'The nearest 10', 250, 'v')
 halfPractice('A crowd was 2400, to the nearest 100. What is half the unit?', 'N13.1 Q4a', 100, 'The nearest 100', 2400, 'n')
@@ -143,7 +193,7 @@ halfPractice('A dog weighs 70 kg, to the nearest 5 kg. What is half the unit?', 
 
 const boundPractice = (title: string, ref: string, model: Rounded, side: 'lower' | 'upper', unitLabel?: string) => {
   const answer = side === 'lower' ? model.value - model.unit / 2 : model.value + model.unit / 2
-  return practice(bounds, title, ref, number(Number(show(answer))), show(answer), side === 'lower' ? 'Take half the unit off.' : 'Add half the unit on.', roundedBounds(model), { unit: unitLabel, bound: { value: model.value, unit: model.unit, side } })
+  return practice(bounds, title, ref, number(Number(show(answer))), show(answer), side === 'lower' ? 'Take half the unit off.' : 'Add half the unit on.', roundedBounds({ ...model, ask: side }), { unit: unitLabel, bound: { value: model.value, unit: model.unit, side } })
 }
 boundPractice('y = 6 to the nearest whole number. Write down the lower bound of y.', 'N13.1 Q2', { value: 6, unit: 1, target: 'The nearest whole number', letter: 'y' }, 'lower')
 boundPractice('A pencil is 8.4 cm, correct to 1 decimal place. Write down the upper bound.', 'N13.1 Q1', { value: 8.4, unit: 0.1, target: '1 decimal place', letter: 'l' }, 'upper', 'Length (cm)')
@@ -172,24 +222,20 @@ practice(intervals, 'A crowd was 2400, to the nearest 100. Could there have been
   'No, because 2450 would round to 2500',
   'Yes, because 2450 is the upper bound',
   'Yes, because 2450 is only 50 away from 2400',
-]), 'No, because 2450 would round to 2500', 'Is the upper bound in the interval?', roundedBounds({ value: 2400, unit: 100, target: 'The nearest 100', letter: 'n', test: '2450' }, [
-  { title: 'Test 2450', math: '2450\\to2500', say: '2450 is the upper bound, and the upper bound is not in the interval. It rounds up to 2500.', answer: 'No, 2450 would round to 2500' },
-]))
+]), 'No, because 2450 would round to 2500', 'Is the upper bound in the interval?', roundedBounds({ value: 2400, unit: 100, target: 'The nearest 100', letter: 'n', test: { value: 2450, to: 2500, answer: 'No, 2450 would round to 2500', why: '2450 is the open dot: it rounds up to 2500, not 2400.' } }))
 practice(intervals, 'One runner took 12.34 s (to 2 d.p.). Another took 12.3 s (to 1 d.p.). Could they have run exactly the same time?', 'N13.1 Q5b', choose([
   'Yes, because a time such as 12.34 s fits in both intervals',
   'No, because 12.34 and 12.3 are different numbers',
   'No, because the two intervals don’t overlap',
-]), 'Yes, because 12.34 fits in both intervals', 'Find the error interval for 12.3 s, then look for a time that fits in both.', lines('t=12.3',
-  { title: 'Second runner’s interval', math: '12.25\\leq t<12.35', say: 'Half of 0.1 is 0.05, so the second time is from 12.25 up to 12.35.', line: { lower: '12.25', upper: '12.35', value: '12.3', stage: 'interval', test: '12.34' } },
-  { title: 'Look for a time in both', math: '12.335\\leq12.34<12.345', say: '12.34 also fits the first runner’s interval, 12.335 ≤ t < 12.345.', answer: 'Yes, 12.34 fits in both intervals' },
-))
+]), 'Yes, because 12.34 fits in both intervals', 'Find the error interval for 12.3 s, then look for a time that fits in both.', { kind: 'step-worked', start: 't = 12.34 (to 2 d.p.) and t = 12.3 (to 1 d.p.)', steps: [
+  { title: 'Second runner’s interval', why: 'Rounded to 1 decimal place, so the halfway points are half a step, 0.05, either side of 12.3.', picture: nl(12.15, 12.45, 0.05, [12.2, 12.3, 12.4], [{ value: 12.25, label: '12.25' }, { value: 12.35, label: '12.35' }], { from: 12.25, to: 12.35 }), lines: [line([part('12.25')], '12.3', { mark: 'in' }), line([part('12.35')], '12.4', { mark: 'not in' })] },
+  { title: 'Look for both', why: '12.34 is inside this shaded interval, and it is also the first runner’s time. So both runners could have run 12.34 s.', picture: nl(12.15, 12.45, 0.05, [12.2, 12.3, 12.4], [{ value: 12.34, label: '12.34', boxed: true }], { from: 12.25, to: 12.35 }), lines: [line([part('12.34', 0)], '12.3', { mark: 'to 1 d.p.' })], words: 'Yes, 12.34 fits in both intervals' },
+] } satisfies StepWorking)
 practice(intervals, 'Lina says 12.345 s could be the sprinter’s exact time, because it is the upper bound of 12.34 s (to 2 d.p.). Is Lina correct?', 'N13.1 Q5c', choose([
   'No, because 12.345 would round to 12.35, not 12.34',
   'Yes, because the upper bound is part of the interval',
   'Yes, because 12.345 is between 12.34 and 12.35',
-]), 'No, 12.345 would round to 12.35', 'Check what 12.345 rounds to.', roundedBounds({ value: 12.34, unit: 0.01, target: '2 decimal places', letter: 't', test: '12.345' }, [
-  { title: 'Test 12.345', math: '12.345\\to12.35', say: 'The upper bound is not in the interval: 12.345 rounds up to 12.35.', answer: 'No, 12.345 would round to 12.35' },
-]))
+]), 'No, 12.345 would round to 12.35', 'Check what 12.345 rounds to.', roundedBounds({ value: 12.34, unit: 0.01, target: '2 decimal places', letter: 't', test: { value: 12.345, to: 12.35, answer: 'No, 12.345 would round to 12.35', why: '12.345 is the open dot, the upper bound. It rounds up to 12.35, so it is not in the interval.' } }))
 
 /* ---------- Rung 4: truncate ---------- */
 
@@ -232,7 +278,7 @@ worked(truncatedIntervals, 'A bag has a mass of 3.7 kg, truncated to 1 decimal p
 practice(truncatedIntervals, 'A pipe is 2.35 m long, truncated to 2 decimal places. Which is the error interval for the length, l m?', 'N13.2 Q5a', choose([
   '2.35 ≤ l < 2.36', '2.345 ≤ l < 2.355', '2.34 ≤ l < 2.35', '2.35 ≤ l ≤ 2.36',
 ]), '2.35 ≤ l < 2.36', 'Truncating never rounds up, so 2.35 is the smallest the length can be.', truncatedBounds({ value: 2.35, unit: 0.01, letter: 'l' }))
-practice(truncatedIntervals, 'A pipe is 2.35 m long, truncated to 2 decimal places. Write down the upper bound.', 'N13.2 Q5a', number(2.36), '2.36', 'Add one whole unit, 0.01.', truncatedBounds({ value: 2.35, unit: 0.01, letter: 'l' }), { unit: 'Length (m)', bound: { value: 2.35, unit: 0.01, side: 'upper', truncated: true } })
+practice(truncatedIntervals, 'A pipe is 2.35 m long, truncated to 2 decimal places. Write down the upper bound.', 'N13.2 Q5a', number(2.36), '2.36', 'Add one whole unit, 0.01.', truncatedBounds({ value: 2.35, unit: 0.01, letter: 'l', ask: 'upper' }), { unit: 'Length (m)', bound: { value: 2.35, unit: 0.01, side: 'upper', truncated: true } })
 practice(truncatedIntervals, 'A time is 14.2 s, truncated to 1 decimal place. Which is the error interval for the time, t seconds?', 'N13 extra practice', choose([
   '14.2 ≤ t < 14.3', '14.15 ≤ t < 14.25', '14.1 ≤ t < 14.2', '14.2 < t ≤ 14.3',
 ]), '14.2 ≤ t < 14.3', 'Truncated: start at 14.2 and add one whole unit.', truncatedBounds({ value: 14.2, unit: 0.1, letter: 't' }))
@@ -240,17 +286,15 @@ practice(truncatedIntervals, 'A pipe is 2.35 m long, truncated to 2 decimal plac
   'Yes, because 2.359 is in the interval and truncates to 2.35',
   'No, because 2.359 rounds to 2.36',
   'No, because 2.359 is bigger than 2.35',
-]), 'Yes, 2.359 is in the interval and truncates to 2.35', 'Check whether 2.359 is inside 2.35 ≤ l < 2.36.', truncatedBounds({ value: 2.35, unit: 0.01, letter: 'l', test: '2.359' }, [
-  { title: 'Test 2.359', math: '2.35\\leq2.359<2.36', say: '2.359 is inside the interval. Chopping after the 2nd decimal place gives 2.35.', answer: 'Yes, 2.359 truncates to 2.35' },
-]))
+]), 'Yes, 2.359 is in the interval and truncates to 2.35', 'Check whether 2.359 is inside 2.35 ≤ l < 2.36.', truncatedBounds({ value: 2.35, unit: 0.01, letter: 'l', test: { value: 2.359, to: 2.35, answer: 'Yes, 2.359 truncates to 2.35', why: '2.359 is inside the shaded interval. Chopping after the 2nd decimal place gives 2.35.' } }))
 practice(truncatedIntervals, 'Zara says the error interval for 2.35 m, truncated to 2 d.p., is 2.345 ≤ l < 2.355, because you go half a unit either side. Is Zara correct?', 'N13.2 Q5c', choose([
   'No. 2.347 is in her interval, but it truncates to 2.34, not 2.35',
   'Yes. You always go half a unit either side',
   'No. It should be 2.35 ≤ l ≤ 2.36',
-]), 'No. 2.347 is in her interval but truncates to 2.34', 'Half a unit either side is for rounding. Test a value from Zara’s interval.', lines('l=2.35',
-  { title: 'Zara’s interval', math: '2.345\\leq l<2.355', say: 'Half a unit either side is for rounding, not truncating.', line: { lower: '2.345', upper: '2.355', value: '2.35', stage: 'interval', test: '2.347' } },
-  { title: 'Test a value', math: '2.347\\to2.34', say: '2.347 is in Zara’s interval, but truncating it gives 2.34, not 2.35.', answer: 'No, 2.347 truncates to 2.34' },
-))
+]), 'No. 2.347 is in her interval but truncates to 2.34', 'Half a unit either side is for rounding. Test a value from Zara’s interval.', { kind: 'step-worked', start: 'Zara: 2.345 ≤ l < 2.355', steps: [
+  { title: 'Zara’s interval', why: 'Zara went half a step either side of 2.35. That is the rule for rounding, not truncating.', picture: nl(2.335, 2.365, 0.005, [2.34, 2.35, 2.36], [{ value: 2.345, label: '2.345' }, { value: 2.355, label: '2.355' }], { from: 2.345, to: 2.355 }), lines: [line([part('2.35'), sign('−'), part('0.005', 1)], '2.345'), line([part('2.35'), sign('+'), part('0.005', 1)], '2.355')] },
+  { title: 'Test a value', why: '2.347 is inside Zara’s interval, but truncating chops it to 2.34, not 2.35. So her interval is wrong.', picture: nl(2.335, 2.365, 0.005, [2.34, 2.35, 2.36], [{ value: 2.347, label: '2.347', boxed: true }], { from: 2.345, to: 2.355 }), lines: [line([part('2.347', 0)], '2.34', { mark: 'truncated' })], words: 'No, 2.347 truncates to 2.34' },
+] } satisfies StepWorking)
 
 add('mixed', 'Bounds and truncation', 'N13.1-N13.2 consolidation', text(
   'Rounded: go half a unit down and half a unit up.',
