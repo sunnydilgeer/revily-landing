@@ -235,8 +235,9 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
           : { x: right ? 12 : -12, y: point.y < axisY ? 25 : -13, anchor: right ? 'start' as const : 'end' as const }
         const text = point.label ?? coordinate(point)
         const label = inside(px(point.x) + 0.5 + place.x, py(point.y) + 0.5 + place.y, text, 15, place.anchor)
-        return <g key={`p${i}`} className={`ns-graph__point${point.at >= 0 ? ' is-found' : ''}${done(point.at)}`}>
-          <circle cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r="5" />
+        // An answer point is drawn like a right answer on the graph board: a larger green dot (Sunny's reference, 7 Oct).
+        return <g key={`p${i}`} className={`ns-graph__point${point.at >= 0 ? ' is-found' : ''}${point.answer ? ' is-answer' : ''}${done(point.at)}`}>
+          <circle cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r={point.answer ? 7 : 5} />
           {text !== '' && <text x={fix(label.x)} y={fix(label.y)} textAnchor={place.anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</text>}
         </g>
       })}

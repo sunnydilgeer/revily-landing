@@ -335,6 +335,8 @@
 .ns-graph__point text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
 .ns-graph__point.is-found circle { fill: var(--rv-biro); }
 .ns-graph__point.is-found text { fill: var(--rv-ink); }
+.ns-graph__point.is-answer circle { fill: var(--rv-good-ink); stroke-width: 2.5; }
+.ns-graph__point.is-answer text { font-size: 16px; font-weight: 800; }
 .ns-graph__point tspan.is-x { fill: #b45309; }
 .ns-graph__point tspan.is-y { fill: var(--rv-biro); }
 .ns-graph__pair { color: var(--rv-ink); }

@@ -259,7 +259,7 @@ export type GraphFrame = {
   lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean }[]
   /** `place` puts the coordinates to one side (dx −1 left, 1 right) and above or below (dy −1 above, 1 below), clear of
    *  the line and the steps drawn from the point. */
-  points?: (GraphPoint & { label?: string; at: number; place?: { dx: number; dy: number } })[]
+  points?: (GraphPoint & { label?: string; at: number; place?: { dx: number; dy: number }; answer?: boolean })[]
   /** The step from one point to the other: across (change in x) or up/down (change in y), labelled with its size. */
   /** `dashed` is a reading line from a point to an axis: no arrowhead, no size. */
   legs?: { from: GraphPoint; to: GraphPoint; label: string; family: number; at: number; dashed?: boolean }[]

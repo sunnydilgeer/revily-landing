@@ -11,7 +11,7 @@ module.exports = ({ line, result, answer, row, picture }) => {
 
   // Plot (4, 2): across 4, then up 2.
   const P = pt(4, 2), plotGrid = { x: [-1, 7], y: [-1, 5], unit: 30 }
-  const across = { from: pt(0, 0), to: pt(4, 0), label: '4' }, up = { from: pt(4, 0), to: P, label: '2' }
+  const across = { from: pt(0, 0), to: pt(4, 0), label: '' }, up = { from: pt(4, 0), to: P, label: '' }
   // Plot (−3, 2): across −3 is left.
   const N = pt(-3, 2), negGrid = { x: [-5, 3], y: [-1, 4], unit: 30 }
   // Read the dot at (−2, −4).
@@ -48,10 +48,10 @@ module.exports = ({ line, result, answer, row, picture }) => {
           [side(graph({ ...plotGrid, legs: [across], marks: [x(4)] }), line('start at $0$ and go along the $x$ axis')), 3.4]] },
         { stage: 'Step 3 · up', title: 'Then up 2', from: 'across $4$', items: [
           [side(graph({ ...plotGrid, legs: [across, up], marks: [y(2)] }), line('then straight up')), 3.2],
-          [side(graph({ ...plotGrid, legs: [across, up], points: [pt(4, 2, { dx: -1, dy: -1 })], marks: marksOf(P) }), line('then straight up'), answer(`the point $${tex(4, 2)}$`)), 3.4, 0]] },
+          [side(graph({ ...plotGrid, points: [pt(4, 2, { dx: -1, dy: -1 })], marks: marksOf(P) }), line('then straight up'), answer(`the point $${tex(4, 2)}$`)), 3.4, 0]] },
         { title: 'Negative goes left', from: `$${tex(-3, 2)}$`, items: [
-          [side(graph({ ...negGrid, legs: [{ from: pt(0, 0), to: pt(-3, 0), label: '−3' }], marks: [x(-3)] }), line('a negative $x$ goes **left** of $0$')), 3.4],
-          [side(graph({ ...negGrid, legs: [{ from: pt(0, 0), to: pt(-3, 0), label: '−3' }, { from: pt(-3, 0), to: N, label: '2' }], points: [pt(-3, 2, { dx: 1, dy: -1 })], marks: marksOf(N) }), line('a negative $x$ goes **left** of $0$'), line('then up $2$'), answer(`$${tex(-3, 2)}$`)), 3.6, 0]] },
+          [side(graph({ ...negGrid, legs: [{ from: pt(0, 0), to: pt(-3, 0), label: '' }], marks: [x(-3)] }), line('a negative $x$ goes **left** of $0$')), 3.4],
+          [side(graph({ ...negGrid, points: [pt(-3, 2, { dx: 1, dy: -1 })], marks: marksOf(N) }), line('a negative $x$ goes **left** of $0$'), line('then up $2$'), answer(`$${tex(-3, 2)}$`)), 3.6, 0]] },
         { title: 'Read a point', items: [
           [side(graph({ ...readGrid, points: [pt(-2, -4, { label: '' })], legs: [{ from: R, to: pt(-2, 0), dashed: true, colour: '#b45309' }], marks: [x(-2)] }), line('up to the $x$ axis: $x$ is $-2$')), 3.4],
           [side(graph({ ...readGrid, points: [pt(-2, -4, { label: '' })], legs: [{ from: R, to: pt(-2, 0), dashed: true, colour: '#b45309' }, { from: R, to: pt(0, -4), dashed: true, colour: '#2443b5' }], marks: marksOf(R) }), line('up to the $x$ axis: $x$ is $-2$'), line('across to the $y$ axis: $y$ is $-4$'), answer(`$${tex(-2, -4)}$`)), 3.8, 0]] },

@@ -49,7 +49,8 @@ function checkGrid(frame, where) {
   for (const point of frame.points ?? []) assert.ok(point.x >= frame.x[0] && point.x <= frame.x[1] && point.y >= frame.y[0] && point.y <= frame.y[1], `${where}: (${point.x}, ${point.y}) is on the grid`)
   for (const leg of frame.legs ?? []) {
     assert.ok(leg.from.x === leg.to.x || leg.from.y === leg.to.y, `${where}: a step is straight across or straight up`)
-    if (leg.dashed) continue
+    // Walk arrows carry no size (Sunny, 7 Oct: minimal); a size, where one is written, is the arrow's own.
+    if (leg.dashed || leg.label === '') continue
     const size = leg.from.y === leg.to.y ? leg.to.x - leg.from.x : leg.to.y - leg.from.y
     assert.equal(leg.label, String(size).replace('-', '−'), `${where}: the step is labelled with its size`)
   }
@@ -102,7 +103,8 @@ for (const state of states) {
 
   // Plotting walks across from 0, then up from there, to the point.
   if (!midpoint && state.microSkillId !== 'mixed' && steps[0].title === 'Read the brackets') {
-    const legs = last.legs ?? []
+    assert.equal((last.legs ?? []).length, 0, `${state.id}: the answer is just the dot, the walk's arrows gone`)
+    const legs = steps.at(-2).frame.graph.legs ?? []
     const along = legs.find(leg => leg.from.y === 0 && leg.to.y === 0), up = legs.find(leg => leg.from.x === leg.to.x)
     if (right.x !== 0) assert.ok(along && along.from.x === 0 && along.to.x === right.x, `${state.id}: across ${right.x} from 0`)
     if (right.y !== 0) assert.ok(up && up.from.y === 0 && up.to.x === right.x && up.to.y === right.y, `${state.id}: then up ${right.y}`)

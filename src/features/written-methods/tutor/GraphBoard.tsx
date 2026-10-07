@@ -158,15 +158,25 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
           /** Brackets beside a point, x amber and y blue, kept inside the grid: above it, or below when `below`. */
           // After a wrong answer the two sets of brackets go on opposite sides, away from each other.
           const apart = result === 'incorrect' && answer && dot && !same(answer, dot) ? { dx: Math.sign(dot.x - answer.x) || -1, dy: Math.sign(answer.y - dot.y) || -1 } : null
+          // Brackets never sit on the axis numbers, off the grid or on another set of brackets: the preferred corner
+          // beside the dot first, then the other three.
+          const taken: { l: number; r: number; t: number; b: number }[] = []
+          const axisX = px(Math.min(Math.max(0, x0), x1)), axisY = py(Math.min(Math.max(0, y0), y1))
           const brackets = (p: GraphPoint, className: string, flip = false) => {
             const text = pair(p), w = text.length * 8.6, { x, y } = at(p)
             const side = apart ? (flip ? { dx: -apart.dx, dy: -apart.dy } : apart) : ends ? clearSide(ends[0], ends[1], p, grid) : null
             // Below the x axis the brackets go under the dot, clear of the axis numbers.
             const below = side ? side.dy > 0 : p.y < 0
             const right = side ? side.dx > 0 : x + 12 + w < width - 3
-            const left = Math.min(Math.max(right ? x + 12 : x - 12 - w, 3), width - 3 - w)
-            const top = Math.min(Math.max(below ? y + 27 : y - 14, 18), height - 5)
-            return <text className={`graph-board__brackets ${className}`} x={left} y={top}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</text>
+            const box = (r: boolean, b: boolean) => { const l = r ? x + 12 : x - 12 - w, base = b ? y + 27 : y - 14; return { l, r: l + w, t: base - 14, b: base + 4, base } }
+            const clear = (c: ReturnType<typeof box>) => c.l >= 3 && c.r <= width - 3 && c.t >= 2 && c.b <= height - 2
+              && !(c.l < axisX + 4 && c.r > axisX - 30) && !(c.b > axisY - 2 && c.t < axisY + 24)
+              && !taken.some(o => c.l < o.r && c.r > o.l && c.t < o.b && c.b > o.t)
+            const fallback = box(right, below)
+            const pick = [box(right, below), box(!right, below), box(right, !below), box(!right, !below)].find(clear)
+              ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
+            taken.push(pick)
+            return <text className={`graph-board__brackets ${className}`} x={pick.l} y={pick.base}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</text>
           }
           const parts = []
           if (walk && dot) {

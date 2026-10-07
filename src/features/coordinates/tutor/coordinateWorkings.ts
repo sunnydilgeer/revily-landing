@@ -15,25 +15,29 @@ export const pair = (p: GraphPoint) => `(${show(p.x)}, ${show(p.y)})`
 
 /* ---------- Plotting: across, then up ---------- */
 
-/** Moves: the brackets, with their two numbers lit on the axes. */
+/** Moves: the brackets, with their two numbers lit on the axes (the heading names them; nothing is written under the grid). */
 export const readBrackets = (p: GraphPoint): GraphMove => ({
-  title: 'Read the brackets', equation: latex(pair(p)), adds: 'lines',
+  title: 'Read the brackets', equation: latex(pair(p)), adds: 'picture',
   say: p.x < 0 || p.y < 0 ? 'The first number is across, the second is up. A negative goes the other way: left, or down.' : 'The first number is across, the second is up.',
-  change: (frame, step) => ({ ...frame, marks: shared([p]), working: [...(frame.working ?? []), { text: pair(p), family: 3, at: step }] }),
+  change: frame => ({ ...frame, marks: shared([p]) }),
 })
 /** Moves: along the x axis from 0, amber; left for a negative. Across 0 stays on the y axis. */
 export const goAcross = (p: GraphPoint): GraphMove => ({
   title: p.x === 0 ? 'Across 0' : p.x < 0 ? `Across ${show(p.x)}: left` : `Across ${show(p.x)}`, equation: latex(`across ${show(p.x)}`), adds: 'picture',
   say: p.x === 0 ? 'Across 0: stay on the y axis.' : p.x < 0 ? 'Start at 0. Negative goes left, along the x axis.' : 'Start at 0 and go along the x axis.',
-  change: (frame, step) => ({ ...frame, marks: [mark('x', p.x)], legs: p.x === 0 ? frame.legs : [...(frame.legs ?? []), { from: pt(0, 0), to: pt(p.x, 0), label: show(p.x), family: 1, at: step }] }),
+  change: (frame, step) => ({ ...frame, marks: [mark('x', p.x)], legs: p.x === 0 ? frame.legs : [...(frame.legs ?? []), { from: pt(0, 0), to: pt(p.x, 0), label: '', family: 1, at: step }] }),
 })
 /** Moves: straight up from there, biro blue; down for a negative. */
 export const goUp = (p: GraphPoint): GraphMove => ({
   title: p.y === 0 ? 'Up 0' : p.y < 0 ? `Down ${show(-p.y)}` : `Up ${show(p.y)}`, equation: latex(`up ${show(p.y)}`), adds: 'picture',
   say: p.y === 0 ? 'Up 0: stay on the x axis.' : p.y < 0 ? 'Negative goes down, below the x axis.' : 'Then go straight up.',
-  change: (frame, step) => ({ ...frame, marks: [mark('y', p.y)], legs: p.y === 0 ? frame.legs : [...(frame.legs ?? []), { from: pt(p.x, 0), to: p, label: show(p.y), family: 0, at: step }] }),
+  change: (frame, step) => ({ ...frame, marks: [mark('y', p.y)], legs: p.y === 0 ? frame.legs : [...(frame.legs ?? []), { from: pt(p.x, 0), to: p, label: '', family: 0, at: step }] }),
 })
-export const thePoint = (p: GraphPoint): GraphMove => answerMove(pair(p), 'The point', 'Where the walk ends is the point.', [], plot([p], '', ''))
+/** The answer: just the dot and its brackets, the walk's arrows and ring gone (Sunny, 7 Oct: keep it minimal). */
+export const thePoint = (p: GraphPoint): GraphMove => {
+  const dot = plot([p], '', '')
+  return answerMove(pair(p), 'The point', 'Where the walk ends is the point.', [], { ...dot, change: (frame, step) => { const next = dot.change(frame, step); return { ...next, legs: [], boxed: undefined, points: next.points?.map(q => q.at === step ? { ...q, answer: true } : q) } } })
+}
 export const plotMoves = (p: GraphPoint) => [readBrackets(p), goAcross(p), goUp(p), thePoint(p)]
 
 /* ---------- Reading: down to the x axis, across to the y axis ---------- */
