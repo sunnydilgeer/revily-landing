@@ -30,3 +30,7 @@
 .rung-point input { width: 3.2em; text-align: center; }
 .rung-point .is-x input { border-color: #b45309; }
 .rung-point .is-y input { border-color: var(--rv-biro); }
+
+/* Rule play screen: the rule's sum at the dot, y = 2 × 1 − 1 = 1. Draw-a-line mode: the keyboard ring. */
+.graph-board__sum { color: var(--rv-ink); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.graph-board__cursor { fill: none; stroke: var(--rv-biro); stroke-width: 2.5; stroke-dasharray: 4 3; }

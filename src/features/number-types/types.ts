@@ -132,6 +132,9 @@ export type MicroSkillId =
   | 'graphs-coordinates'
   | 'graphs-quadrants'
   | 'graphs-midpoint'
+  | 'graphs-straight-lines'
+  | 'graphs-table-of-values'
+  | 'graphs-plot-and-join'
   | 'mixed'
 
 export type LessonPhase =

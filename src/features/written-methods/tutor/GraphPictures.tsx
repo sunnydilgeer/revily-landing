@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode, type SVGProps } from 'react'
-import type { GraphFrame, GraphPoint } from './methodWorking'
+import type { GraphFrame, GraphPoint, GraphTable } from './methodWorking'
 import { Powers } from './Powers'
 
 /*
@@ -50,7 +50,6 @@ const overlaps = (c: Box, o: Box) => c.l < o.r && c.r > o.l && c.t < o.b && c.b 
  * only if it stays inside the grid with 3px to spare round everything in `room`. The box chosen joins `room.taken`.
  */
 export function placeLabel(x: number, y: number, w: number, prefer: { right: boolean; below: boolean }, room: LabelRoom): LabelBox {
-  const { width, height, taken, segments } = room
   const box = (right: boolean, base: number) => { const l = right ? x + 10 : x - 10 - w; return { l, r: l + w, t: base - 14, b: base + 4, base } }
   const centred = (base: number) => ({ l: x - w / 2, r: x + w / 2, t: base - 14, b: base + 4, base })
   const row = (below: boolean, far = false) => y + (below ? 25 : -13) + (far ? (below ? 24 : -24) : 0)
@@ -60,6 +59,11 @@ export function placeLabel(x: number, y: number, w: number, prefer: { right: boo
     centred(row(below)), centred(row(!below)), box(right, y + 5), box(!right, y + 5),
     box(right, row(below, true)), box(!right, row(below, true)), box(right, row(!below, true)), box(!right, row(!below, true)),
   ]
+  return fitLabel(candidates, room)
+}
+/** The first of `candidates` with 3px to spare round everything in `room` (else the first, kept inside the grid); it joins `room.taken`. */
+export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox {
+  const { width, height, taken, segments } = room
   const crosses = (c: Box) => segments.some(({ x1, y1, x2, y2 }) => {
     for (let i = 0; i <= 24; i++) { const sx = x1 + (x2 - x1) * i / 24, sy = y1 + (y2 - y1) * i / 24; if (sx > c.l && sx < c.r && sy > c.t && sy < c.b) return true }
     return false
@@ -68,7 +72,7 @@ export function placeLabel(x: number, y: number, w: number, prefer: { right: boo
     const padded = { l: c.l - 3, r: c.r + 3, t: c.t - 3, b: c.b + 3 }
     return c.l >= 3 && c.r <= width - 3 && c.t >= 2 && c.b <= height - 2 && !taken.some(o => overlaps(padded, o)) && !crosses(padded)
   }
-  const fallback = candidates[0]
+  const fallback = candidates[0], w = fallback.r - fallback.l
   const pick = candidates.find(clear) ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
   const placed = { ...pick, r: pick.l + w, t: pick.base - 14, b: pick.base + 4 }
   taken.push(placed)
@@ -76,6 +80,16 @@ export function placeLabel(x: number, y: number, w: number, prefer: { right: boo
 }
 /** The box a dot covers, so no label is put on it (a label keeps a further 3px off it). */
 export const dotBox = (x: number, y: number, r = 6) => ({ l: x - r, r: x + r, t: y - r, b: y + r })
+/** A table of values: x (amber) along the top, y (biro blue) underneath, one column a point. */
+export function ValueTable({ table }: { table: GraphTable }) {
+  const cell = (i: number) => `${table.lit === i ? ' is-lit' : ''}${table.answer === i ? ' is-answer' : ''}${table.ask === i ? ' is-ask' : ''}`
+  return <table className="ns-graph__table">
+    <tbody>
+      <tr className="is-x"><th scope="row">x</th>{table.xs.map((x, i) => <td key={i} className={cell(i)}>{fmt(x)}</td>)}</tr>
+      <tr className="is-y"><th scope="row">y</th>{table.ys.map((y, i) => <td key={i} className={cell(i)}>{table.ask === i ? '?' : y === null ? '' : fmt(y)}</td>)}</tr>
+    </tbody>
+  </table>
+}
 /** A line of working with every (x, y) in it coloured like the axes. */
 function Coordinates({ text }: { text: string }) {
   const parts = text.split(/(\(−?[\d.]+, −?[\d.]+\))/)
@@ -235,6 +249,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
 
   return <div className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
     {head('picture')}
+    {frame.table && <ValueTable table={frame.table} />}
     <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={width + 1} height={height + 1} viewBox={`0 0 ${width + 1} ${height + 1}`}
       {...live?.svg} style={shift ? { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)`, ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
       {!shift && <g className="ns-graph__grid">
@@ -258,11 +273,22 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
         const along = { x: px(other.x) - px(end.x), y: py(other.y) - py(end.y) }, size = Math.hypot(along.x, along.y)
         // A line up and down is named at the bottom of the grid, below the axis numbers.
         const at = vertical ? { x: px(end.x), y: height - 8 } : { x: px(end.x) + along.x / size * 30, y: py(end.y) + along.y / size * 30 }
-        const kind = line.answer ? ' is-answer' : line.at >= 0 ? ' is-found' : ''
-        const label = line.label && inside(at.x + (vertical ? 8 : 0), at.y + (vertical ? 0 : -10), line.label, 17, vertical ? 'start' : 'middle')
+        const kind = line.wrong ? ' is-wrong' : line.answer ? ' is-answer' : line.at >= 0 ? ' is-found' : ''
+        // A line across or up and down keeps its name off the axis numbers, the points and their labels: the right end
+        // (across) or the bottom (up and down) first, then the other side of the line, then the other end.
+        const flat = a.y === b.y && !line.segment
+        const fitted = line.label && (flat || vertical) ? (() => {
+          const w = line.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
+          const lx = px(a.x) + 0.5, ly = py(a.y) + 0.5
+          return fitLabel(flat
+            ? [box(width - 8 - w, ly - 9), box(width - 8 - w, ly + 23), box(8, ly - 9), box(8, ly + 23), box((width - w) / 2, ly - 9), box((width - w) / 2, ly + 23)]
+            : [box(lx + 8, height - 8), box(lx - 8 - w, height - 8), box(lx + 8, 22), box(lx - 8 - w, 22), box(lx + 8, height / 2), box(lx - 8 - w, height / 2)], room)
+        })() : null
+        const label = fitted ? { x: fitted.l + 2, y: fitted.base } : line.label && inside(at.x + (vertical ? 8 : 0), at.y + (vertical ? 0 : -10), line.label, 17, vertical ? 'start' : 'middle')
+        const anchor = fitted ? 'start' : vertical ? 'start' : 'middle'
         return <g key={`l${i}`} className={`ns-graph__line${kind}${done(line.at)}`}>
           <line x1={fix(px(a.x) + 0.5)} y1={fix(py(a.y) + 0.5)} x2={fix(px(b.x) + 0.5)} y2={fix(py(b.y) + 0.5)} />
-          {label && <text x={fix(label.x)} y={fix(label.y)} textAnchor={vertical ? 'start' : 'middle'}>{line.label}</text>}
+          {label && <text x={fix(label.x)} y={fix(label.y)} textAnchor={anchor}>{line.label}</text>}
         </g>
       })}
       {legs.map((leg, i) => {
@@ -302,7 +328,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
         const text = point.label ?? coordinate(point)
         // A label in a corner beside its dot keeps off the axes, their numbers and the other labels (Sunny, 7 Oct).
         const cx = px(point.x) + 0.5, cy = py(point.y) + 0.5
-        const corner = text !== '' && (point.place || (!onUpDown && !onAcross))
+        const corner = text !== ''
           ? placeLabel(cx, cy, labelWidth(text), { right: place.anchor === 'start', below: place.y > 0 }, room) : null
         const label = corner ? { x: corner.l + 2, y: corner.base } : inside(cx + place.x, cy + place.y, text, 15, place.anchor)
         const anchor = corner ? 'start' as const : place.anchor

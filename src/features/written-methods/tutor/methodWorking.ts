@@ -251,12 +251,16 @@ export type NumberLineFrame = {
  * rings points in purple while a step reads them. See GraphPictures.tsx.
  */
 export type GraphPoint = { x: number; y: number }
+export type GraphTable = { xs: number[]; ys: (number | null)[]; ask?: number; lit?: number; answer?: number }
 export type GraphFrame = {
   /** The grid runs from x[0] to x[1] across and y[0] to y[1] up, one square per unit. */
   x: [number, number]
   y: [number, number]
   /** `segment` draws only from one point to the other (a midpoint question), not edge to edge. */
-  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean }[]
+  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean; wrong?: boolean }[]
+  /** A table of values above the grid (graphs lesson 2): the x row amber, the y row biro blue. A null y is an empty
+   *  cell, `ask` the cell a question asks for ("?"), `lit` the column a step works on, and `answer` a y in green. */
+  table?: GraphTable
   /** `place` puts the coordinates to one side (dx −1 left, 1 right) and above or below (dy −1 above, 1 below), clear of
    *  the line and the steps drawn from the point. */
   points?: (GraphPoint & { label?: string; at: number; place?: { dx: number; dy: number }; answer?: boolean })[]

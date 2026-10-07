@@ -3,6 +3,7 @@
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { AXIS, GraphVisual, HaloText, UNIT, dotBox, fmt, labelWidth, placeLabel } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
+import { LineBoard } from './LineBoard'
 import './GraphBoard.css'
 
 /*
@@ -16,6 +17,8 @@ import './GraphBoard.css'
  * - walk: "across, then up" made physical. Drag the amber handle along the x axis, then the blue one up or down.
  * - explore: a play screen with no right answer: drag the dot and its brackets follow it.
  * - midpoint: a play screen: the dot's two halves of the line, across and up from each end, lock green when they match.
+ * - rule: a play screen: the dot slides along a line's rule, y = mx + c, and each x it visits fills in the table.
+ * - line: tap two corners and a straight line runs through them, edge to edge (LineBoard.tsx).
  *
  * Only the play screens show the dot's brackets while it moves (they would give the answer away in a question).
  * After Check, the dot shows its brackets, and a wrong one shows the right point, green, beside it.
@@ -23,12 +26,17 @@ import './GraphBoard.css'
 
 export type GraphBoardGrid = Omit<GraphFrame, 'step' | 'adds'>
 export type GraphBoardSpec = {
-  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint'
+  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line'
   grid: GraphBoardGrid
   /** Where the dot starts (drag, explore, midpoint). */
   start?: GraphPoint
   /** The midpoint play screen: the line's two ends. */
   ends?: [GraphPoint, GraphPoint]
+  /** rule (a play screen): the dot slides along y = mx + c, a whole number of squares across at a time. Each x it
+   *  visits leaves a dot behind and fills its y in the grid's table. */
+  rule?: { m: number; c: number }
+  /** line: the right line, through two of its points (drawn green after a wrong answer). With none it is a play screen. */
+  line?: [GraphPoint, GraphPoint]
 }
 
 /**
@@ -46,19 +54,36 @@ const pair = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
 const said = (p: GraphPoint) => pair(p).replace(/−/g, 'minus ')
 const same = (a: GraphPoint | null | undefined, b: GraphPoint | null | undefined) => !!a && !!b && a.x === b.x && a.y === b.y
 
-export function GraphBoard({ spec, answer, result, disabled, onChange }: {
+type BoardProps = {
   spec: GraphBoardSpec
   /** The right point, shown after a wrong answer. */
   answer?: GraphPoint
   result?: 'correct' | 'incorrect'
   disabled?: boolean
   onChange?: (value: string) => void
-}) {
+}
+
+export function GraphBoard(props: BoardProps) {
+  return props.spec.mode === 'line' ? <LineBoard {...props} /> : <PointBoard {...props} />
+}
+
+/** y = 2 × (−1) − 1 = −3: the rule's sum at x, x amber and y biro blue. */
+function RuleSum({ rule, x }: { rule: { m: number; c: number }; x: number }) {
+  const y = rule.m * x + rule.c
+  const X = <span className="is-x">{x < 0 && rule.m !== 0 ? `(${fmt(x)})` : fmt(x)}</span>, Y = <span className="is-y">{fmt(y)}</span>
+  if (rule.m === 0) return <>At x = <span className="is-x">{fmt(x)}</span>, y is still {Y}</>
+  const times = rule.m === 1 ? X : <>{fmt(rule.m)} × {X}</>
+  return <>y = {times}{rule.c ? ` ${rule.c < 0 ? '−' : '+'} ${Math.abs(rule.c)}` : ''} = {Y}</>
+}
+
+function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   const { mode, grid } = spec
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const walk = mode === 'walk'
-  const play = mode === 'explore' || mode === 'midpoint'
+  const play = mode === 'explore' || mode === 'midpoint' || mode === 'rule'
+  const rule = mode === 'rule' ? spec.rule : undefined
   const [dot, setDot] = useState<GraphPoint | null>(walk ? { x: 0, y: 0 } : spec.start ?? null)
+  const [visited, setVisited] = useState<number[]>(rule && spec.start ? [spec.start.x] : [])
   const [stage, setStage] = useState<'across' | 'up'>('across')
   const [held, setHeld] = useState(false)
   const [moved, setMoved] = useState(false)
@@ -74,9 +99,12 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
   function moveTo(target: GraphPoint) {
     const snapped = clamp(target)
     // Walking: along the x axis first, then straight up or down from there.
-    const next = walk ? stage === 'across' ? { x: snapped.x, y: 0 } : { x: dot?.x ?? 0, y: snapped.y } : snapped
+    const next = walk ? stage === 'across' ? { x: snapped.x, y: 0 } : { x: dot?.x ?? 0, y: snapped.y } : rule ? { x: snapped.x, y: rule.m * snapped.x + rule.c } : snapped
     if (same(next, dot)) return
+    // On a rule the dot stays on the grid: an x whose y would be off it is skipped.
+    if (rule && (next.y <= y0 || next.y >= y1)) return
     setDot(next); setMoved(true); report(next)
+    if (rule && !visited.includes(next.x)) setVisited([...visited, next.x])
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
     const box = event.currentTarget.getBoundingClientRect()
@@ -105,6 +133,7 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
       }
       return
     }
+    if (rule) { if (step[0]) moveTo({ x: from.x + step[0], y: from.y }); return }
     moveTo(dot ? { x: from.x + step[0], y: from.y + step[1] } : from)
   }
 
@@ -125,7 +154,9 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
   const frame: GraphFrame = {
     ...grid, step: 0, adds: 'picture', marks,
     lines: [...(grid.lines ?? []), ...(ends ? [{ from: ends[0], to: ends[1], at: -1, segment: true }] : [])],
-    points: [...(grid.points ?? []), ...(ends ?? []).map(p => ({ ...p, at: -1, place: clearSide(ends![0], ends![1], p, grid) }))],
+    points: [...(grid.points ?? []), ...(ends ?? []).map(p => ({ ...p, at: -1, place: clearSide(ends![0], ends![1], p, grid) })),
+      ...(rule ? visited.filter(x => x !== dot?.x).map(x => ({ x, y: rule.m * x + rule.c, at: 0, label: '' })) : [])],
+    ...(rule && grid.table ? { table: { ...grid.table, ys: grid.table.xs.map(x => visited.includes(x) ? rule.m * x + rule.c : null), lit: dot ? grid.table.xs.indexOf(dot.x) : undefined } } : {}),
   }
 
   const labelled = play || !!result
@@ -201,6 +232,7 @@ export function GraphBoard({ spec, answer, result, disabled, onChange }: {
       }} />
     </div>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
+    {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true"><RuleSum rule={rule} x={dot.x} /></p>}
     {mode === 'midpoint' && <p className={`graph-board__note${halfway ? ' is-right' : ''}`} aria-hidden="true">{halfway ? 'Halfway: both halves match' : 'Drag the dot until both halves match'}</p>}
     {walk && !disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{stage === 'across' ? <>Drag the <span className="is-x">amber</span> handle across</> : <>Now drag the <span className="is-y">blue</span> handle up or down</>}</p>

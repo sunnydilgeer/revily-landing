@@ -83,4 +83,23 @@ function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], points = [], l
 const marksOf = (...ps) => ps.flatMap(p => [{ axis: 'x', value: p.x }, { axis: 'y', value: p.y }])
 const pt = (x, y, extra = {}) => ({ x, y, ...extra })
 
-module.exports = { graph, pair, tex, marksOf, pt, show, COLOURS: { INK, BIRO, AMBER, GREEN, PURPLE, GRID, MUTED }, AXIS }
+/**
+ * A table of values: two rows, x (amber) over y (biro blue), drawn as plain HTML. A y left as null is an empty cell.
+ * `lit` lights a column (its x amber, its y blue, white numbers, like a marked axis number), `grey` greys finished
+ * columns out, and `answer` shows that column's y in the green answer style.
+ */
+function table({ x, y = x.map(() => null), lit = [], grey = [], answer = [], size = 22 }) {
+  const has = (list, i) => [].concat(list).includes(i)
+  const cell = (v, i, colour) => {
+    const on = has(lit, i), green = colour === BIRO && has(answer, i)
+    const style = green ? `background:#e2f5ea;color:${GREEN};box-shadow:inset 0 0 0 2px #8fd1ad`
+      : on && v !== null ? `background:${colour};color:#fff` : `color:${colour}`
+    return `<td style="${style};${has(grey, i) && !on && !green ? 'opacity:.4;' : ''}border:1.5px solid ${GRID};min-width:${size * 2}px;height:${size * 1.7}px;padding:0 ${size * 0.4}px;text-align:center;font-weight:700">${v === null ? '' : show(v)}</td>`
+  }
+  const head = (name, colour) => `<th style="color:${colour};border:1.5px solid ${GRID};background:#f6f8fc;padding:0 ${size * 0.5}px;font-style:italic;font-weight:700">${name}</th>`
+  return `<table style="display:inline-table;border-collapse:collapse;font-size:${size}px;font-variant-numeric:tabular-nums;line-height:1;margin:0 auto">`
+    + `<tr>${head('x', AMBER)}${x.map((v, i) => cell(v, i, AMBER)).join('')}</tr>`
+    + `<tr>${head('y', BIRO)}${y.map((v, i) => cell(v, i, BIRO)).join('')}</tr></table>`
+}
+
+module.exports = { graph, table, pair, tex, marksOf, pt, show, COLOURS: { INK, BIRO, AMBER, GREEN, PURPLE, GRID, MUTED }, AXIS }
