@@ -31,6 +31,7 @@ import TutorSolvingInequalitiesLesson from './features/solving-inequalities/tuto
 import TutorSimultaneousEquationsLesson from './features/simultaneous-equations/tutor/SimultaneousEquationsLessonView'
 import TutorProofLesson from './features/proof/tutor/ProofLessonView'
 import TutorFunctionMachinesLesson from './features/function-machines/tutor/FunctionMachinesLessonView'
+import TutorRatioLesson from './features/ratio/tutor/RatioLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -304,6 +305,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorProofLesson />
     case 29:
       return <TutorFunctionMachinesLesson />
+    case 30:
+      return <TutorRatioLesson />
   }
 }
 

@@ -253,6 +253,11 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'function-machines-backwards': [['? → × 5 → − 4 → output 26. Find the input.', '6. Undo the last box first, with opposites: 26 + 4 = 30, then 30 ÷ 5 = 6.']],
     'function-machines-creating': [['Draw the machine for y = 3x + 4.', 'x → × 3 → + 4 → y. BIDMAS: 3x is worked out before the + 4. For (x + 6) ÷ 4, the top comes first: + 6, then ÷ 4.']],
   },
+  30: {
+    'ratio-difference': [['2 : 3 : 6, and Fay (6 parts) has 24 more than Dev (2 parts). How many for Eli (3 parts)?', '18. The difference in parts is 6 − 2 = 4, so 4 parts = 24 and 1 part = 6. Eli: 3 × 6 = 18. 24 is the difference, not the total.']],
+    'ratio-changing': [['Mira : Noel = 7 : 3. Mira gives Noel 10, and now they are equal. How many did Mira have?', '35. Call 1 part x: 7x − 10 = 3x + 10, so 4x = 20 and x = 5. Mira had 7 × 5 = 35. Change the real amounts, never the ratio numbers.']],
+    'ratio-unit-form': [['Write 6 : 15 in the form 1 : n.', '1 : 2.5. Divide both numbers by the first number, 6. For n : 1, divide both by the second number. n can be a decimal.']],
+  },
   24: {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
     'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],

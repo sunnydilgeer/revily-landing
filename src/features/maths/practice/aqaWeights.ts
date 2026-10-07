@@ -128,6 +128,10 @@ export const aqaMarks: Record<string, number> = {
   '29:function-machines-forwards': 2,
   '29:function-machines-backwards': 1,
   '29:function-machines-creating': 1,
+  // Estimates, not yet counted from the 18 papers: ratio comes up every sitting (89 marks across 30 papers), but these three skills are a small share of it.
+  '30:ratio-difference': 2,
+  '30:ratio-changing': 1,
+  '30:ratio-unit-form': 1,
   // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
   '24:inequalities-number-line': 1,
   '24:inequalities-two-sided': 1,

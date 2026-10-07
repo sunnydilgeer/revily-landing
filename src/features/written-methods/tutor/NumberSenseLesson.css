@@ -407,3 +407,24 @@
 .ns-machine__undo rect { fill: var(--rv-surface); stroke: #c4b5fd; stroke-width: 1.5; }
 .ns-machine__undo text { fill: #7c3aed; font-weight: 700; }
 .ns-machine__undo.is-lit rect { stroke: #7c3aed; stroke-width: 2.5; }
+/* Ratio bars (lesson 30, RatioPictures.tsx): bar 1 amber, bar 2 blue, bar 3 teal, as in the R1 videos (teal, not
+   green: green is kept for the answer); the parts being worked on are ringed in purple, with a purple line under the bars. */
+.ns-ratio { display: flex; justify-content: center; width: 100%; margin-bottom: 6px; }
+.ns-ratio svg { display: block; width: 100%; max-width: 440px; font-family: var(--rv-font-body); }
+.ns-ratio text { text-anchor: middle; dominant-baseline: central; }
+.ns-ratio__bar { --b: #b45309; --bt: #fef3c7; }
+.ns-ratio__bar.is-b1 { --b: var(--rv-biro); --bt: var(--rv-biro-tint); }
+.ns-ratio__bar.is-b2 { --b: #0f766e; --bt: #ccfbf1; }
+.ns-ratio .ns-ratio__name { text-anchor: end; fill: var(--rv-ink); font-size: 17px; font-weight: 700; }
+.ns-ratio__block { fill: var(--bt); stroke: var(--b); stroke-width: 1.5; }
+.ns-ratio__each { fill: var(--b); font-weight: 800; }
+.ns-ratio__group { stroke: var(--rv-ink); stroke-width: 2; stroke-linecap: round; }
+.ns-ratio__shade { fill: var(--b); opacity: .28; }
+.ns-ratio__tag rect { fill: var(--rv-surface); stroke: var(--b); stroke-width: 2; }
+.ns-ratio__tag text { fill: var(--b); font-size: 17px; font-weight: 700; }
+.ns-ratio__tag.is-lit rect { stroke: #7c3aed; stroke-width: 3; }
+.ns-ratio__tag.is-lit text { fill: #7c3aed; }
+.ns-ratio__tag.is-answer rect { fill: var(--rv-good-tint); stroke: var(--rv-good-ink); }
+.ns-ratio__tag.is-answer text { fill: var(--rv-good-ink); }
+.ns-ratio__ring { fill: none; stroke: #7c3aed; stroke-width: 2.5; stroke-dasharray: 5 3; }
+.ns-ratio__note { fill: #7c3aed; font-size: 16px; font-weight: 700; }

@@ -27,8 +27,9 @@ import { tutorSolvingInequalitiesLesson } from '../solving-inequalities/tutor/so
 import { tutorSimultaneousEquationsLesson } from '../simultaneous-equations/tutor/simultaneousEquationsLesson'
 import { tutorProofLesson } from '../proof/tutor/proofLesson'
 import { tutorFunctionMachinesLesson } from '../function-machines/tutor/functionMachinesLesson'
+import { tutorRatioLesson } from '../ratio/tutor/ratioLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30
 
 export type MathsSection = {
   id: MicroSkillId
@@ -37,7 +38,7 @@ export type MathsSection = {
   startIndex: number
 }
 
-export type MathsChapterId = 'number' | 'algebra'
+export type MathsChapterId = 'number' | 'algebra' | 'ratio'
 
 export type MathsLessonEntry<N extends number = MathsLessonNumber, C extends string = MathsChapterId> = {
   /** The course-wide number: the URL (?lesson=15) and progress key (L015) use it. */
@@ -123,11 +124,13 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(27, tutorSimultaneousEquationsLesson, 'Simultaneous equations', 'Solve two equations at once, like 3x + 2y = 16 and x + 2y = 8, by making one letter disappear, and write them from a problem in words.', tutorSimultaneousEquationsLesson.labels, 'algebra'),
   entry(28, tutorProofLesson, 'Proof', 'Disprove a claim with one counterexample, show two expressions are identical, prove angle facts, and prove facts about odd and even numbers with algebra.', tutorProofLesson.labels, 'algebra'),
   entry(29, tutorFunctionMachinesLesson, 'Function machines', 'Put a number through a function machine, work backwards from the output to the input, and turn an equation like y = 3x + 4 into a machine.', tutorFunctionMachinesLesson.labels, 'algebra'),
+  entry(30, tutorRatioLesson, 'Ratio problems', 'Find a share from the difference between two parts, solve a ratio that changes, and write a ratio in the form 1 : n.', tutorRatioLesson.labels, 'ratio'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([
   { id: 'number', title: 'Number', description: 'Build secure number sense and reliable written calculation methods.' },
   { id: 'algebra', title: 'Algebra', description: 'Use letters for numbers: simplify, expand and solve.' },
+  { id: 'ratio', title: 'Ratio and proportion', description: 'Share, compare and scale amounts with ratios.' },
 ] as const).map(chapter => ({ ...chapter, lessons: mathsLessons.filter(entry => entry.chapterId === chapter.id) }))
 
 // Number each lesson within its chapter.

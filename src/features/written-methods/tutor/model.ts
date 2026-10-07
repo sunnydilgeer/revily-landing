@@ -1,7 +1,7 @@
 import type { GraphBoardSpec } from './GraphBoard'
 import type { LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
 import type { LessonVideoDefinition } from '../../order-of-operations/variant-c/variantCLesson'
-import type { MachineFrame, MethodWorking } from './methodWorking'
+import type { MachineFrame, MethodWorking, RatioFrame } from './methodWorking'
 import type { StepWorking } from './stepWorking'
 import type { FractionWorking } from '../../fractions/tutor/fractionWorking'
 import type { ConversionWorking } from '../../fractions-decimals-percentages/tutor/conversionWorking'
@@ -14,6 +14,8 @@ export type TutorMethodVisual = TutorWorking
   | { kind: 'text'; lines: string[] }
   /** A practice question's own function machine (lesson 29). */
   | { kind: 'machine'; machine: MachineFrame }
+  /** A practice question's own ratio bars (lesson 30). */
+  | { kind: 'ratio'; ratio: RatioFrame }
 export type TutorMethodState = LearningState & {
   sourceRef: string
   visual: TutorMethodVisual
@@ -31,7 +33,7 @@ export type TutorMethodState = LearningState & {
   board?: GraphBoardSpec
 }
 export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
-  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 101 | 102 | 103
+  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 101 | 102 | 103
   labels: Partial<Record<MicroSkillId, string>>
   states: TutorMethodState[]
 }
