@@ -280,6 +280,8 @@ export type GraphFrame = {
   y: [number, number]
   /** `segment` draws only from one point to the other (a midpoint question), not edge to edge. */
   lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean; wrong?: boolean }[]
+  /** Curves (graphs lesson 6): the rule's numbers [constant, x, x², x³], drawn smooth from x = `from` to x = `to`. */
+  curves?: { coeffs: number[]; from: number; to: number; label?: string; at: number; answer?: boolean }[]
   /** A table of values above the grid (graphs lesson 2): the x row amber, the y row biro blue. A null y is an empty
    *  cell, `ask` the cell a question asks for ("?"), `lit` the column a step works on, and `answer` a y in green.
    *  `rule` ("2x − 1") heads the y row, y = 2x − 1, so every y says where it comes from (Sunny, 7 Oct). */

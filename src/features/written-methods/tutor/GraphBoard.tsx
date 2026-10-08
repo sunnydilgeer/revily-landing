@@ -6,6 +6,8 @@ import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
 import { EquationBoard } from './EquationBoard'
+import { CurveBoard } from './CurveBoard'
+import { polySum, valueAt } from './curves'
 import './GraphBoard.css'
 
 /*
@@ -23,6 +25,9 @@ import './GraphBoard.css'
  * - line: tap two corners and a straight line runs through them, edge to edge (LineBoard.tsx).
  * - tilt: drag either end of a line and watch its gradient, across then up (TiltBoard.tsx).
  * - equation: step m and c up and down and watch y = mx + c move (EquationBoard.tsx).
+ * - points: plot every column of a table; once all are down they are joined with a smooth curve (CurveBoard.tsx).
+ * A rule can be a curve (`curve`, graphs lesson 6): the dot slides along it, and once every x in the table is visited
+ * the smooth curve through them appears.
  * A walk starts at 0, or at `start`: from one point of a line, across and then up to the other (a gradient's triangle).
  *
  * Only the play screens show the dot's brackets while it moves (they would give the answer away in a question).
@@ -31,7 +36,7 @@ import './GraphBoard.css'
 
 export type GraphBoardGrid = Omit<GraphFrame, 'step' | 'adds'>
 export type GraphBoardSpec = {
-  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt' | 'equation'
+  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt' | 'equation' | 'points'
   grid: GraphBoardGrid
   /** Where the dot starts (drag, explore, midpoint). */
   start?: GraphPoint
@@ -50,6 +55,11 @@ export type GraphBoardSpec = {
   subtract?: boolean
   /** walk: write how far each arrow goes beside it, across amber and up blue (counting a gradient's triangle). */
   counts?: boolean
+  /** A curve's numbers, [constant, x, x², x³] (curves.ts). rule: the dot slides along it instead of `rule`'s line.
+   *  points: the right curve, drawn green after a wrong answer. */
+  curve?: number[]
+  /** rule with a curve: how the rule is written, "y = x² − 2", for its sum under the board. */
+  curveText?: string
 }
 
 /**
@@ -77,7 +87,8 @@ type BoardProps = {
 }
 
 export function GraphBoard(props: BoardProps) {
-  return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : props.spec.mode === 'equation' ? <EquationBoard {...props} /> : <PointBoard {...props} />
+  return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : props.spec.mode === 'equation' ? <EquationBoard {...props} />
+    : props.spec.mode === 'points' ? <CurveBoard {...props} /> : <PointBoard {...props} />
 }
 
 /** y = 2 × (−1) − 1 = −3: the rule's sum at x, x amber and y biro blue. */
@@ -89,12 +100,21 @@ function RuleSum({ rule, x }: { rule: { m: number; c: number }; x: number }) {
   return <>y = {times}{rule.c ? ` ${rule.c < 0 ? '−' : '+'} ${Math.abs(rule.c)}` : ''} = {Y}</>
 }
 
+/** y = (−2)² − 3 = 4 − 3 = 1: a curve's sum at x, its y biro blue. */
+function CurveSum({ text, x }: { text: string; x: number }) {
+  const sum = polySum(text, x), cut = sum.lastIndexOf(' = ')
+  return <>y = {sum.slice(0, cut)} = <span className="is-y">{sum.slice(cut + 3)}</span></>
+}
+
 function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   const { mode, grid } = spec
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const walk = mode === 'walk'
   const play = mode === 'explore' || mode === 'midpoint' || mode === 'rule'
-  const rule = mode === 'rule' ? spec.rule : undefined
+  // The rule the dot slides along: a straight line, y = mx + c, or a curve (graphs lesson 6).
+  const curve = mode === 'rule' ? spec.curve : undefined
+  const rule = mode === 'rule' ? spec.rule ?? (curve ? { m: 0, c: 0 } : undefined) : undefined
+  const f = (x: number) => curve ? valueAt(curve, x) : rule!.m * x + rule!.c
   // A walk starts at 0, or at its `start` (one point of a line, for a gradient's triangle).
   const origin = walk ? spec.start ?? { x: 0, y: 0 } : { x: 0, y: 0 }
   const [dot, setDot] = useState<GraphPoint | null>(walk ? origin : spec.start ?? null)
@@ -114,7 +134,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   function moveTo(target: GraphPoint) {
     const snapped = clamp(target)
     // Walking: along the x axis first, then straight up or down from there.
-    const next = walk ? stage === 'across' ? { x: snapped.x, y: origin.y } : { x: dot?.x ?? origin.x, y: snapped.y } : rule ? { x: snapped.x, y: rule.m * snapped.x + rule.c } : snapped
+    const next = walk ? stage === 'across' ? { x: snapped.x, y: origin.y } : { x: dot?.x ?? origin.x, y: snapped.y } : rule ? { x: snapped.x, y: f(snapped.x) } : snapped
     if (same(next, dot)) return
     // On a rule the dot stays on the grid: an x whose y would be off it is skipped.
     if (rule && (next.y <= y0 || next.y >= y1)) return
@@ -170,8 +190,10 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     ...grid, step: 0, adds: 'picture', marks,
     lines: [...(grid.lines ?? []), ...(ends ? [{ from: ends[0], to: ends[1], at: -1, segment: true }] : [])],
     points: [...(grid.points ?? []), ...(ends ?? []).map(p => ({ ...p, at: -1, place: clearSide(ends![0], ends![1], p, grid) })),
-      ...(rule ? visited.filter(x => x !== dot?.x).map(x => ({ x, y: rule.m * x + rule.c, at: 0, label: '' })) : [])],
-    ...(rule && grid.table ? { table: { ...grid.table, ys: grid.table.xs.map(x => visited.includes(x) ? rule.m * x + rule.c : null), lit: dot ? grid.table.xs.indexOf(dot.x) : undefined } } : {}),
+      ...(rule ? visited.filter(x => x !== dot?.x).map(x => ({ x, y: f(x), at: 0, label: '' })) : [])],
+    ...(rule && grid.table ? { table: { ...grid.table, ys: grid.table.xs.map(x => visited.includes(x) ? f(x) : null), lit: dot ? grid.table.xs.indexOf(dot.x) : undefined } } : {}),
+    // A curve's table, every x visited: the smooth curve through them all.
+    ...(curve && grid.table && grid.table.xs.every(x => visited.includes(x)) ? { curves: [...(grid.curves ?? []), { coeffs: curve, from: Math.min(...grid.table.xs), to: Math.max(...grid.table.xs), at: 0 }] } : {}),
   }
 
   const labelled = play || !!result
@@ -268,7 +290,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
       }} />
     </div>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
-    {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true"><RuleSum rule={rule} x={dot.x} /></p>}
+    {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true">{curve && spec.curveText ? <CurveSum text={spec.curveText} x={dot.x} /> : <RuleSum rule={rule} x={dot.x} />}</p>}
     {mode === 'midpoint' && <p className={`graph-board__note${halfway ? ' is-right' : ''}`} aria-hidden="true">{halfway ? 'Halfway: both halves match' : 'Drag the dot until both halves match'}</p>}
     {walk && !disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{stage === 'across' ? <>Drag the <span className="is-x">amber</span> handle across</> : <>Now drag the <span className="is-y">blue</span> handle up or down</>}</p>

@@ -3,6 +3,7 @@
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode, type SVGProps } from 'react'
 import type { GraphFrame, GraphPoint, GraphTable } from './methodWorking'
 import { Powers } from './Powers'
+import { curvePath, valueAt } from './curves'
 
 /*
  * The graphs lessons (coordinates, lines, gradient). The graph is drawn on the page's own squared paper: one
@@ -87,7 +88,8 @@ export const dotBox = (x: number, y: number, r = 6) => ({ l: x - r, r: x + r, t:
  *  can carry the rule, y = 2x − 1, its x amber, so each y in the row says where it comes from. */
 export function ValueTable({ table }: { table: GraphTable }) {
   const cell = (i: number) => `${table.lit === i ? ' is-lit' : ''}${table.answer === i ? ' is-answer' : ''}${table.ask === i ? ' is-ask' : ''}`
-  return <table className="ns-graph__table">
+  // A long table (six columns or more) packs its cells tighter, so it fits a phone.
+  return <table className={`ns-graph__table${table.xs.length > 5 ? ' is-long' : ''}`}>
     <tbody>
       <tr className="is-x"><th scope="row">x</th>{table.xs.map((x, i) => <td key={i} className={cell(i)}>{fmt(x)}</td>)}</tr>
       <tr className="is-y"><th scope="row">y{table.rule && <span className="ns-graph__rule"> = {table.rule.split('x').flatMap((part, i) => i ? [<span key={i} className="is-x">x</span>, part] : [part])}</span>}</th>{table.ys.map((y, i) => <td key={i} className={cell(i)}>{table.ask === i ? '?' : y === null ? '' : fmt(y)}</td>)}</tr>
@@ -124,6 +126,7 @@ function spoken(frame: GraphFrame, plain?: boolean) {
   const parts = [`A grid with x from ${fmt(frame.x[0])} to ${fmt(frame.x[1])} and y from ${fmt(frame.y[0])} to ${fmt(frame.y[1])}.`]
   const own = <T extends { at: number }>(list: T[] = []) => list.filter(part => !plain || part.at < 0)
   for (const line of own(frame.lines)) parts.push(`The line ${spokenLine(line)}.`)
+  for (const curve of own(frame.curves)) parts.push(`A smooth curve${curve.label ? `, ${curve.label.replace(/−/g, 'minus ')},` : ''} from x = ${fmt(curve.from)} to x = ${fmt(curve.to)}.`)
   for (const point of own(frame.points)) parts.push(`A point at ${coordinate(point)}.`)
   if (!plain) {
     for (const leg of (frame.legs ?? []).filter(leg => !leg.dashed)) parts.push(`${leg.from.y === leg.to.y ? 'Across' : leg.to.y > leg.from.y ? 'Up' : 'Down'} ${leg.label}.`)
@@ -195,6 +198,16 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
   const range = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i)
   const axisX = Math.min(Math.max(0, x0), x1), axisY = Math.min(Math.max(0, y0), y1)
   const lines = (frame.lines ?? []).filter(line => shown(line.at))
+  const curves = (frame.curves ?? []).filter(curve => shown(curve.at))
+  // A curve as short straight pieces inside the grid, so labels keep off it like they keep off a line.
+  const curveSegments = curves.flatMap(curve => {
+    const lo = Math.max(curve.from, x0), hi = Math.min(curve.to, x1), n = Math.max(2, Math.ceil((hi - lo) * 4)), out = []
+    for (let i = 0; i < n; i++) {
+      const xa = lo + (hi - lo) * i / n, xb = lo + (hi - lo) * (i + 1) / n, ya = valueAt(curve.coeffs, xa), yb = valueAt(curve.coeffs, xb)
+      if (ya >= y0 && ya <= y1 && yb >= y0 && yb <= y1) out.push({ x1: px(xa) + 0.5, y1: py(ya) + 0.5, x2: px(xb) + 0.5, y2: py(yb) + 0.5 })
+    }
+    return out
+  })
   const points = (frame.points ?? []).filter(point => shown(point.at))
   const legs = plain ? [] : frame.legs ?? []
   const working = plain ? [] : frame.working ?? []
@@ -214,7 +227,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
       { l: ax - 20, r: ax - 2, t: ay + 3, b: ay + 23 },
       ...points.map(point => dotBox(px(point.x) + 0.5, py(point.y) + 0.5)),
     ],
-    segments: lines.map(line => { const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to); return { x1: px(a.x) + 0.5, y1: py(a.y) + 0.5, x2: px(b.x) + 0.5, y2: py(b.y) + 0.5 } }),
+    segments: [...lines.map(line => { const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to); return { x1: px(a.x) + 0.5, y1: py(a.y) + 0.5, x2: px(b.x) + 0.5, y2: py(b.y) + 0.5 } }), ...curveSegments],
   }
 
   /** Keeps a label of `text` at (x, y) inside the grid: `size` is its font size, `anchor` how it hangs off x. */
@@ -324,6 +337,24 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
         return <g key={`l${i}`} className={`ns-graph__line${kind}${done(line.at)}`}>
           <line x1={fix(px(a.x) + 0.5)} y1={fix(py(a.y) + 0.5)} x2={fix(px(b.x) + 0.5)} y2={fix(py(b.y) + 0.5)} />
           {label && <text x={fix(label.x)} y={fix(label.y)} textAnchor={anchor}>{line.label}</text>}
+        </g>
+      })}
+      {curves.map((curve, i) => {
+        const kind = curve.answer ? ' is-answer' : curve.at >= 0 ? ' is-found' : ''
+        // A named curve: its name beside it, wherever it keeps clear of the axes, their numbers, the dots and other names.
+        const fitted = curve.label ? (() => {
+          const w = curve.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
+          const candidates = [0.9, 0.1, 0.8, 0.2, 0.7, 0.3].flatMap(f => {
+            const x = curve.from + (curve.to - curve.from) * f, y = valueAt(curve.coeffs, x)
+            if (y < y0 || y > y1) return []
+            const cx = px(x) + 0.5, cy = py(y) + 0.5
+            return [box(cx + 12, cy + 5), box(cx - 12 - w, cy + 5), box(cx - w / 2, cy - 12), box(cx - w / 2, cy + 26)]
+          })
+          return fitLabel(candidates.length ? candidates : [box(3, 18)], room, true)
+        })() : null
+        return <g key={`c${i}`} className={`ns-graph__line ns-graph__curve${kind}${done(curve.at)}`}>
+          <path d={curvePath(curve.coeffs, curve.from, curve.to, frame, px, py)} />
+          {fitted && <text x={fix(fitted.l + 2)} y={fix(fitted.base)}>{curve.label}</text>}
         </g>
       })}
       {legs.map((leg, i) => {

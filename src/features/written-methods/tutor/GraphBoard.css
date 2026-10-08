@@ -46,3 +46,7 @@
 .graph-board__stepper-value { min-width: 4.6em; text-align: center; font-size: 20px; font-weight: 700; color: var(--rv-ink); font-variant-numeric: tabular-nums; }
 .graph-board__stepper-value i { font-family: 'Times New Roman', serif; font-size: 22px; }
 .graph-board__stepper-value .is-y { color: var(--rv-biro); font-weight: 800; }
+
+/* Plot-the-table mode (CurveBoard.tsx): the student's own dots joined with a smooth curve. */
+.graph-board__join { fill: none; stroke: var(--rv-biro); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.graph-board__join.is-right { stroke: var(--rv-good-ink); stroke-width: 4; }
