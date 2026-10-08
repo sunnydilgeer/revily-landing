@@ -80,7 +80,7 @@ explore(read, 'Drag the dot. Can you put it on both lines at once?', 'GR7 p84 Tw
     graphModel('y = 2x − 1 and y = −x + 5', gridWith([[a], [b]], [-2, 5], [-2, 7]), solveMoves(a, b, { given: 2 }), 'Where they cross'),
     'Simultaneous equations are both true at the same time, for the same x and y. Each one is a straight line, and the one point on both lines is where they cross: its x and y are the solution.').video = {
     id: 'graphs-5-simultaneous', src: `/media/${SIMULTANEOUS_MEDIA_ID}/simultaneous.mp4`, poster: `/media/${SIMULTANEOUS_MEDIA_ID}/simultaneous.svg`,
-    title: 'Simultaneous equations by graph', durationSeconds: 70, sourceFile: 'GR7.1_Simultaneous_equations_by_graph.mp4 (tools/lesson-kit/packs/GR7.1-simultaneous-equations-by-graph.cjs)',
+    title: 'Simultaneous equations by graph', durationSeconds: 74, sourceFile: 'GR7.1_Simultaneous_equations_by_graph.mp4 (tools/lesson-kit/packs/GR7.1-simultaneous-equations-by-graph.cjs)',
     textAlternative: [
       'Simultaneous equations are true at the same time, for the same x and y. Each one is a straight line.',
       'Draw y = 2x − 3: start at −3 on the y axis, then across 1 and up 2. Draw y = −x + 3: start at 3, then across 1 and down 1.',
