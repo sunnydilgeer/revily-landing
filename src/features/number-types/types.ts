@@ -123,6 +123,8 @@ export type MicroSkillId =
   | 'ratio-difference'
   | 'ratio-changing'
   | 'ratio-unit-form'
+  | 'proportion-direct'
+  | 'proportion-inverse'
   | 'inequalities-number-line'
   | 'inequalities-two-sided'
   | 'inequalities-integers'

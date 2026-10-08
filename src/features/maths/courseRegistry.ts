@@ -28,8 +28,9 @@ import { tutorSimultaneousEquationsLesson } from '../simultaneous-equations/tuto
 import { tutorProofLesson } from '../proof/tutor/proofLesson'
 import { tutorFunctionMachinesLesson } from '../function-machines/tutor/functionMachinesLesson'
 import { tutorRatioLesson } from '../ratio/tutor/ratioLesson'
+import { tutorProportionLesson } from '../ratio/tutor/proportionLesson'
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31
 
 export type MathsSection = {
   id: MicroSkillId
@@ -125,6 +126,7 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(28, tutorProofLesson, 'Proof', 'Disprove a claim with one counterexample, show two expressions are identical, prove angle facts, and prove facts about odd and even numbers with algebra.', tutorProofLesson.labels, 'algebra'),
   entry(29, tutorFunctionMachinesLesson, 'Function machines', 'Put a number through a function machine, work backwards from the output to the input, and turn an equation like y = 3x + 4 into a machine.', tutorFunctionMachinesLesson.labels, 'algebra'),
   entry(30, tutorRatioLesson, 'Ratio problems', 'Find a share from the difference between two parts, solve a ratio that changes, and write a ratio in the form 1 : n.', tutorRatioLesson.labels, 'ratio'),
+  entry(31, tutorProportionLesson, 'Direct and inverse proportion', 'Scale an amount up or down with direct proportion, and work out how long a job takes with inverse proportion, by finding 1 first.', tutorProportionLesson.labels, 'ratio'),
 ]
 
 export const mathsChapters: MathsChapter[] = ([

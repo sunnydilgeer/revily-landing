@@ -19,3 +19,14 @@ Checked on 7 October 2026:
 - One move a step, short headings, the answer once at the last step, the aim said first on each worked example.
 - Every screen at 320px and 1280px wide, with the answer typed or chosen on every question and every working stepped through: every answer is marked right, no sideways scrolling, no console errors.
 - The three videos are Aniksha's files, byte for byte (sha256 checked against her zip), with SVG posters.
+
+# Lesson 31 (Ratio R2) QA
+
+Run `npm run verify:lesson31:tutor` with the list above.
+
+Checked on 8 October 2026:
+
+- Every verifier passes except `verify:revision-cards`, which already fails on `main` for a Science card (B-GEN-044-B). `next build` and `tsc --noEmit` pass.
+- The verifier works out every board row again (reading past "total" and "each"), checks every row picture keeps the same amount for 1 (direct) or the same total work (inverse), that each row's name matches its blocks, and the source answers from the worksheets' own numbers.
+- Every screen at 320px and 1280px wide, with every answer typed or chosen and every working stepped through: every answer is marked right and nothing scrolls sideways.
+- The two videos are Aniksha's files, byte for byte (sha256 checked against her zip), with SVG posters.

@@ -132,6 +132,9 @@ export const aqaMarks: Record<string, number> = {
   '30:ratio-difference': 2,
   '30:ratio-changing': 1,
   '30:ratio-unit-form': 1,
+  // Estimates, not yet counted from the 18 papers: direct proportion (recipes, best buys) comes up most sittings; inverse proportion less often.
+  '31:proportion-direct': 2,
+  '31:proportion-inverse': 1,
   // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
   '24:inequalities-number-line': 1,
   '24:inequalities-two-sided': 1,

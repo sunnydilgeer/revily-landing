@@ -176,6 +176,8 @@ export type RatioFrame = {
   groups?: number
   note?: string
   lit?: number[]
+  /** Rows not reached yet (proportion, lesson 31): drawn faint, so the picture keeps its size from the first step. */
+  dim?: number[]
   room?: number
   /** The bars on the opening screen, before the first step changes them. */
   before?: Omit<RatioFrame, 'before'>
