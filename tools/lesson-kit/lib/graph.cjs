@@ -11,10 +11,11 @@ const tex = (x, y) => `(\\textcolor{${AMBER}}{${show(x).replace('−', '-')}}, \
  * A grid drawn to its numbers: one square per unit, the axes, straight lines edge to edge (each through two points),
  * points with their coordinates, the steps between two points (across amber, up or down biro blue) and rings.
  * Everything (arrowheads, axis names, labels) stays inside the grid. `marks` highlights the axis numbers a step
- * reads, in that step's colour: [{ axis: 'x' | 'y', value, colour }]. `numbersOver` draws every axis number on top of
+ * reads, in that step's colour: [{ axis: 'x' | 'y', value, colour }]. `curves` (optional) are smooth curves y = f(x), as
+ * [{ f, from, to, colour, label, labelAt: [x, y], anchor }]. `numbersOver` draws every axis number on top of
  * the lines, in its white halo, for a steep line that crosses the axis beside a number (off by default).
  */
-function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], points = [], legs = [], rings = [], marks = [], numbers = true, numbersOver = false }) {
+function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], curves = [], points = [], legs = [], rings = [], marks = [], numbers = true, numbersOver = false }) {
   const L = 1, T = 1
   const W = 2 + (x1 - x0) * unit, H = 2 + (y1 - y0) * unit
   const px = x => L + (x - x0) * unit, py = y => T + (y1 - y) * unit
@@ -63,6 +64,29 @@ function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], points = [], l
     // Labels: an up-and-down line's at its foot, beside it; an across line's at its right end, above it.
     // `labelAt` moves it along the line (a y for an up-and-down line, an x for an across one).
     if (label) parts.push(dy && !dx ? text(px(a.x) + 8, labelAt === undefined ? py(y0) - 8 : py(labelAt), label, { size: 17, colour, italic: true }) : labelAt === undefined ? text(px(x1) - 8, py(b.y) - 8, label, { size: 17, colour, italic: true, anchor: 'end' }) : text(px(labelAt), py(b.y) - 8, label, { size: 17, colour, italic: true, anchor: 'middle' }))
+  }
+  // Curves (optional): y = f(x), drawn smooth by sampling it every 1/32 of a square from `from` to `to`, never as
+  // straight bits between plotted points. Cut where it leaves the grid's top or bottom; a new piece starts where it
+  // comes back in. `label` goes at `labelAt` ([x, y] on the grid), kept inside the grid like every other label.
+  for (const { f, from = x0, to = x1, colour = INK, label, labelAt, anchor = 'start', size = 17 } of curves) {
+    const lo = Math.max(from, x0), hi = Math.min(to, x1), n = Math.max(2, Math.ceil((hi - lo) * 32))
+    const isIn = v => v >= y0 && v <= y1
+    const edge = (a, b) => {
+      const was = isIn(f(a))
+      for (let i = 0; i < 40; i++) { const mid = (a + b) / 2; if (isIn(f(mid)) === was) a = mid; else b = mid }
+      const ex = (a + b) / 2
+      return [ex, Math.min(Math.max(f(ex), y0), y1)]
+    }
+    const at = (cx, cy) => `${px(cx).toFixed(2)} ${py(cy).toFixed(2)}`
+    let d = '', drawing = false, last = lo
+    for (let i = 0; i <= n; i++) {
+      const cx = lo + (hi - lo) * i / n, cy = f(cx)
+      if (isIn(cy)) { d += drawing ? `L${at(cx, cy)}` : i ? `M${at(...edge(last, cx))}L${at(cx, cy)}` : `M${at(cx, cy)}`; drawing = true }
+      else if (drawing) { d += `L${at(...edge(last, cx))}`; drawing = false }
+      last = cx
+    }
+    if (d) parts.push(`<path d="${d}" fill="none" stroke="${colour}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`)
+    if (label && labelAt) parts.push(text(px(labelAt[0]), py(labelAt[1]), label, { size, colour, italic: true, anchor }))
   }
   for (const { from, to, label, dashed, colour: own } of legs) {
     const across = from.y === to.y, colour = own ?? (across ? AMBER : BIRO)

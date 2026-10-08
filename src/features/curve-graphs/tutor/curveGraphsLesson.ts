@@ -84,7 +84,7 @@ function plotTable(topic: MicroSkillId, c: Curve, xs: number[], x: Range, y: Ran
     graphModel(c.text, grid([-3, 3], [-4, 3], { table: tableOf(c, xs) }), tableMoves(c, xs), 'Fill the table'),
     'A rule with x² makes a curve. Put each x into the rule to find its y, a negative x in brackets: (−2)² is −2 × −2 = 4, positive.').video = {
     id: 'graphs-6-curves', src: `/media/${CURVES_MEDIA_ID}/curves.mp4`, poster: `/media/${CURVES_MEDIA_ID}/curves.svg`,
-    title: 'Quadratic and cubic graphs', durationSeconds: 70, sourceFile: 'GR6.1_Quadratic_and_cubic_graphs.mp4 (tools/lesson-kit/packs/GR6.1-quadratic-and-cubic-graphs.cjs)',
+    title: 'Quadratic and cubic graphs', durationSeconds: 87, sourceFile: 'GR6.1_Quadratic_and_cubic_graphs.mp4 (tools/lesson-kit/packs/GR6.1-quadratic-and-cubic-graphs.cjs)',
     textAlternative: [
       'A rule with x² is a quadratic, and its graph is a curve: a U shape, or an upside-down U when the x² is taken away.',
       'A table for y = x² − 3: put each x in, in brackets. (−2)² = 4, so x = −2 gives 4 − 3 = 1. The ys are 1, −2, −3, −2, 1.',
