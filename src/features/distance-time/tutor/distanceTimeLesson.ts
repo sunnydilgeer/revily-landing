@@ -71,7 +71,7 @@ worked(reading, 'Maya’s bike ride is shown. How long did she stop for?', 'How 
   graphModel('Maya’s bike ride', mayaGrid, stopMoves(maya.corners[0], maya.corners[1]), 'Read the flat part'),
   'Time goes across and distance from home goes up. Going up is moving away, flat is stopped, and going down is coming back home.').video = {
   id: 'graphs-7-distance-time', src: `/media/${DISTANCE_TIME_MEDIA_ID}/distance-time.mp4`, poster: `/media/${DISTANCE_TIME_MEDIA_ID}/distance-time.svg`,
-  title: 'Distance–time graphs', durationSeconds: 70, sourceFile: 'GR8.1_Distance_time_graphs.mp4 (tools/lesson-kit/packs/GR8.1-distance-time-graphs.cjs)',
+  title: 'Distance–time graphs', durationSeconds: 72, sourceFile: 'GR8.1_Distance_time_graphs.mp4 (tools/lesson-kit/packs/GR8.1-distance-time-graphs.cjs)',
   textAlternative: [
     'A distance–time graph shows a journey: time goes across and distance from home goes up.',
     'Going up is moving away from home, a flat part is stopped, and going down is coming back.',

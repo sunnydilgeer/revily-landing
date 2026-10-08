@@ -15,7 +15,11 @@ const tex = (x, y) => `(\\textcolor{${AMBER}}{${show(x).replace('−', '-')}}, \
  * [{ f, from, to, colour, label, labelAt: [x, y], anchor }]. `numbersOver` draws every axis number on top of
  * the lines, in its white halo, for a steep line that crosses the axis beside a number (off by default).
  */
-function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], curves = [], points = [], legs = [], rings = [], marks = [], numbers = true, numbersOver = false }) {
+function graph(options) {
+  if (options.scale) return scaled(options)
+  return drawn(options)
+}
+function drawn({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], curves = [], points = [], legs = [], rings = [], marks = [], numbers = true, numbersOver = false, axes }) {
   const L = 1, T = 1
   const W = 2 + (x1 - x0) * unit, H = 2 + (y1 - y0) * unit
   const px = x => L + (x - x0) * unit, py = y => T + (y1 - y) * unit
@@ -38,8 +42,10 @@ function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], curves = [], p
   // The axes, their arrowheads ending just inside the grid's edge.
   const ex = px(x1) - 3, ey = py(y1) + 3
   parts.push(`<path d="M${px(x0)} ${py(0)}H${ex}M${ex - 8} ${py(0) - 5}L${ex} ${py(0)}L${ex - 8} ${py(0) + 5}M${px(0)} ${py(y0)}V${ey}M${px(0) - 5} ${ey + 8}L${px(0)} ${ey}L${px(0) + 5} ${ey + 8}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`)
-  parts.push(text(ex - 4, py(0) - 8, 'x', { size: 16, italic: true, anchor: 'end' }) + text(px(0) + 9, ey + 14, 'y', { size: 16, italic: true }))
-  if (numbers) {
+  if (axes) parts.push(text(ex - 2, py(0) + 19, axes.x.name, { size: 15, italic: true, anchor: 'end' }) + text(px(0) + 9, ey + 14, axes.y.name, { size: 15, italic: true }))
+  else parts.push(text(ex - 4, py(0) - 8, 'x', { size: 16, italic: true, anchor: 'end' }) + text(px(0) + 9, ey + 14, 'y', { size: 16, italic: true }))
+  if (axes && numbers) { const { under, over } = scaleNumbers({ axes, marks, unit, px, py, x1, y1, W, inside }); parts.push(...under); late.push(...over) }
+  else if (numbers) {
     const marked = (axis, v) => marks.find(m => m.axis === axis && m.value === v) && { colour: AXIS[axis] }
     const number = (axis, v, x, y, anchor) => {
       const m = marked(axis, v), words = show(v), [nx, ny] = inside(x, y, words, 12, anchor)
@@ -88,14 +94,16 @@ function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], curves = [], p
     if (d) parts.push(`<path d="${d}" fill="none" stroke="${colour}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`)
     if (label && labelAt) parts.push(text(px(labelAt[0]), py(labelAt[1]), label, { size, colour, italic: true, anchor }))
   }
-  for (const { from, to, label, dashed, colour: own } of legs) {
+  for (const { from, to, label, dashed, colour: own, place } of legs) {
     const across = from.y === to.y, colour = own ?? (across ? AMBER : BIRO)
     // A dashed reading line, from a point to an axis: no arrowhead, no size.
     if (dashed) { parts.push(`<line x1="${px(from.x)}" y1="${py(from.y)}" x2="${px(to.x)}" y2="${py(to.y)}" stroke="${colour}" stroke-width="3.5" stroke-dasharray="2 8" stroke-linecap="round"/>`); continue }
     const [ax, ay, bx, by] = [px(from.x), py(from.y), px(to.x), py(to.y)], dir = across ? Math.sign(bx - ax) : Math.sign(by - ay)
     const head = across ? `M${bx - dir * 9} ${by - 6}L${bx} ${by}L${bx - dir * 9} ${by + 6}` : `M${bx - 6} ${by - dir * 9}L${bx} ${by}L${bx + 6} ${by - dir * 9}`
     parts.push(`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${colour}" stroke-width="4" stroke-linecap="round"/><path d="${head}" fill="none" stroke="${colour}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`)
-    parts.push(across ? text((ax + bx) / 2, ay - 9, label, { size: 20, weight: 800, colour, anchor: 'middle' }) : text(ax - 9, (ay + by) / 2 + 7, label, { size: 20, weight: 800, colour, anchor: 'end' }))
+    // `place` (optional) puts the size on the other side, 'below' a step across or 'right' of one up or down, or
+    // 'above' a step across or 'left' of one up or down, further off it, clear of an arrowhead at its end or start.
+    parts.push(across ? text((ax + bx) / 2, place === 'below' ? ay + 25 : place === 'above' ? ay - 13 : ay - 9, label, { size: 20, weight: 800, colour, anchor: 'middle' }) : place === 'right' ? text(ax + 11, (ay + by) / 2 + 7, label, { size: 20, weight: 800, colour }) : text(place === 'left' ? ax - 13 : ax - 9, (ay + by) / 2 + 7, label, { size: 20, weight: 800, colour, anchor: 'end' }))
   }
   for (const p of rings) parts.push(`<circle cx="${px(p.x)}" cy="${py(p.y)}" r="11" fill="none" stroke="${PURPLE}" stroke-width="2.5"/>`)
   for (const { x, y, label = `(${show(x)}, ${show(y)})`, dx = 1, dy = 1 } of points) {
@@ -103,6 +111,65 @@ function graph({ x: [x0, x1], y: [y0, y1], unit = 30, lines = [], curves = [], p
     if (label) parts.push(text(px(x) + dx * 11, py(y) + (dy > 0 ? 25 : -13), label, { anchor: dx > 0 ? 'start' : 'end' }).replace(`>${label}<`, `>${pair(x, y, label)}<`))
   }
   return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Poppins, Lato, sans-serif">${parts.join('')}${late.join('')}</svg>`
+}
+/**
+ * Real-life axes (optional, graphs lesson 7 on): `scale: { x: { per, start, every, clock, name }, y: { per, start, every, name } }`.
+ * Everything is given in its own units (hours, km): a square is `per` of them, the axes cross at the two `start`s, and
+ * a number goes every `every` squares (a clock axis writes 9.5 as 09:30). The axes are named (`name`, such as "time"
+ * and "km") instead of x and y. Drawn by turning every value into squares from where the axes cross, so the grid,
+ * lines, steps, points and rings are drawn exactly as on any other grid. Points have no brackets unless given a label.
+ */
+function scaled({ scale, x, y, lines = [], legs = [], points = [], rings = [], marks = [], ...rest }) {
+  const sq = (v, s) => Math.round((v - s.start) / s.per * 1e6) / 1e6
+  const P = p => ({ ...p, x: sq(p.x, scale.x), y: sq(p.y, scale.y) })
+  return drawn({
+    ...rest, x: x.map(v => sq(v, scale.x)), y: y.map(v => sq(v, scale.y)), axes: scale,
+    lines: lines.map(l => ({ ...l, from: P(l.from), to: P(l.to) })), legs: legs.map(l => ({ ...l, from: P(l.from), to: P(l.to) })),
+    points: points.map(p => ({ ...P(p), label: p.label ?? '' })), rings: rings.map(P),
+    marks: marks.map(m => ({ ...m, value: sq(m.value, scale[m.axis]) })),
+  })
+}
+const clock = hours => { const m = Math.round(hours * 60); return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` }
+/**
+ * A real-life grid's axis numbers, in squares from where the axes cross, like the app's (GraphPictures.tsx): a number
+ * every `every` squares, the last kept clear of the arrow and the axis's name, and the number where they cross on each
+ * axis (the start time under it, 0 to its left). A value read that falls between the numbers (10:30) is numbered too,
+ * highlighted; a highlighted time too close to the one before it drops a row so both can be read, and a plain number
+ * a highlighted one would cover is left out.
+ */
+function scaleNumbers({ axes: { x: sx, y: sy }, marks, unit, px, py, x1, y1, W, inside }) {
+  const word = (s, v) => { const real = Math.round((s.start + v * s.per) * 1e6) / 1e6; return s.clock ? clock(real) : show(real) }
+  const wide = (s, v) => word(s, v).length * 7.5 + 8
+  const nameX = sx.name.length * 8.5 + 10
+  const ticks = (to, every, end) => { const out = []; for (let v = every; v < to - end + 1e-9 && v < to - 1e-9; v += every) out.push(v); return out }
+  const xs = ticks(x1, sx.every ?? 1, 1 + nameX / unit), ys = ticks(y1, sy.every ?? 1, 1)
+  const lit = axis => marks.filter(m => m.axis === axis).map(m => m.value)
+  const litX = [...new Set(lit('x'))].sort((a, b) => a - b), litY = lit('y')
+  // Rows for the highlighted times: down a row from the one before when they would touch, or from the axis's name.
+  const row = new Map()
+  litX.forEach((v, i) => {
+    const prev = litX[i - 1], half = wide(sx, v) / 2
+    const r = prev !== undefined && px(v) - half < px(prev) + wide(sx, prev) / 2 + 2 ? 1 - row.get(prev) : px(v) + half > W - 6 - nameX ? 1 : 0
+    row.set(v, r)
+  })
+  const covered = v => litX.some(m => m !== v && !row.get(m) && Math.abs(px(m) - px(v)) < (wide(sx, m) + wide(sx, v)) / 2)
+  const plain = (words, x, y, anchor) => { const [nx, ny] = inside(x, y, words, 12, anchor); return `<text x="${nx}" y="${ny}" font-size="12" font-weight="600" fill="${MUTED}" text-anchor="${anchor}" paint-order="stroke" stroke="#fff" stroke-width="3" stroke-linejoin="round">${words}</text>` }
+  const pill = (words, x, y, anchor, colour) => {
+    const [nx, ny] = inside(x, y, words, 12, anchor), w = words.length * 7.5 + 8, left = anchor === 'end' ? nx - w + 4 : nx - w / 2
+    return `<rect x="${left}" y="${ny - 12}" width="${w}" height="16" rx="8" fill="${colour}"/><text x="${nx}" y="${ny}" font-size="12" font-weight="800" fill="#fff" text-anchor="${anchor}">${words}</text>`
+  }
+  const under = [], over = []
+  for (const v of [0, ...xs, ...litX.filter(v => v && !xs.includes(v))]) {
+    const on = litX.includes(v)
+    if (on) over.push(pill(word(sx, v), px(v), py(0) + 15 + 21 * row.get(v), 'middle', AMBER))
+    // The start time sits under the cross, on a white patch so the distance axis doesn't run through it.
+    else if (!covered(v)) under.push((v ? '' : `<rect x="${px(v) - word(sx, v).length * 3.6 - 2}" y="${py(0) + 4}" width="${word(sx, v).length * 7.2 + 4}" height="14" fill="#fff"/>`) + plain(word(sx, v), px(v), py(0) + 15, 'middle'))
+  }
+  for (const v of [...ys, ...litY.filter(v => v && !ys.includes(v))]) (litY.includes(v) ? over : under).push((litY.includes(v) ? pill : plain)(word(sy, v), px(0) - 6, py(v) + 4, 'end', BIRO))
+  // 0 km where the axes cross: to the left of the cross, above the time axis.
+  if (litY.includes(0)) over.push(pill(word(sy, 0), px(0) - 6, py(0) - 5, 'end', BIRO))
+  else under.push(plain(word(sy, 0), px(0) - 6, py(0) - 5, 'end'))
+  return { under, over }
 }
 /** The axis numbers in points' brackets, highlighted (x amber, y biro blue). */
 const marksOf = (...ps) => ps.flatMap(p => [{ axis: 'x', value: p.x }, { axis: 'y', value: p.y }])
@@ -127,4 +194,4 @@ function table({ x, y = x.map(() => null), lit = [], grey = [], answer = [], siz
     + `<tr>${head('y', BIRO)}${y.map((v, i) => cell(v, i, BIRO)).join('')}</tr></table>`
 }
 
-module.exports = { graph, table, pair, tex, marksOf, pt, show, COLOURS: { INK, BIRO, AMBER, GREEN, PURPLE, GRID, MUTED }, AXIS }
+module.exports = { graph, clock, table, pair, tex, marksOf, pt, show, COLOURS: { INK, BIRO, AMBER, GREEN, PURPLE, GRID, MUTED }, AXIS }
