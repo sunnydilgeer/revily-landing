@@ -11,3 +11,16 @@ R1 is written from Aniksha's three PDF/video pairs `R1.6_Difference_Between_Part
 Each working draws the question's ratio bars above the A5 board (`RatioPictures.tsx`), as in the videos: one block per part, bar 1 amber, bar 2 blue, bar 3 teal (green is kept for the answer). The parts being worked on are ringed in purple with one purple line under the bars, each block shows 1 part once it is found, and each share's pill sits after its bar. For 1 : n both bars are split into equal groups, every other group shaded, and the first group ringed. The bars keep their size from step to step. Questions whose bars would be too thin to read (3 : 100, 8 : 36, 5 : 20) show their words instead.
 
 Every source answer was checked; all three videos' sums are right. The videos are Aniksha's files unchanged.
+
+# Lesson 31 (Ratio R2) source map
+
+R2 is written from Aniksha's two PDF/video pairs `R2.1_Direct_Proportion` and `R2.2_Inverse_Proportion` (zip `R2_v1`, sha256 `fcd074c6…f4d1b22d`). It is lesson 31 in the course (`?lesson=31`, progress key `L031`, `proportionLesson.ts`), the second lesson of the Ratio and proportion chapter, so students see it as R2.
+
+| Rung | Source | App coverage |
+| --- | --- | --- |
+| Direct proportion | R2.1 | Video + worked example = Q1 (4 people eat 12 slices, 7 people need 21); Q2 (£9), Q3 (500 g), Q4a (140 miles), Q4b (15.5 litres), Q5a (120 pages) typed; Q5b typed as minutes and seconds, 13 and 20; Q5c (Maya) as a choice |
+| Inverse proportion | R2.2 | Video + worked example = Q1 (4 painters take 9 hours, 6 painters take 6); Q2 (3 hours), Q3 (3 days), Q4a (6 hours), Q4b (12 bakers), Q5a (30 minutes), Q5b (18 stewards) typed; Q5c (Leo) as a choice |
+
+Each working draws the question's rows above the A5 board with the R1 ratio bars, like the rows of people in the videos: one block per person (or litre, or minute) and the amount in a pill after the row. The 1 row is on screen from the start but faint, so the picture keeps its size, and the row being worked from is ringed in purple. Sunny asked (8 Oct) for "total" and "each" in the sums, so the board says, for example, 12 total ÷ 4 = 3 each. Questions whose unknown is the count of rows (Q4b, Q5b) or whose blocks would be too thin (Q3, Leo) show their words instead.
+
+Every source answer was checked; both videos' sums are right. The videos are Aniksha's files unchanged.

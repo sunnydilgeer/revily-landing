@@ -258,6 +258,10 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'ratio-changing': [['Mira : Noel = 7 : 3. Mira gives Noel 10, and now they are equal. How many did Mira have?', '35. Call 1 part x: 7x − 10 = 3x + 10, so 4x = 20 and x = 5. Mira had 7 × 5 = 35. Change the real amounts, never the ratio numbers.']],
     'ratio-unit-form': [['Write 6 : 15 in the form 1 : n.', '1 : 2.5. Divide both numbers by the first number, 6. For n : 1, divide both by the second number. n can be a decimal.']],
   },
+  31: {
+    'proportion-direct': [['4 people eat 12 slices of pizza. How many slices for 7 people?', '21. Divide to find 1: 12 ÷ 4 = 3 slices each. Multiply to find many: 7 × 3 = 21. More people, more slices.']],
+    'proportion-inverse': [['4 painters take 9 hours. How long do 6 painters take?', '6 hours. Multiply to find 1: 1 painter takes 4 × 9 = 36 hours. Divide to find many: 36 ÷ 6 = 6. More painters, less time.']],
+  },
   24: {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
     'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],

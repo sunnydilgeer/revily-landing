@@ -141,6 +141,8 @@ export const canStatements: Record<string, string> = {
   '30:ratio-difference': 'I can find a share from the difference between two parts, like 2 : 3 : 6 with Fay 24 more than Dev gives Eli 18',
   '30:ratio-changing': 'I can solve a ratio that changes by calling 1 part x, like 7 : 3 then Mira gives Noel 10 to make them equal',
   '30:ratio-unit-form': 'I can write a ratio in the form 1 : n or n : 1, like 6 : 15 = 1 : 2.5',
+  '31:proportion-direct': 'I can use direct proportion by finding 1 first, like 4 people eat 12 slices, so 7 people eat 7 × 3 = 21',
+  '31:proportion-inverse': 'I can use inverse proportion by finding 1 first, like 4 painters take 9 hours, so 1 takes 36 and 6 take 6 hours',
 
   '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
   '24:inequalities-two-sided': 'I can write and show a two-sided inequality, like 1 ≤ t < 5 as a filled circle at 1 and an open circle at 5, joined',

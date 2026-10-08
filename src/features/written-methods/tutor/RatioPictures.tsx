@@ -47,7 +47,7 @@ export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boole
     <svg viewBox={`0 0 ${width} ${height}`} style={{ maxWidth: Math.round(width * 1.375) }} aria-hidden="true">
       {frame.bars.map((bar, i) => {
         const y = rowY(i)
-        return <g key={i} className={`ns-ratio__bar is-b${i % 3}${match && !match.bars.includes(i) ? ' is-out' : ''}`}>
+        return <g key={i} className={`ns-ratio__bar is-b${i % 3}${match && !match.bars.includes(i) ? ' is-out' : ''}${!plain && frame.dim?.includes(i) ? ' is-dim' : ''}`}>
           <text className="ns-ratio__name" x={barX - GAP} y={y + BAR_H / 2}>{bar.name}</text>
           {Array.from({ length: bar.parts }, (_, k) => <rect key={k} className={`ns-ratio__block${faded(i, k) ? ' is-faded' : ''}`} x={barX + k * block} y={y} width={block} height={BAR_H} rx="2" />)}
           {frame.each && Array.from({ length: bar.parts }, (_, k) => <text key={k} className="ns-ratio__each" x={barX + (k + 0.5) * block} y={y + BAR_H / 2} fontSize={eachSize}>{frame.each}</text>)}
