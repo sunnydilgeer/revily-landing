@@ -165,7 +165,9 @@ function scaleNumbers({ axes: { x: sx, y: sy }, marks, unit, px, py, x1, y1, W, 
     // The start time sits under the cross, on a white patch so the distance axis doesn't run through it.
     else if (!covered(v)) under.push((v ? '' : `<rect x="${px(v) - word(sx, v).length * 3.6 - 2}" y="${py(0) + 4}" width="${word(sx, v).length * 7.2 + 4}" height="14" fill="#fff"/>`) + plain(word(sx, v), px(v), py(0) + 15, 'middle'))
   }
-  for (const v of [...ys, ...litY.filter(v => v && !ys.includes(v))]) (litY.includes(v) ? over : under).push((litY.includes(v) ? pill : plain)(word(sy, v), px(0) - 6, py(v) + 4, 'end', BIRO))
+  // A plain number up the side that a highlighted one between the numbers would touch (€48 beside 50) is left out.
+  const coveredY = v => litY.some(m => m !== v && Math.abs(py(m) - py(v)) < 17)
+  for (const v of [...ys, ...litY.filter(v => v && !ys.includes(v))]) if (litY.includes(v) || !coveredY(v)) (litY.includes(v) ? over : under).push((litY.includes(v) ? pill : plain)(word(sy, v), px(0) - 6, py(v) + 4, 'end', BIRO))
   // 0 km where the axes cross: to the left of the cross, above the time axis.
   if (litY.includes(0)) over.push(pill(word(sy, 0), px(0) - 6, py(0) - 5, 'end', BIRO))
   else under.push(plain(word(sy, 0), px(0) - 6, py(0) - 5, 'end'))

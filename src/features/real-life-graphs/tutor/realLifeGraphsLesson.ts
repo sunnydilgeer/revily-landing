@@ -62,7 +62,7 @@ worked(convert, 'Use the graph to change £50 into euros.', 'GR9 p90 Q3 Conversi
   graphModel('£50 into euros', euroGrid, [readUp(euro, pounds, euros, 50)], 'Up, then across'),
   'A conversion graph changes one amount into another. Start at the amount you have, go to the line, then across or down to the other axis.').video = {
   id: 'graphs-8-real-life', src: `/media/${REAL_LIFE_MEDIA_ID}/real-life.mp4`, poster: `/media/${REAL_LIFE_MEDIA_ID}/real-life.svg`,
-  title: 'Real-life graphs', durationSeconds: 70, sourceFile: 'GR9.1_Real_life_graphs.mp4 (tools/lesson-kit/packs/GR9.1-real-life-graphs.cjs)',
+  title: 'Real-life graphs', durationSeconds: 85, sourceFile: 'GR9.1_Real_life_graphs.mp4 (tools/lesson-kit/packs/GR9.1-real-life-graphs.cjs)',
   textAlternative: [
     'Real-life graphs show how one amount changes with another: euros with pounds, litres with minutes, cost with hours.',
     'A conversion graph: up from £50 to the line, then across to the euro axis: €60. For £400, read £40 = €48, then times 10: €480.',
