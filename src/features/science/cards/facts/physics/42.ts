@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'P42-08': [
       ['What safety steps go with the springs practical?', 'Wear goggles, make the stand stable, put a soft tray under the masses, keep feet clear and do not overload the spring.'],
+      ['How should you read the ruler in the springs practical?', 'Read it with your eye level with the tape mark, and use the same mark each time.'],
     ],
     'P42-10': [
       ['How do you plot the springs results?', 'Force on the vertical axis and extension on the horizontal axis, with a cross for each result.', 'Take at least five measurements before the line starts to curve.'],
@@ -20,6 +21,7 @@ export const facts: ScienceFactSet = {
     ],
     'P42-12': [
       ['How do you work out the energy stored in a spring?', 'Ee = ½ × k × e². Change extension to metres, square it, then multiply by half of k.', 'Example: ½ × 200 N/m × (0.05 m)² = 0.25 J. Only within the limit of proportionality.'],
+      ['What happens to energy when you stretch a spring?', 'Stretching a spring transfers energy to its elastic potential store.'],
     ],
   },
   recall: ['P42-03', 'P42-06', 'P42-11', 'P42-13'],

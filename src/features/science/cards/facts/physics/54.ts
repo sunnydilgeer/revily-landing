@@ -5,6 +5,7 @@ export const facts: ScienceFactSet = {
   sections: {
     'P54-02': [
       ['How do you find the period of a wave from its frequency?', 'Period = 1 ÷ frequency, or T = 1/f. T is in seconds and f is in hertz. For example, 4 Hz gives 1 ÷ 4 = 0.25 s.'],
+      ['What are the period and the frequency of a wave?', 'Period is the time taken for one complete wave. Frequency is the number of waves each second.', 'A high frequency always means a short period.'],
     ],
     'P54-04': [
       ['What is the wave equation?', 'Wave speed = frequency × wavelength, or v = fλ. Speed is in m/s, frequency in Hz and wavelength in m. It applies to all waves.'],
@@ -12,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'P54-07': [
       ['How do you find a wavelength from speed and frequency?', 'Rearrange v = fλ to λ = v ÷ f. For example (3.0 × 10⁸) ÷ (6.0 × 10⁷) = 5 m.', 'On a calculator, use brackets and the ×10ˣ button for standard form.'],
+      ['What units do you use in λ = v ÷ f?', 'Speed in m/s and frequency in hertz (Hz) give the wavelength in metres.'],
     ],
     'P54-09': [
       ['How can you measure the speed of sound in air?', 'Two microphones connected to an oscilloscope, and a speaker connected to a signal generator. Move one microphone until the waves line up again, then measure the distance for one wavelength.'],

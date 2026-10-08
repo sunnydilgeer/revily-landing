@@ -9,9 +9,11 @@ export const facts: ScienceFactSet = {
     ],
     'P44-05': [
       ['How do you calculate acceleration?', 'Find Δv (final velocity − starting velocity), then divide by the time: a = Δv ÷ t.', 'Example: (15 − 3) ÷ 4 = 3 m/s².'],
+      ['What does a negative acceleration mean?', 'The object is slowing down, so the change in velocity is negative. This is a deceleration.', 'Example: 20 m/s to 8 m/s in 4 s gives (8 − 20) ÷ 4 = −3 m/s².'],
     ],
     'P44-08': [
       ['How do you estimate an acceleration?', 'Use a sensible typical speed and a sensible time in a = Δv ÷ t. The answer is only about right, shown with ~.', 'A bike reaching 6 m/s in 10 s: a ≈ 0.6 m/s².'],
+      ['What does the symbol ~ mean in front of a number?', 'It means about. An estimate is a rough answer worked out with sensible numbers, not an exact answer.', '~0.6 m/s² means about 0.6 m/s².'],
     ],
     'P44-10': [
       ['What is the equation for uniform acceleration?', 'v² − u² = 2as. v = final velocity, u = starting velocity (m/s), a = acceleration (m/s²), s = distance (m).', 'Rearrange to v² = u² + 2as, then take the square root.'],

@@ -17,6 +17,7 @@ export const facts: ScienceFactSet = {
     ],
     'P55-11': [
       ['What are the safety points for the wave practicals?', 'Keep water away from electrical equipment and switch off before wiping spills. Wear goggles and keep feet clear of the masses on the string.'],
+      ['Why must you not touch the lamp above the ripple tank?', 'The lamp can get hot. Follow your teacher’s instructions and risk assessment.'],
     ],
   },
   recall: ['P55-03', 'P55-04', 'P55-07', 'P55-12'],

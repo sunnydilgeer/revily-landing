@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'C53-08': [
       ['How can sea water be desalinated?', 'By distillation, or by reverse osmosis, which passes salty water through a membrane that only lets water molecules through.', 'Both use lots of energy, so they are expensive.'],
+      ['How does distillation desalinate sea water?', 'The sea water is boiled, then the steam is cooled and condensed into a different container. The dissolved salts are left behind.'],
     ],
     'C53-11': [
       ['How is fresh water filtered?', 'Through a wire mesh to stop large things, then filter beds of sand and gravel to catch other solid bits.'],

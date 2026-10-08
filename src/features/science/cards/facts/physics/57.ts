@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'P57-09': [
       ['How are EM waves made and absorbed by atoms?', 'Changes in atoms and their nuclei produce or absorb EM waves. Electrons moving between energy levels are one example; changes in a nucleus can produce gamma rays.', 'Each different change gives a different frequency.'],
+      ['Why can atoms produce and absorb a large range of EM waves?', 'There are lots of different changes in atoms, and each one gives out or takes in a different frequency. So atoms can produce and absorb a large range of frequencies.'],
     ],
   },
   recall: ['P57-03', 'P57-06', 'P57-07'],

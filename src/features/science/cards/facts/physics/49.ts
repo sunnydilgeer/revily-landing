@@ -13,9 +13,11 @@ export const facts: ScienceFactSet = {
     ],
     'P49-08': [
       ['How do you change the mass but keep the force the same?', 'Add masses to the trolley, one at a time. Never add them to the hook.', 'Result: more mass, less acceleration.'],
+      ['Why must you not add masses to the hook when investigating mass?', 'The force is the weight of the hook and its masses. Adding masses to the hook would change the force.'],
     ],
     'P49-11': [
       ['How do you change the force but keep the total mass the same?', 'Start with the masses on the trolley and move them to the hook, one at a time.', 'Result: more force, more acceleration.'],
+      ['What should you find when you increase the force on the trolley?', 'As the force goes up, the acceleration goes up. Acceleration is directly proportional to the resultant force, as Newton’s Second Law says.'],
     ],
   },
   recall: ['P49-03', 'P49-06', 'P49-10'],

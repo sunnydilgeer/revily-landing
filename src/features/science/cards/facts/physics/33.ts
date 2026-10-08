@@ -9,6 +9,7 @@ export const facts: ScienceFactSet = {
     ],
     'P33-05': [
       ['How do you work out the number of neutrons?', 'Neutrons = mass number − atomic number.', 'Example: ¹⁶₈O has 16 − 8 = 8 neutrons.'],
+      ['How many electrons does a neutral atom have?', 'An atom has no overall charge, so it has the same number of electrons as protons.', 'Example: ¹⁶₈O has 8 protons, so it has 8 electrons.'],
     ],
     'P33-08': [
       ['What are isotopes?', 'Atoms of the same element with the same number of protons but different numbers of neutrons.', 'They have the same atomic number but different mass numbers.'],

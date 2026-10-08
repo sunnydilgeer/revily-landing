@@ -9,6 +9,7 @@ export const facts: ScienceFactSet = {
     ],
     'P8-05': [
       ['How does lubrication reduce wasted energy?', 'A lubricant, such as oil, reduces friction between moving parts, so less energy is dissipated to thermal stores.'],
+      ['Why does friction waste energy?', 'Friction between rubbing surfaces dissipates energy to the thermal stores of the parts and the air, so moving parts warm up.'],
     ],
     'P8-07': [
       ['What is thermal conductivity?', 'A measure of how quickly energy is transferred through a material by conduction.'],

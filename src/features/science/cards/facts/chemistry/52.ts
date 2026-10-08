@@ -9,6 +9,7 @@ export const facts: ScienceFactSet = {
     ],
     'C52-05': [
       ['Why might plastic bags be less harmful than paper bags?', 'They take less energy to make and have a longer lifespan because they can be reused, even though they are not usually biodegradable.'],
+      ['How do you back up a conclusion from a life cycle assessment?', 'Use information from the table and say which stage each reason comes from.', 'Less energy to make is the manufacture stage; a longer lifespan is the using stage.'],
     ],
     'C52-08': [
       ['Which effects are easy to measure in an LCA?', 'Energy used, natural resources used and their amounts, and waste produced. These can be given as numbers.', 'Harder: how unattractive litter looks.'],

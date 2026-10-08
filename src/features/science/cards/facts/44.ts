@@ -9,6 +9,7 @@ export const facts: ScienceFactSet = {
     ],
     'B44-05': [
       ['What is the downside of selective breeding?', 'Inbreeding reduces the number of different alleles, so there is more chance of inherited health problems, and a new disease could affect them all.'],
+      ['What is inbreeding?', 'Breeding closely related individuals. It happens in selective breeding because breeders keep using the same few best individuals.'],
     ],
     'B44-07': [
       ['What is genetic engineering?', 'Cutting a gene out of one organism and putting it into the cells of another. The result is a genetically modified (GM) organism.'],
@@ -16,6 +17,7 @@ export const facts: ScienceFactSet = {
     ],
     'B44-10': [
       ['Give two concerns about genetic engineering.', 'GM animals may have health problems that are hard to predict; GM crops could reduce wild flowers and insects; effects on human health are not fully understood.'],
+      ['Give two benefits of genetic engineering.', 'It can give bigger crop yields and medicines such as human insulin. It may also help to treat inherited disorders.'],
     ],
   },
   recall: ['B44-03', 'B44-08', 'B44-11'],

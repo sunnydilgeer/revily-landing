@@ -17,6 +17,7 @@ export const facts: ScienceFactSet = {
     ],
     'W9-10': [
       ['Why check units before using an equation?', 'The equation only works if every value is in the right unit, so convert first.'],
+      ['How do you change centimetres into metres?', 'Divide by 100, because a centimetre is smaller than a metre. For example, 60 cm ÷ 100 = 0.6 m.', 'Writing the unit on each line of your working helps you spot mistakes.'],
     ],
   },
   recall: ['W9-05', 'W9-08', 'W9-11'],

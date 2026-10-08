@@ -9,9 +9,11 @@ export const facts: ScienceFactSet = {
     ],
     'P4-05': [
       ['How do you calculate g.p.e.?', 'Write Ep = m × g × h, put in the numbers, multiply step by step and give the answer in joules.', 'Example: 5 kg × 9.8 N/kg × 3 m = 147 J.'],
+      ['What value of g do you use to calculate g.p.e.?', 'Take g as 9.8 N/kg. The mass must be in kg and the height in m to get an answer in J.'],
     ],
     'P4-08': [
       ['What happens to energy when an object falls with no air resistance?', 'Energy lost from the g.p.e. store = energy gained in the kinetic store.'],
+      ['Which energy transfer happens as an object falls?', 'Energy is transferred mechanically from its g.p.e. store to its kinetic store. The object gets lower but moves faster.'],
     ],
     'P4-11': [
       ['What is the equation for elastic potential energy?', 'Ee = ½ × k × e². Ee in joules (J), k (spring constant) in N/m, e (extension) in metres.', 'Only works if the spring has not passed its limit of proportionality.'],

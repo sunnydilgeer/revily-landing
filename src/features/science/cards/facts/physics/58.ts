@@ -9,9 +9,11 @@ export const facts: ScienceFactSet = {
     ],
     'P58-05': [
       ['How do satellites use microwaves?', 'A dish sends a microwave signal up to a satellite. The satellite sends it back to Earth in a different direction, and another dish receives it.'],
+      ['Why can microwaves be used to send signals to satellites?', 'Microwaves can pass through the Earth’s atmosphere, so they can reach a satellite high above it.', 'Satellite TV works this way.'],
     ],
     'P58-07': [
       ['How does a microwave oven heat food?', 'The water in the food absorbs the microwaves. Energy is transferred to the water molecules, which heat up and heat the rest of the food.'],
+      ['Why does a microwave oven heat most food?', 'Most food contains water, and the water in the food absorbs the microwaves.'],
     ],
     'P58-09': [
       ['What gives out infrared radiation?', 'All objects. The hotter the object, the more infrared radiation it gives out.'],

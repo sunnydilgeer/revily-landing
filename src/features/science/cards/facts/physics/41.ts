@@ -13,9 +13,11 @@ export const facts: ScienceFactSet = {
     ],
     'P41-07': [
       ['How do you find the force needed to stretch a spring?', 'Write F = k × e, put the numbers in and multiply.', 'Example: 30 N/m × 0.2 m = 6 N.'],
+      ['What units go into F = k × e?', 'Spring constant k in N/m and extension e in metres give the force F in newtons, N.', 'Always write the unit N at the end.'],
     ],
     'P41-09': [
       ['How do you find a spring constant?', 'Use k = F ÷ e. Change centimetres to metres first (divide by 100).', 'Example: 10 N ÷ 0.05 m = 200 N/m.'],
+      ['How do you rearrange F = k × e to find k?', 'Divide both sides by e to get k = F ÷ e.'],
     ],
     'P41-11': [
       ['What is the limit of proportionality?', 'The point where a force-extension graph starts to bend. Past it, force and extension are no longer directly proportional and F = ke is no longer true.'],

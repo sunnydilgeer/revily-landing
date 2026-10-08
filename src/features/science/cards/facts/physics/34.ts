@@ -13,9 +13,11 @@ export const facts: ScienceFactSet = {
     ],
     'P34-07': [
       ['What stops alpha, beta and gamma?', 'Alpha is stopped by paper, beta by aluminium, and gamma by thick lead or metres of concrete.', 'Ranges in air: a few centimetres, a few metres, a long way.'],
+      ['How is ionising power linked to range?', 'The more strongly a type ionises, the shorter its range and the easier it is to stop. Alpha is strongly ionising, beta moderately and gamma weakly.'],
     ],
     'P34-10': [
       ['Why is gamma used for medical tracers?', 'It passes through the body to be detected outside and is only weakly ionising, so it does less harm.', 'Alpha cannot get out and is strongly ionising.'],
+      ['Why is gamma used to sterilise sealed medical equipment?', 'The equipment is sealed in packaging first, and gamma rays can pass through the packaging to reach the equipment.'],
     ],
   },
   recall: ['P34-03', 'P34-08', 'P34-11'],
