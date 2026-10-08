@@ -1,6 +1,6 @@
 /*
- * Practice templates for percentages (lesson 32, Ratio R3): a percentage of an amount built from 10%, 5% and 1%, a
- * percentage increase and decrease, and a percentage change. Original questions in the style of AQA Foundation papers.
+ * Practice templates for percentages (lesson 32, Ratio R3), with the lesson's one method: find 1%, then multiply by
+ * the percentage wanted (100% + a rise, or what is left after a fall). Then a percentage change. Original questions in the style of AQA Foundation papers.
  * The AQA 2022–25 references have not been counted for these skills yet, so `inspiredBy` says so, and the weights in
  * aqaWeights.ts are estimates.
  */
@@ -10,34 +10,34 @@ import type { NumberPart, QuestionBody, Template } from '../types'
 const pence = (n: number) => Math.round(n * 100) / 100
 const money = (n: number) => Number.isInteger(n) ? `${n}` : n.toFixed(2)
 
-/** `percent`% of `whole` (2 marks, method: 10%). */
+/** `percent`% of `whole` (2 marks, method: 1%). */
 function ofAmount(percent: number, whole: number, stem: string, prompt: string, pounds = true): QuestionBody {
-  const ten = pence(whole / 10), answer = pence(whole * percent / 100)
+  const one = pence(whole / 100), answer = pence(whole * percent / 100)
   const p = pounds ? '£' : undefined
   const part: NumberPart = {
     kind: 'number', prompt, answer, marks: 2, statements: ['32:percentage-of-amount'], prefix: p,
-    hint: `Find 10% first: divide by 10. Then build ${percent}% from 10%, 5% and 1%.`,
-    method: [{ prompt: `What is 10% of ${pounds ? '£' : ''}${whole}? $${whole} \\div 10 = ?$`, answer: ten, prefix: p }],
+    hint: `Find 1% first: divide by 100. Then multiply by ${percent}.`,
+    method: [{ prompt: `What is 1% of ${pounds ? '£' : ''}${whole}? $${whole} \\div 100 = ?$`, answer: one, prefix: p }],
     chain: [
-      { line: `10\\% = ${whole} \\div 10 = ${money(ten)}`, op: 'Find 10%', why: 'Per cent means out of 100, so 10% is a tenth: divide by 10.' },
-      { line: `${percent}\\% = ${money(answer)}`, op: `Build ${percent}%`, why: `Put ${percent}% together from 10%, 5% (half of 10%) and 1% (divide by 100).` },
+      { line: `1\\% = ${whole} \\div 100 = ${money(one)}`, op: 'Find 1%', why: 'Per cent means out of 100, so 1% is a hundredth: divide by 100.' },
+      { line: `${percent} \\times ${money(one)} = ${money(answer)}`, op: `× ${percent}`, why: `${percent}% is ${percent} lots of 1%.` },
     ],
-    mistakes: [{ answer: ten, note: `That’s 10%. Build ${percent}% from the pieces.` }, { answer: pence(whole - answer), note: `That’s what is left. The question asks for ${percent}%.` }],
+    mistakes: [{ answer: pence(whole / 10), note: `That’s 10%. ${percent}% is ${percent} lots of 1%.` }, { answer: pence(whole - answer), note: `That’s what is left. The question asks for ${percent}%.` }],
   }
   return { stem, parts: [part] }
 }
 
-/** `whole` goes up or down by `percent`% (2 marks, method: the change). */
+/** `whole` goes up or down by `percent`% (2 marks, method: 1%). */
 function changeBy(direction: 'up' | 'down', percent: number, whole: number, stem: string, prompt: string): QuestionBody {
   const extra = pence(whole * percent / 100), answer = pence(direction === 'up' ? whole + extra : whole - extra)
-  const multiplier = (100 + (direction === 'up' ? percent : -percent)) / 100
+  const kept = 100 + (direction === 'up' ? percent : -percent), one = pence(whole / 100)
   const part: NumberPart = {
     kind: 'number', prompt, answer, marks: 2, statements: [direction === 'up' ? '32:percentage-increase' : '32:percentage-decrease'], prefix: '£',
-    hint: direction === 'up' ? `Find ${percent}% of £${whole}, then add it on. Or multiply by ${multiplier}.` : `Find ${percent}% of £${whole}, then take it off. Or multiply by ${multiplier}.`,
-    method: [{ prompt: `What is ${percent}% of £${whole}?`, answer: extra, prefix: '£' }],
+    hint: `Find 1% of £${whole}, then multiply by ${kept}: ${direction === 'up' ? `100% + ${percent}%` : `100% − ${percent}%`} = ${kept}%.`,
+    method: [{ prompt: `What is 1% of £${whole}?`, answer: one, prefix: '£' }],
     chain: [
-      { line: `${percent}\\% \\text{ of } ${whole} = ${money(extra)}`, op: `Find ${percent}%`, why: `Work out ${percent}% of the original from 10%, 5% and 1%.` },
-      { line: `${whole} ${direction === 'up' ? '+' : '-'} ${money(extra)} = ${money(answer)}`, op: direction === 'up' ? 'Add it on' : 'Take it off', why: direction === 'up' ? 'An increase goes up: add the extra to the original.' : 'A decrease goes down: take the discount off the original.' },
+      { line: `1\\% = ${whole} \\div 100 = ${money(one)}`, op: 'Find 1%', why: 'Per cent means out of 100: divide by 100.' },
+      { line: `${kept} \\times ${money(one)} = ${money(answer)}`, op: `× ${kept}`, why: direction === 'up' ? `The new amount is the whole 100% and ${percent}% more: ${kept}%.` : `${percent}% off leaves 100% − ${percent}% = ${kept}%.` },
     ],
     mistakes: [
       { answer: extra, note: direction === 'up' ? 'That’s the increase. Add it on to the original.' : 'That’s the amount taken off. The question asks what is left.' },

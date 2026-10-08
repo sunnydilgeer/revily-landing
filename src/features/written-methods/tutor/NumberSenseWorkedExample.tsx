@@ -203,10 +203,10 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {percent && <PercentVisual frame={percent} />}
     {board && <EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} focus={example.focus} />}
     {own.quadratic && <QuadraticVisual frame={own.quadratic} heading={heading} />}
-    {own.solve && <SolveVisual frame={own.solve} heading={heading} focus={example.focus} />}
-    {own.sequence && <SequenceVisual frame={own.sequence} heading={heading} focus={example.focus} />}
-    {own.numberLine && <NumberLineVisual frame={own.numberLine} heading={heading} focus={example.focus} />}
-    {own.graph && <GraphVisual frame={own.graph} heading={heading} focus={example.focus} />}
+    {own.solve && <SolveVisual frame={own.solve} heading={heading} focus={!!example.focus} />}
+    {own.sequence && <SequenceVisual frame={own.sequence} heading={heading} focus={!!example.focus} />}
+    {own.numberLine && <NumberLineVisual frame={own.numberLine} heading={heading} focus={!!example.focus} />}
+    {own.graph && <GraphVisual frame={own.graph} heading={heading} focus={!!example.focus} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
     {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}

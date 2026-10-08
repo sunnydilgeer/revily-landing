@@ -263,9 +263,9 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'proportion-inverse': [['4 painters take 9 hours. How long do 6 painters take?', '6 hours. Multiply to get the total work: 4 × 9 = 36 hours for 1 painter alone. Divide to share it: 36 ÷ 6 = 6 hours each. More painters, less time.']],
   },
   32: {
-    'percentage-of-amount': [['Work out 23% of £80 without a calculator.', '£18.40. 10% = 80 ÷ 10 = £8 and 1% = 80 ÷ 100 = £0.80. 23% = 10% + 10% + 1% + 1% + 1% = 8 + 8 + 0.80 × 3 = £18.40.']],
-    'percentage-increase': [['Rent of £600 goes up by 15%. What is the new rent?', '£690. 15% of £600 = £60 + £30 = £90, and £600 + £90 = £690. Or use the multiplier: 100% + 15% = 1.15, and £600 × 1.15 = £690.']],
-    'percentage-decrease': [['A £45 jacket has 30% off. What is the sale price?', '£31.50. 30% of £45 = 3 × £4.50 = £13.50, and £45 − £13.50 = £31.50. Or use the multiplier: 100% − 30% = 0.7, and £45 × 0.7 = £31.50.']],
+    'percentage-of-amount': [['Work out 23% of £80 without a calculator.', '£18.40. Find 1%: 80 ÷ 100 = £0.80. Then multiply by 23: 23 × 0.80 = £18.40.']],
+    'percentage-increase': [['Rent of £600 goes up by 15%. What is the new rent?', '£690. Find 1%: 600 ÷ 100 = £6. The new rent is 100% + 15% = 115%, so 115 × 6 = £690. The same as £600 × 1.15.']],
+    'percentage-decrease': [['A £45 jacket has 30% off. What is the sale price?', '£31.50. Find 1%: 45 ÷ 100 = £0.45. 30% off leaves 70%, so 70 × 0.45 = £31.50. The same as £45 × 0.7.']],
     'percentage-change': [['A phone drops from £400 to £250. What is the percentage change?', 'A 37.5% decrease. Change = 400 − 250 = 150, then 150 ÷ 400 × 100 = 37.5. Always divide by the original, and say increase or decrease.']],
   },
   24: {

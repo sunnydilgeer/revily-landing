@@ -184,12 +184,11 @@ export type RatioFrame = {
 }
 /**
  * The hundred square (lesson 32, R3): 100 squares are the whole amount. The percentage's pieces fill the squares in
- * order, each with its pill; `lit` pieces are purple, and a piece can be green, the answer.
+ * order, each with its pill, all in one colour.
  */
 export type PercentFrame = {
   whole: string
-  pieces: { size: number; label: string; tone?: 'b0' | 'b1' | 'b2' | 'good' }[]
-  lit?: number[]
+  pieces: { size: number; label: string }[]
   note?: string
   /** The square on the opening screen, before the first step fills it. */
   before?: Omit<PercentFrame, 'before'>
@@ -388,9 +387,10 @@ export type MethodExample = {
   pictureOnly?: boolean
   /**
    * Grey out the working a step has finished with, so the row it works on and what it adds stand out (Sunny, 1 Oct,
-   * for students who lose their place: A5 on).
+   * for students who lose their place: A5 on). On a board, true keeps the row just above the step clear (it is worked
+   * on); 'all' greys every finished row unless it is boxed, for workings whose steps don't build on the row above.
    */
-  focus?: boolean
+  focus?: boolean | 'all'
 }
 export type MethodWorking = { kind: 'method-worked'; examples: MethodExample[] }
 const place = (i: number) => ['units', 'tens', 'hundreds', 'thousands', 'ten-thousands'][i] ?? `10^${i}`
