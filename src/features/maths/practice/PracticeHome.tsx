@@ -41,7 +41,7 @@ export default function PracticeHome() {
 
   return <div className="pr-home">
     <header className="pr-home__head">
-      <p className="pr-kicker">Practice</p>
+      <p className="pr-kicker">Exams</p>
       <h1>Past-paper practice</h1>
       <p>Exam-style questions with marks, like the real paper. Every question is new, written in the style of AQA Foundation papers.</p>
     </header>

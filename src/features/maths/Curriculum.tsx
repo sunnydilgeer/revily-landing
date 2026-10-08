@@ -219,7 +219,7 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
   return <div className="cur">
     <header className="cur-head">
       <div>
-        <h1>Curriculum</h1>
+        <h1>Chapters</h1>
         <p>GCSE Foundation Maths · {chapterCount} chapters · pick up at the highlighted lesson</p>
       </div>
       <div className="cur-overall" aria-label={`${doneLessons} of ${mathsLessons.length} lessons complete`}>
