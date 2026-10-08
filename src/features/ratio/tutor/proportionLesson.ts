@@ -80,17 +80,17 @@ const pounds = (state: TutorMethodState) => { state.answerPrefix = '£'; return 
 
 const party = rows(['4 people', 4, '12 slices'], ['1 person', 1], ['7 people', 7, '?'])
 const pizza = worked(direct, 'At a party, 4 people eat 12 slices of pizza. The number of slices is directly proportional to the number of people. How many slices are needed for 7 people?', '4 people eat 12 slices. How many slices for 7 people?', 'R2.1 video + Q1', rowModel({ ...party, dim: [1] }, [
-  { title: 'Find 1 person first', say: '4 people share the 12 slices. Share 12 between the 4 people to find what 1 person needs.', rows: ['12 total ÷ 4 = 3 each'], tags: [undefined, '3 slices'], ratio: { dim: [], rings: [whole(0, 4)], lit: [1], note: '1 person needs 3 slices' } },
-  { title: 'Now 7 people', say: '7 people need 7 lots of 3 slices.', rows: ['7 × 3 each = 21 total', '! 21 slices'], tags: [undefined, undefined, '21 slices'], ratio: { rings: [whole(2, 7)], lit: [2] } },
+  { title: 'Find 1 person first', say: '4 people share the 12 slices. Share 12 between the 4 people to find what 1 person needs.', rows: ['12 total ÷ 4 people = 3 each'], tags: [undefined, '3 slices'], ratio: { dim: [], rings: [whole(0, 4)], lit: [1], note: '1 person needs 3 slices' } },
+  { title: 'Now 7 people', say: '7 people need 7 lots of 3 slices.', rows: ['7 people × 3 each = 21 total', '! 21 slices'], tags: [undefined, undefined, '21 slices'], ratio: { rings: [whole(2, 7)], lit: [2] } },
 ]), 'Our aim: divide to find what 1 needs, then multiply for as many as you want.')
 video(pizza, media('direct', '4 people eat 12 slices: how many for 7?', 'R2.1_Direct_Proportion.mp4', 100, [
   'Pizzas for a party: 4 people need 12 slices. How many slices do 7 people need?',
   'What is direct proportion? 4 people need 12 slices. More people means more slices: that is direct proportion. When one goes up, the other goes up at the same rate: double the people, double the slices. We want the slices for 7 people.',
-  'See it with people: 4 people share 12 slices, so 1 person gets 12 ÷ 4 = 3 slices. 7 people need 7 × 3 = 21 slices.',
-  'Find 1 first: the trick is to find what 1 person needs first. 4 people need 12, so share the 12 between 4: 12 ÷ 4 = 3. 1 person needs 3 slices.',
-  'Now 7 people: now we know 1 person, we can find any number of people. 7 people need 7 lots of 3 slices: 7 × 3 = 21. 7 people need 21 slices.',
-  'Check it makes sense: 7 is more than 4, so 21 should be more than 12. The rule: divide to find 1, multiply to find many. This is called the unitary method (unit means 1). The same idea works for recipes, prices, petrol and paint.',
-  'Where you see it: at a party 4 people eat 12 slices of pizza. For 7 people, order 21 slices: 12 ÷ 4 = 3 and 7 × 3 = 21.',
+  'See it with people: 4 people share 12 slices in total, so each person gets 12 total ÷ 4 = 3 slices. 7 people need 7 × 3 each = 21 slices in total.',
+  'Find 1 first: the trick is to find what 1 person needs first. 4 people need 12, so share the 12 between 4: 12 total ÷ 4 people = 3 each. 1 person needs 3 slices.',
+  'Now 7 people: now we know 1 person, we can find any number of people. 7 people need 7 lots of 3 slices: 7 people × 3 each = 21 total. 7 people need 21 slices.',
+  'Check it makes sense: 7 is more than 4, so 21 should be more than 12. The rule: total ÷ how many = each, and each × how many = total. This is called the unitary method (unit means 1). The same idea works for recipes, prices, petrol and paint.',
+  'Where you see it: at a party 4 people eat 12 slices of pizza. For 7 people, order 21 slices: 12 ÷ 4 = 3 each and 7 × 3 = 21 total.',
   'Divide to find 1. Multiply to find many. More of one means more of the other.',
 ]))
 const pens = rows(['5 pens', 5, '£3'], ['15 pens', 15, '?'])
@@ -143,24 +143,24 @@ practice(direct, 'A printer prints 45 pages in 3 minutes. Maya says, “3 minute
 
 const fence = rows(['4 painters', 4, '9 hours'], ['1 painter', 1], ['6 painters', 6, '?'])
 const painters = worked(inverse, '4 painters take 9 hours to paint a fence. The time taken is inversely proportional to the number of painters. How long would 6 painters take?', '4 painters take 9 hours. How long for 6 painters?', 'R2.2 video + Q1', rowModel({ ...fence, dim: [1] }, [
-  { title: 'Find 1 painter first', say: 'One painter does all the work alone, so it takes 4 times longer. Multiply.', rows: ['4 × 9 each = 36 total'], tags: [undefined, '36 hours'], ratio: { dim: [], rings: [whole(0, 4)], lit: [1], note: '1 painter alone: 4 times longer' } },
-  { title: 'Now 6 painters', say: '6 painters share the 36 hours of work, so divide by 6.', rows: ['36 total ÷ 6 = 6 each', '! 6 hours'], tags: [undefined, undefined, '6 hours'], ratio: { rings: [whole(2, 6)], lit: [2] } },
+  { title: 'Find 1 painter first', say: 'One painter does all the work alone, so it takes 4 times longer. Multiply.', rows: ['4 painters × 9 each = 36 total'], tags: [undefined, '36 hours'], ratio: { dim: [], rings: [whole(0, 4)], lit: [1], note: '1 painter alone: 4 times longer' } },
+  { title: 'Now 6 painters', say: '6 painters share the 36 hours of work, so divide by 6.', rows: ['36 total ÷ 6 painters = 6 each', '! 6 hours'], tags: [undefined, undefined, '6 hours'], ratio: { rings: [whole(2, 6)], lit: [2] } },
 ]), 'Our aim: multiply to find how long 1 takes, then divide to share the work.')
 video(painters, media('inverse', '4 painters take 9 hours: how long for 6?', 'R2.2_Inverse_Proportion.mp4', 100, [
   'Painting a fence: 4 painters take 9 hours. How long do 6 painters take?',
-  'What is inverse proportion? 4 painters take 9 hours. More painters means less time: that is inverse proportion. When one goes up, the other goes down: double the painters, half the time. We want the time for 6 painters.',
-  'See it with painters: 4 painters take 9 hours, so 1 painter alone takes 4 × 9 = 36 hours. 6 painters take 36 ÷ 6 = 6 hours.',
-  'Find 1 painter first: the trick is to find how long 1 painter takes. 1 painter does all the work alone, so it takes 4 times longer: 4 × 9 = 36. 1 painter takes 36 hours.',
-  'Now 6 painters: 6 painters share the 36 hours of work. 36 ÷ 6 = 6, so 6 painters take 6 hours.',
-  'Check it makes sense: 6 painters is more than 4, so 6 hours should be less than 9. The rule: multiply to find 1, divide to find many. It is the opposite of direct proportion. Check: 4 × 9 = 36 and 6 × 6 = 36, the same total work.',
-  'Where you see it: 4 painters take 9 hours to paint a fence. 6 painters finish the same fence in 6 hours: 4 × 9 = 36 and 36 ÷ 6 = 6.',
-  'Multiply to find 1. Divide to find many. More of one means less of the other.',
+  'What is inverse proportion? 4 painters take 9 hours. More painters means less time: that is inverse proportion. When one goes up, the other goes down: double the painters, halve the time. We want the time for 6 painters.',
+  'See it with painters: 4 painters take 9 hours. The total work is 4 × 9 = 36 hours for 1 painter alone. 6 painters share it: 36 total ÷ 6 = 6 hours each.',
+  'Find 1 painter first: the trick is to find how long 1 painter takes. 1 painter does all the work alone, so it takes 4 times longer: 4 painters × 9 hours each = 36 total. 1 painter takes 36 hours.',
+  'Now 6 painters: 6 painters share the 36 hours of work: 36 total ÷ 6 painters = 6 each, so 6 painters take 6 hours.',
+  'Check it makes sense: 6 painters is more than 4, so 6 hours should be less than 9. The rule: multiply to get the total work, divide to share it. It is the opposite of direct proportion. Check: 4 × 9 = 36 and 6 × 6 = 36, the same total work.',
+  'Where you see it: 4 painters take 9 hours to paint a fence. 6 painters finish the same fence in 6 hours: 4 × 9 = 36 total and 36 ÷ 6 = 6 each.',
+  'Multiply to get the total work. Divide to share it. More of one means less of the other.',
 ]))
 const garden = rows(['2 people', 2, '6 hours'], ['4 people', 4, '?'])
 practice(inverse, 'It takes 2 people 6 hours to clear a garden. How long would it take 4 people?', 'R2.2 Q2', garden, number(3, '3 hours'), 'More people means less time. 4 people is double 2 people.', rowModel(garden, [
   { title: 'Double the people', say: '4 people is 2 lots of 2 people: double the people.', rows: ['4 ÷ 2 = 2'], ratio: { rings: lots(1, 4, 2), note: 'double the people' } },
   { title: 'Half the time', say: 'Twice as many people share the work, so it takes half the time.', rows: ['6 ÷ 2 = 3', '! 3 hours'], tags: [undefined, '3 hours'], ratio: { lit: [1] } },
-]), slips(3, [[12, 'More people means less time, not more. Double the people, half the time.'], [8, 'More people means less time. Double the people, so halve the 6 hours.'], [4, 'Take away doesn’t work here. Double the people, half the time: 6 ÷ 2.']]))
+]), slips(3, [[12, 'More people means less time, not more. Double the people, halve the time.'], [8, 'More people means less time. Double the people, so halve the 6 hours.'], [4, 'Take away doesn’t work here. Double the people, halve the time: 6 ÷ 2.']]))
 const tank = rows(['6 campers', 6, '5 days'], ['1 camper', 1], ['10 campers', 10, '?'])
 practice(inverse, 'A tank of water lasts 5 days when 6 campers use it. How many days would the same tank last 10 campers?', 'R2.2 Q3', tank, number(3, '3 days'), 'Find how long the tank lasts 1 camper first: 1 camper uses less, so it lasts 6 times longer.', rowModel({ ...tank, dim: [1] }, [
   { title: 'Days for 1 camper', say: 'One camper uses less, so the water lasts 6 times longer. Multiply.', rows: ['6 × 5 each = 30 total'], tags: [undefined, '30 days'], ratio: { dim: [], rings: [whole(0, 6)], lit: [1], note: '1 camper: 6 times longer' } },
@@ -184,17 +184,17 @@ practice(inverse, 'The tickets take 1 steward 360 minutes to check. The gate mus
 ]), slips(18, [[7200, 'Less time needs more stewards, but divide: 360 ÷ 20.'], [1 / 18, 'Divide the other way: 360 minutes ÷ 20 minutes.'], [16, '360 ÷ 20 is 18: 20 × 18 = 360.']]))
 practice(inverse, 'At a festival, 8 stewards take 45 minutes to check the tickets. Leo says, “8 stewards take 45 minutes, so 16 stewards will take 90 minutes.” Why is Leo wrong?', 'R2.2 Q5c', null, choose(
   'More stewards means less time: 16 stewards take 22.5 minutes',
-  ['Leo is right: 90 minutes', 'More stewards share the work, so they finish sooner. Double the stewards, half the time: 45 ÷ 2 = 22.5.'],
-  ['16 stewards take 45 + 8 = 53 minutes', 'More stewards means less time, never more. Double the stewards, half the time: 22.5 minutes.'],
-  ['16 stewards take 45 − 8 = 37 minutes', 'Taking away doesn’t work here. Double the stewards, half the time: 45 ÷ 2 = 22.5.'],
+  ['Leo is right: 90 minutes', 'More stewards share the work, so they finish sooner. Double the stewards, halve the time: 45 ÷ 2 = 22.5.'],
+  ['16 stewards take 45 + 8 = 53 minutes', 'More stewards means less time, never more. Double the stewards, halve the time: 22.5 minutes.'],
+  ['16 stewards take 45 − 8 = 37 minutes', 'Taking away doesn’t work here. Double the stewards, halve the time: 45 ÷ 2 = 22.5.'],
 ), 'This is inverse proportion. Is 16 stewards more or fewer than 8?', boardModel([], [
   { title: 'Compare the stewards', say: '16 stewards is double 8 stewards.', rows: ['16 ÷ 8 = 2'] },
-  { title: 'Half the time', say: 'More stewards means less time, not more. Double the stewards, half the time.', rows: ['45 ÷ 2 = 22.5', '! 22.5 minutes, not 90'] },
+  { title: 'Half the time', say: 'More stewards means less time, not more. Double the stewards, halve the time.', rows: ['45 ÷ 2 = 22.5', '! 22.5 minutes, not 90'] },
 ], 'Why'))
 
 add('mixed', 'Direct and inverse proportion', 'R2.1-R2.2 consolidation', text(
   'Direct proportion: more of one means more of the other. Divide to find 1, then multiply to find many.',
-  'Inverse proportion: more of one means less of the other. Multiply to find 1, then divide to find many.',
+  'Inverse proportion: more of one means less of the other. Multiply to get the total work, then divide to share it.',
   'Check it makes sense: 4 × 9 = 36 and 6 × 6 = 36, so the 4 painters and the 6 painters do the same total work.',
 ))
 

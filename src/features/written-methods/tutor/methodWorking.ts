@@ -183,6 +183,18 @@ export type RatioFrame = {
   before?: Omit<RatioFrame, 'before'>
 }
 /**
+ * The hundred square (lesson 32, R3): 100 squares are the whole amount. The percentage's pieces fill the squares in
+ * order, each with its pill; `lit` pieces are purple, and a piece can be green, the answer.
+ */
+export type PercentFrame = {
+  whole: string
+  pieces: { size: number; label: string; tone?: 'b0' | 'b1' | 'b2' | 'good' }[]
+  lit?: number[]
+  note?: string
+  /** The square on the opening screen, before the first step fills it. */
+  before?: Omit<PercentFrame, 'before'>
+}
+/**
  * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
  * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
  * of two squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
@@ -339,6 +351,7 @@ export type MethodFrame = {
   angles?: AngleFrame
   machine?: MachineFrame
   ratio?: RatioFrame
+  percent?: PercentFrame
   quadratic?: QuadraticFrame
   solve?: SolveFrame
   sequence?: SequenceFrame

@@ -124,7 +124,7 @@ for (const area of new Set(paperTopics.map(topic => topic.area))) {
   tiers.forEach((tier, row) => tier.forEach(topic => (topic.requires ?? []).forEach(id => assert.ok(tiers.findIndex(t => t.some(p => p.id === id)) < row, `${topic.id} sits below ${id}`))))
 }
 for (const topic of paperTopics) assert.ok(hasTopicIcon(topic.id), `${topic.id} needs an icon in src/ui/icons.tsx`)
-assert.deepEqual(branchLeaves('number').map(topic => topic.id).sort(), ['bidmas', 'bounds', 'fdp', 'standard-form'])
+assert.deepEqual(branchLeaves('number').map(topic => topic.id).sort(), ['bidmas', 'bounds', 'percentages', 'standard-form'])
 
 // Rails: every link is straight lines and right angles, and none runs behind a node it doesn't join.
 for (const width of [320, 640]) for (const area of ['number', 'algebra', 'geometry', 'ratio', 'probability', 'statistics']) {

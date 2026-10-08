@@ -136,10 +136,10 @@ for (const ref of pdfs.map(pdf => `${pdf} video + Q1`)) assert.match(at(ref).con
 
 // ---------- Videos, the course ----------
 checkVideos(states, 'lesson-30', {
-  // Aniksha's R1_v1 files, unchanged (sha256 checked against her zip on 7 Oct).
-  'difference.mp4': '8e8c247148d000ec07e239795cbb3dcdd45f4d5b477051f43c16a283f2dfedc3',
-  'changing.mp4': '7087c9e8edf26bcca4af06700383b1a635c0e90737903d5bdbf219d76791255f',
-  'unit-form.mp4': 'bdb751f492708d4f55bf7d3d1dbc07d1bb1d83fd5db43f96ec3d33e9257e702a',
+  // Aniksha's R1_v2 files, unchanged (sha256 checked against her zip on 8 Oct).
+  'difference.mp4': '5ccd3a50fe8f0a8b519636c5376e72acf9650fae35e8b226ec86879f54086f51',
+  'changing.mp4': '736e0c17681d3bbcd9ef8435220024f88cfa9748660063b996eccf85ac4bcd36',
+  'unit-form.mp4': '5d555287c2845d33af0df698342682afb658fc1a22bdbee9353b8e3048505b92',
 })
 checkCourse(30, 'R1', 'TutorRatioLesson', 'ratio')
 
