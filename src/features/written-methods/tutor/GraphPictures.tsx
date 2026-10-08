@@ -19,6 +19,8 @@ import { curvePath, valueAt } from './curves'
 
 /** One unit: the side of a square of the page's grid (--rv-paper-grid-size). */
 export const UNIT = 32
+/** A square of a drawn picture on screen: UNIT, or bigger where the paper behind it is (the Graphs chapter on a desktop). */
+export const squareOf = (svg: SVGSVGElement, box = svg.getBoundingClientRect()) => UNIT * box.width / (svg.viewBox.baseVal.width || box.width)
 const FAMILY = ['var(--rv-biro)', '#b45309', 'var(--rv-good-ink)', '#7c3aed']
 /** x numbers are always amber and y numbers biro blue: on the axes, in a point's brackets and in the working. */
 export const AXIS = { x: FAMILY[1], y: FAMILY[0] }
@@ -151,34 +153,40 @@ function spoken(frame: GraphFrame, plain?: boolean) {
 
 /**
  * Lines the picture up with the squared paper behind it: finds the nearest box whose background is the page grid
- * (nothing opaque in between), and returns the nudge that puts the picture's grid lines on its lines. Null when there
- * is no squared paper behind, so the picture draws its own.
+ * (nothing opaque in between), and returns the nudge that puts the picture's grid lines on its lines, and how much to
+ * enlarge the picture so one of its squares is one of the paper's (the Graphs chapter's paper is bigger on a desktop).
+ * The nudge is null when there is no squared paper behind, so the picture draws its own.
  */
 function useGridAlignment() {
   const ref = useRef<SVGSVGElement>(null)
   const [shift, setShift] = useState<{ x: number; y: number } | null>(null)
+  const [zoom, setZoom] = useState(1)
   const shiftRef = useRef(shift)
   shiftRef.current = shift
   useLayoutEffect(() => {
     const svg = ref.current
     if (!svg) return
-    let paper: HTMLElement | null = null
+    let paper: HTMLElement | null = null, square = UNIT
     for (let el = svg.parentElement; el; el = el.parentElement) {
       const style = getComputedStyle(el)
-      if (style.backgroundImage.includes('linear-gradient') && style.backgroundSize.startsWith(`${UNIT}px ${UNIT}px`)) { paper = el; break }
+      const size = style.backgroundSize.match(/^([\d.]+)px ([\d.]+)px/)
+      if (style.backgroundImage.includes('linear-gradient') && size && size[1] === size[2]) { paper = el; square = parseFloat(size[1]); break }
       if (style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent') break
     }
-    const host = paper
+    const host = paper, side = square
     function align() {
       if (!svg) return
-      if (!host) { setShift(current => current === null ? current : null); return }
+      if (!host) { setShift(current => current === null ? current : null); setZoom(1); return }
       const box = host.getBoundingClientRect(), style = getComputedStyle(host)
       const originX = box.left + parseFloat(style.borderLeftWidth), originY = box.top + parseFloat(style.borderTopWidth)
       const own = svg.getBoundingClientRect()
       const current = shiftRef.current ?? { x: 0, y: 0 }
-      // Where the picture would be without a nudge, and the smallest nudge (−16 to 16) onto the paper's lines.
-      const near = (from: number, origin: number) => { const off = ((origin - from) % UNIT + UNIT) % UNIT; return off >= UNIT / 2 ? off - UNIT : off }
-      const next = { x: near(own.left - current.x, originX), y: near(own.top - current.y, originY) }
+      // Where the picture would be without a nudge, and the smallest nudge (half a square either way) onto the paper's lines.
+      // On bigger paper half a square would cover the words above or below, so the nudge is only ever down, as a margin.
+      const off = (from: number, origin: number) => ((origin - from) % side + side) % side
+      const near = (from: number, origin: number) => { const o = off(from, origin); return o >= side / 2 ? o - side : o }
+      const next = { x: near(own.left - current.x, originX), y: side > UNIT ? off(own.top - current.y, originY) : near(own.top - current.y, originY) }
+      setZoom(side / UNIT)
       if (!shiftRef.current || Math.abs(next.x - shiftRef.current.x) > 0.25 || Math.abs(next.y - shiftRef.current.y) > 0.25) setShift(next)
     }
     align()
@@ -188,7 +196,7 @@ function useGridAlignment() {
     document.fonts?.ready.then(align)
     return () => { observer.disconnect(); window.removeEventListener('resize', align) }
   })
-  return { ref, shift }
+  return { ref, shift, zoom }
 }
 
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
@@ -204,7 +212,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
   const done = (at: number) => focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''
   const shown = (at: number) => !plain || at < 0
   const head = (adds: GraphFrame['adds']) => !plain && frame.adds === adds && heading ? <div className="ns-graph__heading">{heading}</div> : null
-  const { ref, shift } = useGridAlignment()
+  const { ref, shift, zoom } = useGridAlignment()
   const [x0, x1] = frame.x, [y0, y1] = frame.y
   // Real-life axes (graphs lessons 7 and 8): a square is `per` units, and the axes cross at `start`.
   const sx = frame.scale?.x, sy = frame.scale?.y, perX = sx?.per ?? 1, perY = sy?.per ?? 1
@@ -320,8 +328,8 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
   return <div className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
     {head('picture')}
     {frame.table && <ValueTable table={frame.table} />}
-    <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={width + 1} height={height + 1} viewBox={`0 0 ${width + 1} ${height + 1}`}
-      {...live?.svg} style={shift ? { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)`, ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
+    <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={fix((width + 1) * zoom)} height={fix((height + 1) * zoom)} viewBox={`0 0 ${width + 1} ${height + 1}`}
+      {...live?.svg} style={shift ? { ...(zoom > 1 ? { transform: `translateX(${fix(shift.x)}px)`, marginTop: `${fix(shift.y)}px` } : { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)` }), ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
       {!shift && <g className="ns-graph__grid">
         {range(x0, x1, perX).map(x => <line key={`gx${x}`} x1={fix(px(x) + 0.5)} x2={fix(px(x) + 0.5)} y1="0" y2={height + 1} />)}
         {range(y0, y1, perY).map(y => <line key={`gy${y}`} x1="0" x2={width + 1} y1={fix(py(y) + 0.5)} y2={fix(py(y) + 0.5)} />)}

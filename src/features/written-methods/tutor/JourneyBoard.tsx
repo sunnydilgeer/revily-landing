@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, HaloText, UNIT, axisText, fitLabel } from './GraphPictures'
+import { GraphVisual, HaloText, UNIT, axisText, fitLabel, squareOf } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -54,8 +54,8 @@ export function JourneyBoard({ spec, result, disabled, onChange }: { spec: Graph
     update([...taps.filter(q => Math.abs(q.x - p.x) > 1e-9), p])
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
-    const box = event.currentTarget.getBoundingClientRect()
-    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT) * per.x, y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) * per.y }
+    const box = event.currentTarget.getBoundingClientRect(), square = squareOf(event.currentTarget, box)
+    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / square) * per.x, y: y1 - Math.round((event.clientY - box.top - 0.5) / square) * per.y }
   }
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (disabled) return
