@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, HaloText, UNIT, axisText, fitLabel, squareOf } from './GraphPictures'
+import { GraphVisual, HaloText, UNIT, axisText, fitLabel, squareOf, balanced } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -32,7 +32,7 @@ export const journeyKey = (start: GraphPoint, points: GraphPoint[]) => corners(s
 export const speedOf = (a: GraphPoint, b: GraphPoint) => Math.abs(b.y - a.y) / (b.x - a.x)
 
 export function JourneyBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { grid } = spec
+  const grid = balanced(spec.grid)
   const scale = grid.scale!
   const [x0, x1] = grid.x, [, y1] = grid.y
   const per = { x: scale.x.per, y: scale.y.per }

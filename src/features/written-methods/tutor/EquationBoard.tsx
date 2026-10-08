@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type ReactNode } from 'react'
-import { GraphVisual, fmt } from './GraphPictures'
+import { GraphVisual, fmt, balanced } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 import { fractionText } from './TiltBoard'
@@ -36,7 +36,7 @@ function Stepper({ name, value, onDown, onUp, disabled, className }: { name: str
 }
 
 export function EquationBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { grid } = spec
+  const grid = balanced(spec.grid)
   const [y0, y1] = grid.y
   const startM = spec.rule?.m ?? 1, startC = spec.rule?.c ?? 0
   const [mi, setMi] = useState(Math.max(0, M_VALUES.indexOf(startM)))

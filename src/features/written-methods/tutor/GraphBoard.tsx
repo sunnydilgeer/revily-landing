@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel, squareOf } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel, squareOf, balanced } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
@@ -113,7 +113,7 @@ function CurveSum({ text, x }: { text: string; x: number }) {
 }
 
 function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
-  const { mode, grid } = spec
+  const { mode } = spec, grid = balanced(spec.grid)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const walk = mode === 'walk'
   const play = mode === 'explore' || mode === 'midpoint' || mode === 'rule'

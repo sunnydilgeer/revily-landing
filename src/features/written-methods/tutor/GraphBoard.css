@@ -52,3 +52,8 @@
 .graph-board__join.is-right { stroke: var(--rv-good-ink); stroke-width: 4; }
 .graph-board__speed { font-size: 15px; font-weight: 800; fill: var(--rv-ink); }
 .graph-board__speed.is-halo { stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
+
+/* The across and up arrows that follow a moving dot: faint and thin, so the line and the dot stay the hero (Sunny, 8 Oct). */
+.graph-board .ns-graph__leg { opacity: .45; }
+.graph-board .ns-graph__leg line { stroke-width: 2; }
+.graph-board .ns-graph__leg path { stroke-width: 2; }
