@@ -2,6 +2,7 @@
 
 import '../../App.css'
 import '../maths/MathsNavigation.css'
+import './GraphsShelf.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { RevilyLogo } from '../../ui'
 import MathsContentsDrawer from '../maths/MathsContentsDrawer'
@@ -74,7 +75,7 @@ export default function GraphsShelf() {
         aria-controls="maths-contents" onClick={() => setDrawerOpen(true)}>Contents</button>
     </header>
 
-    <main className="lesson-preview" id="main-content"><TutorMethodLessonView key={lesson} lesson={lessonFor(lesson)} /></main>
+    <main className="lesson-preview graphs-shelf" id="main-content"><TutorMethodLessonView key={lesson} lesson={lessonFor(lesson)} /></main>
 
     <MathsContentsDrawer open={drawerOpen} currentLesson={current} progress={progress} chapters={[graphsChapter]}
       onClose={closeDrawer} onSelectLesson={number => openLesson(number)} onSelectSkill={selectSkill} />

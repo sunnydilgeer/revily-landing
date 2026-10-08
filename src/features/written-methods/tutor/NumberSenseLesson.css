@@ -333,9 +333,13 @@
 .ns-graph__line.is-answer text { fill: var(--rv-good-ink); font-weight: 800; }
 .ns-graph__line.is-wrong line { stroke: var(--rv-redpen); }
 .ns-graph__line.is-wrong text { fill: var(--rv-redpen); }
+.ns-graph__curve path { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ns-graph__curve.is-found path { stroke: var(--rv-biro); }
+.ns-graph__curve.is-answer path { stroke: var(--rv-good-ink); stroke-width: 4; }
 /* A table of values (graphs lesson 2): x amber along the top, y biro blue underneath. */
 .ns-graph__table { border-collapse: collapse; background: var(--rv-paper); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .ns-graph__table th, .ns-graph__table td { min-width: 40px; height: 34px; padding: 0 6px; border: 2px solid var(--rv-ink); text-align: center; }
+.ns-graph__table.is-long th, .ns-graph__table.is-long td { min-width: 32px; padding: 0 3px; }
 .ns-graph__table th { font-style: italic; font-weight: 800; }
 .ns-graph__table .is-x > * { color: #b45309; }
 .ns-graph__table .is-y > * { color: var(--rv-biro); }

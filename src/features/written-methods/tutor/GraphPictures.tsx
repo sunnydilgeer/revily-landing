@@ -1,8 +1,9 @@
 'use client'
 
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode, type SVGProps } from 'react'
-import type { GraphFrame, GraphPoint, GraphTable } from './methodWorking'
+import type { AxisScale, GraphFrame, GraphPoint, GraphTable } from './methodWorking'
 import { Powers } from './Powers'
+import { curvePath, valueAt } from './curves'
 
 /*
  * The graphs lessons (coordinates, lines, gradient). The graph is drawn on the page's own squared paper: one
@@ -18,12 +19,26 @@ import { Powers } from './Powers'
 
 /** One unit: the side of a square of the page's grid (--rv-paper-grid-size). */
 export const UNIT = 32
+/** A square of a drawn picture on screen: UNIT, or bigger where the paper behind it is (the Graphs chapter on a desktop). */
+export const squareOf = (svg: SVGSVGElement, box = svg.getBoundingClientRect()) => UNIT * box.width / (svg.viewBox.baseVal.width || box.width)
 const FAMILY = ['var(--rv-biro)', '#b45309', 'var(--rv-good-ink)', '#7c3aed']
 /** x numbers are always amber and y numbers biro blue: on the axes, in a point's brackets and in the working. */
 export const AXIS = { x: FAMILY[1], y: FAMILY[0] }
 export const fmt = (n: number) => String(n).replace('-', '−')
 const fix = (n: number) => n.toFixed(1)
 export const coordinate = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
+/** 9.5 hours → "09:30". */
+export const clock = (hours: number) => { const m = Math.round(hours * 60); return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` }
+/** A number on an axis, as that axis writes it: a time on a clock axis. */
+export const axisText = (scale: AxisScale | undefined, v: number) => scale?.clock ? clock(v) : fmt(Math.round(v * 1000) / 1000)
+/** The numbered values along an axis, other than where the axes cross and the grid's edges. */
+export function ticks(from: number, to: number, cross: number, scale?: AxisScale, end = 1) {
+  if (!scale) return Array.from({ length: to - from + 1 }, (_, i) => from + i).filter(v => v !== cross && v !== from && v !== to)
+  // A real-life axis starts where the axes cross; its last number keeps `end` squares clear of the arrow and the axis's name.
+  const out: number[] = [], step = scale.per * (scale.every ?? 1)
+  for (let v = cross + step; v < to - scale.per * end + 1e-9 && v < to - 1e-9; v += step) out.push(Math.round(v * 1e6) / 1e6)
+  return out
+}
 /** A point's coordinates with the x in its amber and the y in its biro blue, as on the axes. */
 const Pair = ({ x, y }: { x: string; y: string }) => <>(<tspan className="is-x">{x}</tspan>, <tspan className="is-y">{y}</tspan>)</>
 /**
@@ -62,7 +77,9 @@ export function placeLabel(x: number, y: number, w: number, prefer: { right: boo
   return fitLabel(candidates, room)
 }
 /** The first of `candidates` with 3px to spare round everything in `room` (else the first, kept inside the grid); it joins `room.taken`. */
-export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox {
+export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox
+export function fitLabel(candidates: LabelBox[], room: LabelRoom, optional: true): LabelBox | null
+export function fitLabel(candidates: LabelBox[], room: LabelRoom, optional = false): LabelBox | null {
   const { width, height, taken, segments } = room
   const crosses = (c: Box) => segments.some(({ x1, y1, x2, y2 }) => {
     for (let i = 0; i <= 24; i++) { const sx = x1 + (x2 - x1) * i / 24, sy = y1 + (y2 - y1) * i / 24; if (sx > c.l && sx < c.r && sy > c.t && sy < c.b) return true }
@@ -73,6 +90,7 @@ export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox {
     return c.l >= 3 && c.r <= width - 3 && c.t >= 2 && c.b <= height - 2 && !taken.some(o => overlaps(padded, o)) && !crosses(padded)
   }
   const fallback = candidates[0], w = fallback.r - fallback.l
+  if (optional && !candidates.some(clear)) return null
   const pick = candidates.find(clear) ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
   const placed = { ...pick, r: pick.l + w, t: pick.base - 14, b: pick.base + 4 }
   taken.push(placed)
@@ -84,7 +102,8 @@ export const dotBox = (x: number, y: number, r = 6) => ({ l: x - r, r: x + r, t:
  *  can carry the rule, y = 2x − 1, its x amber, so each y in the row says where it comes from. */
 export function ValueTable({ table }: { table: GraphTable }) {
   const cell = (i: number) => `${table.lit === i ? ' is-lit' : ''}${table.answer === i ? ' is-answer' : ''}${table.ask === i ? ' is-ask' : ''}`
-  return <table className="ns-graph__table">
+  // A long table (six columns or more) packs its cells tighter, so it fits a phone.
+  return <table className={`ns-graph__table${table.xs.length > 5 ? ' is-long' : ''}`}>
     <tbody>
       <tr className="is-x"><th scope="row">x</th>{table.xs.map((x, i) => <td key={i} className={cell(i)}>{fmt(x)}</td>)}</tr>
       <tr className="is-y"><th scope="row">y{table.rule && <span className="ns-graph__rule"> = {table.rule.split('x').flatMap((part, i) => i ? [<span key={i} className="is-x">x</span>, part] : [part])}</span>}</th>{table.ys.map((y, i) => <td key={i} className={cell(i)}>{table.ask === i ? '?' : y === null ? '' : fmt(y)}</td>)}</tr>
@@ -118,9 +137,11 @@ function spokenLine(line: NonNullable<GraphFrame['lines']>[number]) {
   return `a straight line through ${coordinate(line.from)} and ${coordinate(line.to)}`
 }
 function spoken(frame: GraphFrame, plain?: boolean) {
-  const parts = [`A grid with x from ${fmt(frame.x[0])} to ${fmt(frame.x[1])} and y from ${fmt(frame.y[0])} to ${fmt(frame.y[1])}.`]
+  const sc = frame.scale
+  const parts = [sc ? `A graph of ${sc.y.name} against ${sc.x.name}, ${sc.x.name} from ${axisText(sc.x, sc.x.start)} and ${sc.y.name} from ${axisText(sc.y, sc.y.start)}.` : `A grid with x from ${fmt(frame.x[0])} to ${fmt(frame.x[1])} and y from ${fmt(frame.y[0])} to ${fmt(frame.y[1])}.`]
   const own = <T extends { at: number }>(list: T[] = []) => list.filter(part => !plain || part.at < 0)
   for (const line of own(frame.lines)) parts.push(`The line ${spokenLine(line)}.`)
+  for (const curve of own(frame.curves)) parts.push(`A smooth curve${curve.label ? `, ${curve.label.replace(/−/g, 'minus ')},` : ''} from x = ${fmt(curve.from)} to x = ${fmt(curve.to)}.`)
   for (const point of own(frame.points)) parts.push(`A point at ${coordinate(point)}.`)
   if (!plain) {
     for (const leg of (frame.legs ?? []).filter(leg => !leg.dashed)) parts.push(`${leg.from.y === leg.to.y ? 'Across' : leg.to.y > leg.from.y ? 'Up' : 'Down'} ${leg.label}.`)
@@ -132,34 +153,40 @@ function spoken(frame: GraphFrame, plain?: boolean) {
 
 /**
  * Lines the picture up with the squared paper behind it: finds the nearest box whose background is the page grid
- * (nothing opaque in between), and returns the nudge that puts the picture's grid lines on its lines. Null when there
- * is no squared paper behind, so the picture draws its own.
+ * (nothing opaque in between), and returns the nudge that puts the picture's grid lines on its lines, and how much to
+ * enlarge the picture so one of its squares is one of the paper's (the Graphs chapter's paper is bigger on a desktop).
+ * The nudge is null when there is no squared paper behind, so the picture draws its own.
  */
 function useGridAlignment() {
   const ref = useRef<SVGSVGElement>(null)
   const [shift, setShift] = useState<{ x: number; y: number } | null>(null)
+  const [zoom, setZoom] = useState(1)
   const shiftRef = useRef(shift)
   shiftRef.current = shift
   useLayoutEffect(() => {
     const svg = ref.current
     if (!svg) return
-    let paper: HTMLElement | null = null
+    let paper: HTMLElement | null = null, square = UNIT
     for (let el = svg.parentElement; el; el = el.parentElement) {
       const style = getComputedStyle(el)
-      if (style.backgroundImage.includes('linear-gradient') && style.backgroundSize.startsWith(`${UNIT}px ${UNIT}px`)) { paper = el; break }
+      const size = style.backgroundSize.match(/^([\d.]+)px ([\d.]+)px/)
+      if (style.backgroundImage.includes('linear-gradient') && size && size[1] === size[2]) { paper = el; square = parseFloat(size[1]); break }
       if (style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent') break
     }
-    const host = paper
+    const host = paper, side = square
     function align() {
       if (!svg) return
-      if (!host) { setShift(current => current === null ? current : null); return }
+      if (!host) { setShift(current => current === null ? current : null); setZoom(1); return }
       const box = host.getBoundingClientRect(), style = getComputedStyle(host)
       const originX = box.left + parseFloat(style.borderLeftWidth), originY = box.top + parseFloat(style.borderTopWidth)
       const own = svg.getBoundingClientRect()
       const current = shiftRef.current ?? { x: 0, y: 0 }
-      // Where the picture would be without a nudge, and the smallest nudge (−16 to 16) onto the paper's lines.
-      const near = (from: number, origin: number) => { const off = ((origin - from) % UNIT + UNIT) % UNIT; return off >= UNIT / 2 ? off - UNIT : off }
-      const next = { x: near(own.left - current.x, originX), y: near(own.top - current.y, originY) }
+      // Where the picture would be without a nudge, and the smallest nudge (half a square either way) onto the paper's lines.
+      // On bigger paper half a square would cover the words above or below, so the nudge is only ever down, as a margin.
+      const off = (from: number, origin: number) => ((origin - from) % side + side) % side
+      const near = (from: number, origin: number) => { const o = off(from, origin); return o >= side / 2 ? o - side : o }
+      const next = { x: near(own.left - current.x, originX), y: side > UNIT ? off(own.top - current.y, originY) : near(own.top - current.y, originY) }
+      setZoom(side / UNIT)
       if (!shiftRef.current || Math.abs(next.x - shiftRef.current.x) > 0.25 || Math.abs(next.y - shiftRef.current.y) > 0.25) setShift(next)
     }
     align()
@@ -169,7 +196,7 @@ function useGridAlignment() {
     document.fonts?.ready.then(align)
     return () => { observer.disconnect(); window.removeEventListener('resize', align) }
   })
-  return { ref, shift }
+  return { ref, shift, zoom }
 }
 
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
@@ -185,13 +212,29 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
   const done = (at: number) => focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''
   const shown = (at: number) => !plain || at < 0
   const head = (adds: GraphFrame['adds']) => !plain && frame.adds === adds && heading ? <div className="ns-graph__heading">{heading}</div> : null
-  const { ref, shift } = useGridAlignment()
+  const { ref, shift, zoom } = useGridAlignment()
   const [x0, x1] = frame.x, [y0, y1] = frame.y
-  const width = (x1 - x0) * UNIT, height = (y1 - y0) * UNIT
-  const px = (x: number) => (x - x0) * UNIT, py = (y: number) => (y1 - y) * UNIT
-  const range = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i)
-  const axisX = Math.min(Math.max(0, x0), x1), axisY = Math.min(Math.max(0, y0), y1)
+  // Real-life axes (graphs lessons 7 and 8): a square is `per` units, and the axes cross at `start`.
+  const sx = frame.scale?.x, sy = frame.scale?.y, perX = sx?.per ?? 1, perY = sy?.per ?? 1
+  const xName = sx?.name ?? 'x', yName = sy?.name ?? 'y'
+  const width = Math.round((x1 - x0) / perX) * UNIT, height = Math.round((y1 - y0) / perY) * UNIT
+  const px = (x: number) => (x - x0) / perX * UNIT, py = (y: number) => (y1 - y) / perY * UNIT
+  const range = (from: number, to: number, per = 1) => Array.from({ length: Math.round((to - from) / per) + 1 }, (_, i) => from + i * per)
+  const axisX = sx ? sx.start : Math.min(Math.max(0, x0), x1), axisY = sy ? sy.start : Math.min(Math.max(0, y0), y1)
+  const xText = (v: number) => axisText(sx, v), yText = (v: number) => axisText(sy, v)
+  // A scaled axis also numbers a value it reads that falls between its numbers (10:30 on an hourly axis).
+  const xTicks = ticks(x0, x1, axisX, sx, 1 + xName.length * 7.5 / UNIT), yTicks = ticks(y0, y1, axisY, sy)
   const lines = (frame.lines ?? []).filter(line => shown(line.at))
+  const curves = (frame.curves ?? []).filter(curve => shown(curve.at))
+  // A curve as short straight pieces inside the grid, so labels keep off it like they keep off a line.
+  const curveSegments = curves.flatMap(curve => {
+    const lo = Math.max(curve.from, x0), hi = Math.min(curve.to, x1), n = Math.max(2, Math.ceil((hi - lo) * 4)), out = []
+    for (let i = 0; i < n; i++) {
+      const xa = lo + (hi - lo) * i / n, xb = lo + (hi - lo) * (i + 1) / n, ya = valueAt(curve.coeffs, xa), yb = valueAt(curve.coeffs, xb)
+      if (ya >= y0 && ya <= y1 && yb >= y0 && yb <= y1) out.push({ x1: px(xa) + 0.5, y1: py(ya) + 0.5, x2: px(xb) + 0.5, y2: py(yb) + 0.5 })
+    }
+    return out
+  })
   const points = (frame.points ?? []).filter(point => shown(point.at))
   const legs = plain ? [] : frame.legs ?? []
   const working = plain ? [] : frame.working ?? []
@@ -205,13 +248,13 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
     width, height,
     taken: [
       { l: 0, r: width, t: ay - 2, b: ay + 2 }, { l: ax - 2, r: ax + 2, t: 0, b: height },
-      { l: ax - 7, r: ax + 7, t: 0, b: 10 }, { l: ax + 7, r: ax + 18, t: 3, b: 18 }, { l: width - 10, r: width, t: ay - 7, b: ay + 7 }, { l: width - 17, r: width - 3, t: ay + 6, b: ay + 22 },
-      ...range(x0, x1).filter(x => x !== axisX && x !== x0 && x !== x1).map(x => { const half = fmt(x).length * 4.5 + 5; return { l: px(x) + 0.5 - half, r: px(x) + 0.5 + half, t: ay + 3, b: ay + 23 } }),
-      ...range(y0, y1).filter(y => y !== axisY && y !== y0 && y !== y1).map(y => ({ l: ax - 10 - fmt(y).length * 9, r: ax - 2, t: py(y) - 9, b: py(y) + 10 })),
-      { l: ax - 20, r: ax - 2, t: ay + 3, b: ay + 23 },
+      { l: ax - 7, r: ax + 7, t: 0, b: 10 }, { l: ax + 7, r: ax + 11 + yName.length * 7.5, t: 3, b: 18 }, { l: width - 10, r: width, t: ay - 7, b: ay + 7 }, { l: width - 10 - xName.length * 7.5, r: width - 3, t: ay + 6, b: ay + 22 },
+      ...xTicks.map(x => { const half = xText(x).length * 4.5 + 5; return { l: px(x) + 0.5 - half, r: px(x) + 0.5 + half, t: ay + 3, b: ay + 23 } }),
+      ...yTicks.map(y => ({ l: ax - 10 - yText(y).length * 9, r: ax - 2, t: py(y) - 9, b: py(y) + 10 })),
+      ...(sx ? [{ l: ax - xText(axisX).length * 4.5 - 5, r: ax + xText(axisX).length * 4.5 + 5, t: ay + 3, b: ay + 23 }, { l: ax - 20, r: ax - 2, t: ay - 9, b: ay + 3 }] : [{ l: ax - 20, r: ax - 2, t: ay + 3, b: ay + 23 }]),
       ...points.map(point => dotBox(px(point.x) + 0.5, py(point.y) + 0.5)),
     ],
-    segments: lines.map(line => { const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to); return { x1: px(a.x) + 0.5, y1: py(a.y) + 0.5, x2: px(b.x) + 0.5, y2: py(b.y) + 0.5 } }),
+    segments: [...lines.map(line => { const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to); return { x1: px(a.x) + 0.5, y1: py(a.y) + 0.5, x2: px(b.x) + 0.5, y2: py(b.y) + 0.5 } }), ...curveSegments],
   }
 
   /** Keeps a label of `text` at (x, y) inside the grid: `size` is its font size, `anchor` how it hangs off x. */
@@ -222,23 +265,57 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
     return { x: x + dx, y: Math.min(Math.max(y, size + 2), height - 4) }
   }
 
+  /** Real-life axes: a highlighted time too close to the one before it (10:00 and 10:30) drops a row, so both can be read. */
+  function lowered(x: number) {
+    if (!sx) return 0
+    const lit = marks.filter(m => m.axis === 'x').map(m => m.value).sort((a, b) => a - b)
+    let row = 0, prev: number | null = null
+    for (const v of lit) {
+      const half = xText(v).length * 4.5 + 5
+      // A row down from the one before when they would touch, and from the axis's name at its end.
+      row = prev !== null && px(v) - half < px(prev) + xText(prev).length * 4.5 + 5 + 2 ? 1 - row : px(v) + half > width - 12 - xName.length * 7.5 ? 1 : 0
+      if (v === x) return row * 21
+      prev = v
+    }
+    return 0
+  }
+  /** Real-life axes: a plain time that a highlighted one (on the same row) would cover is left out. */
+  function hidden(x: number) {
+    if (!sx) return false
+    const half = (v: number) => xText(v).length * 4.5 + 5
+    return marks.some(m => m.axis === 'x' && m.value !== x && !lowered(m.value) && Math.abs(px(m.value) - px(x)) < half(m.value) + half(x))
+  }
   /** The axis numbers: the plain ones under everything, the highlighted ones on top so a ring never hides them. */
   const axisNumbers = (marked: boolean) => <g className="ns-graph__numbers">
-    {range(x0, x1).filter(x => x !== axisX && x !== x0 && x !== x1 && !!markOf('x', x) === marked).map(x => {
-      const mark = markOf('x', x), label = fmt(x)
+    {[...xTicks, ...(sx && marked ? marks.filter(m => m.axis === 'x' && m.value !== axisX && !xTicks.includes(m.value)).map(m => m.value) : [])].filter(x => !!markOf('x', x) === marked && (marked || !hidden(x))).map(x => {
+      const mark = markOf('x', x), label = xText(x), down = mark ? lowered(x) : 0
       return <g key={`nx${x}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.x } : undefined}>
-        {mark && <rect x={fix(px(x) + 0.5 - label.length * 4.5 - 5)} y={fix(py(axisY) + 4)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
-        <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18)}>{label}</text>
+        {mark && <rect x={fix(px(x) + 0.5 - label.length * 4.5 - 5)} y={fix(py(axisY) + 4 + down)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
+        <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18 + down)}>{label}</text>
       </g>
     })}
-    {range(y0, y1).filter(y => y !== axisY && y !== y0 && y !== y1 && !!markOf('y', y) === marked).map(y => {
-      const mark = markOf('y', y), label = fmt(y)
+    {[...yTicks, ...(sy && marked ? marks.filter(m => m.axis === 'y' && m.value !== axisY && !yTicks.includes(m.value)).map(m => m.value) : [])].filter(y => !!markOf('y', y) === marked).map(y => {
+      const mark = markOf('y', y), label = yText(y)
       return <g key={`ny${y}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.y } : undefined}>
         {mark && <rect x={fix(px(axisX) - 4 - label.length * 9 - 6)} y={fix(py(y) - 9)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
         <text className="is-y" x={fix(px(axisX) - 5)} y={fix(py(y) + 5)}>{label}</text>
       </g>
     })}
-    {(() => {
+    {sx && sy && (() => {
+      // Real-life axes: where they cross has a number on each, the x one under it and the y one to its left.
+      const mx = markOf('x', axisX), my = markOf('y', axisY), lx = xText(axisX), ly = yText(axisY)
+      return <>
+        {!!mx === marked && <g className={mx ? 'is-marked' : undefined} style={mx ? { color: AXIS.x } : undefined}>
+          {mx && <rect x={fix(ax - lx.length * 4.5 - 5)} y={fix(ay + 4)} width={fix(lx.length * 9 + 10)} height="19" rx="9.5" />}
+          <text x={fix(ax)} y={fix(ay + 18)}>{lx}</text>
+        </g>}
+        {!!my === marked && <g className={my ? 'is-marked' : undefined} style={my ? { color: AXIS.y } : undefined}>
+          {my && <rect x={fix(ax - 4 - ly.length * 9 - 6)} y={fix(ay - 14)} width={fix(ly.length * 9 + 10)} height="19" rx="9.5" />}
+          <text className="is-y" x={fix(ax - 5)} y={fix(ay)}>{ly}</text>
+        </g>}
+      </>
+    })()}
+    {!sx && (() => {
       const mark = markOf('x', 0) ?? markOf('y', 0)
       if (!!mark !== marked) return null
       return <g className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS[mark.axis] } : undefined}>
@@ -251,18 +328,18 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
   return <div className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
     {head('picture')}
     {frame.table && <ValueTable table={frame.table} />}
-    <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={width + 1} height={height + 1} viewBox={`0 0 ${width + 1} ${height + 1}`}
-      {...live?.svg} style={shift ? { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)`, ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
+    <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={fix((width + 1) * zoom)} height={fix((height + 1) * zoom)} viewBox={`0 0 ${width + 1} ${height + 1}`}
+      {...live?.svg} style={shift ? { ...(zoom > 1 ? { transform: `translateX(${fix(shift.x)}px)`, marginTop: `${fix(shift.y)}px` } : { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)` }), ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
       {!shift && <g className="ns-graph__grid">
-        {range(x0, x1).map(x => <line key={`gx${x}`} x1={fix(px(x) + 0.5)} x2={fix(px(x) + 0.5)} y1="0" y2={height + 1} />)}
-        {range(y0, y1).map(y => <line key={`gy${y}`} x1="0" x2={width + 1} y1={fix(py(y) + 0.5)} y2={fix(py(y) + 0.5)} />)}
+        {range(x0, x1, perX).map(x => <line key={`gx${x}`} x1={fix(px(x) + 0.5)} x2={fix(px(x) + 0.5)} y1="0" y2={height + 1} />)}
+        {range(y0, y1, perY).map(y => <line key={`gy${y}`} x1="0" x2={width + 1} y1={fix(py(y) + 0.5)} y2={fix(py(y) + 0.5)} />)}
       </g>}
       <g className="ns-graph__axes">
         <line x1="0" x2={width - 1} y1={fix(py(axisY) + 0.5)} y2={fix(py(axisY) + 0.5)} />
         <line x1={fix(px(axisX) + 0.5)} x2={fix(px(axisX) + 0.5)} y1="1" y2={height} />
         <path d={`M${width - 9} ${fix(py(axisY) - 5)} L${width - 2} ${fix(py(axisY) + 0.5)} L${width - 9} ${fix(py(axisY) + 6)} M${fix(px(axisX) - 5)} 9 L${fix(px(axisX) + 0.5)} 2 L${fix(px(axisX) + 6)} 9`} />
-        <text className="ns-graph__axis-name" x={width - 6} y={fix(py(axisY) + 19)} textAnchor="end">x</text>
-        <text className="ns-graph__axis-name" x={fix(px(axisX) + 9)} y="15">y</text>
+        <text className="ns-graph__axis-name" x={width - 6} y={fix(py(axisY) + 19)} textAnchor="end">{xName}</text>
+        <text className="ns-graph__axis-name" x={fix(px(axisX) + 9)} y="15">{yName}</text>
       </g>
       {axisNumbers(false)}
       {lines.map((line, i) => {
@@ -284,12 +361,61 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
           return fitLabel(flat
             ? [box(width - 8 - w, ly - 9), box(width - 8 - w, ly + 23), box(8, ly - 9), box(8, ly + 23), box((width - w) / 2, ly - 9), box((width - w) / 2, ly + 23)]
             : [box(lx + 8, height - 8), box(lx - 8 - w, height - 8), box(lx + 8, 22), box(lx - 8 - w, 22), box(lx + 8, height / 2), box(lx - 8 - w, height / 2)], room)
+        })() : line.label && !line.segment ? (() => {
+          // A named sloping line: its name goes near its top end (where it always went), else further down it,
+          // beside or above or below it, wherever it keeps off the axes, their numbers, the arrows, the other lines
+          // and names (graphs lesson 4: parallel lines are named side by side).
+          const w = line.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
+          const first = inside(at.x, at.y - 10, line.label, 17, 'middle')
+          const candidates = [box(first.x - w / 2, first.y), ...[0.1, 0.22, 0.34, 0.46, 0.58, 0.7, 0.82].flatMap(f => {
+            const x = px(end.x + (other.x - end.x) * f) + 0.5, y = py(end.y + (other.y - end.y) * f) + 0.5
+            // The corners the line doesn't run through: above-left and below-right of a line going up, the other
+            // two of a line going down; then level with it on either side, for a steep line.
+            const rising = (b.y - a.y) * (b.x - a.x) > 0
+            const corners = rising ? [box(x - 6 - w, y - 8), box(x + 6, y + 22)] : [box(x + 6, y - 8), box(x - 6 - w, y + 22)]
+            return [...corners, box(x + 14, y + 5), box(x - 14 - w, y + 5)]
+          })]
+          // On a crowded grid, any spot close beside the line, the nearest first.
+          const ax0 = px(a.x) + 0.5, ay0 = py(a.y) + 0.5, ax1 = px(b.x) + 0.5, ay1 = py(b.y) + 0.5
+          const gap = (c: { l: number; r: number; t: number; b: number }) => {
+            let least = Infinity
+            for (let i = 0; i <= 40; i++) {
+              const sx = ax0 + (ax1 - ax0) * i / 40, sy = ay0 + (ay1 - ay0) * i / 40
+              least = Math.min(least, Math.hypot(Math.max(c.l - sx, 0, sx - c.r), Math.max(c.t - sy, 0, sy - c.b)))
+            }
+            return least
+          }
+          const near: (LabelBox & { gap: number })[] = []
+          for (let l = 3; l + w <= width - 3; l += 6) for (let base = 18; base <= height - 4; base += 6) {
+            const c = box(l, base), g = gap(c)
+            if (g >= 5 && g <= 22) near.push({ ...c, gap: g })
+          }
+          // With nowhere clear, the line goes unnamed (the question and the working name it) rather than sit on the axes.
+          return fitLabel([...candidates, ...near.sort((p, q) => p.gap - q.gap)], room, true) ?? 'none' as const
         })() : null
-        const label = fitted ? { x: fitted.l + 2, y: fitted.base } : line.label && inside(at.x + (vertical ? 8 : 0), at.y + (vertical ? 0 : -10), line.label, 17, vertical ? 'start' : 'middle')
+        const label = fitted === 'none' ? null : fitted ? { x: fitted.l + 2, y: fitted.base } : line.label && inside(at.x + (vertical ? 8 : 0), at.y + (vertical ? 0 : -10), line.label, 17, vertical ? 'start' : 'middle')
         const anchor = fitted ? 'start' : vertical ? 'start' : 'middle'
         return <g key={`l${i}`} className={`ns-graph__line${kind}${done(line.at)}`}>
           <line x1={fix(px(a.x) + 0.5)} y1={fix(py(a.y) + 0.5)} x2={fix(px(b.x) + 0.5)} y2={fix(py(b.y) + 0.5)} />
           {label && <text x={fix(label.x)} y={fix(label.y)} textAnchor={anchor}>{line.label}</text>}
+        </g>
+      })}
+      {curves.map((curve, i) => {
+        const kind = curve.answer ? ' is-answer' : curve.at >= 0 ? ' is-found' : ''
+        // A named curve: its name beside it, wherever it keeps clear of the axes, their numbers, the dots and other names.
+        const fitted = curve.label ? (() => {
+          const w = curve.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
+          const candidates = [0.9, 0.1, 0.8, 0.2, 0.7, 0.3].flatMap(f => {
+            const x = curve.from + (curve.to - curve.from) * f, y = valueAt(curve.coeffs, x)
+            if (y < y0 || y > y1) return []
+            const cx = px(x) + 0.5, cy = py(y) + 0.5
+            return [box(cx + 12, cy + 5), box(cx - 12 - w, cy + 5), box(cx - w / 2, cy - 12), box(cx - w / 2, cy + 26)]
+          })
+          return fitLabel(candidates.length ? candidates : [box(3, 18)], room, true)
+        })() : null
+        return <g key={`c${i}`} className={`ns-graph__line ns-graph__curve${kind}${done(curve.at)}`}>
+          <path d={curvePath(curve.coeffs, curve.from, curve.to, frame, px, py)} />
+          {fitted && <text x={fix(fitted.l + 2)} y={fix(fitted.base)}>{curve.label}</text>}
         </g>
       })}
       {legs.map((leg, i) => {
@@ -326,7 +452,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
           : onUpDown ? { x: right ? 15 : -15, y: 5, anchor: right ? 'start' as const : 'end' as const }
           : onAcross ? { x: 0, y: 27, anchor: 'middle' as const }
           : { x: right ? 12 : -12, y: point.y < axisY ? 25 : -13, anchor: right ? 'start' as const : 'end' as const }
-        const text = point.label ?? coordinate(point)
+        const text = point.label ?? `(${xText(point.x)}, ${yText(point.y)})`
         // A label in a corner beside its dot keeps off the axes, their numbers and the other labels (Sunny, 7 Oct).
         const cx = px(point.x) + 0.5, cy = py(point.y) + 0.5
         const corner = text !== ''
@@ -336,7 +462,7 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
         // An answer point is drawn like a right answer on the graph board: a larger green dot (Sunny's reference, 7 Oct).
         return <g key={`p${i}`} className={`ns-graph__point${point.at >= 0 ? ' is-found' : ''}${point.answer ? ' is-answer' : ''}${done(point.at)}`}>
           <circle cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r={point.answer ? 7 : 5} />
-          {text !== '' && <HaloText x={fix(label.x)} y={fix(label.y)} textAnchor={anchor}>{point.label ?? <Pair x={fmt(point.x)} y={fmt(point.y)} />}</HaloText>}
+          {text !== '' && <HaloText x={fix(label.x)} y={fix(label.y)} textAnchor={anchor}>{point.label ?? <Pair x={xText(point.x)} y={yText(point.y)} />}</HaloText>}
         </g>
       })}
       {live?.draw({ px, py, width, height, room })}

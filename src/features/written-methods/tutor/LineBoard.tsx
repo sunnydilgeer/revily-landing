@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, UNIT, fmt } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, squareOf } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -36,7 +36,9 @@ export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
   const [cursor, setCursor] = useState<GraphPoint | null>(null)
   const id = useId()
 
-  const clamp = (p: GraphPoint): GraphPoint => ({ x: Math.min(Math.max(p.x, x0 + 1), x1 - 1), y: Math.min(Math.max(p.y, y0 + 1), y1 - 1) })
+  // On real-life axes (graphs lesson 8) a square is `per` units, and the dots stay on the axes or inside them.
+  const per = { x: grid.scale?.x.per ?? 1, y: grid.scale?.y.per ?? 1 }
+  const clamp = (p: GraphPoint): GraphPoint => ({ x: Math.min(Math.max(p.x, x0 + per.x), x1 - per.x), y: Math.min(Math.max(p.y, y0 + per.y), y1 - per.y) })
   function update(next: GraphPoint[]) {
     setTaps(next)
     onChange?.(next.length === 2 ? lineKey(next[0], next[1]) : '')
@@ -50,17 +52,17 @@ export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
     update(far(taps[0]) <= far(taps[1]) ? [p, taps[1]] : [taps[0], p])
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
-    const box = event.currentTarget.getBoundingClientRect()
-    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT), y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) }
+    const box = event.currentTarget.getBoundingClientRect(), square = squareOf(event.currentTarget, box)
+    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / square) * per.x, y: y1 - Math.round((event.clientY - box.top - 0.5) / square) * per.y }
   }
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (disabled) return
-    const from = cursor ?? taps[taps.length - 1] ?? clamp({ x: 0, y: 0 })
+    const from = cursor ?? taps[taps.length - 1] ?? clamp({ x: grid.scale?.x.start ?? 0, y: grid.scale?.y.start ?? 0 })
     if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); return tap(from) }
     const step = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[event.key]
     if (!step) return
     event.preventDefault()
-    setCursor(clamp({ x: from.x + step[0], y: from.y + step[1] }))
+    setCursor(clamp({ x: from.x + step[0] * per.x, y: from.y + step[1] * per.y }))
   }
 
   const drawn = taps.length === 2 ? { from: taps[0], to: taps[1] } : null
