@@ -7,6 +7,7 @@ import { tutorGradientLesson } from '../gradient/tutor/gradientLesson'
 import { tutorParallelLinesLesson } from '../parallel-lines/tutor/parallelLinesLesson'
 import { tutorSimultaneousGraphsLesson } from '../simultaneous-graphs/tutor/simultaneousGraphsLesson'
 import { tutorCurveGraphsLesson } from '../curve-graphs/tutor/curveGraphsLesson'
+import { tutorDistanceTimeLesson } from '../distance-time/tutor/distanceTimeLesson'
 
 /*
  * The hidden Graphs shelf: the graphs lessons with the course's own lesson page and Contents drawer, but kept off the
@@ -16,7 +17,7 @@ import { tutorCurveGraphsLesson } from '../curve-graphs/tutor/curveGraphsLesson'
  */
 export const GRAPHS_SHELF_ID = 'graphs-fb7c95e1c045'
 
-export type GraphsLessonNumber = 101 | 102 | 103 | 104 | 105 | 106
+export type GraphsLessonNumber = 101 | 102 | 103 | 104 | 105 | 106 | 107
 
 function entry(lesson: TutorMethodLesson & { number: GraphsLessonNumber }, title: string, description: string): MathsLessonEntry<GraphsLessonNumber, 'graphs'> {
   return {
@@ -32,11 +33,12 @@ export const graphsLessons = [
   entry(tutorParallelLinesLesson as TutorMethodLesson & { number: 104 }, 'Parallel lines', 'Parallel lines have the same gradient: compare them, and find one through a point.'),
   entry(tutorSimultaneousGraphsLesson as TutorMethodLesson & { number: 105 }, 'Simultaneous equations by graph', 'Draw both lines and read where they cross: the x and y that solve both.'),
   entry(tutorCurveGraphsLesson as TutorMethodLesson & { number: 106 }, 'Quadratic and cubic graphs', 'Tables for x² and x³, plotting a smooth curve, and the U, ∩ and S shapes.'),
+  entry(tutorDistanceTimeLesson as TutorMethodLesson & { number: 107 }, 'Distance–time graphs', 'Read a journey, work out speed as the gradient, and draw a journey from its story.'),
 ]
 
 export const graphsChapter: MathsChapter<GraphsLessonNumber, 'graphs'> = {
-  id: 'graphs', title: 'Graphs', description: 'Coordinates, straight lines, gradient, parallel lines, solving by graph, and curves.', lessons: graphsLessons,
+  id: 'graphs', title: 'Graphs', description: 'Coordinates, straight lines, gradient, parallel lines, solving by graph, curves and distance–time graphs.', lessons: graphsLessons,
 }
 
-export const lessonFor = (number: GraphsLessonNumber) => ({ 101: tutorCoordinatesLesson, 102: tutorLinesLesson, 103: tutorGradientLesson, 104: tutorParallelLinesLesson, 105: tutorSimultaneousGraphsLesson, 106: tutorCurveGraphsLesson })[number]
+export const lessonFor = (number: GraphsLessonNumber) => ({ 101: tutorCoordinatesLesson, 102: tutorLinesLesson, 103: tutorGradientLesson, 104: tutorParallelLinesLesson, 105: tutorSimultaneousGraphsLesson, 106: tutorCurveGraphsLesson, 107: tutorDistanceTimeLesson })[number]
 export const isGraphsLessonNumber = (value: number): value is GraphsLessonNumber => graphsLessons.some(item => item.number === value)

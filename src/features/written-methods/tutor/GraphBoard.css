@@ -50,3 +50,5 @@
 /* Plot-the-table mode (CurveBoard.tsx): the student's own dots joined with a smooth curve. */
 .graph-board__join { fill: none; stroke: var(--rv-biro); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .graph-board__join.is-right { stroke: var(--rv-good-ink); stroke-width: 4; }
+.graph-board__speed { font-size: 15px; font-weight: 800; fill: var(--rv-ink); }
+.graph-board__speed.is-halo { stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }

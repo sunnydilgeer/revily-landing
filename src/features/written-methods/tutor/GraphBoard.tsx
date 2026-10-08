@@ -7,6 +7,7 @@ import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
 import { EquationBoard } from './EquationBoard'
 import { CurveBoard } from './CurveBoard'
+import { JourneyBoard } from './JourneyBoard'
 import { polySum, valueAt } from './curves'
 import './GraphBoard.css'
 
@@ -25,6 +26,7 @@ import './GraphBoard.css'
  * - line: tap two corners and a straight line runs through them, edge to edge (LineBoard.tsx).
  * - tilt: drag either end of a line and watch its gradient, across then up (TiltBoard.tsx).
  * - equation: step m and c up and down and watch y = mx + c move (EquationBoard.tsx).
+ * - journey: tap where each part of a journey ends on a distance–time graph (JourneyBoard.tsx).
  * - points: plot every column of a table; once all are down they are joined with a smooth curve (CurveBoard.tsx).
  * A rule can be a curve (`curve`, graphs lesson 6): the dot slides along it, and once every x in the table is visited
  * the smooth curve through them appears.
@@ -36,7 +38,7 @@ import './GraphBoard.css'
 
 export type GraphBoardGrid = Omit<GraphFrame, 'step' | 'adds'>
 export type GraphBoardSpec = {
-  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt' | 'equation' | 'points'
+  mode: 'plot' | 'drag' | 'walk' | 'explore' | 'midpoint' | 'rule' | 'line' | 'tilt' | 'equation' | 'points' | 'journey'
   grid: GraphBoardGrid
   /** Where the dot starts (drag, explore, midpoint). */
   start?: GraphPoint
@@ -60,6 +62,8 @@ export type GraphBoardSpec = {
   curve?: number[]
   /** rule with a curve: how the rule is written, "y = x² − 2", for its sum under the board. */
   curveText?: string
+  /** journey: the right journey's corners after `start` (time, distance). With none it is a play screen showing each part's speed. */
+  journey?: GraphPoint[]
 }
 
 /**
@@ -88,7 +92,7 @@ type BoardProps = {
 
 export function GraphBoard(props: BoardProps) {
   return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : props.spec.mode === 'equation' ? <EquationBoard {...props} />
-    : props.spec.mode === 'points' ? <CurveBoard {...props} /> : <PointBoard {...props} />
+    : props.spec.mode === 'points' ? <CurveBoard {...props} /> : props.spec.mode === 'journey' ? <JourneyBoard {...props} /> : <PointBoard {...props} />
 }
 
 /** y = 2 × (−1) − 1 = −3: the rule's sum at x, x amber and y biro blue. */
