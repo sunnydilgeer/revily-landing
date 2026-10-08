@@ -1,0 +1,5 @@
+/* The Graphs chapter on a desktop (Sunny, 8 Oct: graphs are busy diagrams): bigger squared paper. Each graph is drawn
+   a square of its own to a square of the paper (GraphPictures.tsx), so the graphs grow with it. */
+@media (min-width: 900px) {
+  .graphs-shelf .rung-lesson { --rv-paper-grid-size: 56px 56px; }
+}

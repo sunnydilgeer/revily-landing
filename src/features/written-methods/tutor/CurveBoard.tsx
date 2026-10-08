@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, UNIT, fmt } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, squareOf } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 import { pointsKey, smoothThrough, valueAt } from './curves'
@@ -39,8 +39,8 @@ export function CurveBoard({ spec, result, disabled, onChange }: { spec: GraphBo
     update([...dots.filter(q => q.x !== p.x), p], p)
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
-    const box = event.currentTarget.getBoundingClientRect()
-    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT), y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) }
+    const box = event.currentTarget.getBoundingClientRect(), square = squareOf(event.currentTarget, box)
+    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / square), y: y1 - Math.round((event.clientY - box.top - 0.5) / square) }
   }
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (disabled) return

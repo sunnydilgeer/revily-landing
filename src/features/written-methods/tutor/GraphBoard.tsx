@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel, squareOf } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
@@ -150,8 +150,8 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     if (rule && !visited.includes(next.x)) setVisited([...visited, next.x])
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
-    const box = event.currentTarget.getBoundingClientRect()
-    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT) * per.x, y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) * per.y }
+    const box = event.currentTarget.getBoundingClientRect(), square = squareOf(event.currentTarget, box)
+    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / square) * per.x, y: y1 - Math.round((event.clientY - box.top - 0.5) / square) * per.y }
   }
   function finishWalkStage() {
     if (walk && stage === 'across' && dot && dot.x !== origin.x) { setStage('up'); report(dot, 'up') }
