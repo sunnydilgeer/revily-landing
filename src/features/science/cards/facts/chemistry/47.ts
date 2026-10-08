@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'C47-08': [
       ['Why is reducing emissions difficult?', 'New technology needs a lot of work, changes could harm economies and well-being, countries find it hard to agree, and people must change their lifestyles.'],
+      ['Why do some individuals find it hard to change their lifestyles?', 'Some people do not want to, and others do not understand why the changes are important or how to make them.'],
     ],
   },
   recall: ['C47-03', 'C47-07', 'C47-10'],

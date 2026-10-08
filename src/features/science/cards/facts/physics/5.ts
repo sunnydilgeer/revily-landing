@@ -17,6 +17,7 @@ export const facts: ScienceFactSet = {
     ],
     'P5-11': [
       ['How do you calculate the energy needed to change a temperature?', 'Find Δθ, write ΔE = m × c × Δθ, substitute the numbers, multiply and give the answer in joules.', 'Example: 2 kg × 900 J/kg°C × 5 °C = 9000 J.'],
+      ['Do you need to convert units before using ΔE = m × c × Δθ?', 'Only if they are not already right: mass must be in kg and the temperature change in °C. Always finish the answer with the unit J.'],
     ],
   },
   recall: ['P5-06', 'P5-10', 'P5-12'],

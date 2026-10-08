@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'P38-08': [
       ['What is an interaction pair?', 'When two objects interact, a force acts on each. The two forces are equal in size and opposite in direction.', 'Example: the Earth pulls on the Moon and the Moon pulls on the Earth.'],
+      ['If you push a wall, what does the wall do?', 'The wall pushes back on you with the same size of force, in the opposite direction.', 'Both objects feel a force, not just one.'],
     ],
   },
   recall: ['P38-03', 'P38-06', 'P38-09', 'P38-10'],

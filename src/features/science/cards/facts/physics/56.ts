@@ -13,9 +13,11 @@ export const facts: ScienceFactSet = {
     ],
     'P56-08': [
       ['What are the steps to draw a ray diagram?', 'Draw the boundary, the dotted normal, the incident ray, then the refracted ray, and label the angles. Use a ruler for every ray.'],
+      ['What is the normal on a ray diagram?', 'A dotted line drawn at right angles (90°) to the boundary. Use a protractor to find 90°.'],
     ],
     'P56-11': [
       ['How do you draw an angle with a protractor?', 'Put the centre mark on the point where the normal meets the boundary, line the base line up with the normal, mark the angle, then join the mark to the centre with a ruler.'],
+      ['Why must you take care with the two scales on a protractor?', 'Most protractors have two scales. Start counting from 0° on the normal and check you are using the right scale.'],
     ],
   },
   recall: ['P56-06', 'P56-07', 'P56-09'],

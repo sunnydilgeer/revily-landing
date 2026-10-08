@@ -14,6 +14,7 @@ export const facts: ScienceFactSet = {
     ],
     'P6-09': [
       ['How do you find the energy from power and time?', 'Energy transferred (J) = power (W) × time (s), or E = P × t.'],
+      ['How do you rearrange P = E ÷ t to find energy?', 'Multiply both sides by t. The t on the right cancels, leaving E = P × t.', 'Example: a 20 W lamp on for 10 s transfers 20 × 10 = 200 J.'],
     ],
   },
   recall: ['P6-03', 'P6-04', 'P6-11'],

@@ -17,6 +17,7 @@ export const facts: ScienceFactSet = {
     ],
     'C46-11': [
       ['What are the possible effects of climate change?', 'Melting ice and rising sea levels, changed rainfall, more frequent and severe storms, and effects on food production.'],
+      ['Why do sea levels rise as the Earth warms?', 'Higher global temperatures melt ice in the Arctic and Antarctic, which could cause more flooding in coastal areas.'],
     ],
   },
   recall: ['C46-03', 'C46-07', 'C46-09'],

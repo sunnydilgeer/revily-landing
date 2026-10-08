@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'C32-08': [
       ['Why does breaking a solid into smaller pieces increase the rate?', 'It increases the surface area to volume ratio, so more particles are exposed and collisions are more frequent.'],
+      ['Which reacts faster: a powder or a lump of the same mass?', 'The powder. More of its particles are on the surface, so collisions with the other reactant are more frequent.', 'In a big lump, most particles are buried inside and cannot be reached.'],
     ],
     'C32-11': [
       ['What is a catalyst?', 'A substance that speeds up a reaction and is not used up.', 'It is not part of the equation.'],

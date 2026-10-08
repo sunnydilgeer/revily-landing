@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'C39-08': [
       ['Name the main fractions from top to bottom.', 'LPG, petrol, kerosene, diesel oil, heavy fuel oil, bitumen.', 'The molecules get longer as you go down.'],
+      ['What are the main fractions used for?', 'LPG for heating and cooking, petrol for cars, kerosene for aircraft, diesel oil for lorries, heavy fuel oil for large ships and bitumen for surfacing roads.'],
     ],
   },
   recall: ['C39-03', 'C39-06', 'C39-09'],

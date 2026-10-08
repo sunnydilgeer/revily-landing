@@ -14,6 +14,7 @@ export const facts: ScienceFactSet = {
     ],
     'B49-09': [
       ['How do you estimate a population size from quadrats?', 'Divide the area of the habitat by the area of one quadrat, then multiply by the mean number per quadrat.', 'The answer is an estimate, not an exact count.'],
+      ['What is the population size of a species also called?', 'Its abundance. It is the estimated total number of that organism in the whole area.'],
     ],
     'B49-12': [
       ['What is a transect used for?', 'To study how the distribution of an organism changes along a line across an area, for example from a hedge into a field.'],

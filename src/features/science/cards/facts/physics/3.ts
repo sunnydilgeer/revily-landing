@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'P3-08': [
       ['How do you calculate kinetic energy?', 'Write the equation, put in the numbers, square the speed first, then multiply by the mass and by a half. Give the answer in joules.', 'Example: ½ × 0.5 kg × (4 m/s)² = 4 J.'],
+      ['What units must you use in Ek = ½ × m × v²?', 'Mass in kg and speed in m/s. The answer is then in joules, J.'],
     ],
   },
   recall: ['P3-06', 'P3-07', 'P3-09'],

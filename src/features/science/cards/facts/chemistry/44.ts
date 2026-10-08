@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'C44-08': [
       ['What are the four gas tests?', 'Chlorine: damp litmus turns white. Oxygen: glowing splint relights. Carbon dioxide: limewater turns cloudy. Hydrogen: lit splint gives a squeaky pop.'],
+      ['What three parts make a full answer to a gas test question?', 'Say what you did, what you saw, and what this shows.', 'Bubbled the gas through limewater, it turned cloudy, so the gas is carbon dioxide.'],
     ],
   },
   recall: ['C44-03', 'C44-07', 'C44-09'],

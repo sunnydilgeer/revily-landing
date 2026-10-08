@@ -14,9 +14,11 @@ export const facts: ScienceFactSet = {
     ],
     'B45-09': [
       ['What are the three domains?', 'Archaea (simple prokaryotes, first found in extreme places), Bacteria (true bacteria) and Eukaryota (plants, animals, fungi and protists).'],
+      ['Why did Carl Woese sort living things into three domains?', 'Better microscopes and tests on the chemicals in cells showed that some organisms were less closely related than people thought.'],
     ],
     'B45-11': [
       ['What does an evolutionary tree show?', 'How species are related. The more recent their common ancestor, the more closely related they are.'],
+      ['What does a point where branches split on an evolutionary tree show?', 'A common ancestor. Trees are built from classification data and from fossils.'],
     ],
   },
   recall: ['B45-03', 'B45-08', 'B45-10'],

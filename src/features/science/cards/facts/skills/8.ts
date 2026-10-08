@@ -10,6 +10,7 @@ export const facts: ScienceFactSet = {
     ],
     'W8-05': [
       ['How do you find a gradient from a straight line?', 'Pick two points far apart, draw a triangle, read the change in y and the change in x, then divide.'],
+      ['How do you find the unit of a gradient?', 'Divide the unit on the y-axis by the unit on the x-axis.', '12 cm³ ÷ 20 s = 0.6 cm³/s.'],
     ],
     'W8-08': [
       ['What is positive correlation?', 'One variable increases as the other increases.'],
