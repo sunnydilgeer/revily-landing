@@ -79,7 +79,7 @@ explore(sameGradient, 'Tilt the blue line so it never meets the black one. Watch
     graphModel('y = 2x + 3, y = 2x and y = 2x − 2', grid([-4, 4], [-4, 6]), sameGradientMoves(lines), 'Same gradient'),
     'Parallel lines are always the same distance apart, however far they go, so they never meet. They have the same gradient: the same m in y = mx + c.').video = {
     id: 'graphs-4-parallel', src: `/media/${PARALLEL_MEDIA_ID}/parallel.mp4`, poster: `/media/${PARALLEL_MEDIA_ID}/parallel.svg`,
-    title: 'Parallel lines: the same gradient', durationSeconds: 70, sourceFile: 'GR5.1_Parallel_lines.mp4 (tools/lesson-kit/packs/GR5.1-parallel-lines.cjs)',
+    title: 'Parallel lines: the same gradient', durationSeconds: 74, sourceFile: 'GR5.1_Parallel_lines.mp4 (tools/lesson-kit/packs/GR5.1-parallel-lines.cjs)',
     textAlternative: [
       'Parallel lines are always the same distance apart, so they never meet.',
       'y = 2x + 3, y = 2x and y = 2x − 2 all have m = 2, the same gradient, so they are parallel. Only c, where each crosses the y axis, changes.',
