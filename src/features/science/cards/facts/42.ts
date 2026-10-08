@@ -13,6 +13,7 @@ export const facts: ScienceFactSet = {
     ],
     'B42-08': [
       ['What is speciation?', 'The forming of new species, when populations of one species become so different they cannot breed to produce fertile offspring.'],
+      ['How can you tell if two populations are separate species?', 'See whether they can breed together to produce fertile offspring. If they cannot, they are separate species.', 'Living apart or looking different is not enough on its own.'],
     ],
     'B42-10': [
       ['What is extinction?', 'When no individuals of a species are left.'],
