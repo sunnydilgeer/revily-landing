@@ -220,7 +220,7 @@ function App() {
     <header className="site-header">
       <RevilyLogo wordmark={false} size={24} href="/preview" />
       <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
-        <button type="button" onClick={showOverview}>Curriculum</button>
+        <button type="button" onClick={showOverview}>Chapters</button>
         <span aria-hidden="true">/</span>
         <span className="maths-breadcrumb-number" aria-current="page">{currentLesson.title}</span>
       </nav>

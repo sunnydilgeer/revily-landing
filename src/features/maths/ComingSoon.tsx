@@ -8,7 +8,7 @@ type Copy = Record<Exclude<AppSection, 'curriculum'>, { title: string; lines: st
 
 const MATHS: Copy = {
   cards: {
-    title: 'Revision cards',
+    title: 'Speed run',
     lines: [
       'Quick flip cards that lock in what you learned. Cards you find hard come back sooner.',
       'Each lesson will get its own deck.',
@@ -16,7 +16,7 @@ const MATHS: Copy = {
     unlock: 'Not built yet. Finishing a lesson will unlock its deck.',
   },
   practice: {
-    title: 'Practice',
+    title: 'Exams',
     lines: [
       'Exam-style questions with marks, worked answers and how the marks are given, like the real paper.',
       'You’ll also be able to type in any sum and watch it worked out step by step.',
@@ -32,7 +32,7 @@ const MATHS: Copy = {
 
 const SCIENCE: Copy = {
   cards: {
-    title: 'Revision cards',
+    title: 'Speed run',
     lines: [
       'Quick flip cards for the key facts and words from each Science lesson. Cards you find hard come back sooner.',
       'Science cards stay separate from Maths, so a session is one subject at a time.',
@@ -40,7 +40,7 @@ const SCIENCE: Copy = {
     unlock: 'Not built yet. Finishing a lesson will unlock its deck.',
   },
   practice: {
-    title: 'Practice',
+    title: 'Exams',
     lines: [
       'Exam-style Science questions with marks. For written answers you’ll tick off the mark-scheme points you hit.',
       'You’ll also see which parts of the exam you’ve covered and how ready you are.',
@@ -64,6 +64,6 @@ export default function ComingSoon({ section, subject = 'maths', onBack }: { sec
     <h1>{copy.title}</h1>
     {copy.lines.map(line => <p key={line}>{line}</p>)}
     <p className="soon__unlock">{copy.unlock}</p>
-    <Button size="lg" onClick={onBack}>Back to Curriculum</Button>
+    <Button size="lg" onClick={onBack}>Back to Chapters</Button>
   </div>
 }

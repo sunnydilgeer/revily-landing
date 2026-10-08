@@ -72,7 +72,7 @@ export default function Sprint({ questions, gold, onClose, onAgain }: {
       <p className="pr-note">Right-first-time answers count towards gold on your exam path.</p>
       <button type="button" className="rv-btn rv-btn--primary rv-btn--lg rv-btn--block" onClick={onAgain}>Another sprint <ArrowIcon size={18} /></button>
       <a className="pr-link pr-link--center" href="/preview/ready" onClick={modeLink('night')}>See your exam path</a>
-      <button type="button" className="pr-link pr-link--center" onClick={onClose}>Back to Practice</button>
+      <button type="button" className="pr-link pr-link--center" onClick={onClose}>Back to Exams</button>
     </div>
   }
 

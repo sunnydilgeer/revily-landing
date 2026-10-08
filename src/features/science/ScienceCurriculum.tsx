@@ -131,7 +131,7 @@ export default function ScienceCurriculum() {
   return <div className="cur">
     <header className="cur-head">
       <div>
-        <h1>Curriculum</h1>
+        <h1>Chapters</h1>
         <p>AQA Combined Science Trilogy · {tier === 'higher' ? 'Higher' : 'Foundation'} · {shownUnits.length} units</p>
         {tierSwitch}
       </div>

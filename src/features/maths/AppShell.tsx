@@ -21,9 +21,9 @@ export const SECTION_ICONS: Record<AppSection, ReactNode> = {
 }
 
 export const SECTIONS: { id: AppSection; label: string }[] = [
-  { id: 'curriculum', label: 'Curriculum' },
-  { id: 'cards', label: 'Revision cards' },
-  { id: 'practice', label: 'Practice' },
+  { id: 'curriculum', label: 'Chapters' },
+  { id: 'cards', label: 'Speed run' },
+  { id: 'practice', label: 'Exams' },
   { id: 'lab', label: 'Arcade' },
 ]
 

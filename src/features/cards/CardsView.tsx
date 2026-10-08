@@ -176,7 +176,7 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
 
   return <div className="rc">
     <header className="rc-head">
-      <h1>Revision cards</h1>
+      <h1>Speed run</h1>
       <p>{intro}</p>
     </header>
 
