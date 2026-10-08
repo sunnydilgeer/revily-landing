@@ -30,3 +30,14 @@ Checked on 8 October 2026:
 - The verifier works out every board row again (reading past "total" and "each"), checks every row picture keeps the same amount for 1 (direct) or the same total work (inverse), that each row's name matches its blocks, and the source answers from the worksheets' own numbers.
 - Every screen at 320px and 1280px wide, with every answer typed or chosen and every working stepped through: every answer is marked right and nothing scrolls sideways.
 - The two videos are Aniksha's files, byte for byte (sha256 checked against her zip), with SVG posters.
+
+# Lesson 32 (Ratio R3) QA
+
+Run `npm run verify:lesson32:tutor` with the list above.
+
+Checked on 8 October 2026:
+
+- Every verifier passes except `verify:lesson15:tutor` to `verify:lesson20:tutor`, which already fail on `main` (they cannot load `RatioPictures.tsx`). `next build` and `tsc --noEmit` pass.
+- The verifier works out every board row again (reading past £, % and words), checks every hundred-square piece is that share of the whole and fits beside the square, that each green answer and purple note fits on one line on a phone, and the source answers from the worksheets' own numbers.
+- Every screen at 320px and 1280px wide, with every answer typed or chosen and every working stepped through: every answer is marked right and nothing scrolls sideways. Lessons 30 and 31 were walked again at 320px with the v2 videos.
+- The four videos are Aniksha's files, byte for byte (sha256 checked against her zip), with SVG posters. Lessons 30 and 31 now use her v2 videos, also byte for byte.

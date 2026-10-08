@@ -17,7 +17,7 @@ const refs = pdfs.flatMap(pdf => [`${pdf} video + Q1`, ...parts.map(part => `${p
 
 // ---------- Every board row balances ----------
 // Sunny: the sums say which number is the total and which is each one's share; the words are read past here.
-const plain = side => side.replace(/ (total|each)\b/g, '')
+const plain = side => side.replace(/ (total|each|people|painters)\b/g, '')
 let rows = 0, labelled = 0
 for (const ref of refs) {
   const board = boardOf(at(ref))
@@ -126,9 +126,9 @@ for (const ref of pdfs.map(pdf => `${pdf} video + Q1`)) assert.match(at(ref).con
 
 // ---------- Videos, the course ----------
 checkVideos(states, 'lesson-31', {
-  // Aniksha's R2_v1 files, unchanged (sha256 checked against her zip on 8 Oct).
-  'direct.mp4': '0287c74ef4691b3adb0d2fb13bd9f944b71134091dbccbc32ecaa69332f9599d',
-  'inverse.mp4': '385039ac9ecd334860701527df66d17517738393f409fdd6f8b163a5a44a4582',
+  // Aniksha's R2_v2 files, unchanged (sha256 checked against her zip on 8 Oct).
+  'direct.mp4': '47aaa3dda8b0d9d3e7ec87838c3cf852b7541d911af87edd0981d3cc4b2fcd8c',
+  'inverse.mp4': '034e8e36d952722482c20e0e6fadda28d5898c63db805846882a58d28c1febb4',
 })
 checkCourse(31, 'R2', 'TutorProportionLesson', 'ratio')
 

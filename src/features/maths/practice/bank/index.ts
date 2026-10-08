@@ -18,6 +18,7 @@ import { simultaneousTemplates } from './simultaneous'
 import { proofTemplates } from './proof'
 import { functionMachineTemplates } from './functionMachines'
 import { ratioTemplates } from './ratio'
+import { percentageTemplates } from './percentages'
 
 /** Every Practice template. Number only for now: the other branches are not taught yet. */
-export const templates: Template[] = [...calculationTemplates, ...moneyTemplates, ...fractionTemplates, ...accuracyTemplates, ...standardFormTemplates, ...likeTermsTemplates, ...indicesTemplates, ...expandingTemplates, ...factorisingTemplates, ...equationsTemplates, ...rearrangingTemplates, ...quadraticsTemplates, ...quadraticEquationsTemplates, ...sequencesTemplates, ...inequalitiesTemplates, ...simultaneousTemplates, ...proofTemplates, ...functionMachineTemplates, ...ratioTemplates]
+export const templates: Template[] = [...calculationTemplates, ...moneyTemplates, ...fractionTemplates, ...accuracyTemplates, ...standardFormTemplates, ...likeTermsTemplates, ...indicesTemplates, ...expandingTemplates, ...factorisingTemplates, ...equationsTemplates, ...rearrangingTemplates, ...quadraticsTemplates, ...quadraticEquationsTemplates, ...sequencesTemplates, ...inequalitiesTemplates, ...simultaneousTemplates, ...proofTemplates, ...functionMachineTemplates, ...ratioTemplates, ...percentageTemplates]

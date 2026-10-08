@@ -260,7 +260,13 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
   },
   31: {
     'proportion-direct': [['4 people eat 12 slices of pizza. How many slices for 7 people?', '21. Divide to find 1: 12 ÷ 4 = 3 slices each. Multiply to find many: 7 × 3 = 21. More people, more slices.']],
-    'proportion-inverse': [['4 painters take 9 hours. How long do 6 painters take?', '6 hours. Multiply to find 1: 1 painter takes 4 × 9 = 36 hours. Divide to find many: 36 ÷ 6 = 6. More painters, less time.']],
+    'proportion-inverse': [['4 painters take 9 hours. How long do 6 painters take?', '6 hours. Multiply to get the total work: 4 × 9 = 36 hours for 1 painter alone. Divide to share it: 36 ÷ 6 = 6 hours each. More painters, less time.']],
+  },
+  32: {
+    'percentage-of-amount': [['Work out 23% of £80 without a calculator.', '£18.40. 10% = 80 ÷ 10 = £8 and 1% = 80 ÷ 100 = £0.80. 23% = 10% + 10% + 1% + 1% + 1% = 8 + 8 + 0.80 × 3 = £18.40.']],
+    'percentage-increase': [['Rent of £600 goes up by 15%. What is the new rent?', '£690. 15% of £600 = £60 + £30 = £90, and £600 + £90 = £690. Or use the multiplier: 100% + 15% = 1.15, and £600 × 1.15 = £690.']],
+    'percentage-decrease': [['A £45 jacket has 30% off. What is the sale price?', '£31.50. 30% of £45 = 3 × £4.50 = £13.50, and £45 − £13.50 = £31.50. Or use the multiplier: 100% − 30% = 0.7, and £45 × 0.7 = £31.50.']],
+    'percentage-change': [['A phone drops from £400 to £250. What is the percentage change?', 'A 37.5% decrease. Change = 400 − 250 = 150, then 150 ÷ 400 × 100 = 37.5. Always divide by the original, and say increase or decrease.']],
   },
   24: {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],

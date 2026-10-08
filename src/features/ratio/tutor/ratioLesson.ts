@@ -96,23 +96,23 @@ function ratioSlips(right: [number, number], list: [[number, number], string][] 
 
 const cupcakes = bars(['Dev', 2], ['Eli', 3], ['Fay', 6])
 const bakeSale = worked(difference, 'At a bake sale Dev, Eli and Fay share some cupcakes in the ratio 2 : 3 : 6. Fay gets 24 more cupcakes than Dev. How many cupcakes does Eli get?', '2 : 3 : 6, and Fay has 24 more than Dev. How many for Eli?', 'R1.6 video + Q1', ratioModel(cupcakes, [
-  { title: 'Line Fay up with Dev', say: 'Fay’s first 2 parts match Dev’s 2. Fay’s 24 extra cupcakes are in Fay’s other parts, the ringed ones: 6 − 2 = 4 parts.', rows: ['6 − 2 = 4'], ratio: { ...extra(2, 2, 6, 0), note: '4 parts = 24' } },
-  { title: 'Find 1 part', say: 'Those 4 parts are the 24 cupcakes. Share 24 equally between the 4 parts.', rows: ['24 ÷ 4 = 6'], ratio: { each: '6', note: '1 part = 6' } },
+  { title: 'Line Fay up with Dev', say: '24 is not the total. It is how many more Fay has than Dev. Fay’s first 2 parts match Dev’s 2, so Fay has 6 − 2 = 4 parts more, the ringed ones.', rows: ['6 − 2 = 4'], ratio: { ...extra(2, 2, 6, 0), note: '4 parts = 24' } },
+  { title: 'Find 1 part', say: 'So 4 parts are worth 24. Divide to find 1 part.', rows: ['24 ÷ 4 = 6'], ratio: { each: '6', note: '1 part = 6' } },
   { title: 'Eli’s share', say: 'Eli has 3 parts, and each part is 6 cupcakes.', rows: ['3 × 6 = 18', '! Eli gets 18 cupcakes'], ratio: { rings: [whole(1, 3)], lit: [1] }, tags: [undefined, '18'] },
 ]), 'Our aim: turn the difference into 1 part, then multiply for the share you want.')
 video(bakeSale, media('difference', 'Fay has 24 more than Dev: how many for Eli?', 'R1.6_Difference_Between_Parts_Of_A_Ratio.mp4', 104, [
   'Sharing cupcakes: Dev, Eli and Fay share cupcakes in the ratio 2 : 3 : 6. Fay has 24 more than Dev. How many does Eli have?',
-  'Read the ratio: Fay has 24 more cupcakes than Dev, and we want how many Eli has. Careful: 24 is a difference, not the total.',
+  'Read the ratio: Fay has 24 more cupcakes than Dev, and we want how many Eli has. Careful: 24 is not the total. It is how many more Fay has than Dev.',
   'See it as bars: each block is one part, so 2, 3 and 6 parts. Fay has 4 more parts than Dev, and those 4 parts are the 24. So each part is 24 ÷ 4 = 6 cupcakes, and Eli has 3 parts: 3 × 6 = 18 cupcakes.',
   'The difference in parts: Fay has 6 parts and Dev has 2 parts. 6 − 2 = 4, so Fay has 4 parts more than Dev. The question says she has 24 more, so 4 parts = 24.',
-  'Find 1 part: share the 24 equally between the 4 parts. 24 ÷ 4 = 6, so 1 part = 6 cupcakes. Check: 4 × 6 = 24.',
+  'Find 1 part: 4 parts = 24, so 1 part is 24 shared into 4. 24 ÷ 4 = 6, so 1 part = 6 cupcakes. Check: 4 × 6 = 24.',
   'Find Eli’s share: Eli has 3 parts. 3 × 6 = 18, so Eli has 18 cupcakes. Check: Dev has 2 × 6 = 12, Fay has 6 × 6 = 36, and 36 − 12 = 24.',
   'Where you see it: at a bake sale Dev, Eli and Fay share cupcakes 2 : 3 : 6, and Fay has 24 more than Dev. 24 ÷ 4 = 6 and 3 × 6 = 18, so Eli has 18 cupcakes.',
   'The difference in parts is the difference in amount. Divide to find 1 part, then multiply for the share you want.',
 ]))
 const sweets = bars(['Ruth', 5], ['Sam', 2])
 practice(difference, 'Ruth and Sam share some sweets in the ratio 5 : 2. Ruth gets 18 more sweets than Sam. How many sweets does Sam get?', 'R1.6 Q2', sweets, number(12, '12 sweets'), 'Ruth has 3 parts more than Sam. Those 3 parts are the 18 sweets.', ratioModel(sweets, [
-  { title: 'Line Ruth up with Sam', say: 'Ruth’s first 2 parts match Sam’s 2. Ruth’s 18 extra sweets are in Ruth’s other parts, the ringed ones: 5 − 2 = 3 parts.', rows: ['5 − 2 = 3'], ratio: { ...extra(0, 2, 5, 1), note: '3 parts = 18' } },
+  { title: 'Line Ruth up with Sam', say: 'Ruth’s first 2 parts match Sam’s 2, so Ruth has 5 − 2 = 3 parts more than Sam, the ringed ones. Those 3 parts are the 18 extra sweets.', rows: ['5 − 2 = 3'], ratio: { ...extra(0, 2, 5, 1), note: '3 parts = 18' } },
   { title: 'Find 1 part', say: 'Share the 18 sweets equally between those 3 parts.', rows: ['18 ÷ 3 = 6'], ratio: { each: '6', note: '1 part = 6' } },
   { title: 'Sam’s share', say: 'Sam has 2 parts, and each part is 6 sweets.', rows: ['2 × 6 = 12', '! Sam gets 12 sweets'], ratio: { rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '12'] },
 ]), slips(12, [[6, 'That’s 1 part. Sam has 2 parts.'], [30, 'That’s Ruth’s share. The question asks for Sam’s.'], [36, '18 is the difference, 3 parts, not 1 part. Divide by 3 first.']]))
@@ -221,18 +221,18 @@ practice(changing, 'Omar says, “After 8 adults leave and 4 children come in, t
 
 const concrete = bars(['Cement', 6], ['Sand', 15])
 const mix = worked(unitForm, 'A builder mixes cement and sand in the ratio 6 : 15. Write this ratio in the form 1 : n.', 'Cement : sand = 6 : 15. Write it in the form 1 : n.', 'R1.8 video + Q1', ratioModel(concrete, [
-  { title: 'Make 6 into 1', say: 'In 1 : n the first number is 1. Cement has 6 parts, so share both bars into 6 equal groups: what we do to one side, we do to the other.', rows: ['> Divide both by 6'], ratio: { groups: 6, note: '6 equal groups' } },
+  { title: 'Make 6 into 1', say: '1 : n means the first number is 1. To turn the 6 into 1, divide by 6. Do the same to the 15: share both bars into 6 equal groups.', rows: ['> Divide both by 6'], ratio: { groups: 6, note: '6 equal groups' } },
   { title: 'One group', say: 'Divide both by 6: one group is 1 part of cement and two and a half parts of sand.', rows: ['6 ÷ 6 = 1', '15 ÷ 6 = 2.5', '! 1 : 2.5'], tags: ['1', '2.5'], ratio: { groups: 6, rings: [{ bar: 0, from: 0, to: 1 }, { bar: 1, from: 0, to: 2.5 }], lit: [0, 1], note: '1 group' } },
 ]), 'Our aim: make the first number 1, by dividing both numbers by it.')
 video(mix, media('unit-form', '6 : 15 in the form 1 : n', 'R1.8_Reducing_Ratios_To_The_Form_1_n.mp4', 104, [
   'Mixing concrete: cement : sand = 6 : 15. Write it in the form 1 : n.',
-  'What does 1 : n mean? The first number is 1. It tells us: for every 1 bag of cement, how much sand? To make 6 into 1, divide by 6. What we do to one side, we do to the other side.',
+  'What does 1 : n mean? The first number is 1. It tells us: for every 1 bag of cement, how much sand? To turn the 6 into a 1, divide it by 6. Whatever we do to one number, we do to the other too.',
   'See it as bars: 6 bags of cement and 15 bags of sand. Divide both by 6: share them into 6 equal groups. One group is 1 bag of cement and 2.5 bags of sand, so the ratio is 1 : 2.5.',
-  'Divide both sides by 6: 6 ÷ 6 = 1 and 15 ÷ 6 = 2.5. 6 goes into 15 two times (12) with 3 left, and 3 ÷ 6 = 0.5. So 6 : 15 = 1 : 2.5.',
+  'Divide both numbers by 6: 6 ÷ 6 = 1 and 15 ÷ 6 = 2.5. 6 goes into 15 two times (12) with 3 left, and 3 ÷ 6 = 0.5. So 6 : 15 = 1 : 2.5.',
   'Check it: multiply both by 6 to go back. 1 × 6 = 6 and 2.5 × 6 = 15. n can be a decimal, and that is fine.',
   'The form n : 1: the second number is 1. Grey and red slabs 12 : 5, so divide both by 5. 12 ÷ 5 = 2.4 and 5 ÷ 5 = 1, so 12 : 5 = 2.4 : 1.',
   'Where you see it: a builder mixes 6 bags of cement with 15 bags of sand. For every 1 bag of cement, use 2.5 bags of sand: 6 : 15 = 1 : 2.5.',
-  'For 1 : n, divide by the first number. For n : 1, divide by the second number. Do the same to both sides.',
+  'For 1 : n, divide by the first number. For n : 1, divide by the second number. Do the same to both numbers.',
 ]))
 practice(unitForm, 'A fruit drink uses juice and water in the ratio 5 : 20. Write this ratio in the form 1 : n.', 'R1.8 Q2', null, ratio([1, 4]), 'The first number must become 1. Divide both numbers by 5.', boardModel([], [
   { title: 'Divide both by 5', say: 'The first number must become 1, so divide both numbers by 5.', rows: ['5 ÷ 5 = 1', '20 ÷ 5 = 4', '! 1 : 4'] },

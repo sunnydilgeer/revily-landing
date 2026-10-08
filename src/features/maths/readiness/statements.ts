@@ -142,6 +142,10 @@ export const canStatements: Record<string, string> = {
   '30:ratio-changing': 'I can solve a ratio that changes by calling 1 part x, like 7 : 3 then Mira gives Noel 10 to make them equal',
   '30:ratio-unit-form': 'I can write a ratio in the form 1 : n or n : 1, like 6 : 15 = 1 : 2.5',
   '31:proportion-direct': 'I can use direct proportion by finding 1 first, like 4 people eat 12 slices, so 7 people eat 7 × 3 = 21',
+  '32:percentage-of-amount': 'I can find a percentage of an amount by building it from 10%, 5% and 1%, like 23% of £80 = £18.40',
+  '32:percentage-increase': 'I can increase an amount by a percentage, like £600 up 15% is £600 + £90 = £690, or £600 × 1.15',
+  '32:percentage-decrease': 'I can decrease an amount by a percentage, like £45 with 30% off is £45 − £13.50 = £31.50, or £45 × 0.7',
+  '32:percentage-change': 'I can work out a percentage change: change ÷ original × 100, like £400 to £250 is a 37.5% decrease',
   '31:proportion-inverse': 'I can use inverse proportion by finding 1 first, like 4 painters take 9 hours, so 1 takes 36 and 6 take 6 hours',
 
   '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',
