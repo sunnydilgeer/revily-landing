@@ -4,6 +4,7 @@ import { sectionsFor, type MathsChapter, type MathsLessonEntry } from '../maths/
 import { tutorCoordinatesLesson } from '../coordinates/tutor/coordinatesLesson'
 import { tutorLinesLesson } from '../lines/tutor/linesLesson'
 import { tutorGradientLesson } from '../gradient/tutor/gradientLesson'
+import { tutorParallelLinesLesson } from '../parallel-lines/tutor/parallelLinesLesson'
 
 /*
  * The hidden Graphs shelf: the graphs lessons with the course's own lesson page and Contents drawer, but kept off the
@@ -13,7 +14,7 @@ import { tutorGradientLesson } from '../gradient/tutor/gradientLesson'
  */
 export const GRAPHS_SHELF_ID = 'graphs-fb7c95e1c045'
 
-export type GraphsLessonNumber = 101 | 102 | 103
+export type GraphsLessonNumber = 101 | 102 | 103 | 104
 
 function entry(lesson: TutorMethodLesson & { number: GraphsLessonNumber }, title: string, description: string): MathsLessonEntry<GraphsLessonNumber, 'graphs'> {
   return {
@@ -26,11 +27,12 @@ export const graphsLessons = [
   entry(tutorCoordinatesLesson as TutorMethodLesson & { number: 101 }, 'Coordinates', 'Plot and read points: across, then up, in all four quadrants, and find a midpoint.'),
   entry(tutorLinesLesson as TutorMethodLesson & { number: 102 }, 'Lines from coordinates', 'Lines like x = 3 and y = −2, tables of values, and plotting a straight line graph.'),
   entry(tutorGradientLesson as TutorMethodLesson & { number: 103 }, 'Gradient and y = mx + c', 'Find a gradient from a graph or two points, and a line’s equation y = mx + c.'),
+  entry(tutorParallelLinesLesson as TutorMethodLesson & { number: 104 }, 'Parallel lines', 'Parallel lines have the same gradient: compare them, and find one through a point.'),
 ]
 
 export const graphsChapter: MathsChapter<GraphsLessonNumber, 'graphs'> = {
-  id: 'graphs', title: 'Graphs', description: 'Coordinates, straight lines and gradient.', lessons: graphsLessons,
+  id: 'graphs', title: 'Graphs', description: 'Coordinates, straight lines, gradient and parallel lines.', lessons: graphsLessons,
 }
 
-export const lessonFor = (number: GraphsLessonNumber) => ({ 101: tutorCoordinatesLesson, 102: tutorLinesLesson, 103: tutorGradientLesson })[number]
+export const lessonFor = (number: GraphsLessonNumber) => ({ 101: tutorCoordinatesLesson, 102: tutorLinesLesson, 103: tutorGradientLesson, 104: tutorParallelLinesLesson })[number]
 export const isGraphsLessonNumber = (value: number): value is GraphsLessonNumber => graphsLessons.some(item => item.number === value)

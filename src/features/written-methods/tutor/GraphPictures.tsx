@@ -62,7 +62,9 @@ export function placeLabel(x: number, y: number, w: number, prefer: { right: boo
   return fitLabel(candidates, room)
 }
 /** The first of `candidates` with 3px to spare round everything in `room` (else the first, kept inside the grid); it joins `room.taken`. */
-export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox {
+export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox
+export function fitLabel(candidates: LabelBox[], room: LabelRoom, optional: true): LabelBox | null
+export function fitLabel(candidates: LabelBox[], room: LabelRoom, optional = false): LabelBox | null {
   const { width, height, taken, segments } = room
   const crosses = (c: Box) => segments.some(({ x1, y1, x2, y2 }) => {
     for (let i = 0; i <= 24; i++) { const sx = x1 + (x2 - x1) * i / 24, sy = y1 + (y2 - y1) * i / 24; if (sx > c.l && sx < c.r && sy > c.t && sy < c.b) return true }
@@ -73,6 +75,7 @@ export function fitLabel(candidates: LabelBox[], room: LabelRoom): LabelBox {
     return c.l >= 3 && c.r <= width - 3 && c.t >= 2 && c.b <= height - 2 && !taken.some(o => overlaps(padded, o)) && !crosses(padded)
   }
   const fallback = candidates[0], w = fallback.r - fallback.l
+  if (optional && !candidates.some(clear)) return null
   const pick = candidates.find(clear) ?? { ...fallback, l: Math.min(Math.max(fallback.l, 3), width - 3 - w), base: Math.min(Math.max(fallback.base, 18), height - 5) }
   const placed = { ...pick, r: pick.l + w, t: pick.base - 14, b: pick.base + 4 }
   taken.push(placed)
@@ -284,8 +287,39 @@ export function GraphVisual({ frame, heading, plain, focus, live }: { frame: Gra
           return fitLabel(flat
             ? [box(width - 8 - w, ly - 9), box(width - 8 - w, ly + 23), box(8, ly - 9), box(8, ly + 23), box((width - w) / 2, ly - 9), box((width - w) / 2, ly + 23)]
             : [box(lx + 8, height - 8), box(lx - 8 - w, height - 8), box(lx + 8, 22), box(lx - 8 - w, 22), box(lx + 8, height / 2), box(lx - 8 - w, height / 2)], room)
+        })() : line.label && !line.segment ? (() => {
+          // A named sloping line: its name goes near its top end (where it always went), else further down it,
+          // beside or above or below it, wherever it keeps off the axes, their numbers, the arrows, the other lines
+          // and names (graphs lesson 4: parallel lines are named side by side).
+          const w = line.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
+          const first = inside(at.x, at.y - 10, line.label, 17, 'middle')
+          const candidates = [box(first.x - w / 2, first.y), ...[0.1, 0.22, 0.34, 0.46, 0.58, 0.7, 0.82].flatMap(f => {
+            const x = px(end.x + (other.x - end.x) * f) + 0.5, y = py(end.y + (other.y - end.y) * f) + 0.5
+            // The corners the line doesn't run through: above-left and below-right of a line going up, the other
+            // two of a line going down; then level with it on either side, for a steep line.
+            const rising = (b.y - a.y) * (b.x - a.x) > 0
+            const corners = rising ? [box(x - 6 - w, y - 8), box(x + 6, y + 22)] : [box(x + 6, y - 8), box(x - 6 - w, y + 22)]
+            return [...corners, box(x + 14, y + 5), box(x - 14 - w, y + 5)]
+          })]
+          // On a crowded grid, any spot close beside the line, the nearest first.
+          const ax0 = px(a.x) + 0.5, ay0 = py(a.y) + 0.5, ax1 = px(b.x) + 0.5, ay1 = py(b.y) + 0.5
+          const gap = (c: { l: number; r: number; t: number; b: number }) => {
+            let least = Infinity
+            for (let i = 0; i <= 40; i++) {
+              const sx = ax0 + (ax1 - ax0) * i / 40, sy = ay0 + (ay1 - ay0) * i / 40
+              least = Math.min(least, Math.hypot(Math.max(c.l - sx, 0, sx - c.r), Math.max(c.t - sy, 0, sy - c.b)))
+            }
+            return least
+          }
+          const near: (LabelBox & { gap: number })[] = []
+          for (let l = 3; l + w <= width - 3; l += 6) for (let base = 18; base <= height - 4; base += 6) {
+            const c = box(l, base), g = gap(c)
+            if (g >= 5 && g <= 22) near.push({ ...c, gap: g })
+          }
+          // With nowhere clear, the line goes unnamed (the question and the working name it) rather than sit on the axes.
+          return fitLabel([...candidates, ...near.sort((p, q) => p.gap - q.gap)], room, true) ?? 'none' as const
         })() : null
-        const label = fitted ? { x: fitted.l + 2, y: fitted.base } : line.label && inside(at.x + (vertical ? 8 : 0), at.y + (vertical ? 0 : -10), line.label, 17, vertical ? 'start' : 'middle')
+        const label = fitted === 'none' ? null : fitted ? { x: fitted.l + 2, y: fitted.base } : line.label && inside(at.x + (vertical ? 8 : 0), at.y + (vertical ? 0 : -10), line.label, 17, vertical ? 'start' : 'middle')
         const anchor = fitted ? 'start' : vertical ? 'start' : 'middle'
         return <g key={`l${i}`} className={`ns-graph__line${kind}${done(line.at)}`}>
           <line x1={fix(px(a.x) + 0.5)} y1={fix(py(a.y) + 0.5)} x2={fix(px(b.x) + 0.5)} y2={fix(py(b.y) + 0.5)} />
