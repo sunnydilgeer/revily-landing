@@ -199,6 +199,23 @@ function useGridAlignment() {
   return { ref, shift, zoom }
 }
 
+/** The most squares a graph is across: what a phone's card holds. */
+export const MOST_ACROSS = 9
+/**
+ * The same number of squares across as up (Sunny, 8 Oct: a graph mostly in positive territory should still look
+ * balanced). The shorter axis grows at its longer end, so a graph mostly to the right grows further right; across
+ * stops at MOST_ACROSS. The boards balance their grid the same way, so a tap lands where the picture shows it.
+ */
+export function balanced<T extends { x: [number, number]; y: [number, number]; scale?: { x: AxisScale; y: AxisScale } }>(g: T): T {
+  const perX = g.scale?.x.per ?? 1, perY = g.scale?.y.per ?? 1
+  const across = Math.round((g.x[1] - g.x[0]) / perX), up = Math.round((g.y[1] - g.y[0]) / perY)
+  const tidy = (n: number) => Math.round(n * 1e6) / 1e6
+  const grow = (r: [number, number], by: number, per: number): [number, number] => r[1] >= -r[0] ? [r[0], tidy(r[1] + by * per)] : [tidy(r[0] - by * per), r[1]]
+  if (across < up && across < MOST_ACROSS) return { ...g, x: grow(g.x, Math.min(up, MOST_ACROSS) - across, perX) }
+  if (up < across) return { ...g, y: grow(g.y, across - up, perY) }
+  return g
+}
+
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
 /** What the graph board (GraphBoard.tsx) draws inside the picture, over the question's own parts and under the highlighted axis numbers. */
 export type GraphLive = {
@@ -206,7 +223,8 @@ export type GraphLive = {
   svg?: SVGProps<SVGSVGElement>
 }
 
-export function GraphVisual({ frame, heading, plain, focus, live }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean; live?: GraphLive }) {
+export function GraphVisual({ frame: given, heading, plain, focus, live }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean; live?: GraphLive }) {
+  const frame = balanced(given)
   // Older parts grey out; what the step before added stays clear, because this step works on it (Sunny, 1 Oct).
   // A part with `at` −1 is the question's own picture: it is shown from the start and never greyed.
   const done = (at: number) => focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''

@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
-import { GraphVisual, UNIT, fmt } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, balanced } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -27,7 +27,7 @@ export function fractionText(up: number, across: number) {
 const same = (a: GraphPoint, b: GraphPoint) => a.x === b.x && a.y === b.y
 
 export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { grid } = spec
+  const grid = balanced(spec.grid)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const [ends, setEnds] = useState<[GraphPoint, GraphPoint]>(spec.ends ?? [{ x: 0, y: 0 }, { x: 2, y: 2 }])
   const [active, setActive] = useState<0 | 1>(1)

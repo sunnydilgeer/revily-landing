@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, UNIT, fmt, squareOf } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, squareOf, balanced } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 import { pointsKey, smoothThrough, valueAt } from './curves'
@@ -19,7 +19,7 @@ import { pointsKey, smoothThrough, valueAt } from './curves'
 const same = (a: GraphPoint, b: GraphPoint) => a.x === b.x && a.y === b.y
 
 export function CurveBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { grid } = spec
+  const grid = balanced(spec.grid)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const xs = grid.table?.xs ?? []
   const [dots, setDots] = useState<GraphPoint[]>([])
