@@ -427,4 +427,7 @@
 .ns-ratio__tag.is-answer rect { fill: var(--rv-good-tint); stroke: var(--rv-good-ink); }
 .ns-ratio__tag.is-answer text { fill: var(--rv-good-ink); }
 .ns-ratio__ring { fill: none; stroke: #7c3aed; stroke-width: 2.5; stroke-dasharray: 5 3; }
+.ns-ratio__block.is-faded { opacity: .3; }
+.ns-ratio__bar.is-out .ns-ratio__name, .ns-ratio__bar.is-out .ns-ratio__tag { opacity: .3; }
+.ns-ratio__match { stroke: var(--rv-ink); stroke-width: 2; stroke-dasharray: 4 3; }
 .ns-ratio__note { fill: #7c3aed; font-size: 16px; font-weight: 700; }
