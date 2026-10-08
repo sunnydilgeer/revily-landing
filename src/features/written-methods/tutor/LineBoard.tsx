@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, UNIT, fmt, squareOf, balanced } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, squareOf, balanced, useMostAcross } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -29,7 +29,8 @@ export const lineName = (p: GraphPoint, q: GraphPoint) => p.y === q.y ? `y = ${f
 const same = (a: GraphPoint, b: GraphPoint) => a.x === b.x && a.y === b.y
 
 export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const grid = balanced(spec.grid)
+  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
+  const grid = balanced(spec.grid, most)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const play = !spec.line
   const [taps, setTaps] = useState<GraphPoint[]>([])
@@ -83,10 +84,10 @@ export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
   const status = result === 'correct' ? 'is-right' : result === 'incorrect' ? 'is-wrong' : ''
   const live = drawn ? `A line through (${fmt(drawn.from.x)}, ${fmt(drawn.from.y)}) and (${fmt(drawn.to.x)}, ${fmt(drawn.to.y)})${lineName(drawn.from, drawn.to) ? `: ${lineName(drawn.from, drawn.to)}` : ''}` : `${taps.length} of 2 points`
 
-  return <div className={`graph-board graph-board--line${disabled ? ' is-disabled' : ''}${status ? ` ${status}` : ''}`}>
+  return <div ref={roomRef} className={`graph-board graph-board--line${disabled ? ' is-disabled' : ''}${status ? ` ${status}` : ''}`}>
     <div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown} onBlur={() => setCursor(null)}
       aria-label={`Tap two points to draw a line through them: arrow keys move, Enter taps. A grid with x from ${fmt(x0)} to ${fmt(x1)} and y from ${fmt(y0)} to ${fmt(y1)}.`} aria-describedby={`${id}-live`}>
-      <GraphVisual frame={frame} live={{
+      <GraphVisual frame={frame} mostAcross={most} live={{
         svg: disabled ? undefined : {
           onPointerDown: event => { event.preventDefault(); setCursor(null); tap(corner(event)) },
           style: { touchAction: 'none', cursor: 'pointer' },

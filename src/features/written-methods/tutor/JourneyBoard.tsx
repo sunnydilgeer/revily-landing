@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, HaloText, UNIT, axisText, fitLabel, squareOf, balanced } from './GraphPictures'
+import { GraphVisual, HaloText, UNIT, axisText, fitLabel, squareOf, balanced, useMostAcross } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -32,7 +32,8 @@ export const journeyKey = (start: GraphPoint, points: GraphPoint[]) => corners(s
 export const speedOf = (a: GraphPoint, b: GraphPoint) => Math.abs(b.y - a.y) / (b.x - a.x)
 
 export function JourneyBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const grid = balanced(spec.grid)
+  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
+  const grid = balanced(spec.grid, most)
   const scale = grid.scale!
   const [x0, x1] = grid.x, [, y1] = grid.y
   const per = { x: scale.x.per, y: scale.y.per }
@@ -83,10 +84,10 @@ export function JourneyBoard({ spec, result, disabled, onChange }: { spec: Graph
   const speedText = (a: GraphPoint, b: GraphPoint) => a.y === b.y ? 'stopped' : `${Math.round(speedOf(a, b) * 100) / 100} ${unit}/h`
   const live = path.length > 1 ? `${path.length - 1} part${path.length > 2 ? 's' : ''}. The last ends at ${axisText(scale.x, last!.x)}, ${axisText(scale.y, last!.y)} ${unit}` : 'No parts yet'
 
-  return <div className={`graph-board graph-board--journey${disabled ? ' is-disabled' : ''}`}>
+  return <div ref={roomRef} className={`graph-board graph-board--journey${disabled ? ' is-disabled' : ''}`}>
     <div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown} onBlur={() => setCursor(null)}
       aria-label={`Draw the journey: tap where each part ends, or move with the arrow keys and press Enter. ${scale.y.name} up, ${scale.x.name} across.`} aria-describedby={`${id}-live`}>
-      <GraphVisual frame={frame} live={{
+      <GraphVisual frame={frame} mostAcross={most} live={{
         svg: disabled ? undefined : {
           onPointerDown: event => { event.preventDefault(); setCursor(null); tap(corner(event)) },
           style: { touchAction: 'none', cursor: 'pointer' },

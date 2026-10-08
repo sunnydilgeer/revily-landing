@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, UNIT, fmt, squareOf, balanced } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, squareOf, balanced, useMostAcross } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 import { pointsKey, smoothThrough, valueAt } from './curves'
@@ -19,7 +19,8 @@ import { pointsKey, smoothThrough, valueAt } from './curves'
 const same = (a: GraphPoint, b: GraphPoint) => a.x === b.x && a.y === b.y
 
 export function CurveBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const grid = balanced(spec.grid)
+  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
+  const grid = balanced(spec.grid, most)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const xs = grid.table?.xs ?? []
   const [dots, setDots] = useState<GraphPoint[]>([])
@@ -68,10 +69,10 @@ export function CurveBoard({ spec, result, disabled, onChange }: { spec: GraphBo
   const status = (p: GraphPoint) => result === 'correct' ? ' is-right' : result === 'incorrect' ? onCurve(p) ? '' : ' is-wrong' : ''
   const live = joined ? `All ${xs.length} points plotted and joined with a smooth curve` : `${dots.length} of ${xs.length} points${last ? `. The last one is at (${fmt(last.x)}, ${fmt(last.y)})` : ''}`
 
-  return <div className={`graph-board graph-board--points${disabled ? ' is-disabled' : ''}`}>
+  return <div ref={roomRef} className={`graph-board graph-board--points${disabled ? ' is-disabled' : ''}`}>
     <div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown} onBlur={() => setCursor(null)}
       aria-label={`Plot every point in the table: tap a corner, or move with the arrow keys and press Enter. A grid with x from ${fmt(x0)} to ${fmt(x1)} and y from ${fmt(y0)} to ${fmt(y1)}.`} aria-describedby={`${id}-live`}>
-      <GraphVisual frame={frame} live={{
+      <GraphVisual frame={frame} mostAcross={most} live={{
         svg: disabled ? undefined : {
           onPointerDown: event => { event.preventDefault(); setCursor(null); tap(corner(event)) },
           style: { touchAction: 'none', cursor: 'pointer' },
