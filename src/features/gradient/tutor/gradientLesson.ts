@@ -253,7 +253,7 @@ function drawFrom(title: string, question: string, sourceRef: string, moves: Mov
 
 explore(drawLine, 'Tap where a line crosses the y axis, then tap one step of a gradient on. Watch the line go through them.', 'GR4 p76 Method 2: using y = mx + c (play)',
   { mode: 'line', grid: grid([-3, 5], [-3, 6]) })
-worked(drawLine, 'Draw the graph of 2y + 4x = 10.', 'Draw it from y = mx + c', 'GR4 p76 Method 2: using y = mx + c (own numbers)',
+worked(drawLine, 'Draw the graph of 2y + 4x = 10.', 'Draw 2y + 4x = 10', 'GR4 p76 Method 2: using y = mx + c (own numbers)',
   drawModel('2y + 4x = 10', [['Take 4x from both sides', '2y = −4x + 10', 'Get it into y = mx + c first. Take the x term to the other side.'], ['Divide by 2', 'y = −2x + 5', 'Divide every term by 2, so y is on its own.']], -2, 1, 5, [-1, 4], [-2, 7]),
   'No table needed. Get the equation into y = mx + c, plot c on the y axis, then step the gradient from there: across 1, then up or down by m. Join the points with one straight line.').video = {
   id: 'graphs-3-drawing', src: `/media/${GRADIENT_PREVIEW_ID}/drawing.mp4`, poster: `/media/${GRADIENT_PREVIEW_ID}/drawing.svg`,
