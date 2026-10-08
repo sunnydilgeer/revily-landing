@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, HaloText, UNIT, dotBox, fitLabel, fmt, labelWidth, placeLabel } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel } from './GraphPictures'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
@@ -62,6 +62,8 @@ export type GraphBoardSpec = {
   curve?: number[]
   /** rule with a curve: how the rule is written, "y = x² − 2", for its sum under the board. */
   curveText?: string
+  /** rule on real-life axes (graphs lesson 8): how each axis's amount is written under the board, "£50 is €60". */
+  reads?: [string, string]
   /** journey: the right journey's corners after `start` (time, distance). With none it is a play screen showing each part's speed. */
   journey?: GraphPoint[]
 }
@@ -130,7 +132,9 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   const id = useId()
 
   // The dot stays on a numbered corner: inside the grid, off its edges.
-  const clamp = (p: GraphPoint): GraphPoint => ({ x: Math.min(Math.max(p.x, x0 + 1), x1 - 1), y: Math.min(Math.max(p.y, y0 + 1), y1 - 1) })
+  // On real-life axes (graphs lesson 8) a square is `per` units: the dot moves a square at a time.
+  const sx = grid.scale?.x, sy = grid.scale?.y, per = { x: sx?.per ?? 1, y: sy?.per ?? 1 }
+  const clamp = (p: GraphPoint): GraphPoint => ({ x: Math.min(Math.max(p.x, x0 + per.x), x1 - per.x), y: Math.min(Math.max(p.y, y0 + per.y), y1 - per.y) })
   function report(next: GraphPoint | null, nextStage = stage) {
     if (!onChange || play) return
     onChange(next && (!walk || nextStage === 'up') ? `${next.x}, ${next.y}` : '')
@@ -147,7 +151,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
     const box = event.currentTarget.getBoundingClientRect()
-    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT), y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) }
+    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT) * per.x, y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) * per.y }
   }
   function finishWalkStage() {
     if (walk && stage === 'across' && dot && dot.x !== origin.x) { setStage('up'); report(dot, 'up') }
@@ -172,8 +176,8 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
       }
       return
     }
-    if (rule) { if (step[0]) moveTo({ x: from.x + step[0], y: from.y }); return }
-    moveTo(dot ? { x: from.x + step[0], y: from.y + step[1] } : from)
+    if (rule) { if (step[0]) moveTo({ x: from.x + step[0] * per.x, y: from.y }); return }
+    moveTo(dot ? { x: from.x + step[0] * per.x, y: from.y + step[1] * per.y } : from)
   }
 
   const ends = spec.ends
@@ -196,6 +200,8 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     points: [...(grid.points ?? []), ...(ends ?? []).map(p => ({ ...p, at: -1, place: clearSide(ends![0], ends![1], p, grid) })),
       ...(rule ? visited.filter(x => x !== dot?.x).map(x => ({ x, y: f(x), at: 0, label: '' })) : [])],
     ...(rule && grid.table ? { table: { ...grid.table, ys: grid.table.xs.map(x => visited.includes(x) ? f(x) : null), lit: dot ? grid.table.xs.indexOf(dot.x) : undefined } } : {}),
+    // On real-life axes the dot is read like the lesson's graphs: dashed down to one axis and across to the other.
+    ...(rule && sx && sy && dot ? { legs: [...(grid.legs ?? []), { from: dot, to: { x: dot.x, y: sy.start }, label: '', family: 1, at: 0, dashed: true }, { from: dot, to: { x: sx.start, y: dot.y }, label: '', family: 0, at: 0, dashed: true }] } : {}),
     // A curve's table, every x visited: the smooth curve through them all.
     ...(curve && grid.table && grid.table.xs.every(x => visited.includes(x)) ? { curves: [...(grid.curves ?? []), { coeffs: curve, from: Math.min(...grid.table.xs), to: Math.max(...grid.table.xs), at: 0 }] } : {}),
   }
@@ -240,7 +246,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
             const below = side ? side.dy > 0 : p.y < 0
             const right = side ? side.dx > 0 : x + 12 + w < width - 3
             const pick = placeLabel(x, y, w, { right, below }, room)
-            return <HaloText key={`${p.x},${p.y}`} className={`graph-board__brackets ${className}`} x={pick.l + 2} y={pick.base}>(<tspan fill={AXIS.x}>{fmt(p.x)}</tspan>, <tspan fill={AXIS.y}>{fmt(p.y)}</tspan>)</HaloText>
+            return <HaloText key={`${p.x},${p.y}`} className={`graph-board__brackets ${className}`} x={pick.l + 2} y={pick.base}>(<tspan fill={AXIS.x}>{axisText(sx, p.x)}</tspan>, <tspan fill={AXIS.y}>{axisText(sy, p.y)}</tspan>)</HaloText>
           }
           const parts = []
           if (walk && dot) {
@@ -294,7 +300,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
       }} />
     </div>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
-    {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true">{curve && spec.curveText ? <CurveSum text={spec.curveText} x={dot.x} /> : <RuleSum rule={rule} x={dot.x} />}</p>}
+    {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true">{spec.reads ? <><span className="is-x">{spec.reads[0]}{axisText(sx, dot.x)}</span> is <span className="is-y">{spec.reads[1]}{axisText(sy, dot.y)}</span></> : curve && spec.curveText ? <CurveSum text={spec.curveText} x={dot.x} /> : <RuleSum rule={rule} x={dot.x} />}</p>}
     {mode === 'midpoint' && <p className={`graph-board__note${halfway ? ' is-right' : ''}`} aria-hidden="true">{halfway ? 'Halfway: both halves match' : 'Drag the dot until both halves match'}</p>}
     {walk && !disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{stage === 'across' ? <>Drag the <span className="is-x">amber</span> handle across</> : <>Now drag the <span className="is-y">blue</span> handle up or down</>}</p>
