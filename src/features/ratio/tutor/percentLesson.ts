@@ -1,10 +1,10 @@
 import { working } from '../../written-methods/model'
 import { author } from '../../written-methods/tutor/content'
-import type { PercentFrame } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson, TutorMethodState, TutorMethodVisual, TutorWorking } from '../../written-methods/tutor/model'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { diagnoseSlips, type Slip } from '../../equations/tutor/equationsDiagnosis'
-import { boardModel, choose, number, pair, text, type BoardMove } from '../../simultaneous-equations/tutor/boardWorkings'
+import { boardModel, choose, number, pair, text } from '../../simultaneous-equations/tutor/boardWorkings'
+import { piece, squareModel } from './percentSquare'
 
 /*
  * Lesson 32 (Ratio R3): Percentages, from Aniksha's R3.1–R3.4 PDFs and videos. Four rungs in the PDFs' order: a
@@ -19,26 +19,6 @@ const ofAmount = 'percentage-of-amount'
 const increase = 'percentage-increase'
 const decrease = 'percentage-decrease'
 const change = 'percentage-change'
-
-/* ---------- The hundred square ---------- */
-
-type Piece = PercentFrame['pieces'][number]
-const piece = (size: number, label: string): Piece => ({ size, label })
-/** A move on the board, with what it changes on the square: its pieces and the note. */
-type SquareMove = BoardMove & { pieces?: Piece[]; note?: string }
-
-/** The board working with the hundred square drawn above it: it opens on the whole, with no pieces yet. */
-function squareModel(whole: string, moves: SquareMove[], label = 'Work it out'): TutorWorking {
-  const model = boardModel([], moves, label)
-  if (model.kind !== 'method-worked') throw new Error('A percentage working is a board')
-  let pieces: Piece[] = []
-  model.examples[0].steps.forEach((step, i) => {
-    const move = moves[i]
-    pieces = move.pieces ?? pieces
-    step.frame.percent = { whole, pieces, ...(move.note ? { note: move.note } : {}), ...(i === 0 ? { before: { whole, pieces: [] } } : {}) }
-  })
-  return model
-}
 
 /* ---------- Screens ---------- */
 
