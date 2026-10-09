@@ -146,6 +146,12 @@ export const canStatements: Record<string, string> = {
   '32:percentage-increase': 'I can increase an amount by a percentage, like £600 up 15% is 115 × £6 = £690, or £600 × 1.15',
   '32:percentage-decrease': 'I can decrease an amount by a percentage, like £45 with 30% off is 70 × £0.45 = £31.50, or £45 × 0.7',
   '32:percentage-change': 'I can work out a percentage change: change ÷ original × 100, like £400 to £250 is a 37.5% decrease',
+  '33:reverse-percentage': 'I can find the original amount by finding 1% and multiplying by 100, like £48 after 20% off: 48 ÷ 80 × 100 = £60',
+  '33:reverse-percentage-multiplier': 'I can find the original amount by dividing by the multiplier, like £69 after a 15% rise: 69 ÷ 1.15 = £60',
+  '34:simple-interest': 'I can work out simple interest on the original amount, like £800 at 5% for 3 years: 800 + 3 × 40 = £920',
+  '34:compound-growth': 'I can work out compound growth with a multiplier, like £2000 at 3% for 2 years: 2000 × 1.03² = £2121.80',
+  '34:compound-decay': 'I can work out compound decay with a multiplier, like a £12,000 car losing 20% a year: 12000 × 0.8² = £7680',
+  '34:compound-periods': 'I can find how many years it takes to pass a target by trying values, like £800 × 1.05ⁿ first passes £1000 at n = 5',
   '31:proportion-inverse': 'I can use inverse proportion by finding 1 first, like 4 painters take 9 hours, so 1 takes 36 and 6 take 6 hours',
 
   '24:inequalities-number-line': 'I can write an inequality from words or a number line and show it, like h ≥ 120 as a filled circle at 120 with an arrow right',

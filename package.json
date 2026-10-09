@@ -50,6 +50,8 @@
         "verify:lesson30:tutor": "node scripts/verify-ratio-tutor.cjs",
         "verify:lesson31:tutor": "node scripts/verify-proportion-tutor.cjs",
         "verify:lesson32:tutor": "node scripts/verify-percent-tutor.cjs",
+        "verify:lesson33:tutor": "node scripts/verify-reverse-percent-tutor.cjs",
+        "verify:lesson34:tutor": "node scripts/verify-interest-tutor.cjs",
         "verify:lesson-kit": "node scripts/verify-lesson-kit.cjs",
         "verify:file-casing": "node scripts/verify-file-casing.cjs",
         "verify:maths:navigation": "node scripts/verify-maths-navigation.cjs",

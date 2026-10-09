@@ -140,6 +140,14 @@ export const aqaMarks: Record<string, number> = {
   '32:percentage-increase': 2,
   '32:percentage-decrease': 2,
   '32:percentage-change': 2,
+  // Estimates, not yet counted from the 18 papers: reverse percentages and compound interest come up most sittings,
+  // simple interest and finding the number of years less often.
+  '33:reverse-percentage': 2,
+  '33:reverse-percentage-multiplier': 1,
+  '34:simple-interest': 1,
+  '34:compound-growth': 2,
+  '34:compound-decay': 1,
+  '34:compound-periods': 1,
   // Estimates, not yet counted from the 18 papers: inequalities on a number line come up most sittings, usually for 1–2 marks.
   '24:inequalities-number-line': 1,
   '24:inequalities-two-sided': 1,
