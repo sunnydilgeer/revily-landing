@@ -42,6 +42,8 @@
     "verify:graphs8:tutor": "node scripts/verify-real-life-graphs-tutor.cjs",
     "verify:geometry1:tutor": "node scripts/verify-angle-facts-tutor.cjs",
     "verify:geometry2:tutor": "node scripts/verify-parallel-angles-tutor.cjs",
+    "verify:geometry3:tutor": "node scripts/verify-shapes-tutor.cjs",
+    "verify:geometry4:tutor": "node scripts/verify-polygon-angles-tutor.cjs",
         "verify:lesson27:tutor": "node scripts/verify-simultaneous-equations-tutor.cjs",
         "verify:lesson28:tutor": "node scripts/verify-proof-tutor.cjs",
         "verify:lesson29:tutor": "node scripts/verify-function-machines-tutor.cjs",

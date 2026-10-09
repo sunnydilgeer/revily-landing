@@ -172,6 +172,14 @@ export type MicroSkillId =
   | 'geometry-f-z'
   | 'geometry-allied'
   | 'geometry-parallel-steps'
+  | 'geometry-polygon-names'
+  | 'geometry-triangle-types'
+  | 'geometry-quadrilaterals'
+  | 'geometry-shape-angles'
+  | 'geometry-exterior'
+  | 'geometry-interior-sum'
+  | 'geometry-regular-angles'
+  | 'geometry-polygon-algebra'
   | 'mixed'
 
 export type LessonPhase =

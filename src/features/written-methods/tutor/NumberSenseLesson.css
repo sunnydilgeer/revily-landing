@@ -192,6 +192,9 @@
 .ns-angles__box { fill: var(--rv-surface); stroke: #7c3aed; stroke-width: 2.5; }
 /* Angle facts: the part of the picture a step uses, in purple under the lines; the answer's green box. */
 .ns-angles__lit { fill: none; stroke: #7c3aed; stroke-width: 9; stroke-linejoin: round; stroke-linecap: round; opacity: .28; }
+.ns-angles__name { fill: var(--rv-ink); font-size: 15px; font-weight: 700; font-style: italic; text-anchor: middle; dominant-baseline: central; }
+.ns-angles { flex-direction: column; align-items: center; }
+.ns-angles__caption { margin: 2px 0 0; color: var(--rv-ink); font-size: 18px; font-weight: 700; text-align: center; }
 .ns-angles__found { fill: var(--rv-good-tint); stroke: color-mix(in srgb, var(--rv-good) 55%, transparent); stroke-width: 2.5; }
 .ns-eq__token { color: var(--f, var(--rv-ink)); white-space: nowrap; }
 .ns-eq.is-plain .ns-eq__token { color: var(--rv-ink); }
