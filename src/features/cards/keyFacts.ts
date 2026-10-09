@@ -268,6 +268,16 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'percentage-decrease': [['A £45 jacket has 30% off. What is the sale price?', '£31.50. Find 1%: 45 ÷ 100 = £0.45. 30% off leaves 70%, so 70 × 0.45 = £31.50. The same as £45 × 0.7.']],
     'percentage-change': [['A phone drops from £400 to £250. What is the percentage change?', 'A 37.5% decrease. Change = 400 − 250 = 150, then 150 ÷ 400 × 100 = 37.5. Always divide by the original, and say increase or decrease.']],
   },
+  33: {
+    'reverse-percentage': [['Headphones are £48 after 20% off. What was the price before the sale?', '£60. 20% off leaves 80%, so 80% = £48. Find 1%: 48 ÷ 80 = £0.60. Multiply by 100: 0.60 × 100 = £60. Never add 20% of £48.']],
+    'reverse-percentage-multiplier': [['A bus pass went up 15% to £69. What did it cost before?', '£60. The new price is 115% = 1.15 of the old one, so divide: 69 ÷ 1.15 = £60. Check forwards: 60 × 1.15 = 69.']],
+  },
+  34: {
+    'simple-interest': [['£800 is saved at 5% simple interest. How much after 3 years?', '£920. Interest each year: 5% of £800 = £40. 3 years: 3 × 40 = £120. Add it on: 800 + 120 = £920.']],
+    'compound-growth': [['£2000 is saved at 3% compound interest. How much after 2 years?', '£2121.80. The multiplier is 100% + 3% = 1.03. 2000 × 1.03 = 2060, then 2060 × 1.03 = 2121.80. Or 2000 × 1.03².']],
+    'compound-decay': [['A £12,000 car loses 20% a year. What is it worth after 2 years?', '£7680. It keeps 80%, so the multiplier is 0.8. 12000 × 0.8 = 9600, then 9600 × 0.8 = 7680. Or 12000 × 0.8².']],
+    'compound-periods': [['Rent of £800 rises 5% a year. After how many years is it over £1000?', '5 years. Try n: 800 × 1.05⁴ = £972.41, too low; 800 × 1.05⁵ = £1021.03, over. Stop at the first n that works.']],
+  },
   24: {
     'inequalities-number-line': [['Show h ≥ 120 on a number line.', 'A filled circle at 120 (120 is included) and an arrow pointing right (bigger). An open circle would mean 120 isn’t included: > or <.']],
     'inequalities-two-sided': [['Write the inequality: filled circle at −4, open circle at 1, joined.', '−4 ≤ x < 1. Smallest number first. Filled means ≤, open means <.']],

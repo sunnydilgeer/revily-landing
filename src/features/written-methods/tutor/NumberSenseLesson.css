@@ -449,6 +449,19 @@
 .ns-percent__pill rect { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2; }
 .ns-percent__pill text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
 .ns-percent__note { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
+/* Money year by year (lesson 34, R5): one colour, the start grey, years not worked out yet a faint outline. */
+.ns-growth { display: flex; justify-content: center; width: 100%; margin-bottom: 6px; }
+.ns-growth svg { display: block; width: 100%; max-width: 440px; font-family: var(--rv-font-body); }
+.ns-growth text { text-anchor: middle; dominant-baseline: central; }
+.ns-growth__base { stroke: var(--rv-line-strong, #cbd5e1); stroke-width: 1.5; }
+.ns-growth__bar > rect { fill: #bfdbfe; stroke: var(--rv-biro); stroke-width: 1.5; }
+.ns-growth__bar.is-start > rect { fill: #e2e8f0; stroke: #94a3b8; }
+.ns-growth__bar.is-dim > rect { fill: none; stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 4 3; }
+.ns-growth__bar.is-lit > rect { stroke: #7c3aed; stroke-width: 3; }
+.ns-growth__pill rect { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 1.5; }
+.ns-growth__bar.is-lit .ns-growth__pill rect { stroke: #7c3aed; stroke-width: 2.5; }
+.ns-growth__pill text { fill: var(--rv-ink); font-size: 13px; font-weight: 700; }
+.ns-growth__name { fill: var(--rv-muted); font-size: 12px; font-weight: 600; }
 .ns-ratio__match { stroke: var(--rv-ink); stroke-width: 2; stroke-dasharray: 4 3; }
 .ns-ratio__note { fill: #7c3aed; font-size: 16px; font-weight: 700; }
 /* Measured figures (geometry lessons 5 to 9, FigurePictures.tsx): a lightly filled shape, mirror lines red and dashed,

@@ -371,7 +371,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   // A graph question needs its own grid to be answered, so it is drawn above the answer box.
   const figure = state.visual.kind === 'diagram' && state.visual.diagram.kind === 'graph'
   // The question's own grid or bus stop is drawn again, step by step, in its working; once that is open, show it once.
-  const drawnInWorking = Boolean(feedback && showWorking && state.working && (state.visual.kind === 'diagram' || state.visual.kind === 'grid' || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'angle'))
+  const drawnInWorking = Boolean(feedback && showWorking && state.working && (state.visual.kind === 'diagram' || state.visual.kind === 'grid' || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'growth' || state.visual.kind === 'angle'))
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
   const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
@@ -380,7 +380,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.heading ? <><span aria-hidden="true"><Powers text={state.content.heading} /></span><span className="sr-only">{state.content.title}</span></> : <Powers text={state.content.title} />}</h3>
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
-      {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'angle') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
+      {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'growth' || state.visual.kind === 'angle') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
       {teaching && board && <GraphBoard spec={board} />}
       {teaching && state.angleBoard && <AngleBoard spec={state.angleBoard} />}

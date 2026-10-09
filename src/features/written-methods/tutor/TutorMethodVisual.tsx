@@ -11,6 +11,7 @@ import { LessonVideo } from '../../order-of-operations/variant-c/TutorTeachingMe
 import type { TutorMethodState, TutorMethodVisual as Visual } from './model'
 import { MachineVisual } from './MachinePictures'
 import { PercentVisual } from './PercentPictures'
+import { GrowthVisual } from './GrowthPictures'
 import { RatioVisual } from './RatioPictures'
 import { AngleVisual } from './AnglePictures'
 
@@ -28,6 +29,7 @@ export function TeachingVisual({ visual }: { visual: Visual }) {
   if (visual.kind === 'angle') return <div className="pvb-stage ns-visual"><AngleVisual frame={visual.angle} /></div>
   if (visual.kind === 'ratio') return <div className="pvb-stage ns-visual"><RatioVisual frame={visual.ratio} /></div>
   if (visual.kind === 'percent') return <div className="pvb-stage ns-visual"><PercentVisual frame={visual.percent} /></div>
+  if (visual.kind === 'growth') return <div className="pvb-stage ns-visual"><GrowthVisual frame={visual.growth} /></div>
   if (visual.kind === 'grid') return <div className="pvb-stage"><Grid {...visual} /></div>
   return <div className="pvb-stage"><MethodVisual visual={visual.kind === 'diagram' ? visual.diagram : visual} /></div>
 }

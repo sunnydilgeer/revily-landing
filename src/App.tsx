@@ -34,6 +34,8 @@ import TutorFunctionMachinesLesson from './features/function-machines/tutor/Func
 import TutorRatioLesson from './features/ratio/tutor/RatioLessonView'
 import TutorProportionLesson from './features/ratio/tutor/ProportionLessonView'
 import TutorPercentLesson from './features/ratio/tutor/PercentLessonView'
+import TutorReversePercentLesson from './features/ratio/tutor/ReversePercentLessonView'
+import TutorInterestLesson from './features/ratio/tutor/InterestLessonView'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -313,6 +315,10 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorProportionLesson />
     case 32:
       return <TutorPercentLesson />
+    case 33:
+      return <TutorReversePercentLesson />
+    case 34:
+      return <TutorInterestLesson />
   }
 }
 

@@ -256,6 +256,18 @@ export type PercentFrame = {
   before?: Omit<PercentFrame, 'before'>
 }
 /**
+ * Money year by year (lesson 34, R5): a bar for the start and for each year, its value in a pill once worked out.
+ * Bars not reached yet are faint, so the picture keeps its size. `top` is the biggest value in the working, so the
+ * heights don't change from step to step; `lit` is the bar this step works out.
+ */
+export type GrowthFrame = {
+  bars: { name: string; value: number; shown?: string; reached: boolean }[]
+  top: number
+  lit?: number
+  /** The bars on the opening screen, before the first step changes them. */
+  before?: Omit<GrowthFrame, 'before'>
+}
+/**
  * Factorising x² + bx + c into two brackets (lesson 21), the whole picture so far, in three steps (Sunny, 1 Oct): the
  * factor pairs of c (c boxed amber in the question), which pair adds to b (b boxed blue), then the brackets. A difference
  * of two squares writes each term as a square instead. `adds` is the part this step draws, where its heading goes.
@@ -413,6 +425,7 @@ export type MethodFrame = {
   machine?: MachineFrame
   ratio?: RatioFrame
   percent?: PercentFrame
+  growth?: GrowthFrame
   quadratic?: QuadraticFrame
   solve?: SolveFrame
   sequence?: SequenceFrame
