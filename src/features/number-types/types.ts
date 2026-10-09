@@ -164,6 +164,10 @@ export type MicroSkillId =
   | 'graphs-equation-points'
   | 'graphs-equation-rearrange'
   | 'graphs-equation-draw'
+  | 'geometry-lines-points'
+  | 'geometry-shapes'
+  | 'geometry-isosceles'
+  | 'geometry-two-steps'
   | 'mixed'
 
 export type LessonPhase =

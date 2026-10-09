@@ -12,6 +12,7 @@ import type { TutorMethodState, TutorMethodVisual as Visual } from './model'
 import { MachineVisual } from './MachinePictures'
 import { PercentVisual } from './PercentPictures'
 import { RatioVisual } from './RatioPictures'
+import { AngleVisual } from './AnglePictures'
 
 function Grid({ first, second }: { first: number[]; second: number[] }) {
   return <table className="wmt-grid" aria-label="Multiplication grid"><thead><tr><th scope="col">×</th>{second.map(n => <th scope="col" key={n}>{n}</th>)}</tr></thead><tbody>{first.map(n => <tr key={n}><th scope="row">{n}</th>{second.map(m => <td key={m}>{n} × {m}</td>)}</tr>)}</tbody></table>
@@ -24,6 +25,7 @@ export function TeachingVisual({ visual }: { visual: Visual }) {
   if (visual.kind === 'conversion-worked') return <div className="pvb-stage"><ConversionWorkedExample visual={visual} /></div>
   if (visual.kind === 'diagram' && visual.diagram.kind === 'graph') return <div className="pvb-stage"><div className="ns-visual"><GraphVisual frame={visual.diagram.frame} plain /></div></div>
   if (visual.kind === 'machine') return <div className="pvb-stage ns-visual"><MachineVisual frame={visual.machine} /></div>
+  if (visual.kind === 'angle') return <div className="pvb-stage ns-visual"><AngleVisual frame={visual.angle} /></div>
   if (visual.kind === 'ratio') return <div className="pvb-stage ns-visual"><RatioVisual frame={visual.ratio} /></div>
   if (visual.kind === 'percent') return <div className="pvb-stage ns-visual"><PercentVisual frame={visual.percent} /></div>
   if (visual.kind === 'grid') return <div className="pvb-stage"><Grid {...visual} /></div>

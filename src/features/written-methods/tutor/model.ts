@@ -1,7 +1,8 @@
 import type { GraphBoardSpec } from './GraphBoard'
+import type { AngleBoardSpec } from './AngleBoard'
 import type { LearningState, LessonDefinition, MicroSkillId } from '../../number-types/types'
 import type { LessonVideoDefinition } from '../../order-of-operations/variant-c/variantCLesson'
-import type { MachineFrame, MethodWorking, PercentFrame, RatioFrame } from './methodWorking'
+import type { AngleFrame, MachineFrame, MethodWorking, PercentFrame, RatioFrame } from './methodWorking'
 import type { StepWorking } from './stepWorking'
 import type { FractionWorking } from '../../fractions/tutor/fractionWorking'
 import type { ConversionWorking } from '../../fractions-decimals-percentages/tutor/conversionWorking'
@@ -18,6 +19,8 @@ export type TutorMethodVisual = TutorWorking
   | { kind: 'ratio'; ratio: RatioFrame }
   /** A practice question's own hundred square (lesson 32). */
   | { kind: 'percent'; percent: PercentFrame }
+  /** A practice question's own angle picture (geometry lesson 1). */
+  | { kind: 'angle'; angle: AngleFrame }
 export type TutorMethodState = LearningState & {
   sourceRef: string
   visual: TutorMethodVisual
@@ -33,9 +36,11 @@ export type TutorMethodState = LearningState & {
   diagnose?: (response: string) => string | null
   /** The graph board (GraphBoard.tsx): the answer to a question, or a play screen on a teaching screen. */
   board?: GraphBoardSpec
+  /** The angle board (AngleBoard.tsx): a play screen on a teaching screen. */
+  angleBoard?: AngleBoardSpec
 }
 export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
-  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108
+  number: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 | 201
   labels: Partial<Record<MicroSkillId, string>>
   states: TutorMethodState[]
 }

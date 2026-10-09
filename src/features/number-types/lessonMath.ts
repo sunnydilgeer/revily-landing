@@ -163,7 +163,8 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
     return wanted !== null && actual.a === wanted.a && actual.n === wanted.n
   }
   if (interaction.acceptanceRule === 'normalisedNumber') {
-    const actual = parseFormattedNumber(response)
+    // An angle can be typed with its degree sign: 52° is 52.
+    const actual = parseFormattedNumber(String(response).replace(/\s*°$/, ''))
     const wanted = parseFormattedNumber(expected)
     return actual !== null && wanted !== null && actual === wanted
   }

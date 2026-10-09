@@ -1,0 +1,19 @@
+/* The angle board (AngleBoard.tsx): drag a line or a corner, and watch the angles change while their total stays. */
+.angle-board { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; margin-top: 4px; }
+.angle-board__surface { display: block; width: 100%; max-width: 400px; touch-action: none; border-radius: 8px; outline: none; cursor: grab; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.angle-board.is-held .angle-board__surface { cursor: grabbing; }
+.angle-board__surface:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--rv-biro) 45%, transparent); }
+.angle-board .c0 { --f: var(--rv-biro); }
+.angle-board .c1 { --f: #b45309; }
+.angle-board .c2 { --f: #7c3aed; }
+.angle-board .c3 { --f: #0f766e; }
+.angle-board__mark path { fill: none; stroke: var(--f); stroke-width: 2.5; }
+.angle-board__mark text { fill: var(--f); font-size: 16px; font-weight: 800; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper, #fff); stroke-width: 4px; stroke-linejoin: round; }
+.angle-board__handle { fill: color-mix(in srgb, var(--rv-biro) 22%, transparent); stroke: var(--rv-biro); stroke-width: 3; transition: r .15s ease; }
+.angle-board.is-held .angle-board__handle { fill: color-mix(in srgb, var(--rv-biro) 38%, transparent); }
+.angle-board__sum { margin: 0; color: var(--rv-ink); font-size: 20px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.angle-board__n { color: var(--f); font-weight: 800; }
+.angle-board__total { display: inline-block; padding: 0 10px; border: 2px solid color-mix(in srgb, var(--rv-good) 55%, transparent); border-radius: 999px; background: var(--rv-good-tint); color: var(--rv-good-ink); }
+.angle-board__total.is-moved { animation: angle-board-hold .45s ease-out; }
+@keyframes angle-board-hold { 0% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .angle-board__total.is-moved { animation: none; } .angle-board__handle { transition: none; } }
