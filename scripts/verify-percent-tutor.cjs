@@ -47,7 +47,6 @@ function checkSquare(label, frame) {
     assert.ok(Math.abs(money(value) - whole * piece.size / 100) < 1e-9, `${label}: ${piece.label} is ${piece.size}% of ${frame.whole}`)
     values++
   }
-  for (const i of frame.lit ?? []) assert.ok(frame.pieces[i], `${label}: a lit piece is on the square`)
   const note = frame.note ?? `100 squares = ${frame.whole}`
   assert.ok(textWidth(note, NOTE_SIZE) <= PERCENT_WIDTH - 8, `${label}: the note ${note} fits across the picture`)
   assert.equal(squareOwners(frame).filter(owner => owner !== undefined).length, frame.pieces.reduce((sum, piece) => sum + piece.size, 0))
@@ -106,7 +105,7 @@ const choices = checkInteractions(states, checkAnswer)
 // ---------- Wrong-answer messages ----------
 const cases = [['R3.1 Q2', '30', '10%'], ['R3.1 Q3', '19.2', '5%'], ['R3.1 Q4a', '127.5', '1%'], ['R3.1 Q4b', '1.8', 'two places'], ['R3.1 Q5a', '42', 'left'],
   ['R3.2 Q2', '0.2', 'add it on'], ['R3.2 Q3', '1120', 'add it on'], ['R3.2 Q5a', '60', 'add it on'], ['R3.2 Q5b', '2120', '2,060'], ['R3.2 Q5c', '140', '£120'],
-  ['R3.3 Q2', '10', 'left'], ['R3.3 Q3', '8100', '10% + 5%'], ['R3.3 Q5a', '468', '£540'], ['R3.3 Q5b', '35', '£540'],
+  ['R3.3 Q2', '10', 'left'], ['R3.3 Q3', '8100', '85%'], ['R3.3 Q5a', '468', '£540'], ['R3.3 Q5b', '35', '£540'],
   ['R3.4 Q2', '20', 'original'], ['R3.4 Q3', '480', 'change'], ['R3.4 Q4a', '3600', 'change'], ['R3.4 Q5a', '27000', 'profit'], ['R3.4 Q5b', '20000', 'loss']]
 for (const [ref, response, expected] of cases) {
   const state = at(ref)

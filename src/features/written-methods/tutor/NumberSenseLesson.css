@@ -439,16 +439,9 @@
 .ns-percent svg { display: block; width: 100%; max-width: 440px; font-family: var(--rv-font-body); }
 .ns-percent text { text-anchor: middle; dominant-baseline: central; }
 .ns-percent__square { fill: var(--rv-surface); stroke: var(--rv-line-strong, #cbd5e1); stroke-width: 1; }
-.ns-percent .is-b0 { --b: #b45309; --bt: #fde68a; }
-.ns-percent .is-b1 { --b: var(--rv-biro); --bt: #bfdbfe; }
-.ns-percent .is-b2 { --b: #0f766e; --bt: #99f6e4; }
-.ns-percent .is-lit { --b: #7c3aed; --bt: #ddd6fe; }
-.ns-percent .is-good { --b: var(--rv-good-ink); --bt: var(--rv-good-tint); }
-.ns-percent__square[class*=" is-"] { fill: var(--bt); stroke: var(--b); }
-.ns-percent__pill rect { fill: var(--rv-surface); stroke: var(--b); stroke-width: 2; }
-.ns-percent__pill.is-lit rect { stroke-width: 3; }
-.ns-percent__pill text { fill: var(--b); font-size: 15px; font-weight: 700; }
+.ns-percent__square.is-on { fill: #bfdbfe; stroke: var(--rv-biro); }
+.ns-percent__pill rect { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2; }
+.ns-percent__pill text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
 .ns-percent__note { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
-.ns-percent__note.is-lit { fill: #7c3aed; }
 .ns-ratio__match { stroke: var(--rv-ink); stroke-width: 2; stroke-dasharray: 4 3; }
 .ns-ratio__note { fill: #7c3aed; font-size: 16px; font-weight: 700; }
