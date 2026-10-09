@@ -27,3 +27,13 @@
 .angle-board__side { min-width: 92px; min-height: 44px; padding: 0 14px; border: 2px solid var(--rv-biro); border-radius: 999px; background: var(--rv-surface, #fff); color: var(--rv-biro); font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; }
 .angle-board__side:disabled { opacity: .35; cursor: default; }
 .angle-board__side:focus-visible { outline: 3px solid color-mix(in srgb, var(--rv-biro) 45%, transparent); outline-offset: 2px; }
+/* The measuring board (MeasureBoard.tsx, geometry lessons 5 to 9). */
+.measure-board__ghost { fill: color-mix(in srgb, #7c3aed 16%, transparent); stroke: #7c3aed; stroke-width: 2.5; stroke-dasharray: 6 5; stroke-linejoin: round; }
+.measure-board__ghost.is-fit, .measure-board__ghost.is-turn { stroke-dasharray: none; }
+.measure-board__grid { stroke: color-mix(in srgb, var(--rv-ink) 12%, transparent); stroke-width: 1; }
+.measure-board__label { fill: var(--rv-ink); font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper, #fff); stroke-width: 4px; }
+.measure-board__label.is-h { fill: #b45309; text-anchor: start; }
+.measure-board__label.is-big { font-size: 17px; }
+.measure-board__label.is-c { fill: #b45309; }
+.measure-board__label.is-a { fill: #7c3aed; }
+.measure-board__found { display: block; margin-top: 4px; font-size: 17px; }

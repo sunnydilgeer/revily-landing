@@ -12,6 +12,7 @@ import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import { GraphBoard } from './GraphBoard'
 import { AngleBoard } from './AngleBoard'
+import { MeasureBoard } from './MeasureBoard'
 import { Powers } from './Powers'
 import { Button, CheckBar } from '../../../ui'
 import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
@@ -383,6 +384,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
       {teaching && board && <GraphBoard spec={board} />}
       {teaching && state.angleBoard && <AngleBoard spec={state.angleBoard} />}
+      {teaching && state.measureBoard && <MeasureBoard spec={state.measureBoard} />}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {board ? <GraphBoard spec={board} answer={boardAnswer} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />

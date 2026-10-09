@@ -139,8 +139,27 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
  * (`point`, the angles anticlockwise from `turn`, making 360), and a quadrilateral drawn to its four angles. A family of
  * −1 is a given angle in plain ink; `found` boxes an answer in green; `lit` draws the part a step uses in purple.
  */
+/**
+ * A measured figure (geometry lessons 5 to 9, FigurePictures.tsx): drawing items in their own units, y up, fitted into
+ * the picture. Tones: `given` ink, `x` the unknown, `lit` what a step uses, `found` the answer, `faint` greyed out.
+ */
+export type FigurePoint = [number, number]
+export type FigureTone = 'given' | 'x' | 'lit' | 'found' | 'faint'
+export type FigureItem =
+  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part'; dashed?: boolean; lit?: boolean }
+  | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found' }
+  | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
+  | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed' }
+  | { kind: 'measure'; from: FigurePoint; to: FigurePoint; label?: string; offset?: number; side?: 1 | -1; tone?: FigureTone }
+  | { kind: 'right'; at: FigurePoint; a: FigurePoint; b: FigurePoint }
+  | { kind: 'ticks'; from: FigurePoint; to: FigurePoint; count: number }
+  | { kind: 'point'; at: FigurePoint; label?: string; dx?: number; dy?: number }
+  | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number }
+/** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
+export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number }
+
 export type AngleFrame = {
-  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross' | 'polygon'
+  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross' | 'polygon' | 'figure'
   /** Triangle: the two base angles in degrees (left, right), drawn to scale. Straight line: the angles from the right.
    *  Around a point: every angle, anticlockwise. Quadrilateral: the four angles anticlockwise from the bottom left. */
   angles: number[]
@@ -178,6 +197,8 @@ export type AngleFrame = {
   outside?: (string | null)[]
   /** Polygon: the shape's name or other words under it, kept out of the picture's way. */
   caption?: string
+  /** Figure: the measured drawing (lessons 5 to 9); `angles` and `labels` are left empty. */
+  figure?: FigureFrame
   /** The picture on the opening screen, before the first step changes it. */
   before?: Omit<AngleFrame, 'before'>
 }
