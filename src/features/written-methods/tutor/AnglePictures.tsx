@@ -120,7 +120,96 @@ function spoken(frame: AngleFrame) {
 
 export const tick = (p: P, q: P) => { const m = along(p, q, 0.5), n = unit({ x: -(q.y - p.y), y: q.x - p.x }); return `M${m.x - n.x * 7} ${m.y - n.y * 7} L${m.x + n.x * 7} ${m.y + n.y * 7}` }
 
+/* ---------- Parallel lines and crossing lines (geometry lesson 2) ---------- */
+
+/** The size of the angle in place i (0–7 or 0–3): 0 and 2 are the angle t, 1 and 3 its partner on the line, 180 − t. */
+export const placeSize = (t: number, i: number) => i % 2 === 0 ? t : 180 - t
+
+/**
+ * Two parallel lines across a picture w by h, crossed by a line at t degrees through the middle. Each crossing has its
+ * four arms (right, up the crossing line, left, down it), so place i's angle runs from arm i to arm i + 1.
+ */
+export function parallelGeometry(t: number, w: number, h: number) {
+  const mid = { x: w / 2, y: h / 2 }, half = h * 0.205, ext = h * 0.2
+  const run = 1 / Math.tan(rad(t))
+  const y1 = mid.y - half, y2 = mid.y + half
+  const P1 = { x: mid.x + half * run, y: y1 }, P2 = { x: mid.x - half * run, y: y2 }
+  const E1 = { x: P1.x + ext * run, y: y1 - ext }, E2 = { x: P2.x - ext * run, y: y2 + ext }
+  const armsAt = (P: P) => {
+    const u = unit({ x: run, y: -1 })
+    return [{ x: P.x + 50, y: P.y }, { x: P.x + u.x * 46, y: P.y + u.y * 46 }, { x: P.x - 50, y: P.y }, { x: P.x - u.x * 46, y: P.y - u.y * 46 }]
+  }
+  const chevron = (x: number, y: number) => `M${x - 5} ${y - 6} L${x + 3} ${y} L${x - 5} ${y + 6}`
+  return {
+    P: [P1, P2], E: [E1, E2], arms: [armsAt(P1), armsAt(P2)], lines: [[{ x: 14, y: y1 }, { x: w - 14, y: y1 }], [{ x: 14, y: y2 }, { x: w - 14, y: y2 }]],
+    chevrons: [chevron(P1.x > mid.x ? 48 : w - 48, y1), chevron(P2.x > mid.x ? 48 : w - 48, y2)],
+  }
+}
+
+/** The letter two angles make, drawn over the lines: F (corresponding), Z (alternate), C (allied), or an X (opposite). */
+export function letterPath(g: ReturnType<typeof parallelGeometry>, a: number, b: number) {
+  const [i, j] = a < b ? [a, b] : [b, a]
+  const lineArm = (k: number) => g.arms[Math.floor(k / 4)][k % 4 === 0 || k % 4 === 3 ? 0 : 2]
+  const at = (k: number) => g.P[Math.floor(k / 4)]
+  const pts = (list: P[]) => `M${list.map(p => `${p.x} ${p.y}`).join(' L')}`
+  if (Math.floor(i / 4) === Math.floor(j / 4)) {
+    // At one crossing: both lines through it, a short way each side.
+    const c = Math.floor(i / 4), arms = g.arms[c]
+    return `${pts([arms[0], arms[2]])} ${pts([arms[1], arms[3]])}`
+  }
+  const path = pts([lineArm(i), at(i), at(j), lineArm(j)])
+  // Corresponding angles are both above (or both below) their lines: the F's stem carries on past the pair.
+  const above = (k: number) => k % 4 < 2
+  if (above(i) === above(j)) return above(i) ? `${path} ${pts([g.P[0], g.E[0]])}` : `${path} ${pts([g.P[1], g.E[1]])}`
+  return path
+}
+
+function parallelSpoken(frame: AngleFrame) {
+  const where = ['above the line, right', 'above the line, left', 'below the line, left', 'below the line, right']
+  const named = frame.labels.flatMap((l, i) => l ? [`${l} ${frame.shape === 'cross' ? where[i].replace('the line, ', '') : `at the ${i < 4 ? 'top' : 'bottom'} crossing, ${where[i % 4]}`}`] : [])
+  return frame.shape === 'cross' ? `Two straight lines cross, making four angles: ${named.join('; ')}.` : `Two parallel lines, marked with arrows, crossed by a third line. ${named.join('; ')}.`
+}
+
+function ParallelVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
+  const t = frame.angles[0]
+  const fam = (i: number) => { const f = frame.families?.[i]; return plain || f === -1 ? 'is-plain' : `is-f${(f ?? 0) % 4}` }
+  const marks: { path: string; label: P; text: string; cls: string; boxed: boolean; found: boolean }[] = []
+  const lines: string[] = [], lit: string[] = []
+  const d = (list: P[]) => `M${list.map(p => `${p.x} ${p.y}`).join(' L')}`
+  const corners: { V: P; arms: P[] }[] = []
+  if (frame.shape === 'cross') {
+    const O = { x: W / 2, y: H / 2 }, u = unit({ x: Math.cos(rad(t)), y: -Math.sin(rad(t)) }), L = 96
+    const arms = [{ x: O.x + 120, y: O.y }, { x: O.x + u.x * L, y: O.y + u.y * L }, { x: O.x - 120, y: O.y }, { x: O.x - u.x * L, y: O.y - u.y * L }]
+    lines.push(d([arms[0], arms[2]]), d([arms[1], arms[3]]))
+    corners.push({ V: O, arms })
+    if (frame.lit === 'cross') lit.push(...lines)
+  } else {
+    const g = parallelGeometry(t, W, H)
+    lines.push(...g.lines.map(d), d([g.E[0], g.E[1]]), ...g.chevrons)
+    corners.push({ V: g.P[0], arms: g.arms[0] }, { V: g.P[1], arms: g.arms[1] })
+    if (frame.pair) lit.push(letterPath(g, frame.pair[0], frame.pair[1]))
+  }
+  frame.labels.forEach((text, i) => {
+    if (!text) return
+    const { V, arms } = corners[Math.floor(i / 4)], k = i % 4
+    const a = angle(V, arms[k], arms[(k + 1) % 4], placeSize(t, k), 0.9)
+    marks.push({ ...a, text, cls: fam(i), boxed: !plain && Boolean(frame.boxed?.includes(i)), found: !plain && Boolean(frame.found?.includes(i)) })
+  })
+  return <div className={`ns-angles${plain ? ' is-plain' : ''}`} role="img" aria-label={parallelSpoken(frame)}>
+    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      {!plain && lit.map((p, i) => <path key={`lit${i}`} className="ns-angles__lit" d={p} />)}
+      {lines.map((p, i) => <path key={i} className="ns-angles__line" d={p} />)}
+      {marks.map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
+        <path d={m.path} />
+        {(m.boxed || m.found) && <rect className={m.found ? 'ns-angles__found' : 'ns-angles__box'} x={m.label.x - m.text.length * 5 - 8} y={m.label.y - 15} width={m.text.length * 10 + 16} height="30" rx="7" />}
+        <text x={m.label.x} y={m.label.y}>{m.text}</text>
+      </g>)}
+    </svg>
+  </div>
+}
+
 export function AngleVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
+  if (frame.shape === 'parallel' || frame.shape === 'cross') return <ParallelVisual frame={frame} plain={plain} />
   const { at, left, right } = fit(frame)
   const fam = (i: number) => {
     const f = frame.families?.[i]

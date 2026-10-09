@@ -123,13 +123,19 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
  * See AnglePictures.tsx.
  */
 /**
+ * Angles in parallel lines (geometry lesson 2, GM2): `parallel` is two parallel lines (arrows on both) crossed by a
+ * third, `angles[0]` the angle it makes going up from the right of each parallel line. Its eight angles are labelled in
+ * places 0–7: at the top crossing 0 above right, 1 above left, 2 below left, 3 below right; at the bottom crossing the
+ * same, 4–7. `cross` is two straight lines crossing, its four angles in places 0–3 the same way.
+ */
+/**
  * Angle facts (geometry lesson 1, GM1) use the same picture with more angles: a straight line with any number of lines
  * from one point on it (`angles`, right to left, the last made up to 180), lines out from a point all the way round
  * (`point`, the angles anticlockwise from `turn`, making 360), and a quadrilateral drawn to its four angles. A family of
  * −1 is a given angle in plain ink; `found` boxes an answer in green; `lit` draws the part a step uses in purple.
  */
 export type AngleFrame = {
-  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point'
+  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross'
   /** Triangle: the two base angles in degrees (left, right), drawn to scale. Straight line: the angles from the right.
    *  Around a point: every angle, anticlockwise. Quadrilateral: the four angles anticlockwise from the bottom left. */
   angles: number[]
@@ -150,7 +156,9 @@ export type AngleFrame = {
   found?: number[]
   /** The part of the picture a step uses, drawn over in purple: the straight line, the full turn, the shape's sides, or
    *  the two equal sides of an isosceles triangle. */
-  lit?: 'line' | 'turn' | 'shape' | 'sides'
+  lit?: 'line' | 'turn' | 'shape' | 'sides' | 'cross'
+  /** Parallel lines: two angles whose letter (F, Z or C) is drawn over the lines in purple, by their places (0–7). */
+  pair?: [number, number]
   /** The picture on the opening screen, before the first step changes it. */
   before?: Omit<AngleFrame, 'before'>
 }

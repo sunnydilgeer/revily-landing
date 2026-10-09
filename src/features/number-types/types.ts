@@ -168,6 +168,10 @@ export type MicroSkillId =
   | 'geometry-shapes'
   | 'geometry-isosceles'
   | 'geometry-two-steps'
+  | 'geometry-opposite'
+  | 'geometry-f-z'
+  | 'geometry-allied'
+  | 'geometry-parallel-steps'
   | 'mixed'
 
 export type LessonPhase =
