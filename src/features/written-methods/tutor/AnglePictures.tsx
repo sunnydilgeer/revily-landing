@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { AngleFrame } from './methodWorking'
+import { FigureVisual } from './FigurePictures'
 
 /*
  * Geometric proof (lesson 28, A13.3), like the A13.3 video: a triangle drawn to its own angles, each angle marked with
@@ -301,6 +302,7 @@ function PolygonVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean })
 }
 
 export function AngleVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
+  if (frame.shape === 'figure' && frame.figure) return <FigureVisual frame={frame.figure} plain={plain} />
   if (frame.shape === 'polygon') return <PolygonVisual frame={frame} plain={plain} />
   if (frame.shape === 'parallel' || frame.shape === 'cross') return <ParallelVisual frame={frame} plain={plain} />
   const { at, left, right } = fit(frame)

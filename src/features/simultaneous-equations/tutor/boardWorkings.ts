@@ -34,7 +34,7 @@ export function rowTex(line: string) {
   const plain = line.replace(/^(>\d?|!) /, '').replace(/^[①②] /, '').replace(/[~^[\]]/g, '')
   if (/[a-z]{3,}/i.test(plain.replace(/\b(?:[a-z])\b/gi, ''))) return `\\text{${plain.replace(/[{}]/g, '').replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/[①②]/g, m => m === '①' ? '(1)' : '(2)').replace(/✓/g, '}\\checkmark\\text{').replace(/²/g, '}^{2}\\text{')}}`
   return plain.replace(/[①②]/g, m => m === '①' ? '(1)' : '(2)').replace(/≡/g, '\\equiv ').replace(/−/g, '-').replace(/×/g, '\\times ').replace(/÷/g, '\\div ')
-    .replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/²/g, '^{2}').replace(/°/g, '^{\\circ}').replace(/✓/g, '\\checkmark').replace(/\{([^|]*)\|([^}]*)\}/g, '\\frac{$1}{$2}')
+    .replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/²/g, '^{2}').replace(/°/g, '^{\\circ}').replace(/π/g, '\\pi ').replace(/✓/g, '\\checkmark').replace(/\{([^|]*)\|([^}]*)\}/g, '\\frac{$1}{$2}')
 }
 
 /**

@@ -451,3 +451,26 @@
 .ns-percent__note { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
 .ns-ratio__match { stroke: var(--rv-ink); stroke-width: 2; stroke-dasharray: 4 3; }
 .ns-ratio__note { fill: #7c3aed; font-size: 16px; font-weight: 700; }
+/* Measured figures (geometry lessons 5 to 9, FigurePictures.tsx): a lightly filled shape, mirror lines red and dashed,
+   measurements with arrows, and labels in the angle pictures' colours. */
+.ns-fig__shape { fill: color-mix(in srgb, var(--rv-biro) 9%, transparent); stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.ns-fig__shape.is-empty { fill: none; }
+.ns-fig__shape.is-part { fill: color-mix(in srgb, #7c3aed 22%, transparent); }
+.ns-fig__shape.is-dashed { stroke-dasharray: 7 6; fill: none; }
+.ns-fig__line { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-linecap: round; }
+.ns-fig__line.is-thin { stroke-width: 2; }
+.ns-fig__line.is-mirror { stroke: #dc2626; stroke-dasharray: 8 6; }
+.ns-fig__line.is-dashed { stroke-dasharray: 7 6; stroke-width: 2; }
+.ns-fig__line.is-lit { stroke: #7c3aed; stroke-width: 5; }
+.ns-fig__line.is-lit.is-quiet { stroke: var(--rv-ink); stroke-width: 2.5; }
+.ns-fig__line.is-x { stroke: var(--rv-biro); stroke-width: 4; }
+.ns-fig__line.is-found { stroke: var(--rv-good); stroke-width: 5; }
+.ns-fig__measure path { fill: none; stroke: var(--f, var(--rv-ink)); stroke-width: 1.8; stroke-linecap: round; }
+.ns-fig__point { fill: var(--rv-ink); }
+.ns-fig__label text { fill: var(--f, var(--rv-ink)); font-size: 16px; font-weight: 700; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper, #fff); stroke-width: 4px; stroke-linejoin: round; }
+.ns-fig .is-given { --f: var(--rv-ink); }
+.ns-fig .is-x { --f: var(--rv-biro); }
+.ns-fig .is-lit { --f: #6d28d9; }
+.ns-fig .is-found { --f: var(--rv-good-ink); }
+.ns-fig .is-faint { --f: color-mix(in srgb, var(--rv-ink) 40%, transparent); }
+.ns-fig.is-plain .is-x, .ns-fig.is-plain .is-lit, .ns-fig.is-plain .is-found { --f: var(--rv-ink); }
