@@ -122,9 +122,16 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
  * new angles, `copies`, and `zig` draws the Z of alternate angles in purple. `boxed` labels are ringed in purple.
  * See AnglePictures.tsx.
  */
+/**
+ * Angle facts (geometry lesson 1, GM1) use the same picture with more angles: a straight line with any number of lines
+ * from one point on it (`angles`, right to left, the last made up to 180), lines out from a point all the way round
+ * (`point`, the angles anticlockwise from `turn`, making 360), and a quadrilateral drawn to its four angles. A family of
+ * −1 is a given angle in plain ink; `found` boxes an answer in green; `lit` draws the part a step uses in purple.
+ */
 export type AngleFrame = {
-  shape: 'triangle' | 'exterior' | 'line' | 'quad'
-  /** Triangle: the two base angles in degrees (left, right), drawn to scale. Straight line: the angle on the right. */
+  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point'
+  /** Triangle: the two base angles in degrees (left, right), drawn to scale. Straight line: the angles from the right.
+   *  Around a point: every angle, anticlockwise. Quadrilateral: the four angles anticlockwise from the bottom left. */
   angles: number[]
   labels: string[]
   /** Which label colours (`is-f…`) each angle takes, in the same order. */
@@ -137,6 +144,13 @@ export type AngleFrame = {
   boxed?: number[]
   /** A quadrilateral's diagonal, cutting it into two triangles. */
   split?: boolean
+  /** Around a point: where the first line points, in degrees anticlockwise from the right. */
+  turn?: number
+  /** Labels boxed in green: the answer, found. */
+  found?: number[]
+  /** The part of the picture a step uses, drawn over in purple: the straight line, the full turn, the shape's sides, or
+   *  the two equal sides of an isosceles triangle. */
+  lit?: 'line' | 'turn' | 'shape' | 'sides'
   /** The picture on the opening screen, before the first step changes it. */
   before?: Omit<AngleFrame, 'before'>
 }
