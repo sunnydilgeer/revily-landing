@@ -208,7 +208,100 @@ function ParallelVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }
   </div>
 }
 
+/* ---------- Any polygon, drawn to its angles (geometry lessons 3 and 4) ---------- */
+
+/**
+ * The corners of a polygon with these angles (anticlockwise from the bottom left): walk round it, turning by each
+ * outside angle (180 − the inside one). The first sides are `sides` long (1 when left out); the last two are worked out so
+ * the walk ends where it began; `turn` tilts the first side up from flat. Null when no such shape closes.
+ */
+export function polygonCorners(angles: number[], sides: number[] = [], turn = 0): P[] | null {
+  const n = angles.length
+  const dirs: number[] = []
+  let d = turn
+  for (let i = 0; i < n; i++) { dirs.push(d); d += 180 - angles[(i + 1) % n] }
+  const lengths = dirs.slice(0, n - 2).map((_, i) => sides[i] ?? 1)
+  let x = 0, y = 0
+  lengths.forEach((L, i) => { x += L * Math.cos(rad(dirs[i])); y += L * Math.sin(rad(dirs[i])) })
+  // The last two sides: a·u + b·v = −(x, y).
+  const u = ray(dirs[n - 2]), v = ray(dirs[n - 1])
+  const det = u.x * v.y - u.y * v.x
+  if (Math.abs(det) < 1e-9) return null
+  const a = (-x * v.y + y * v.x) / det, b = (-u.x * y + u.y * x) / det
+  if (a <= 0.05 || b <= 0.05) return null
+  const pts: P[] = [{ x: 0, y: 0 }]
+  ;[...lengths, a, b].slice(0, n - 1).forEach((L, i) => { const p = pts[i]; pts.push({ x: p.x + L * Math.cos(rad(dirs[i])), y: p.y + L * Math.sin(rad(dirs[i])) }) })
+  return pts
+}
+
+function polygonSpoken(frame: AngleFrame) {
+  const n = frame.angles.length
+  const parts = [`A shape with ${n} sides.`]
+  frame.labels.forEach((l, i) => { if (l) parts.push(`Angle ${frame.names?.[i] ?? i + 1}: ${l}.`) })
+  if (frame.sideTicks?.some(Boolean)) parts.push('Tick marks show which sides are equal.')
+  if (frame.sideArrows?.some(Boolean)) parts.push('Arrows show which sides are parallel.')
+  if (frame.fan) parts.push(`Lines from one corner cut it into ${n - 2} triangles.`)
+  frame.outside?.forEach((l, i) => { if (l) parts.push(`Outside angle at ${frame.names?.[i] ?? `corner ${i + 1}`}: ${l}.`) })
+  if (frame.caption) parts.push(frame.caption)
+  return parts.join(' ')
+}
+
+function PolygonVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
+  const raw = polygonCorners(frame.angles, frame.sides, frame.turn) ?? []
+  const n = raw.length
+  // Room round the shape for outside angles and corner names.
+  const extra: Record<string, P> = {}
+  raw.forEach((p, i) => { if (frame.outside?.[i]) { const q = raw[(i + n - 1) % n], u = unit(sub(p, q)); extra[`e${i}`] = { x: p.x + u.x * 0.45, y: p.y + u.y * 0.45 } } })
+  const named = Object.fromEntries(raw.map((p, i) => [`v${i}`, p]))
+  const { at } = fitInto({ ...named, ...extra }, W, H, frame.names ? 34 : 26)
+  const V = raw.map((_, i) => at[`v${i}`])
+  const fam = (i: number) => { const f = frame.families?.[i]; return plain || f === -1 ? 'is-plain' : `is-f${(f ?? 0) % 4}` }
+  const lines = [`M${V.map(p => `${p.x} ${p.y}`).join(' L')} Z`]
+  const lit: string[] = []
+  if (frame.lit === 'shape') lit.push(lines[0])
+  if (frame.fan) for (let i = 2; i < n - 1; i++) (plain ? lines : lit).push(`M${V[0].x} ${V[0].y} L${V[i].x} ${V[i].y}`)
+  const marks: { path: string; label: P; text: string; cls: string; boxed: boolean; found: boolean }[] = []
+  V.forEach((p, i) => {
+    const text = frame.labels[i]
+    if (!text) return
+    const a = angle(p, V[(i + 1) % n], V[(i + n - 1) % n], frame.angles[i], n > 6 ? 0.8 : 1)
+    marks.push({ ...a, text, cls: fam(i), boxed: !plain && Boolean(frame.boxed?.includes(i)), found: !plain && Boolean(frame.found?.includes(i)) })
+  })
+  frame.outside?.forEach((text, i) => {
+    if (!text) return
+    const e = at[`e${i}`]
+    lines.push(`M${V[i].x} ${V[i].y} L${e.x} ${e.y}`)
+    const a = angle(V[i], e, V[(i + 1) % n], 180 - frame.angles[i], 0.9)
+    const k = n + i
+    marks.push({ ...a, text, cls: fam(k), boxed: !plain && Boolean(frame.boxed?.includes(k)), found: !plain && Boolean(frame.found?.includes(k)) })
+  })
+  // Ticks across a side's middle; arrows along it, just past the middle.
+  V.forEach((p, i) => {
+    const q = V[(i + 1) % n], m = along(p, q, 0.5), u = unit(sub(q, p)), nrm = { x: -u.y, y: u.x }
+    const ticks = frame.sideTicks?.[i] ?? 0
+    for (let k = 0; k < ticks; k++) { const c = { x: m.x + u.x * (k - (ticks - 1) / 2) * 6, y: m.y + u.y * (k - (ticks - 1) / 2) * 6 }; lines.push(`M${c.x - nrm.x * 7} ${c.y - nrm.y * 7} L${c.x + nrm.x * 7} ${c.y + nrm.y * 7}`) }
+    // Arrows on parallel sides all point the same way (right, or down), whichever way round the shape the side runs.
+    const arrows = frame.sideArrows?.[i] ?? 0, w = u.x < -0.01 || (Math.abs(u.x) <= 0.01 && u.y < 0) ? { x: -u.x, y: -u.y } : u
+    for (let k = 0; k < arrows; k++) { const o = (ticks ? 16 : 4) + k * 8, c = { x: m.x + w.x * o, y: m.y + w.y * o }; lines.push(`M${c.x - w.x * 7 + nrm.x * 6} ${c.y - w.y * 7 + nrm.y * 6} L${c.x} ${c.y} L${c.x - w.x * 7 - nrm.x * 6} ${c.y - w.y * 7 - nrm.y * 6}`) }
+  })
+  const centre = V.reduce((c, p) => ({ x: c.x + p.x / n, y: c.y + p.y / n }), { x: 0, y: 0 })
+  return <div className={`ns-angles${plain ? ' is-plain' : ''}`} role="img" aria-label={polygonSpoken(frame)}>
+    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      {!plain && lit.map((p, i) => <path key={`lit${i}`} className="ns-angles__lit" d={p} />)}
+      {lines.map((p, i) => <path key={i} className="ns-angles__line" d={p} />)}
+      {marks.map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
+        <path d={m.path} />
+        {(m.boxed || m.found) && <rect className={m.found ? 'ns-angles__found' : 'ns-angles__box'} x={m.label.x - m.text.length * 5 - 8} y={m.label.y - 15} width={m.text.length * 10 + 16} height="30" rx="7" />}
+        <text x={m.label.x} y={m.label.y}>{m.text}</text>
+      </g>)}
+      {frame.names?.map((name, i) => { const u = unit(sub(V[i], centre)); return <text key={`n${i}`} className="ns-angles__name" x={V[i].x + u.x * 16} y={V[i].y + u.y * 16}>{name}</text> })}
+    </svg>
+    {frame.caption && <p className="ns-angles__caption">{frame.caption}</p>}
+  </div>
+}
+
 export function AngleVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
+  if (frame.shape === 'polygon') return <PolygonVisual frame={frame} plain={plain} />
   if (frame.shape === 'parallel' || frame.shape === 'cross') return <ParallelVisual frame={frame} plain={plain} />
   const { at, left, right } = fit(frame)
   const fam = (i: number) => {

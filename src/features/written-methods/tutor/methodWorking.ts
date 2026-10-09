@@ -129,13 +129,18 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
  * same, 4–7. `cross` is two straight lines crossing, its four angles in places 0–3 the same way.
  */
 /**
+ * 2D shapes and interior and exterior angles (geometry lessons 3 and 4, GM3–GM4): `polygon` is any shape drawn to its
+ * angles (`angles`, one per corner, anticlockwise from the bottom left), with ticks for equal sides, arrows for
+ * parallel sides, corner names, diagonals from one corner (`fan`) and outside angles (`outside`).
+ */
+/**
  * Angle facts (geometry lesson 1, GM1) use the same picture with more angles: a straight line with any number of lines
  * from one point on it (`angles`, right to left, the last made up to 180), lines out from a point all the way round
  * (`point`, the angles anticlockwise from `turn`, making 360), and a quadrilateral drawn to its four angles. A family of
  * −1 is a given angle in plain ink; `found` boxes an answer in green; `lit` draws the part a step uses in purple.
  */
 export type AngleFrame = {
-  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross'
+  shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross' | 'polygon'
   /** Triangle: the two base angles in degrees (left, right), drawn to scale. Straight line: the angles from the right.
    *  Around a point: every angle, anticlockwise. Quadrilateral: the four angles anticlockwise from the bottom left. */
   angles: number[]
@@ -150,7 +155,8 @@ export type AngleFrame = {
   boxed?: number[]
   /** A quadrilateral's diagonal, cutting it into two triangles. */
   split?: boolean
-  /** Around a point: where the first line points, in degrees anticlockwise from the right. */
+  /** Around a point: where the first line points, in degrees anticlockwise from the right. Polygon: how far the first
+   *  side is tilted up from flat (to stand a kite on its point). */
   turn?: number
   /** Labels boxed in green: the answer, found. */
   found?: number[]
@@ -159,6 +165,19 @@ export type AngleFrame = {
   lit?: 'line' | 'turn' | 'shape' | 'sides' | 'cross'
   /** Parallel lines: two angles whose letter (F, Z or C) is drawn over the lines in purple, by their places (0–7). */
   pair?: [number, number]
+  /** Polygon: how long the first sides are (the last two are worked out so the shape closes); 1 each when left out. */
+  sides?: number[]
+  /** Polygon: how many ticks on each side (equal sides), and how many arrows (parallel sides). */
+  sideTicks?: number[]
+  sideArrows?: number[]
+  /** Polygon: each corner's name (A, B, C…), outside the shape. */
+  names?: string[]
+  /** Polygon: lines from corner 0 to every other corner, cutting it into triangles. */
+  fan?: boolean
+  /** Polygon: outside angles, by corner: the side into that corner carries on past it, and the label sits in the gap. */
+  outside?: (string | null)[]
+  /** Polygon: the shape's name or other words under it, kept out of the picture's way. */
+  caption?: string
   /** The picture on the opening screen, before the first step changes it. */
   before?: Omit<AngleFrame, 'before'>
 }

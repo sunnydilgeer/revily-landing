@@ -19,3 +19,11 @@
 .angle-board__same.is-moved, .angle-board__total.is-moved { animation: angle-board-hold .45s ease-out; }
 @keyframes angle-board-hold { 0% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .angle-board__same.is-moved, .angle-board__total.is-moved { animation: none; } .angle-board__handle { transition: none; } }
+/* 2D shapes (geometry lessons 3 and 4): regular or not, the inside-angle rule, and the side buttons. */
+.angle-board__tag { display: inline-block; margin-left: 4px; padding: 0 8px; border-radius: 999px; background: color-mix(in srgb, var(--rv-ink) 8%, transparent); color: var(--rv-ink); font-size: 16px; font-weight: 700; }
+.angle-board__tag.is-regular { background: color-mix(in srgb, #7c3aed 14%, transparent); color: #6d28d9; }
+.angle-board__rule { margin: -4px 0 0; color: var(--rv-ink); font-size: 16px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
+.angle-board__sides { display: flex; gap: 10px; }
+.angle-board__side { min-width: 92px; min-height: 44px; padding: 0 14px; border: 2px solid var(--rv-biro); border-radius: 999px; background: var(--rv-surface, #fff); color: var(--rv-biro); font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; }
+.angle-board__side:disabled { opacity: .35; cursor: default; }
+.angle-board__side:focus-visible { outline: 3px solid color-mix(in srgb, var(--rv-biro) 45%, transparent); outline-offset: 2px; }
