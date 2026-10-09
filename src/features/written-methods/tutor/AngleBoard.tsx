@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { angle, tick, turnBetween, type P } from './AnglePictures'
+import { angle, letterPath, parallelGeometry, placeSize, tick, turnBetween, type P } from './AnglePictures'
 import './AngleBoard.css'
 
 /*
@@ -16,12 +16,20 @@ import './AngleBoard.css'
  * - triangle: drag the top corner anywhere: the three angles change, and still make 180°.
  * - isosceles: the two sides from the top are equal. Drag the top corner up or down: the two base angles stay equal.
  * - quad: drag one corner of a quadrilateral: the four angles change, and still make 360°.
+ *
+ * Angles in parallel lines (geometry lesson 2) add two more, where what stays is a match, not a total:
+ * - cross: two straight lines crossing. Drag one: the opposite angles stay equal.
+ * - parallel: a line across two parallel lines, with one pair of angles lit in its letter (`pair`): F (corresponding)
+ *   and Z (alternate) stay equal, and C (allied) always adds to 180°.
  */
 
 export type AngleBoardSpec = {
-  mode: 'line' | 'point' | 'triangle' | 'isosceles' | 'quad'
+  mode: 'line' | 'point' | 'triangle' | 'isosceles' | 'quad' | 'cross' | 'parallel'
+  /** parallel: the pair of angles to light, by its letter. */
+  pair?: 'F' | 'Z' | 'C'
   /** line: the angle on the right. point: where each line points (degrees anticlockwise from the right). triangle: the
-   *  two base angles. isosceles: the base angle. quad: the dragged top-left corner, as x and y in the picture. */
+   *  two base angles. isosceles: the base angle. quad: the dragged top-left corner, as x and y in the picture.
+   *  cross and parallel: the angle the moving line makes, going up from the right. */
   start: number[]
 }
 
@@ -40,9 +48,24 @@ function apex(A: P, B: P, a: number, b: number): P {
   return { x: A.x + t * Math.cos(a * r), y: A.y - t * Math.sin(a * r) }
 }
 
-type Shape = { lines: string[]; angles: { V: P; from: P; to: P; size: number }[]; handles: P[]; total: number; ticks?: string[] }
+type Shape = { lines: string[]; angles: { V: P; from: P; to: P; size: number }[]; handles: P[]; total: number; ticks?: string[]; lit?: string }
 
-function shapeOf(mode: AngleBoardSpec['mode'], v: number[]): Shape {
+/** The places (0–7) of each letter's pair: F corresponding, Z alternate, C allied. */
+export const PAIRS = { F: [0, 4], Z: [2, 4], C: [3, 4] } as const
+
+function shapeOf(mode: AngleBoardSpec['mode'], v: number[], pair: AngleBoardSpec['pair'] = 'F'): Shape {
+  if (mode === 'cross') {
+    const O = { x: 160, y: 110 }, far = dir(O, v[0], 100), back = dir(O, v[0] + 180, 100)
+    const arms = [{ x: 300, y: 110 }, far, { x: 20, y: 110 }, back]
+    return { lines: [`M20 110 L300 110`, `M${back.x} ${back.y} L${far.x} ${far.y}`], handles: [far], total: 0,
+      angles: arms.map((a, k) => ({ V: O, from: a, to: arms[(k + 1) % 4], size: placeSize(v[0], k) })) }
+  }
+  if (mode === 'parallel') {
+    const g = parallelGeometry(v[0], W, H), d = (list: P[]) => `M${list.map(p => `${p.x} ${p.y}`).join(' L')}`
+    const [a, b] = PAIRS[pair]
+    return { lines: [...g.lines.map(d), d([g.E[0], g.E[1]]), ...g.chevrons], handles: [g.E[0]], total: 0, lit: letterPath(g, a, b),
+      angles: [a, b].map(i => { const arms = g.arms[Math.floor(i / 4)], k = i % 4; return { V: g.P[Math.floor(i / 4)], from: arms[k], to: arms[(k + 1) % 4], size: placeSize(v[0], k) } }) }
+  }
   if (mode === 'line') {
     const O = { x: 160, y: 160 }, L = { x: 20, y: 160 }, R = { x: 300, y: 160 }, T = dir(O, v[0], 120)
     return { lines: [`M${L.x} ${L.y} L${R.x} ${R.y}`, `M${O.x} ${O.y} L${T.x} ${T.y}`], angles: [{ V: O, from: R, to: T, size: v[0] }, { V: O, from: T, to: L, size: 180 - v[0] }], handles: [T], total: 180 }
@@ -70,6 +93,8 @@ function shapeOf(mode: AngleBoardSpec['mode'], v: number[]): Shape {
 
 /** The next angles when a handle is dragged to p, or null when the move would break the shape. */
 function dragTo(mode: AngleBoardSpec['mode'], v: number[], handle: number, p: P): number[] | null {
+  if (mode === 'cross') return [clamp(Math.round(heading({ x: 160, y: 110 }, p)), 20, 160)]
+  if (mode === 'parallel') return [clamp(Math.round(heading({ x: W / 2, y: H / 2 }, p)), 38, 142)]
   if (mode === 'line') return [clamp(Math.round(heading({ x: 160, y: 160 }, p)), 8, 172) || 8]
   if (mode === 'point') {
     const n = v.length, d = Math.round(heading({ x: 160, y: 110 }, p))
@@ -96,6 +121,8 @@ function nudge(mode: AngleBoardSpec['mode'], v: number[], key: string): number[]
   if (!step) return null
   const vertical = key === 'ArrowUp' || key === 'ArrowDown'
   if (mode === 'line') return [clamp(v[0] - step, 8, 172)]
+  if (mode === 'cross') return [clamp(v[0] - step, 20, 160)]
+  if (mode === 'parallel') return [clamp(v[0] - step, 38, 142)]
   if (mode === 'point') return dragTo(mode, v, 0, dir({ x: 160, y: 110 }, v[0] + step, 95))
   if (mode === 'isosceles') return [clamp(v[0] + step, 10, 80)]
   if (mode === 'quad') return dragTo(mode, v, 0, vertical ? { x: v[0], y: v[1] - step * 4 } : { x: v[0] + step * 4, y: v[1] })
@@ -109,7 +136,7 @@ export function AngleBoard({ spec }: { spec: AngleBoardSpec }) {
   const [moved, setMoved] = useState(false)
   const svg = useRef<SVGSVGElement>(null)
   const id = useId()
-  const shape = shapeOf(spec.mode, values)
+  const shape = shapeOf(spec.mode, values, spec.pair)
 
   const toSvg = (event: PointerEvent): P | null => {
     const matrix = svg.current?.getScreenCTM()
@@ -137,18 +164,24 @@ export function AngleBoard({ spec }: { spec: AngleBoardSpec }) {
   }
 
   const sum = shape.angles.reduce((total, a) => total + a.size, 0)
-  const spoken = `${shape.angles.map(a => `${a.size}°`).join(' plus ')} makes ${sum}°.`
-  const what = { line: 'Drag the end of the line, or use the arrow keys.', point: 'Drag any line round the point, or use the arrow keys.', triangle: 'Drag the top corner, or use the arrow keys.', isosceles: 'Drag the top corner up or down, or use the arrow keys.', quad: 'Drag the top left corner, or use the arrow keys.' }[spec.mode]
+  const match = spec.mode === 'cross' || (spec.mode === 'parallel' && spec.pair !== 'C')
+  // Opposite angles share a colour: they are the same size.
+  const colour = (i: number) => spec.mode === 'cross' ? COLOURS[i % 2] : COLOURS[i]
+  const spoken = spec.mode === 'cross' ? `The opposite angles match: ${shape.angles[0].size}° and ${shape.angles[2].size}°, ${shape.angles[1].size}° and ${shape.angles[3].size}°.`
+    : match ? `The two angles in the ${spec.pair} match: ${shape.angles[0].size}° and ${shape.angles[1].size}°.`
+    : `${shape.angles.map(a => `${a.size}°`).join(' plus ')} makes ${sum}°.`
+  const what = { line: 'Drag the end of the line, or use the arrow keys.', point: 'Drag any line round the point, or use the arrow keys.', triangle: 'Drag the top corner, or use the arrow keys.', isosceles: 'Drag the top corner up or down, or use the arrow keys.', quad: 'Drag the top left corner, or use the arrow keys.', cross: 'Drag the end of the sloping line, or use the arrow keys.', parallel: 'Drag the top of the line crossing the parallel lines, or use the arrow keys.' }[spec.mode]
 
   return <div className={`angle-board${held !== null ? ' is-held' : ''}`}>
     <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Angle board. ${what}`} aria-describedby={`${id}-sum`}
       onPointerDown={down} onPointerMove={event => { if (held !== null) move(held, toSvg(event)) }} onPointerUp={() => setHeld(null)} onPointerCancel={() => setHeld(null)} onKeyDown={key}>
+      {shape.lit && <path className="ns-angles__lit" d={shape.lit} />}
       {shape.lines.map((d, i) => <path key={i} className="ns-angles__line" d={d} />)}
       {shape.ticks?.map((d, i) => <path key={`t${i}`} className="ns-angles__line" d={d} />)}
       {shape.angles.map((a, i) => {
         const drawn = angle(a.V, a.from, a.to, a.size)
         const text = `${a.size}°`
-        return <g key={i} className={`angle-board__mark ${COLOURS[i]}`}>
+        return <g key={i} className={`angle-board__mark ${colour(i)}`}>
           <path d={drawn.path} />
           <text x={drawn.label.x} y={drawn.label.y}>{text}</text>
         </g>
@@ -157,7 +190,11 @@ export function AngleBoard({ spec }: { spec: AngleBoardSpec }) {
     </svg>
     <p className="angle-board__sum" id={`${id}-sum`} aria-live="polite">
       <span className="sr-only">{spoken}</span>
-      <span aria-hidden="true">{shape.angles.map((a, i) => <span key={i}>{i ? ' + ' : ''}<span className={`angle-board__n ${COLOURS[i]}`}>{a.size}°</span></span>)} = <strong className={`angle-board__total${moved ? ' is-moved' : ''}`} key={moved ? sum + values.join() : 'still'}>{sum}°</strong></span>
+      {spec.mode === 'cross'
+        ? <span aria-hidden="true">{[[0, 2], [1, 3]].map(([a, b], n) => <span key={n}>{n ? <span className="angle-board__gap" /> : null}<span className={`angle-board__n ${colour(a)}`}>{shape.angles[a].size}°</span> <strong className={`angle-board__same${moved ? ' is-moved' : ''}`} key={moved ? values.join() : 'still'}>=</strong> <span className={`angle-board__n ${colour(b)}`}>{shape.angles[b].size}°</span></span>)}</span>
+        : match
+        ? <span aria-hidden="true"><span className={`angle-board__n ${colour(0)}`}>{shape.angles[0].size}°</span> <strong className={`angle-board__same${moved ? ' is-moved' : ''}`} key={moved ? values.join() : 'still'}>=</strong> <span className={`angle-board__n ${colour(1)}`}>{shape.angles[1].size}°</span></span>
+        : <span aria-hidden="true">{shape.angles.map((a, i) => <span key={i}>{i ? ' + ' : ''}<span className={`angle-board__n ${colour(i)}`}>{a.size}°</span></span>)} = <strong className={`angle-board__total${moved ? ' is-moved' : ''}`} key={moved ? sum + values.join() : 'still'}>{sum}°</strong></span>}
     </p>
   </div>
 }
