@@ -23,6 +23,24 @@ const MIN_SHARE = 0.6
  * there; small steps, each measured afresh, settle on the right size instead of overshooting on that moment.
  */
 const MAX_STEP = 0.85
+/** The smallest text a shrunk diagram may show, in screen pixels: past this it stays readable and the card scrolls. */
+const MIN_TEXT = 11
+
+/** The smallest text in a diagram as drawn on screen (zoom and an SVG's own scaling included), or Infinity. */
+function smallestText(diagram: HTMLElement) {
+  let smallest = Infinity
+  for (const label of diagram.querySelectorAll<SVGTextElement>('text')) {
+    const height = label.getBoundingClientRect().height
+    if (height && label.textContent?.trim()) smallest = Math.min(smallest, height / 1.2)
+  }
+  const zoom = parseFloat(diagram.style.zoom) || 1
+  for (const el of diagram.querySelectorAll<HTMLElement>('p, li, span, strong, td, th, small, b, label')) {
+    if (el.closest('svg') || !el.textContent?.trim() || !el.getBoundingClientRect().width) continue
+    smallest = Math.min(smallest, parseFloat(getComputedStyle(el).fontSize) * zoom)
+  }
+  return smallest
+}
+
 /** The shortest a worked example's working window gets (about three lines) before its diagram shrinks instead. */
 const MIN_ROLL = 132
 
@@ -42,7 +60,8 @@ function overflowOf(card: HTMLElement) {
  * Makes a card's content fit the screen, so it rarely scrolls. A worked example's working window shrinks first. A
  * graph is drawn square for square on the card's
  * squared paper, so the paper's squares shrink (or grow back) and the graph follows them (GraphPictures.tsx realigns
- * on resize). Any other diagram is scaled with CSS zoom, never below its floor. Returns true when it changed something.
+ * on resize). Any other diagram is scaled with CSS zoom, never below its floor or past readable text (MIN_TEXT).
+ * Returns true when it changed something.
  */
 function fit(card: HTMLElement) {
   const over = overflowOf(card)
@@ -83,7 +102,9 @@ function fit(card: HTMLElement) {
   if (!target || target.height < 120 && !shrunk) return false
   const zoom = parseFloat(target.el.style.zoom) || 1
   let next = zoom
-  if (over > 0) next = Math.max(target.floor, zoom * MAX_STEP, zoom * (target.height - over - 4) / target.height)
+  // Never shrink a diagram's labels past readable (Sunny, 10 Oct: angle names went down to 7px on a laptop).
+  const legible = zoom * MIN_TEXT / smallestText(target.el)
+  if (over > 0) next = Math.min(zoom, Math.max(target.floor, legible, zoom * MAX_STEP, zoom * (target.height - over - 4) / target.height))
   else if (zoom < 1 && -over > 12) next = Math.min(1, zoom * (target.height - over - 8) / target.height)
   next = Math.round(next * 100) / 100
   if (Math.abs(next - zoom) < 0.01) return false
