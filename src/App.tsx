@@ -46,7 +46,8 @@ import RevisionCards from './features/cards/RevisionCards'
 import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
 import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from './features/maths/subject'
 import dynamic from 'next/dynamic'
-import { RevilyLogo } from './ui'
+import { CloseIcon, ContentsIcon } from './ui/icons'
+import { LessonBarSlot } from './features/maths/rungs'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
 import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber, type MathsSection } from './features/maths/courseRegistry'
 import {
@@ -95,6 +96,8 @@ function App() {
   const [lastLesson, setLastLesson] = useState<MathsLessonNumber>(1)
   const [subject, setSubject] = useState<Subject>('maths')
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
+  // The lesson's section title and progress draw into the top bar (see LessonBarSlot in rungs.tsx).
+  const [barSlot, setBarSlot] = useState<HTMLDivElement | null>(null)
   const currentLesson = getMathsLesson(lesson)
   const study = useStudySummary()
   useStudyTimer(view === 'cards' || (subject === 'maths' && view === 'lesson'), subject)
@@ -221,24 +224,23 @@ function App() {
   }
 
   return <div className="app-shell app-shell--lesson app-shell--study">
-    <header className="site-header">
-      <RevilyLogo wordmark={false} size={24} href="/preview" />
-      <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
-        <button type="button" onClick={showOverview}>Chapters</button>
-        <span aria-hidden="true">/</span>
-        <span className="maths-breadcrumb-number" aria-current="page">{currentLesson.title}</span>
+    <header className="site-header lesson-bar">
+      <nav className="lesson-bar__crumbs" aria-label="Breadcrumb">
+        <button type="button" className="lesson-bar__close" onClick={showOverview} aria-label="Close the lesson and go back to Chapters"><CloseIcon size={22} /></button>
+        <span className="sr-only" aria-current="page">{currentLesson.title}</span>
       </nav>
+      <div className="lesson-bar__slot" ref={setBarSlot} />
       <button
         ref={contentsButtonRef}
-        className="maths-contents-button"
+        className="maths-contents-button lesson-bar__contents"
         type="button"
         aria-expanded={drawerOpen}
         aria-controls="maths-contents"
         onClick={() => setDrawerOpen(true)}
-      >Contents</button>
+      ><ContentsIcon size={20} /><span>Contents</span></button>
     </header>
 
-    <main className="lesson-preview" id="main-content">{renderLesson(lesson)}</main>
+    <LessonBarSlot.Provider value={barSlot}><main className="lesson-preview" id="main-content">{renderLesson(lesson)}</main></LessonBarSlot.Provider>
 
     <MathsContentsDrawer
       open={drawerOpen}

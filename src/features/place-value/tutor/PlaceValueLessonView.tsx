@@ -2,7 +2,7 @@
 
 import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
-import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
+import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
 import { diagnoseNumber } from '../../written-methods/tutor/numberDiagnosis'
 import { Button, CheckBar } from '../../../ui'
 import { InlinePlaceHint } from './PlaceValueHint'
@@ -34,6 +34,7 @@ export default function TutorPlaceValueLessonView() {
 
   return <section className="numbers-lesson pvb-lesson pvt-lesson rung-lesson" id="lesson-3" aria-labelledby="pvt-topic">
     {header}
+    <DriveSteps flow={flow}>
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.title}</h3>
       {teaching && !state.video && state.content.body && <p className="pvb-body">{state.content.body}</p>}
@@ -54,7 +55,7 @@ export default function TutorPlaceValueLessonView() {
       {!teaching && !feedback && state.hints && <InlinePlaceHint hints={state.hints} onConsult={engine.markHintUsed} />}
       {feedback && state.working && <div className="rung-explain pvb-stage"><PlaceWorkingExample working={state.working} /></div>}
       {feedback?.workedExplanation && !state.working && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
-    </article>
+    </article></DriveSteps>
 
     {feedback
       ? <CheckBar
@@ -66,7 +67,7 @@ export default function TutorPlaceValueLessonView() {
         </CheckBar>
       : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
-          {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
+          {teaching && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {numeric && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!engine.inputValue.trim()}>Check</Button>}
         </CheckBar>}
   </section>

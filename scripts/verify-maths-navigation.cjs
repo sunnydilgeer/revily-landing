@@ -59,6 +59,17 @@ assert.ok(drawer.includes('aria-label="Search lessons and skills"'), 'Contents m
 assert.ok(drawer.includes('aria-expanded={chapterOpen}') && drawer.includes('aria-expanded={skillsOpen}'), 'Chapters and lessons must fold open and closed')
 assert.ok(app.includes('selectSkillFromDrawer'), 'Any skill in any lesson must open in one tap')
 
+// Lesson page: one slim top bar (close, section + progress, Contents), and one main button that also steps through worked examples
+const rungs = read('src/features/maths/rungs.tsx')
+const chain = read('src/features/maths/step-chain/WorkedChain.tsx')
+assert.ok(app.includes('className="site-header lesson-bar"') && app.includes('<LessonBarSlot.Provider value={barSlot}>'), 'The lesson header must be the slim top bar')
+assert.ok(rungs.includes('createPortal(head, slot)'), 'The section title and progress must draw into the top bar')
+assert.ok(chain.includes('useContext(StepDriverContext)') && chain.includes('!drive &&'), 'A teaching screen\'s worked example must hand Next step to the bottom bar')
+for (const view of ['src/features/written-methods/tutor/TutorMethodLessonView.tsx', 'src/features/number-types/NumberTypesLessonView.tsx', 'src/features/order-of-operations/variant-c/VariantCLessonView.tsx', 'src/features/place-value/tutor/PlaceValueLessonView.tsx']) {
+  const source = read(view)
+  assert.ok(source.includes('<DriveSteps flow={flow}>') && source.includes('onClick={flow.advance}>{flow.advanceLabel}'), `${view} must use the one main button`)
+}
+
 assert.ok(engine.includes('saveMathsProgress'))
 assert.ok(engine.includes('MATHS_NAVIGATE_EVENT'))
 assert.ok(!app.includes('preview-lesson-nav'), 'The old flat lesson menu must not be rendered')

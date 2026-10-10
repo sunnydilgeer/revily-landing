@@ -7,7 +7,7 @@ import { StateVisual } from './components/StateVisual'
 import { LessonVideoActivity } from './components/LessonVideoActivity'
 import type { LessonDefinition, MicroSkillId } from './types'
 import { VariantDActivity } from './variant-d/VariantDActivity'
-import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../maths/rungs'
+import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../maths/rungs'
 import { diagnoseNumber } from '../written-methods/tutor/numberDiagnosis'
 import { Button, CheckBar } from '../../ui'
 import './RationalNumbersLesson.css'
@@ -44,6 +44,7 @@ export default function NumberTypesLessonView({
 
   return <section className="numbers-lesson numbers-lesson--focused rung-lesson" id="lesson" aria-labelledby="numbers-lesson-title">
     {header}
+    <DriveSteps flow={flow}>
     <article className={`lesson-state rung-card${variantD ? ' lesson-state--variant-d' : ''}`} key={state.id}>
       {state.component.type === 'lessonVideo' ? <LessonVideoActivity clip={state.component.props} headingRef={heading} canGoBack={engine.canGoBack} onBack={engine.back} onContinue={next} hideActions />
         : variantD ? <VariantDActivity engine={engine} headingRef={heading} hideActions />
@@ -66,7 +67,7 @@ export default function NumberTypesLessonView({
             : <ChoiceCards options={state.interaction.options ?? []} selected={engine.selection} disabled={Boolean(feedback)} onToggle={engine.toggleOption} />)}
           {feedback && <FeedbackPanel feedback={feedback} correct={feedback.correct} />}
         </>}
-    </article>
+    </article></DriveSteps>
 
     {feedback
       ? <CheckBar
@@ -78,7 +79,7 @@ export default function NumberTypesLessonView({
         </CheckBar>
       : <CheckBar message={multiple ? 'Select all that apply.' : undefined}>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
-          {(teaching || video) && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
+          {(teaching || video) && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {!teaching && !video && (numeric || multiple || !variantD) && <Button size="lg" disabled={!canSubmit} onClick={engine.submit}>Check</Button>}
         </CheckBar>}
   </section>

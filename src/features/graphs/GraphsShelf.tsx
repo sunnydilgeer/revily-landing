@@ -4,7 +4,8 @@ import '../../App.css'
 import '../maths/MathsNavigation.css'
 import './GraphsShelf.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { RevilyLogo } from '../../ui'
+import { CloseIcon, ContentsIcon } from '../../ui/icons'
+import { LessonBarSlot } from '../maths/rungs'
 import MathsContentsDrawer from '../maths/MathsContentsDrawer'
 import type { MathsSection } from '../maths/courseRegistry'
 import { MATHS_PROGRESS_EVENT, readMathsProgress, requestMathsState, type LessonProgressMap, type LessonProgressSnapshot } from '../maths/lessonProgress'
@@ -25,6 +26,7 @@ export default function GraphsShelf() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [progress, setProgress] = useState<LessonProgressMap>({})
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
+  const [barSlot, setBarSlot] = useState<HTMLDivElement | null>(null)
   const current = graphsLessons.find(item => item.number === lesson)!
 
   useEffect(() => {
@@ -64,18 +66,17 @@ export default function GraphsShelf() {
   }, [current.lessonId, lesson, openLesson])
 
   return <div className="app-shell app-shell--lesson app-shell--study">
-    <header className="site-header">
-      <RevilyLogo wordmark={false} size={24} href="/preview" />
-      <nav className="maths-breadcrumbs" aria-label="Breadcrumb">
-        <span>Graphs</span>
-        <span aria-hidden="true">/</span>
-        <span className="maths-breadcrumb-number" aria-current="page">{current.title}</span>
+    <header className="site-header lesson-bar">
+      <nav className="lesson-bar__crumbs" aria-label="Breadcrumb">
+        <a className="lesson-bar__close" href="/preview" aria-label="Close the lesson and go back to Chapters"><CloseIcon size={22} /></a>
+        <span className="sr-only" aria-current="page">Graphs: {current.title}</span>
       </nav>
-      <button ref={contentsButtonRef} className="maths-contents-button" type="button" aria-expanded={drawerOpen}
-        aria-controls="maths-contents" onClick={() => setDrawerOpen(true)}>Contents</button>
+      <div className="lesson-bar__slot" ref={setBarSlot} />
+      <button ref={contentsButtonRef} className="maths-contents-button lesson-bar__contents" type="button" aria-expanded={drawerOpen}
+        aria-controls="maths-contents" onClick={() => setDrawerOpen(true)}><ContentsIcon size={20} /><span>Contents</span></button>
     </header>
 
-    <main className="lesson-preview graphs-shelf" id="main-content"><TutorMethodLessonView key={lesson} lesson={lessonFor(lesson)} /></main>
+    <LessonBarSlot.Provider value={barSlot}><main className="lesson-preview graphs-shelf" id="main-content"><TutorMethodLessonView key={lesson} lesson={lessonFor(lesson)} /></main></LessonBarSlot.Provider>
 
     <MathsContentsDrawer open={drawerOpen} currentLesson={current} progress={progress} chapters={[graphsChapter]}
       onClose={closeDrawer} onSelectLesson={number => openLesson(number)} onSelectSkill={selectSkill} />
