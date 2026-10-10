@@ -725,7 +725,9 @@
   margin-top: auto;
 }
 
-.app-shell--frame .rung-lesson > .rung-card { margin-bottom: 12px; }
+.app-shell--frame .rung-lesson > .rung-card { margin: 0 0 12px; }
+/* Every pixel goes to the lesson on the fixed screen: tighter gaps between a worked example's diagram, working and controls. */
+.app-shell--frame .rung-lesson .wc { gap: 10px; }
 
 .app-shell--frame .rung-lesson > .rv-checkbar--correct,
 .app-shell--frame .rung-lesson > .rv-checkbar--incorrect,

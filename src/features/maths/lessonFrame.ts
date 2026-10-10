@@ -42,7 +42,7 @@ function smallestText(diagram: HTMLElement) {
   return smallest
 }
 
-/** The shortest a worked example's working window gets (about three lines) before its diagram shrinks instead. */
+/** The shortest a worked example's working window gets (about three lines), however little its step needs. */
 const MIN_ROLL = 132
 
 /** How much taller the card is than the room between the top of its section and the bottom bar (negative: room spare). */
@@ -87,9 +87,11 @@ function fit(card: HTMLElement) {
     if (capped) short = Math.max(0, Math.min(roll.scrollHeight, keep) - height)
   }
   if (diagramFits(card, over + short)) return true
-  // The diagram can't give any more: the window goes below the step's size, down to about three lines.
-  if (roll && roll.offsetParent && over > 0 && roll.clientHeight > MIN_ROLL) {
-    roll.style.maxHeight = `${Math.max(MIN_ROLL, Math.floor(roll.clientHeight - over - 2))}px`
+  // The diagram can't give any more. Missing lines are worse than a card that scrolls a little (Sunny, 10 Oct), so
+  // the window still shows the whole step and the card scrolls instead.
+  if (roll && short > 0) {
+    const next = roll.clientHeight + short
+    roll.style.maxHeight = next >= roll.scrollHeight ? '' : `${next}px`
     return true
   }
   return false
