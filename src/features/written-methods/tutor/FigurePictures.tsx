@@ -69,8 +69,11 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
   const labels: ReactNode[] = []
   frame.items.forEach((item, i) => {
     if (item.kind === 'grid') {
-      // Squared paper under everything else, one line per whole unit; the axes darker, numbered under and beside them.
+      // Squared paper under everything else, one line per whole unit; the axes darker, numbered under and beside them. A
+      // plain sheet goes down first so the lesson card's own squared paper doesn't show through as a second grid.
       const [x0, y0] = item.from, [x1, y1] = item.to
+      const corner = at([x0, y1]), far = at([x1, y0]), left = Math.max(0, corner.x - 8), top = Math.max(0, corner.y - 8)
+      parts.push(<rect key={`gs${i}`} className="measure-board__sheet" x={left} y={top} width={Math.min(W, far.x + 8) - left} height={Math.min(H, far.y + 8) - top} rx="8" />)
       for (let x = Math.ceil(x0); x <= x1; x++) { const a = at([x, y0]), b = at([x, y1]); parts.push(<path key={`gx${i}-${x}`} className={`measure-board__grid${item.axes && x === 0 ? ' is-axis' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
       for (let y = Math.ceil(y0); y <= y1; y++) { const a = at([x0, y]), b = at([x1, y]); parts.push(<path key={`gy${i}-${y}`} className={`measure-board__grid${item.axes && y === 0 ? ' is-axis' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
       if (item.axes && item.numbers) {
