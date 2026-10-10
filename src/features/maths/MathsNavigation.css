@@ -653,8 +653,6 @@
 .app-shell--study .lesson-bar__contents:hover { border-color: var(--rv-ink); }
 .lesson-bar ~ .lesson-preview { padding-top: 12px; }
 
-/* A worked example's newest step lands just above the bottom bar, and never under the top bar. */
-.lesson-bar ~ .lesson-preview .wc-controls { scroll-margin: 72px 0 120px; }
 
 /* Phones: the section title sits over its progress bar, and Contents is just its icon. */
 @media (max-width: 560px) {
@@ -667,3 +665,62 @@
   .app-shell--study .lesson-bar__contents { width: 44px; justify-content: center; padding: 0; }
   .lesson-bar__contents span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+
+/* ---------- Lesson frame: the lesson page is exactly one screen. The top bar and the bottom bar never move, the page
+   itself never scrolls, and a card taller than the space between the bars scrolls inside itself, with a soft fade at
+   its bottom edge while there is more below (data-more, set by lessonFrame.ts). ---------- */
+.app-shell.app-shell--frame {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+}
+
+.app-shell--frame > .lesson-bar { flex: none; position: relative; }
+
+.app-shell--frame > .lesson-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0 0;
+}
+
+.app-shell--frame .lesson-preview > .rung-lesson {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell--frame .rung-lesson > .rung-card,
+.app-shell--frame .rung-lesson > .rung-done {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transition: box-shadow .2s ease;
+}
+
+.app-shell--frame .rung-lesson > .rung-done { margin-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+.app-shell--frame .rung-lesson > [data-more] { box-shadow: inset 0 -34px 22px -22px rgb(15 21 48 / 22%); }
+
+/* The bottom bar sits at the foot of the screen, under the card, however short the card is. */
+.app-shell--frame .rung-lesson > .rv-checkbar {
+  flex: none;
+  position: relative;
+  bottom: auto;
+  margin-top: auto;
+}
+
+.app-shell--frame .rung-lesson > .rung-card { margin-bottom: 12px; }
+
+.app-shell--frame .rung-lesson > .rv-checkbar--correct,
+.app-shell--frame .rung-lesson > .rv-checkbar--incorrect,
+.app-shell--frame .rung-lesson > .rv-checkbar--saved { margin-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+
+/* A worked example's newest step lands just inside the card's bottom edge. */
+.app-shell--frame .wc-controls { scroll-margin: 12px; }

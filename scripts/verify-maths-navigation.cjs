@@ -70,6 +70,15 @@ for (const view of ['src/features/written-methods/tutor/TutorMethodLessonView.ts
   assert.ok(source.includes('<DriveSteps flow={flow}>') && source.includes('onClick={flow.advance}>{flow.advanceLabel}'), `${view} must use the one main button`)
 }
 
+// Lesson page is one fixed screen: the page never scrolls; a card taller than its space scrolls inside, with a fade
+const navCss = read('src/features/maths/MathsNavigation.css')
+for (const shell of ['src/App.tsx', 'src/features/graphs/GraphsShelf.tsx', 'src/features/geometry/GeometryShelf.tsx']) {
+  const source = read(shell)
+  assert.ok(source.includes('app-shell--study app-shell--frame') && source.includes('useLessonFrame(mainEl)'), `${shell} must use the fixed lesson frame`)
+}
+assert.ok(navCss.includes('height: 100dvh') && navCss.includes('overflow: clip') && navCss.includes('overflow-y: auto'), 'The lesson frame must fill the screen and scroll only inside the card')
+assert.ok(read('app/preview/page.tsx').includes("interactiveWidget: 'resizes-content'"), 'The keyboard must shrink the lesson frame, not cover it')
+
 assert.ok(engine.includes('saveMathsProgress'))
 assert.ok(engine.includes('MATHS_NAVIGATE_EVENT'))
 assert.ok(!app.includes('preview-lesson-nav'), 'The old flat lesson menu must not be rendered')
