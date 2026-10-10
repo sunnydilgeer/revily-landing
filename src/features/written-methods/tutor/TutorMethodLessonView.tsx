@@ -16,7 +16,7 @@ import { AngleBoard } from './AngleBoard'
 import { MeasureBoard } from './MeasureBoard'
 import { Powers } from './Powers'
 import { Button, CheckBar } from '../../../ui'
-import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
+import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from './model'
 
 import '../../number-types/RationalNumbersLesson.css'
@@ -378,6 +378,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
   return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
+    <DriveSteps flow={flow}>
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.heading ? <><span aria-hidden="true"><Powers text={state.content.heading} /></span><span className="sr-only">{state.content.title}</span></> : <Powers text={state.content.title} />}</h3>
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
@@ -428,7 +429,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {!teaching && !feedback && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
       {feedback && showWorking && state.working && <WorkingPanel visual={state.working} ref={workingPanel} />}
-    </article>
+    </article></DriveSteps>
 
     {feedback
       ? <CheckBar
@@ -442,7 +443,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
         </CheckBar>
       : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
-          {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
+          {teaching && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {multi && <Button size="lg" disabled={!selection.length} onClick={engine.submit}>Check</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}
         </CheckBar>}

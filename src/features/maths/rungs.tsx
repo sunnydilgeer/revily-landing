@@ -5,7 +5,8 @@
  * lesson-complete cards, and the "Keep going / Take a break" flow. Each lesson view supplies only
  * its own teaching and question content in between.
  */
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '../../ui'
 import { ArrowIcon, TopicIcon } from '../../ui/icons'
 import { modeLink } from '../../ui/modeTransition'
@@ -17,6 +18,7 @@ import { markSectionComplete, readMathsProgress } from './lessonProgress'
 import { legacyCompleted, sectionsOf } from './rungProgress'
 import { mathsLessons } from './courseRegistry'
 import { topicForLesson } from './readiness/paperTopics'
+import { StepDriverContext, type StepDriver } from './step-chain/stepDriver'
 import '../written-methods/tutor/RungLesson.css'
 
 type Engine = ReturnType<typeof useLessonEngine>
@@ -43,6 +45,8 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
   const previousId = useRef(state.id)
   const [rungDone, setRungDone] = useState<RungSummary | null>(null)
   const [leaving, setLeaving] = useState(false)
+  // A worked example on this teaching screen that still has steps to show (see stepDriver.ts).
+  const [driver, setDriver] = useState<StepDriver | null>(null)
 
   const teaching = state.interaction.type === 'continue'
   const last = engine.stateIndex === lesson.states.length - 1
@@ -100,6 +104,11 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
     engine.continueLesson() // move past the finished rung first, so "Continue" later starts the next one
   }
 
+  // The bottom bar's one button on a teaching screen: the worked example's next step first, then Continue.
+  const stepping = teaching && driver
+  const advance = stepping ? driver.next : next
+  const advanceLabel = stepping ? driver.label : last ? 'Finish lesson' : 'Continue'
+
   const lessonNumber = mathsLessons.find(entry => entry.lessonId === lesson.id)?.number
   const topic = lessonNumber ? topicForLesson(lessonNumber) : undefined
 
@@ -107,17 +116,33 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
     state, teaching, last, title, heading, continueButton, topic,
     rungs, rungIndex, rungStates, positionInRung, rungQuestions, questionNumber, rungProgress,
     rungDone, next, keepGoing, takeABreak,
+    setDriver, advance, advanceLabel,
   }
 }
 
 type Flow = ReturnType<typeof useRungFlow>
 
+/** Lets a teaching screen's worked example drive the bottom bar's button. Questions keep their chains' own buttons. */
+export function DriveSteps({ flow, children }: { flow: Flow; children: ReactNode }) {
+  return <StepDriverContext.Provider value={flow.teaching ? flow.setDriver : null}>{children}</StepDriverContext.Provider>
+}
+
+/**
+ * The lesson page's top bar (close, section and progress, Contents). A page that has one provides its slot, and the
+ * rung header draws into it; undefined means no bar, and the header sits above the card as before.
+ */
+export const LessonBarSlot = createContext<HTMLElement | null | undefined>(undefined)
+
 export function RungHeader({ flow, lessonTitle, headingId }: { flow: Flow; lessonTitle: string; headingId: string }) {
   const { title, rungIndex, rungs, rungProgress } = flow
-  return <header className="rung-head">
+  const slot = useContext(LessonBarSlot)
+  const head = <header className="rung-head">
     <div className="rung-head__title">
       {flow.topic && <span className="rung-head__topic" aria-hidden="true"><TopicIcon id={flow.topic.id} size={22} /></span>}
-      <h2 id={headingId}>{title}</h2>
+      <div className="rung-head__names">
+        {slot !== undefined && <small className="rung-head__lesson">{lessonTitle}</small>}
+        <h2 id={headingId}>{title}</h2>
+      </div>
     </div>
     <div className="rung-head__progress">
       <div className="rung-head__bar" role="progressbar" aria-label={`${lessonTitle}, rung ${rungIndex + 1} of ${rungs.length}: progress through ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rungProgress}>
@@ -125,6 +150,8 @@ export function RungHeader({ flow, lessonTitle, headingId }: { flow: Flow; lesso
       </div>
     </div>
   </header>
+  if (slot === undefined) return head
+  return slot ? createPortal(head, slot) : null
 }
 
 /** A slice of the exam path inside the paper card: where this section's progress shows up. */

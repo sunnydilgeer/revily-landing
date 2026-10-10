@@ -2,7 +2,7 @@
 
 import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
-import { GENERIC_FEEDBACK, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
+import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
 import { Button, CheckBar } from '../../../ui'
 import { diagnoseBidmas } from '../ladder/bidmasDiagnosis'
 import { operationsVariantCLesson, operationsVariantCLabels, type TutorOperationsState } from './variantCLesson'
@@ -45,6 +45,7 @@ export default function OperationsVariantCLessonView() {
 
   return <section className={`numbers-lesson opb-lesson opc-lesson rung-lesson${ladder ? ' rung-lesson--wide' : ''}`} id="lesson-2-c" aria-labelledby="opc-topic">
     {header}
+    <DriveSteps flow={flow}>
     <article className={`opb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1} className={state.content.title === flow.title ? 'sr-only' : undefined}>{shortTitle(state)}</h3>
       {teaching && !state.video && state.content.body && <p className="opb-body">{state.content.body}</p>}
@@ -70,7 +71,7 @@ export default function OperationsVariantCLessonView() {
 
       {feedback && state.working && <div className="rung-explain opb-stage"><OpsBoard working={state.working} /></div>}
       {feedback?.workedExplanation && !state.working && <div className="rung-explain"><ExplanationSteps explanation={feedback.workedExplanation} showAnswer={false} /></div>}
-    </article>
+    </article></DriveSteps>
 
     {feedback
       ? <CheckBar
@@ -82,7 +83,7 @@ export default function OperationsVariantCLessonView() {
         </CheckBar>
       : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
-          {teaching && <Button ref={continueButton} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>}
+          {teaching && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {textInput && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!engine.inputValue.trim()}>Check</Button>}
         </CheckBar>}
   </section>

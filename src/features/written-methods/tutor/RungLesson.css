@@ -215,3 +215,14 @@
   .rung-lesson .rung-ineq .rung-answer__input { width: 2.6em; height: 56px; font-size: 1.35rem; }
   .rung-ineq__slot { min-width: 42px; font-size: 1.35rem; }
 }
+
+/* Phones: ← Back stays a small button beside the main one, so a long label ("Show the first step") doesn't push it onto its own row. */
+@media (max-width: 560px) {
+  .rung-lesson .rv-checkbar--idle .rv-checkbar__actions { flex-wrap: nowrap; }
+  .rung-lesson .rv-checkbar--idle .rv-checkbar__actions .rv-btn--ghost { flex: none; padding-inline: 12px; }
+  .rung-lesson .rv-checkbar--idle .rv-checkbar__actions .rv-btn:not(.rv-btn--ghost) { min-width: 0; padding-inline: 16px; white-space: nowrap; }
+}
+@media (max-width: 360px) {
+  .rung-lesson .rv-checkbar--idle .rv-checkbar__actions .rv-btn { font-size: 1rem; }
+  .rung-lesson .rv-checkbar--idle .rv-checkbar__actions .rv-btn--ghost { padding-inline: 8px; }
+}

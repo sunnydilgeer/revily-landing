@@ -583,3 +583,87 @@
     animation: none;
   }
 }
+
+/* ---------- Lesson top bar: close, the section and its progress, Contents. One slim row that stays in view,
+   so the lesson card starts near the top of the screen. The rung header draws into the slot (LessonBarSlot). ---------- */
+.app-shell--study .site-header.lesson-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 0;
+  height: 60px;
+  padding: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  background: var(--colour-background);
+}
+
+.lesson-bar__crumbs { flex: none; display: flex; }
+
+.lesson-bar__close {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  margin-left: -8px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--rv-ink-2);
+  background: transparent;
+  cursor: pointer;
+}
+
+.lesson-bar__close:hover { color: var(--rv-ink); background: var(--rv-grid); }
+.lesson-bar__close:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
+
+.lesson-bar__slot { flex: 1; min-width: 0; }
+
+.lesson-bar .rung-head { display: flex; align-items: center; gap: 16px; padding: 0; }
+.lesson-bar .rung-head__title { flex: 0 1 auto; min-width: 0; gap: 10px; }
+.lesson-bar .rung-head__topic { width: 32px; height: 32px; }
+.lesson-bar .rung-head__topic svg { width: 18px; height: 18px; }
+.lesson-bar .rung-head__names { display: grid; min-width: 0; }
+
+.lesson-bar .rung-head__lesson,
+.lesson-bar .rung-head h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-bar .rung-head__lesson { color: var(--rv-muted); font-size: .72rem; font-weight: 600; letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
+.lesson-bar .rung-head h2 { margin: 0; font-size: 1.15rem; line-height: 1.2; letter-spacing: -0.01em; }
+.lesson-bar .rung-head__progress { flex: 1 1 140px; min-width: 100px; }
+.lesson-bar .rung-head__bar { height: 10px; }
+
+.app-shell--study .lesson-bar__contents {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px 0 12px;
+  border: 2px solid var(--rv-line);
+  border-radius: var(--rv-radius-pill);
+  color: var(--rv-ink);
+  background: var(--rv-surface);
+}
+
+.app-shell--study .lesson-bar__contents:hover { border-color: var(--rv-ink); }
+.lesson-bar ~ .lesson-preview { padding-top: 12px; }
+
+/* A worked example's newest step lands just above the bottom bar, and never under the top bar. */
+.lesson-bar ~ .lesson-preview .wc-controls { scroll-margin: 72px 0 120px; }
+
+/* Phones: the section title sits over its progress bar, and Contents is just its icon. */
+@media (max-width: 560px) {
+  .lesson-bar .rung-head { flex-direction: column; align-items: stretch; gap: 6px; }
+  .lesson-bar .rung-head__topic,
+  .lesson-bar .rung-head__lesson { display: none; }
+  .lesson-bar .rung-head h2 { font-size: 1rem; }
+  .lesson-bar .rung-head__progress { flex: none; min-width: 0; }
+  .lesson-bar .rung-head__bar { height: 8px; }
+  .app-shell--study .lesson-bar__contents { width: 44px; justify-content: center; padding: 0; }
+  .lesson-bar__contents span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
