@@ -36,13 +36,29 @@ function placed(pts: Pt[], at: Pt, how: 'same' | 'turn' | 'flip' | 'half' = 'sam
   return shift(q, at[0] - minX, at[1] - minY)
 }
 const centre = (pts: Pt[]): Pt => [pts.reduce((a, p) => a + p[0], 0) / pts.length, pts.reduce((a, p) => a + p[1], 0) / pts.length]
+const inside = ([x, y]: Pt, pts: Pt[]) => pts.reduce((odd, [ax, ay], i) => {
+  const [bx, by] = pts[(i + 1) % pts.length]
+  return (ay > y) !== (by > y) && x < ax + (y - ay) * (bx - ax) / (by - ay) ? !odd : odd
+}, false)
+/** Where a shape's name goes: its centre, or for a shape made of whole squares (an L), the middle of the square
+ * inside it nearest its centre, so the name stays clear of its edges. */
+function nameSpot(pts: Pt[]): Pt {
+  const [cx, cy] = centre(pts), xs = pts.map(p => p[0]), ys = pts.map(p => p[1])
+  if (pts.some(([x, y], i) => x !== pts[(i + 1) % pts.length][0] && y !== pts[(i + 1) % pts.length][1])) return [cx, cy]
+  let best: Pt = [cx, cy], far = Infinity
+  for (let x = Math.min(...xs); x < Math.max(...xs); x++) for (let y = Math.min(...ys); y < Math.max(...ys); y++) {
+    const at: Pt = [x + 0.5, y + 0.5], d = (at[0] - cx) ** 2 + (at[1] - cy) ** 2
+    if (inside(at, pts) && d < far) { best = at; far = d }
+  }
+  return best
+}
 type Placed = { pts: Pt[]; name: string; lit?: boolean; faint?: boolean }
 /** Shapes on squared paper, each named in its middle; `lit` ones glow purple. */
 function paper(to: Pt, shapes: Placed[], spoken: string, caption?: string): AngleFrame {
   const items: FigureItem[] = [{ kind: 'grid', from: [0, 0], to }]
   for (const s of shapes) {
     items.push({ kind: 'shape', points: s.pts, ...(s.lit ? { lit: true } : {}), ...(s.faint ? { fill: 'none' as const, dashed: true } : {}) })
-    items.push({ kind: 'text', at: centre(s.pts), text: s.name, name: true, dx: -5, dy: 5 })
+    items.push({ kind: 'text', at: nameSpot(s.pts), text: s.name, name: true })
   }
   return fig(items, spoken, caption)
 }
@@ -71,8 +87,8 @@ const tri: Pt[] = [[0, 0], [3, 0], [0, 2]]
     ], 'Congruent?', p))
 }
 {
-  const A = placed(L, [1, 1], 'same', 0.5), B = placed(L, [4, 0.5])
-  const p = paper([9, 3.5], [{ pts: A, name: 'A' }, { pts: B, name: 'B' }], 'Two L shapes the same shape: B is twice as big as A.')
+  const A = placed(L, [1, 1]), B = placed(L, [5, 1], 'same', 2)
+  const p = paper([12, 6], [{ pts: A, name: 'A' }, { pts: B, name: 'B' }], 'Two L shapes the same shape: B is twice as big as A.')
   practice(meaning, 'A and B are the same shape, but B is twice as big. Are they congruent?', 'GM10 p135 (own shapes)', p,
     choose('No: congruent shapes are the same size too', ['Yes: they’re the same shape', 'Same shape but a different size is similar, not congruent.'], ['Yes: one is an enlargement of the other', 'An enlargement changes the size, so they aren’t congruent.']),
     'Same shape is not enough.', boardModel([], [
@@ -83,30 +99,30 @@ const tri: Pt[] = [[0, 0], [3, 0], [0, 2]]
 /* ---------- Rung 2: finding congruent pairs ---------- */
 
 {
-  const A = placed(L, [0.5, 0.5]), B = placed(longL, [5, 0.5]), C = placed(L, [11, 0.5], 'half')
-  const draw = (litB: boolean, litC: boolean, caption?: string) => paper([15, 3], [{ pts: A, name: 'A' }, { pts: B, name: 'B', lit: litB }, { pts: C, name: 'C', lit: litC }], 'Three L shapes on squared paper.', caption)
+  const A = placed(L, [1, 1]), B = placed(longL, [5, 1]), C = placed(L, [11, 1], 'half')
+  const draw = (litB: boolean, litC: boolean, caption?: string) => paper([15, 4], [{ pts: A, name: 'A' }, { pts: B, name: 'B', lit: litB }, { pts: C, name: 'C', lit: litC }], 'Three L shapes on squared paper.', caption)
   worked(pairs, 'Which shape is congruent to A?', 'Finding pairs', 'GM10 Your Turn Q1 (own shapes)', boardModel([], [
     { title: 'Count the sides', say: 'A’s long side is 3 squares. B’s long side is 4: B can’t be congruent.', rows: ['>0 B: long side 4, not 3'], picture: draw(true, false) },
     { title: 'Turn the other', say: 'C is A upside down: turn it half way round and every side matches.', rows: ['! C is congruent to A'], picture: draw(false, true, 'C is A turned half way round') },
   ], 'Pair', draw(false, false)), 'To check a pair, count the squares along each side. Ignore which way the shapes face: imagine turning or flipping one onto the other.')
 }
 {
-  const A = placed(tri, [0.5, 0.5]), B = placed(tri, [5, 0.5], 'flip'), C = placed([[0, 0], [3, 0], [0, 3]], [9, 0.5]), D = placed([[0, 0], [2, 0], [0, 2]], [13.5, 0.5])
-  const p = paper([16, 4], [{ pts: A, name: 'A' }, { pts: B, name: 'B' }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four right-angled triangles on squared paper.')
+  const A = placed(tri, [1, 1]), B = placed(tri, [5, 1], 'flip'), C = placed([[0, 0], [3, 0], [0, 3]], [9, 1]), D = placed([[0, 0], [2, 0], [0, 2]], [14, 1])
+  const p = paper([17, 5], [{ pts: A, name: 'A' }, { pts: B, name: 'B' }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four right-angled triangles on squared paper.')
   practice(pairs, 'Which triangle is congruent to A?', 'GM10 Your Turn Q2 (own shapes)', p,
     choose('B', ['C', 'C is 3 tall. A is 3 across but only 2 tall.'], ['D', 'D is 2 across. A is 3 across.']),
     'A is 3 squares across and 2 up.', boardModel([], [
-      { title: 'Count across and up', say: 'A is 3 across and 2 up. B is too, just flipped to face the other way.', rows: ['! B is congruent to A'], picture: paper([16, 4], [{ pts: A, name: 'A', lit: true }, { pts: B, name: 'B', lit: true }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four right-angled triangles on squared paper.') },
+      { title: 'Count across and up', say: 'A is 3 across and 2 up. B is too, just flipped to face the other way.', rows: ['! B is congruent to A'], picture: paper([17, 5], [{ pts: A, name: 'A', lit: true }, { pts: B, name: 'B', lit: true }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four right-angled triangles on squared paper.') },
     ], 'Pair', p))
 }
 {
   const T: Pt[] = [[0, 0], [3, 0], [2, 2], [0, 2]]
-  const A = placed(T, [0.5, 0.5]), B = placed(T, [5, 0.5], 'turn'), C = placed([[0, 0], [3, 0], [2, 3], [0, 3]], [9, 0.5]), D = placed([[0, 0], [4, 0], [3, 2], [0, 2]], [13, 0.5])
-  const p = paper([17.5, 4], [{ pts: A, name: 'A' }, { pts: B, name: 'B' }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four trapeziums on squared paper.')
+  const A = placed(T, [1, 1]), B = placed(T, [5, 1], 'turn'), C = placed([[0, 0], [3, 0], [2, 3], [0, 3]], [9, 1]), D = placed([[0, 0], [4, 0], [3, 2], [0, 2]], [13, 1])
+  const p = paper([18, 5], [{ pts: A, name: 'A' }, { pts: B, name: 'B' }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four trapeziums on squared paper.')
   practice(pairs, 'Which shape is congruent to A?', 'GM10 Your Turn Q3 (own shapes)', p,
     choose('B', ['C', 'C’s parallel sides are 3 and 2 like A’s, but they’re 3 apart, not 2.'], ['D', 'D’s bottom is 4 squares. A’s is 3.']),
     'Count the parallel sides: A’s are 3 and 2, 2 apart.', boardModel([], [
-      { title: 'Turn and compare', say: 'B is A turned a quarter turn: its parallel sides are 3 and 2, still 2 apart.', rows: ['! B is congruent to A'], picture: paper([17.5, 4], [{ pts: A, name: 'A', lit: true }, { pts: B, name: 'B', lit: true }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four trapeziums on squared paper.') },
+      { title: 'Turn and compare', say: 'B is A turned a quarter turn: its parallel sides are 3 and 2, still 2 apart.', rows: ['! B is congruent to A'], picture: paper([18, 5], [{ pts: A, name: 'A', lit: true }, { pts: B, name: 'B', lit: true }, { pts: C, name: 'C' }, { pts: D, name: 'D' }], 'Four trapeziums on squared paper.') },
     ], 'Pair', p))
 }
 

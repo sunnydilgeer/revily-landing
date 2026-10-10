@@ -42,7 +42,7 @@ const shiftItem = (item: FigureItem, dx: number): FigureItem => {
 }
 /** Views side by side on squared paper, each named underneath; a `lit` view glows purple, a hidden one is left as a box with a ?. */
 function viewsFig(list: (View | null)[], spoken: string, caption?: string, height = 3): AngleFrame {
-  const gap = 1.5, width = list.reduce((a, v) => a + (v?.w ?? 2) + gap, -gap)
+  const gap = 2, width = list.reduce((a, v) => a + (v?.w ?? 2) + gap, -gap)
   const items: FigureItem[] = [{ kind: 'grid', from: [-0.5, -1], to: [width + 0.5, height + 0.5] }]
   let x = 0
   for (const v of list) {
@@ -76,7 +76,7 @@ function viewsFig(list: (View | null)[], spoken: string, caption?: string, heigh
   practice(views, 'What is the plan of this cylinder?', 'GM16 p149 (own shape)', p,
     choose('A circle', ['A rectangle', 'That’s the front or side elevation. From above you see the round top.'], ['A circle with a dot in the middle', 'That’s a cone’s plan, its point seen from above. A cylinder’s top is flat.'], ['An oval', 'From straight above, the top is a perfect circle. It only looks oval from an angle.']),
     'Look straight down on its top.', boardModel([], [
-      { title: 'From above', say: 'Straight down on a cylinder you see its round, flat top: a circle.', rows: ['! Plan: a circle'], picture: viewsFig([{ name: 'Plan', items: disc(1.3), w: 2.6, h: 2.6, lit: true }, { name: 'Front', items: rect(2.6, 2.6), w: 2.6, h: 2.6 }], 'The plan and front elevation of the cylinder.', 'Plan: a circle') },
+      { title: 'From above', say: 'Straight down on a cylinder you see its round, flat top: a circle.', rows: ['! Plan: a circle'], picture: viewsFig([{ name: 'Plan', items: disc(1.5), w: 3, h: 3, lit: true }, { name: 'Front', items: rect(3, 3), w: 3, h: 3 }], 'The plan and front elevation of the cylinder.', 'Plan: a circle') },
     ], 'View', p))
 }
 {

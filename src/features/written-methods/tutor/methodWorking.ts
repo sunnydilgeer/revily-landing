@@ -155,7 +155,7 @@ export type FigureItem =
   | { kind: 'ticks'; from: FigurePoint; to: FigurePoint; count: number }
   | { kind: 'point'; at: FigurePoint; label?: string; dx?: number; dy?: number }
   | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number }
-  /** Squared paper over whole units from `from` to `to`; `axes` draws the x and y axes through 0, numbered when `numbers`. */
+  /** The area a picture covers from `from` to `to`, drawn on the lesson card's own squared paper; `axes` draws the x and y axes through 0, numbered when `numbers`. */
   | { kind: 'grid'; from: FigurePoint; to: FigurePoint; axes?: boolean; numbers?: boolean }
 /** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
 export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number }
