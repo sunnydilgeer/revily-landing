@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState, type CSSProperties } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { Working } from '../../maths/step-chain/working'
 import { methodChain } from './methodChain'
 import type { MethodExample, MethodFrame, MethodStep, MethodWorking, WrittenLine } from './methodWorking'
 import { isNumberSenseWorking, NumberSenseWorkedExample, PictureStep } from './NumberSenseWorkedExample'
@@ -211,13 +212,15 @@ function WrittenWorkedExample({ visual }: { visual: MethodWorking }) {
       if (!index) return <div className="ns-visual wms-written">{diagram({})}</div>
       // A second method for the same sum starts plain, under its own name.
       const intro = chain[revealed - 1]
-      return <div className="ns-visual wms-written" key={`${index}-start`}><PictureStep step={{ title: example.label, instruction: intro.why ?? '', operation: '', equation: '', frame: {} }}>{heading => <>{heading}{diagram({})}</>}</PictureStep></div>
+      return <div className="ns-visual wms-written" key={`${index}-start`}><PictureStep step={{ title: example.label, instruction: intro.why ?? '', operation: '', equation: '', frame: {} }}>{heading => <><Working>{heading}</Working>{diagram({})}</>}</PictureStep></div>
     }
     return <div className="ns-visual wms-written" key={`${index}-${at.step}`}><PictureStep step={step}>{heading => <>
       {diagram(step.frame)}
       {step.frame.answerWords && <p className="wms-answer-words">{step.frame.answerWords}</p>}
-      {heading}
-      {step.frame.lines && <WrittenLines lines={step.frame.lines} />}
+      <Working>
+        {heading}
+        {step.frame.lines && <WrittenLines lines={step.frame.lines} />}
+      </Working>
     </>}</PictureStep></div>
   }
   return <WorkedChain steps={chain} picture={picture} pictureOnly />

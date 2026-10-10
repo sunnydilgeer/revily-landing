@@ -1,6 +1,7 @@
 'use client'
 
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { Working } from '../../maths/step-chain/working'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
 import { PictureStep } from '../../written-methods/tutor/NumberSenseWorkedExample'
 import type { MethodStep } from '../../written-methods/tutor/methodWorking'
@@ -47,9 +48,11 @@ export function PlaceWorkingExample({ working }: { working: PlaceWorking }) {
       <PictureStep step={{ title: step.title, instruction: step.instruction, operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
         {given}
         <Chart chart={step.chart} />
-        {heading}
-        {step.lines && <Lines lines={step.lines} />}
-        {step.words && <p className="pv-answer pv-words">{step.words}</p>}
+        <Working>
+          {heading}
+          {step.lines && <Lines lines={step.lines} />}
+          {step.words && <p className="pv-answer pv-words">{step.words}</p>}
+        </Working>
       </>}</PictureStep>
     </div>
   }

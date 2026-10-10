@@ -26,3 +26,22 @@
   .wc--picture .wc-controls { gap: 10px; }
   .wc--picture .wc-controls .sc-dots { flex: 0 1 auto; }
 }
+
+/* ---------- The working window: lines roll up like film credits (WorkedChain.tsx) ----------
+   As tall as its lines unless the lesson screen limits it (lessonFrame.ts sets max-height). The newest line sits at
+   the bottom; earlier lines fade out at the top edge, and a fade at the bottom shows when the student has scrolled up. */
+.wc-roll {
+  --wc-above: 0px; --wc-below: 0px;
+  position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--wc-above), #000 calc(100% - var(--wc-below)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--wc-above), #000 calc(100% - var(--wc-below)), transparent 100%);
+}
+.wc-roll::-webkit-scrollbar { display: none; }
+.wc-roll[data-above] { --wc-above: 3em; }
+.wc-roll[data-below] { --wc-below: 2em; }
+.wc-roll:focus-visible { outline: none; box-shadow: var(--rv-focus); border-radius: var(--rv-radius-md); }
+.wc-roll__lines:empty { display: none; }
+/* A working with no diagram (an equation board on its own) has nothing to pin above its lines. */
+.wc-picture:has(> .ns-visual:empty) { display: none; }
+/* A working drawn wholly as its picture (no lines handed to the window) has no window. */
+.wc-roll:has(> .wc-roll__lines:empty):not(:has(> .sc)) { display: none; }

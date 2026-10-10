@@ -6,6 +6,7 @@ import type { ChainStep } from '../../maths/step-chain/StepChain'
 import { PictureStep, RoundingVisual } from './NumberSenseWorkedExample'
 import { NumberLine, OrderChart } from './OrderPictures'
 import { Powers } from './Powers'
+import { Working } from '../../maths/step-chain/working'
 import type { MethodExample, MethodStep } from './methodWorking'
 import { MethodPicture as MethodPictureView } from './MethodWorkedExample'
 import type { BusStopPicture, ColumnsPicture, ListsPicture, PlacePicture, StepLine, StepPicture, StepWorking } from './stepWorking'
@@ -113,7 +114,7 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
   const given = working.given && <p className="sp-given"><Powers text={working.given} /></p>
   const picture = (revealed: number) => {
     const index = revealed - 2
-    if (index < 0) return <div className="ns-visual sp-working">{given}{working.opening ? <Picture picture={working.opening} /> : working.start && <p className="sp-start"><Powers text={working.start} /></p>}</div>
+    if (index < 0) return <div className="ns-visual sp-working">{given}{working.opening ? <Picture picture={working.opening} /> : working.start && <Working><p className="sp-start"><Powers text={working.start} /></p></Working>}</div>
     const step = working.steps[index]
     // A place-value chart or factor lists belong to their own step: drawn under its heading, after the lines already
     // worked out, and not carried on. Other pictures (columns, bus stop…) build up on top from step to step.
@@ -124,11 +125,13 @@ export function StepWorkedExample({ working }: { working: StepWorking }) {
       <PictureStep step={{ title: step.title, instruction: step.why, tag: step.tag, operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
         {given}
         {shown && <Picture picture={shown} />}
-        {earlier.length > 0 && <Lines lines={earlier} faded />}
-        {heading}
-        {own && <Picture picture={own} />}
-        {step.lines && <Lines lines={step.lines} />}
-        {step.words && <p className="sp-answer-pill sp-words"><Powers text={step.words} /></p>}
+        <Working>
+          {earlier.length > 0 && <Lines lines={earlier} faded />}
+          {heading}
+          {own && <Picture picture={own} />}
+          {step.lines && <Lines lines={step.lines} />}
+          {step.words && <p className="sp-answer-pill sp-words"><Powers text={step.words} /></p>}
+        </Working>
       </>}</PictureStep>
     </div>
   }

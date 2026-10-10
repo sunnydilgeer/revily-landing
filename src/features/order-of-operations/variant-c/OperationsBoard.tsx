@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { Working } from '../../maths/step-chain/working'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
 import { PictureStep } from '../../written-methods/tutor/NumberSenseWorkedExample'
 import { Powers } from '../../written-methods/tutor/Powers'
@@ -39,14 +40,15 @@ export function OpsBoard({ working }: { working: BoardWorking }) {
   const chain: ChainStep[] = [{ line: working.start }, ...working.steps.map(step => ({ line: plainRow(step.next), op: step.title, why: step.instruction }))]
   const picture = (revealed: number) => {
     const index = revealed - 2
-    if (index < 0) return <div className="ns-visual ob-board" role="img" aria-label={spoken(working.start)}><Row text={working.start} prefix={working.prefix} /></div>
+    if (index < 0) return <div className="ns-visual"><Working><div className="ns-visual ob-board" role="img" aria-label={spoken(working.start)}><Row text={working.start} prefix={working.prefix} /></div></Working></div>
     const step = working.steps[index]
     // Rows so far: the question (or the latest fresh start), then each earlier step's result.
     const fresh = working.steps.slice(0, index + 1).findLastIndex(s => s.fresh)
     const earlier = (fresh >= 0 ? [working.steps[fresh].mark, ...working.steps.slice(fresh + 1, index).map(s => s.next)] : [working.start, ...working.steps.slice(0, index).map(s => s.next)]).map(plainRow)
     const last = index === working.steps.length - 1
     const label = [...earlier.slice(0, -1), step.fresh ? '' : plainRow(step.mark), step.fresh ? plainRow(step.mark) : plainRow(step.next)].filter(Boolean).map(spoken).join(', then ')
-    return <div className="ns-visual ob-board" key={revealed} role="img" aria-label={label}>
+    // The whole board is working: it rolls in the working window, with no diagram above it.
+    return <div className="ns-visual" key={revealed}><Working><div className="ns-visual ob-board" role="img" aria-label={label}>
       <PictureStep step={{ title: step.title, instruction: step.instruction, operation: '', equation: '', frame: {} } as MethodStep}>{heading => step.fresh
         ? <>{heading}<Row text={step.mark} prefix={working.prefix} tone={last && !step.words ? 'answer' : undefined} />{step.words && <p className="ob-words">{step.words}</p>}</>
         : <>
@@ -57,7 +59,7 @@ export function OpsBoard({ working }: { working: BoardWorking }) {
           <Row text={step.next} prefix={working.prefix} tone={last && !step.words ? 'answer' : undefined} />
           {step.words && <p className="ob-words">{step.words}</p>}
         </>}</PictureStep>
-    </div>
+    </div></Working></div>
   }
   return <WorkedChain steps={chain} picture={picture} pictureOnly />
 }

@@ -23,6 +23,8 @@ const MIN_SHARE = 0.6
  * there; small steps, each measured afresh, settle on the right size instead of overshooting on that moment.
  */
 const MAX_STEP = 0.85
+/** The shortest a worked example's working window gets (about three lines) before its diagram shrinks instead. */
+const MIN_ROLL = 132
 
 /** How much taller the card is than the room between the top of its section and the bottom bar (negative: room spare). */
 function overflowOf(card: HTMLElement) {
@@ -37,12 +39,28 @@ function overflowOf(card: HTMLElement) {
 }
 
 /**
- * Makes a card's content fit the screen, so it rarely scrolls. A graph is drawn square for square on the card's
+ * Makes a card's content fit the screen, so it rarely scrolls. A worked example's working window shrinks first. A
+ * graph is drawn square for square on the card's
  * squared paper, so the paper's squares shrink (or grow back) and the graph follows them (GraphPictures.tsx realigns
  * on resize). Any other diagram is scaled with CSS zoom, never below its floor. Returns true when it changed something.
  */
 function fit(card: HTMLElement) {
   const over = overflowOf(card)
+  // A worked example's working rolls in its own window (WorkedChain.tsx): that window gives way first, so the diagram
+  // keeps its size, and grows back first when there is room again.
+  const roll = card.querySelector<HTMLElement>('.wc-roll')
+  if (roll && roll.offsetParent) {
+    const height = roll.clientHeight, capped = roll.style.maxHeight !== ''
+    if (over > 0 && height > MIN_ROLL) {
+      roll.style.maxHeight = `${Math.max(MIN_ROLL, Math.floor(height - over - 2))}px`
+      return true
+    }
+    if (over < -6 && capped) {
+      const next = Math.floor(height - over - 4)
+      roll.style.maxHeight = next >= roll.scrollHeight ? '' : `${next}px`
+      return true
+    }
+  }
   const graph = card.querySelector<SVGSVGElement>('svg.ns-graph__picture')
   if (graph) {
     if (graph.classList.contains('has-grid')) return false
