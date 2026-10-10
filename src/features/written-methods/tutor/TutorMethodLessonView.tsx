@@ -377,7 +377,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
   const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
-  return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
+  return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}${lesson.largePictures ? ' has-large-pictures' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
     <DriveSteps flow={flow}>
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>

@@ -187,6 +187,7 @@
    alternate angles in purple. The picture keeps a margin for its labels, so nothing runs off its edge. */
 .ns-angles { display: flex; justify-content: center; width: 100%; margin-bottom: 4px; }
 .ns-angles svg { display: block; width: 100%; max-width: 400px; }
+.has-large-pictures .ns-angles svg { max-width: 600px; }
 .ns-angles__line { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
 .ns-angles__zig { fill: none; stroke: #7c3aed; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; opacity: .85; }
 .ns-angles__mark path { fill: none; stroke: var(--f, var(--rv-ink)); stroke-width: 2.5; }
@@ -494,3 +495,9 @@
 .ns-fig .is-found { --f: var(--rv-good-ink); }
 .ns-fig .is-faint { --f: color-mix(in srgb, var(--rv-ink) 40%, transparent); }
 .ns-fig.is-plain .is-x, .ns-fig.is-plain .is-lit, .ns-fig.is-plain .is-found { --f: var(--rv-ink); }
+/* Squared paper and axes (geometry lessons 10 to 18), and a line's arrowhead. */
+.ns-fig .measure-board__grid.is-axis { stroke: color-mix(in srgb, var(--rv-ink) 70%, transparent); stroke-width: 1.6; }
+/* The square a picture on squares marks for the card's paper to line up with (cardPaper.ts). */
+.card-paper-square { fill: none; stroke: none; }
+.ns-fig__axis { fill: color-mix(in srgb, var(--rv-ink) 65%, transparent); font-size: 11px; font-weight: 600; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; }
+.ns-fig__line.is-head { stroke-linejoin: round; stroke-dasharray: none; }
