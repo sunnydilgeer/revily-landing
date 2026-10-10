@@ -148,6 +148,7 @@ add('mixed', 'Sectors and arcs', 'GM9 consolidation', text(
 
 export const tutorSectorsLesson: TutorMethodLesson = {
   id: 'L209', number: 209, title: 'Sectors and arcs', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'See a sector as a fraction of its circle, and find its area, arc length and perimeter.',
   labels: { [fraction]: 'A fraction of a circle', [sectorArea]: 'Sector area', [arcLength]: 'Arc length', [sectorPerimeter]: 'Sector perimeter', mixed: 'Review' },
   states: finish(),

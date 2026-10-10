@@ -250,6 +250,7 @@ add('mixed', 'Interior and exterior angles', 'GM4 consolidation', text(
 
 export const tutorPolygonAnglesLesson: TutorMethodLesson = {
   id: 'L204', number: 204, title: 'Interior and exterior angles', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Use the exterior angle sum (360°) and the interior angle sum ((n − 2) × 180°) to find angles in polygons, regular or not, including with algebra.',
   labels: { [exterior]: 'Exterior angles', [interior]: 'Interior angle sum', [regularTopic]: 'Regular polygons', [algebra]: 'Missing angles', mixed: 'Review' },
   states: finish(),

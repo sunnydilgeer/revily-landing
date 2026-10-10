@@ -19,7 +19,7 @@ import { NumberLineVisual } from './InequalityPictures'
 import { GraphVisual } from './GraphPictures'
 import { Boxed, Powers } from './Powers'
 import { SteadyPictures } from './steadyPictures'
-import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
+import type { AngleFrame, BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
   return visual.examples.every(example => example.method === 'rounding' || example.method === 'ordering' || example.method === 'estimate' || example.method === 'standard-form' || example.method === 'collect')
@@ -65,6 +65,9 @@ function IntervalVisual({ frame }: { frame: IntervalFrame }) {
     {frame.test && <g className={`ns-line__test${inside ? ' is-inside' : ''}`}><path d={`M${x(Number(frame.test))} 44l-6 -9h12z`} /><text x={Math.min(290, Math.max(30, x(Number(frame.test))))} y="20">{frame.test}</text></g>}
   </svg>
 }
+
+/** Every angle picture a worked example draws (the opening one too), so each step fits them all the same way. */
+const exampleAngles = (example: { steps: { frame: { angles?: AngleFrame } }[] }) => example.steps.flatMap(step => step.frame.angles ? [step.frame.angles, ...(step.frame.angles.before ? [step.frame.angles.before] : [])] : [])
 
 /** `heading` sits above the hops, or above the answer when the hops were already shown by the step before (`headingAtAnswer`). */
 function HopVisual({ frame, plain, heading, headingAtAnswer }: { frame: HopFrame; plain?: boolean; heading?: ReactNode; headingAtAnswer?: boolean }) {
@@ -200,7 +203,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
     {expand && <ExpandVisual frame={expand} />}
-    {angles && <AngleVisual frame={angles} />}
+    {angles && <AngleVisual frame={angles} group={exampleAngles(example)} />}
     {machine && <MachineVisual frame={machine} />}
     {ratio && <RatioVisual frame={ratio} />}
     {percent && <PercentVisual frame={percent} />}
@@ -268,7 +271,7 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.solve) return <div className="ns-visual rung-worked__visual"><SolveVisual frame={first.solve} plain /></div>
         if (first?.quadratic) return <div className="ns-visual rung-worked__visual"><QuadraticVisual frame={first.quadratic} plain /></div>
         // A geometric proof opens on the question's own picture (lesson 28), with any rows the question gives under it.
-        if (first?.angles) return <div className="ns-visual rung-worked__visual"><AngleVisual frame={first.angles.before ?? first.angles} plain />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
+        if (first?.angles) return <div className="ns-visual rung-worked__visual"><AngleVisual frame={first.angles.before ?? first.angles} plain group={exampleAngles(example)} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
         // A function machine opens on the question's own machine (lesson 29), with any rows the question gives under it.
         if (first?.machine) return <div className="ns-visual rung-worked__visual"><MachineVisual frame={first.machine.before ?? first.machine} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
         // Ratio bars open on the question's own bars (lesson 30), with any rows the question gives under them.
