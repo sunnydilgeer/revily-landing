@@ -5,6 +5,15 @@ import { StepChain, StepDots, useStepPace, type ChainLayout, type ChainStep } fr
 import { StepDriverContext } from './stepDriver'
 import './WorkedChain.css'
 
+/** The nearest ancestor that scrolls its own content, if any (the lesson card on the fixed lesson screen). */
+function scrollParent(element: HTMLElement) {
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    const overflow = getComputedStyle(parent).overflowY
+    if ((overflow === 'auto' || overflow === 'scroll') && parent.scrollHeight > parent.clientHeight) return parent
+  }
+  return null
+}
+
 /**
  * A step chain inside a lesson card, with its own small controls: back, dots and Next step.
  * On a lesson's teaching screen, Next step moves to the bottom bar (see stepDriver.ts), so there is one button to press.
@@ -44,10 +53,13 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
     opened.current = revealed
     const working = figure.current, target = controls.current
     if (!drive || !working || !target || typeof ResizeObserver === 'undefined') return
-    // Chrome ignores scroll-margin for block 'nearest' while the element is on screen, so measure, then align its end.
+    // On the fixed lesson screen the card scrolls inside itself; elsewhere the page scrolls. Chrome ignores
+    // scroll-margin for block 'nearest' while the element is on screen, so measure, then align its end.
     const keepClear = () => {
+      const scroller = scrollParent(target)
+      const bottom = scroller ? scroller.getBoundingClientRect().bottom : window.innerHeight
       const clearance = parseFloat(getComputedStyle(target).scrollMarginBottom) || 0
-      if (target.getBoundingClientRect().bottom > window.innerHeight - clearance) target.scrollIntoView({ block: 'end' })
+      if (target.getBoundingClientRect().bottom > bottom - clearance) target.scrollIntoView({ block: 'end' })
     }
     const observer = new ResizeObserver(keepClear)
     observer.observe(working)
