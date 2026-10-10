@@ -6,6 +6,8 @@ import type { RatioFrame } from './methodWorking'
  * purple, with one purple line under the bars saying what they are. The picture is only as wide as its names, its
  * longest bar and the room its working needs for pills (`room`), so it is drawn as big as the card allows; every size
  * comes from the question's own bars, so it stays the same size from step to step (Sunny). Nothing runs off its edge.
+ * Every picture is drawn in the same box (RATIO_WIDTH × RATIO_HEIGHT, room for three bars), its bars in the middle,
+ * so the bars are one size in every question of a lesson and the box never changes (Sunny, 10 Oct).
  */
 
 /** The widest the picture is drawn in; a narrower picture is scaled up to fill the card. */
@@ -31,6 +33,9 @@ export function ratioLayout(frame: RatioFrame) {
   return { block, rowY, barX, width, tagX: (parts: number) => barX + parts * block + TAG_GAP, noteY, height: noteY + 15, eachSize: Math.min(15, block * 0.62) }
 }
 
+/** The box every picture is drawn in: as tall as three bars and their note. */
+export const RATIO_HEIGHT = ratioLayout({ bars: [0, 1, 2].map(() => ({ name: '', parts: 1 })) }).height
+
 function spoken(frame: RatioFrame) {
   const bars = frame.bars.map(bar => `${bar.name}, ${bar.parts} ${bar.parts === 1 ? 'part' : 'parts'}${bar.tag ? `: ${bar.tag}` : ''}`).join('; ')
   return `Ratio bars. ${bars}.${frame.each ? ` Each part is ${frame.each}.` : ''}${frame.groups ? ` Split into ${frame.groups} equal groups.` : ''}${frame.match ? ` ${frame.bars[frame.match.bars[0]].name} and ${frame.bars[frame.match.bars[1]].name} lined up: the first ${frame.match.at} parts match.` : ''}${frame.note ? ` ${frame.note}.` : ''}`
@@ -44,7 +49,7 @@ export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boole
   const faded = (i: number, k: number) => !!match && (!match.bars.includes(i) || (i === match.bars[1] && k < match.at))
   const [top, bottom] = match ? [Math.min(...match.bars), Math.max(...match.bars)] : [0, 0]
   return <div className={`ns-ratio${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame)}>
-    <svg viewBox={`0 0 ${width} ${height}`} style={{ maxWidth: Math.round(width * 1.375) }} aria-hidden="true">
+    <svg viewBox={`0 0 ${RATIO_WIDTH} ${Math.max(RATIO_HEIGHT, height)}`} aria-hidden="true"><g transform={`translate(${(RATIO_WIDTH - width) / 2} ${Math.max(0, (RATIO_HEIGHT - height) / 2)})`}>
       {frame.bars.map((bar, i) => {
         const y = rowY(i)
         return <g key={i} className={`ns-ratio__bar is-b${i % 3}${match && !match.bars.includes(i) ? ' is-out' : ''}${!plain && frame.dim?.includes(i) ? ' is-dim' : ''}`}>
@@ -68,6 +73,6 @@ export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boole
       {match && <path className="ns-ratio__match" d={`M${barX + match.at * block} ${rowY(top) - 4} L${barX + match.at * block} ${rowY(bottom) + BAR_H + 4}`} />}
       {!plain && frame.rings?.map((ring, i) => <rect key={i} className="ns-ratio__ring" x={barX + ring.from * block - 3} y={rowY(ring.bar) - 4} width={(ring.to - ring.from) * block + 6} height={BAR_H + 8} rx="5" />)}
       {!plain && frame.note && <text className="ns-ratio__note" x={width / 2} y={noteY}>{frame.note}</text>}
-    </svg>
+    </g></svg>
   </div>
 }

@@ -202,5 +202,6 @@ export const tutorProportionLesson: TutorMethodLesson = {
   id: 'L031', number: 31, title: 'Direct and inverse proportion', level: 'GCSE Foundation',
   goal: 'Use direct proportion to scale an amount up or down, and inverse proportion to work out how long a job takes.',
   labels: { [direct]: 'Direct proportion', [inverse]: 'Inverse proportion', mixed: 'Review' },
+  steadyPictures: true,
   states: finish(),
 }

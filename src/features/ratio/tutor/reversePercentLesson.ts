@@ -174,5 +174,6 @@ export const tutorReversePercentLesson: TutorMethodLesson = {
   id: 'L033', number: 33, title: 'Reverse percentages', level: 'GCSE Foundation',
   goal: 'Find the original amount before a percentage increase or decrease, by finding 1% or by dividing by the multiplier.',
   labels: { [hundred]: '1% to 100%', [decimal]: 'Using decimals', mixed: 'Review' },
+  steadyPictures: true,
   states: finish(),
 }

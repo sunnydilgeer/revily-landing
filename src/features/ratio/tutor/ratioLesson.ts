@@ -270,5 +270,6 @@ export const tutorRatioLesson: TutorMethodLesson = {
   id: 'L030', number: 30, title: 'Ratio problems', level: 'GCSE Foundation',
   goal: 'Find a share from the difference between two parts, solve a ratio that changes, and write a ratio in the form 1 : n.',
   labels: { [difference]: 'Difference between parts', [changing]: 'Changing ratios', [unitForm]: 'The form 1 : n', mixed: 'Review' },
+  steadyPictures: true,
   states: finish(),
 }

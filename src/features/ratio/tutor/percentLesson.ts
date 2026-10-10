@@ -278,5 +278,6 @@ export const tutorPercentLesson: TutorMethodLesson = {
   id: 'L032', number: 32, title: 'Percentages', level: 'GCSE Foundation',
   goal: 'Find a percentage of an amount, increase and decrease by a percentage, and work out a percentage change.',
   labels: { [ofAmount]: 'Percentage of an amount', [increase]: 'Percentage increase', [decrease]: 'Percentage decrease', [change]: 'Percentage change', mixed: 'Review' },
+  steadyPictures: true,
   states: finish(),
 }

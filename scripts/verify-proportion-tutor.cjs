@@ -7,7 +7,7 @@ const { tutorProportionLesson: lesson } = require('../src/features/ratio/tutor/p
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
 const React = require('react')
 const { renderToStaticMarkup } = require('react-dom/server')
-const { RatioVisual, RATIO_WIDTH, NOTE_SIZE, ratioLayout, pillWidth, textWidth } = require('../src/features/written-methods/tutor/RatioPictures.tsx')
+const { RatioVisual, RATIO_WIDTH, RATIO_HEIGHT, NOTE_SIZE, ratioLayout, pillWidth, textWidth } = require('../src/features/written-methods/tutor/RatioPictures.tsx')
 
 const states = lesson.states
 const parts = ['Q2', 'Q3', 'Q4a', 'Q4b', 'Q5a', 'Q5b', 'Q5c']
@@ -51,6 +51,8 @@ function checkPicture(label, frame, kind) {
   for (const bar of known.slice(1)) { assert.ok(Math.abs(rule(bar) - rule(known[0])) < 1e-9, `${label}: ${bar.name} → ${bar.tag} follows from ${known[0].name} → ${known[0].tag}`); sums++ }
   // Everything drawn stays inside the picture.
   const svg = renderToStaticMarkup(React.createElement(RatioVisual, { frame }))
+  // Every picture is drawn in the same box, so it is one size in every question (Sunny, 10 Oct).
+  assert.ok(svg.includes(`viewBox="0 0 ${RATIO_WIDTH} ${RATIO_HEIGHT}"`), `${label}: the picture is drawn in the lesson's one box`)
   for (const [, x, y, w, h] of svg.matchAll(/<rect [^>]*?x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)) {
     assert.ok(+x >= 0 && +x + +w <= width && +y >= 0 && +y + +h <= height, `${label}: a shape at ${x}, ${y} sits inside the picture`)
   }
