@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import { useContext, useMemo, useState, type ReactNode } from 'react'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
 import { methodChain } from './methodChain'
 import { MathSpan } from '../../../../components/MathText'
@@ -18,6 +18,7 @@ import { SequenceVisual } from './SequencePictures'
 import { NumberLineVisual } from './InequalityPictures'
 import { GraphVisual } from './GraphPictures'
 import { Boxed, Powers } from './Powers'
+import { SteadyPictures } from './steadyPictures'
 import type { BracketFrame, HopFrame, TermsFrame, IntervalFrame, MethodExample, MethodStep, MethodWorking, OrderingFrame, RoundingFrame, WorkingLine } from './methodWorking'
 
 export function isNumberSenseWorking(visual: MethodWorking) {
@@ -237,6 +238,7 @@ function OrderingVisual({ frame }: { frame: OrderingFrame }) {
 
 export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) {
   const chain = useMemo(() => methodChain(visual), [visual])
+  const steady = useContext(SteadyPictures)
   // When every step has its own picture (term tiles, hops, value cards), the picture carries the whole working.
   const pictureOnly = visual.examples.every(example => example.method === 'collect'
     || (example.method === 'standard-form' && example.steps.every(step => step.frame.hop || step.frame.ordering || step.frame.terms))
@@ -301,5 +303,5 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
       {frame.terms && <TermsVisual frame={frame.terms} />}
     </div>
   }
-  return <WorkedChain steps={chain} picture={picture} pictureOnly={pictureOnly} />
+  return <WorkedChain steps={chain} picture={picture} pictureOnly={pictureOnly} steady={steady} />
 }

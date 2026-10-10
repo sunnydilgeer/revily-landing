@@ -9,12 +9,14 @@ import './WorkedChain.css'
  * The lesson's own Continue stays in the bottom bar, so a worked example never blocks moving on.
  * `picture` shows alongside the working for the step on screen (for example a fraction bar).
  * With `pictureOnly`, the picture shows the whole working (its own step headings too) and the chain isn't drawn.
+ * With `steady`, the picture always fills the card's width, so it is the same size on the opening screen as on every step.
  */
-export function WorkedChain({ steps, layout, picture, pictureOnly }: {
+export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
   steps: ChainStep[]
   layout?: ChainLayout
   picture?: (revealed: number) => ReactNode
   pictureOnly?: boolean
+  steady?: boolean
 }) {
   const [revealed, setRevealed] = useState(1)
   const { pace } = useStepPace()
@@ -23,7 +25,7 @@ export function WorkedChain({ steps, layout, picture, pictureOnly }: {
   const shown = picture?.(revealed)
 
   return <figure className={`wc${pictureOnly ? ' wc--picture' : ''}`}>
-    {shown && <div className="wc-picture">{shown}</div>}
+    {shown && <div className={`wc-picture${steady ? ' wc-picture--steady' : ''}`}>{shown}</div>}
     {!pictureOnly && <StepChain steps={steps} layout={layout} revealed={revealed} pace={pace} />}
     {total > 0 && <div className="wc-controls">
       <button type="button" className="wc-back" aria-label="Previous step" disabled={revealed === 1} onClick={() => setRevealed(revealed - 1)}>←</button>

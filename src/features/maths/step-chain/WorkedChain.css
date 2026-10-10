@@ -1,6 +1,8 @@
 /* A step chain inside a lesson card. Tokens come from src/ui/revily-tokens.css. */
 .wc { margin: 4px 0 0; display: grid; gap: 14px; }
 .wc-picture { display: flex; justify-content: center; }
+/* A steady picture fills the width on every step, the opening screen too, so it never changes size. */
+.wc-picture--steady > * { flex: 1; min-width: 0; }
 .wc-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
 .wc-back {
   width: 44px; height: 44px; flex: none; border: 2px solid var(--rv-line); border-radius: 50%;

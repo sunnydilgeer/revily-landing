@@ -10,6 +10,7 @@ import { ConversionWorkedExample } from '../../fractions-decimals-percentages/tu
 import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fractionDiagnosis'
 import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
+import { SteadyPictures } from './steadyPictures'
 import { GraphBoard } from './GraphBoard'
 import { AngleBoard } from './AngleBoard'
 import { MeasureBoard } from './MeasureBoard'
@@ -375,7 +376,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
   const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
-  return <section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
+  return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <h3 ref={heading} tabIndex={-1}>{state.content.heading ? <><span aria-hidden="true"><Powers text={state.content.heading} /></span><span className="sr-only">{state.content.title}</span></> : <Powers text={state.content.title} />}</h3>
@@ -445,5 +446,5 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
           {multi && <Button size="lg" disabled={!selection.length} onClick={engine.submit}>Check</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}
         </CheckBar>}
-  </section>
+  </section></SteadyPictures.Provider>
 }

@@ -304,5 +304,6 @@ export const tutorInterestLesson: TutorMethodLesson = {
   id: 'L034', number: 34, title: 'Interest, growth and decay', level: 'GCSE Foundation',
   goal: 'Work out simple interest, compound growth and decay with a multiplier, and find how many years it takes to pass a target.',
   labels: { [simple]: 'Simple interest', [growth]: 'Compound growth', [decay]: 'Compound decay', [periods]: 'Finding the number of years', mixed: 'Review' },
+  steadyPictures: true,
   states: finish(),
 }
