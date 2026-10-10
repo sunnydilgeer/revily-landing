@@ -1,4 +1,5 @@
-// Checks geometry lessons 5 to 9 (symmetry, area, circles, perimeter, sectors; GM5 to GM9), given the lesson number:
+// Checks geometry lessons 5 to 18 (symmetry, area, circles, perimeter, sectors, congruent and similar shapes,
+// transformations, 3D shapes, volume, surface area, plans and elevations, loci and bearings; GM5 to GM18), given the lesson number:
 // node scripts/verify-figure-lessons.cjs 207. Four rungs then Review, each with a worked example and questions; every
 // picture a measured figure that fits inside its frame, labels included; every typed answer matches the one worked out
 // by hand below, is accepted with its unit (or π) typed after it, and has slip messages; areas and perimeters match the
@@ -20,9 +21,18 @@ const LESSONS = {
   207: { dir: 'circles', name: 'tutorCirclesLesson', boards: ['circle'], answers: [7.6, 40.8, 47.1, 36, 66.5, 153.9, 25.5, 5.6, 8] },
   208: { dir: 'perimeter', name: 'tutorPerimeterLesson', boards: ['notch'], answers: [21, 36, 6.4, 6, 50, 500, 20.6, 65.1, 36, 24, 8] },
   209: { dir: 'sectors', name: 'tutorSectorsLesson', boards: ['sector'], answers: [47.1, 62.8, 19.6, 12.6, 6.3, 18.8, 35.7, 27.4] },
+  215: { dir: 'surfaces', name: 'tutorSurfacesLesson', boards: ['prism'], answers: [88, 150, 132, 408.4, 138.2, 282.7, 103.7, 314.2, 78.5, 5.6, 340, 144] },
+  211: { dir: 'similarity', name: 'tutorSimilarityLesson', boards: ['enlarge'], answers: [4, 1.5, 6, 16, 5.6, 14, 16, 8.8] },
+  216: { dir: 'projections', name: 'tutorProjectionsLesson', boards: [], answers: [15, 6] },
+  218: { dir: 'bearings', name: 'tutorBearingsLesson', boards: ['bearing'], answers: [125, 48, 290, 215, 115, 120, 255, 9, 9, 65] },
+  217: { dir: 'loci', name: 'tutorLociLesson', boards: ['locus'], answers: [6, 14.3, 4.5, 32, 2, 3] },
+  212: { dir: 'transformations', name: 'tutorTransformationsLesson', boards: ['translate', 'enlarge'], answers: [-2, 6, 2.5] },
+  210: { dir: 'congruence', name: 'tutorCongruenceLesson', boards: [], answers: [70, 18] },
+  213: { dir: 'solids', name: 'tutorSolidsLesson', boards: [], answers: [5, 8, 4, 12, 2, 0] },
+  214: { dir: 'volume', name: 'tutorVolumeLesson', boards: ['prism'], answers: [140, 240, 210, 628.3, 113.1, 314.2, 216, 66, 188.5, 4, 904.8, 56.5, 79.6] },
 }
 const spec = LESSONS[number]
-assert.ok(spec, `Give a lesson number, 205 to 209 (got ${process.argv[2]})`)
+assert.ok(spec, `Give a lesson number, 205 to 218 (got ${process.argv[2]})`)
 const mod = require(`../src/features/${spec.dir}/tutor/${spec.dir}Lesson.ts`)
 const lesson = mod[spec.name]
 const { fitFigure } = require('../src/features/written-methods/tutor/FigurePictures.tsx')
@@ -93,7 +103,7 @@ for (const s of states) {
     assert.ok(s.diagnose, `${s.id}: has slip messages`)
     assert.equal(s.diagnose(`${right}`), null, `${s.id}: no slip message on the right answer`)
     const last = JSON.stringify(steps.at(-1).frame.equation.rows.at(-1))
-    assert.ok(last.includes(String(right)), `${s.id}: the working ends at ${right}`)
+    assert.ok(last.includes(String(right).replace('-', '−')), `${s.id}: the working ends at ${right}`)
     const f = s.visual.angle, shape = shapeOf(f.figure ? f : { figure: { items: [] } })
     // As drawn: areas and perimeters of straight-sided shapes, and the symmetry board's own count.
     if (/^Find the area of this (rectangle|parallelogram|triangle|trapezium)/.test(s.content.title)) { assert.ok(Math.abs(shoelace(shape.points) - right) < 1e-6, `${s.id}: the drawn shape's area is ${right}`); drawn++ }

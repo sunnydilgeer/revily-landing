@@ -3,10 +3,11 @@ import type { FigureFrame, FigureItem, FigurePoint } from './methodWorking'
 import { Caption, type Bounds } from './AnglePictures'
 
 /*
- * Measured figures (geometry lessons 5 to 9: symmetry, area, circles, perimeter, sectors). A figure is a list of
- * plain drawing items in their own units, y up, fitted into the picture with room for the labels: shapes (filled
- * lightly), lines (a mirror line is red and dashed, as in the book), circles, arcs and sectors, measurements with an
- * arrow at each end and the length beside them, right-angle squares, tick marks, points and words.
+ * Measured figures (geometry lessons 5 to 18: symmetry, area, circles, perimeter, sectors, and lessons 10 to 18 from
+ * congruence to bearings). A figure is a list of plain drawing items in their own units, y up, fitted into the picture
+ * with room for the labels: squared paper (with numbered axes for transformations), shapes (filled lightly), lines (a
+ * mirror line is red and dashed, as in the book; a North line has an arrowhead), circles, arcs and sectors,
+ * measurements with an arrow at each end and the length beside them, right-angle squares, tick marks, points and words.
  *
  * Tones follow the angle pictures: `given` is plain ink, `x` the unknown in biro blue, `lit` the part a step uses in
  * purple, and `found` the answer in a green box.
@@ -30,6 +31,7 @@ function extent(items: FigureItem[]): P[] {
       return list
     }
     if (item.kind === 'point' || item.kind === 'text') return [pt(item.at)]
+    if (item.kind === 'grid') return [pt(item.from), pt(item.to)]
     return []
   })
 }
@@ -66,6 +68,17 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
   const parts: ReactNode[] = []
   const labels: ReactNode[] = []
   frame.items.forEach((item, i) => {
+    if (item.kind === 'grid') {
+      // Squared paper under everything else, one line per whole unit; the axes darker, numbered under and beside them.
+      const [x0, y0] = item.from, [x1, y1] = item.to
+      for (let x = Math.ceil(x0); x <= x1; x++) { const a = at([x, y0]), b = at([x, y1]); parts.push(<path key={`gx${i}-${x}`} className={`measure-board__grid${item.axes && x === 0 ? ' is-axis' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
+      for (let y = Math.ceil(y0); y <= y1; y++) { const a = at([x0, y]), b = at([x1, y]); parts.push(<path key={`gy${i}-${y}`} className={`measure-board__grid${item.axes && y === 0 ? ' is-axis' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
+      if (item.axes && item.numbers) {
+        const o = at([0, 0])
+        for (let x = Math.ceil(x0); x <= x1; x++) if (x) { const p = at([x, 0]); parts.push(<text key={`nx${i}-${x}`} className="ns-fig__axis" x={p.x} y={o.y + 12}>{x < 0 ? `−${-x}` : x}</text>) }
+        for (let y = Math.ceil(y0); y <= y1; y++) if (y) { const p = at([0, y]); parts.push(<text key={`ny${i}-${y}`} className="ns-fig__axis" x={o.x - 9} y={p.y}>{y < 0 ? `−${-y}` : y}</text>) }
+      }
+    }
     if (item.kind === 'shape') {
       const d = `M${item.points.map(p => { const q = at(p); return `${q.x} ${q.y}` }).join(' L')}${item.open ? '' : ' Z'}`
       if (!plain && item.lit) parts.push(<path key={`l${i}`} className="ns-angles__lit" d={d} />)
@@ -74,6 +87,11 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     if (item.kind === 'line') {
       const a = at(item.from), b = at(item.to)
       parts.push(<path key={i} className={`ns-fig__line is-${item.style ?? 'plain'}${plain && item.style === 'lit' ? ' is-quiet' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />)
+      if (item.arrow) {
+        // An arrowhead at the `to` end: a North line, or a translation's move.
+        const len = Math.hypot(b.x - a.x, b.y - a.y) || 1, u = { x: (b.x - a.x) / len, y: (b.y - a.y) / len }
+        parts.push(<path key={`a${i}`} className={`ns-fig__line is-${item.style ?? 'plain'} is-head`} d={`M${b.x - u.x * 11 - u.y * 6} ${b.y - u.y * 11 + u.x * 6} L${b.x} ${b.y} L${b.x - u.x * 11 + u.y * 6} ${b.y - u.y * 11 - u.x * 6}`} />)
+      }
     }
     if (item.kind === 'circle') {
       const c = at(item.centre)

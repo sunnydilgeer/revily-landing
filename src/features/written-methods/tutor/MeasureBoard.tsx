@@ -4,7 +4,7 @@ import { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type Re
 import './AngleBoard.css'
 
 /*
- * The measuring board (geometry lessons 5 to 9): a play screen for each idea, like the angle board (AngleBoard.tsx).
+ * The measuring board (geometry lessons 5 to 18): a play screen for each idea, like the angle board (AngleBoard.tsx).
  * The student drags one handle, with a finger, the mouse or the arrow keys, and the numbers under the picture follow it.
  *
  * - turn (symmetry): turn a shape round its centre. Each time it fits its own outline, that turn is collected; a full
@@ -16,11 +16,19 @@ import './AngleBoard.css'
  * - sector: drag a sector's edge round: its area and arc are that fraction of the whole circle's.
  * - notch (perimeter): drag the inside corner of a rectangle with a corner cut out. Its area changes; its perimeter
  *   doesn't.
+ * - enlarge (similar shapes, enlargement): drag a corner of the image away from the centre of enlargement. Every length
+ *   is the scale factor times the original, and the angles don't change.
+ * - translate: drag the image across the squared paper. The column vector under it says how far right and up it moved.
+ * - prism (volume, surface area): drag out the length of a cuboid. Its volume is the end face's area times the length.
+ * - locus (loci): drag a point P around two points A and B. Its distances to both follow it; on the dashed
+ *   perpendicular bisector they are equal.
+ * - bearing: drag B round A. Its bearing is measured clockwise from North, in three figures, and the bearing back is
+ *   180° different.
  */
 
 export type MeasureShape = 'square' | 'rectangle' | 'equilateral' | 'isosceles' | 'pentagon' | 'hexagon' | 'parallelogram' | 'rhombus' | 'kite' | 'trapezium'
 export type MeasureBoardSpec = {
-  mode: 'turn' | 'mirror' | 'shear' | 'circle' | 'sector' | 'notch'
+  mode: 'turn' | 'mirror' | 'shear' | 'circle' | 'sector' | 'notch' | 'enlarge' | 'translate' | 'prism' | 'locus' | 'bearing'
   /** turn and mirror: the shape. shear: 'parallelogram' (or 'equilateral' for a triangle). */
   shape?: MeasureShape
 }
@@ -65,9 +73,22 @@ export const foldsThatFit = (shape: MeasureShape) => Array.from({ length: 180 },
 const GRID = 30, BASE = { x: 40, y: 190 }, BASE_LEN = 6
 const NOTCH = { w: 8, h: 5 }
 
+/* ---------- Boards for geometry lessons 10 to 18 ---------- */
+
+/** enlarge: the triangle, in squares from the centre of enlargement O (bottom left of the paper). */
+const ENLARGE_O = { x: 25, y: 200 }, ENLARGE_SHAPE: P[] = [{ x: 1, y: 1 }, { x: 3, y: 1 }, { x: 1, y: 2 }]
+/** translate: the object's corners in squares, on axes from −4 to 4 across and −3 to 3 up. */
+const TRANSLATE_O = { x: 160, y: 112 }, TRANSLATE_SHAPE: P[] = [{ x: -3, y: 0 }, { x: -1, y: 0 }, { x: -3, y: 2 }]
+/** prism: a cuboid 3 wide and 2 tall, its length drawn going back. */
+const PRISM = { w: 3, h: 2, front: { x: 40, y: 195 }, back: { x: 0.62, y: -0.42 } }
+/** locus and bearing: where A and B sit; 30 pixels to a centimetre. */
+const LOCUS_A = { x: 100, y: 112 }, LOCUS_B = { x: 220, y: 112 }, CM = 30
+const BEARING_A = { x: 160, y: 118 }, BEARING_R = 84
+export const threeFigure = (deg: number) => String(Math.round(((deg % 360) + 360) % 360)).padStart(3, '0')
+
 export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
   const shape = spec.shape ?? 'square'
-  const start: Record<MeasureBoardSpec['mode'], number[]> = { turn: [0], mirror: [20], shear: [2, 4], circle: [3], sector: [120], notch: [3, 2] }
+  const start: Record<MeasureBoardSpec['mode'], number[]> = { turn: [0], mirror: [20], shear: [2, 4], circle: [3], sector: [120], notch: [3, 2], enlarge: [2], translate: [3, -1], prism: [3], locus: [150, 60], bearing: [60] }
   const [v, setV] = useState(start[spec.mode])
   const [found, setFound] = useState<number[]>([])
   const [held, setHeld] = useState(false)
@@ -100,6 +121,18 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     }
     if (spec.mode === 'circle') return [clamp(Math.round(Math.hypot(p.x - 110, p.y - 112) / 12 * 2) / 2, 1, 7.5)]
     if (spec.mode === 'sector') { const a = Math.round(heading({ x: 160, y: 112 }, p) / 5) * 5; return [a === 0 ? 360 : clamp(a, 10, 360)] }
+    if (spec.mode === 'enlarge') {
+      // The scale factor, in halves: how far the dragged corner is from O compared with the original's.
+      const k = Math.hypot(p.x - ENLARGE_O.x, p.y - ENLARGE_O.y) / (Math.hypot(ENLARGE_SHAPE[1].x, ENLARGE_SHAPE[1].y) * GRID)
+      return [clamp(Math.round(k * 2) / 2, 0.5, 3)]
+    }
+    if (spec.mode === 'translate') {
+      // The image's first corner follows the pointer, a whole square at a time, and stays on the paper.
+      return [clamp(Math.round((p.x - TRANSLATE_O.x) / GRID) - TRANSLATE_SHAPE[0].x, 0, 6), clamp(Math.round((TRANSLATE_O.y - p.y) / GRID) - TRANSLATE_SHAPE[0].y, -3, 1)]
+    }
+    if (spec.mode === 'prism') return [clamp(Math.round((p.x - PRISM.front.x - PRISM.w * GRID) / (PRISM.back.x * GRID)), 1, 6)]
+    if (spec.mode === 'locus') return [clamp(Math.round(p.x / 5) * 5, 15, 305), clamp(Math.round(p.y / 5) * 5, 15, 205)]
+    if (spec.mode === 'bearing') { const b = Math.round((90 - heading(BEARING_A, p) + 360) % 360 / 5) * 5; return [b === 360 ? 0 : b] }
     // notch: the inside corner of the cut, in whole centimetres.
     return [clamp(Math.round((p.x - 40) / 30), 1, NOTCH.w - 1), clamp(Math.round((p.y - 35) / 30), 1, NOTCH.h - 1)]
   }
@@ -121,6 +154,11 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     if (spec.mode === 'circle') set([clamp(v[0] + step / 2, 1, 7.5)])
     if (spec.mode === 'sector') set([clamp(v[0] + step * 5, 10, 360)])
     if (spec.mode === 'notch') set(vertical ? [v[0], clamp(v[1] - step, 1, NOTCH.h - 1)] : [clamp(v[0] + step, 1, NOTCH.w - 1), v[1]])
+    if (spec.mode === 'enlarge') set([clamp(v[0] + step / 2, 0.5, 3)])
+    if (spec.mode === 'translate') set(vertical ? [v[0], clamp(v[1] + step, -3, 1)] : [clamp(v[0] + step, 0, 6), v[1]])
+    if (spec.mode === 'prism') set([clamp(v[0] + step, 1, 6)])
+    if (spec.mode === 'locus') set(vertical ? [v[0], clamp(v[1] - step * 5, 15, 205)] : [clamp(v[0] + step * 5, 15, 305), v[1]])
+    if (spec.mode === 'bearing') set([(v[0] + step * 5 + 360) % 360])
   }
 
   let drawing: ReactElement
@@ -200,6 +238,90 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     </>
     spoken = `A ${a}° sector of a circle of radius ${r}: ${a} over 360 of the circle. Area ${fmt(a / 360 * Math.PI * r * r)}, arc ${fmt(a / 360 * Math.PI * 2 * r)}.`
     footer = <span aria-hidden="true">Fraction of the circle: <span className="angle-board__n c2">{a}</span> ÷ 360 = {pill(fmt(a / 360, 3))}</span>
+  } else if (spec.mode === 'enlarge') {
+    const k = v[0], at = (q: P, f = 1): P => ({ x: ENLARGE_O.x + q.x * f * GRID, y: ENLARGE_O.y - q.y * f * GRID })
+    const image = ENLARGE_SHAPE.map(q => at(q, k))
+    handle = image[1]
+    drawing = <>
+      {Array.from({ length: 11 }, (_, n) => <path key={`v${n}`} className="measure-board__grid" d={`M${ENLARGE_O.x + n * GRID} 10 L${ENLARGE_O.x + n * GRID} ${ENLARGE_O.y}`} />)}
+      {Array.from({ length: 7 }, (_, n) => <path key={`h${n}`} className="measure-board__grid" d={`M${ENLARGE_O.x} ${ENLARGE_O.y - n * GRID} L${ENLARGE_O.x + 290} ${ENLARGE_O.y - n * GRID}`} />)}
+      {image.map((q, n) => <path key={`r${n}`} className="ns-fig__line is-dashed is-thin" d={`M${ENLARGE_O.x} ${ENLARGE_O.y} L${q.x} ${q.y}`} />)}
+      <path className="ns-fig__shape" d={path(ENLARGE_SHAPE.map(q => at(q)))} />
+      <path className="measure-board__ghost is-fit" d={path(image)} />
+      <circle className="ns-fig__point" cx={ENLARGE_O.x} cy={ENLARGE_O.y} r="4" />
+      <text className="measure-board__label" x={ENLARGE_O.x + 10} y={ENLARGE_O.y - 12}>O</text>
+      <text className="measure-board__label is-h" x={(image[0].x + image[1].x) / 2 - 8} y={image[0].y + 13}>{fmt(2 * k)}</text>
+      <text className="measure-board__label is-h" x={image[0].x - 22} y={(image[0].y + image[2].y) / 2}>{fmt(k)}</text>
+    </>
+    spoken = `Enlarged by scale factor ${k} from O. The base 2 becomes ${fmt(2 * k)} and the height 1 becomes ${fmt(k)}; the angles stay the same.`
+    footer = <span aria-hidden="true">Base 2 → <span className="angle-board__n c1">{fmt(2 * k)}</span>, height 1 → <span className="angle-board__n c1">{fmt(k)}</span>: {pill(`scale factor ${fmt(k)}`)}</span>
+  } else if (spec.mode === 'translate') {
+    const [dx, dy] = v, at = (q: P): P => ({ x: TRANSLATE_O.x + q.x * GRID, y: TRANSLATE_O.y - q.y * GRID })
+    const object = TRANSLATE_SHAPE.map(at), image = TRANSLATE_SHAPE.map(q => at({ x: q.x + dx, y: q.y + dy }))
+    handle = image[0]
+    drawing = <>
+      {Array.from({ length: 11 }, (_, n) => <path key={`v${n}`} className={`measure-board__grid${n === 5 ? ' is-axis' : ''}`} d={`M${TRANSLATE_O.x + (n - 5) * GRID} 10 L${TRANSLATE_O.x + (n - 5) * GRID} 214`} />)}
+      {Array.from({ length: 7 }, (_, n) => <path key={`h${n}`} className={`measure-board__grid${n === 3 ? ' is-axis' : ''}`} d={`M10 ${TRANSLATE_O.y + (n - 3) * GRID} L310 ${TRANSLATE_O.y + (n - 3) * GRID}`} />)}
+      <path className="ns-fig__shape" d={path(object)} />
+      {(dx || dy) ? <path className="ns-fig__line is-dashed is-thin" d={`M${object[0].x} ${object[0].y} L${image[0].x} ${image[0].y}`} /> : null}
+      <path className="measure-board__ghost is-fit" d={path(image)} />
+      <text className="measure-board__label" x={object[0].x + 22} y={object[0].y - 16}>A</text>
+    </>
+    const across = dx ? `${Math.abs(dx)} ${dx > 0 ? 'right' : 'left'}` : 'none across', up = dy ? `${Math.abs(dy)} ${dy > 0 ? 'up' : 'down'}` : 'none up or down'
+    spoken = `The image is ${across} and ${up} of shape A: the column vector ${dx} over ${dy}.`
+    footer = <span aria-hidden="true">{across}, {up}: {pill('vector')} <span className="measure-board__vec"><span className="angle-board__n c0">{dx < 0 ? `−${-dx}` : dx}</span><span className="angle-board__n c1">{dy < 0 ? `−${-dy}` : dy}</span></span></span>
+  } else if (spec.mode === 'prism') {
+    const l = v[0], { w, h, front: F, back } = PRISM
+    const d = { x: back.x * GRID * l, y: back.y * GRID * l }
+    const fr = [F, { x: F.x + w * GRID, y: F.y }, { x: F.x + w * GRID, y: F.y - h * GRID }, { x: F.x, y: F.y - h * GRID }]
+    const bk = fr.map(q => ({ x: q.x + d.x, y: q.y + d.y }))
+    handle = bk[2]
+    drawing = <>
+      <path className="ns-fig__shape is-dashed" d={`M${bk[0].x} ${bk[0].y} L${bk[1].x} ${bk[1].y} M${bk[0].x} ${bk[0].y} L${bk[3].x} ${bk[3].y} M${bk[0].x} ${bk[0].y} L${fr[0].x} ${fr[0].y}`} />
+      <path className="ns-fig__shape" d={`M${fr[1].x} ${fr[1].y} L${bk[1].x} ${bk[1].y} L${bk[2].x} ${bk[2].y} L${bk[3].x} ${bk[3].y} L${fr[3].x} ${fr[3].y} M${fr[2].x} ${fr[2].y} L${bk[2].x} ${bk[2].y}`} />
+      <path className="ns-fig__shape is-part" d={path(fr)} />
+      <text className="measure-board__label" x={F.x + w * GRID / 2} y={F.y + 13}>{w}</text>
+      <text className="measure-board__label" x={F.x - 12} y={F.y - h * GRID / 2}>{h}</text>
+      <text className="measure-board__label is-h" x={(fr[1].x + bk[1].x) / 2 + 8} y={(fr[1].y + bk[1].y) / 2 + 8}>{l}</text>
+      <text className="measure-board__label is-big is-a" x="262" y="150">V = {w * h * l}</text>
+      <text className="measure-board__label is-big is-c" x="262" y="185">SA = {2 * (w * h + w * l + h * l)}</text>
+    </>
+    spoken = `A cuboid ${w} wide, ${h} tall and ${l} long. The end face is ${w * h} squares, so the volume is ${w * h} times ${l}, ${w * h * l} cubes. Surface area ${2 * (w * h + w * l + h * l)}.`
+    footer = <span aria-hidden="true">End face <span className="angle-board__n c2">{w * h}</span> × length <span className="angle-board__n c1">{l}</span> = {pill(`${w * h * l} cubes`)}</span>
+  } else if (spec.mode === 'locus') {
+    const Pt = { x: v[0], y: v[1] }, pa = Math.hypot(Pt.x - LOCUS_A.x, Pt.y - LOCUS_A.y) / CM, pb = Math.hypot(Pt.x - LOCUS_B.x, Pt.y - LOCUS_B.y) / CM
+    const mid = (LOCUS_A.x + LOCUS_B.x) / 2, same = Math.abs(pa - pb) < 0.05
+    handle = Pt
+    drawing = <>
+      <path className="measure-board__ghost is-fit" d={`M10 10 L${mid} 10 L${mid} 214 L10 214 Z`} opacity=".45" />
+      <path className="ns-fig__line is-mirror" d={`M${mid} 8 L${mid} 216`} />
+      <path className="ns-fig__line is-thin is-dashed" d={`M${Pt.x} ${Pt.y} L${LOCUS_A.x} ${LOCUS_A.y} M${Pt.x} ${Pt.y} L${LOCUS_B.x} ${LOCUS_B.y}`} />
+      <circle className="ns-fig__point" cx={LOCUS_A.x} cy={LOCUS_A.y} r="4.5" /><circle className="ns-fig__point" cx={LOCUS_B.x} cy={LOCUS_B.y} r="4.5" />
+      <text className="measure-board__label" x={LOCUS_A.x - 14} y={LOCUS_A.y + 14}>A</text>
+      <text className="measure-board__label" x={LOCUS_B.x + 14} y={LOCUS_B.y + 14}>B</text>
+      <text className="measure-board__label is-h" x={Pt.x + 14} y={Pt.y - 12}>P</text>
+    </>
+    const side = same ? 'the same distance from both: on the perpendicular bisector' : pa < pb ? 'closer to A' : 'closer to B'
+    spoken = `P is ${fmt(pa)} centimetres from A and ${fmt(pb)} from B: ${side}.`
+    footer = <span aria-hidden="true">PA <span className="angle-board__n c0">{fmt(pa)}</span>, PB <span className="angle-board__n c1">{fmt(pb)}</span>: {same ? pill('equal: on the bisector') : <span className="angle-board__tag">{side}</span>}</span>
+  } else if (spec.mode === 'bearing') {
+    const b = v[0], A = BEARING_A, end = { x: A.x + BEARING_R * Math.sin(rad(b)), y: A.y - BEARING_R * Math.cos(rad(b)) }
+    handle = end
+    const r = 34, arcEnd = { x: A.x + r * Math.sin(rad(b)), y: A.y - r * Math.cos(rad(b)) }
+    const label = { x: A.x + (r + 26) * Math.sin(rad(b / 2)), y: A.y - (r + 26) * Math.cos(rad(b / 2)) }
+    drawing = <>
+      <path className="ns-fig__line" d={`M${A.x} ${A.y + 20} L${A.x} ${A.y - 100}`} />
+      <path className="ns-fig__line is-head" d={`M${A.x - 6} ${A.y - 89} L${A.x} ${A.y - 100} L${A.x + 6} ${A.y - 89}`} />
+      <text className="measure-board__label" x={A.x + 14} y={A.y - 96}>N</text>
+      {b > 0 && <path className="ns-fig__line is-lit" d={`M${A.x} ${A.y - r} A${r} ${r} 0 ${b > 180 ? 1 : 0} 1 ${arcEnd.x} ${arcEnd.y}`} />}
+      <path className="ns-fig__line" d={`M${A.x} ${A.y} L${end.x} ${end.y}`} />
+      <circle className="ns-fig__point" cx={A.x} cy={A.y} r="4.5" />
+      <text className="measure-board__label" x={A.x - 14} y={A.y + 14}>A</text>
+      <text className="measure-board__label is-h" x={end.x + 10} y={end.y - 10}>B</text>
+      {b > 0 && <text className="measure-board__label is-a" x={label.x} y={label.y}>{threeFigure(b)}°</text>}
+    </>
+    spoken = `The bearing of B from A is ${threeFigure(b)} degrees, measured clockwise from North. The bearing of A from B is ${threeFigure(b + 180)} degrees.`
+    footer = <span aria-hidden="true">B from A <span className="angle-board__n c2">{threeFigure(b)}°</span>; A from B {b} {b < 180 ? '+' : '−'} 180 = {pill(`${threeFigure(b + 180)}°`)}</span>
   } else {
     // notch: the cut-out corner is top right, from (cx, top) down to (right, cy).
     const [cx, cy] = v, L = 40, T = 35, s = 30, Wd = NOTCH.w * s, Ht = NOTCH.h * s
@@ -218,7 +340,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     footer = <span aria-hidden="true">Area <span className="angle-board__n c1">{area}</span>, perimeter {pill(`${perimeter}`)}</span>
   }
 
-  const what = { turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.' }[spec.mode]
+  const what = { turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.', enlarge: 'Drag the corner of the image to change the scale factor, or use the arrow keys.', translate: 'Drag the image across the paper, or use the arrow keys.', prism: 'Drag the back corner to make the cuboid longer or shorter, or use the arrow keys.', locus: 'Drag the point P, or use the arrow keys.', bearing: 'Drag B round A, or use the arrow keys.' }[spec.mode]
   return <div className={`angle-board measure-board${held ? ' is-held' : ''}`}>
     <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Measuring board. ${what}`} aria-describedby={`${id}-sum`}
       onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); setHeld(true); move(toLocal(event)) }}
