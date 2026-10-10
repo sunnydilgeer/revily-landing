@@ -707,6 +707,8 @@
   /* No scrollbar: the fade at the bottom edge says there is more. It also keeps the card's width the same whether or
      not it scrolls, so a graph that counts the squares across the card never flips between two sizes. */
   scrollbar-width: none;
+  /* The squared paper scrolls with the content, like a page, so a graph drawn on its lines stays on them. */
+  background-attachment: local;
 }
 
 .app-shell--frame .rung-lesson > .rung-card::-webkit-scrollbar,
