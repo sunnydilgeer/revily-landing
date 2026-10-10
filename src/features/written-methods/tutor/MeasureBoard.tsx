@@ -79,8 +79,6 @@ const NOTCH = { w: 8, h: 5 }
 const ENLARGE_O = { x: 25, y: 200 }, ENLARGE_SHAPE: P[] = [{ x: 1, y: 1 }, { x: 3, y: 1 }, { x: 1, y: 2 }]
 /** translate: the object's corners in squares, on axes from −4 to 4 across and −3 to 3 up. */
 const TRANSLATE_O = { x: 160, y: 112 }, TRANSLATE_SHAPE: P[] = [{ x: -3, y: 0 }, { x: -1, y: 0 }, { x: -3, y: 2 }]
-/** A plain sheet under a board's squared paper, so the lesson card's own grid doesn't show through as a second one. */
-const sheet = <rect className="measure-board__sheet" width={W} height={H} rx="12" />
 /** prism: a cuboid 3 wide and 2 tall, its length drawn going back. */
 const PRISM = { w: 3, h: 2, front: { x: 40, y: 195 }, back: { x: 0.62, y: -0.42 } }
 /** locus and bearing: where A and B sit; 30 pixels to a centimetre. */
@@ -200,9 +198,6 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     const area = triangle ? BASE_LEN * h / 2 : BASE_LEN * h
     const foot = { x: top.x, y: BASE.y }
     drawing = <>
-      {sheet}
-      {Array.from({ length: 11 }, (_, k) => <path key={`v${k}`} className="measure-board__grid" d={`M${10 + k * GRID} 10 L${10 + k * GRID} 205`} />)}
-      {Array.from({ length: 7 }, (_, k) => <path key={`h${k}`} className="measure-board__grid" d={`M10 ${10 + k * GRID} L310 ${10 + k * GRID}`} />)}
       <path className="ns-fig__shape" d={path(pts)} />
       <path className="ns-fig__line is-dashed" d={`M${top.x} ${top.y} L${foot.x} ${foot.y}`} />
       {(foot.x < A.x || foot.x > B.x) && <path className="ns-fig__line is-dashed" d={`M${foot.x} ${foot.y} L${foot.x < A.x ? A.x : B.x} ${foot.y}`} />}
@@ -246,9 +241,6 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     const image = ENLARGE_SHAPE.map(q => at(q, k))
     handle = image[1]
     drawing = <>
-      {sheet}
-      {Array.from({ length: 11 }, (_, n) => <path key={`v${n}`} className="measure-board__grid" d={`M${ENLARGE_O.x + n * GRID} 10 L${ENLARGE_O.x + n * GRID} ${ENLARGE_O.y}`} />)}
-      {Array.from({ length: 7 }, (_, n) => <path key={`h${n}`} className="measure-board__grid" d={`M${ENLARGE_O.x} ${ENLARGE_O.y - n * GRID} L${ENLARGE_O.x + 290} ${ENLARGE_O.y - n * GRID}`} />)}
       {image.map((q, n) => <path key={`r${n}`} className="ns-fig__line is-dashed is-thin" d={`M${ENLARGE_O.x} ${ENLARGE_O.y} L${q.x} ${q.y}`} />)}
       <path className="ns-fig__shape" d={path(ENLARGE_SHAPE.map(q => at(q)))} />
       <path className="measure-board__ghost is-fit" d={path(image)} />
@@ -264,9 +256,8 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     const object = TRANSLATE_SHAPE.map(at), image = TRANSLATE_SHAPE.map(q => at({ x: q.x + dx, y: q.y + dy }))
     handle = image[0]
     drawing = <>
-      {sheet}
-      {Array.from({ length: 11 }, (_, n) => <path key={`v${n}`} className={`measure-board__grid${n === 5 ? ' is-axis' : ''}`} d={`M${TRANSLATE_O.x + (n - 5) * GRID} 10 L${TRANSLATE_O.x + (n - 5) * GRID} 214`} />)}
-      {Array.from({ length: 7 }, (_, n) => <path key={`h${n}`} className={`measure-board__grid${n === 3 ? ' is-axis' : ''}`} d={`M10 ${TRANSLATE_O.y + (n - 3) * GRID} L310 ${TRANSLATE_O.y + (n - 3) * GRID}`} />)}
+      <path className="measure-board__grid is-axis" d={`M${TRANSLATE_O.x} 10 L${TRANSLATE_O.x} 214`} />
+      <path className="measure-board__grid is-axis" d={`M10 ${TRANSLATE_O.y} L310 ${TRANSLATE_O.y}`} />
       <path className="ns-fig__shape" d={path(object)} />
       {(dx || dy) ? <path className="ns-fig__line is-dashed is-thin" d={`M${object[0].x} ${object[0].y} L${image[0].x} ${image[0].y}`} /> : null}
       <path className="measure-board__ghost is-fit" d={path(image)} />

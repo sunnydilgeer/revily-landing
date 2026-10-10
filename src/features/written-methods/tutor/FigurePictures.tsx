@@ -5,7 +5,7 @@ import { Caption, type Bounds } from './AnglePictures'
 /*
  * Measured figures (geometry lessons 5 to 18: symmetry, area, circles, perimeter, sectors, and lessons 10 to 18 from
  * congruence to bearings). A figure is a list of plain drawing items in their own units, y up, fitted into the picture
- * with room for the labels: squared paper (with numbered axes for transformations), shapes (filled lightly), lines (a
+ * with room for the labels: numbered axes for transformations, shapes (filled lightly), lines (a
  * mirror line is red and dashed, as in the book; a North line has an arrowhead), circles, arcs and sectors,
  * measurements with an arrow at each end and the length beside them, right-angle squares, tick marks, points and words.
  *
@@ -69,13 +69,11 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
   const labels: ReactNode[] = []
   frame.items.forEach((item, i) => {
     if (item.kind === 'grid') {
-      // Squared paper under everything else, one line per whole unit; the axes darker, numbered under and beside them. A
-      // plain sheet goes down first so the lesson card's own squared paper doesn't show through as a second grid.
+      // The lesson card's own squared paper is the only grid, so no grid lines are drawn here: just the axes, when asked
+      // for, numbered under and beside them.
       const [x0, y0] = item.from, [x1, y1] = item.to
-      const corner = at([x0, y1]), far = at([x1, y0]), left = Math.max(0, corner.x - 8), top = Math.max(0, corner.y - 8)
-      parts.push(<rect key={`gs${i}`} className="measure-board__sheet" x={left} y={top} width={Math.min(W, far.x + 8) - left} height={Math.min(H, far.y + 8) - top} rx="8" />)
-      for (let x = Math.ceil(x0); x <= x1; x++) { const a = at([x, y0]), b = at([x, y1]); parts.push(<path key={`gx${i}-${x}`} className={`measure-board__grid${item.axes && x === 0 ? ' is-axis' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
-      for (let y = Math.ceil(y0); y <= y1; y++) { const a = at([x0, y]), b = at([x1, y]); parts.push(<path key={`gy${i}-${y}`} className={`measure-board__grid${item.axes && y === 0 ? ' is-axis' : ''}`} d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
+      if (item.axes && x0 <= 0 && x1 >= 0) { const a = at([0, y0]), b = at([0, y1]); parts.push(<path key={`gx${i}`} className="measure-board__grid is-axis" d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
+      if (item.axes && y0 <= 0 && y1 >= 0) { const a = at([x0, 0]), b = at([x1, 0]); parts.push(<path key={`gy${i}`} className="measure-board__grid is-axis" d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
       if (item.axes && item.numbers) {
         const o = at([0, 0])
         for (let x = Math.ceil(x0); x <= x1; x++) if (x) { const p = at([x, 0]); parts.push(<text key={`nx${i}-${x}`} className="ns-fig__axis" x={p.x} y={o.y + 12}>{x < 0 ? `−${-x}` : x}</text>) }
