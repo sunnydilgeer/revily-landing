@@ -11,12 +11,18 @@ import { useEffect } from 'react'
 /** Diagrams that may shrink to fit, with how small each may go: pictures most, worked working least (it is text). */
 const SHRINKABLE: [string, number][] = [['.wc-picture', 0.55], ['.pvb-stage.ns-visual', 0.6], ['.pvb-stage', 0.8]]
 /**
- * Boards students drag on keep their size: their touch maths assumes it. A graph on the card's paper shrinks with the
- * paper instead; one that draws its own grid (on a white panel) scales like any other diagram.
+ * Boards students drag on keep their size: their touch maths assumes it. Graphs are never zoomed either: one on the
+ * card's paper shrinks with the paper, and while it is still lining up (or draws its own grid) it is left as it is.
  */
-const KEEP_SIZE = '.angle-board, .graph-board, .ns-graph__picture:not(.has-grid)'
-/** The smallest square of squared paper a graph may shrink to. */
+const KEEP_SIZE = '.angle-board, .graph-board, .ns-graph__picture'
+/** The smallest square of squared paper a graph may shrink to, and the least share of its usual square it keeps. */
 const MIN_SQUARE = 24
+const MIN_SHARE = 0.6
+/**
+ * The most one adjustment may shrink by. A step change can overflow for a moment while the old picture is still
+ * there; small steps, each measured afresh, settle on the right size instead of overshooting on that moment.
+ */
+const MAX_STEP = 0.85
 
 /** How much taller the card is than the room between the top of its section and the bottom bar (negative: room spare). */
 function overflowOf(card: HTMLElement) {
@@ -37,13 +43,14 @@ function overflowOf(card: HTMLElement) {
  */
 function fit(card: HTMLElement) {
   const over = overflowOf(card)
-  const graph = card.querySelector<SVGSVGElement>('svg.ns-graph__picture:not(.has-grid)')
+  const graph = card.querySelector<SVGSVGElement>('svg.ns-graph__picture')
   if (graph) {
+    if (graph.classList.contains('has-grid')) return false
     const base = Number(card.dataset.paperBase ||= String(parseFloat(getComputedStyle(card).backgroundSize) || 32))
     const square = parseFloat(card.style.getPropertyValue('--rv-paper-grid-size')) || base
     const height = graph.getBoundingClientRect().height, across = height / square
     let next = square
-    if (over > 2) next = Math.max(MIN_SQUARE, Math.floor(square * (height - over) / height))
+    if (over > 0) next = Math.max(MIN_SQUARE, Math.ceil(base * MIN_SHARE), Math.floor(square * MAX_STEP), Math.floor(square * (height - over - 2) / height))
     else if (square < base && -over >= across + 4) next = Math.min(base, square + Math.floor((-over - 4) / across))
     if (next === square) return false
     card.style.setProperty('--rv-paper-grid-size', `${next}px ${next}px`)
@@ -58,7 +65,7 @@ function fit(card: HTMLElement) {
   if (!target || target.height < 120 && !shrunk) return false
   const zoom = parseFloat(target.el.style.zoom) || 1
   let next = zoom
-  if (over > 2) next = Math.max(target.floor, zoom * (target.height - over) / target.height)
+  if (over > 0) next = Math.max(target.floor, zoom * MAX_STEP, zoom * (target.height - over - 4) / target.height)
   else if (zoom < 1 && -over > 12) next = Math.min(1, zoom * (target.height - over - 8) / target.height)
   next = Math.round(next * 100) / 100
   if (Math.abs(next - zoom) < 0.01) return false

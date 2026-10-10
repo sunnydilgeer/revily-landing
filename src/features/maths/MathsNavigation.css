@@ -704,7 +704,13 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   transition: box-shadow .2s ease;
+  /* No scrollbar: the fade at the bottom edge says there is more. It also keeps the card's width the same whether or
+     not it scrolls, so a graph that counts the squares across the card never flips between two sizes. */
+  scrollbar-width: none;
 }
+
+.app-shell--frame .rung-lesson > .rung-card::-webkit-scrollbar,
+.app-shell--frame .rung-lesson > .rung-done::-webkit-scrollbar { display: none; }
 
 .app-shell--frame .rung-lesson > .rung-done { margin-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
 .app-shell--frame .rung-lesson > [data-more] { box-shadow: inset 0 -34px 22px -22px rgb(15 21 48 / 22%); }

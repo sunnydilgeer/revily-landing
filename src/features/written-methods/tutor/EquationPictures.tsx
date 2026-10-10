@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { EquationFrame, EquationRow } from './methodWorking'
 import { Boxed, Powers } from './Powers'
 
@@ -100,8 +100,20 @@ export function EquationVisual({ frame, newFrom, heading, plain, focus }: { fram
   // A proof carries on down the = column with no left side (= x² + 6x + 9), or shows two sides identical (≡). On a phone its rows are written one under
   // another from the left instead, so a long side wraps across the whole board rather than a narrow column.
   const proof = !three && frame.rows.some(row => 'left' in row && (!row.left || row.sign === '≡'))
+  // A long board folds its older rows into one "earlier steps" row, so it fits the screen (Sunny, 10 Oct): the given
+  // equations, the rows this step adds and the two before them stay. The student can open them; a new step folds again.
+  const [openAt, setOpenAt] = useState<number | null>(null)
+  const foldable = (row: EquationRow, i: number) => !plain && newFrom !== undefined && i < newFrom - 2 && !('answer' in row) && !('label' in row && row.label) && !working(row)
+  const folding = frame.rows.filter(foldable)
+  const fold = folding.length >= 2 && frame.rows.length >= 7
+  const open = fold && openAt === newFrom
+  const firstFolded = fold ? frame.rows.findIndex(foldable) : -1
+  const folded = (row: EquationRow, i: number) => fold && !open && foldable(row, i) ? ' is-folded' : ''
   return <div className={`ns-eq${three ? ' is-three' : ''}${proof ? ' is-proof' : ''}${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.rows.map(spoken).join('. ')}>
     {frame.rows.map((row, i) => [
+      i === firstFolded && <div key="fold" className="ns-eq__fold"><button type="button" className="sc-fold__toggle" aria-expanded={open} onClick={() => setOpenAt(open ? null : newFrom ?? null)}>
+        {open ? 'Hide earlier steps' : `Show ${folding.length} earlier steps`}
+      </button></div>,
       i === newFrom && heading && <div key="heading" className="ns-eq__heading">{heading}</div>,
       'answer' in row
         ? <p key={i} className="ns-eq__answer" aria-hidden="true">{/[{√]/.test(row.answer) && row.answer.includes(' = ')
@@ -109,8 +121,8 @@ export function EquationVisual({ frame, newFrom, heading, plain, focus }: { fram
           ? <><Powers text={row.answer.slice(0, row.answer.indexOf(' = '))} /> = <span className="ns-eq__answer-side"><Side side={row.answer.slice(row.answer.indexOf(' = ') + 3)} plain /></span></>
           : <Powers text={row.answer} />}</p>
         : 'note' in row
-        ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
-        : <div key={i} className={`ns-eq__row${proof && !row.left ? ' is-carry' : ''}${done(i)}`} aria-hidden="true">
+        ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}${folded(row, i)}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
+        : <div key={i} className={`ns-eq__row${proof && !row.left ? ' is-carry' : ''}${done(i)}${folded(row, i)}`} aria-hidden="true">
           {row.label && <span className="ns-eq__label">{row.label}</span>}
           <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
           <span className="ns-eq__equals"><Show text={row.sign ?? '='} plain={plain} /></span>
