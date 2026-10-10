@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { stepNeed } from './step-chain/WorkedChain'
 
 /**
  * The lesson page is one fixed screen (app-shell--frame in MathsNavigation.css): the page never scrolls, and a card
@@ -23,7 +24,25 @@ const MIN_SHARE = 0.6
  * there; small steps, each measured afresh, settle on the right size instead of overshooting on that moment.
  */
 const MAX_STEP = 0.85
-/** The shortest a worked example's working window gets (about three lines) before its diagram shrinks instead. */
+/** The smallest text a shrunk diagram may show, in screen pixels: past this it stays readable and the card scrolls. */
+const MIN_TEXT = 11
+
+/** The smallest text in a diagram as drawn on screen (zoom and an SVG's own scaling included), or Infinity. */
+function smallestText(diagram: HTMLElement) {
+  let smallest = Infinity
+  for (const label of diagram.querySelectorAll<SVGTextElement>('text')) {
+    const height = label.getBoundingClientRect().height
+    if (height && label.textContent?.trim()) smallest = Math.min(smallest, height / 1.2)
+  }
+  const zoom = parseFloat(diagram.style.zoom) || 1
+  for (const el of diagram.querySelectorAll<HTMLElement>('p, li, span, strong, td, th, small, b, label')) {
+    if (el.closest('svg') || !el.textContent?.trim() || !el.getBoundingClientRect().width) continue
+    smallest = Math.min(smallest, parseFloat(getComputedStyle(el).fontSize) * zoom)
+  }
+  return smallest
+}
+
+/** The shortest a worked example's working window gets (about three lines), however little its step needs. */
 const MIN_ROLL = 132
 
 /** How much taller the card is than the room between the top of its section and the bottom bar (negative: room spare). */
@@ -42,25 +61,50 @@ function overflowOf(card: HTMLElement) {
  * Makes a card's content fit the screen, so it rarely scrolls. A worked example's working window shrinks first. A
  * graph is drawn square for square on the card's
  * squared paper, so the paper's squares shrink (or grow back) and the graph follows them (GraphPictures.tsx realigns
- * on resize). Any other diagram is scaled with CSS zoom, never below its floor. Returns true when it changed something.
+ * on resize). Any other diagram is scaled with CSS zoom, never below its floor or past readable text (MIN_TEXT).
+ * Returns true when it changed something.
  */
 function fit(card: HTMLElement) {
   const over = overflowOf(card)
-  // A worked example's working rolls in its own window (WorkedChain.tsx): that window gives way first, so the diagram
-  // keeps its size, and grows back first when there is room again.
+  // A worked example's working rolls in its own window (WorkedChain.tsx). The window gives way first, but never below
+  // what the step on screen needs, so none of the step's lines are hidden (Sunny, 10 Oct); short of that the diagram
+  // shrinks to make room, and only then does the window get shorter still. It grows back first when there is room.
   const roll = card.querySelector<HTMLElement>('.wc-roll')
+  let short = 0
   if (roll && roll.offsetParent) {
     const height = roll.clientHeight, capped = roll.style.maxHeight !== ''
-    if (over > 0 && height > MIN_ROLL) {
-      roll.style.maxHeight = `${Math.max(MIN_ROLL, Math.floor(height - over - 2))}px`
+    const keep = Math.max(MIN_ROLL, stepNeed(roll))
+    if (over > 0 && height > keep) {
+      roll.style.maxHeight = `${Math.max(keep, Math.floor(height - over - 2))}px`
       return true
     }
-    if (over < -6 && capped) {
+    // Room to spare goes to a shrunk diagram first once the step fits; otherwise to the window.
+    if (over < -6 && capped && !(height >= keep && diagramShrunk(card))) {
       const next = Math.floor(height - over - 4)
       roll.style.maxHeight = next >= roll.scrollHeight ? '' : `${next}px`
       return true
     }
+    if (capped) short = Math.max(0, Math.min(roll.scrollHeight, keep) - height)
   }
+  if (diagramFits(card, over + short)) return true
+  // The diagram can't give any more. Missing lines are worse than a card that scrolls a little (Sunny, 10 Oct), so
+  // the window still shows the whole step and the card scrolls instead.
+  if (roll && short > 0) {
+    const next = roll.clientHeight + short
+    roll.style.maxHeight = next >= roll.scrollHeight ? '' : `${next}px`
+    return true
+  }
+  return false
+}
+
+/** The card's diagram is drawn smaller than its own size (zoomed, or its graph's paper shrunk). */
+function diagramShrunk(card: HTMLElement) {
+  const base = Number(card.dataset.paperBase) || 0, square = parseFloat(card.style.getPropertyValue('--rv-paper-grid-size')) || base
+  return square < base || [...card.querySelectorAll<HTMLElement>('[style*="zoom"]')].some(el => !el.querySelector('.wc-roll'))
+}
+
+/** Shrinks (or grows back) the card's diagram by `over` pixels. Returns true when it changed something. */
+function diagramFits(card: HTMLElement, over: number) {
   const graph = card.querySelector<SVGSVGElement>('svg.ns-graph__picture')
   if (graph) {
     if (graph.classList.contains('has-grid')) return false
@@ -76,14 +120,17 @@ function fit(card: HTMLElement) {
     return true
   }
   const candidates = SHRINKABLE.flatMap(([selector, floor]) => [...card.querySelectorAll<HTMLElement>(selector)]
-    .filter(el => !el.querySelector(KEEP_SIZE) && !el.closest(KEEP_SIZE))
+    // A box holding a worked example's working window is not a diagram: its picture (.wc-picture) is.
+    .filter(el => !el.querySelector(KEEP_SIZE) && !el.closest(KEEP_SIZE) && !el.querySelector('.wc-roll'))
     .map(el => ({ el, floor, height: el.getBoundingClientRect().height })))
   const shrunk = candidates.find(c => c.el.style.zoom)
   const target = shrunk ?? candidates.sort((a, b) => b.height - a.height)[0]
   if (!target || target.height < 120 && !shrunk) return false
   const zoom = parseFloat(target.el.style.zoom) || 1
   let next = zoom
-  if (over > 0) next = Math.max(target.floor, zoom * MAX_STEP, zoom * (target.height - over - 4) / target.height)
+  // Never shrink a diagram's labels past readable (Sunny, 10 Oct: angle names went down to 7px on a laptop).
+  const legible = zoom * MIN_TEXT / smallestText(target.el)
+  if (over > 0) next = Math.min(zoom, Math.max(target.floor, legible, zoom * MAX_STEP, zoom * (target.height - over - 4) / target.height))
   else if (zoom < 1 && -over > 12) next = Math.min(1, zoom * (target.height - over - 8) / target.height)
   next = Math.round(next * 100) / 100
   if (Math.abs(next - zoom) < 0.01) return false
@@ -100,9 +147,14 @@ export function useLessonFrame(root: HTMLElement | null) {
       if (card.classList.contains('rung-card') && fit(card)) return
       card.toggleAttribute('data-more', card.scrollHeight - card.scrollTop - card.clientHeight > 4)
     })
+    let settle = 0
     const schedule = () => {
       window.cancelAnimationFrame(frame)
       frame = window.requestAnimationFrame(update)
+      // Once things go quiet, look once more: a step's lines finish sliding in (an animation ending changes the layout
+      // without touching the page), and the card may now have room to give back.
+      window.clearTimeout(settle)
+      settle = window.setTimeout(() => { frame = window.requestAnimationFrame(update) }, 700)
     }
     // The keyboard opening shrinks the screen (or, on iOS, the visible part of it): keep the box being typed in on show.
     const keepTyping = () => {
@@ -115,14 +167,19 @@ export function useLessonFrame(root: HTMLElement | null) {
     const resize = new ResizeObserver(schedule)
     resize.observe(root)
     root.addEventListener('scroll', schedule, true)
+    root.addEventListener('animationend', schedule, true)
+    root.addEventListener('transitionend', schedule, true)
     window.addEventListener('resize', keepTyping)
     window.visualViewport?.addEventListener('resize', keepTyping)
     schedule()
     return () => {
       window.cancelAnimationFrame(frame)
+      window.clearTimeout(settle)
       changes.disconnect()
       resize.disconnect()
       root.removeEventListener('scroll', schedule, true)
+      root.removeEventListener('animationend', schedule, true)
+      root.removeEventListener('transitionend', schedule, true)
       window.removeEventListener('resize', keepTyping)
       window.visualViewport?.removeEventListener('resize', keepTyping)
     }
