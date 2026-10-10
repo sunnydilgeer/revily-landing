@@ -3,6 +3,7 @@
 import { useId, useMemo, useState, type ReactNode } from 'react'
 import { chainFromSteps } from '../../maths/step-chain/fromSteps'
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { Working } from '../../maths/step-chain/working'
 import { type FractionDisplay, type FractionFrame, type FractionWorking } from './fractionWorking'
 import type { FractionChainStep, NumberList } from './fractionChain'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
@@ -130,20 +131,22 @@ export function FractionWorkedExample({ visual }: { visual: FractionWorking }) {
     const upTo = index < 0 ? 0 : groups[index].last
     const frame = (chain as FractionChainStep[]).slice(0, upTo + 1).findLast(step => step.frame)?.frame
     const bars = frame && <div className="rung-worked__visual"><FractionFrameView frame={frame} /></div>
-    if (index < 0) return <div className="ns-visual frm">{bars}<p className="frm-line"><Tex text={chain[0].line} /></p></div>
+    if (index < 0) return <div className="ns-visual frm">{bars}<Working><p className="frm-line"><Tex text={chain[0].line} /></p></Working></div>
     const group = groups[index], lastGroup = index === groups.length - 1
     const earlier = [chain[0].line, ...groups.slice(0, index).flatMap(g => g.lines)]
     return <div className="ns-visual frm" key={revealed}>
       <PictureStep step={{ title: group.title, instruction: group.why, operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
         {bars}
-        {earlier.map((line, i) => <p key={i} className="frm-line is-old"><Tex text={line} focus={i === earlier.length - 1 ? group.focus : undefined} /></p>)}
-        {heading}
-        {group.lists && <NumberLists lists={group.lists} />}
-        {group.notes.map((note, i) => <p key={`n${i}`} className="frm-note">{note}</p>)}
-        {group.lines.map((line, i) => {
-          const answer = lastGroup && i === group.lines.length - 1
-          return <p key={i} className={`frm-line${answer ? ' is-answer' : ''}`}>{answer ? <><span className="frm-eq">=</span><span className="frm-answer"><Tex text={line.replace(/^=\s*/, '')} /></span></> : <Tex text={line} fresh={i === 0 ? group.fresh : undefined} />}</p>
-        })}
+        <Working>
+          {earlier.map((line, i) => <p key={i} className="frm-line is-old"><Tex text={line} focus={i === earlier.length - 1 ? group.focus : undefined} /></p>)}
+          {heading}
+          {group.lists && <NumberLists lists={group.lists} />}
+          {group.notes.map((note, i) => <p key={`n${i}`} className="frm-note">{note}</p>)}
+          {group.lines.map((line, i) => {
+            const answer = lastGroup && i === group.lines.length - 1
+            return <p key={i} className={`frm-line${answer ? ' is-answer' : ''}`}>{answer ? <><span className="frm-eq">=</span><span className="frm-answer"><Tex text={line.replace(/^=\s*/, '')} /></span></> : <Tex text={line} fresh={i === 0 ? group.fresh : undefined} />}</p>
+          })}
+        </Working>
       </>}</PictureStep>
     </div>
   }

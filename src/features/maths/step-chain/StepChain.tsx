@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, memo, useLayoutEffect, useRef, useState } from 'react'
+import { memo, useLayoutEffect, useRef, useState } from 'react'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { flyTerms, prefersReducedMotion } from './flip'
@@ -129,11 +129,6 @@ function columnGrid(columns: string[]) {
 
 type Flight = { index: number; phase: 'flying' | 'arriving'; run: number }
 
-/** A chain longer than this folds its middle lines away, so the working fits the screen (Sunny, 10 Oct). */
-const FOLD_AFTER = 5
-/** The newest lines that always stay open: the step on screen and the two before it. */
-const KEEP_OPEN = 3
-
 /**
  * Worked steps as one chain of working: each line is the line above, transformed.
  * The parent owns `revealed` (how many lines are showing, at least 1). When it goes up, the operation
@@ -155,8 +150,6 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
   const [shown, setShown] = useState(revealed)
   const [flight, setFlight] = useState<Flight | null>(null)
   const [strikes, setStrikes] = useState<Strike[]>([])
-  /** The student opened the folded lines; a new step folds them again. */
-  const [unfolded, setUnfolded] = useState(false)
   const still = () => reduceMotion || prefersReducedMotion()
   const fly = (index: number): Flight | null => still() || index < 1 ? null : { index, phase: 'flying', run: ++runs.current }
 
@@ -165,7 +158,6 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
     setShown(revealed)
     setFlight(revealed > shown ? fly(revealed - 1) : null)
     setOpenWhy(null)
-    setUnfolded(false)
   }
 
   const flying = flight?.phase === 'flying' ? flight : null
@@ -188,14 +180,6 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
   }, [flight, pace])
 
   const last = Math.min(revealed, steps.length) - 1
-  const columns = layout.kind === 'columns' ? layout.columns : null
-  // The question's own lines (before the first move) stay, and so do the newest lines; the ones between fold into a
-  // single "earlier steps" row. Written methods in columns keep every line, as each row feeds the next.
-  const firstMove = Math.max(1, steps.findIndex(step => step.op))
-  const foldTo = last - KEEP_OPEN
-  const foldable = !columns && last + 1 > FOLD_AFTER && foldTo >= firstMove
-  const folded = foldable && !unfolded
-  const isFolded = (index: number) => folded && index >= firstMove && index <= foldTo
 
   // Re-measure the crossings-out whenever lines come or go, the layout resizes, or the maths fonts land.
   useLayoutEffect(() => {
@@ -208,9 +192,10 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
     let live = true
     document.fonts?.ready.then(() => { if (live) measure() })
     return () => { live = false; observer.disconnect() }
-  }, [last, steps, folded])
+  }, [last, steps])
 
   const done = last === steps.length - 1 && !flight
+  const columns = layout.kind === 'columns' ? layout.columns : null
   const expression = !columns && !steps[0].line.includes(' = ')
   // Earlier lines fade, but both lines of a step stay bright while its terms are travelling.
   const isDim = (index: number) => index < last && !(flight && (index === flight.index || index === flight.index - 1))
@@ -233,15 +218,10 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
         const feeding = flight?.phase === 'flying' && flight.index === index + 1
         const dim = isDim(index)
         const why = !!step.why && (openWhy === null ? index === last : openWhy === index)
-        const hiddenCount = foldTo - firstMove + 1
-        const fold = foldable && index === firstMove && <li key="fold" className="sc-fold">
-          <button type="button" className="sc-fold__toggle" aria-expanded={!folded} onClick={() => setUnfolded(!unfolded)}>
-            {folded ? `Show ${hiddenCount} earlier step${hiddenCount === 1 ? '' : 's'}` : 'Hide earlier steps'}
-          </button>
-        </li>
-        return <Fragment key={index}>{fold}<li
+        return <li
+          key={index}
           ref={el => { rows.current[index] = el }}
-          className={['sc-row', phase && `is-${phase}`, feeding && 'is-feeding', dim && 'is-dim', isFolded(index) && 'is-folded', done && index === last && 'is-final'].filter(Boolean).join(' ')}
+          className={['sc-row', phase && `is-${phase}`, feeding && 'is-feeding', dim && 'is-dim', done && index === last && 'is-final'].filter(Boolean).join(' ')}
         >
           {step.op && <div className="sc-op">
             <span className="sc-op__line">
@@ -263,7 +243,7 @@ export function StepChain({ steps, layout = { kind: 'equation' }, revealed, redu
           </div>}
           {step.plain ? <span className="sc-cell sc-cell--wide sc-cell--text">{step.line}</span> : columns ? <ColumnsLine line={step.line} columns={columns} marks={marks} /> : <EquationLine line={step.line} marks={marks} centred={expression} />}
           {done && index === last && <span className="sc-tick" role="img" aria-label="Answer">✓</span>}
-        </li></Fragment>
+        </li>
       })}
     </ol>
     <svg className="sc-strikes" aria-hidden="true">

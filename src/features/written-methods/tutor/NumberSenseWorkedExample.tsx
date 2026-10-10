@@ -7,6 +7,7 @@ import { MathSpan } from '../../../../components/MathText'
 import { SquaresVisual, TilesVisual } from './PowerPictures'
 import { ExpandVisual } from './GridPictures'
 import { EquationVisual } from './EquationPictures'
+import { Working } from '../../maths/step-chain/working'
 import { AngleVisual } from './AnglePictures'
 import { MachineVisual } from './MachinePictures'
 import { RatioVisual } from './RatioPictures'
@@ -143,7 +144,7 @@ export function PictureStep({ step, children }: { step: MethodStep; children: (h
   </p>
   return <>
     {children(heading)}
-    {open && <p className="ns-step__why"><Powers text={step.instruction} /></p>}
+    {open && <Working><p className="ns-step__why"><Powers text={step.instruction} /></p></Working>}
   </>
 }
 
@@ -197,9 +198,9 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
   const rule = own.rounding && own.rounding.stage !== 'identify' && !own.rounding.chop
   const at = own.quadratic || own.solve || own.sequence || own.numberLine || own.graph ? 'quadratic' : newTiles ? 'tiles' : own.equation && own.equation.rows.length > boardBefore ? 'board' : own.sums && own.sums.length > before ? 'lines' : answer ? 'answer' : own.ordering?.values ? 'values' : 'picture'
   return <>
-    {at === 'picture' && heading}
+    {at === 'picture' && <Working>{heading}</Working>}
     {terms && <TermsVisual frame={{ terms: terms.terms }} />}
-    {at === 'tiles' && heading}
+    {at === 'tiles' && <Working>{heading}</Working>}
     {tiles && <TilesVisual frame={tiles} />}
     {squares && <SquaresVisual frame={squares} />}
     {expand && <ExpandVisual frame={expand} />}
@@ -208,7 +209,7 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {ratio && <RatioVisual frame={ratio} />}
     {percent && <PercentVisual frame={percent} />}
     {growth && <GrowthVisual frame={growth} />}
-    {board && <EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} focus={example.focus} />}
+    {board && <Working><EquationVisual frame={board} newFrom={at === 'board' ? boardBefore : undefined} heading={heading} focus={example.focus} /></Working>}
     {own.quadratic && <QuadraticVisual frame={own.quadratic} heading={heading} />}
     {own.solve && <SolveVisual frame={own.solve} heading={heading} focus={!!example.focus} />}
     {own.sequence && <SequenceVisual frame={own.sequence} heading={heading} focus={!!example.focus} />}
@@ -216,12 +217,14 @@ function LinesStep({ example, index, heading }: { example: MethodExample; index:
     {own.graph && <GraphVisual frame={own.graph} heading={heading} focus={!!example.focus} />}
     {interval && <IntervalVisual frame={interval} />}
     {rounding && <RoundingVisual frame={{ ...rounding, stage: 'identify' }} />}
-    {lines.length > 0 && <WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} />}
-    {at === 'values' && heading}
+    {lines.length > 0 && <Working><WorkingLines lines={lines} newFrom={at === 'lines' ? before : undefined} heading={heading} /></Working>}
+    {at === 'values' && <Working>{heading}</Working>}
     {values && <OrderingVisual frame={values} />}
-    {at === 'answer' && heading}
-    {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
-    {own.bracket ? <BracketAnswer frame={own.bracket} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
+    <Working>
+      {at === 'answer' && heading}
+      {rule && rounding && <p className="ns-rule">{rounding.decisionDigit} {rounding.roundsUp ? '≥' : '<'} 5 <span aria-hidden="true">→</span> <strong>{rounding.roundsUp ? 'round up' : 'keep the digit'}</strong></p>}
+      {own.bracket ? <BracketAnswer frame={own.bracket} /> : answer && <p className="ns-hop-answer"><Powers text={answer} /></p>}
+    </Working>
   </>
 }
 
@@ -271,16 +274,16 @@ export function NumberSenseWorkedExample({ visual }: { visual: MethodWorking }) 
         if (first?.solve) return <div className="ns-visual rung-worked__visual"><SolveVisual frame={first.solve} plain /></div>
         if (first?.quadratic) return <div className="ns-visual rung-worked__visual"><QuadraticVisual frame={first.quadratic} plain /></div>
         // A geometric proof opens on the question's own picture (lesson 28), with any rows the question gives under it.
-        if (first?.angles) return <div className="ns-visual rung-worked__visual"><AngleVisual frame={first.angles.before ?? first.angles} plain group={exampleAngles(example)} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
+        if (first?.angles) return <div className="ns-visual rung-worked__visual"><AngleVisual frame={first.angles.before ?? first.angles} plain group={exampleAngles(example)} />{first.equation?.given ? <Working><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /></Working> : null}</div>
         // A function machine opens on the question's own machine (lesson 29), with any rows the question gives under it.
-        if (first?.machine) return <div className="ns-visual rung-worked__visual"><MachineVisual frame={first.machine.before ?? first.machine} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
+        if (first?.machine) return <div className="ns-visual rung-worked__visual"><MachineVisual frame={first.machine.before ?? first.machine} />{first.equation?.given ? <Working><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /></Working> : null}</div>
         // Ratio bars open on the question's own bars (lesson 30), with any rows the question gives under them.
-        if (first?.ratio) return <div className="ns-visual rung-worked__visual"><RatioVisual frame={first.ratio.before ?? first.ratio} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
+        if (first?.ratio) return <div className="ns-visual rung-worked__visual"><RatioVisual frame={first.ratio.before ?? first.ratio} />{first.equation?.given ? <Working><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /></Working> : null}</div>
         // A hundred square opens on the question's own whole (lesson 32), with no pieces yet.
-        if (first?.percent) return <div className="ns-visual rung-worked__visual"><PercentVisual frame={first.percent.before ?? first.percent} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
+        if (first?.percent) return <div className="ns-visual rung-worked__visual"><PercentVisual frame={first.percent.before ?? first.percent} />{first.equation?.given ? <Working><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /></Working> : null}</div>
         // Bars year by year open on the start (lesson 34), the years still faint.
-        if (first?.growth) return <div className="ns-visual rung-worked__visual"><GrowthVisual frame={first.growth.before ?? first.growth} />{first.equation?.given ? <EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /> : null}</div>
-        if (first?.equation) return first.equation.given === 0 ? null : <div className="ns-visual rung-worked__visual"><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given ?? 1) }} plain /></div>
+        if (first?.growth) return <div className="ns-visual rung-worked__visual"><GrowthVisual frame={first.growth.before ?? first.growth} />{first.equation?.given ? <Working><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given) }} plain /></Working> : null}</div>
+        if (first?.equation) return first.equation.given === 0 ? null : <div className="ns-visual rung-worked__visual"><Working><EquationVisual frame={{ rows: first.equation.rows.slice(0, first.equation.given ?? 1) }} plain /></Working></div>
         if (first?.squares) return <div className="ns-visual rung-worked__visual"><SquaresVisual frame={{ ...first.squares, shaded: [0, 0] }} /></div>
         if (first?.rounding) return <div className="ns-visual rung-worked__visual"><p className="ns-plain-number">{first.rounding.original}</p></div>
         return null

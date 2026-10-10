@@ -1,6 +1,7 @@
 'use client'
 
 import { WorkedChain } from '../../maths/step-chain/WorkedChain'
+import { Working } from '../../maths/step-chain/working'
 import type { ChainStep } from '../../maths/step-chain/StepChain'
 import { PictureStep } from '../../written-methods/tutor/NumberSenseWorkedExample'
 import type { MethodStep } from '../../written-methods/tutor/methodWorking'
@@ -27,14 +28,15 @@ export function LinesWorking({ explanation }: { explanation: Explanation }) {
     const step = explanation.steps[index], last = index === explanation.steps.length - 1
     const earlier = explanation.steps.slice(0, index).flatMap(s => s.lines)
     const spoken = [...earlier, ...step.lines, ...(last ? [`Answer: ${explanation.answer}`] : [])].join('. ')
-    return <div className="ns-visual lw" key={revealed} role="img" aria-label={spoken}>
+    // The whole working is lines: it rolls in the working window, with no diagram above it.
+    return <div className="ns-visual" key={revealed}><Working><div className="ns-visual lw" role="img" aria-label={spoken}>
       <PictureStep step={{ title: step.title, instruction: step.why ?? '', operation: '', equation: '', frame: {} } as MethodStep}>{heading => <>
         {earlier.length > 0 && <ul className="ns-term-groups lw-lines is-old">{earlier.map((line, i) => <Line key={i} text={line} />)}</ul>}
         {heading}
         <ul className="ns-term-groups lw-lines">{step.lines.map((line, i) => <Line key={i} text={line} />)}</ul>
         {last && <p className="lw-answer" aria-hidden="true">{explanation.answerLabel && <small>{explanation.answerLabel}</small>}{explanation.answer}</p>}
       </>}</PictureStep>
-    </div>
+    </div></Working></div>
   }
   return <WorkedChain steps={chain} picture={picture} pictureOnly />
 }

@@ -82,8 +82,13 @@ assert.ok(read('app/preview/page.tsx').includes("interactiveWidget: 'resizes-con
 // The lesson screen fits: long worked examples fold, diagrams fit the room, and the bottom bar is one tight row
 const stepChain = read('src/features/maths/step-chain/StepChain.tsx')
 const frameSource = read('src/features/maths/lessonFrame.ts')
-assert.ok(stepChain.includes('FOLD_AFTER') && stepChain.includes('className="sc-fold__toggle"') && stepChain.includes('aria-expanded={!folded}'), 'Long worked examples must fold their older lines')
-assert.ok(frameSource.includes('function fit(card') && frameSource.includes("'--rv-paper-grid-size'") && frameSource.includes('style.zoom'), 'Lesson cards must fit their diagrams to the screen')
+const workedChain = read('src/features/maths/step-chain/WorkedChain.tsx')
+assert.ok(workedChain.includes('className="wc-roll"') && workedChain.includes('<WorkingWindow.Provider value={lines}>') && workedChain.includes('following.current'), 'Worked examples must roll their working in one window under a fixed diagram')
+for (const renderer of ['src/features/written-methods/tutor/NumberSenseWorkedExample.tsx', 'src/features/written-methods/tutor/StepWorkedExample.tsx', 'src/features/written-methods/tutor/MethodWorkedExample.tsx', 'src/features/fractions/tutor/FractionWorkedExample.tsx', 'src/features/order-of-operations/variant-c/OperationsBoard.tsx', 'src/features/place-value/tutor/PlaceWorkingExample.tsx', 'src/features/number-types/components/LinesWorking.tsx']) {
+  assert.ok(read(renderer).includes('<Working>'), `${renderer} must hand its working to the worked example's window`)
+}
+assert.ok(!stepChain.includes('FOLD_AFTER'), 'The working rolls rather than folding')
+assert.ok(frameSource.includes('function fit(card') && frameSource.includes("'--rv-paper-grid-size'") && frameSource.includes('style.zoom') && frameSource.includes('MIN_ROLL'), 'Lesson cards must fit their working window and diagrams to the screen')
 for (const view of ['src/features/written-methods/tutor/TutorMethodLessonView.tsx', 'src/features/number-types/NumberTypesLessonView.tsx', 'src/features/order-of-operations/variant-c/VariantCLessonView.tsx', 'src/features/place-value/tutor/PlaceValueLessonView.tsx']) {
   assert.ok(read(view).includes('icon aria-label="Back"'), `${view} must show Back as an icon`)
 }
