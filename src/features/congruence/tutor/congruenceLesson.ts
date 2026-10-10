@@ -176,6 +176,7 @@ add('mixed', 'Congruent shapes', 'GM10 consolidation', text(
 export const tutorCongruenceLesson: TutorMethodLesson = {
   id: 'L210', number: 210, title: 'Congruent shapes', level: 'GCSE Foundation',
   steadyPictures: true,
+  largePictures: true,
   goal: 'Recognise congruent shapes, even turned or flipped, and use them to find missing sides and angles.',
   labels: { [meaning]: 'What congruent means', [pairs]: 'Finding pairs', [missing]: 'Using congruence', mixed: 'Review' },
   states: finish(),

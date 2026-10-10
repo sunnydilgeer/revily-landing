@@ -49,5 +49,7 @@ export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
   labels: Partial<Record<MicroSkillId, string>>
   /** Each worked example's picture keeps one size from step to step, the opening screen too (see steadyPictures.ts). */
   steadyPictures?: boolean
+  /** Pictures show half as big again (up to 600px wide instead of 400px), for lessons whose shapes are small. */
+  largePictures?: boolean
   states: TutorMethodState[]
 }
