@@ -145,9 +145,14 @@ export function useLessonFrame(root: HTMLElement | null) {
       if (card.classList.contains('rung-card') && fit(card)) return
       card.toggleAttribute('data-more', card.scrollHeight - card.scrollTop - card.clientHeight > 4)
     })
+    let settle = 0
     const schedule = () => {
       window.cancelAnimationFrame(frame)
       frame = window.requestAnimationFrame(update)
+      // Once things go quiet, look once more: a step's lines finish sliding in (an animation ending changes the layout
+      // without touching the page), and the card may now have room to give back.
+      window.clearTimeout(settle)
+      settle = window.setTimeout(() => { frame = window.requestAnimationFrame(update) }, 700)
     }
     // The keyboard opening shrinks the screen (or, on iOS, the visible part of it): keep the box being typed in on show.
     const keepTyping = () => {
@@ -160,14 +165,19 @@ export function useLessonFrame(root: HTMLElement | null) {
     const resize = new ResizeObserver(schedule)
     resize.observe(root)
     root.addEventListener('scroll', schedule, true)
+    root.addEventListener('animationend', schedule, true)
+    root.addEventListener('transitionend', schedule, true)
     window.addEventListener('resize', keepTyping)
     window.visualViewport?.addEventListener('resize', keepTyping)
     schedule()
     return () => {
       window.cancelAnimationFrame(frame)
+      window.clearTimeout(settle)
       changes.disconnect()
       resize.disconnect()
       root.removeEventListener('scroll', schedule, true)
+      root.removeEventListener('animationend', schedule, true)
+      root.removeEventListener('transitionend', schedule, true)
       window.removeEventListener('resize', keepTyping)
       window.visualViewport?.removeEventListener('resize', keepTyping)
     }
