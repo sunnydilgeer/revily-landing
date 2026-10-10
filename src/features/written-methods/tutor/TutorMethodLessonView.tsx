@@ -15,6 +15,7 @@ import { GraphBoard } from './GraphBoard'
 import { AngleBoard } from './AngleBoard'
 import { MeasureBoard } from './MeasureBoard'
 import { Powers } from './Powers'
+import { BackIcon } from '../../../ui/icons'
 import { Button, CheckBar } from '../../../ui'
 import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
 import type { TutorMethodLesson, TutorMethodState, TutorWorking } from './model'
@@ -442,7 +443,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
       : <CheckBar>
-          {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
+          {engine.canGoBack && <Button variant="ghost" icon aria-label="Back" onClick={engine.back}><BackIcon size={22} /></Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {multi && <Button size="lg" disabled={!selection.length} onClick={engine.submit}>Check</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}

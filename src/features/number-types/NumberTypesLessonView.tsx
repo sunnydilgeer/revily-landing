@@ -9,6 +9,7 @@ import type { LessonDefinition, MicroSkillId } from './types'
 import { VariantDActivity } from './variant-d/VariantDActivity'
 import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../maths/rungs'
 import { diagnoseNumber } from '../written-methods/tutor/numberDiagnosis'
+import { BackIcon } from '../../ui/icons'
 import { Button, CheckBar } from '../../ui'
 import './RationalNumbersLesson.css'
 
@@ -78,7 +79,7 @@ export default function NumberTypesLessonView({
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
       : <CheckBar message={multiple ? 'Select all that apply.' : undefined}>
-          {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
+          {engine.canGoBack && <Button variant="ghost" icon aria-label="Back" onClick={engine.back}><BackIcon size={22} /></Button>}
           {(teaching || video) && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {!teaching && !video && (numeric || multiple || !variantD) && <Button size="lg" disabled={!canSubmit} onClick={engine.submit}>Check</Button>}
         </CheckBar>}

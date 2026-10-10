@@ -691,6 +691,7 @@
 .app-shell--frame .lesson-preview > .rung-lesson {
   flex: 1 1 auto;
   min-height: 0;
+  padding-block: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -703,7 +704,15 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   transition: box-shadow .2s ease;
+  /* No scrollbar: the fade at the bottom edge says there is more. It also keeps the card's width the same whether or
+     not it scrolls, so a graph that counts the squares across the card never flips between two sizes. */
+  scrollbar-width: none;
+  /* The squared paper scrolls with the content, like a page, so a graph drawn on its lines stays on them. */
+  background-attachment: local;
 }
+
+.app-shell--frame .rung-lesson > .rung-card::-webkit-scrollbar,
+.app-shell--frame .rung-lesson > .rung-done::-webkit-scrollbar { display: none; }
 
 .app-shell--frame .rung-lesson > .rung-done { margin-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
 .app-shell--frame .rung-lesson > [data-more] { box-shadow: inset 0 -34px 22px -22px rgb(15 21 48 / 22%); }
@@ -724,3 +733,39 @@
 
 /* A worked example's newest step lands just inside the card's bottom edge. */
 .app-shell--frame .wc-controls { scroll-margin: 12px; }
+
+/* ---------- Tighter bottom bar (Sunny, 10 Oct): one row of 48px buttons, about 64px tall, Back as an icon. A result
+   panel stays one row of actions: "See the working" is a link beside Continue, not a second big button. ---------- */
+.app-shell--frame .rung-lesson > .rv-checkbar { padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)); }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-btn--lg { min-height: 48px; padding-inline: 26px; font-size: 1.05rem; }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-icon-btn { flex: none; width: 48px; min-width: 48px; padding: 0; }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-icon-btn svg { width: 22px; height: 22px; }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-btn--ghost.rv-icon-btn { border-color: var(--rv-line); border-radius: 50%; color: var(--rv-ink); }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-btn--ghost.rv-icon-btn:hover { border-color: var(--rv-ink); }
+
+.app-shell--frame .rung-lesson > .rv-checkbar--correct,
+.app-shell--frame .rung-lesson > .rv-checkbar--incorrect,
+.app-shell--frame .rung-lesson > .rv-checkbar--saved { padding: 12px 14px; }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-checkbar__icon { width: 34px; height: 34px; font-size: 1.1rem; }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-checkbar__title { font-size: 1.15rem; }
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-checkbar__message { font-size: .95rem; line-height: 1.45; }
+
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-btn--secondary {
+  flex: none;
+  min-height: 48px;
+  padding: 0 6px;
+  border: 0;
+  color: var(--rv-ink);
+  background: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.app-shell--frame .rung-lesson > .rv-checkbar .rv-btn--secondary:hover { color: var(--rv-biro); }
+
+@media (max-width: 560px) {
+  .app-shell--frame .rung-lesson > .rv-checkbar .rv-checkbar__actions { flex-wrap: nowrap; gap: 8px; }
+  .app-shell--frame .rung-lesson > .rv-checkbar .rv-checkbar__actions .rv-btn:not(.rv-btn--secondary):not(.rv-icon-btn) { flex: 1 1 auto; min-width: 0; padding-inline: 14px; white-space: nowrap; }
+  .app-shell--frame .rung-lesson > .rv-checkbar .rv-checkbar__inner { gap: 8px 12px; }
+}

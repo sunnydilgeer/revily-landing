@@ -178,7 +178,9 @@ function useGridAlignment() {
       if (!svg) return
       if (!host) { setShift(current => current === null ? current : null); setZoom(1); return }
       const box = host.getBoundingClientRect(), style = getComputedStyle(host)
-      const originX = box.left + parseFloat(style.borderLeftWidth), originY = box.top + parseFloat(style.borderTopWidth)
+      // On the fixed lesson screen the card scrolls inside itself and its paper scrolls with it (background-attachment:
+      // local), so the paper starts where the content does: its scroll position never moves the picture's nudge.
+      const originX = box.left + parseFloat(style.borderLeftWidth) - host.scrollLeft, originY = box.top + parseFloat(style.borderTopWidth) - host.scrollTop
       const own = svg.getBoundingClientRect()
       const current = shiftRef.current ?? { x: 0, y: 0 }
       // Where the picture would be without a nudge, and the smallest nudge (half a square either way) onto the paper's lines.

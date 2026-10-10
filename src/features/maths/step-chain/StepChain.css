@@ -11,6 +11,15 @@
 .sc-row > .sc-cell, .sc-op__line { transition: opacity .3s; }
 /* Earlier lines fade, but an open "why" stays readable. */
 .sc-row.is-dim > .sc-cell, .sc-row.is-dim .sc-op__line { opacity: .5; }
+/* A long chain folds its middle lines into one quiet row, so the working fits the screen; a tap opens them. */
+.sc-row.is-folded { display: none; }
+.sc-fold { grid-column: 1 / -1; display: flex; justify-content: center; padding: .1em 0; }
+.sc-fold__toggle {
+  min-height: 36px; padding: 0 14px; border: 2px dashed var(--rv-line); border-radius: var(--rv-radius-pill);
+  font: 600 .9rem var(--rv-font-body); color: var(--rv-muted); background: var(--rv-surface); cursor: pointer;
+}
+.sc-fold__toggle:hover { color: var(--rv-ink); border-color: var(--rv-line-strong); }
+.sc-fold__toggle:focus-visible { outline: none; box-shadow: var(--rv-focus); }
 
 .sc-cell { min-height: 2.2em; display: flex; align-items: center; white-space: nowrap; }
 .sc-cell--lhs { justify-content: flex-end; }

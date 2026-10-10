@@ -79,6 +79,15 @@ for (const shell of ['src/App.tsx', 'src/features/graphs/GraphsShelf.tsx', 'src/
 assert.ok(navCss.includes('height: 100dvh') && navCss.includes('overflow: clip') && navCss.includes('overflow-y: auto'), 'The lesson frame must fill the screen and scroll only inside the card')
 assert.ok(read('app/preview/page.tsx').includes("interactiveWidget: 'resizes-content'"), 'The keyboard must shrink the lesson frame, not cover it')
 
+// The lesson screen fits: long worked examples fold, diagrams fit the room, and the bottom bar is one tight row
+const stepChain = read('src/features/maths/step-chain/StepChain.tsx')
+const frameSource = read('src/features/maths/lessonFrame.ts')
+assert.ok(stepChain.includes('FOLD_AFTER') && stepChain.includes('className="sc-fold__toggle"') && stepChain.includes('aria-expanded={!folded}'), 'Long worked examples must fold their older lines')
+assert.ok(frameSource.includes('function fit(card') && frameSource.includes("'--rv-paper-grid-size'") && frameSource.includes('style.zoom'), 'Lesson cards must fit their diagrams to the screen')
+for (const view of ['src/features/written-methods/tutor/TutorMethodLessonView.tsx', 'src/features/number-types/NumberTypesLessonView.tsx', 'src/features/order-of-operations/variant-c/VariantCLessonView.tsx', 'src/features/place-value/tutor/PlaceValueLessonView.tsx']) {
+  assert.ok(read(view).includes('icon aria-label="Back"'), `${view} must show Back as an icon`)
+}
+
 assert.ok(engine.includes('saveMathsProgress'))
 assert.ok(engine.includes('MATHS_NAVIGATE_EVENT'))
 assert.ok(!app.includes('preview-lesson-nav'), 'The old flat lesson menu must not be rendered')

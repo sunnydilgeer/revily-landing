@@ -3,6 +3,7 @@
 import { ExplanationSteps } from '../../number-types/components/ExplanationSteps'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { GENERIC_FEEDBACK, DriveSteps, LessonDoneCard, PRAISE, RungDoneCard, RungHeader, answerText, useRungFlow } from '../../maths/rungs'
+import { BackIcon } from '../../../ui/icons'
 import { Button, CheckBar } from '../../../ui'
 import { diagnoseBidmas } from '../ladder/bidmasDiagnosis'
 import { operationsVariantCLesson, operationsVariantCLabels, type TutorOperationsState } from './variantCLesson'
@@ -82,7 +83,7 @@ export default function OperationsVariantCLessonView() {
           <Button ref={continueButton} variant={feedback.correct ? 'good' : 'bad'} size="lg" onClick={next}>{last ? 'Finish lesson' : 'Continue'}</Button>
         </CheckBar>
       : <CheckBar>
-          {engine.canGoBack && <Button variant="ghost" onClick={engine.back}>← Back</Button>}
+          {engine.canGoBack && <Button variant="ghost" icon aria-label="Back" onClick={engine.back}><BackIcon size={22} /></Button>}
           {teaching && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {textInput && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!engine.inputValue.trim()}>Check</Button>}
         </CheckBar>}

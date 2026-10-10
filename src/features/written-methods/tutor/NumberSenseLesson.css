@@ -175,6 +175,9 @@
 /* Gutters either side take the spare width, so headings and notes (which span the whole board) never stretch the sides. */
 .ns-eq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto minmax(0, max-content) minmax(0, 1fr); align-items: center; column-gap: 8px; row-gap: 8px; width: 100%; font-size: clamp(16px, 5vw, var(--ns-problem-size, 21px)); font-weight: 600; }
 .ns-eq__row { display: contents; }
+/* A long board's older rows fold into one row with a toggle (EquationPictures.tsx). */
+.ns-eq__row.is-folded, .ns-eq__note.is-folded { display: none; }
+.ns-eq__fold { grid-column: 1 / -1; display: flex; justify-content: center; margin: 2px 0 6px; }
 .ns-eq__left { grid-column: 2; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0 5px; text-align: right; }
 .ns-eq__right { grid-column: 4; display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 0 5px; }
 .ns-eq__equals { grid-column: 3; color: var(--rv-ink); }
