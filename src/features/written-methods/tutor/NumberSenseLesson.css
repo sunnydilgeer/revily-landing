@@ -184,6 +184,7 @@
    alternate angles in purple. The picture keeps a margin for its labels, so nothing runs off its edge. */
 .ns-angles { display: flex; justify-content: center; width: 100%; margin-bottom: 4px; }
 .ns-angles svg { display: block; width: 100%; max-width: 400px; }
+.has-large-pictures .ns-angles svg { max-width: 600px; }
 .ns-angles__line { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
 .ns-angles__zig { fill: none; stroke: #7c3aed; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; opacity: .85; }
 .ns-angles__mark path { fill: none; stroke: var(--f, var(--rv-ink)); stroke-width: 2.5; }
