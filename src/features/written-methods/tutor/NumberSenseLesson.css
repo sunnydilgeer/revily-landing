@@ -195,6 +195,10 @@
 .ns-angles__name { fill: var(--rv-ink); font-size: 15px; font-weight: 700; font-style: italic; text-anchor: middle; dominant-baseline: central; }
 .ns-angles { flex-direction: column; align-items: center; }
 .ns-angles__caption { margin: 2px 0 0; color: var(--rv-ink); font-size: 18px; font-weight: 700; text-align: center; }
+/* A worked example's captions share one spot, only this step's showing, so the box is the same height on every step. */
+.ns-angles__captions { display: grid; width: 100%; }
+.ns-angles__captions > .ns-angles__caption { grid-area: 1 / 1; }
+.ns-angles__caption.is-empty { visibility: hidden; }
 .ns-angles__found { fill: var(--rv-good-tint); stroke: color-mix(in srgb, var(--rv-good) 55%, transparent); stroke-width: 2.5; }
 .ns-eq__token { color: var(--f, var(--rv-ink)); white-space: nowrap; }
 .ns-eq.is-plain .ns-eq__token { color: var(--rv-ink); }

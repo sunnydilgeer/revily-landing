@@ -310,6 +310,7 @@ add('mixed', 'Angle facts', 'GM1 consolidation', text(
 
 export const tutorAngleFactsLesson: TutorMethodLesson = {
   id: 'L201', number: 201, title: 'Angle facts', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Find missing angles on a straight line, around a point, in triangles and quadrilaterals and in isosceles triangles, giving the reason each time.',
   labels: { [linesPoints]: 'Lines and points', [shapes]: 'Triangles and quadrilaterals', [isosceles]: 'Isosceles triangles', [twoSteps]: 'Two facts in a row', mixed: 'Review' },
   states: finish(),

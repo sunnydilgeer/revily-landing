@@ -165,6 +165,7 @@ add('mixed', 'Symmetry', 'GM5 consolidation', text(
 
 export const tutorSymmetryLesson: TutorMethodLesson = {
   id: 'L205', number: 205, title: 'Symmetry', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Find a shape’s lines of symmetry and its order of rotational symmetry, including regular polygons and the common quadrilaterals and triangles.',
   labels: { [lines]: 'Lines of symmetry', [rotation]: 'Rotational symmetry', [both]: 'Both together', mixed: 'Review' },
   states: finish(),

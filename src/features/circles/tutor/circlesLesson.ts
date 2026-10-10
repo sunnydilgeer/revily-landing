@@ -195,6 +195,7 @@ add('mixed', 'Circles', 'GM7 consolidation', text(
 
 export const tutorCirclesLesson: TutorMethodLesson = {
   id: 'L207', number: 207, title: 'Circles', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Name the parts of a circle, find its circumference and area in terms of π or rounded, and work back from them to the radius or diameter.',
   labels: { [parts]: 'Parts of a circle', [circumference]: 'Circumference', [area]: 'Area', [backwards]: 'Working backwards', mixed: 'Review' },
   states: finish(),

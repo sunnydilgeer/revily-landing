@@ -246,6 +246,7 @@ add('mixed', 'Perimeter', 'GM8 consolidation', text(
 
 export const tutorPerimeterLesson: TutorMethodLesson = {
   id: 'L208', number: 208, title: 'Perimeter', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Find the perimeter of simple, compound and curved shapes, finding missing sides with subtraction, Pythagoras or algebra first.',
   labels: { [simple]: 'Simple shapes', [compound]: 'Compound shapes', [curved]: 'Curved edges', [pythagoras]: 'Pythagoras and algebra', mixed: 'Review' },
   states: finish(),

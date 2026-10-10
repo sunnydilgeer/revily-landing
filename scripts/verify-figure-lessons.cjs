@@ -26,6 +26,7 @@ assert.ok(spec, `Give a lesson number, 205 to 209 (got ${process.argv[2]})`)
 const mod = require(`../src/features/${spec.dir}/tutor/${spec.dir}Lesson.ts`)
 const lesson = mod[spec.name]
 const { fitFigure } = require('../src/features/written-methods/tutor/FigurePictures.tsx')
+const { steadyBounds } = require('../src/features/written-methods/tutor/AnglePictures.tsx')
 const { SHAPES, foldsThatFit, turnsThatFit } = require('../src/features/written-methods/tutor/MeasureBoard.tsx')
 const { GEOMETRY_SHELF_ID: shelfId, geometryLessons } = require('../src/features/geometry/geometryLessons.ts')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
@@ -33,7 +34,8 @@ const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
 const states = lesson.states, id = `L${number}`
 assert.equal(lesson.id, id)
 const rungs = [...new Set(states.map(s => s.microSkillId))]
-assert.ok(rungs.length >= 4, 'Three or four rungs, then Review'); assert.equal(rungs.at(-1), 'mixed')
+assert.ok(rungs.length >= 4, 'Three or four rungs, then Review')
+assert.equal(lesson.steadyPictures, true, 'Steady pictures: each worked example keeps one picture size'); assert.equal(rungs.at(-1), 'mixed')
 states.forEach((s, i) => { assert.equal(s.id, `${id}-${String(i + 1).padStart(2, '0')}`); assert.equal(s.transition.onComplete, states[i + 1]?.id) })
 for (const rung of rungs.slice(0, -1)) {
   const own = states.filter(s => s.microSkillId === rung)
@@ -43,10 +45,11 @@ for (const rung of rungs.slice(0, -1)) {
 for (const mode of spec.boards) assert.ok(states.some(s => s.measureBoard?.mode === mode), `The board's ${mode} screen is used`)
 
 /** A figure: every point and label inside the 320 by 210 frame. */
-function checkPicture(f, where) {
+function checkPicture(f, where, group) {
   assert.equal(f.shape, 'figure', `${where}: a measured figure`)
   assert.ok(f.figure.spoken.length > 5, `${where}: says what it shows`)
-  const { at } = fitFigure(f.figure)
+  // Drawn as the lesson draws it: a worked example's steps share one fit (steady pictures).
+  const { at } = fitFigure(f.figure, 320, 210, 38, steadyBounds(f, group))
   for (const item of f.figure.items) {
     const pts = item.kind === 'shape' ? item.points : item.kind === 'line' || item.kind === 'measure' ? [item.from, item.to] : item.kind === 'point' || item.kind === 'text' ? [item.at] : []
     for (const p of pts) { const q = at(p); assert.ok(q.x > -1 && q.x < 321 && q.y > -1 && q.y < 211, `${where}: ${item.kind} inside the frame`) }
@@ -77,7 +80,7 @@ for (const s of states) {
   const steps = model.examples[0].steps
   steps.forEach((step, i) => {
     assert.ok(step.title.split(' ').length <= 6, `${s.id} step ${i + 1}: heading is short`)
-    checkPicture(step.frame.angles, `${s.id} step ${i + 1}`); pictures++
+    checkPicture(step.frame.angles, `${s.id} step ${i + 1}`, steps.flatMap(t => [t.frame.angles, t.frame.angles.before].filter(Boolean))); pictures++
     const answers = step.frame.equation.rows.filter(r => r.answer).length
     if (s.interaction.type !== 'continue' || s.microSkillId !== 'geometry-circle-parts') assert.equal(answers, i === steps.length - 1 ? 1 : 0, `${s.id} step ${i + 1}: the answer once, at the end`)
   })

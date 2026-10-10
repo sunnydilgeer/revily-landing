@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { AngleFrame } from './methodWorking'
-import { FigureVisual } from './FigurePictures'
+import { FIGURE_PAD, FigureVisual, figureExtent } from './FigurePictures'
 
 /*
  * Geometric proof (lesson 28, A13.3), like the A13.3 video: a triangle drawn to its own angles, each angle marked with
@@ -72,17 +72,59 @@ function corners(frame: AngleFrame): Record<string, P> {
 }
 
 /** Fits the corners (and the parallel line, if any) into a picture w by h, keeping their shape. */
-export function fitInto(raw: Record<string, P>, w: number, h: number, pad: number, widen = 0) {
-  const pts = Object.values(raw)
-  const minX = Math.min(...pts.map(p => p.x)) - widen, maxX = Math.max(...pts.map(p => p.x)) + widen
-  const minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y))
+export function fitInto(raw: Record<string, P>, w: number, h: number, pad: number, widen = 0, shared?: Bounds) {
+  const own = boundsOf(Object.values(raw), pad, widen)
+  const { minX, maxX, minY, maxY } = shared ?? own
+  if (shared) pad = shared.pad
   const scale = Math.min((w - 2 * pad) / (maxX - minX || 1), (h - 2 * pad) / (maxY - minY || 1))
   const offX = (w - (maxX - minX) * scale) / 2, offY = (h - (maxY - minY) * scale) / 2
   const out: Record<string, P> = {}
   for (const [k, p] of Object.entries(raw)) out[k] = { x: offX + (p.x - minX) * scale, y: h - offY - (p.y - minY) * scale }
   return { at: out, left: offX, right: w - offX }
 }
-const fit = (frame: AngleFrame) => fitInto(corners(frame), W, H, PAD, frame.parallel ? 0.28 : 0)
+const fit = (frame: AngleFrame, shared?: Bounds) => fitInto(corners(frame), W, H, PAD, frame.parallel ? 0.28 : 0, shared)
+
+/*
+ * Steady pictures (Sunny, 10 Oct): every step of a worked example draws its picture at one scale and in one place, so
+ * the shape stays still while labels, lines and highlights come and go. Each picture's own extent (in its plain
+ * coordinates, with its padding) is merged over the example's pictures of the same kind, and each step fits to that.
+ */
+export type Bounds = { minX: number; maxX: number; minY: number; maxY: number; pad: number; padX?: number }
+const boundsOf = (pts: P[], pad: number, widen = 0): Bounds => ({
+  minX: Math.min(...pts.map(p => p.x)) - widen, maxX: Math.max(...pts.map(p => p.x)) + widen,
+  minY: Math.min(...pts.map(p => p.y)), maxY: Math.max(...pts.map(p => p.y)), pad,
+})
+/** The corners a polygon picture fits: its own, plus room for any outside angles. */
+function polygonPoints(frame: AngleFrame) {
+  const raw = polygonCorners(frame.angles, frame.sides, frame.turn) ?? []
+  const n = raw.length
+  const extra: Record<string, P> = {}
+  raw.forEach((p, i) => { if (frame.outside?.[i]) { const q = raw[(i + n - 1) % n], u = unit(sub(p, q)); extra[`e${i}`] = { x: p.x + u.x * 0.45, y: p.y + u.y * 0.45 } } })
+  return { raw, named: Object.fromEntries(raw.map((p, i) => [`v${i}`, p])) as Record<string, P>, extra, pad: frame.names ? 34 : 26 }
+}
+const kind = (frame: AngleFrame) => frame.shape === 'figure' ? 'figure' : frame.shape === 'polygon' ? 'polygon' : frame.shape === 'parallel' || frame.shape === 'cross' ? 'fixed' : 'corners'
+function ownBounds(frame: AngleFrame): Bounds | null {
+  const k = kind(frame)
+  if (k === 'figure' && frame.figure) { const pts = figureExtent(frame.figure.items).map(([x, y]) => ({ x, y })); return { ...boundsOf(pts, FIGURE_PAD), padX: FIGURE_PAD + (frame.figure.room ?? 0) } }
+  if (k === 'polygon') { const g = polygonPoints(frame); return g.raw.length ? boundsOf(Object.values({ ...g.named, ...g.extra }), g.pad) : null }
+  if (k === 'corners') return boundsOf(Object.values(corners(frame)), PAD, frame.parallel ? 0.28 : 0)
+  return null
+}
+/** The bounds every picture of this frame's kind in `group` fits inside, or nothing if it stands alone. */
+export function steadyBounds(frame: AngleFrame, group?: AngleFrame[]): Bounds | undefined {
+  const mates = (group ?? []).filter(f => kind(f) === kind(frame) && f !== frame)
+  if (!mates.length || kind(frame) === 'fixed') return undefined
+  const all = [frame, ...mates].map(ownBounds).filter((b): b is Bounds => Boolean(b))
+  if (!all.length) return undefined
+  return all.reduce((a, b) => ({ minX: Math.min(a.minX, b.minX), maxX: Math.max(a.maxX, b.maxX), minY: Math.min(a.minY, b.minY), maxY: Math.max(a.maxY, b.maxY), pad: Math.max(a.pad, b.pad), padX: Math.max(a.padX ?? a.pad, b.padX ?? b.pad) }))
+}
+/**
+ * The caption under a picture. In a worked example every step's caption is laid in the same spot, all but this step's
+ * hidden, so the box is as tall as the longest of them on every step and the picture never moves.
+ */
+export const Caption = ({ text, keep }: { text?: string; keep?: string[] }) => keep?.length
+  ? <div className="ns-angles__captions">{[...new Set(keep)].map(other => <p key={other} className={`ns-angles__caption${other === text ? '' : ' is-empty'}`} aria-hidden={other === text ? undefined : true}>{other}</p>)}{!text || keep.includes(text) ? null : <p className="ns-angles__caption">{text}</p>}</div>
+  : text ? <p className="ns-angles__caption">{text}</p> : null
 
 /** An angle at V between the lines to P and Q: its arc (or a square for 90°), and where its name goes. */
 export function angle(V: P, P1: P, Q: P, degrees?: number, size = 1) {
@@ -247,14 +289,11 @@ function polygonSpoken(frame: AngleFrame) {
   return parts.join(' ')
 }
 
-function PolygonVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
-  const raw = polygonCorners(frame.angles, frame.sides, frame.turn) ?? []
-  const n = raw.length
+function PolygonVisual({ frame, plain, shared, keepCaption }: { frame: AngleFrame; plain?: boolean; shared?: Bounds; keepCaption?: string[] }) {
   // Room round the shape for outside angles and corner names.
-  const extra: Record<string, P> = {}
-  raw.forEach((p, i) => { if (frame.outside?.[i]) { const q = raw[(i + n - 1) % n], u = unit(sub(p, q)); extra[`e${i}`] = { x: p.x + u.x * 0.45, y: p.y + u.y * 0.45 } } })
-  const named = Object.fromEntries(raw.map((p, i) => [`v${i}`, p]))
-  const { at } = fitInto({ ...named, ...extra }, W, H, frame.names ? 34 : 26)
+  const { raw, named, extra, pad } = polygonPoints(frame)
+  const n = raw.length
+  const { at } = fitInto({ ...named, ...extra }, W, H, pad, 0, shared)
   const V = raw.map((_, i) => at[`v${i}`])
   const fam = (i: number) => { const f = frame.families?.[i]; return plain || f === -1 ? 'is-plain' : `is-f${(f ?? 0) % 4}` }
   const lines = [`M${V.map(p => `${p.x} ${p.y}`).join(' L')} Z`]
@@ -297,15 +336,18 @@ function PolygonVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean })
       </g>)}
       {frame.names?.map((name, i) => { const u = unit(sub(V[i], centre)); return <text key={`n${i}`} className="ns-angles__name" x={V[i].x + u.x * 16} y={V[i].y + u.y * 16}>{name}</text> })}
     </svg>
-    {frame.caption && <p className="ns-angles__caption">{frame.caption}</p>}
+    <Caption text={frame.caption} keep={keepCaption} />
   </div>
 }
 
-export function AngleVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }) {
-  if (frame.shape === 'figure' && frame.figure) return <FigureVisual frame={frame.figure} plain={plain} />
-  if (frame.shape === 'polygon') return <PolygonVisual frame={frame} plain={plain} />
+/** `group`: every picture of the worked example this one is a step of, so they all share one fit and one height. */
+export function AngleVisual({ frame, plain, group }: { frame: AngleFrame; plain?: boolean; group?: AngleFrame[] }) {
+  const shared = steadyBounds(frame, group)
+  const keepCaption = group?.flatMap(f => f.caption ?? f.figure?.caption ?? [])
+  if (frame.shape === 'figure' && frame.figure) return <FigureVisual frame={frame.figure} plain={plain} shared={shared} keepCaption={keepCaption} />
+  if (frame.shape === 'polygon') return <PolygonVisual frame={frame} plain={plain} shared={shared} keepCaption={keepCaption} />
   if (frame.shape === 'parallel' || frame.shape === 'cross') return <ParallelVisual frame={frame} plain={plain} />
-  const { at, left, right } = fit(frame)
+  const { at, left, right } = fit(frame, shared)
   const fam = (i: number) => {
     const f = frame.families?.[i]
     return plain || f === -1 ? 'is-plain' : `is-f${(f ?? [1, 0, 2, 3][i] ?? 0) % 4}`

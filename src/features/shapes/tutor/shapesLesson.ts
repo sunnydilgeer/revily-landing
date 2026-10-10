@@ -332,6 +332,7 @@ add('mixed', '2D shapes', 'GM3 consolidation', text(
 
 export const tutorShapesLesson: TutorMethodLesson = {
   id: 'L203', number: 203, title: '2D shapes', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Name polygons from 3 to 10 sides and say if they are regular, name the four triangles and six quadrilaterals from their properties, and use a property to find an angle.',
   labels: { [names]: 'Polygons', [triangles]: 'Triangles', [quads]: 'Quadrilaterals', [props]: 'Using properties', mixed: 'Review' },
   states: finish(),

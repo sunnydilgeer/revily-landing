@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { FigureFrame, FigureItem, FigurePoint } from './methodWorking'
+import { Caption, type Bounds } from './AnglePictures'
 
 /*
  * Measured figures (geometry lessons 5 to 9: symmetry, area, circles, perimeter, sectors). A figure is a list of
@@ -17,6 +18,7 @@ const rad = (d: number) => d * Math.PI / 180
 const pt = ([x, y]: FigurePoint): P => ({ x, y })
 
 /** Every point the figure reaches, so all of it fits. */
+export const figureExtent = (items: FigureItem[]): FigurePoint[] => extent(items).map(p => [p.x, p.y])
 function extent(items: FigureItem[]): P[] {
   return items.flatMap(item => {
     if (item.kind === 'shape') return item.points.map(pt)
@@ -32,11 +34,14 @@ function extent(items: FigureItem[]): P[] {
   })
 }
 
-export function fitFigure(frame: FigureFrame, w = W, h = H, pad = 38) {
+export const FIGURE_PAD = 38
+/** Fits the figure into the picture; `shared` (steady pictures) fits it to its worked example's bounds instead. */
+export function fitFigure(frame: FigureFrame, w = W, h = H, pad = FIGURE_PAD, shared?: Bounds) {
   const pts = extent(frame.items)
-  const minX = Math.min(...pts.map(p => p.x)), maxX = Math.max(...pts.map(p => p.x))
-  const minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y))
-  const padX = pad + (frame.room ?? 0)
+  let minX = Math.min(...pts.map(p => p.x)), maxX = Math.max(...pts.map(p => p.x))
+  let minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y))
+  let padX = pad + (frame.room ?? 0)
+  if (shared) ({ minX, maxX, minY, maxY, pad, padX = pad } = shared)
   const scale = Math.min((w - 2 * padX) / (maxX - minX || 1), (h - 2 * pad) / (maxY - minY || 1))
   const offX = (w - (maxX - minX) * scale) / 2, offY = (h - (maxY - minY) * scale) / 2
   const at = (p: FigurePoint): P => ({ x: offX + (p[0] - minX) * scale, y: h - offY - (p[1] - minY) * scale })
@@ -55,8 +60,8 @@ function Label({ at, text, t }: { at: P; text: string; t?: string }) {
   </g>
 }
 
-export function FigureVisual({ frame, plain }: { frame: FigureFrame; plain?: boolean }) {
-  const { at, scale } = fitFigure(frame)
+export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: FigureFrame; plain?: boolean; shared?: Bounds; keepCaption?: string[] }) {
+  const { at, scale } = fitFigure(frame, W, H, FIGURE_PAD, shared)
   const t = (value?: string) => plain && value !== 'faint' ? undefined : value
   const parts: ReactNode[] = []
   const labels: ReactNode[] = []
@@ -121,6 +126,6 @@ export function FigureVisual({ frame, plain }: { frame: FigureFrame; plain?: boo
   })
   return <div className={`ns-angles ns-fig${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.spoken}>
     <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">{parts}{labels}</svg>
-    {frame.caption && <p className="ns-angles__caption">{frame.caption}</p>}
+    <Caption text={frame.caption} keep={keepCaption} />
   </div>
 }

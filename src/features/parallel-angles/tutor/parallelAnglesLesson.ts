@@ -216,6 +216,7 @@ add('mixed', 'Angles in parallel lines', 'GM2 consolidation', text(
 
 export const tutorParallelAnglesLesson: TutorMethodLesson = {
   id: 'L202', number: 202, title: 'Angles in parallel lines', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Find angles where lines cross and in parallel lines, using vertically opposite, corresponding (F), alternate (Z) and allied (C) angles, and name the rule at each step.',
   labels: { [opposite]: 'Vertically opposite', [fz]: 'F and Z angles', [allied]: 'Allied angles', [steps]: 'Two rules in a row', mixed: 'Review' },
   states: finish(),

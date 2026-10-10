@@ -193,6 +193,7 @@ add('mixed', 'Areas of shapes', 'GM6 consolidation', text(
 
 export const tutorAreasLesson: TutorMethodLesson = {
   id: 'L206', number: 206, title: 'Areas of shapes', level: 'GCSE Foundation',
+  steadyPictures: true,
   goal: 'Find the areas of rectangles, parallelograms, triangles and trapeziums using the vertical height, and work backwards from an area to a missing length.',
   labels: { [rectPara]: 'Rectangles and parallelograms', [triangle]: 'Triangles', [trapezium]: 'Trapeziums', [backwards]: 'Working backwards', mixed: 'Review' },
   states: finish(),
