@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactElement } from 'react'
+import { useCardPaper } from './cardPaper'
 import './AngleBoard.css'
 
 /*
@@ -95,6 +96,10 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
   const [moved, setMoved] = useState(false)
   const svg = useRef<SVGSVGElement>(null)
   const id = useId()
+  // On squares, one square is marked and the lesson card's own squared paper lines up with it (cardPaper.ts).
+  const corner = spec.mode === 'shear' ? BASE : spec.mode === 'enlarge' ? ENLARGE_O : spec.mode === 'translate' ? TRANSLATE_O : null
+  const square = useRef<SVGRectElement>(null)
+  useCardPaper(square, !!corner)
   const fitTurns = spec.mode === 'turn' ? turnsThatFit(shape) : []
   const fitFolds = spec.mode === 'mirror' ? foldsThatFit(shape) : []
 
@@ -341,6 +346,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Measuring board. ${what}`} aria-describedby={`${id}-sum`}
       onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); setHeld(true); move(toLocal(event)) }}
       onPointerMove={event => { if (held) move(toLocal(event)) }} onPointerUp={() => setHeld(false)} onPointerCancel={() => setHeld(false)} onKeyDown={key}>
+      {corner && <rect ref={square} className="card-paper-square" x={corner.x} y={corner.y - GRID} width={GRID} height={GRID} />}
       {drawing}
       <circle className="angle-board__handle" cx={handle.x} cy={handle.y} r={held ? 13 : 11} />
     </svg>

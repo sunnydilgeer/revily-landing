@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import type { FigureFrame, FigureItem, FigurePoint } from './methodWorking'
 import { Caption, type Bounds } from './AnglePictures'
+import { useCardPaper } from './cardPaper'
 
 /*
  * Measured figures (geometry lessons 5 to 18: symmetry, area, circles, perimeter, sectors, and lessons 10 to 18 from
@@ -67,10 +68,15 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
   const t = (value?: string) => plain && value !== 'faint' ? undefined : value
   const parts: ReactNode[] = []
   const labels: ReactNode[] = []
+  // A picture on squares marks one square, and the lesson card's own squared paper is lined up with it (cardPaper.ts).
+  const square = useRef<SVGRectElement>(null)
+  const grid = frame.items.find(item => item.kind === 'grid')
+  useCardPaper(square, !!grid)
+  if (grid) { const p = at([Math.ceil(grid.from[0]), Math.ceil(grid.from[1]) + 1]); parts.push(<rect key="square" ref={square} className="card-paper-square" x={p.x} y={p.y} width={scale} height={scale} />) }
   frame.items.forEach((item, i) => {
     if (item.kind === 'grid') {
-      // The lesson card's own squared paper is the only grid, so no grid lines are drawn here: just the axes, when asked
-      // for, numbered under and beside them.
+      // The lesson card's own squared paper, lined up with the picture, is the grid, so no grid lines are drawn here:
+      // just the axes, when asked for, numbered under and beside them.
       const [x0, y0] = item.from, [x1, y1] = item.to
       if (item.axes && x0 <= 0 && x1 >= 0) { const a = at([0, y0]), b = at([0, y1]); parts.push(<path key={`gx${i}`} className="measure-board__grid is-axis" d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
       if (item.axes && y0 <= 0 && y1 >= 0) { const a = at([x0, 0]), b = at([x1, 0]); parts.push(<path key={`gy${i}`} className="measure-board__grid is-axis" d={`M${a.x} ${a.y} L${b.x} ${b.y}`} />) }
