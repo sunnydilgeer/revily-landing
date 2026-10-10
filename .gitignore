@@ -7,3 +7,6 @@ dist/
 
 # Lesson kit output (videos, PDFs, frames): made on demand, not committed
 tools/lesson-kit/out/
+
+# Lesson screen browser check output (scripts/ui)
+ui-results/
