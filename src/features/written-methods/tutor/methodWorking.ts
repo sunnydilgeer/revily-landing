@@ -140,14 +140,14 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
  * −1 is a given angle in plain ink; `found` boxes an answer in green; `lit` draws the part a step uses in purple.
  */
 /**
- * A measured figure (geometry lessons 5 to 9, FigurePictures.tsx): drawing items in their own units, y up, fitted into
+ * A measured figure (geometry lessons 5 to 18, FigurePictures.tsx): drawing items in their own units, y up, fitted into
  * the picture. Tones: `given` ink, `x` the unknown, `lit` what a step uses, `found` the answer, `faint` greyed out.
  */
 export type FigurePoint = [number, number]
 export type FigureTone = 'given' | 'x' | 'lit' | 'found' | 'faint'
 export type FigureItem =
   | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part'; dashed?: boolean; lit?: boolean }
-  | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found' }
+  | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found'; arrow?: boolean }
   | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
   | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed' }
   | { kind: 'measure'; from: FigurePoint; to: FigurePoint; label?: string; offset?: number; side?: 1 | -1; tone?: FigureTone }
@@ -155,6 +155,8 @@ export type FigureItem =
   | { kind: 'ticks'; from: FigurePoint; to: FigurePoint; count: number }
   | { kind: 'point'; at: FigurePoint; label?: string; dx?: number; dy?: number }
   | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number }
+  /** Squared paper over whole units from `from` to `to`; `axes` draws the x and y axes through 0, numbered when `numbers`. */
+  | { kind: 'grid'; from: FigurePoint; to: FigurePoint; axes?: boolean; numbers?: boolean }
 /** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
 export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number }
 

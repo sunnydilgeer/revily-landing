@@ -8,14 +8,14 @@ import { text } from '../../simultaneous-equations/tutor/boardWorkings'
 import type { author } from '../../written-methods/tutor/content'
 
 /*
- * Shared by geometry lessons 5 to 9 (symmetry, area, circles, perimeter, sectors): the four kinds of screen, built the
+ * Shared by geometry lessons 5 to 18 (symmetry, area, circles, perimeter, sectors, and lessons 10 to 18): the four kinds of screen, built the
  * same way as lessons 1 to 4. A play screen opens a rung on the measuring board (MeasureBoard.tsx); a worked example
  * steps through its working; a question shows its own measured figure (FigurePictures.tsx), takes the answer, and
  * opens the same step-by-step working after.
  */
 
 /** A measured figure as a picture: drawn by FigurePictures.tsx, carried in the angle picture's slot. */
-export const fig = (items: FigureItem[], spoken: string, caption?: string): AngleFrame => ({ shape: 'figure', angles: [], labels: [], figure: { items, spoken, ...(caption ? { caption } : {}) } })
+export const fig = (items: FigureItem[], spoken: string, caption?: string, room?: number): AngleFrame => ({ shape: 'figure', angles: [], labels: [], figure: { items, spoken, ...(caption ? { caption } : {}), ...(room ? { room } : {}) } })
 
 /** The answer box: its label (the unit after it, in brackets) and what goes before it. */
 export type Box = { label?: string; prefix: string }
@@ -53,4 +53,4 @@ export function screens(lesson: ReturnType<typeof author>) {
 }
 
 /** Slip messages for a typed answer; a unit, π or degree sign typed with it is fine. */
-export const slips = (right: number, list: Slip[]) => (response: string) => diagnoseSlips(response.replace(/\s*(?:°|π?\s*(?:[cm]?m[²2]?)?)\s*$/, ''), right, list.filter(([value]) => value !== right))
+export const slips = (right: number, list: Slip[]) => (response: string) => diagnoseSlips(response.replace(/\s*(?:°|π?\s*(?:[ckm]?m[²2³3]?|miles?)?)\s*$/, ''), right, list.filter(([value]) => value !== right))
