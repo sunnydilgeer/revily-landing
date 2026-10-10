@@ -1,7 +1,7 @@
 /*
  * The fixed lesson screen: on every screen the page never scrolls, the top bar is at the top, the bottom bar is at
  * the foot, and the page raises no errors. 14 lessons × 4 sizes × 14 screens. Pass: "problems: 0".
- *   PREVIEW_PASSWORD=… node scripts/ui/frame.cjs
+ *   PREVIEW_PASSWORD=… node scripts/ui/frame.cjs            (ONLY=phone,laptop for just those sizes)
  */
 const { BASE, GRAPHS, GEOMETRY, SIZES, launch, openPage, step, shot } = require('./lib.cjs')
 const LESSONS = [
@@ -25,7 +25,8 @@ const measure = page => page.evaluate(() => {
 ;(async () => {
   const browser = await launch()
   let problems = 0, total = 0
-  for (const size of Object.keys(SIZES)) {
+  // ONLY=phone,laptop runs just those sizes (a full run of all four takes about 40 minutes).
+  for (const size of (process.env.ONLY ? process.env.ONLY.split(',') : Object.keys(SIZES))) {
     const page = await openPage(browser, size)
     page.on('pageerror', e => { problems++; console.log('PROBLEM page error', size, e.message.slice(0, 160)) })
     for (const [name, url] of LESSONS) {

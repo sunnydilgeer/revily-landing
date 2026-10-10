@@ -18,6 +18,7 @@ python3 scripts/ui/summarise.py ui-results/*.jsonl  # compare with the budgets i
 | `PREVIEW_PASSWORD` | (required) | The `/preview` password |
 | `CHROMIUM_PATH` | Playwright's own | A Chromium to launch, e.g. `/opt/pw-browsers/chromium-1194/chrome-linux/chrome` in a Claude cloud session |
 | `OUT` | `ui-results/` | Screenshots of anything that fails |
+| `ONLY` | all four | Screen sizes for `frame.cjs`, e.g. `phone,laptop` (all four take about 40 minutes) |
 | `LESSONS` | `27,19,30,32,8,22,25` | Lessons for `roll.cjs` |
 | `SCREENS` | `18` | Screens per lesson for `sweep.cjs` |
 
