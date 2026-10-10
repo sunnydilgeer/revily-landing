@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { stepNeed } from './step-chain/WorkedChain'
 
 /**
  * The lesson page is one fixed screen (app-shell--frame in MathsNavigation.css): the page never scrolls, and a card
@@ -65,21 +66,43 @@ function overflowOf(card: HTMLElement) {
  */
 function fit(card: HTMLElement) {
   const over = overflowOf(card)
-  // A worked example's working rolls in its own window (WorkedChain.tsx): that window gives way first, so the diagram
-  // keeps its size, and grows back first when there is room again.
+  // A worked example's working rolls in its own window (WorkedChain.tsx). The window gives way first, but never below
+  // what the step on screen needs, so none of the step's lines are hidden (Sunny, 10 Oct); short of that the diagram
+  // shrinks to make room, and only then does the window get shorter still. It grows back first when there is room.
   const roll = card.querySelector<HTMLElement>('.wc-roll')
+  let short = 0
   if (roll && roll.offsetParent) {
     const height = roll.clientHeight, capped = roll.style.maxHeight !== ''
-    if (over > 0 && height > MIN_ROLL) {
-      roll.style.maxHeight = `${Math.max(MIN_ROLL, Math.floor(height - over - 2))}px`
+    const keep = Math.max(MIN_ROLL, stepNeed(roll))
+    if (over > 0 && height > keep) {
+      roll.style.maxHeight = `${Math.max(keep, Math.floor(height - over - 2))}px`
       return true
     }
-    if (over < -6 && capped) {
+    // Room to spare goes to a shrunk diagram first once the step fits; otherwise to the window.
+    if (over < -6 && capped && !(height >= keep && diagramShrunk(card))) {
       const next = Math.floor(height - over - 4)
       roll.style.maxHeight = next >= roll.scrollHeight ? '' : `${next}px`
       return true
     }
+    if (capped) short = Math.max(0, Math.min(roll.scrollHeight, keep) - height)
   }
+  if (diagramFits(card, over + short)) return true
+  // The diagram can't give any more: the window goes below the step's size, down to about three lines.
+  if (roll && roll.offsetParent && over > 0 && roll.clientHeight > MIN_ROLL) {
+    roll.style.maxHeight = `${Math.max(MIN_ROLL, Math.floor(roll.clientHeight - over - 2))}px`
+    return true
+  }
+  return false
+}
+
+/** The card's diagram is drawn smaller than its own size (zoomed, or its graph's paper shrunk). */
+function diagramShrunk(card: HTMLElement) {
+  const base = Number(card.dataset.paperBase) || 0, square = parseFloat(card.style.getPropertyValue('--rv-paper-grid-size')) || base
+  return square < base || [...card.querySelectorAll<HTMLElement>('[style*="zoom"]')].some(el => !el.querySelector('.wc-roll'))
+}
+
+/** Shrinks (or grows back) the card's diagram by `over` pixels. Returns true when it changed something. */
+function diagramFits(card: HTMLElement, over: number) {
   const graph = card.querySelector<SVGSVGElement>('svg.ns-graph__picture')
   if (graph) {
     if (graph.classList.contains('has-grid')) return false
@@ -95,7 +118,8 @@ function fit(card: HTMLElement) {
     return true
   }
   const candidates = SHRINKABLE.flatMap(([selector, floor]) => [...card.querySelectorAll<HTMLElement>(selector)]
-    .filter(el => !el.querySelector(KEEP_SIZE) && !el.closest(KEEP_SIZE))
+    // A box holding a worked example's working window is not a diagram: its picture (.wc-picture) is.
+    .filter(el => !el.querySelector(KEEP_SIZE) && !el.closest(KEEP_SIZE) && !el.querySelector('.wc-roll'))
     .map(el => ({ el, floor, height: el.getBoundingClientRect().height })))
   const shrunk = candidates.find(c => c.el.style.zoom)
   const target = shrunk ?? candidates.sort((a, b) => b.height - a.height)[0]

@@ -27,13 +27,25 @@ const STEP_START = '.ns-step, .ns-eq__heading, .ns-term-groups__heading, .sc-row
  * first ones under the fade), and no further than the newest line.
  */
 function stepTop(box: HTMLElement) {
-  const end = box.scrollHeight - box.clientHeight
+  return Math.max(0, Math.min(box.scrollHeight - box.clientHeight, stepFrom(box)))
+}
+
+/** Where the step on screen starts in the window's content, less the fade above it (0: the step starts at the top). */
+function stepFrom(box: HTMLElement) {
   const starts = box.querySelectorAll<HTMLElement>(STEP_START)
   const start = starts[starts.length - 1]
-  if (!start) return end
+  if (!start) return box.scrollHeight
   const fade = parseFloat(getComputedStyle(box).fontSize) * 3 // the top fade, --wc-above in WorkedChain.css
   const at = start.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop
-  return Math.max(0, Math.min(end, Math.round(at - fade - 4)))
+  return Math.max(0, Math.round(at - fade - 4))
+}
+
+/**
+ * How tall the working window must be to show the whole step on screen, from its start to its newest line. The lesson
+ * screen (lessonFrame.ts) shrinks the diagram to give the window this much before it lets the window get shorter.
+ */
+export function stepNeed(box: HTMLElement) {
+  return Math.min(box.scrollHeight, box.scrollHeight - stepFrom(box))
 }
 
 /**
