@@ -5,6 +5,7 @@ import '../maths/MathsNavigation.css'
 import './GraphsShelf.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CloseIcon, ContentsIcon } from '../../ui/icons'
+import { useLessonFrame } from '../maths/lessonFrame'
 import { LessonBarSlot } from '../maths/rungs'
 import MathsContentsDrawer from '../maths/MathsContentsDrawer'
 import type { MathsSection } from '../maths/courseRegistry'
@@ -27,6 +28,9 @@ export default function GraphsShelf() {
   const [progress, setProgress] = useState<LessonProgressMap>({})
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   const [barSlot, setBarSlot] = useState<HTMLDivElement | null>(null)
+  // The lesson page is one fixed screen; a card taller than its space scrolls inside (see lessonFrame.ts).
+  const [mainEl, setMainEl] = useState<HTMLElement | null>(null)
+  useLessonFrame(mainEl)
   const current = graphsLessons.find(item => item.number === lesson)!
 
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function GraphsShelf() {
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
   }, [current.lessonId, lesson, openLesson])
 
-  return <div className="app-shell app-shell--lesson app-shell--study">
+  return <div className="app-shell app-shell--lesson app-shell--study app-shell--frame">
     <header className="site-header lesson-bar">
       <nav className="lesson-bar__crumbs" aria-label="Breadcrumb">
         <a className="lesson-bar__close" href="/preview" aria-label="Close the lesson and go back to Chapters"><CloseIcon size={22} /></a>
@@ -76,7 +80,7 @@ export default function GraphsShelf() {
         aria-controls="maths-contents" onClick={() => setDrawerOpen(true)}><ContentsIcon size={20} /><span>Contents</span></button>
     </header>
 
-    <LessonBarSlot.Provider value={barSlot}><main className="lesson-preview graphs-shelf" id="main-content"><TutorMethodLessonView key={lesson} lesson={lessonFor(lesson)} /></main></LessonBarSlot.Provider>
+    <LessonBarSlot.Provider value={barSlot}><main ref={setMainEl} className="lesson-preview graphs-shelf" id="main-content"><TutorMethodLessonView key={lesson} lesson={lessonFor(lesson)} /></main></LessonBarSlot.Provider>
 
     <MathsContentsDrawer open={drawerOpen} currentLesson={current} progress={progress} chapters={[graphsChapter]}
       onClose={closeDrawer} onSelectLesson={number => openLesson(number)} onSelectSkill={selectSkill} />

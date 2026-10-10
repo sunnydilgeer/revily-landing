@@ -47,6 +47,7 @@ import { useStudySummary, useStudyTimer } from './features/maths/useStudy'
 import { readLastSubject, saveLastSubject, subjectFromUrl, type Subject } from './features/maths/subject'
 import dynamic from 'next/dynamic'
 import { CloseIcon, ContentsIcon } from './ui/icons'
+import { useLessonFrame } from './features/maths/lessonFrame'
 import { LessonBarSlot } from './features/maths/rungs'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
 import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber, type MathsSection } from './features/maths/courseRegistry'
@@ -98,6 +99,9 @@ function App() {
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   // The lesson's section title and progress draw into the top bar (see LessonBarSlot in rungs.tsx).
   const [barSlot, setBarSlot] = useState<HTMLDivElement | null>(null)
+  // The lesson page is one fixed screen; a card taller than its space scrolls inside (see lessonFrame.ts).
+  const [mainEl, setMainEl] = useState<HTMLElement | null>(null)
+  useLessonFrame(mainEl)
   const currentLesson = getMathsLesson(lesson)
   const study = useStudySummary()
   useStudyTimer(view === 'cards' || (subject === 'maths' && view === 'lesson'), subject)
@@ -223,7 +227,7 @@ function App() {
     </div>
   }
 
-  return <div className="app-shell app-shell--lesson app-shell--study">
+  return <div className="app-shell app-shell--lesson app-shell--study app-shell--frame">
     <header className="site-header lesson-bar">
       <nav className="lesson-bar__crumbs" aria-label="Breadcrumb">
         <button type="button" className="lesson-bar__close" onClick={showOverview} aria-label="Close the lesson and go back to Chapters"><CloseIcon size={22} /></button>
@@ -240,7 +244,7 @@ function App() {
       ><ContentsIcon size={20} /><span>Contents</span></button>
     </header>
 
-    <LessonBarSlot.Provider value={barSlot}><main className="lesson-preview" id="main-content">{renderLesson(lesson)}</main></LessonBarSlot.Provider>
+    <LessonBarSlot.Provider value={barSlot}><main ref={setMainEl} className="lesson-preview" id="main-content">{renderLesson(lesson)}</main></LessonBarSlot.Provider>
 
     <MathsContentsDrawer
       open={drawerOpen}
