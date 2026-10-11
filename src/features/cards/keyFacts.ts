@@ -581,4 +581,28 @@ export const KEY_FACTS: Record<number, Record<string, KeyFact[]>> = {
     'pie-read': [['A pie chart of 90 people has a 100° slice. How many people is that?', '25. Angle ÷ 360 × total = 100 ÷ 360 × 90.']],
     'pie-compare': [['Does a bigger slice in one pie chart always mean more people than in another?', 'No. A pie shows shares, not amounts. With different totals, turn each slice back into a number first.']],
   },
+  // The Ratio lessons added after the first deck pass (11 Oct): 37, 38, 39 and 40.
+  37: {
+    'ratio-fractions': [['Red and blue counters are in the ratio 4 : 5. What fraction are red?', '4/9. Add the parts for the whole: 4 + 5 = 9. Then the part over the total.']],
+    'ratio-simplifying': [['Write 12 : 18 : 30 in its simplest form.', '2 : 3 : 5. Divide every part by the highest common factor, 6.']],
+    'ratio-scaling': [['Squash to water is 2 : 7. How much water goes with 10 cups of squash?', '35 cups. 2 was multiplied by 5 to make 10, so multiply 7 by 5 too. Never add.']],
+    'ratio-part-whole': [['Oranges to all the fruit is 3 : 8. The rest are apples. What is oranges to apples?', '3 : 5. The whole includes the oranges, so apples are 8 − 3 = 5 parts.']],
+    'ratio-sharing': [['Share £720 in the ratio 2 : 3 : 4. How much is the 2 share?', '£160. 2 + 3 + 4 = 9 parts. One part: 720 ÷ 9 = £80. Then 2 × 80 = £160.']],
+  },
+  38: {
+    'units-metric': [['How many grams is 3.5 kg?', '3500 g. 1 kg = 1000 g. Going to a smaller unit, multiply: 3.5 × 1000.']],
+    'units-area-volume': [['What is 3 m² in cm²?', '30,000 cm². 1 m = 100 cm, so 1 m² = 100 × 100 = 10,000 cm². For volume, cube it: 1 m³ = 1,000,000 cm³.']],
+    'units-rates': [['Using 1 kg ≈ 2.2 pounds, about how many pounds is 5 kg?', '11 pounds. 1 kg is 2.2 pounds, so multiply: 5 × 2.2 = 11. Divide to go back.']],
+    'units-time': [['How long is 2.4 hours in hours and minutes?', '2 hours 24 minutes. Time works in 60s: 0.4 × 60 = 24 minutes.']],
+    'units-speed': [['What is 72 km/h in metres per second?', '20 m/s. 72 km = 72,000 m and 1 hour = 3600 s, so 72,000 ÷ 3600 = 20.']],
+  },
+  39: {
+    'bestbuy-unit': [['Cereal: 500 g for £3.20, 750 g for £4.50 or 1.2 kg for £7.44. Which is the best value?', 'The 750 g box. Cost per 100 g: 64p, 60p and 62p. Compare the same amount of each, then pick the lowest.']],
+    'bestbuy-offers': [['1 litre of juice is £1.20 and the second carton is half price. A 2 litre carton is £1.70. Which is cheaper for 2 litres?', 'The 2 litre carton. The offer costs 1.20 + 0.60 = £1.80, which is 10p more than £1.70.']],
+  },
+  40: {
+    'measures-density': [['A block has mass 540 g and volume 200 cm³. What is its density?', '2.7 g/cm³. Density = mass ÷ volume = 540 ÷ 200. The triangle is M over D × V.']],
+    'measures-speed': [['A coach drives 150 miles in 3 hours. What is its average speed?', '50 mph. Speed = distance ÷ time = 150 ÷ 3. Change minutes into hours first if the speed is per hour.']],
+    'measures-pressure': [['A force of 240 N acts on an area of 0.6 m². What is the pressure?', '400 N/m². Pressure = force ÷ area = 240 ÷ 0.6. The triangle is F over P × A.']],
+  },
 }
