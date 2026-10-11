@@ -10,6 +10,9 @@ import { CARDS_KEY, deckQueue } from './schedule'
 
 const DECKS = buildDecks(mathsLessons)
 
+/** Decks not yet started follow the course, so Negative numbers (lesson 35) sits in Number, not after Ratio. */
+const order = (key: string) => mathsLessons.findIndex(lesson => String(lesson.number) === key)
+
 const toStudyCard = (card: RevisionCard): StudyCard => ({
   id: card.id, front: card.front, back: card.back, note: card.note, frontMath: card.frontMath,
   label: `${card.rungTitle} · ${card.kind === 'fact' ? 'Key fact' : 'Quick question'}`,
@@ -27,7 +30,7 @@ export default function RevisionCards({ progress, onOpenCurriculum }: { progress
     const cards = deck.cards.map(toStudyCard)
     const studied = deck.cards.filter(card => finished.has(card.rung) || states[card.id]).map(toStudyCard)
     return { key: String(deck.lesson), title: deck.title, cards, started: Boolean(progress[entry.lessonId]), studied, queue: deckQueue(cards, states) }
-  }).sort((a, b) => Number(b.started) - Number(a.started) || Number(a.key) - Number(b.key)), [progress, states])
+  }).sort((a, b) => Number(b.started) - Number(a.started) || order(a.key) - order(b.key)), [progress, states])
 
   return <CardsView
     storageKey={CARDS_KEY}

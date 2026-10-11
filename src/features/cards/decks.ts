@@ -58,19 +58,20 @@ function recallCards(entry: MathsLessonEntry, rung: string, rungTitle: string): 
   return cards
 }
 
-/** Chapters with decks. The chapters after Ratio joined the course (Sunny, 11 Oct) with questions that lean on their
- * pictures and boards ("Find the area of this circle"), so they wait for cards written for them. */
-const CARD_CHAPTERS = new Set(['number', 'algebra', 'ratio'])
+/** Every lesson has a deck of key-fact cards. Quick-recall cards come only from Number, Algebra and Ratio: the chapters
+ * after Ratio joined the course (Sunny, 11 Oct) with questions that lean on their pictures and boards ("Find the area of
+ * this circle"), so their decks are key facts written for them, with the numbers on the card. */
+const RECALL_CHAPTERS = new Set(['number', 'algebra', 'ratio'])
 
 export function buildDecks(lessons: MathsLessonEntry[]): Deck[] {
-  return lessons.filter(entry => CARD_CHAPTERS.has(entry.chapterId)).map(entry => ({
+  return lessons.map(entry => ({
     lesson: entry.number,
     title: entry.title,
     cards: entry.sections.flatMap(section => [
       ...(KEY_FACTS[entry.number]?.[section.id] ?? []).map(([front, back], i): RevisionCard => ({
         id: `k-${entry.number}-${section.id}-${i + 1}`, lesson: entry.number, rung: section.id, rungTitle: section.title, kind: 'fact', front, back,
       })),
-      ...recallCards(entry, section.id, section.title),
+      ...(RECALL_CHAPTERS.has(entry.chapterId) ? recallCards(entry, section.id, section.title) : []),
     ]),
-  }))
+  })).filter(deck => deck.cards.length > 0)
 }
