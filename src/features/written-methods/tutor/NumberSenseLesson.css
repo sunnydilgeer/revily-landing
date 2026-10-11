@@ -209,6 +209,8 @@
 .ns-eq__frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; }
 .ns-eq__frac > span:first-child { padding: 0 4px 2px; border-bottom: 2px solid currentColor; }
 .ns-eq__frac > span:last-child { padding-top: 2px; }
+/* A column vector (geometry lesson 21): top and bottom numbers between curved brackets, no bar. */
+.ns-eq__vec { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 1px 8px; margin: 0 2px; border-left: 2px solid currentColor; border-right: 2px solid currentColor; border-radius: 12px / 50%; vertical-align: middle; }
 .ns-eq .ns-shared { color: inherit; }
 
 /* Power of a power: each copy of the inside power as one block (2³ × 2³), then written out with its name under it. */

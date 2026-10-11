@@ -19,6 +19,9 @@ import { tutorSurfacesLesson } from '../surfaces/tutor/surfacesLesson'
 import { tutorProjectionsLesson } from '../projections/tutor/projectionsLesson'
 import { tutorLociLesson } from '../loci/tutor/lociLesson'
 import { tutorBearingsLesson } from '../bearings/tutor/bearingsLesson'
+import { tutorPythagorasLesson } from '../pythagoras/tutor/pythagorasLesson'
+import { tutorTrigonometryLesson } from '../trigonometry/tutor/trigonometryLesson'
+import { tutorVectorsLesson } from '../vectors/tutor/vectorsLesson'
 
 /*
  * The hidden Geometry shelf, built like the Graphs one (../graphs/graphsLessons.ts): the geometry lessons with the
@@ -29,7 +32,7 @@ import { tutorBearingsLesson } from '../bearings/tutor/bearingsLesson'
  */
 export const GEOMETRY_SHELF_ID = 'geometry-598a5fb6df99'
 
-export type GeometryLessonNumber = 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 209 | 210 | 211 | 212 | 213 | 214 | 215 | 216 | 217 | 218
+export type GeometryLessonNumber = 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 209 | 210 | 211 | 212 | 213 | 214 | 215 | 216 | 217 | 218 | 219 | 220 | 221
 
 function entry(lesson: TutorMethodLesson & { number: GeometryLessonNumber }, title: string, description: string): MathsLessonEntry<GeometryLessonNumber, 'geometry'> {
   return {
@@ -57,11 +60,14 @@ export const geometryLessons = [
   entry(tutorProjectionsLesson as TutorMethodLesson & { number: 216 }, 'Plans and elevations', 'A 3D shape seen from above, the front and the side, and building it back from those views.'),
   entry(tutorLociLesson as TutorMethodLesson & { number: 217 }, 'Loci and constructions', 'Points a fixed distance away, perpendicular and angle bisectors, and shading a region.'),
   entry(tutorBearingsLesson as TutorMethodLesson & { number: 218 }, 'Bearings', 'Three-figure bearings clockwise from North, bearings back the other way, and scale drawings.'),
+  entry(tutorPythagorasLesson as TutorMethodLesson & { number: 219 }, 'Pythagoras', 'a² + b² = c² in a right-angled triangle: the hypotenuse, a shorter side, the distance between two points, and ladders.'),
+  entry(tutorTrigonometryLesson as TutorMethodLesson & { number: 220 }, 'Trigonometry', 'SOHCAHTOA: naming the sides, finding a missing side or angle with sin, cos and tan, and the exact values to learn.'),
+  entry(tutorVectorsLesson as TutorMethodLesson & { number: 221 }, 'Column vectors', 'A vector as an arrow on squared paper, x on top and y underneath: adding, subtracting and multiplying by a number.'),
 ]
 
 export const geometryChapter: MathsChapter<GeometryLessonNumber, 'geometry'> = {
-  id: 'geometry', title: 'Geometry', description: 'Angles, 2D shapes, symmetry, area, circles and perimeter; congruent and similar shapes, transformations, 3D shapes, volume and surface area, plans and elevations, loci and bearings.', lessons: geometryLessons,
+  id: 'geometry', title: 'Geometry', description: 'Angles, 2D shapes, symmetry, area, circles and perimeter; congruent and similar shapes, transformations, 3D shapes, volume and surface area, plans and elevations, loci and bearings; Pythagoras, trigonometry and column vectors.', lessons: geometryLessons,
 }
 
-export const lessonFor = (number: GeometryLessonNumber) => ({ 201: tutorAngleFactsLesson, 202: tutorParallelAnglesLesson, 203: tutorShapesLesson, 204: tutorPolygonAnglesLesson, 205: tutorSymmetryLesson, 206: tutorAreasLesson, 207: tutorCirclesLesson, 208: tutorPerimeterLesson, 209: tutorSectorsLesson, 210: tutorCongruenceLesson, 211: tutorSimilarityLesson, 212: tutorTransformationsLesson, 213: tutorSolidsLesson, 214: tutorVolumeLesson, 215: tutorSurfacesLesson, 216: tutorProjectionsLesson, 217: tutorLociLesson, 218: tutorBearingsLesson })[number]
+export const lessonFor = (number: GeometryLessonNumber) => ({ 201: tutorAngleFactsLesson, 202: tutorParallelAnglesLesson, 203: tutorShapesLesson, 204: tutorPolygonAnglesLesson, 205: tutorSymmetryLesson, 206: tutorAreasLesson, 207: tutorCirclesLesson, 208: tutorPerimeterLesson, 209: tutorSectorsLesson, 210: tutorCongruenceLesson, 211: tutorSimilarityLesson, 212: tutorTransformationsLesson, 213: tutorSolidsLesson, 214: tutorVolumeLesson, 215: tutorSurfacesLesson, 216: tutorProjectionsLesson, 217: tutorLociLesson, 218: tutorBearingsLesson, 219: tutorPythagorasLesson, 220: tutorTrigonometryLesson, 221: tutorVectorsLesson })[number]
 export const isGeometryLessonNumber = (value: number): value is GeometryLessonNumber => geometryLessons.some(item => item.number === value)

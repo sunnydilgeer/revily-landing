@@ -1,8 +1,10 @@
-// Checks geometry lessons 5 to 18 (symmetry, area, circles, perimeter, sectors, congruent and similar shapes,
-// transformations, 3D shapes, volume, surface area, plans and elevations, loci and bearings; GM5 to GM18), given the lesson number:
+// Checks geometry lessons 5 to 21 (symmetry, area, circles, perimeter, sectors, congruent and similar shapes,
+// transformations, 3D shapes, volume, surface area, plans and elevations, loci and bearings; GM5 to GM18; Pythagoras,
+// trigonometry and column vectors, T1 to T3), given the lesson number:
 // node scripts/verify-figure-lessons.cjs 207. Four rungs then Review, each with a worked example and questions; every
 // picture a measured figure that fits inside its frame, labels included; every typed answer matches the one worked out
-// by hand below, is accepted with its unit (or π) typed after it, and has slip messages; areas and perimeters match the
+// by hand below, is accepted with its unit (or π) typed after it, and has slip messages (a column vector: both its
+// numbers, in order); areas and perimeters match the
 // shape as drawn; symmetry counts match the measuring board's own folds and turns; and the lesson stays hidden: only the
 // noindexed Geometry shelf page opens it.
 const assert = require('node:assert/strict')
@@ -29,10 +31,14 @@ const LESSONS = {
   212: { dir: 'transformations', name: 'tutorTransformationsLesson', boards: ['translate', 'enlarge'], answers: [-2, 6, 2.5] },
   210: { dir: 'congruence', name: 'tutorCongruenceLesson', boards: [], answers: [70, 18] },
   213: { dir: 'solids', name: 'tutorSolidsLesson', boards: [], answers: [5, 8, 4, 12, 2, 0] },
+  219: { dir: 'pythagoras', name: 'tutorPythagorasLesson', boards: ['pythagoras'], answers: [17, 8.9, 24, 4, 5, 7.2, 10.4, 4.8, 3.2] },
+  220: { dir: 'trigonometry', name: 'tutorTrigonometryLesson', boards: [], answers: [3.8, 7.2, 47.9, 63.6, 60.1, 29.7, 6] },
+  // Column vectors: two numbers in order, top then bottom.
+  221: { dir: 'vectors', name: 'tutorVectorsLesson', boards: ['translate'], answers: [[4, -3], [-2, 5], [2, 4], [4, 2], [4, 6], [48, -24], [-6, 12], [16, 15], [14, -5], [1, -10]] },
   214: { dir: 'volume', name: 'tutorVolumeLesson', boards: ['prism'], answers: [140, 240, 210, 628.3, 113.1, 314.2, 216, 66, 188.5, 4, 904.8, 56.5, 79.6] },
 }
 const spec = LESSONS[number]
-assert.ok(spec, `Give a lesson number, 205 to 218 (got ${process.argv[2]})`)
+assert.ok(spec, `Give a lesson number, 205 to 221 (got ${process.argv[2]})`)
 const mod = require(`../src/features/${spec.dir}/tutor/${spec.dir}Lesson.ts`)
 const lesson = mod[spec.name]
 const { fitFigure } = require('../src/features/written-methods/tutor/FigurePictures.tsx')
@@ -40,6 +46,7 @@ const { steadyBounds } = require('../src/features/written-methods/tutor/AnglePic
 const { SHAPES, foldsThatFit, turnsThatFit } = require('../src/features/written-methods/tutor/MeasureBoard.tsx')
 const { GEOMETRY_SHELF_ID: shelfId, geometryLessons } = require('../src/features/geometry/geometryLessons.ts')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
+const { readNumbers } = require('../src/features/simultaneous-equations/tutor/boardWorkings.ts')
 
 const states = lesson.states, id = `L${number}`
 assert.equal(lesson.id, id)
@@ -94,7 +101,18 @@ for (const s of states) {
     const answers = step.frame.equation.rows.filter(r => r.answer).length
     if (s.interaction.type !== 'continue' || s.microSkillId !== 'geometry-circle-parts') assert.equal(answers, i === steps.length - 1 ? 1 : 0, `${s.id} step ${i + 1}: the answer once, at the end`)
   })
-  if (s.interaction.type === 'numericInput') {
+  if (s.interaction.type === 'numericInput' && s.interaction.responseShape === 'list') {
+    // Two numbers in order, as the two boxes send them: "4, -3".
+    const right = readNumbers(String(s.interaction.correctAnswer))
+    typed.push(right)
+    assert.ok(checkAnswer(s.interaction, right.join(', ')), `${s.id} accepts "${right.join(', ')}"`)
+    assert.ok(!checkAnswer(s.interaction, [...right].reverse().join(', ')) || right[0] === right[1], `${s.id} refuses the numbers swapped`)
+    assert.ok(!checkAnswer(s.interaction, right.map(n => n + 1).join(', ')), `${s.id} refuses wrong numbers`)
+    assert.ok(s.diagnose, `${s.id}: has slip messages`)
+    assert.equal(s.diagnose(right.join(', ')), null, `${s.id}: no slip message on the right answer`)
+    const last = JSON.stringify(steps.at(-1).frame.equation.rows.at(-1))
+    for (const n of right) assert.ok(last.includes(String(n).replace('-', '−')), `${s.id}: the working ends at ${right}`)
+  } else if (s.interaction.type === 'numericInput') {
     const right = s.interaction.correctAnswer
     typed.push(right)
     const unit = (s.answerLabel ?? '').match(/\((.*)\)/)?.[1] ?? ''

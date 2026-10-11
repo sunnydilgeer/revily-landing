@@ -25,11 +25,13 @@ import './AngleBoard.css'
  *   perpendicular bisector they are equal.
  * - bearing: drag B round A. Its bearing is measured clockwise from North, in three figures, and the bearing back is
  *   180° different.
+ * - pythagoras (lesson 19): drag the top corner of a right-angled triangle. A square stands on each side; the two small
+ *   squares always add up to the big one on the hypotenuse: a² + b² = c².
  */
 
 export type MeasureShape = 'square' | 'rectangle' | 'equilateral' | 'isosceles' | 'pentagon' | 'hexagon' | 'parallelogram' | 'rhombus' | 'kite' | 'trapezium'
 export type MeasureBoardSpec = {
-  mode: 'turn' | 'mirror' | 'shear' | 'circle' | 'sector' | 'notch' | 'enlarge' | 'translate' | 'prism' | 'locus' | 'bearing'
+  mode: 'turn' | 'mirror' | 'shear' | 'circle' | 'sector' | 'notch' | 'enlarge' | 'translate' | 'prism' | 'locus' | 'bearing' | 'pythagoras'
   /** turn and mirror: the shape. shear: 'parallelogram' (or 'equilateral' for a triangle). */
   shape?: MeasureShape
 }
@@ -85,11 +87,13 @@ const PRISM = { w: 3, h: 2, front: { x: 40, y: 195 }, back: { x: 0.62, y: -0.42 
 /** locus and bearing: where A and B sit; 30 pixels to a centimetre. */
 const LOCUS_A = { x: 100, y: 112 }, LOCUS_B = { x: 220, y: 112 }, CM = 30
 const BEARING_A = { x: 160, y: 118 }, BEARING_R = 84
+/** pythagoras: the left end of the base, and pixels to a unit. The base runs right a units, the upright side up b. */
+const PYTH_A = { x: 120, y: 145 }, PYTH_U = 14, PYTH_MAX = [5, 5]
 export const threeFigure = (deg: number) => String(Math.round(((deg % 360) + 360) % 360)).padStart(3, '0')
 
 export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
   const shape = spec.shape ?? 'square'
-  const start: Record<MeasureBoardSpec['mode'], number[]> = { turn: [0], mirror: [20], shear: [2, 4], circle: [3], sector: [120], notch: [3, 2], enlarge: [2], translate: [3, -1], prism: [3], locus: [150, 60], bearing: [60] }
+  const start: Record<MeasureBoardSpec['mode'], number[]> = { turn: [0], mirror: [20], shear: [2, 4], circle: [3], sector: [120], notch: [3, 2], enlarge: [2], translate: [3, -1], prism: [3], locus: [150, 60], bearing: [60], pythagoras: [3, 4] }
   const [v, setV] = useState(start[spec.mode])
   const [found, setFound] = useState<number[]>([])
   const [held, setHeld] = useState(false)
@@ -138,6 +142,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     if (spec.mode === 'prism') return [clamp(Math.round((p.x - PRISM.front.x - PRISM.w * GRID) / (PRISM.back.x * GRID)), 1, 6)]
     if (spec.mode === 'locus') return [clamp(Math.round(p.x / 5) * 5, 15, 305), clamp(Math.round(p.y / 5) * 5, 15, 205)]
     if (spec.mode === 'bearing') { const b = Math.round((90 - heading(BEARING_A, p) + 360) % 360 / 5) * 5; return [b === 360 ? 0 : b] }
+    if (spec.mode === 'pythagoras') return [clamp(Math.round((p.x - PYTH_A.x) / PYTH_U), 1, PYTH_MAX[0]), clamp(Math.round((PYTH_A.y - p.y) / PYTH_U), 1, PYTH_MAX[1])]
     // notch: the inside corner of the cut, in whole centimetres.
     return [clamp(Math.round((p.x - 40) / 30), 1, NOTCH.w - 1), clamp(Math.round((p.y - 35) / 30), 1, NOTCH.h - 1)]
   }
@@ -164,6 +169,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     if (spec.mode === 'prism') set([clamp(v[0] + step, 1, 6)])
     if (spec.mode === 'locus') set(vertical ? [v[0], clamp(v[1] - step * 5, 15, 205)] : [clamp(v[0] + step * 5, 15, 305), v[1]])
     if (spec.mode === 'bearing') set([(v[0] + step * 5 + 360) % 360])
+    if (spec.mode === 'pythagoras') set(vertical ? [v[0], clamp(v[1] + step, 1, PYTH_MAX[1])] : [clamp(v[0] + step, 1, PYTH_MAX[0]), v[1]])
   }
 
   let drawing: ReactElement
@@ -323,6 +329,36 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     </>
     spoken = `The bearing of B from A is ${threeFigure(b)} degrees, measured clockwise from North. The bearing of A from B is ${threeFigure(b + 180)} degrees.`
     footer = <span aria-hidden="true">B from A <span className="angle-board__n c2">{threeFigure(b)}°</span>; A from B {b} {b < 180 ? '+' : '−'} 180 = {pill(`${threeFigure(b + 180)}°`)}</span>
+  } else if (spec.mode === 'pythagoras') {
+    // The right angle at B, bottom right. A square on each side, drawn outward: under the base, right of the upright
+    // side, and up and to the left of the hypotenuse.
+    const [a, b] = v, u = PYTH_U, A = PYTH_A, B = { x: A.x + a * u, y: A.y }, Cn = { x: B.x, y: A.y - b * u }
+    const out = { x: -b * u, y: -a * u }
+    const sqA = [A, B, { x: B.x, y: B.y + a * u }, { x: A.x, y: A.y + a * u }]
+    const sqB = [B, Cn, { x: Cn.x + b * u, y: Cn.y }, { x: B.x + b * u, y: B.y }]
+    const sqC = [A, Cn, { x: Cn.x + out.x, y: Cn.y + out.y }, { x: A.x + out.x, y: A.y + out.y }]
+    const middle = (list: P[]) => ({ x: list.reduce((t, q) => t + q.x, 0) / 4, y: list.reduce((t, q) => t + q.y, 0) / 4 + 5 })
+    const c2 = a * a + b * b, c = Math.sqrt(c2), whole = Number.isInteger(c)
+    // Unit squares inside the two small squares, to count.
+    const lines: string[] = []
+    for (let k = 1; k < a; k++) lines.push(`M${A.x + k * u} ${A.y} L${A.x + k * u} ${A.y + a * u} M${A.x} ${A.y + k * u} L${B.x} ${A.y + k * u}`)
+    for (let k = 1; k < b; k++) lines.push(`M${B.x + k * u} ${B.y} L${B.x + k * u} ${Cn.y} M${B.x} ${B.y - k * u} L${B.x + b * u} ${B.y - k * u}`)
+    handle = Cn
+    drawing = <>
+      <path className="ns-fig__shape is-part" d={path(sqA)} />
+      <path className="ns-fig__shape is-part" d={path(sqB)} />
+      {lines.length > 0 && <path className="ns-fig__line is-thin is-dashed" d={lines.join(' ')} />}
+      <path className="measure-board__ghost is-fit" d={path(sqC)} />
+      <path className="ns-fig__shape" d={path([A, B, Cn])} />
+      <path className="ns-fig__line is-plain is-thin" d={`M${B.x - 9} ${B.y} L${B.x - 9} ${B.y - 9} L${B.x} ${B.y - 9}`} />
+      <text className="measure-board__label is-a" x={middle(sqA).x} y={middle(sqA).y}>{a * a}</text>
+      <text className="measure-board__label is-a" x={middle(sqB).x} y={middle(sqB).y}>{b * b}</text>
+      <text className="measure-board__label is-big is-c" x={middle(sqC).x} y={middle(sqC).y}>{c2}</text>
+      <text className="measure-board__label" x={(A.x + B.x) / 2} y={A.y - 7}>{a}</text>
+      <text className="measure-board__label" x={B.x - 9} y={(B.y + Cn.y) / 2 + 4}>{b}</text>
+    </>
+    spoken = `A right-angled triangle with shorter sides ${a} and ${b}. The squares on them have areas ${a * a} and ${b * b}, which add to ${c2}, the square on the hypotenuse. So the hypotenuse is the square root of ${c2}, ${fmt(c, 2)}.`
+    footer = <span aria-hidden="true"><span className="angle-board__n c0">{a}²</span> + <span className="angle-board__n c1">{b}²</span> = {a * a} + {b * b} = {pill(`c² = ${c2}`)}<span className="measure-board__found">c = √{c2}{whole ? ` = ${c}` : ` = ${fmt(c, 2)}`}</span></span>
   } else {
     // notch: the cut-out corner is top right, from (cx, top) down to (right, cy).
     const [cx, cy] = v, L = 40, T = 35, s = 30, Wd = NOTCH.w * s, Ht = NOTCH.h * s
@@ -341,7 +377,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     footer = <span aria-hidden="true">Area <span className="angle-board__n c1">{area}</span>, perimeter {pill(`${perimeter}`)}</span>
   }
 
-  const what = { turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.', enlarge: 'Drag the corner of the image to change the scale factor, or use the arrow keys.', translate: 'Drag the image across the paper, or use the arrow keys.', prism: 'Drag the back corner to make the cuboid longer or shorter, or use the arrow keys.', locus: 'Drag the point P, or use the arrow keys.', bearing: 'Drag B round A, or use the arrow keys.' }[spec.mode]
+  const what = { turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.', enlarge: 'Drag the corner of the image to change the scale factor, or use the arrow keys.', translate: 'Drag the image across the paper, or use the arrow keys.', prism: 'Drag the back corner to make the cuboid longer or shorter, or use the arrow keys.', locus: 'Drag the point P, or use the arrow keys.', bearing: 'Drag B round A, or use the arrow keys.', pythagoras: 'Drag the top corner of the triangle, or use the arrow keys.' }[spec.mode]
   return <div className={`angle-board measure-board${held ? ' is-held' : ''}`}>
     <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Measuring board. ${what}`} aria-describedby={`${id}-sum`}
       onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); setHeld(true); move(toLocal(event)) }}
