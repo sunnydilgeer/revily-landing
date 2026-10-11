@@ -33,6 +33,7 @@ function extent(items: FigureItem[]): P[] {
     }
     if (item.kind === 'point' || item.kind === 'text') return [pt(item.at)]
     if (item.kind === 'grid') return [pt(item.from), pt(item.to)]
+    if (item.kind === 'shade') return item.loops.flat().map(pt)
     return []
   })
 }
@@ -85,6 +86,11 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
         for (let x = Math.ceil(x0); x <= x1; x++) if (x) { const p = at([x, 0]); parts.push(<text key={`nx${i}-${x}`} className="ns-fig__axis" x={p.x} y={o.y + 12}>{x < 0 ? `−${-x}` : x}</text>) }
         for (let y = Math.ceil(y0); y <= y1; y++) if (y) { const p = at([0, y]); parts.push(<text key={`ny${i}-${y}`} className="ns-fig__axis" x={o.x - 9} y={p.y}>{y < 0 ? `−${-y}` : y}</text>) }
       }
+    }
+    if (item.kind === 'shade') {
+      // Drawn first, so the outlines and numbers sit on top of it.
+      const d = item.loops.map(loop => `M${loop.map(p => { const q = at(p); return `${q.x} ${q.y}` }).join(' L')} Z`).join(' ')
+      parts.unshift(<path key={i} className={`ns-fig__shade is-${item.tone ?? 'lit'}`} d={d} fillRule="evenodd" />)
     }
     if (item.kind === 'shape') {
       const d = `M${item.points.map(p => { const q = at(p); return `${q.x} ${q.y}` }).join(' L')}${item.open ? '' : ' Z'}`

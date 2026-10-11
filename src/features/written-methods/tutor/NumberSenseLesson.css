@@ -474,6 +474,8 @@
 .ns-fig__shape { fill: color-mix(in srgb, var(--rv-biro) 9%, transparent); stroke: var(--rv-ink); stroke-width: 2.5; stroke-linejoin: round; }
 .ns-fig__shape.is-empty { fill: none; }
 .ns-fig__shape.is-part { fill: color-mix(in srgb, #7c3aed 22%, transparent); }
+.ns-fig__shade { stroke: none; fill: color-mix(in srgb, #7c3aed 26%, transparent); }
+.ns-fig__shade.is-found { fill: color-mix(in srgb, var(--rv-good) 30%, transparent); }
 .ns-fig__shape.is-dashed { stroke-dasharray: 7 6; fill: none; }
 .ns-fig__line { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-linecap: round; }
 .ns-fig__line.is-thin { stroke-width: 2; }
