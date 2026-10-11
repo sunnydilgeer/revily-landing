@@ -15,6 +15,7 @@ import { GraphBoard } from './GraphBoard'
 import { AngleBoard } from './AngleBoard'
 import { SortBoard } from './SortBoard'
 import { ChanceBoard } from './ChanceBoard'
+import { ChartBoard } from './ChartBoard'
 import { MeasureBoard } from './MeasureBoard'
 import { Powers } from './Powers'
 import { BackIcon } from '../../../ui/icons'
@@ -383,7 +384,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     {header}
     <DriveSteps flow={flow}>
     <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
-      <h3 ref={heading} tabIndex={-1}>{state.content.heading ? <><span aria-hidden="true"><Powers text={state.content.heading} /></span><span className="sr-only">{state.content.title}</span></> : <Powers text={state.content.title} />}</h3>
+      <h3 ref={heading} tabIndex={-1}><Powers text={state.content.heading ?? state.content.title} /></h3>
+      {state.content.heading && state.content.heading !== state.content.title && <p className="pvb-body rung-card__question"><Powers text={state.content.title} /></p>}
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
       {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'growth' || state.visual.kind === 'angle') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
@@ -392,10 +394,12 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {teaching && state.measureBoard && <MeasureBoard spec={state.measureBoard} />}
       {teaching && state.chanceBoard && <ChanceBoard spec={state.chanceBoard} />}
       {teaching && state.sortBoard && <SortBoard spec={state.sortBoard} />}
+      {teaching && state.chartBoard && <ChartBoard spec={state.chartBoard} />}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {board ? <GraphBoard spec={board} answer={boardAnswer} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />
           : state.chanceBoard ? <ChanceBoard key={state.id} spec={state.chanceBoard} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+          : state.chartBoard ? <ChartBoard key={state.id} spec={state.chartBoard} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
           : state.sortBoard ? <SortBoard key={state.id} spec={state.sortBoard} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />
           : numeric || fraction ? <div className={`rung-answer${answerState}`}>
           {!standardForm && !expression && !power && !roots && !dimensions && !list && !inequality && !point && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}

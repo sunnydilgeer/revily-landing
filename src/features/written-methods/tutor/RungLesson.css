@@ -21,6 +21,9 @@
 }
 .rung-card__eyebrow { margin: 0 0 6px; color: var(--rv-muted); font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
 .rung-lesson .rung-card h3 { margin: 0 0 18px; font-family: var(--rv-font-body); font-weight: 600; font-size: clamp(1.35rem, 3.6vw, 1.75rem); line-height: 1.35; color: var(--rv-ink); }
+/* A worked example: its topic as the heading, then the question it works out. */
+.rung-lesson .rung-card h3:has(+ .rung-card__question) { margin-bottom: 6px; }
+.rung-lesson .rung-card__question { margin: 0 0 14px; color: var(--rv-ink-2); font-size: 1.05rem; line-height: 1.5; }
 .rung-lesson .pvb-stage { background: var(--rv-surface); border: 2px solid var(--rv-line); border-radius: var(--rv-radius-md); }
 .rung-card__tip { margin: 16px 0 0; color: var(--rv-ink-2); }
 .rung-given { margin: 0 0 18px; padding: 14px 18px; border-left: 4px solid var(--rv-biro); border-radius: 8px; background: var(--rv-surface); font-size: 1.15rem; }
