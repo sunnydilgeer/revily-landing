@@ -52,10 +52,19 @@ const LESSONS = {
   313: { file: 'groupedFrequencyLesson', name: 'tutorGroupedFrequencyLesson', boards: [] },
   314: { file: 'estimatingMeanLesson', name: 'tutorEstimatingMeanLesson', boards: [] },
   316: { file: 'scatterGraphsLesson', name: 'tutorScatterGraphsLesson', boards: [] },
-  317: { file: 'lineGraphsLesson', name: 'tutorLineGraphsLesson', boards: [] },
-  318: { file: 'pieChartsLesson', name: 'tutorPieChartsLesson', boards: [] },
   315: { file: 'barChartsLesson', name: 'tutorBarChartsLesson', boards: [], answers: [75, 15, 7000, 21, 18, 36.8, 5],
     drags: ['chart 4,15,12,24,10,10', 'chart 8,14,5,11'] },
+  // Syd Aug 22 − Apr 11 = 11; village 6.8 − 0.9 = 5.9 thousand = 5900; rain Feb 210 − May 80 = 130; Ella's scale 0, 10, 20,
+  // [40] → 30; review ice creams Tue 45 − Wed 25 = 20; David Sat 9.1 − Sun 5.9 = 3.2. Boards: Syd 11,15,18,21,22,17; TVs
+  // 1,4,3,4,6; Roger's 2014 point at 700; plant 2,5,9,12,14.
+  317: { file: 'lineGraphsLesson', name: 'tutorLineGraphsLesson', boards: [], answers: [11, 5900, 130, 30, 20, 3.2],
+    drags: ['chart 11,15,18,21,22,17', 'chart 1,4,3,4,6', 'chart 700', 'chart 2,5,9,12,14'] },
+  // Blue 13 ÷ 60 × 360 = 78; cats 14 ÷ 40 × 360 = 126; John D 3 × 15 = 45; red 90 ÷ 360 × 32 = 8; yellow 60 ÷ 360 × 510 = 85;
+  // Renault 85 × (600 ÷ 40) = 1275; total 360 × 15 = 5400; Oliver golf 60 ÷ 360 × 12 = 2; Lewis golf 2 ÷ 9 × 360 = 80;
+  // class B art 144 ÷ 360 × 20 = 8; review swim 50 ÷ (360 ÷ 72) = 10; school X 60 − school Y 50 = 10. Boards: Brian's
+  // green 24 of 60 = 144°; John's A 6 × 15 = 90°; C 10 × 15 = 150°; review dogs 20 of 45 = 160°.
+  318: { file: 'pieChartsLesson', name: 'tutorPieChartsLesson', boards: [], answers: [78, 126, 45, 8, 85, 1275, 5400, 2, 80, 8, 10, 10],
+    drags: ['chart 144', 'chart 90', 'chart 150', 'chart 160'] },
 }
 const spec = LESSONS[number]
 assert.ok(spec, `Give a lesson number, 301 to 318 (got ${process.argv[2]})`)

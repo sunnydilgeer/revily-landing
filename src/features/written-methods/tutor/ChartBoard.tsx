@@ -260,7 +260,7 @@ export function ChartBoard({ spec, onChange, disabled }: { spec: ChartBoardSpec;
     drawing = <>
       {xt.map(t => <g key={`x${t}`}><path className="measure-board__grid" d={`M${sx(t)} ${PLOT.top} L${sx(t)} ${PLOT.base}`} /><text className="measure-board__label" style={{ fontSize: 11 }} x={sx(t)} y={PLOT.base + 13}>{fmt(t)}</text></g>)}
       {yt.map(t => <g key={`y${t}`}><path className="measure-board__grid" d={`M${PLOT.x0} ${sy(t)} L${PLOT.x1} ${sy(t)}`} /><text className="measure-board__label" style={{ fontSize: 11 }} x={PLOT.x0 - 16} y={sy(t)}>{fmt(t)}</text></g>)}
-      <path className="measure-board__grid is-axis" d={`M${PLOT.x0} ${PLOT.top} L${PLOT.x0} ${PLOT.base} L${PLOT.x1} ${PLOT.base}`} />
+      <path className="measure-board__grid is-axis" fill="none" d={`M${PLOT.x0} ${PLOT.top} L${PLOT.x0} ${PLOT.base} L${PLOT.x1} ${PLOT.base}`} />
       <text className="measure-board__label" style={{ fontSize: 12 }} x={(PLOT.x0 + PLOT.x1) / 2} y={PLOT.base + 32}>{s.x[2]}</text>
       <text className="measure-board__label" style={{ fontSize: 12 }} transform={`translate(10 ${(PLOT.top + PLOT.base) / 2}) rotate(-90)`}>{s.y[2]}</text>
       {s.points.map((p, k) => cross(p, k))}
