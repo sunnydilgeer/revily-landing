@@ -1,7 +1,7 @@
 import { author } from '../../written-methods/tutor/content'
 import type { AngleFrame, FigureItem, FigureTone } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
-import { boardModel, pair, readNumbers, text } from '../../simultaneous-equations/tutor/boardWorkings'
+import { boardModel, choose, pair, readNumbers, text } from '../../simultaneous-equations/tutor/boardWorkings'
 import { fig, screens } from '../../geometry/tutor/figureLesson'
 
 /*
@@ -130,6 +130,15 @@ for (const [from, v, g, ref] of [
 /* ---------- Rung 2: adding and subtracting ---------- */
 
 {
+  const moves = vecFig([{ from: [0, 0], v: [3, 0], label: '3 right' }, { from: [3, 0], v: [2, 1], label: '2 right, 1 up' }], 'Walk 3 squares right, then 2 right and 1 up.', { grid: [[-1, -1], [6, 2]] })
+  practice(adding, 'Guess first: you walk 3 squares right, then 2 right and 1 up. Where do you end up from the start?', 'T3 p161 (guess first)', moves, choose('5 right, 1 up',
+    ['3 right, 1 up', 'Both moves count: 3 + 2 = 5 across.'], ['2 right, 1 up', 'The first move counts too: 3 + 2 = 5 across.']),
+  'Add the across moves, then the up moves.', boardModel([], [
+    { title: 'Add each part', say: 'Across: 3 + 2. Up: 0 + 1. Adding vectors is adding their parts.', rows: ['({3|0}) + ({2|1}) = ({5|1})', '! 5 right, 1 up'], picture: moves },
+  ], 'Guess', moves))
+}
+
+{
   // The book's example: (−3, 4) + (5, 2) = (2, 6).
   const a: V = [-3, 4], b: V = [5, 2], g: [V, V] = [[-4, -1], [3, 7]]
   const pic = (result: boolean, caption?: string) => chain([[a, 1, 'a'], [b, 1, 'b']], result ? { label: 'a + b', tone: 'found', style: 'found' } : null, 'Arrow a, then arrow b from its tip. a + b goes from the start of a to the tip of b.', caption, g)
@@ -225,6 +234,24 @@ for (const q of [
     { title: 'Then each part', say: kb < 0 ? 'Take away top from top, bottom from bottom. Watch the negatives.' : 'Top with top, bottom with bottom. Watch the negatives.', rows: [`${expr} = ${col([sum(0), sum(1)])}`], picture: p },
     { title: 'Write the answer', say: `${n(r[0])} across and ${n(r[1])} up.`, rows: [`! ${expr} = ${col(r)}`], picture: pic(true, `${expr} = ${shown(r)}`) },
   ], expr, p), vectorSlips(r, slipList))
+}
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+{
+  const a: V = [3, -1], b: V = [-2, 4]
+  const p = vecFig([{ from: [0, 0], v: a, label: 'a' }, { from: [0, 0], v: b, label: 'b' }], 'Arrows a, 3 right and 1 down, and b, 2 left and 4 up, from the same point.', { grid: [[-3, -2], [4, 5]] })
+  practice('mixed', `a = ${shown(a)} and b = ${shown(b)}, as column vectors. Find 2a + b.`, 'T3 review (own numbers)', p, vector([4, 2]), 'Multiply a by 2 first.', boardModel([], [
+    { title: 'Double a', say: 'Multiply both parts of a by 2.', rows: [`2a = ${col([6, -2])}`], picture: p },
+    { title: 'Add b', say: 'Top with top, bottom with bottom.', rows: [`2a + b = ${col([6, -2])} + ${col(b)}`, `! 2a + b = ${col([4, 2])}`], picture: p },
+  ], '2a + b', p), vectorSlips([4, 2], [[[1, 3], 'Multiply a by 2 before adding b.']]))
+}
+{
+  const p = vecFig([{ from: [2, 5], v: [-3, -2], label: 'PQ' }], 'An arrow from P at (2, 5) to Q at (−1, 3).', { grid: [[-2, 2], [3, 6]] })
+  practice('mixed', 'P is at (2, 5) and Q is at (−1, 3). Write the vector from P to Q.', 'T3 review (own numbers)', p, vector([-3, -2]), 'Q’s numbers take away P’s.', boardModel([], [
+    { title: 'Across, then up', say: 'From 2 to −1 is 3 left. From 5 to 3 is 2 down.', rows: ['>0 3 left, 2 down'], picture: p },
+    { title: 'Write the column', say: 'Left and down are negative.', rows: [`! PQ = ${col([-3, -2])}`], picture: p },
+  ], 'PQ', p), vectorSlips([-3, -2], [[[3, 2], 'That’s Q to P. From P to Q goes left and down.']]))
 }
 
 add('mixed', 'Column vectors', 'T3 consolidation', text(

@@ -20,7 +20,7 @@ import { tilesFig } from './chancePictures'
 
 const lesson = author(308)
 const { add, finish } = lesson
-const { worked, practice, ask, play } = chanceScreens(lesson)
+const { worked, practice, ask, play, drag } = chanceScreens(lesson)
 const mean = 'average-mean'
 const middle = 'average-median-mode'
 const spread = 'average-range'
@@ -74,7 +74,19 @@ const timesSay = 'Ten reaction times in seconds.'
   ], 'Mean', p))
 }
 
+drag(mean, 'Drag the last bar so the mean of all seven values is 7.', 'P8 p182 (own numbers)', { mode: 'average', from: [7] }, ['13'], '13', 'Seven values with a mean of 7 add up to 7 × 7.', boardModel([], [
+  { title: 'The total you need', say: 'A mean of 7 for 7 values means they add up to 49.', rows: ['7 × 7 = 49'] },
+  { title: 'Take what’s there', say: 'The six bars already add up to 3 + 5 + 5 + 6 + 8 + 9 = 36.', rows: ['49 − 36 = 13', '! Last value = 13'] },
+], 'Mean'), r => `With ${r}, the total is ${36 + Number(r)}, so the mean is ${Math.round((36 + Number(r)) / 7 * 10) / 10}. You need a total of 7 × 7 = 49.`)
+
 /* ---------- Rung 2: median and mode ---------- */
+
+play(middle, 'Drag the last bar right up. Watch the median.', 'P8 p182 Median (play)', { mode: 'average' })
+ask(middle, 'Guess first: in 3, 5, 5, 6, 8, 9, the 9 changes to 50. Does the median change?', 'P8 p182 (guess first)', ['3, 5, 5, 6, 8, 9', 'The 9 becomes 50'], choose('No',
+  ['Yes', 'The median is the middle. 50 is still at the end, so the middle two stay 5 and 6.']),
+'Where is the middle of the list?', boardModel([], [
+  { title: 'The middle stays put', say: 'In order, the middle two are still 5 and 6. Only the end changed.', rows: ['>0 3, 5, 5, 6, 8, 50', 'Median = (5 + 6) ÷ 2 = 5.5', '! No, it stays 5.5'] },
+], 'Median'))
 
 {
   const scores = sorted([56, 79, 77, 48, 90, 68, 79, 92, 71])
@@ -124,6 +136,8 @@ const salesSay = 'Eleven values.'
 }
 
 /* ---------- Rung 3: the range ---------- */
+
+play(spread, 'Drag the last bar up and down. Watch the range.', 'P8 p183 Range (play)', { mode: 'average' })
 
 {
   const values = [12, 8, 4, 16, 15, 15, 5, 15, 10, 8], say = 'Ten values.'
@@ -188,6 +202,20 @@ ask(applied, 'Every rower gains 2% in weight. What is their new mean weight?', '
   { title: 'Find 2% of the mean', say: 'Every weight goes up by 2%, so the mean does too. 2% of 62.5 is 62.5 × 0.02.', rows: ['62.5 × 0.02 = 1.25'] },
   { title: 'Add it on', say: 'Add the gain to the old mean.', rows: ['62.5 + 1.25 = 63.75', '! New mean = 63.75 kg'] },
 ], 'Mean'), slips(63.75, [[64.5, 'That adds 2 kg. It’s 2%: 62.5 × 0.02 = 1.25.'], [1.25, 'That’s the gain. Add it on to 62.5.']]), { label: 'Mean (kg)', prefix: 'Mean =' })
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+drag('mixed', 'Drag the last bar so the range of all seven values is 12.', 'P8 review (own numbers)', { mode: 'average', from: [7] }, ['15'], '15', 'The smallest is 3. What must the biggest be?', boardModel([], [
+  { title: 'Biggest − smallest', say: 'The smallest value is 3, so the biggest must be 3 + 12.', rows: ['3 + 12 = 15', '! Last value = 15'] },
+], 'Range'), r => { const v = Number(r); return `With ${v}, the range is ${Math.max(9, v)} − ${Math.min(3, v)} = ${Math.max(9, v) - Math.min(3, v)}. You need 12.` })
+ask('mixed', 'Find the median of 12, 7, 3, 15, 9 and 10.', 'P8 review (own numbers)', ['12, 7, 3, 15, 9, 10'], number(9.5, '9.5'), 'Put them in order first.', boardModel([], [
+  { title: 'Put them in order', say: 'Six values, so two in the middle.', rows: ['>0 3, 7, 9, 10, 12, 15'] },
+  { title: 'Halfway between', say: 'Halfway between 9 and 10.', rows: ['(9 + 10) ÷ 2 = 9.5', '! Median = 9.5'] },
+], 'Median'), slips(9.5, [[9, 'Six values: the median is halfway between the middle two, 9 and 10.'], [3, 'Put them in order first.']]), { label: 'Median', prefix: 'Median =' })
+ask('mixed', 'Four numbers have a mean of 6. A fifth number is added and the mean becomes 7. What is the fifth number?', 'P8 review (own numbers)', ['4 numbers, mean 6', '5 numbers, mean 7'], number(11, '11'), 'Find both totals.', boardModel([], [
+  { title: 'Both totals', say: 'Mean × how many gives the total.', rows: ['4 × 6 = 24', '5 × 7 = 35'] },
+  { title: 'The difference', say: 'The fifth number made the difference.', rows: ['35 − 24 = 11', '! Fifth number = 11'] },
+], 'Mean'), slips(11, [[7, 'That’s the new mean. Find the totals: 4 × 6 and 5 × 7.'], [1, 'Use the totals, not the means: 35 − 24.']]), { label: 'Number', prefix: 'Fifth =' })
 
 add('mixed', 'Mean, median, mode and range', 'P8 consolidation', text(
   'Mean: add them up, divide by how many. An outlier pulls it.',

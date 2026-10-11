@@ -20,7 +20,7 @@ import { formFig } from './chancePictures'
 
 const lesson = author(309)
 const { add, finish } = lesson
-const { worked, practice, ask } = chanceScreens(lesson)
+const { worked, practice, ask, playSort, sort } = chanceScreens(lesson)
 const samples = 'sampling-samples'
 const bias = 'sampling-bias'
 const faults = 'questionnaire-faults'
@@ -74,7 +74,26 @@ ask(bias, 'A field is covered by a 10 by 10 grid. Random numbers pick 20 squares
   { title: 'As a percentage', say: '20 out of 100 is 20%.', rows: ['20 ÷ 100 × 100 = 20', '! Sampled = 20%'] },
 ], 'Percentage'), slips(20, [[100, 'That’s how many squares there are. 20 of them are sampled.'], [200, 'There are 10 × 10 = 100 squares, not 20 ÷ 10.'], [0.2, 'That’s a decimal. Times by 100.']]), { label: 'Percentage (%)', prefix: 'Sampled =' })
 
+sort(bias, 'Sort these samples: fair or biased?', 'P9 p185 (book’s examples, and our own)', { kind: 'bins', bins: [{ id: 'fair', label: 'Fair sample' }, { id: 'biased', label: 'Biased sample' }], tiles: [
+  { label: 'People leaving a library', to: 'biased', why: 'They probably read more than most people.' },
+  { label: 'Names drawn at random from the school list', to: 'fair', why: 'Everyone on the list has the same chance.' },
+  { label: 'Neighbours at the end of one road', to: 'biased', why: 'They all live in one place, so they’re not typical.' },
+  { label: 'An online poll about internet use', to: 'biased', why: 'Only people online can answer it.' },
+  { label: 'Random numbers picking squares of a field', to: 'fair', why: 'Every square has the same chance.' },
+] }, 'Does everyone have the same chance of being picked?', boardModel([], [
+  { title: 'Same chance for all', say: 'Random names and random squares give everyone the same chance: fair.', rows: ['>0 Random list, random squares'] },
+  { title: 'Some more likely', say: 'Library users, one road and an online poll each pick one kind of person: biased.', rows: ['! Library, road, online poll: biased'] },
+], 'Sample'))
+
 /* ---------- Rung 3: what's wrong with it? ---------- */
+
+playSort(faults, 'Sort these questionnaire questions: fine, or faulty?', 'P9 p186 (play)', { kind: 'bins', bins: [{ id: 'fine', label: 'Fine' }, { id: 'fault', label: 'Faulty' }], tiles: [
+  { label: 'Don’t you agree crisps are great?', to: 'fault', why: 'It’s leading: it pushes you to say yes.' },
+  { label: 'Age: 0–10, 10–20, 20–30', to: 'fault', why: '10 and 20 are in two boxes, and there’s no box over 30.' },
+  { label: 'Books read last month: 0, 1–2, 3–5, 6 or more', to: 'fine', why: 'It has a time frame, and every number has exactly one box.' },
+  { label: 'Do you exercise a lot?', to: 'fault', why: '“A lot” means different things to different people.' },
+  { label: 'Which day do you shop most? Weekday, Saturday, Sunday', to: 'fine', why: 'Every day is in exactly one box.' },
+] })
 
 {
   const q = 'How many hours do you spend watching TV?', opts = ['1–5 hours', '5–10 hours', '10–20 hours']
@@ -168,6 +187,26 @@ ask(bias, 'A field is covered by a 10 by 10 grid. Random numbers pick 20 squares
     { title: 'A fair question', say: 'Ask for a rating, with boxes from poor to very good.', rows: ['! Rate it: Poor, OK, Good, Very good'], picture: form(q, opts, [0, 1, 2], 'x') },
   ], 'Better', p))
 }
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+sort('mixed', 'Sort these samples: fair or biased?', 'P9 review (own examples)', { kind: 'bins', bins: [{ id: 'fair', label: 'Fair sample' }, { id: 'biased', label: 'Biased sample' }], tiles: [
+  { label: 'Only Year 11, about homework for the whole school', to: 'biased', why: 'Year 11 get different homework from everyone else.' },
+  { label: 'Every student’s name in a hat, 50 picked', to: 'fair', why: 'Every student has the same chance.' },
+  { label: 'Phoning homes on a weekday morning', to: 'biased', why: 'Only people at home in the day can answer.' },
+  { label: 'Random numbers picking from the register', to: 'fair', why: 'Everyone on the register has the same chance.' },
+] }, 'Does everyone have the same chance?', boardModel([], [
+  { title: 'Same chance', say: 'Names from a hat and random numbers give everyone the same chance.', rows: ['>0 Hat, random numbers: fair'] },
+  { title: 'Some more likely', say: 'Year 11 only, and people at home in the day, are one kind of person.', rows: ['! Year 11, weekday phone calls: biased'] },
+], 'Sample'))
+ask('mixed', 'What’s wrong with: “You do agree school starts too early, don’t you?”', 'P9 review (own example)', ['You do agree school starts too early, don’t you?'], choose('It’s leading',
+  ['It has no time frame', 'Time isn’t the problem. It pushes you to agree.'], ['The boxes overlap', 'There are no boxes. The wording pushes you to agree.']),
+'Does it push you towards an answer?', boardModel([], [
+  { title: 'Leading', say: '“You do agree … don’t you?” tells people what to say.', rows: ['! It’s leading'] },
+], 'Fault'))
+ask('mixed', 'A company samples 15% of its 300 workers. How many workers are in the sample?', 'P9 review (own numbers)', ['300 workers', '15% sampled'], number(45, '45'), 'Find 15% of 300.', boardModel([], [
+  { title: '15% of 300', say: '10% is 30 and 5% is 15.', rows: ['30 + 15 = 45', '! Sample = 45 workers'] },
+], 'Sample'), slips(45, [[15, 'That’s the percentage. Find 15% of 300.'], [20, 'That’s 300 ÷ 15. Find 0.15 × 300.']]), { label: 'Workers', prefix: 'Sample =' })
 
 add('mixed', 'Sampling and questionnaires', 'P9 consolidation', text(
   'A sample is quicker and cheaper than asking everyone, but less reliable.',

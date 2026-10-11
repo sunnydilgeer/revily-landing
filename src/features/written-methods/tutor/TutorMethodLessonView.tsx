@@ -13,6 +13,7 @@ import { TutorMethodMedia } from './TutorMethodVisual'
 import { SteadyPictures } from './steadyPictures'
 import { GraphBoard } from './GraphBoard'
 import { AngleBoard } from './AngleBoard'
+import { SortBoard } from './SortBoard'
 import { ChanceBoard } from './ChanceBoard'
 import { MeasureBoard } from './MeasureBoard'
 import { Powers } from './Powers'
@@ -390,9 +391,12 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {teaching && state.angleBoard && <AngleBoard spec={state.angleBoard} />}
       {teaching && state.measureBoard && <MeasureBoard spec={state.measureBoard} />}
       {teaching && state.chanceBoard && <ChanceBoard spec={state.chanceBoard} />}
+      {teaching && state.sortBoard && <SortBoard spec={state.sortBoard} />}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {board ? <GraphBoard spec={board} answer={boardAnswer} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />
+          : state.chanceBoard ? <ChanceBoard key={state.id} spec={state.chanceBoard} disabled={Boolean(feedback)} onChange={engine.setInputValue} />
+          : state.sortBoard ? <SortBoard key={state.id} spec={state.sortBoard} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />
           : numeric || fraction ? <div className={`rung-answer${answerState}`}>
           {!standardForm && !expression && !power && !roots && !dimensions && !list && !inequality && !point && <span className="rung-answer__eq" aria-hidden="true">{state.answerPrefix ?? '='}</span>}
           {point

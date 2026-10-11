@@ -18,7 +18,15 @@ import './AngleBoard.css'
  *   barely move, so one outlier pulls the mean but not the median, and stretches the range.
  */
 
-export type ChanceBoardSpec = { mode: 'scale' | 'tree' | 'spin' | 'average' }
+/**
+ * `ask`: the board is the answer to a question (Brilliant-style sweep, Sunny 11 Oct), and what would give the answer
+ * away is hidden: the tree's path answers and the averages. The answer is the arrow's place on the scale (0.25), both
+ * sliders in tenths on the tree ("6,7"), or the last value on the average board ("13"). `from` sets where it starts.
+ */
+export type ChanceBoardSpec = { mode: 'scale' | 'tree' | 'spin' | 'average'; ask?: boolean; from?: number[] }
+
+/** The answer a board question gives for these values. */
+export const chanceValue = (mode: ChanceBoardSpec['mode'], v: number[]) => mode === 'scale' ? fmt(v[0] / 20) : mode === 'tree' ? `${v[0]},${v[1]}` : String(v[0])
 
 type P = { x: number; y: number }
 const W = 320, H = 220
@@ -34,16 +42,17 @@ const SCALE = { x0: 58, x1: 262, y: 120 }
 const SLIDERS = [{ y: 178, label: 'Event 1' }, { y: 206, label: 'Event 2' }], SLIDE = { x0: 120, x1: 290 }
 const DATA = [3, 5, 5, 6, 8, 9], BARS = { x0: 18, w: 26, gap: 9, base: 200, unit: 8 }
 
-export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
+export function ChanceBoard({ spec, onChange, disabled }: { spec: ChanceBoardSpec; onChange?: (value: string) => void; disabled?: boolean }) {
   const start: Record<ChanceBoardSpec['mode'], number[]> = { scale: [13], tree: [6, 7], spin: [], average: [7] }
-  const [v, setV] = useState(start[spec.mode])
+  const [v, setV] = useState(spec.from ?? start[spec.mode])
+  const ask = Boolean(spec.ask)
   const [which, setWhich] = useState(0)
   const [held, setHeld] = useState(false)
   const [moved, setMoved] = useState(false)
   const [spins, setSpins] = useState<number[]>([])
   const svg = useRef<SVGSVGElement>(null)
   const id = useId()
-  const set = (next: number[]) => { setV(next); setMoved(true) }
+  const set = (next: number[]) => { if (disabled) return; setV(next); setMoved(true); onChange?.(chanceValue(spec.mode, next)) }
 
   const from = (p: P, pick: number): number[] | null => {
     if (spec.mode === 'scale') return [clamp(Math.round((p.x - SCALE.x0) / (SCALE.x1 - SCALE.x0) * 20), 0, 20)]
@@ -57,7 +66,8 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
     const q = new DOMPoint(event.clientX, event.clientY).matrixTransform(m.inverse())
     return { x: q.x, y: q.y }
   }
-  const move = (p: P | null, pick = which) => { const next = p && from(p, pick); if (next && next.join() !== v.join()) set(next) }
+  // A question takes the first touch as an answer even where the board starts, so Check is never stuck off.
+  const move = (p: P | null, pick = which) => { const next = p && from(p, pick); if (next && (next.join() !== v.join() || (onChange && !moved))) set(next) }
   const key = (event: KeyboardEvent) => {
     const step = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0
     if (!step || spec.mode === 'spin') return
@@ -113,7 +123,7 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
           <path className="ns-fig__line is-thin" d={`M${m.x} ${m.y} L${l.x} ${l.y}`} />
           <text className="measure-board__label is-a" x={(m.x + l.x) / 2} y={(m.y + l.y) / 2 + (j ? 11 : -11)}>{fmt(j ? 1 - b : b, 1)}</text>
           <text className="measure-board__label" x={l.x + 6} y={l.y} style={{ textAnchor: 'start' }}>{names[2 * i + j]}</text>
-          <text className="measure-board__label is-h" x={l.x + 92} y={l.y}>{fmt(ps[2 * i + j])}</text>
+          {!ask && <text className="measure-board__label is-h" x={l.x + 92} y={l.y}>{fmt(ps[2 * i + j])}</text>}
         </g> })}
       </g>)}
       {SLIDERS.map((s, k) => <g key={s.label}>
@@ -123,7 +133,9 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
       </g>)}
     </>
     spoken = `Event 1 is won with probability ${fmt(a, 1)}, event 2 with ${fmt(b, 1)}. Win both ${fmt(ps[0])}, win then lose ${fmt(ps[1])}, lose then win ${fmt(ps[2])}, lose both ${fmt(ps[3])}. They add up to 1.`
-    footer = <span aria-hidden="true">{ps.map((q, k) => <span key={k}>{k ? ' + ' : ''}<span className="angle-board__n c0">{fmt(q)}</span></span>)} = {pill('1')}</span>
+    if (ask) spoken = `Event 1 is won with probability ${fmt(a, 1)}, event 2 with ${fmt(b, 1)}.`
+    footer = ask ? <span aria-hidden="true">P(win) = <span className="angle-board__n c1">{fmt(a, 1)}</span> and <span className="angle-board__n c2">{fmt(b, 1)}</span></span>
+      : <span aria-hidden="true">{ps.map((q, k) => <span key={k}>{k ? ' + ' : ''}<span className="angle-board__n c0">{fmt(q)}</span></span>)} = {pill('1')}</span>
   } else if (spec.mode === 'spin') {
     const ones = spins.filter(s => s === 1).length, total = spins.length, rf = total ? ones / total : 0
     const O = { x: 82, y: 100 }, r = 64, last = spins.at(-1)
@@ -160,17 +172,18 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
         <rect className={k === 6 ? 'measure-board__ghost is-fit' : 'ns-fig__shape'} x={xOf(k)} y={BARS.base - n * BARS.unit} width={BARS.w} height={n * BARS.unit} />
         <text className="measure-board__label" x={xOf(k) + BARS.w / 2} y={BARS.base - n * BARS.unit - 10}>{n}</text>
       </g>)}
-      <path className="ns-fig__line is-mirror" d={`M${BARS.x0 - 8} ${BARS.base - mean * BARS.unit} L${xOf(7)} ${BARS.base - mean * BARS.unit}`} />
-      <text className="measure-board__label is-c" x={xOf(7) + 6} y={BARS.base - mean * BARS.unit} style={{ textAnchor: 'start' }}>mean</text>
+      {!ask && <path className="ns-fig__line is-mirror" d={`M${BARS.x0 - 8} ${BARS.base - mean * BARS.unit} L${xOf(7)} ${BARS.base - mean * BARS.unit}`} />}
+      {!ask && <text className="measure-board__label is-c" x={xOf(7) + 6} y={BARS.base - mean * BARS.unit} style={{ textAnchor: 'start' }}>mean</text>}
     </>
     spoken = `The data are ${data.join(', ')}. Mean ${fmt(mean, 1)}, median ${median}, mode ${modes.join(' and ') || 'none'}, range ${range}.`
-    footer = <span aria-hidden="true">Mean {pill(fmt(mean, 1))} Median <span className="angle-board__n c0">{median}</span> Mode <span className="angle-board__n c1">{modes.join(', ') || '–'}</span> Range <span className="angle-board__n c2">{range}</span></span>
+    if (ask) spoken = `The data are ${data.join(', ')}.`
+    footer = ask ? <span aria-hidden="true">Last value = <span className="angle-board__n c2">{v[0]}</span></span> : <span aria-hidden="true">Mean {pill(fmt(mean, 1))} Median <span className="angle-board__n c0">{median}</span> Mode <span className="angle-board__n c1">{modes.join(', ') || '–'}</span> Range <span className="angle-board__n c2">{range}</span></span>
   }
 
   const what = { scale: 'Drag the arrow along the scale, or use the arrow keys.', tree: 'Drag along either slider to change the chance of winning each event; left and right keys change event 1, up and down event 2.', spin: 'Press a button to spin the spinner.', average: 'Drag the last bar up or down, or use the arrow keys.' }[spec.mode]
   const surface = <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={spec.mode === 'spin' ? -1 : 0} aria-label={`Chance board. ${what}`} aria-describedby={`${id}-sum`}
     onPointerDown={event => {
-      if (spec.mode === 'spin') return
+      if (spec.mode === 'spin' || disabled) return
       event.currentTarget.setPointerCapture(event.pointerId); setHeld(true)
       const p = toLocal(event)
       // On the tree, the slider nearest the finger is the one it moves.

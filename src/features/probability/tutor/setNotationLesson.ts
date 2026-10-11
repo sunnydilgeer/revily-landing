@@ -21,7 +21,7 @@ import { vennFig, type VennRegion, type VennShade } from './chancePictures'
 
 const lesson = author(306)
 const { add, finish } = lesson
-const { worked, practice, ask } = chanceScreens(lesson)
+const { worked, practice, ask, playSort, sort } = chanceScreens(lesson)
 const notation = 'sets-notation'
 const andOr = 'sets-and-or'
 const regions = 'sets-regions'
@@ -58,6 +58,10 @@ const blank = (shade?: VennShade, tone: 'lit' | 'found' = 'lit', caption?: strin
 
 /* ---------- Rung 1: sets and ξ ---------- */
 
+playSort(notation, 'ξ = {1, 2, …, 10} and A is the odd numbers. Sort each number: in A, or in A’ (not in A)?', 'P6 p176 Sets and ξ (play)', { kind: 'bins', bins: [{ id: 'A', label: 'A: odd' }, { id: 'notA', label: 'A’: not in A' }], tiles: Array.from({ length: 10 }, (_, i) => i + 1).map(k => k % 2
+  ? { label: String(k), to: 'A', why: `${k} is odd, so it’s in A.` }
+  : { label: String(k), to: 'notA', why: `${k} is even, so it’s not in A: it’s in A’.` }) })
+
 {
   const p = oddSquareFig()
   worked(notation, 'ξ = {1, 2, …, 10}. A is the first five odd numbers. Write A, n(A) and A’.', 'Sets and ξ', 'P6 p176 Sets (book’s numbers)', boardModel([], [
@@ -84,6 +88,12 @@ ask(notation, 'ξ = {103, 104, 105, 109, 110, 112, 114}. A is the even numbers. 
 ], 'Sets'))
 
 /* ---------- Rung 2: ∩ and ∪ ---------- */
+
+ask(andOr, 'Guess first: A ∩ B is what’s in both sets, and A ∪ B is what’s in either. Which has more elements?', 'P6 p177 (guess first)', ['A = {1, 2, 3, 4}', 'B = {3, 4, 5, 6}'], choose('A ∪ B',
+  ['A ∩ B', 'In both is only 3 and 4. In either is 1, 2, 3, 4, 5, 6.'], ['They’re the same', 'In both is 2 numbers; in either is 6.']),
+'Both, or either: which lets more numbers in?', boardModel([], [
+  { title: 'In both, in either', say: 'Both sets have 3 and 4. Either set has everything in A or B, once each.', rows: [`A ∩ B = ${set(3, 4)}`, `A ∪ B = ${set(1, 2, 3, 4, 5, 6)}`, '! A ∪ B has more'] },
+], 'Sets'))
 
 {
   const p = example1Fig()
@@ -176,6 +186,25 @@ ask(inequalities, 'Solve 4x + 3 ≥ 23. The answer is {x : x ≥ ?}. What number
   { title: 'Undo the + 3', say: 'Take 3 from both sides.', rows: ['>0 4x ≥ 20'] },
   { title: 'Undo the × 4', say: 'Divide both sides by 4.', rows: ['>0 x ≥ 5', '! ❴x : x ≥ 5❵'] },
 ], 'Inequality'), slips(5, [[6.5, 'Take the 3 away, don’t add it.'], [80, 'Divide by 4, don’t multiply.'], [20, 'That’s 4x. Divide by 4 to get x.']]), { label: 'Number', prefix: 'x ≥' })
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+sort('mixed', 'ξ = {1, 2, …, 8}, A = {2, 4, 6, 8} and B = {1, 2, 3, 4}. Sort each number.', 'P6 review (own numbers)', { kind: 'bins', bins: [{ id: 'both', label: 'A ∩ B' }, { id: 'one', label: 'Only one' }, { id: 'neither', label: '(A ∪ B)’' }], tiles: [
+  { label: '1', to: 'one', why: '1 is in B but not A.' }, { label: '2', to: 'both', why: '2 is in A and in B.' }, { label: '3', to: 'one', why: '3 is in B but not A.' },
+  { label: '4', to: 'both', why: '4 is in A and in B.' }, { label: '5', to: 'neither', why: '5 is in neither set.' }, { label: '6', to: 'one', why: '6 is in A but not B.' },
+  { label: '7', to: 'neither', why: '7 is in neither set.' }, { label: '8', to: 'one', why: '8 is in A but not B.' },
+] }, '∩ is in both; (A ∪ B)’ is outside both.', boardModel([], [
+  { title: 'In both', say: '2 and 4 are in A and B.', rows: [`A ∩ B = ${set(2, 4)}`] },
+  { title: 'In neither', say: '5 and 7 are in neither set.', rows: [`! (A ∪ B)’ = ${set(5, 7)}`] },
+], 'Sets'))
+ask('mixed', 'With the same sets, find n(A ∪ B).', 'P6 review (own numbers)', ['A = {2, 4, 6, 8}', 'B = {1, 2, 3, 4}'], number(6, '6'), 'Everything in either set, counted once.', boardModel([], [
+  { title: 'Either set, once', say: 'List them, without repeating 2 and 4.', rows: [`A ∪ B = ${set(1, 2, 3, 4, 6, 8)}`, '! n(A ∪ B) = 6'] },
+], 'Sets'), slips(6, [[8, '2 and 4 are in both sets. Count them once.'], [2, 'That’s n(A ∩ B), the overlap.']]), N_BOX)
+ask('mixed', 'Write x < 5 in set notation.', 'P6 review (own numbers)', ['x < 5'], choose('{x : x < 5}',
+  ['{x : x ≤ 5}', '≤ includes 5. x < 5 doesn’t.'], ['{5 : x < 5}', 'The letter goes before the colon: {x : …}.']),
+'The letter, a colon, then the rule.', boardModel([], [
+  { title: 'Letter, colon, rule', say: 'Read it as “the set of x such that x is less than 5”.', rows: ['! {x : x < 5}'] },
+], 'Sets'))
 
 add('mixed', 'Set notation', 'P6 consolidation', text(
   'A set goes in curly brackets. ξ is everything, n(A) counts A.',

@@ -19,7 +19,7 @@ import { fraction, probTreeFig, spinnerFig, tableFig } from './chancePictures'
 
 const lesson = author(303)
 const { add, finish } = lesson
-const { worked, practice, ask, play } = chanceScreens(lesson)
+const { worked, practice, ask, play, drag } = chanceScreens(lesson)
 const andRule = 'chance-and-rule'
 const orRule = 'chance-or-rule'
 const tree = 'chance-tree'
@@ -61,7 +61,17 @@ ask(andRule, 'P(rain on Monday) = 0.4 and P(the bus is late) = 0.2, and they are
   { title: 'AND means multiply', say: '4 × 2 = 8, and two decimal places in all.', rows: ['! P = 0.4 × 0.2 = 0.08'] },
 ], 'Probability'), slips(0.08, [[0.6, 'That adds. AND means multiply.'], [0.8, 'Count the decimal places: 0.4 × 0.2 = 0.08.']]), P_BOX())
 
+drag(andRule, 'Set the sliders so that P(win both) = 0.42.', 'P3 p169 (own numbers)', { mode: 'tree', from: [5, 5] }, ['6,7', '7,6'], '0.6 and 0.7', 'Which two tenths multiply to make 0.42?', boardModel([], [
+  { title: 'Multiply along the path', say: 'Win both is P(win 1) × P(win 2). 6 × 7 = 42, so 0.6 × 0.7 = 0.42.', rows: ['0.6 × 0.7 = 0.42', '! 0.6 and 0.7'] },
+], 'AND rule'), r => { const [a, b] = r.split(',').map(Number); return `${a / 10} × ${b / 10} = ${Math.round(a * b) / 100}. Find two tenths that multiply to 0.42.` })
+
 /* ---------- Rung 2: the OR rule ---------- */
+
+ask(orRule, 'Guess first: a bag has 3 red, 5 blue and 2 green balls. Is P(red or blue) bigger or smaller than P(red)?', 'P3 p168 (guess first)', ['3 red, 5 blue, 2 green'], choose('Bigger',
+  ['Smaller', 'More balls count as a win, so it’s more likely, not less.'], ['The same', 'Blue balls count too, so there are more ways to win.']),
+'Which wins more often: red, or red or blue?', boardModel([], [
+  { title: 'More ways to win', say: 'Red wins with 3 balls. Red or blue wins with 3 + 5 = 8.', rows: ['P(red) = {3|10}', 'P(red or blue) = {8|10}', '! Bigger'] },
+], 'OR rule'))
 
 {
   const bag = (tones: [number, number, FigureTone][] = []) => tableFig([['Red', 'Blue', 'Green'], ['3', '5', '2']], 'A bag of 10 balls: 3 red, 5 blue and 2 green.', { tones })
@@ -124,6 +134,12 @@ ask(orRule, 'On a fair dice, can you add P(even) and P(more than 4) to get P(eve
 
 /* ---------- Rung 4: using the tree ---------- */
 
+ask(both, 'Guess first: two fair coins are flipped. Is P(two heads) more or less than ½?', 'P3 p168 (guess first)', ['Two fair coins'], choose('Less than ½',
+  ['More than ½', 'Both have to land heads: ½ × ½ = ¼.'], ['Exactly ½', 'That’s one coin. Both heads is ½ × ½ = ¼.']),
+'Both coins have to land heads.', boardModel([], [
+  { title: 'Both have to happen', say: 'AND means multiply along the path.', rows: ['½ × ½ = ¼', '! Less than ½'] },
+], 'AND rule'))
+
 {
   const balls = treeOf(['R', 'B'], ['R', 'B'], ['1st pick', '2nd pick'], 'A tree for two picks with replacement from 4 red and 5 blue balls.')
   const pa: [string, string] = ['4/9', '5/9']
@@ -155,6 +171,20 @@ ask(orRule, 'On a fair dice, can you add P(even) and P(more than 4) to get P(eve
     { title: 'OR means add', say: 'Either path will do: add.', rows: ['! P(exactly one) = 0.18 + 0.28 = 0.46'], picture: t(['0.6', '0.4'], ['0.7', '0.3'], { lit: [1, 2], results: res, tone: 'found' }) },
   ], 'Probability', t(['0.6', '0.4'], ['0.7', '0.3'])), slips(0.46, [[0.18, 'Lose then win counts too.'], [0.28, 'Win then lose counts too.'], [0.54, 'That’s winning both or losing both.']]), P_BOX())
 }
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+drag('mixed', 'Set the sliders so that P(lose both) = 0.12.', 'P3 review (own numbers)', { mode: 'tree', from: [5, 5] }, ['8,4', '7,6', '6,7', '4,8'], 'P(win) 0.7 and 0.6, or 0.8 and 0.4 (either way round)', 'P(lose) × P(lose) = 0.12. Which two tenths make 12?', boardModel([], [
+  { title: 'Multiply the losses', say: 'Lose both is P(lose 1) × P(lose 2). 0.3 × 0.4 = 0.12, so P(win) is 0.7 and 0.6.', rows: ['0.3 × 0.4 = 0.12', '! 0.7 and 0.6'] },
+], 'AND rule'), r => { const [a, b] = r.split(',').map(Number); return `P(lose) is ${(10 - a) / 10} and ${(10 - b) / 10}: ${Math.round((10 - a) * (10 - b)) / 100}. The sliders are P(win); lose is 1 take away.` })
+ask('mixed', 'P(A) = 0.3 and P(B) = 0.5, and they are independent. Find P(A and B).', 'P3 review (own numbers)', ['P(A) = 0.3', 'P(B) = 0.5'], number(0.15, '0.15'), 'AND means multiply.', boardModel([], [
+  { title: 'Multiply', say: 'Both have to happen.', rows: ['0.3 × 0.5 = 0.15', '! P(A and B) = 0.15'] },
+], 'AND rule'), slips(0.15, [[0.8, 'That’s adding. AND means multiply.'], [0.2, 'Multiply, don’t subtract.']]), P_BOX('P ='))
+ask('mixed', 'A spinner lands on red with probability 0.2 and blue with 0.45. Find P(red or blue).', 'P3 review (own numbers)', ['P(red) = 0.2', 'P(blue) = 0.45'], choose('0.65',
+  ['0.09', 'That’s multiplying. It can’t land on both, so OR means add.'], ['0.25', 'Add them: 0.2 + 0.45.']),
+'OR means add.', boardModel([], [
+  { title: 'Add', say: 'It can’t land on both at once.', rows: ['0.2 + 0.45 = 0.65', '! P(red or blue) = 0.65'] },
+], 'OR rule'))
 
 add('mixed', 'Probability and tree diagrams', 'P3 consolidation', text(
   'AND, for independent events: multiply. P(A and B) = P(A) × P(B).',

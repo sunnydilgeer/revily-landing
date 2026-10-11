@@ -43,6 +43,13 @@ async function step(page) {
   const button = bottomButton(page)
   const label = (await button.textContent({ timeout: 1500 }).catch(() => '')).trim()
   if (/^(Continue|Keep going|Finish lesson|Next step|Show the first step)$/.test(label)) return button.click({ timeout: 1500 }).catch(() => {})
+  // A sort board to answer: pick up each tile in the tray and put it in the places offered, in turn.
+  const tiles = page.locator('.rung-card--question .sort-board__tray .sort-board__tile:not([disabled])')
+  for (let k = 0; k < 40 && await tiles.count(); k++) {
+    await tiles.first().click({ timeout: 1500 }).catch(() => {})
+    const places = page.locator('.sort-board__moves .angle-board__side')
+    await places.nth(k % Math.max(1, (await places.count()) - (await places.filter({ hasText: /^Back$/ }).count()))).click({ timeout: 1500 }).catch(() => {})
+  }
   const inputs = page.locator('.rung-card input:not([disabled])'); const n = await inputs.count()
   if (n) { for (let i = 0; i < n; i++) await inputs.nth(i).fill('1', { timeout: 1500 }).catch(() => {}) }
   else {

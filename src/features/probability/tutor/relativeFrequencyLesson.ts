@@ -74,6 +74,11 @@ ask(relative, 'A coin is flipped 50 times and lands on heads 23 times. What is t
 
 /* ---------- Rung 2: expected frequency ---------- */
 
+ask(expected, 'Guess first: a fair spinner has 4 equal parts. It is spun 200 times. How many times do you expect it to land on 1?', 'P4 p171 (guess first)', ['Spinner with 4 equal parts', '200 spins'], number(50, '50'), 'A quarter of the spins.', boardModel([], [
+  { title: 'A quarter of 200', say: 'P(1) = ¼, so expect about a quarter of the spins to land on 1.', rows: ['¼ × 200 = 50', '! About 50 times'] },
+], 'Expected'), slips(50, [[25, 'That’s for 100 spins. There are 200.'], [4, 'A quarter of the spins land on 1: 200 ÷ 4.']]), { label: 'Spins', prefix: 'Expect' })
+play(expected, 'Spin 100 times. About how many land on 1?', 'P4 p171 Expected frequency (play)', { mode: 'spin' })
+
 {
   const p = primFig('110', [[1, 1, 'lit']])
   worked(expected, 'Prim’s town has 20 000 people. How many would you expect to be vegetarian?', 'Expected frequency', 'P4 p171 Example 1 (book’s numbers)', boardModel([], [
@@ -142,6 +147,12 @@ ask(bias, 'Is there evidence that Bev’s die is more likely to land on 6?', 'P4
 
 /* ---------- Rung 4: more trials ---------- */
 
+ask(trials, 'Guess first: one estimate of P(1) comes from 10 spins, another from 1000. Which would you trust more?', 'P4 p171 (guess first)', ['10 spins', '1000 spins'], choose('1000 spins',
+  ['10 spins', 'A few spins wobble a lot: 4 ones in 10 spins gives 0.4, far from 0.25.'], ['Both the same', 'More spins settle closer to the true probability, as on the spin board.']),
+'Think back to the spin board: when did it settle?', boardModel([], [
+  { title: 'More trials settle', say: 'The relative frequency wobbles for a few spins and settles near the probability as the spins add up.', rows: ['! 1000 spins'] },
+], 'Trials'))
+
 function coinFig(tones: [number, number, FigureTone][] = [], caption?: string): AngleFrame {
   return tableFig([['', 'Flips', 'Heads', 'RF'], ['Ali', '10', '7', '0.7'], ['Ben', '1000', '508', '0.508']],
     'Ali flips a coin 10 times and gets 7 heads. Ben flips it 1000 times and gets 508 heads.', { tones, caption, headColumn: true })
@@ -164,6 +175,20 @@ ask(trials, 'Whose results are more reliable, and why?', 'P4 p173 Your Turn Q4c 
   ['Bob’s: his is the bigger number', 'A bigger relative frequency isn’t more reliable. More trials are.'],
   ['Both the same: it’s the same die', 'Same die, but 500 rolls give a steadier estimate than 100.']), 'Who did more trials?', boardModel([], [
   { title: 'Count the trials', say: 'Susan rolled 500 times, Bob 100. Her 0.12 is also closer to the fair 1/8 = 0.125.', rows: ['Fair P(7) = {1|8} = 0.125', '! Susan’s: 500 trials'] },
+], 'Trials'))
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+ask('mixed', 'A drawing pin lands point up 36 times in 120 throws. Find the relative frequency of point up.', 'P4 review (own numbers)', ['36 point up', '120 throws'], number(0.3, '0.3'), 'How often it happened ÷ how many tries.', boardModel([], [
+  { title: 'Divide by the throws', say: '36 out of 120 throws.', rows: ['36 ÷ 120 = 0.3', '! RF = 0.3'] },
+], 'Relative frequency'), slips(0.3, [[3.33, 'Divide 36 by 120, not 120 by 36.'], [36, 'Divide by the number of throws.']]), RF_BOX)
+ask('mixed', 'A spinner lands on 1 with probability 0.4. It is spun 250 times. How many 1s would you expect?', 'P4 review (own numbers)', ['P(1) = 0.4', '250 spins'], number(100, '100'), 'Probability × number of tries.', boardModel([], [
+  { title: 'Multiply', say: 'Expect 0.4 of the 250 spins.', rows: ['0.4 × 250 = 100', '! Expected = 100'] },
+], 'Expected'), slips(100, [[0.4, 'Multiply by the 250 spins.'], [625, 'Multiply, don’t divide: 0.4 × 250.']]), COUNT_BOX)
+ask('mixed', 'Ali gets 6 heads in 10 flips. Ben gets 489 heads in 1000 flips. Whose estimate of P(heads) is more reliable?', 'P4 review (own numbers)', ['Ali: 6 in 10', 'Ben: 489 in 1000'], choose('Ben’s',
+  ['Ali’s', '10 flips wobble a lot. More trials give a better estimate.'], ['Both the same', 'More trials settle closer to the true probability.']),
+'Who did more trials?', boardModel([], [
+  { title: 'More trials', say: 'The more trials, the closer relative frequency settles to the probability.', rows: ['! Ben’s: 1000 flips'] },
 ], 'Trials'))
 
 add('mixed', 'Relative frequency', 'P4 consolidation', text(

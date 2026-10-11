@@ -37,6 +37,12 @@ const right = (pts: [FigurePoint, FigurePoint, FigurePoint], sides: (TriSide | u
 /* ---------- Rung 1: the hypotenuse ---------- */
 
 explore(hypotenuse, 'Drag the corner. Watch the squares on the sides.', 'T1 p156 Pythagoras’ Theorem (play)', { mode: 'pythagoras' })
+const guess1 = right([[0, 0], [8, 0], [0, 6]], [{ label: '8 cm' }, { label: '?', tone: 'x' }, { label: '6 cm' }], 'A right-angled triangle with shorter sides 6 cm and 8 cm. The longest side is missing.')
+practice(hypotenuse, 'Guess first: the two shorter sides are 6 cm and 8 cm. Is the longest side 14 cm?', 'T1 p156 (guess first)', guess1, choose('No, it’s shorter',
+  ['Yes', '6 + 8 = 14 would be a straight line. The corner cuts across: 6² + 8² = 100, so it’s √100 = 10 cm.'], ['No, it’s longer', 'Going straight across is always shorter than going round the corner.']),
+'Is going across the corner shorter or longer than going round it?', boardModel([], [
+  { title: 'Square and add', say: 'Pythagoras squares the sides, adds, then square roots.', rows: ['c² = 6² + 8² = 100', 'c = √(100) = 10', '! No, it’s shorter: 10 cm'], picture: guess1 },
+], 'Guess', guess1))
 {
   // Your Turn Q1: AB = 8, AC = 14, the right angle at A.
   const pts: [FigurePoint, FigurePoint, FigurePoint] = [[0, 0], [14, 0], [0, 8]]
@@ -77,6 +83,13 @@ explore(hypotenuse, 'Drag the corner. Watch the squares on the sides.', 'T1 p156
 }
 
 /* ---------- Rung 2: a shorter side ---------- */
+
+const guess2 = right([[0, 0], [8, 0], [0, 6]], [{ label: '?', tone: 'x' }, { label: '10 cm' }, { label: '6 cm' }], 'A right-angled triangle: hypotenuse 10 cm, one side 6 cm, the third side missing.')
+practice(shorter, 'Guess first: the hypotenuse is 10 cm and one side is 6 cm. Is the third side longer or shorter than 10 cm?', 'T1 p157 (guess first)', guess2, choose('Shorter',
+  ['Longer', 'The hypotenuse is always the longest side, so the others are shorter.'], ['The same', 'Only the hypotenuse can be the longest: the third side is shorter.']),
+'Which side is always the longest?', boardModel([], [
+  { title: 'The longest side', say: 'The hypotenuse is opposite the right angle and always the longest. So for a shorter side, subtract.', rows: ['a² = 10² − 6² = 64', 'a = 8', '! Shorter: 8 cm'], picture: guess2 },
+], 'Guess', guess2))
 
 {
   // Example 1: the hypotenuse 10 cm, one side 6 cm; x the other. The right angle at the bottom right.
@@ -202,6 +215,27 @@ function ladderFig(foot: number, h: number, sides: [TriSide, TriSide, TriSide], 
     { title: 'Add the squares', say: 'The diagonal is opposite the right angle at the corner: the hypotenuse. 9 + 1.44.', rows: ['d² = 3² + 1.2²', 'd² = 9 + 1.44 = 10.44'], picture: g({ label: 'd', tone: 'lit' }) },
     { title: 'Square root', say: 'Square root and round.', rows: ['d = √(10.44) = 3.231…', '! d = 3.2 m'], picture: g({ label: '3.2 m', tone: 'found' }, 'The brace is 3.2 m') },
   ], 'Find d', p), slips(3.2, [[4.2, 'Square the sides first: 3² + 1.2², not 3 + 1.2.'], [10.44, 'That’s d². Square root it.'], [2.7, 'You took the squares away. The brace is the hypotenuse, so add.']]), L_BOX('m', 'd'))
+}
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+{
+  const pts: [FigurePoint, FigurePoint, FigurePoint] = [[12, 0], [12, 9], [0, 0]]
+  const t = (c: TriSide, caption?: string) => right(pts, [{ label: '9 cm' }, c, { label: '12 cm' }], 'A right-angled triangle with shorter sides 9 cm and 12 cm. The hypotenuse is missing.', undefined, caption)
+  const p = t({ label: '?', tone: 'x' })
+  practice('mixed', 'Find the length of the hypotenuse.', 'T1 review (own numbers)', p, number(15, '15 cm'), 'Square, add, square root.', boardModel([], [
+    { title: 'Square and add', say: '9² is 81 and 12² is 144.', rows: ['c² = 81 + 144 = 225'], picture: t({ label: 'c', tone: 'lit' }) },
+    { title: 'Square root', say: '15 × 15 = 225.', rows: ['! c = 15 cm'], picture: t({ label: '15 cm', tone: 'found' }, 'c = 15 cm') },
+  ], 'Find c', p), slips(15, [[21, 'Square the sides first: 9² + 12².'], [225, 'That’s c². Square root it.']]), L_BOX('cm', 'c'))
+}
+{
+  const pts: [FigurePoint, FigurePoint, FigurePoint] = [[4, 2], [4, 6], [1, 2]]
+  const t = (d: TriSide, caption?: string) => right(pts, [{ label: 'up 4' }, d, { label: 'across 3' }], 'A line from (1, 2) to (4, 6), with its across 3 and up 4 drawn as a right-angled triangle.', undefined, caption)
+  const p = t({ label: '?', tone: 'x' })
+  practice('mixed', 'On a centimetre grid, find the distance from (1, 2) to (4, 6).', 'T1 review (own numbers)', p, number(5, '5 cm'), 'Across and up are the shorter sides.', boardModel([], [
+    { title: 'Across and up', say: 'Across 4 − 1 = 3, up 6 − 2 = 4.', rows: ['d² = 3² + 4² = 25'], picture: t({ label: 'd', tone: 'lit' }) },
+    { title: 'Square root', say: '5 × 5 = 25.', rows: ['! d = 5 cm'], picture: t({ label: '5 cm', tone: 'found' }, 'd = 5 cm') },
+  ], 'Find d', p), slips(5, [[7, 'Square them: 3² + 4², then square root.'], [25, 'That’s d². Square root it.']]), L_BOX('cm', 'd'))
 }
 
 add('mixed', 'Pythagoras', 'T1 consolidation', text(

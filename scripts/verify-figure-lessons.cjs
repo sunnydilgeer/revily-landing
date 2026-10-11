@@ -31,10 +31,10 @@ const LESSONS = {
   212: { dir: 'transformations', name: 'tutorTransformationsLesson', boards: ['translate', 'enlarge'], answers: [-2, 6, 2.5] },
   210: { dir: 'congruence', name: 'tutorCongruenceLesson', boards: [], answers: [70, 18] },
   213: { dir: 'solids', name: 'tutorSolidsLesson', boards: [], answers: [5, 8, 4, 12, 2, 0] },
-  219: { dir: 'pythagoras', name: 'tutorPythagorasLesson', boards: ['pythagoras'], answers: [17, 8.9, 24, 4, 5, 7.2, 10.4, 4.8, 3.2] },
-  220: { dir: 'trigonometry', name: 'tutorTrigonometryLesson', boards: [], answers: [3.8, 7.2, 47.9, 63.6, 60.1, 29.7, 6] },
+  219: { dir: 'pythagoras', name: 'tutorPythagorasLesson', boards: ['pythagoras'], answers: [17, 8.9, 24, 4, 5, 7.2, 10.4, 4.8, 3.2, 15, 5] },
+  220: { dir: 'trigonometry', name: 'tutorTrigonometryLesson', boards: [], answers: [3.8, 7.2, 47.9, 63.6, 60.1, 29.7, 6, 35.7, 8.4] },
   // Column vectors: two numbers in order, top then bottom.
-  221: { dir: 'vectors', name: 'tutorVectorsLesson', boards: ['translate'], answers: [[4, -3], [-2, 5], [2, 4], [4, 2], [4, 6], [48, -24], [-6, 12], [16, 15], [14, -5], [1, -10]] },
+  221: { dir: 'vectors', name: 'tutorVectorsLesson', boards: ['translate'], answers: [[4, -3], [-2, 5], [2, 4], [4, 2], [4, 6], [48, -24], [-6, 12], [16, 15], [14, -5], [1, -10], [4, 2], [-3, -2]] },
   214: { dir: 'volume', name: 'tutorVolumeLesson', boards: ['prism'], answers: [140, 240, 210, 628.3, 113.1, 314.2, 216, 66, 188.5, 4, 904.8, 56.5, 79.6] },
 }
 const spec = LESSONS[number]

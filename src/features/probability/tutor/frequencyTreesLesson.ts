@@ -1,7 +1,7 @@
 import { author } from '../../written-methods/tutor/content'
 import type { AngleFrame, FigureTone } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
-import { boardModel, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
+import { boardModel, choose, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
 import { slips } from '../../geometry/tutor/figureLesson'
 import { chanceScreens } from './chanceLesson'
 import { fraction, freqTreeFig } from './chancePictures'
@@ -18,7 +18,7 @@ import { fraction, freqTreeFig } from './chancePictures'
 
 const lesson = author(302)
 const { add, finish } = lesson
-const { worked, practice } = chanceScreens(lesson)
+const { worked, practice, ask } = chanceScreens(lesson)
 const build = 'freq-tree-build'
 const prob = 'freq-tree-probability'
 const parts = 'freq-tree-parts'
@@ -37,6 +37,14 @@ const treeOf = (names: [string, string, string, string, string, string], spoken:
 /* ---------- Rung 1: filling in a tree ---------- */
 
 const puzzle = treeOf(['Under 18', '18 and over', 'Solved', 'Didn’t solve', 'Solved', 'Didn’t solve'], 'A frequency tree: 120 people, split into under 18 and 18 and over, then into solved and didn’t solve.')
+{
+  const p = puzzle(['120', '45', '?', '?', '?', '?', '?'], { 2: 'x' })
+  practice(build, 'Guess first: 120 people, and 45 of them are under 18. What goes in the other circle?', 'P2 p164 (guess first)', p, choose('75',
+    ['45', 'The two groups make up all 120 people, so they add up to 120.'], ['165', 'The 45 are part of the 120, not added to them.']),
+  'The two groups make up everyone.', boardModel([], [
+    { title: 'The branches add up', say: 'Under 18s and 18 and overs together are all 120 people.', rows: ['120 − 45 = 75', '! 18 and over = 75'], picture: puzzle(['120', '45', '75', '?', '?', '?', '?'], { 2: 'found' }, [2, 3]) },
+  ], 'Tree', p))
+}
 {
   worked(build, '120 people tried a puzzle. 45 were under 18. 78 solved it. 32 people aged 18 and over did not solve it. Complete the frequency tree.', 'Filling in a tree', 'P2 p165 Constructing frequency trees (book’s numbers)', boardModel([], [
     { title: 'Find 18 and over', say: 'The two age groups add up to 120.', rows: ['18 and over = 120 − 45 = 75'], picture: puzzle(['120', '45', '75', '?', '?', '?', '32'], { 2: 'found' }, [2, 3]) },
@@ -73,6 +81,16 @@ const hands = treeOf(['Left-handed', 'Right-handed', 'Left-footed', 'Right-foote
 }
 
 /* ---------- Rung 2: probability from a tree ---------- */
+
+{
+  const full: Fill = ['120', '45', '75', '35', '10', '43', '32']
+  const p = puzzle(full)
+  practice(prob, 'Guess first: an under 18 is picked at random. P(didn’t solve) is 10 out of what?', 'P2 p165 (guess first)', p, choose('45',
+    ['120', 'Only under 18s can be picked, so out of the 45 under 18s.'], ['35', '35 is the under 18s who solved it. Out of all 45 under 18s.']),
+  'Who could have been picked?', boardModel([], [
+    { title: 'Only the under 18s', say: 'The person is picked from the under 18s, so the total is their circle: 45.', rows: ['P = {10|45}', '! Out of 45'], picture: puzzle(full, { 1: 'lit', 4: 'found' }, [1]) },
+  ], 'Probability', p))
+}
 
 {
   const full: Fill = ['120', '45', '75', '35', '10', '43', '32']
@@ -140,6 +158,18 @@ const exams = treeOf(['French', 'Spanish', 'Pass', 'Fail', 'Pass', 'Fail'], 'A f
     { title: 'Out of everyone', say: 'Picked from all 300. Divide the top and bottom by 6.', rows: ['P = {54|300}', '! P = {9|50}'], picture: t(['300', '120', '180', '18', '102', '54', '126'], { 5: 'found' }, [2]) },
   ], 'Probability', t(mid)), slips(9 / 50, [[54 / 180, 'Picked from all the pupils, 300, not just the ham ones.'], [3 / 10, 'That’s out of the ham pupils. Picked from everyone: 54 out of 300.']]))
 }
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+ask('mixed', '80 people: 30 walk to work and the rest drive. 12 of the walkers are late. How many walkers are on time?', 'P2 review (own numbers)', ['80 people', '30 walk, the rest drive', '12 walkers are late'], number(18, '18'), 'Split the 30 walkers into late and on time.', boardModel([], [
+  { title: 'Split the walkers', say: 'The walkers’ two branches add up to 30.', rows: ['30 − 12 = 18', '! On time = 18'] },
+], 'Tree'), slips(18, [[50, 'That’s how many drive.'], [68, 'Only the walkers: 30 − 12.']]), COUNT('On time ='))
+ask('mixed', 'One of the 30 walkers is picked at random. Find P(late).', 'P2 review (own numbers)', ['30 walkers', '12 of them late'], fraction('2/5'), 'Out of the walkers only.', boardModel([], [
+  { title: 'Only the walkers', say: '12 late out of 30 walkers.', rows: ['P = {12|30}', '! P = {2|5}'] },
+], 'Probability'))
+ask('mixed', '200 students: 3/5 are girls. How many are boys?', 'P2 review (own numbers)', ['200 students', '3/5 are girls'], number(80, '80'), 'Boys are the other 2/5.', boardModel([], [
+  { title: 'The other part', say: 'Girls are 3/5, so boys are 2/5. A fifth of 200 is 40.', rows: ['200 ÷ 5 = 40', '40 × 2 = 80', '! Boys = 80'] },
+], 'Tree'), slips(80, [[120, 'That’s the girls: 3/5 of 200.'], [40, 'That’s one fifth. Boys are two fifths.']]), COUNT('Boys ='))
 
 add('mixed', 'Frequency trees', 'P2 consolidation', text(
   'The two branches from a circle add up to the number in it.',

@@ -117,6 +117,19 @@ const trig = (pts: Tri, at: number, mark: string, list: (TriSide | undefined)[],
 /* ---------- Rung 3: a missing angle ---------- */
 
 {
+  // The small triangle inside the big one, sharing the angle x: every side of the big one is twice as long.
+  const big: Tri = [[8, 0], [8, 5], [0, 0]]
+  const pic = triangleFig(big, { sides: [{ label: '5' }, { label: '9.4' }], right: 0, angles: [{ at: 2, label: 'x' }], room: 32,
+    spoken: 'A small right-angled triangle inside a big one, sharing the angle x. Small: opposite 2.5, hypotenuse 4.7. Big: opposite 5, hypotenuse 9.4.',
+    extra: [{ kind: 'line', from: [4, 0], to: [4, 2.5], style: 'lit' }, { kind: 'text', at: [4, 1.25], text: '2.5', dx: 16 }, { kind: 'text', at: [2, 1.25], text: '4.7', dx: -12, dy: -12 }] })
+  practice(angle, 'Guess first: the big triangle has the same angle x as the small one inside it, and every side twice as long. Does sin x change?', 'T2 p158 (guess first)', pic, choose('No, it stays the same',
+    ['Yes, it doubles', 'The opposite and the hypotenuse both double, so opposite ÷ hypotenuse stays the same.'], ['Yes, it halves', 'Both sides double, and doubling the top and bottom of a fraction doesn’t change it.']),
+  'sin x = opposite ÷ hypotenuse. What happens if both double?', boardModel([], [
+    { title: 'Both sides double', say: 'sin x only depends on the angle, not on the size of the triangle.', rows: ['{2.5|4.7} = {5|9.4}', '! No, it stays the same'], picture: pic },
+  ], 'Guess', pic))
+}
+
+{
   // Example 2: the opposite 5 mm, the adjacent 8 mm, the angle z at the top.
   const pts: Tri = [[0, 0], [0, 8], [5, 0]]
   const t = (z: string, s: (TriSide | undefined)[], tone?: FigureTone, caption?: string) => trig(pts, 1, z, s, 'A right-angled triangle: the angle z at the top, 8 mm next to it and 5 mm opposite it.', { caption, tone })
@@ -195,6 +208,27 @@ for (const q of [
   practice(exact, 'What is the exact value of tan 45°?', 'T2 p159 Trigonometry Common Values', p, choose('1', ['0', 'That’s tan 0°.'], ['1/√2', 'That’s sin 45° and cos 45°.'], ['√3', 'That’s tan 60°.']), 'tan = opposite ÷ adjacent. At 45°, they’re equal.', boardModel([], [
     { title: 'Opposite over adjacent', say: 'A 45° right-angled triangle has two equal sides, so opposite ÷ adjacent is 1.', rows: ['tan 45° = {1|1}', '! tan 45° = 1'], picture: trig(pts, 1, '45°', [{ label: '1 (A)', tone: 'lit' }, undefined, { label: '1 (O)', tone: 'lit' }], 'Opposite and adjacent are equal.', { tone: 'found' }) },
   ], 'tan 45°', p))
+}
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+{
+  const pts: Tri = [[9.75, 0], [9.75, 7], [0, 0]]
+  const t = (mark: string, tone?: FigureTone, caption?: string) => trig(pts, 2, mark, [{ label: '7 cm', tone: tone ? 'lit' : undefined }, { label: '12 cm', tone: tone ? 'lit' : undefined }], 'A right-angled triangle: the angle x, 7 cm opposite it and a hypotenuse of 12 cm.', { tone, caption })
+  const p = t('x')
+  practice('mixed', 'Find the angle x, to 1 decimal place.', 'T2 review (own numbers)', p, number(35.7, '35.7°'), 'You have O and H: SOH.', boardModel([], [
+    { title: 'Opposite and hypotenuse', say: 'O and H are in SOH.', rows: ['sin x = {7|12}'], picture: t('x', 'lit') },
+    { title: 'Inverse sin', say: 'Use sin⁻¹ on your calculator, then round.', rows: ['x = sin⁻¹({7|12}) = 35.68…', '! x = 35.7°'], picture: t('35.7°', 'found', 'x = 35.7°') },
+  ], 'Find x', p), slips(35.7, [[0.6, 'That’s sin x. Use sin⁻¹ to get the angle.'], [54.3, 'That’s the other angle. 7 cm is opposite x, so use sin.']]), A_BOX('x'))
+}
+{
+  const pts: Tri = [[10, 0], [10, 8.39], [0, 0]]
+  const t = (y: TriSide, caption?: string) => trig(pts, 2, '40°', [y, undefined, { label: '10 cm' }], 'A right-angled triangle: the angle 40°, 10 cm next to it, and y opposite it.', { caption })
+  const p = t({ label: 'y', tone: 'x' })
+  practice('mixed', 'Find y, to 1 decimal place.', 'T2 review (own numbers)', p, number(8.4, '8.4 cm'), 'You have A and want O: TOA.', boardModel([], [
+    { title: 'Adjacent and opposite', say: 'A and O are in TOA: tan 40° = y ÷ 10.', rows: ['tan 40° = {y|10}'], picture: t({ label: 'y', tone: 'lit' }) },
+    { title: 'Multiply out', say: 'Times both sides by 10.', rows: ['y = 10 × tan 40° = 8.39…', '! y = 8.4 cm'], picture: t({ label: '8.4 cm', tone: 'found' }, 'y = 8.4 cm') },
+  ], 'Find y', p), slips(8.4, [[11.9, 'That’s 10 ÷ tan 40°. Opposite = tan × adjacent.'], [6.4, 'That’s sin. You have the adjacent and want the opposite: tan.']]), L_BOX('y'))
 }
 
 add('mixed', 'Trigonometry', 'T2 consolidation', text(
