@@ -4,6 +4,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const ts = require('typescript')
 for (const ext of ['.ts', '.tsx']) require.extensions[ext] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true }, fileName: filename }).outputText, filename)
+require.extensions['.css'] = () => {}
 const root = path.join(__dirname, '..')
 const { mathsLessons } = require(path.join(root, 'src/features/maths/courseRegistry.ts'))
 const { buildDecks } = require(path.join(root, 'src/features/cards/decks.ts'))
@@ -13,7 +14,7 @@ const { rungStatus, legacyCompleted } = require(path.join(root, 'src/features/ma
 
 // ---------- Decks ----------
 const decks = buildDecks(mathsLessons)
-assert.equal(decks.length, mathsLessons.length, 'Every lesson has a deck')
+assert.equal(decks.length, mathsLessons.filter(entry => ['number', 'algebra', 'ratio'].includes(entry.chapterId)).length, 'Every Number, Algebra and Ratio lesson has a deck')
 const ids = new Set()
 let facts = 0, recall = 0
 for (const deck of decks) {

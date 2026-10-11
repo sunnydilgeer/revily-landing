@@ -1,7 +1,7 @@
 // Checks geometry lesson 4 (Interior and exterior angles, from GM4): four rungs, the play screens on the angle board,
 // every picture a polygon that closes with its angles adding to (n − 2) × 180°, every labelled angle (inside, outside,
 // or written with x) drawn at its size, every typed answer worked out again from the picture, the usual slips
-// explained, and that the lesson stays hidden: only the noindexed Geometry shelf page opens it.
+// explained, and that the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -89,12 +89,7 @@ for (const s of states) {
 }
 assert.ok(checked >= 12, `Every typed answer is worked out again (${checked})`)
 
-// Hidden: only the shelf page opens it.
 assert.ok(geometryLessons.some(l => l.number === 204), 'Lesson 4 is on the Geometry shelf')
-for (const [file, text] of [['courseRegistry.ts', read('src/features/maths/courseRegistry.ts')], ['App.tsx', read('src/App.tsx')]]) assert.ok(!/polygon-angles|PolygonAngles|L204/.test(text), `Not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('polygon-angles') && !read(file).includes('L204'), `Not in ${file}`)
-}
-assert.match(read(`app/preview/${shelfId}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
-console.log(`Interior and exterior angles: ${states.length} screens, ${pictures} pictures checked, ${checked} answers worked out again, hidden on the Geometry shelf`)
+// ---------- On the course: the Geometry chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 204), 'Lesson 204 is on the course')
+console.log(`Interior and exterior angles: ${states.length} screens, ${pictures} pictures checked, ${checked} answers worked out again, on the course`)

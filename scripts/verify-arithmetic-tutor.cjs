@@ -5,6 +5,7 @@ const crypto = require('node:crypto')
 const ts = require('typescript')
 const katex = require('katex')
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename)
+require.extensions['.css'] = () => {}
 const { tutorLongMultiplicationLesson: multiplication } = require('../src/features/long-multiplication/tutor/longMultiplicationLesson.ts')
 const { tutorLongDivisionLesson: division } = require('../src/features/long-division/tutor/longDivisionLesson.ts')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')

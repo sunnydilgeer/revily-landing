@@ -1,7 +1,7 @@
 // Checks geometry lesson 1 (Angle facts, from GM1): four rungs, each opening with a play screen on the angle board,
 // every question under its own angle picture, every answer worked out again from the picture's own angles, the
 // workings one move a step ending in the answer once, typed answers accepted with or without °, slips explained, and
-// that the lesson stays hidden: only the noindexed Geometry shelf page opens it.
+// that the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -19,7 +19,7 @@ const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['geometry-lines-points', 'geometry-shapes', 'geometry-isosceles', 'geometry-two-steps']
-assert.equal(lesson.id, 'L201', 'Geometry lessons are numbered from 201 while hidden')
+assert.equal(lesson.id, 'L201', 'Geometry lessons are numbered from 201')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Four rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L201-${String(index + 1).padStart(2, '0')}`)
@@ -92,14 +92,7 @@ assert.ok(/180/.test(line.diagnose(String(360 - 117))), 'A straight line done wi
 const top = isoQuestions.find(s => s.visual.angle.labels[2].endsWith('°'))
 assert.ok(/Halve/.test(top.diagnose(String(2 * top.interaction.correctAnswer))), 'Isosceles: not halved is explained')
 
-// ---------- Hidden: only the preview page opens it ----------
-const registry = read('src/features/maths/courseRegistry.ts'), app = read('src/App.tsx')
-for (const [file, text] of [['courseRegistry.ts', registry], ['App.tsx', app]]) assert.ok(!/angle-facts|AngleFacts|L201|geometryLessons/.test(text), `Angle facts is not in ${file}, so no list shows it`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('angle-facts') && !read(file).includes('L201'), `Angle facts is not in ${file}`)
-}
-const page = read(`app/preview/${shelfId}/page.tsx`)
-assert.match(page, /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
+// ---------- On the course: the Geometry chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 201), 'Lesson 201 is on the course')
 assert.match(read('middleware.ts'), /'\/preview\/:path\*'/, 'The preview password covers the page')
-console.log(`Angle facts: ${states.length} screens, ${checked} answers worked out again, hidden on the Geometry shelf`)
+console.log(`Angle facts: ${states.length} screens, ${checked} answers worked out again, on the course`)

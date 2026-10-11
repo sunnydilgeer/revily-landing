@@ -1,21 +1,15 @@
-import type { Metadata, Viewport } from 'next'
-import ProbabilityShelf from '../../../src/features/probability/ProbabilityShelf'
+import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 
-// Unlisted: only someone with this address and the preview password can open it, and search engines are told to skip it.
+// The Probability and statistics lessons are on the course now (Sunny, 11 Oct): the old unlisted shelf address opens the same lesson there.
 export const metadata: Metadata = {
   title: 'Preview | Revily',
   robots: { index: false, follow: false },
 }
 
-
-// The lesson page is one fixed screen: when the keyboard opens, shrink it so the answer box and buttons stay above it.
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-  interactiveWidget: 'resizes-content',
-}
-
-export default function Page() {
-  return <ProbabilityShelf />
+export default async function Page({ searchParams }: { searchParams: Promise<{ lesson?: string; section?: string }> }) {
+  const { lesson = '301', section } = await searchParams
+  const url = new URLSearchParams({ lesson })
+  if (section) url.set('section', section)
+  redirect(`/preview?${url}`)
 }

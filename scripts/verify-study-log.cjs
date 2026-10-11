@@ -3,6 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const ts = require('typescript')
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename)
+require.extensions['.css'] = () => {}
 const { streakFrom, dayCounts, lastSevenDays, dayKey } = require('../src/features/maths/studyLog.ts')
 
 const rung = { seconds: 60, rungs: 1 }, fiveMin = { seconds: 300, rungs: 0 }, short = { seconds: 120, rungs: 0 }

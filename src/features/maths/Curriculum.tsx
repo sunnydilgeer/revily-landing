@@ -15,7 +15,8 @@ type Props = {
   onOpenLesson: (lesson: MathsLessonNumber, skill?: string) => void
 }
 
-const LATER_CHAPTERS = ['Geometry and measures', 'Probability', 'Statistics']
+// Chapters not built yet, listed locked after the built ones. Every chapter in the book is built now (Sunny, 11 Oct).
+const LATER_CHAPTERS: string[] = []
 
 /** Rung status for one lesson (done = finished, current = where the student is now). */
 export function rungsFor(entry: MathsLessonEntry, snapshot?: LessonProgressSnapshot) {

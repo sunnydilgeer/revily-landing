@@ -2,8 +2,7 @@
 // worked out again from the question's own words: each equation in it read as ax + by = k, its gradient −a ÷ b, and
 // parallel meaning the same gradient. Tilt, m-and-c and draw-a-line questions are answered on the board; choose-all
 // questions tick exactly the parallel lines, with a note on each wrong one; the line through a point is
-// y − y₁ = m(x − x₁). Workings end on the green answer, with x lit amber and y biro blue. And the lesson is hidden:
-// only the Graphs shelf opens it.
+// y − y₁ = m(x − x₁). Workings end on the green answer, with x lit amber and y biro blue. And the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -41,7 +40,7 @@ const pointOf = title => { const m = /\((−?\d+), (−?\d+)\)/.exec(title); ret
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-parallel-gradient', 'graphs-parallel-rearrange', 'graphs-parallel-through']
-assert.equal(lesson.id, 'L104', 'Hidden graphs lessons are numbered from 101')
+assert.equal(lesson.id, 'L104', 'Graphs lessons are numbered from 101')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L104-${String(index + 1).padStart(2, '0')}`)
@@ -135,10 +134,6 @@ for (const state of states.filter(state => rungs.includes(state.microSkillId))) 
   }
 }
 
-// ---------- Hidden: only the Graphs shelf opens it ----------
-for (const file of ['src/features/maths/courseRegistry.ts', 'src/App.tsx']) assert.ok(!/parallel-lines|tutorParallelLinesLesson|L104/.test(read(file)), `Parallel lines is not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('parallel-lines/') && !/['"`]L104\b/.test(read(file)), `Parallel lines is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 104), 'Lesson 104 is on the course')
 console.log(`Graphs lesson 4 (parallel lines): ${states.length} screens, ${checked} questions checked.`)

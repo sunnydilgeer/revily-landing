@@ -2,7 +2,7 @@
 // board, every answer worked out again from the question's own numbers, every board answer reachable on its board,
 // every grid at most 9 squares across with both axes inside, the workings one move a step (across in amber, up in biro
 // blue, the axis numbers they use highlighted), typed answers accepted however they are written and slips explained,
-// and that the lesson stays hidden: only the noindexed Graphs shelf page opens it.
+// and that the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -22,7 +22,7 @@ const show = p => `(${String(p.x).replace('-', '−')}, ${String(p.y).replace('-
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-coordinates', 'graphs-quadrants', 'graphs-midpoint']
-assert.equal(lesson.id, 'L101', 'Graphs lessons are numbered from 101 while hidden, clear of Aniksha’s numbers')
+assert.equal(lesson.id, 'L101', 'Graphs lessons are numbered from 101, clear of Aniksha’s numbers')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L101-${String(index + 1).padStart(2, '0')}`)
@@ -158,16 +158,9 @@ for (const state of states) {
 }
 assert.ok(checked >= 15, `Every question's answer is worked out again (${checked})`)
 
-// ---------- Hidden: only the preview page opens it ----------
-const registry = read('src/features/maths/courseRegistry.ts'), app = read('src/App.tsx')
-for (const [file, text] of [['courseRegistry.ts', registry], ['App.tsx', app]]) assert.ok(!/coordinates\/|Coordinates(Lesson|Preview)|L101/.test(text), `Coordinates is not in ${file}, so no list shows it`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('features/coordinates') && !read(file).includes('L101'), `Coordinates is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 101), 'Lesson 101 is on the course')
 assert.ok(states.find(state => state.microSkillId === 'graphs-coordinates' && state.visual.kind === 'method-worked').video, 'The first worked example carries the GR3.1 video')
 for (const file of [`public/media/${previewId}/coordinates.mp4`, `public/media/${previewId}/coordinates.svg`]) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`)
-const page = read(`app/preview/${require('../src/features/graphs/graphsLessons.ts').GRAPHS_SHELF_ID}/page.tsx`)
-assert.match(page, /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
 assert.match(read('middleware.ts'), /'\/preview\/:path\*'/, 'The preview password covers the page')
-console.log(`Coordinates: ${states.length} screens, ${checked} answers worked out again, hidden on the Graphs shelf`)
+console.log(`Coordinates: ${states.length} screens, ${checked} answers worked out again, on the course`)

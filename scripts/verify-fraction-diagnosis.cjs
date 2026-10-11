@@ -3,6 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const ts = require('typescript')
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename)
+require.extensions['.css'] = () => {}
 const { diagnoseFraction, diagnoseAmount } = require('../src/features/fractions/tutor/fractionDiagnosis.ts')
 
 const simplest = { requireSimplest: true }

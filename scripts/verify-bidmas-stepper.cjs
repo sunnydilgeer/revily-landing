@@ -3,6 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const ts = require('typescript')
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename)
+require.extensions['.css'] = () => {}
 const { solve, SumError } = require('../src/features/order-of-operations/ladder/bidmasStepper.ts')
 const { diagnoseBidmas, latexToPlain } = require('../src/features/order-of-operations/ladder/bidmasDiagnosis.ts')
 

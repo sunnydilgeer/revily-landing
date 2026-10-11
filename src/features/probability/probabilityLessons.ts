@@ -1,6 +1,7 @@
 import type { MicroSkillId } from '../number-types/types'
 import type { TutorMethodLesson } from '../written-methods/tutor/model'
-import { sectionsFor, type MathsChapter, type MathsLessonEntry } from '../maths/courseRegistry'
+import type { MathsChapter, MathsLessonEntry } from '../maths/courseRegistry'
+import { sectionsFor } from '../maths/sections'
 import { tutorProbabilityLesson } from './tutor/probabilityLesson'
 import { tutorFrequencyTreesLesson } from './tutor/frequencyTreesLesson'
 import { tutorTreeDiagramsLesson } from './tutor/treeDiagramsLesson'
@@ -21,12 +22,10 @@ import { tutorLineGraphsLesson } from './tutor/lineGraphsLesson'
 import { tutorPieChartsLesson } from './tutor/pieChartsLesson'
 
 /*
- * The hidden Probability and statistics shelf, built like the Geometry one (../geometry/geometryLessons.ts): P1 to P18
- * from Sunny's revision book (p162–218), with the course's own lesson page and Contents drawer, but kept off the
- * course. Only the unlisted page in app/preview/<PROBABILITY_SHELF_ID> reads this file. Nothing the course shows
- * imports it (the course registry, App.tsx, the curriculum, search, cards, exam checklist, practice), so the lessons
- * aren't in any list or in the code those pages load. The page is noindexed and sits behind the preview password.
- * Lessons follow the book's order.
+ * The Probability and statistics chapter: P1 to P18 from Sunny's revision book (p162–218), lessons 301 onwards in the
+ * book's order. They were built on an unlisted shelf first, like Geometry (../geometry/geometryLessons.ts); now the course
+ * registry (../maths/courseRegistry.ts) lists them last (Sunny, 11 Oct). The old shelf address,
+ * app/preview/<PROBABILITY_SHELF_ID>, sends you to the same lesson on the course.
  */
 export const PROBABILITY_SHELF_ID = 'probability-1df7422723d4'
 

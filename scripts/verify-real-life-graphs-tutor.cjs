@@ -2,7 +2,7 @@
 // worked out again from the question itself: conversions from the line drawn on its graph (either way, and scaled up
 // for an amount off the graph), rates from the line's gradient, a fixed charge from where it starts, and the lines a
 // question describes in words (a call-out charge plus a rate, two gyms) read by this file's own reader. Every reading
-// lands on the graph, and the lesson is hidden.
+// lands on the graph, and the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -26,7 +26,7 @@ const corner = (p, g) => near(((p.x - g.x[0]) / g.scale.x.per) % 1, 0) && near((
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-real-convert', 'graphs-real-rate', 'graphs-real-fixed']
-assert.equal(lesson.id, 'L108', 'Hidden graphs lessons are numbered from 101')
+assert.equal(lesson.id, 'L108', 'Graphs lessons are numbered from 101')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L108-${String(index + 1).padStart(2, '0')}`)
@@ -112,10 +112,6 @@ for (const state of states.filter(state => state.interaction.type === 'continue'
   else assert.fail(`${state.id}: a worked example this file doesn't know`)
 }
 
-// ---------- Hidden: only the Graphs shelf opens it ----------
-for (const file of ['src/features/maths/courseRegistry.ts', 'src/App.tsx']) assert.ok(!/real-life-graphs|tutorRealLifeGraphsLesson|['"`]L108\b/.test(read(file)), `Lesson 108 is not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('real-life-graphs/') && !/['"`]L108\b/.test(read(file)), `Lesson 108 is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 108), 'Lesson 108 is on the course')
 console.log(`Graphs lesson 8 (real-life graphs): ${states.length} screens, ${checked} questions checked.`)
