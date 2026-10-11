@@ -183,7 +183,7 @@ const animals = (regions: R3, tones: Partial<Record<Venn3Region, FigureTone>> = 
 
 /* ---------- Review: one of each, our own numbers ---------- */
 
-sort('mixed', 'Sort the numbers 1 to 10. A is factors of 12, B is odd numbers.', 'P5 review (own numbers)', { kind: 'venn', names: ['A factor of 12', 'B odd'], tiles: numberTiles(10, k => 12 % k === 0, k => k % 2 === 1, (k, a, b) => `${k} is ${a ? 'a factor of 12' : 'not a factor of 12'} and ${b ? 'odd' : 'even'}.`) }, 'Factors of 12 up to 10: 1, 2, 3, 4, 6.', boardModel([], [
+sort('mixed', 'Sort the numbers 1 to 10. A is factors of 12, B is odd numbers.', 'P5 review (own numbers)', { kind: 'venn', names: ['A', 'B'], tiles: numberTiles(10, k => 12 % k === 0, k => k % 2 === 1, (k, a, b) => `${k} is ${a ? 'a factor of 12' : 'not a factor of 12'} and ${b ? 'odd' : 'even'}.`) }, 'Factors of 12 up to 10: 1, 2, 3, 4, 6.', boardModel([], [
   { title: 'Start with the overlap', say: 'Factors of 12 that are odd: 1 and 3.', rows: ['>0 Both: 1, 3'] },
   { title: 'The rest', say: 'Other factors 2, 4, 6. Other odds 5, 7, 9. Neither: 8, 10.', rows: ['! A only 2, 4, 6; B only 5, 7, 9; neither 8, 10'] },
 ], 'Venn diagram'))
