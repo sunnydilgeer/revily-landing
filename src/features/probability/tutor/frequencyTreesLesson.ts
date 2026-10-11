@@ -1,7 +1,7 @@
 import { author } from '../../written-methods/tutor/content'
 import type { AngleFrame, FigureTone } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
-import { boardModel, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
+import { boardModel, choose, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
 import { slips } from '../../geometry/tutor/figureLesson'
 import { chanceScreens } from './chanceLesson'
 import { fraction, freqTreeFig } from './chancePictures'
@@ -38,6 +38,14 @@ const treeOf = (names: [string, string, string, string, string, string], spoken:
 
 const puzzle = treeOf(['Under 18', '18 and over', 'Solved', 'Didn’t solve', 'Solved', 'Didn’t solve'], 'A frequency tree: 120 people, split into under 18 and 18 and over, then into solved and didn’t solve.')
 {
+  const p = puzzle(['120', '45', '?', '?', '?', '?', '?'], { 2: 'x' })
+  practice(build, 'Guess first: 120 people, and 45 of them are under 18. What goes in the other circle?', 'P2 p164 (guess first)', p, choose('75',
+    ['45', 'The two groups make up all 120 people, so they add up to 120.'], ['165', 'The 45 are part of the 120, not added to them.']),
+  'The two groups make up everyone.', boardModel([], [
+    { title: 'The branches add up', say: 'Under 18s and 18 and overs together are all 120 people.', rows: ['120 − 45 = 75', '! 18 and over = 75'], picture: puzzle(['120', '45', '75', '?', '?', '?', '?'], { 2: 'found' }, [2, 3]) },
+  ], 'Tree', p))
+}
+{
   worked(build, '120 people tried a puzzle. 45 were under 18. 78 solved it. 32 people aged 18 and over did not solve it. Complete the frequency tree.', 'Filling in a tree', 'P2 p165 Constructing frequency trees (book’s numbers)', boardModel([], [
     { title: 'Find 18 and over', say: 'The two age groups add up to 120.', rows: ['18 and over = 120 − 45 = 75'], picture: puzzle(['120', '45', '75', '?', '?', '?', '32'], { 2: 'found' }, [2, 3]) },
     { title: '18 and over who solved', say: 'Of the 75, 32 didn’t solve it.', rows: ['18+ solved = 75 − 32 = 43'], picture: puzzle(['120', '45', '75', '?', '?', '43', '32'], { 5: 'found' }, [2]) },
@@ -73,6 +81,16 @@ const hands = treeOf(['Left-handed', 'Right-handed', 'Left-footed', 'Right-foote
 }
 
 /* ---------- Rung 2: probability from a tree ---------- */
+
+{
+  const full: Fill = ['120', '45', '75', '35', '10', '43', '32']
+  const p = puzzle(full)
+  practice(prob, 'Guess first: an under 18 is picked at random. P(didn’t solve) is 10 out of what?', 'P2 p165 (guess first)', p, choose('45',
+    ['120', 'Only under 18s can be picked, so out of the 45 under 18s.'], ['35', '35 is the under 18s who solved it. Out of all 45 under 18s.']),
+  'Who could have been picked?', boardModel([], [
+    { title: 'Only the under 18s', say: 'The person is picked from the under 18s, so the total is their circle: 45.', rows: ['P = {10|45}', '! Out of 45'], picture: puzzle(full, { 1: 'lit', 4: 'found' }, [1]) },
+  ], 'Probability', p))
+}
 
 {
   const full: Fill = ['120', '45', '75', '35', '10', '43', '32']

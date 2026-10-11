@@ -1,7 +1,7 @@
 import { author } from '../../written-methods/tutor/content'
 import type { AngleFrame, FigureItem, FigureTone } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
-import { boardModel, pair, readNumbers, text } from '../../simultaneous-equations/tutor/boardWorkings'
+import { boardModel, choose, pair, readNumbers, text } from '../../simultaneous-equations/tutor/boardWorkings'
 import { fig, screens } from '../../geometry/tutor/figureLesson'
 
 /*
@@ -128,6 +128,15 @@ for (const [from, v, g, ref] of [
 }
 
 /* ---------- Rung 2: adding and subtracting ---------- */
+
+{
+  const moves = vecFig([{ from: [0, 0], v: [3, 0], label: '3 right' }, { from: [3, 0], v: [2, 1], label: '2 right, 1 up' }], 'Walk 3 squares right, then 2 right and 1 up.', { grid: [[-1, -1], [6, 2]] })
+  practice(adding, 'Guess first: you walk 3 squares right, then 2 right and 1 up. Where do you end up from the start?', 'T3 p161 (guess first)', moves, choose('5 right, 1 up',
+    ['3 right, 1 up', 'Both moves count: 3 + 2 = 5 across.'], ['2 right, 1 up', 'The first move counts too: 3 + 2 = 5 across.']),
+  'Add the across moves, then the up moves.', boardModel([], [
+    { title: 'Add each part', say: 'Across: 3 + 2. Up: 0 + 1. Adding vectors is adding their parts.', rows: ['({3|0}) + ({2|1}) = ({5|1})', '! 5 right, 1 up'], picture: moves },
+  ], 'Guess', moves))
+}
 
 {
   // The book's example: (−3, 4) + (5, 2) = (2, 6).

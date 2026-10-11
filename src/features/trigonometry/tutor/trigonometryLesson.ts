@@ -117,6 +117,19 @@ const trig = (pts: Tri, at: number, mark: string, list: (TriSide | undefined)[],
 /* ---------- Rung 3: a missing angle ---------- */
 
 {
+  // The small triangle inside the big one, sharing the angle x: every side of the big one is twice as long.
+  const big: Tri = [[8, 0], [8, 5], [0, 0]]
+  const pic = triangleFig(big, { sides: [{ label: '5' }, { label: '9.4' }], right: 0, angles: [{ at: 2, label: 'x' }], room: 32,
+    spoken: 'A small right-angled triangle inside a big one, sharing the angle x. Small: opposite 2.5, hypotenuse 4.7. Big: opposite 5, hypotenuse 9.4.',
+    extra: [{ kind: 'line', from: [4, 0], to: [4, 2.5], style: 'lit' }, { kind: 'text', at: [4, 1.25], text: '2.5', dx: 16 }, { kind: 'text', at: [2, 1.25], text: '4.7', dx: -12, dy: -12 }] })
+  practice(angle, 'Guess first: the big triangle has the same angle x as the small one inside it, and every side twice as long. Does sin x change?', 'T2 p158 (guess first)', pic, choose('No, it stays the same',
+    ['Yes, it doubles', 'The opposite and the hypotenuse both double, so opposite ÷ hypotenuse stays the same.'], ['Yes, it halves', 'Both sides double, and doubling the top and bottom of a fraction doesn’t change it.']),
+  'sin x = opposite ÷ hypotenuse. What happens if both double?', boardModel([], [
+    { title: 'Both sides double', say: 'sin x only depends on the angle, not on the size of the triangle.', rows: ['{2.5|4.7} = {5|9.4}', '! No, it stays the same'], picture: pic },
+  ], 'Guess', pic))
+}
+
+{
   // Example 2: the opposite 5 mm, the adjacent 8 mm, the angle z at the top.
   const pts: Tri = [[0, 0], [0, 8], [5, 0]]
   const t = (z: string, s: (TriSide | undefined)[], tone?: FigureTone, caption?: string) => trig(pts, 1, z, s, 'A right-angled triangle: the angle z at the top, 8 mm next to it and 5 mm opposite it.', { caption, tone })
