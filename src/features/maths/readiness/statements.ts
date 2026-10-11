@@ -145,6 +145,11 @@ export const canStatements: Record<string, string> = {
   '36:substitution-negatives': 'I can put negative numbers into an expression, like 2x² = 18 when x = −3',
   '36:substitution-formulae': 'I can put numbers into a formula, like v = u + at',
 
+  '37:ratio-fractions': 'I can write a ratio as a fraction, like boys : girls = 4 : 5, so 4/9 are boys',
+  '37:ratio-simplifying': 'I can simplify a ratio by dividing every part by the same number, like 12 : 18 : 30 = 2 : 3 : 5',
+  '37:ratio-scaling': 'I can scale a ratio up or down, like squash : water = 2 : 7, so 10 cups of squash need 35 cups of water',
+  '37:ratio-part-whole': 'I can switch between part to part and part to whole, like oranges are 3/8 of the fruit, so oranges : others = 3 : 5',
+  '37:ratio-sharing': 'I can share an amount in a ratio, like £720 in 2 : 3 : 4 is £160, £240 and £320',
   '30:ratio-difference': 'I can find a share from the difference between two parts, like 2 : 3 : 6 with Fay 24 more than Dev gives Eli 18',
   '30:ratio-changing': 'I can solve a ratio that changes by calling 1 part x, like 7 : 3 then Mira gives Noel 10 to make them equal',
   '30:ratio-unit-form': 'I can write a ratio in the form 1 : n or n : 1, like 6 : 15 = 1 : 2.5',

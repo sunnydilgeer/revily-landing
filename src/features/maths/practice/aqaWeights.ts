@@ -137,6 +137,12 @@ export const aqaMarks: Record<string, number> = {
   '36:substitution-expressions': 20,
   '36:substitution-negatives': 15,
   '36:substitution-formulae': 10,
+  // Estimates, not yet counted from the 18 papers: simplifying and sharing in a ratio are the most common ratio marks on Foundation.
+  '37:ratio-fractions': 2,
+  '37:ratio-simplifying': 2,
+  '37:ratio-scaling': 2,
+  '37:ratio-part-whole': 1,
+  '37:ratio-sharing': 3,
   // Estimates, not yet counted from the 18 papers: ratio comes up every sitting (89 marks across 30 papers), but these three skills are a small share of it.
   '30:ratio-difference': 2,
   '30:ratio-changing': 1,

@@ -34,6 +34,7 @@ import TutorFunctionMachinesLesson from './features/function-machines/tutor/Func
 import TutorNegativesLesson from './features/negatives/tutor/NegativesLessonView'
 import TutorSubstitutionLesson from './features/substitution/tutor/SubstitutionLessonView'
 import TutorRatioLesson from './features/ratio/tutor/RatioLessonView'
+import TutorRatioBasicsLesson from './features/ratio/tutor/RatioBasicsLessonView'
 import TutorProportionLesson from './features/ratio/tutor/ProportionLessonView'
 import TutorPercentLesson from './features/ratio/tutor/PercentLessonView'
 import TutorReversePercentLesson from './features/ratio/tutor/ReversePercentLessonView'
@@ -327,6 +328,8 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorNegativesLesson />
     case 36:
       return <TutorSubstitutionLesson />
+    case 37:
+      return <TutorRatioBasicsLesson />
     case 31:
       return <TutorProportionLesson />
     case 32:
