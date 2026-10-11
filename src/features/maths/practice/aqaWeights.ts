@@ -137,6 +137,12 @@ export const aqaMarks: Record<string, number> = {
   '36:substitution-expressions': 20,
   '36:substitution-negatives': 15,
   '36:substitution-formulae': 10,
+  // Estimates, not yet counted from the 18 papers: best buys and speed come up most sittings; density and pressure less.
+  '39:bestbuy-unit': 2,
+  '39:bestbuy-offers': 1,
+  '40:measures-density': 1,
+  '40:measures-speed': 2,
+  '40:measures-pressure': 1,
   // Estimates, not yet counted from the 18 papers: unit conversions turn up in most sittings, usually inside other questions.
   '38:units-metric': 2,
   '38:units-area-volume': 1,

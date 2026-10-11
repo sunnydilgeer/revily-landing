@@ -180,6 +180,51 @@ function inverseProportion(a: number, time: number, b: number, workers: [string,
 
 export const ratioTemplates: Template[] = [
   {
+    id: 'bestbuy-unit', topic: 'ratio', ramp: 'apply', style: 'standard', context: 'shopping', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R8.1 worksheet and the R8 Best Buys Method (cost of the same amount of each); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('39:bestbuy-unit', 'Pasta comes in $500$ g for $£1.10$ or $750$ g for $£1.80$.', 'What is the cost of $100$ g of the better-value bag, in pence?', 22, '110 \\div 5 = 22', '180 ÷ 7.5 = 24p, so the 500 g bag is better value.', [{ answer: 24, note: 'That’s the 750 g bag: 180 ÷ 7.5 = 24p. The 500 g bag is 22p.' }], 2, { suffix: 'p' }, [{ prompt: 'Cost of $100$ g in the $750$ g bag? $180 \\div 7.5 = ?$', answer: 24 }]),
+      convert('39:bestbuy-unit', 'Batteries come in packs of $4$ for $£3.20$ or $10$ for $£7.50$.', 'What is the cost of $1$ battery in the better-value pack, in pence?', 75, '750 \\div 10 = 75', '320 ÷ 4 = 80p, so the pack of 10 is better value.', [{ answer: 80, note: 'That’s the pack of 4: 80p each. The pack of 10 is 75p each.' }], 2, { suffix: 'p' }, [{ prompt: 'Cost of $1$ battery in the pack of $4$? $320 \\div 4 = ?$', answer: 80 }]),
+      convert('39:bestbuy-unit', 'Squash comes in $1$ litre for $£1.30$ or $1.5$ litres for $£1.80$.', 'What is the cost of $1$ litre in the better-value bottle, in pence?', 120, '180 \\div 1.5 = 120', '1 litre costs 130p in the small bottle, so the 1.5 litre bottle is better value.', [{ answer: 130, note: 'That’s the 1 litre bottle. The 1.5 litre bottle is 120p a litre.' }], 2, { suffix: 'p' }, [{ prompt: 'Cost of $1$ litre in the $1.5$ litre bottle? $180 \\div 1.5 = ?$', answer: 120 }]),
+    ],
+  },
+  {
+    id: 'bestbuy-offers', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'shopping', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R8.2 worksheet and the R8 half-price example (cost the offer, then compare); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('39:bestbuy-offers', 'Cans of soup cost $90$p each, on a 3 for 2 offer.', 'How much do $6$ cans cost, in pounds?', 3.6, '4 \\times 0.90 = 3.60', '3 for 2: for 6 cans you pay for 4.', [{ answer: 5.4, note: 'With 3 for 2 you pay for only 4 of the 6 cans.' }], 1, { prefix: '£' }),
+      convert('39:bestbuy-offers', 'A $600$ g box of cereal has $20\\%$ extra free.', 'How many grams are in the box with the offer?', 720, '600 \\times 1.2 = 720', '20% extra: multiply by 1.2.', [{ answer: 120, note: 'That’s the extra. Add it to the 600 g.' }, { answer: 620, note: '20% of 600 g is 120 g, not 20 g.' }], 1, { suffix: 'g' }),
+      convert('39:bestbuy-offers', 'T-shirts cost $£8$ each: buy one, get the second half price.', 'How much do $2$ T-shirts cost?', 12, '8 + 4 = 12', 'The second one is half of £8.', [{ answer: 16, note: 'The second T-shirt is half price: £4.' }, { answer: 4, note: 'That’s the second one. Add the first, full price.' }], 1, { prefix: '£' }),
+    ],
+  },
+  {
+    id: 'measures-density', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'none', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R9.1 worksheet (the M over D × V triangle); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('40:measures-density', 'A piece of wood has a mass of $180$ g and a volume of $300$ cm³.', 'Find its density in g/cm³.', 0.6, '180 \\div 300 = 0.6', 'Density = mass ÷ volume.', [{ answer: 1.6666666666666667, note: 'Mass goes on top: 180 ÷ 300.' }], 1, { suffix: 'g/cm³' }),
+      convert('40:measures-density', 'Gold has a density of $19.3$ g/cm³.', 'What is the mass of $10$ cm³ of gold?', 193, '19.3 \\times 10 = 193', 'Mass = density × volume.', [{ answer: 1.93, note: 'Mass = density × volume, not ÷.' }], 1, { suffix: 'g' }),
+      convert('40:measures-density', 'A rock has a mass of $500$ g and a density of $2.5$ g/cm³.', 'Find its volume.', 200, '500 \\div 2.5 = 200', 'Volume = mass ÷ density.', [{ answer: 1250, note: 'Volume = mass ÷ density, not ×.' }], 1, { suffix: 'cm³' }),
+    ],
+  },
+  {
+    id: 'measures-speed', topic: 'ratio', ramp: 'apply', style: 'standard', context: 'travel', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R10.1 worksheet and R10 Examples 1–3 (the D over S × T triangle, minutes into hours); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('40:measures-speed', 'A car travels $180$ miles in $4$ hours.', 'Find its average speed.', 45, '180 \\div 4 = 45', 'Speed = distance ÷ time.', [{ answer: 720, note: 'Divide distance by time, don’t multiply.' }], 1, { suffix: 'mph' }),
+      convert('40:measures-speed', 'A runner goes $6$ km at $12$ km/h.', 'How many minutes does it take?', 30, '6 \\div 12 \\times 60 = 30', 'Time = distance ÷ speed = 0.5 hours = 30 minutes.', [{ answer: 0.5, note: 'That’s in hours. Multiply by 60 for minutes.' }, { answer: 2, note: 'Time = distance ÷ speed: 6 ÷ 12.' }], 1, { suffix: 'minutes' }),
+      convert('40:measures-speed', 'A bus travels at $36$ mph for $20$ minutes.', 'How far does it go?', 12, '36 \\times \\tfrac{1}{3} = 12', '20 minutes is 1/3 of an hour.', [{ answer: 720, note: 'Change 20 minutes to hours first: 1/3 of an hour.' }], 1, { suffix: 'miles' }),
+    ],
+  },
+  {
+    id: 'measures-pressure', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'none', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R11.1 worksheet (the F over P × A triangle); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('40:measures-pressure', 'A force of $150$ N acts on an area of $0.5$ m².', 'Find the pressure.', 300, '150 \\div 0.5 = 300', 'Pressure = force ÷ area.', [{ answer: 75, note: 'Divide force by area, don’t multiply.' }], 1, { suffix: 'N/m²' }),
+      convert('40:measures-pressure', 'A pressure of $40$ N/m² acts on an area of $6$ m².', 'Find the force.', 240, '40 \\times 6 = 240', 'Force = pressure × area.', [{ answer: 6.666666666666667, note: 'Force = pressure × area, not ÷.' }], 1, { suffix: 'N' }),
+      convert('40:measures-pressure', 'A force of $2$ kN gives a pressure of $500$ N/m².', 'Find the area.', 4, '2000 \\div 500 = 4', '2 kN = 2000 N, then area = force ÷ pressure.', [{ answer: 0.004, note: 'Change 2 kN to 2000 N first.' }], 1, { suffix: 'm²' }),
+    ],
+  },
+  {
     id: 'units-metric', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'food', calculator: false,
     inspiredBy: 'Estimate: modelled on our R6.1 worksheet (multiply to a smaller unit, divide to a bigger one); AQA 2022–25 references still to be counted',
     variants: [

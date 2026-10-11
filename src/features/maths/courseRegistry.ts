@@ -30,6 +30,8 @@ import { tutorFunctionMachinesLesson } from '../function-machines/tutor/function
 import { tutorRatioLesson } from '../ratio/tutor/ratioLesson'
 import { tutorRatioBasicsLesson } from '../ratio/tutor/ratioBasicsLesson'
 import { tutorUnitsLesson } from '../ratio/tutor/unitsLesson'
+import { tutorBestBuysLesson } from '../ratio/tutor/bestBuysLesson'
+import { tutorMeasuresLesson } from '../ratio/tutor/measuresLesson'
 import { tutorProportionLesson } from '../ratio/tutor/proportionLesson'
 import { tutorPercentLesson } from '../ratio/tutor/percentLesson'
 import { tutorReversePercentLesson } from '../ratio/tutor/reversePercentLesson'
@@ -43,7 +45,7 @@ import { probabilityChapter, probabilityLessons, type ProbabilityLessonNumber } 
 
 export { sectionsFor, type MathsSection }
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40
   | GraphsLessonNumber | GeometryLessonNumber | ProbabilityLessonNumber
 
 export type MathsChapterId = 'number' | 'algebra' | 'ratio' | 'graphs' | 'geometry' | 'probability'
@@ -133,6 +135,9 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(34, tutorInterestLesson, 'Interest, growth and decay', 'Work out simple interest, compound growth and decay with a multiplier, and find how many years it takes to pass a target.', tutorInterestLesson.labels, 'ratio'),
   // Lesson 38 is the book's R6, made for Revily: no source files came for R6-R11 (Sunny, 11 Oct). R7 is taught in Real-life graphs.
   entry(38, tutorUnitsLesson, 'Converting units', 'Convert metric units, area and volume units, imperial units and money with a rate, time in hours and minutes, and speeds like km/h to m/s.', tutorUnitsLesson.labels, 'ratio'),
+  // Lessons 39 and 40 are the book's R8 and R9-R11, made for Revily the same way (Sunny, 11 Oct).
+  entry(39, tutorBestBuysLesson, 'Best buys', 'Compare value for money by finding the cost of the same amount of each, including offers like 3 for 2 and extra free.', tutorBestBuysLesson.labels, 'ratio'),
+  entry(40, tutorMeasuresLesson, 'Compound measures', 'Use density, speed and pressure with their formula triangles, changing units like kg to g and minutes to hours first.', tutorMeasuresLesson.labels, 'ratio'),
   // The chapters after Ratio, built on their own shelves first and now on the course (Sunny, 11 Oct).
   ...graphsLessons, ...geometryLessons, ...probabilityLessons,
 ]
