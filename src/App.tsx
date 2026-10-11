@@ -36,6 +36,9 @@ import TutorProportionLesson from './features/ratio/tutor/ProportionLessonView'
 import TutorPercentLesson from './features/ratio/tutor/PercentLessonView'
 import TutorReversePercentLesson from './features/ratio/tutor/ReversePercentLessonView'
 import TutorInterestLesson from './features/ratio/tutor/InterestLessonView'
+import TutorMethodLessonView from './features/written-methods/tutor/TutorMethodLessonView'
+import type { TutorMethodLesson } from './features/written-methods/tutor/model'
+import './features/graphs/graphs.css'
 import { variantDLesson, variantDMicroSkillLabels } from './features/number-types/variant-d/variantDLesson'
 import Curriculum from './features/maths/Curriculum'
 import AppShell, { sectionHref, type AppSection } from './features/maths/AppShell'
@@ -244,7 +247,7 @@ function App() {
       ><ContentsIcon size={20} /><span>Contents</span></button>
     </header>
 
-    <LessonBarSlot.Provider value={barSlot}><main ref={setMainEl} className="lesson-preview" id="main-content">{renderLesson(lesson)}</main></LessonBarSlot.Provider>
+    <LessonBarSlot.Provider value={barSlot}><main ref={setMainEl} className={`lesson-preview lesson-preview--${currentLesson.chapterId}`} id="main-content">{renderLesson(lesson)}</main></LessonBarSlot.Provider>
 
     <MathsContentsDrawer
       open={drawerOpen}
@@ -325,6 +328,9 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorReversePercentLesson />
     case 34:
       return <TutorInterestLesson />
+    default:
+      // Graphs, Geometry and Probability (101 on) are tutor lessons with no view of their own.
+      return <TutorMethodLessonView key={lesson} lesson={getMathsLesson(lesson).definition as TutorMethodLesson} />
   }
 }
 

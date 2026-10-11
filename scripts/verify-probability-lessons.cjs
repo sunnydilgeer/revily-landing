@@ -2,8 +2,7 @@
 // number: node scripts/verify-probability-lessons.cjs 305. Three or four rungs then Review, each with a worked example
 // and questions; every picture a measured figure that fits inside its frame, labels included; every typed answer
 // matches the one worked out by hand below, is accepted with its unit typed after it (a fraction: in any equal form
-// unless the question asks for its simplest), and has slip messages; every wrong choice says why; and the lesson stays
-// hidden: only the noindexed Probability shelf page opens it.
+// unless the question asks for its simplest), and has slip messages; every wrong choice says why; and the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -163,15 +162,9 @@ else console.log('Typed answers:', JSON.stringify(typed))
 assert.deepEqual(sorted, spec.sorts ?? [], 'Every sorting matches the one worked out by hand')
 assert.deepEqual(dragged, spec.drags ?? [], 'Every board answer matches the one worked out by hand')
 
-// Hidden: only the shelf page opens it.
-const hiddenFrom = new RegExp(`probability/tutor|${spec.name}|${id}\\b`)
-for (const [file, text] of [['courseRegistry.ts', read('src/features/maths/courseRegistry.ts')], ['App.tsx', read('src/App.tsx')]]) assert.ok(!hiddenFrom.test(text), `Not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!hiddenFrom.test(read(file)), `Not in ${file}`)
-}
+// ---------- On the course: the Probability and statistics chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === number), `Lesson ${number} is on the course`)
 if (shelf) {
   assert.ok(shelf.probabilityLessons.some(l => l.number === number), `Lesson ${number - 300} is on the Probability shelf`)
-  assert.match(read(`app/preview/${shelf.PROBABILITY_SHELF_ID}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
 }
-console.log(`${lesson.title}: ${states.length} screens, ${pictures} pictures checked, ${typed.length} answers, ${sorted.length} sortings and ${dragged.length} board answers checked${shelf ? ', hidden on the Probability shelf' : ''}`)
+console.log(`${lesson.title}: ${states.length} screens, ${pictures} pictures checked, ${typed.length} answers, ${sorted.length} sortings and ${dragged.length} board answers checked, on the course`)

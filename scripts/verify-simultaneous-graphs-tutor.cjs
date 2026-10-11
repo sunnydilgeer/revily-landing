@@ -3,7 +3,7 @@
 // the pair solved by elimination (not by reading the lesson's lines), so the crossing the lesson draws must be the
 // algebra's solution. Lines drawn on the board are the question's second equation; taps land on the crossing; typed
 // answers are "x, y". Every working draws the lines, reads the crossing, checks it in both and writes the answer once.
-// And the lesson is hidden: only the Graphs shelf opens it.
+// And the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -44,7 +44,7 @@ const on = (e, p) => near(e.a * p.x + e.b * p.y, e.k)
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-simultaneous-read', 'graphs-simultaneous-draw', 'graphs-simultaneous-rearrange']
-assert.equal(lesson.id, 'L105', 'Hidden graphs lessons are numbered from 101')
+assert.equal(lesson.id, 'L105', 'Graphs lessons are numbered from 101')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L105-${String(index + 1).padStart(2, '0')}`)
@@ -117,10 +117,6 @@ for (const state of states.filter(state => rungs.includes(state.microSkillId))) 
 }
 assert.equal(checked, states.filter(state => state.interaction.type !== 'continue' && rungs.includes(state.microSkillId)).length, 'Every question is checked')
 
-// ---------- Hidden: only the Graphs shelf opens it ----------
-for (const file of ['src/features/maths/courseRegistry.ts', 'src/App.tsx']) assert.ok(!/simultaneous-graphs|tutorSimultaneousGraphsLesson|L105/.test(read(file)), `Lesson 105 is not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('simultaneous-graphs/') && !/['"`]L105\b/.test(read(file)), `Lesson 105 is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 105), 'Lesson 105 is on the course')
 console.log(`Graphs lesson 5 (simultaneous equations by graph): ${states.length} screens, ${checked} questions checked.`)

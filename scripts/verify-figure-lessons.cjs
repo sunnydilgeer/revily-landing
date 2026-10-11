@@ -5,8 +5,7 @@
 // picture a measured figure that fits inside its frame, labels included; every typed answer matches the one worked out
 // by hand below, is accepted with its unit (or π) typed after it, and has slip messages (a column vector: both its
 // numbers, in order); areas and perimeters match the
-// shape as drawn; symmetry counts match the measuring board's own folds and turns; and the lesson stays hidden: only the
-// noindexed Geometry shelf page opens it.
+// shape as drawn; symmetry counts match the measuring board's own folds and turns; and the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -137,13 +136,7 @@ for (const s of states) {
 }
 assert.deepEqual(typed, spec.answers, 'Every typed answer matches the one worked out by hand')
 
-// Hidden: only the shelf page opens it.
 assert.ok(geometryLessons.some(l => l.number === number), `Lesson ${number - 200} is on the Geometry shelf`)
-const hiddenFrom = new RegExp(`${spec.dir}/tutor|${spec.name}|${id}\\b`)
-for (const [file, text] of [['courseRegistry.ts', read('src/features/maths/courseRegistry.ts')], ['App.tsx', read('src/App.tsx')]]) assert.ok(!hiddenFrom.test(text), `Not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!hiddenFrom.test(read(file)), `Not in ${file}`)
-}
-assert.match(read(`app/preview/${shelfId}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
-console.log(`${lesson.title}: ${states.length} screens, ${pictures} pictures checked, ${typed.length} answers checked (${drawn} against the picture), hidden on the Geometry shelf`)
+// ---------- On the course: the Geometry chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === number), `Lesson ${number} is on the course`)
+console.log(`${lesson.title}: ${states.length} screens, ${pictures} pictures checked, ${typed.length} answers checked (${drawn} against the picture), on the course`)

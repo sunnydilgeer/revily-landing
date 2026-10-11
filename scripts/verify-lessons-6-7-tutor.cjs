@@ -6,6 +6,7 @@ const ts = require('typescript')
 const katex = require('katex')
 
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename)
+require.extensions['.css'] = () => {}
 const { tutorDecimalsLesson: decimals } = require('../src/features/decimals/tutor/decimalsLesson.ts')
 const { tutorFactorsLesson: factors } = require('../src/features/factors/tutor/factorsLesson.ts')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')

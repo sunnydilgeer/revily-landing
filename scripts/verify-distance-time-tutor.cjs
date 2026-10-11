@@ -1,8 +1,7 @@
 // Checks graphs lesson 7 (Distance–time graphs, GR8). Three rungs, easiest first, each with its worked example; every
 // answer worked out again from the question itself: reading questions from the journey drawn on its graph (a distance
 // at a time, what a part shows, the total distance, how long a stop is, a part's speed as distance ÷ time), and drawing
-// questions from the story in their words, read by this file's own reader. Every journey fits on its graph, and the
-// lesson is hidden.
+// questions from the story in their words, read by this file's own reader. Every journey fits on its graph, and the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -44,7 +43,7 @@ function story(words) {
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-dt-read', 'graphs-dt-speed', 'graphs-dt-draw']
-assert.equal(lesson.id, 'L107', 'Hidden graphs lessons are numbered from 101')
+assert.equal(lesson.id, 'L107', 'Graphs lessons are numbered from 101')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L107-${String(index + 1).padStart(2, '0')}`)
@@ -142,10 +141,6 @@ for (const state of states.filter(state => state.interaction.type === 'continue'
   }
 }
 
-// ---------- Hidden: only the Graphs shelf opens it ----------
-for (const file of ['src/features/maths/courseRegistry.ts', 'src/App.tsx']) assert.ok(!/distance-time\/|tutorDistanceTimeLesson|['"`]L107\b/.test(read(file)), `Lesson 107 is not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('distance-time/') && !/['"`]L107\b/.test(read(file)), `Lesson 107 is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 107), 'Lesson 107 is on the course')
 console.log(`Graphs lesson 7 (distance–time graphs): ${states.length} screens, ${checked} questions checked.`)

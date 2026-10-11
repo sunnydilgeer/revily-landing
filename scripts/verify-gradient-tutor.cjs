@@ -1,7 +1,6 @@
 // Checks graphs lesson 3 (Gradient and y = mx + c, from GR1 and GR2). The gradient: three rungs, each opening with a play screen on the graph board; the
 // workings across first, then up (amber, then biro blue), ending "up over across"; every gradient worked out again
-// from the question's own points; tilt questions reachable on their board; slips explained; and the lesson hidden:
-// only the noindexed Graphs shelf page opens it. Then y = mx + c: from a graph, from two points and by rearranging,
+// from the question's own points; tilt questions reachable on their board; slips explained; and the lesson is on the course. Then y = mx + c: from a graph, from two points and by rearranging,
 // every equation worked out again from the question's own line, points or equation, typed answers accepted in any
 // form, and the usual slips (m and c swapped, a lost sign) explained.
 const assert = require('node:assert/strict')
@@ -24,7 +23,7 @@ const pairs = text => [...text.matchAll(/\((−?\d+),\s(−?\d+)\)/g)].map(m => 
 const states = lesson.states
 const rungs = ['graphs-gradient-graph', 'graphs-gradient-sign', 'graphs-gradient-points']
 const lineRungs = ['graphs-equation-graph', 'graphs-equation-points', 'graphs-equation-rearrange', 'graphs-equation-draw']
-assert.equal(lesson.id, 'L103', 'Hidden graphs lessons are numbered from 101')
+assert.equal(lesson.id, 'L103', 'Graphs lessons are numbered from 101')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, ...lineRungs, 'mixed'], 'Seven rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L103-${String(index + 1).padStart(2, '0')}`)
@@ -193,25 +192,11 @@ for (const state of states.filter(state => state.board?.mode === 'tilt' && state
   for (const p of [a, b]) assert.ok(p.x > grid.x[0] && p.x < grid.x[1] && p.y > grid.y[0] && p.y < grid.y[1], `${state.id}: the line's ends are on the board`)
 }
 
-// ---------- Hidden: only the preview page opens it ----------
-for (const file of ['src/features/maths/courseRegistry.ts', 'src/App.tsx']) assert.ok(!/features\/gradient\/|GradientPreview|tutorGradientLesson|L103/.test(read(file)), `Gradient is not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('features/gradient') && !read(file).includes('L103'), `Gradient is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 103), 'Lesson 103 is on the course')
 assert.ok(states.find(state => state.visual.kind === 'method-worked').video, 'The first worked example carries the GR1.2 video')
 assert.ok(states.find(state => state.microSkillId === lineRungs[0] && state.visual.kind === 'method-worked').video, 'The first y = mx + c worked example carries the GR2.1 video')
 assert.ok(states.find(state => state.microSkillId === 'graphs-equation-draw' && state.visual.kind === 'method-worked').video?.src.endsWith('/drawing.mp4'), 'The drawing worked example carries the GR4.2 video')
 for (const file of [`public/media/${previewId}/gradient.mp4`, `public/media/${previewId}/gradient.svg`, `public/media/${previewId}/equation.mp4`, `public/media/${previewId}/equation.svg`, `public/media/${previewId}/drawing.mp4`, `public/media/${previewId}/drawing.svg`]) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`)
-assert.match(read(`app/preview/${require('../src/features/graphs/graphsLessons.ts').GRAPHS_SHELF_ID}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
-console.log(`Gradient and y = mx + c: ${states.length} screens, ${checked} answers worked out again, hidden on the Graphs shelf`)
+console.log(`Gradient and y = mx + c: ${states.length} screens, ${checked} answers worked out again, on the course`)
 
-// ---------- The Graphs shelf: only its own page imports it ----------
-{
-  const walk = dir => fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap(d => d.isDirectory() ? walk(`${dir}/${d.name}`) : [`${dir}/${d.name}`])
-  const { GRAPHS_SHELF_ID } = require('../src/features/graphs/graphsLessons.ts')
-  const allowed = new Set([`app/preview/${GRAPHS_SHELF_ID}/page.tsx`, 'src/features/graphs/GraphsShelf.tsx', 'src/features/graphs/graphsLessons.ts'])
-  for (const file of [...walk('src'), ...walk('app')].filter(f => /\.tsx?$/.test(f) && !allowed.has(f)))
-    assert.ok(!/features\/graphs\/|graphsShelf|GraphsShelf|GRAPHS_SHELF_ID/.test(read(file)) && !read(file).includes(GRAPHS_SHELF_ID), `${file} doesn't point at the hidden Graphs shelf`)
-  console.log(`Graphs shelf: only /preview/${GRAPHS_SHELF_ID} opens it`)
-}

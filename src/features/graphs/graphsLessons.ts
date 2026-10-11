@@ -1,6 +1,7 @@
 import type { MicroSkillId } from '../number-types/types'
 import type { TutorMethodLesson } from '../written-methods/tutor/model'
-import { sectionsFor, type MathsChapter, type MathsLessonEntry } from '../maths/courseRegistry'
+import type { MathsChapter, MathsLessonEntry } from '../maths/courseRegistry'
+import { sectionsFor } from '../maths/sections'
 import { tutorCoordinatesLesson } from '../coordinates/tutor/coordinatesLesson'
 import { tutorLinesLesson } from '../lines/tutor/linesLesson'
 import { tutorGradientLesson } from '../gradient/tutor/gradientLesson'
@@ -11,10 +12,9 @@ import { tutorDistanceTimeLesson } from '../distance-time/tutor/distanceTimeLess
 import { tutorRealLifeGraphsLesson } from '../real-life-graphs/tutor/realLifeGraphsLesson'
 
 /*
- * The hidden Graphs shelf: the graphs lessons with the course's own lesson page and Contents drawer, but kept off the
- * course. Only the unlisted page in app/preview/<GRAPHS_SHELF_ID> reads this file. Nothing the course shows imports it
- * (the course registry, App.tsx, the curriculum, search, cards, exam checklist, practice), so the lessons aren't in
- * any list or in the code those pages load. The page is noindexed and sits behind the preview password.
+ * The Graphs chapter: lessons 101 to 108, numbered clear of the Number, Algebra and Ratio lessons. They were built on
+ * an unlisted shelf first; now the course registry (../maths/courseRegistry.ts) lists them after Ratio (Sunny, 11 Oct).
+ * The old shelf address, app/preview/<GRAPHS_SHELF_ID>, sends you to the same lesson on the course.
  */
 export const GRAPHS_SHELF_ID = 'graphs-fb7c95e1c045'
 

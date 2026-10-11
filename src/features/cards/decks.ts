@@ -58,8 +58,12 @@ function recallCards(entry: MathsLessonEntry, rung: string, rungTitle: string): 
   return cards
 }
 
+/** Chapters with decks. The chapters after Ratio joined the course (Sunny, 11 Oct) with questions that lean on their
+ * pictures and boards ("Find the area of this circle"), so they wait for cards written for them. */
+const CARD_CHAPTERS = new Set(['number', 'algebra', 'ratio'])
+
 export function buildDecks(lessons: MathsLessonEntry[]): Deck[] {
-  return lessons.map(entry => ({
+  return lessons.filter(entry => CARD_CHAPTERS.has(entry.chapterId)).map(entry => ({
     lesson: entry.number,
     title: entry.title,
     cards: entry.sections.flatMap(section => [

@@ -1,7 +1,7 @@
 // Checks graphs lesson 2 (Lines from coordinates, from GR1 and GR4): three rungs, each opening with a play screen on
 // the graph board; every answer worked out again from the question's own rule or line; every line answer accepted
 // through any two of its points; grids at most 9 squares across with both axes inside; tables x amber and y blue; and
-// that the lesson stays hidden: only the noindexed Graphs shelf page opens it.
+// that the lesson is on the course.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -25,7 +25,7 @@ function ruleOf(text) {
 // ---------- Structure ----------
 const states = lesson.states
 const rungs = ['graphs-straight-lines', 'graphs-table-of-values', 'graphs-plot-and-join']
-assert.equal(lesson.id, 'L102', 'Hidden graphs lessons are numbered from 101')
+assert.equal(lesson.id, 'L102', 'Graphs lessons are numbered from 101')
 assert.deepEqual([...new Set(states.map(state => state.microSkillId))], [...rungs, 'mixed'], 'Three rungs, easiest first, then Review')
 states.forEach((state, index) => {
   assert.equal(state.id, `L102-${String(index + 1).padStart(2, '0')}`)
@@ -132,13 +132,8 @@ assert.match(byTitle('Draw the line across through').diagnose('0, 1, 6'), /y sta
 assert.match(byTitle('y = 3x − 2').diagnose('1'), /negative/)
 assert.match(byTitle('y = 4 − x').diagnose('-1'), /Start at 4/)
 
-// ---------- Hidden: only the preview page opens it ----------
-for (const file of ['src/features/maths/courseRegistry.ts', 'src/App.tsx']) assert.ok(!/features\/lines\/|LinesPreview|tutorLinesLesson|L102/.test(read(file)), `Lines is not in ${file}`)
-for (const dir of ['src/features/cards', 'src/features/maths/practice', 'src/features/maths/readiness']) {
-  const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)])
-  for (const file of walk(dir)) assert.ok(!read(file).includes('features/lines') && !read(file).includes('L102'), `Lines is not in ${file}`)
-}
+// ---------- On the course: the Graphs chapter, after Ratio (Sunny, 11 Oct) ----------
+assert.ok(require('../src/features/maths/courseRegistry.ts').mathsLessons.some(entry => entry.number === 102), 'Lesson 102 is on the course')
 assert.ok(states.find(state => state.visual.kind === 'method-worked').video, 'The first worked example carries the GR4.1 video')
 for (const file of [`public/media/${previewId}/lines.mp4`, `public/media/${previewId}/lines.svg`]) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`)
-assert.match(read(`app/preview/${require('../src/features/graphs/graphsLessons.ts').GRAPHS_SHELF_ID}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
-console.log(`Lines from coordinates: ${states.length} screens, ${checked} answers worked out again, hidden on the Graphs shelf`)
+console.log(`Lines from coordinates: ${states.length} screens, ${checked} answers worked out again, on the course`)

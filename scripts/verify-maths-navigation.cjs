@@ -72,7 +72,7 @@ for (const view of ['src/features/written-methods/tutor/TutorMethodLessonView.ts
 
 // Lesson page is one fixed screen: the page never scrolls; a card taller than its space scrolls inside, with a fade
 const navCss = read('src/features/maths/MathsNavigation.css')
-for (const shell of ['src/App.tsx', 'src/features/graphs/GraphsShelf.tsx', 'src/features/geometry/GeometryShelf.tsx']) {
+for (const shell of ['src/App.tsx']) {
   const source = read(shell)
   assert.ok(source.includes('app-shell--study app-shell--frame') && source.includes('useLessonFrame(mainEl)'), `${shell} must use the fixed lesson frame`)
 }
