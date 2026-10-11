@@ -30,7 +30,7 @@ const twentieths = (n: number) => { const g = gcd(n, 20) || 1; return n === 0 ? 
 const likelihood = (p: number) => p === 0 ? 'impossible' : p === 1 ? 'certain' : p === 0.5 ? 'even chance' : p < 0.5 ? 'unlikely' : 'likely'
 
 /* scale: the line from 0 to 1. tree: two sliders, one for each event. average: the data's bars. */
-const SCALE = { x0: 30, x1: 290, y: 120 }
+const SCALE = { x0: 58, x1: 262, y: 120 }
 const SLIDERS = [{ y: 178, label: 'Event 1' }, { y: 206, label: 'Event 2' }], SLIDE = { x0: 120, x1: 290 }
 const DATA = [3, 5, 5, 6, 8, 9], BARS = { x0: 26, w: 30, gap: 12, base: 196, unit: 5.2 }
 
@@ -89,9 +89,9 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
         <path className="ns-fig__line is-thin" d={`M${tx} ${SCALE.y - (t * 4 % 2 ? 6 : 10)} L${tx} ${SCALE.y + (t * 4 % 2 ? 6 : 10)}`} />
         {t * 4 % 2 === 0 && <text className="measure-board__label" x={tx} y={SCALE.y + 26}>{t === 0.5 ? '½' : t}</text>}
       </g> })}
-      <text className="measure-board__label is-c" x={SCALE.x0 + 6} y={SCALE.y + 52}>Impossible</text>
+      <text className="measure-board__label is-c" x={SCALE.x0} y={SCALE.y + 52}>Impossible</text>
       <text className="measure-board__label is-c" x={(SCALE.x0 + SCALE.x1) / 2} y={SCALE.y + 52}>Even</text>
-      <text className="measure-board__label is-c" x={SCALE.x1 - 6} y={SCALE.y + 52}>Certain</text>
+      <text className="measure-board__label is-c" x={SCALE.x1} y={SCALE.y + 52}>Certain</text>
       <path className="ns-fig__line is-lit" d={`M${x} ${SCALE.y - 24} L${x} ${SCALE.y - 4}`} />
       <path className="ns-fig__line is-lit is-head" d={`M${x - 6} ${SCALE.y - 13} L${x} ${SCALE.y - 4} L${x + 6} ${SCALE.y - 13}`} />
       <text className="measure-board__label is-big is-a" x={clamp(x, 40, 280)} y={SCALE.y - 64}>{likelihood(p)}</text>

@@ -167,12 +167,12 @@ export function tableFig(rows: string[][], spoken: string, opts: { tones?: [numb
 export function scaleFig(marks: { at: number; label: string; tone?: FigureTone }[], spoken: string, opts: { words?: boolean; caption?: string } = {}): AngleFrame {
   const L = 6, items: FigureItem[] = [{ kind: 'line', from: [0, 0], to: [L, 0] }]
   for (const [v, n] of [[0, '0'], [0.5, '½'], [1, '1']] as const) items.push({ kind: 'line', from: [v * L, -0.18], to: [v * L, 0.18] }, { kind: 'text', at: [v * L, -0.5], text: n, name: true })
-  if (opts.words !== false) items.push({ kind: 'text', at: [0, -1.05], text: 'Impossible', tone: 'faint' }, { kind: 'text', at: [L / 2, -1.05], text: 'Even', tone: 'faint' }, { kind: 'text', at: [L, -1.05], text: 'Certain', tone: 'faint' })
+  if (opts.words !== false) items.push({ kind: 'text', at: [0, -1.05], text: 'Impossible', tone: 'faint', dx: 12 }, { kind: 'text', at: [L / 2, -1.05], text: 'Even', tone: 'faint' }, { kind: 'text', at: [L, -1.05], text: 'Certain', tone: 'faint' })
   marks.forEach((m, k) => {
     items.push({ kind: 'point', at: [m.at * L, 0] })
     items.push({ kind: 'text', at: [m.at * L, 0.55 + (k % 2) * 0.5], text: m.label, ...(m.tone ? { tone: m.tone } : {}) })
   })
-  return fig(items, spoken, opts.caption, 30)
+  return fig(items, spoken, opts.caption)
 }
 
 /* ---------- Spinners ---------- */
