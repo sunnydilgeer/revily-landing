@@ -28,6 +28,7 @@ import { tutorSimultaneousEquationsLesson } from '../simultaneous-equations/tuto
 import { tutorProofLesson } from '../proof/tutor/proofLesson'
 import { tutorFunctionMachinesLesson } from '../function-machines/tutor/functionMachinesLesson'
 import { tutorRatioLesson } from '../ratio/tutor/ratioLesson'
+import { tutorRatioBasicsLesson } from '../ratio/tutor/ratioBasicsLesson'
 import { tutorProportionLesson } from '../ratio/tutor/proportionLesson'
 import { tutorPercentLesson } from '../ratio/tutor/percentLesson'
 import { tutorReversePercentLesson } from '../ratio/tutor/reversePercentLesson'
@@ -41,7 +42,7 @@ import { probabilityChapter, probabilityLessons, type ProbabilityLessonNumber } 
 
 export { sectionsFor, type MathsSection }
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37
   | GraphsLessonNumber | GeometryLessonNumber | ProbabilityLessonNumber
 
 export type MathsChapterId = 'number' | 'algebra' | 'ratio' | 'graphs' | 'geometry' | 'probability'
@@ -122,6 +123,8 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(27, tutorSimultaneousEquationsLesson, 'Simultaneous equations', 'Solve two equations at once, like 3x + 2y = 16 and x + 2y = 8, by making one letter disappear, and write them from a problem in words.', tutorSimultaneousEquationsLesson.labels, 'algebra'),
   entry(28, tutorProofLesson, 'Proof', 'Disprove a claim with one counterexample, show two expressions are identical, prove angle facts, and prove facts about odd and even numbers with algebra.', tutorProofLesson.labels, 'algebra'),
   entry(29, tutorFunctionMachinesLesson, 'Function machines', 'Put a number through a function machine, work backwards from the output to the input, and turn an equation like y = 3x + 4 into a machine.', tutorFunctionMachinesLesson.labels, 'algebra'),
+  // Lesson 37 is the book's R1.1-R1.5, made for Revily because only R1.6-R1.8 came in the pack (Sunny, 11 Oct). It opens Ratio.
+  entry(37, tutorRatioBasicsLesson, 'Ratios', 'Write a ratio as a fraction, simplify it, scale it up, switch between part to part and part to whole, and share an amount in a ratio.', tutorRatioBasicsLesson.labels, 'ratio'),
   entry(30, tutorRatioLesson, 'Ratio problems', 'Find a share from the difference between two parts, solve a ratio that changes, and write a ratio in the form 1 : n.', tutorRatioLesson.labels, 'ratio'),
   entry(31, tutorProportionLesson, 'Direct and inverse proportion', 'Scale an amount up or down with direct proportion, and work out how long a job takes with inverse proportion, by finding 1 first.', tutorProportionLesson.labels, 'ratio'),
   entry(32, tutorPercentLesson, 'Percentages', 'Find a percentage of an amount from 10%, 5% and 1%, increase or decrease by a percentage, and work out a percentage change.', tutorPercentLesson.labels, 'ratio'),

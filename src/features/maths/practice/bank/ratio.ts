@@ -1,12 +1,88 @@
 /*
- * Practice templates for ratio problems (lesson 30, Ratio R1): a share from the difference between two parts, a ratio
+ * Practice templates for ratio: the basics (lesson 37, R1.1–R1.5) and ratio problems (lesson 30, R1.6–R1.8): a share from the difference between two parts, a ratio
  * that changes until two amounts are equal, and the form 1 : n. Original questions in the style of AQA Foundation
  * papers. The AQA 2022–25 references have not been counted for these skills yet, so `inspiredBy` says so, and the
  * weights in aqaWeights.ts are estimates.
  */
-import type { NumberPart, QuestionBody, Template } from '../types'
+import type { FractionPart, NumberPart, QuestionBody, Template } from '../types'
 
 const join = (list: (string | number)[]) => list.join(' : ')
+
+/** a : b of two things; what fraction is the first? (1 mark) */
+function asFraction(a: number, b: number, what: [string, string], group: string): QuestionBody {
+  const part: FractionPart = {
+    kind: 'fraction', prompt: `What fraction of the ${group} are ${what[0]}?`, answer: [a, a + b], marks: 1, statements: ['37:ratio-fractions'],
+    hint: `Add the parts to find the whole: ${a} + ${b}. The ${what[0]} are ${a} of those parts.`,
+    chain: [
+      { line: `${a} + ${b} = ${a + b}`, op: 'Parts in total', why: 'The whole is every part added together.' },
+      { line: `\\frac{${a}}{${a + b}}`, op: `${what[0]} out of the whole`, why: `${a} of the ${a + b} parts are ${what[0]}.` },
+    ],
+    mistakes: [{ answer: [a, b], note: `${a}/${b} compares ${what[0]} with ${what[1]}. The whole is ${a} + ${b} = ${a + b} parts.` }],
+  }
+  return { stem: `The ratio of ${what[0]} to ${what[1]} in a ${group.replace(/s$/, '')} group is $${a} : ${b}$.`, parts: [part] }
+}
+
+/** Simplify a : b : c and ask for the last number (1 mark). */
+function simplify(list: number[], what: string): QuestionBody {
+  const gcd = (x: number, y: number): number => y ? gcd(y, x % y) : x
+  const h = list.reduce(gcd), small = list.map(n => n / h), last = small[small.length - 1]
+  const part: NumberPart = {
+    kind: 'number', prompt: `Write the ratio $${join(list)}$ in its simplest form, $${join(small.slice(0, -1))} : n$. What is $n$?`, answer: last, marks: 1, statements: ['37:ratio-simplifying'], prefix: 'n =',
+    hint: `Find the biggest number that divides into all of ${list.join(', ')}.`,
+    chain: [{ line: `${join(list)} = ${join(small)}`, op: `÷ ${h}`, why: `${h} is the highest common factor, so divide every part by it.` }],
+    mistakes: [{ answer: list[list.length - 1] / 2, note: `Halving isn't enough: the parts still share a factor. Divide by the highest common factor, ${h}.` }],
+  }
+  return { stem: `A ${what} is made in the ratio $${join(list)}$.`, parts: [part] }
+}
+
+/** a : b, and `have` of the first; how much of the second? (2 marks) */
+function scale(a: number, b: number, have: number, what: [string, string], unit: string): QuestionBody {
+  const times = have / a, answer = b * times
+  const part: NumberPart = {
+    kind: 'number', prompt: `How much ${what[1]} is needed?`, answer, marks: 2, statements: ['37:ratio-scaling'], suffix: unit,
+    hint: `How many times bigger is ${have} than ${a}? Multiply ${b} by the same.`,
+    method: [{ prompt: `What has ${a} been multiplied by? $${have} \\div ${a} = ?$`, answer: times }],
+    chain: [
+      { line: `${have} \\div ${a} = ${times}`, op: 'Scale factor', why: `${a} parts of ${what[0]} became ${have}${unit}.` },
+      { line: `${b} \\times ${times} = ${answer}`, op: `× ${times}`, why: 'Do the same to the other side of the ratio.' },
+    ],
+    mistakes: [{ answer: have + b - a, note: `Ratios scale by multiplying, not adding: ${have} is ${times} times ${a}.` }],
+  }
+  return { stem: `${what[0][0].toUpperCase() + what[0].slice(1)} and ${what[1]} are mixed in the ratio $${a} : ${b}$. There are ${have}${unit} of ${what[0]}.`, parts: [part] }
+}
+
+/** The first thing is a/whole of a bag of `total`; how many are not? (2 marks) */
+function partWhole(a: number, whole: number, total: number, what: string, group: string): QuestionBody {
+  const one = total / whole, answer = (whole - a) * one
+  const part: NumberPart = {
+    kind: 'number', prompt: `How many ${group} are not ${what}?`, answer, marks: 2, statements: ['37:ratio-part-whole'],
+    hint: `${a} : ${whole} is part to whole: ${whole} parts is all ${total}. The rest is ${whole} − ${a} parts.`,
+    method: [{ prompt: `What is 1 part worth? $${total} \\div ${whole} = ?$`, answer: one }],
+    chain: [
+      { line: `${total} \\div ${whole} = ${one}`, op: 'Find 1 part', why: `The whole bag is ${whole} parts.` },
+      { line: `${whole - a} \\times ${one} = ${answer}`, op: `× ${whole - a}`, why: `${whole} − ${a} = ${whole - a} parts are not ${what}.` },
+    ],
+    mistakes: [{ answer: total / (a + whole) * whole, note: `${a} : ${whole} compares ${what} with the whole bag, so the bag is ${whole} parts, not ${a + whole}.` }, { answer: a * one, note: `That's how many are ${what}. The question asks for the rest.` }],
+  }
+  return { stem: `A bag has ${total} ${group}. The ratio of ${what} ${group} to all the ${group} is $${a} : ${whole}$.`, parts: [part] }
+}
+
+/** Share `total` in a ratio; one person's share (2 marks). */
+function share(names: string[], ratio: number[], total: number, want: number, pounds = false): QuestionBody {
+  const parts = ratio.reduce((x, y) => x + y, 0), one = total / parts, answer = ratio[want] * one
+  const part: NumberPart = {
+    kind: 'number', prompt: `How much does ${names[want]} get?`, answer, marks: 2, statements: ['37:ratio-sharing'], prefix: pounds ? '£' : undefined,
+    hint: `Add the parts, then share ${pounds ? '£' : ''}${total} between them to find 1 part.`,
+    method: [{ prompt: `What is 1 part worth? $${total} \\div ${parts} = ?$`, answer: one, prefix: pounds ? '£' : undefined }],
+    chain: [
+      { line: `${ratio.join(' + ')} = ${parts}`, op: 'Parts in total', why: 'Add every part of the ratio.' },
+      { line: `${total} \\div ${parts} = ${one}`, op: 'Find 1 part', why: `Share the ${pounds ? '£' : ''}${total} between ${parts} parts.` },
+      { line: `${ratio[want]} \\times ${one} = ${answer}`, op: `${names[want]}’s share`, why: `${names[want]} has ${ratio[want]} parts.` },
+    ],
+    mistakes: [{ answer: total / ratio.length, note: `Share by the ratio, not equally: there are ${parts} parts.` }, { answer: total / ratio[want], note: `Add up all the parts first: ${ratio.join(' + ')} = ${parts}.` }],
+  }
+  return { stem: `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} share ${pounds ? '£' : ''}${total} in the ratio $${join(ratio)}$.`, parts: [part] }
+}
 
 /** Three shares in a ratio; one is `more` than another. Find a third share (2 marks, method: 1 part). */
 function difference(names: [string, string, string], ratio: [number, number, number], big: number, small: number, want: number, more: number, what: string, pounds = false): QuestionBody {
@@ -92,6 +168,31 @@ function inverseProportion(a: number, time: number, b: number, workers: [string,
 }
 
 export const ratioTemplates: Template[] = [
+  {
+    id: 'ratio-fractions', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'school', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R1.1 worksheet (the whole is every part added); AQA 2022–25 references still to be counted',
+    variants: [asFraction(4, 5, ['boys', 'girls'], 'students'), asFraction(3, 7, ['cats', 'dogs'], 'pets'), asFraction(5, 6, ['adults', 'children'], 'people')],
+  },
+  {
+    id: 'ratio-simplifying', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'home', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R1.2 worksheet (divide every part by the HCF); AQA 2022–25 references still to be counted',
+    variants: [simplify([12, 18, 30], 'mortar'), simplify([24, 40, 56], 'paint'), simplify([36, 48], 'drink')],
+  },
+  {
+    id: 'ratio-scaling', topic: 'ratio', ramp: 'apply', style: 'standard', context: 'food', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R1.3 worksheet (multiply both sides by the same number); AQA 2022–25 references still to be counted',
+    variants: [scale(2, 7, 10, ['squash', 'water'], ' cups'), scale(5, 2, 300, ['flour', 'butter'], ' g'), scale(3, 8, 15, ['red paint', 'white paint'], ' ml')],
+  },
+  {
+    id: 'ratio-part-whole', topic: 'ratio', ramp: 'multistep', style: 'standard', context: 'food', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R1.4 worksheet (part to whole means the whole is the second number); AQA 2022–25 references still to be counted',
+    variants: [partWhole(3, 8, 40, 'sour', 'sweets'), partWhole(2, 5, 30, 'red', 'counters'), partWhole(4, 9, 36, 'green', 'marbles')],
+  },
+  {
+    id: 'ratio-sharing', topic: 'ratio', ramp: 'apply', style: 'standard', context: 'shopping', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R1.5 worksheet (add the parts, find 1 part, multiply); AQA 2022–25 references still to be counted',
+    variants: [share(['Ana', 'Ben', 'Cal'], [2, 3, 4], 720, 0, true), share(['Lee', 'Mo'], [5, 3], 96, 1, true), share(['Ria', 'Sam'], [2, 5], 42, 1)],
+  },
   {
     id: 'ratio-difference', topic: 'ratio', ramp: 'multistep', style: 'standard', context: 'food', calculator: false,
     inspiredBy: 'Estimate: modelled on the R1.6 worksheet (the difference between two shares, not the total); AQA 2022–25 references still to be counted',
