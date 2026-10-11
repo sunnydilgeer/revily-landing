@@ -31,6 +31,8 @@ import TutorSolvingInequalitiesLesson from './features/solving-inequalities/tuto
 import TutorSimultaneousEquationsLesson from './features/simultaneous-equations/tutor/SimultaneousEquationsLessonView'
 import TutorProofLesson from './features/proof/tutor/ProofLessonView'
 import TutorFunctionMachinesLesson from './features/function-machines/tutor/FunctionMachinesLessonView'
+import TutorNegativesLesson from './features/negatives/tutor/NegativesLessonView'
+import TutorSubstitutionLesson from './features/substitution/tutor/SubstitutionLessonView'
 import TutorRatioLesson from './features/ratio/tutor/RatioLessonView'
 import TutorProportionLesson from './features/ratio/tutor/ProportionLessonView'
 import TutorPercentLesson from './features/ratio/tutor/PercentLessonView'
@@ -320,6 +322,10 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorFunctionMachinesLesson />
     case 30:
       return <TutorRatioLesson />
+    case 35:
+      return <TutorNegativesLesson />
+    case 36:
+      return <TutorSubstitutionLesson />
     case 31:
       return <TutorProportionLesson />
     case 32:

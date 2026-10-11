@@ -128,6 +128,15 @@ export const aqaMarks: Record<string, number> = {
   '29:function-machines-forwards': 2,
   '29:function-machines-backwards': 1,
   '29:function-machines-creating': 1,
+  // Lessons 35 and 36 were added on 11 October. These are estimates, not counts from the papers: substitution is
+  // scaled from its 76 marks in the 30-paper analysis (paperTopics.ts); negatives from how often N2 sums appear.
+  '35:negatives-number-line': 15,
+  '35:negatives-two-signs': 5,
+  '35:negatives-multiply-divide': 8,
+  '35:negatives-problems': 10,
+  '36:substitution-expressions': 20,
+  '36:substitution-negatives': 15,
+  '36:substitution-formulae': 10,
   // Estimates, not yet counted from the 18 papers: ratio comes up every sitting (89 marks across 30 papers), but these three skills are a small share of it.
   '30:ratio-difference': 2,
   '30:ratio-changing': 1,

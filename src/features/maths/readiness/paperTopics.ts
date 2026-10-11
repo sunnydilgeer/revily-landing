@@ -73,6 +73,8 @@ export const paperTopics: PaperTopic[] = [
     ...lesson(3, 'digit-place-value', 'decimal-places'),
     ...lesson(11, 'ordering-decimals', 'ordering-large-numbers', 'ordering-negative-numbers', 'ordering-fractions-decimals-percentages'),
   ] },
+  { id: 'negatives', title: 'Negative numbers', short: 'Negatives', area: 'number', marks30: 40, estimate: true, requires: ['place-value'], statements: lesson(35,
+    'negatives-number-line', 'negatives-two-signs', 'negatives-multiply-divide', 'negatives-problems') },
   { id: 'number-types', title: 'Types of number', short: 'Number types', area: 'number', marks30: 45, estimate: true, statements: lesson(1,
     'whole-values', 'special-integers', 'rational-numbers', 'irrational-numbers') },
   { id: 'fdp', title: 'Fractions, decimals and percentages', short: 'FDP', area: 'number', marks30: 40, estimate: true, requires: ['fractions', 'decimals'], statements: lesson(9,
@@ -86,7 +88,7 @@ export const paperTopics: PaperTopic[] = [
 
   // Algebra
   { id: 'straight-lines', title: 'Straight-line graphs', short: 'Graphs', area: 'algebra', marks30: 84, sittings: 10, requires: ['substitution', 'equations'], statements: [], labs: ['laser'] },
-  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: [], labs: ['formula'] },
+  { id: 'substitution', title: 'Substitution', area: 'algebra', marks30: 76, sittings: 10, requires: ['simplifying'], statements: lesson(36, 'substitution-expressions', 'substitution-negatives', 'substitution-formulae'), labs: ['formula'] },
   { id: 'sequences', title: 'Sequences', area: 'algebra', marks30: 59, sittings: 10, requires: ['substitution'], statements: lesson(23, 'sequences-special', 'sequences-geometric', 'sequences-nth-term', 'sequences-in-sequence', 'sequences-consecutive'), labs: ['levels'] },
   { id: 'inequalities', title: 'Inequalities', area: 'algebra', marks30: 30, estimate: true, requires: ['equations'], statements: [...lesson(24, 'inequalities-number-line', 'inequalities-two-sided'), ...lesson(25, 'inequalities-integers', 'inequalities-solve', 'inequalities-solve-two-signs', 'inequalities-negative')] },
   { id: 'simultaneous', title: 'Simultaneous equations', short: 'Simultaneous', area: 'algebra', marks30: 25, estimate: true, requires: ['equations'], statements: lesson(27, 'simultaneous-elimination', 'simultaneous-words') },
