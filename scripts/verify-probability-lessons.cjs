@@ -28,7 +28,9 @@ const LESSONS = {
     // 1 to 11, odd and prime: 1 and 9 odd only, 2 prime only, 3 5 7 11 both, the evens outside. 1 to 12, even and
     // multiples of 3: 6 and 12 both, 3 and 9 B only, 2 4 8 10 A only, 1 5 7 11 outside.
     sorts: ['play onlyA,onlyB,both,outside,both,outside,both,outside,onlyA,outside,both', 'outside,onlyA,onlyB,onlyA,outside,both,outside,onlyA,onlyB,onlyA,outside,both'] },
-  306: { file: 'setNotationLesson', name: 'tutorSetNotationLesson', boards: [], answers: [6, 8, 8, 4, 5] },
+  306: { file: 'setNotationLesson', name: 'tutorSetNotationLesson', boards: [], answers: [6, 8, 8, 4, 5],
+    // 1 to 10: the odd ones in A, the even ones in A'.
+    sorts: ['play A,notA,A,notA,A,notA,A,notA,A,notA'] },
   307: { file: 'dataTypesLesson', name: 'tutorDataTypesLesson', boards: [], answers: [3, 50],
     // Hair colour, siblings, band, cube time, eye colour, goals; car colour, weight, sport, texts, country; heights,
     // queue, lengths, children, times; Michael, newspaper, traffic count, online survey, class vote.
@@ -36,7 +38,9 @@ const LESSONS = {
   308: { file: 'averagesLesson', name: 'tutorAveragesLesson', boards: ['average'], answers: [8, 0.488, 169, 12, 350, 310, 1.3, 1.75, 11, 62.5, 63.75],
     // Mean 7 of seven values: 49 − (3 + 5 + 5 + 6 + 8 + 9) = 13.
     drags: ['13'] },
-  309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20] },
+  309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20],
+    // Library, school list, one road, online poll, field squares; crisps, ages, books, exercise, shopping day.
+    sorts: ['biased,fair,biased,biased,fair', 'play fault,fault,fine,fault,fine'] },
 }
 const spec = LESSONS[number]
 assert.ok(spec, `Give a lesson number, 301 to 309 (got ${process.argv[2]})`)

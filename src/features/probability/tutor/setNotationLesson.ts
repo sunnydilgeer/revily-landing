@@ -21,7 +21,7 @@ import { vennFig, type VennRegion, type VennShade } from './chancePictures'
 
 const lesson = author(306)
 const { add, finish } = lesson
-const { worked, practice, ask } = chanceScreens(lesson)
+const { worked, practice, ask, playSort } = chanceScreens(lesson)
 const notation = 'sets-notation'
 const andOr = 'sets-and-or'
 const regions = 'sets-regions'
@@ -58,6 +58,10 @@ const blank = (shade?: VennShade, tone: 'lit' | 'found' = 'lit', caption?: strin
 
 /* ---------- Rung 1: sets and ξ ---------- */
 
+playSort(notation, 'ξ = {1, 2, …, 10} and A is the odd numbers. Sort each number: in A, or in A’ (not in A)?', 'P6 p176 Sets and ξ (play)', { kind: 'bins', bins: [{ id: 'A', label: 'A: odd' }, { id: 'notA', label: 'A’: not in A' }], tiles: Array.from({ length: 10 }, (_, i) => i + 1).map(k => k % 2
+  ? { label: String(k), to: 'A', why: `${k} is odd, so it’s in A.` }
+  : { label: String(k), to: 'notA', why: `${k} is even, so it’s not in A: it’s in A’.` }) })
+
 {
   const p = oddSquareFig()
   worked(notation, 'ξ = {1, 2, …, 10}. A is the first five odd numbers. Write A, n(A) and A’.', 'Sets and ξ', 'P6 p176 Sets (book’s numbers)', boardModel([], [
@@ -84,6 +88,12 @@ ask(notation, 'ξ = {103, 104, 105, 109, 110, 112, 114}. A is the even numbers. 
 ], 'Sets'))
 
 /* ---------- Rung 2: ∩ and ∪ ---------- */
+
+ask(andOr, 'Guess first: A ∩ B is what’s in both sets, and A ∪ B is what’s in either. Which has more elements?', 'P6 p177 (guess first)', ['A = {1, 2, 3, 4}', 'B = {3, 4, 5, 6}'], choose('A ∪ B',
+  ['A ∩ B', 'In both is only 3 and 4. In either is 1, 2, 3, 4, 5, 6.'], ['They’re the same', 'In both is 2 numbers; in either is 6.']),
+'Both, or either: which lets more numbers in?', boardModel([], [
+  { title: 'In both, in either', say: 'Both sets have 3 and 4. Either set has everything in A or B, once each.', rows: [`A ∩ B = ${set(3, 4)}`, `A ∪ B = ${set(1, 2, 3, 4, 5, 6)}`, '! A ∪ B has more'] },
+], 'Sets'))
 
 {
   const p = example1Fig()

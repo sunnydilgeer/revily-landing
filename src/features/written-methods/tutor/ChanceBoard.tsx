@@ -66,7 +66,8 @@ export function ChanceBoard({ spec, onChange, disabled }: { spec: ChanceBoardSpe
     const q = new DOMPoint(event.clientX, event.clientY).matrixTransform(m.inverse())
     return { x: q.x, y: q.y }
   }
-  const move = (p: P | null, pick = which) => { const next = p && from(p, pick); if (next && next.join() !== v.join()) set(next) }
+  // A question takes the first touch as an answer even where the board starts, so Check is never stuck off.
+  const move = (p: P | null, pick = which) => { const next = p && from(p, pick); if (next && (next.join() !== v.join() || (onChange && !moved))) set(next) }
   const key = (event: KeyboardEvent) => {
     const step = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0
     if (!step || spec.mode === 'spin') return
