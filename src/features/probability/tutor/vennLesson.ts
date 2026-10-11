@@ -23,7 +23,7 @@ import type { SortTile } from '../../written-methods/tutor/SortBoard'
 
 const lesson = author(305)
 const { add, finish } = lesson
-const { worked, practice, playSort, sort } = chanceScreens(lesson)
+const { worked, practice, playSort, sort, ask } = chanceScreens(lesson)
 const fill = 'venn-fill'
 const probability = 'venn-probability'
 const counts = 'venn-counts'
@@ -180,6 +180,20 @@ const animals = (regions: R3, tones: Partial<Record<Venn3Region, FigureTone>> = 
     { title: 'Exactly two', say: 'The three overlaps of two. The middle is all three, so leave it out.', rows: ['10 + 4 + 6 = 20', 'P = {20|100}', '! P = {1|5}'], picture: langs(full, { AB: 'found', AC: 'found', BC: 'found' }) },
   ], 'Probability', p))
 }
+
+/* ---------- Review: one of each, our own numbers ---------- */
+
+sort('mixed', 'Sort the numbers 1 to 10. A is factors of 12, B is odd numbers.', 'P5 review (own numbers)', { kind: 'venn', names: ['A factor of 12', 'B odd'], tiles: numberTiles(10, k => 12 % k === 0, k => k % 2 === 1, (k, a, b) => `${k} is ${a ? 'a factor of 12' : 'not a factor of 12'} and ${b ? 'odd' : 'even'}.`) }, 'Factors of 12 up to 10: 1, 2, 3, 4, 6.', boardModel([], [
+  { title: 'Start with the overlap', say: 'Factors of 12 that are odd: 1 and 3.', rows: ['>0 Both: 1, 3'] },
+  { title: 'The rest', say: 'Other factors 2, 4, 6. Other odds 5, 7, 9. Neither: 8, 10.', rows: ['! A only 2, 4, 6; B only 5, 7, 9; neither 8, 10'] },
+], 'Venn diagram'))
+ask('mixed', '40 people: 22 like tea, 25 like coffee, and 10 like both. How many like neither?', 'P5 review (own numbers)', ['40 people', 'Tea 22, coffee 25, both 10'], number(3, '3'), 'Fill the overlap first, then each circle’s own part.', boardModel([], [
+  { title: 'Each circle’s own part', say: 'Take the 10 with both out of each.', rows: ['Tea only = 22 − 10 = 12', 'Coffee only = 25 − 10 = 15'] },
+  { title: 'The rest go outside', say: 'Take everyone in the circles from 40.', rows: ['40 − 12 − 10 − 15 = 3', '! Neither = 3'] },
+], 'Venn diagram'), slips(3, [[-7, 'The 10 with both were counted twice. Take 10 from each circle first.'], [13, 'Take away the circles’ own parts too.']]), COUNT_BOX)
+ask('mixed', 'One of the same 40 people is picked at random. Find P(likes tea but not coffee).', 'P5 review (own numbers)', ['Tea only: 12 of the 40'], fraction('3/10'), 'Tea’s own part, out of everyone.', boardModel([], [
+  { title: 'Tea only ÷ total', say: '12 like tea but not coffee, out of 40.', rows: ['P = {12|40}', '! P = {3|10}'] },
+], 'Probability'))
 
 add('mixed', 'Venn diagrams', 'P5 consolidation', text(
   'Fill the overlap first, then each circle’s own part, then the outside.',

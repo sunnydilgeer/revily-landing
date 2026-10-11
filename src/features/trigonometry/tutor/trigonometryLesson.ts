@@ -210,6 +210,27 @@ for (const q of [
   ], 'tan 45°', p))
 }
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+{
+  const pts: Tri = [[9.75, 0], [9.75, 7], [0, 0]]
+  const t = (mark: string, tone?: FigureTone, caption?: string) => trig(pts, 2, mark, [{ label: '7 cm', tone: tone ? 'lit' : undefined }, { label: '12 cm', tone: tone ? 'lit' : undefined }], 'A right-angled triangle: the angle x, 7 cm opposite it and a hypotenuse of 12 cm.', { tone, caption })
+  const p = t('x')
+  practice('mixed', 'Find the angle x, to 1 decimal place.', 'T2 review (own numbers)', p, number(35.7, '35.7°'), 'You have O and H: SOH.', boardModel([], [
+    { title: 'Opposite and hypotenuse', say: 'O and H are in SOH.', rows: ['sin x = {7|12}'], picture: t('x', 'lit') },
+    { title: 'Inverse sin', say: 'Use sin⁻¹ on your calculator, then round.', rows: ['x = sin⁻¹({7|12}) = 35.68…', '! x = 35.7°'], picture: t('35.7°', 'found', 'x = 35.7°') },
+  ], 'Find x', p), slips(35.7, [[0.6, 'That’s sin x. Use sin⁻¹ to get the angle.'], [54.3, 'That’s the other angle. 7 cm is opposite x, so use sin.']]), A_BOX('x'))
+}
+{
+  const pts: Tri = [[10, 0], [10, 8.39], [0, 0]]
+  const t = (y: TriSide, caption?: string) => trig(pts, 2, '40°', [y, undefined, { label: '10 cm' }], 'A right-angled triangle: the angle 40°, 10 cm next to it, and y opposite it.', { caption })
+  const p = t({ label: 'y', tone: 'x' })
+  practice('mixed', 'Find y, to 1 decimal place.', 'T2 review (own numbers)', p, number(8.4, '8.4 cm'), 'You have A and want O: TOA.', boardModel([], [
+    { title: 'Adjacent and opposite', say: 'A and O are in TOA: tan 40° = y ÷ 10.', rows: ['tan 40° = {y|10}'], picture: t({ label: 'y', tone: 'lit' }) },
+    { title: 'Multiply out', say: 'Times both sides by 10.', rows: ['y = 10 × tan 40° = 8.39…', '! y = 8.4 cm'], picture: t({ label: '8.4 cm', tone: 'found' }, 'y = 8.4 cm') },
+  ], 'Find y', p), slips(8.4, [[11.9, 'That’s 10 ÷ tan 40°. Opposite = tan × adjacent.'], [6.4, 'That’s sin. You have the adjacent and want the opposite: tan.']]), L_BOX('y'))
+}
+
 add('mixed', 'Trigonometry', 'T2 consolidation', text(
   'Label the sides from the angle: hypotenuse (opposite the right angle), opposite (across from the angle), adjacent (next to it).',
   'SOH CAH TOA: sin = O ÷ H, cos = A ÷ H, tan = O ÷ A.',

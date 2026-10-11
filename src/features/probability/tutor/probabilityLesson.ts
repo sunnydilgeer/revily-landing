@@ -195,6 +195,18 @@ ask(outcomes, 'Macy picks trousers (black, navy or purple) and a jumper (orange,
     { title: 'Use the product rule', say: '3 trousers times 3 jumpers.', rows: ['3 × 3 = 9', '! 9 outfits'] },
   ], 'Count'), slips(9, [[6, 'That adds. Each pair of trousers goes with every jumper: multiply.'], [8, 'That leaves out BY. Count every outfit.']]), { label: 'Outfits', prefix: 'Outfits =' })
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+drag('mixed', 'A bag has 3 red counters and 1 blue. Drag the arrow to P(red).', 'P1 review (own numbers)', { mode: 'scale', from: [10] }, ['0.75'], '0.75', '3 of the 4 counters are red.', boardModel([], [
+  { title: 'Count the ways', say: '3 red out of 4 counters.', rows: ['P(red) = {3|4}', '! P(red) = 0.75'] },
+], 'Probability'), r => r === '0.25' ? 'That’s P(blue). Red is 3 of the 4 counters.' : '3 of the 4 counters are red: ¾ = 0.75.')
+ask('mixed', 'A fair dice is rolled. Find P(a number less than 3).', 'P1 review (own numbers)', ['A fair dice: 1 to 6'], fraction('1/3'), 'Which numbers are less than 3?', boardModel([], [
+  { title: 'Count the ways', say: '1 and 2 are less than 3: 2 ways out of 6.', rows: ['P = {2|6}', '! P = {1|3}'] },
+], 'Probability'))
+ask('mixed', 'P(win) = 0.35 and P(draw) = 0.4. Find P(lose).', 'P1 review (own numbers)', ['P(win) = 0.35', 'P(draw) = 0.4'], number(0.25, '0.25'), 'Win, draw and lose add up to 1.', boardModel([], [
+  { title: 'Take from 1', say: 'One of the three must happen.', rows: ['1 − 0.35 − 0.4 = 0.25', '! P(lose) = 0.25'] },
+], 'Probability'), slips(0.25, [[0.75, 'That’s win and draw together. Lose is 1 take away that.'], [0.65, 'Take away the draw too: 1 − 0.35 − 0.4.']]), P_BOX('P(lose) ='))
+
 add('mixed', 'Probability', 'P1 consolidation', text(
   'A probability goes from 0 (impossible) to 1 (certain). A half is even.',
   'Equally likely outcomes: P(X) = ways X can happen ÷ total outcomes.',

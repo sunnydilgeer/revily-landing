@@ -155,6 +155,28 @@ ask(describe, 'Rory times his friends running 100 m, with a stopwatch. Describe 
   { title: 'Measured or counted?', say: 'Race times can be any value, even if a stopwatch rounds them: continuous.', rows: ['>0 Time: any value, continuous', '! Primary and continuous'] },
 ], 'Describe'))
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+sort('mixed', 'Sort each kind of data.', 'P7 review (own examples)', { kind: 'bins', bins: [{ id: 'qual', label: 'Qualitative' }, { id: 'discrete', label: 'Discrete' }, { id: 'continuous', label: 'Continuous' }], tiles: [
+  { label: 'Siblings', to: 'discrete', why: 'You count siblings: whole numbers only.' },
+  { label: 'Temperature', to: 'continuous', why: 'A temperature is measured and can be any value.' },
+  { label: 'Favourite colour', to: 'qual', why: 'A colour is a word.' },
+  { label: 'Shoe size', to: 'discrete', why: 'Shoes only come in certain sizes.' },
+  { label: '100 m time', to: 'continuous', why: 'Time can be any value.' },
+  { label: 'Make of car', to: 'qual', why: 'A car’s make is a word.' },
+] }, 'Words, counted or measured?', boardModel([], [
+  { title: 'Words', say: 'Colours and makes of car are words: qualitative.', rows: ['>0 Colour, car'] },
+  { title: 'Counted or measured', say: 'Siblings and shoe sizes take exact values; temperature and time can be anything.', rows: ['! Discrete: siblings, shoes; continuous: temperature, time'] },
+], 'Type'))
+ask('mixed', 'Jo uses last year’s census figures from a website. Primary or secondary data?', 'P7 review (own example)', ['Census figures from a website'], choose('Secondary',
+  ['Primary', 'Someone else collected it: the census.']),
+'Who collected it?', boardModel([], [
+  { title: 'Who collected it?', say: 'The census was collected by someone else.', rows: ['! Secondary'] },
+], 'Source'))
+ask('mixed', 'In a survey of 60 people, 40% chose pizza. How many people chose pizza?', 'P7 review (own numbers)', ['60 people', '40% chose pizza'], number(24, '24'), 'Find 40% of 60.', boardModel([], [
+  { title: '40% of 60', say: '10% of 60 is 6, so 40% is 4 lots of 6.', rows: ['6 × 4 = 24', '! Pizza = 24 people'] },
+], 'Count'), slips(24, [[40, 'That’s the percentage. Find 40% of 60.'], [150, 'Multiply: 0.4 × 60.']]), { label: 'People', prefix: 'Pizza =' })
+
 add('mixed', 'Types of data', 'P7 consolidation', text(
   'Qualitative (categorical) data is words; quantitative data is numbers.',
   'Discrete data takes only exact values (shoe sizes); continuous data can be any value (heights, times).',

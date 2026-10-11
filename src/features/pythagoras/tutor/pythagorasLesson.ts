@@ -217,6 +217,27 @@ function ladderFig(foot: number, h: number, sides: [TriSide, TriSide, TriSide], 
   ], 'Find d', p), slips(3.2, [[4.2, 'Square the sides first: 3² + 1.2², not 3 + 1.2.'], [10.44, 'That’s d². Square root it.'], [2.7, 'You took the squares away. The brace is the hypotenuse, so add.']]), L_BOX('m', 'd'))
 }
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+{
+  const pts: [FigurePoint, FigurePoint, FigurePoint] = [[12, 0], [12, 9], [0, 0]]
+  const t = (c: TriSide, caption?: string) => right(pts, [{ label: '9 cm' }, c, { label: '12 cm' }], 'A right-angled triangle with shorter sides 9 cm and 12 cm. The hypotenuse is missing.', undefined, caption)
+  const p = t({ label: '?', tone: 'x' })
+  practice('mixed', 'Find the length of the hypotenuse.', 'T1 review (own numbers)', p, number(15, '15 cm'), 'Square, add, square root.', boardModel([], [
+    { title: 'Square and add', say: '9² is 81 and 12² is 144.', rows: ['c² = 81 + 144 = 225'], picture: t({ label: 'c', tone: 'lit' }) },
+    { title: 'Square root', say: '15 × 15 = 225.', rows: ['! c = 15 cm'], picture: t({ label: '15 cm', tone: 'found' }, 'c = 15 cm') },
+  ], 'Find c', p), slips(15, [[21, 'Square the sides first: 9² + 12².'], [225, 'That’s c². Square root it.']]), L_BOX('cm', 'c'))
+}
+{
+  const pts: [FigurePoint, FigurePoint, FigurePoint] = [[4, 2], [4, 6], [1, 2]]
+  const t = (d: TriSide, caption?: string) => right(pts, [{ label: 'up 4' }, d, { label: 'across 3' }], 'A line from (1, 2) to (4, 6), with its across 3 and up 4 drawn as a right-angled triangle.', undefined, caption)
+  const p = t({ label: '?', tone: 'x' })
+  practice('mixed', 'On a centimetre grid, find the distance from (1, 2) to (4, 6).', 'T1 review (own numbers)', p, number(5, '5 cm'), 'Across and up are the shorter sides.', boardModel([], [
+    { title: 'Across and up', say: 'Across 4 − 1 = 3, up 6 − 2 = 4.', rows: ['d² = 3² + 4² = 25'], picture: t({ label: 'd', tone: 'lit' }) },
+    { title: 'Square root', say: '5 × 5 = 25.', rows: ['! d = 5 cm'], picture: t({ label: '5 cm', tone: 'found' }, 'd = 5 cm') },
+  ], 'Find d', p), slips(5, [[7, 'Square them: 3² + 4², then square root.'], [25, 'That’s d². Square root it.']]), L_BOX('cm', 'd'))
+}
+
 add('mixed', 'Pythagoras', 'T1 consolidation', text(
   'In a right-angled triangle, a² + b² = c². c is the hypotenuse: the longest side, opposite the right angle.',
   'Finding the hypotenuse: square the two shorter sides, add, square root.',

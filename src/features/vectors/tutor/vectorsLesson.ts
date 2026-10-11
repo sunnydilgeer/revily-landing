@@ -236,6 +236,24 @@ for (const q of [
   ], expr, p), vectorSlips(r, slipList))
 }
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+{
+  const a: V = [3, -1], b: V = [-2, 4]
+  const p = vecFig([{ from: [0, 0], v: a, label: 'a' }, { from: [0, 0], v: b, label: 'b' }], 'Arrows a, 3 right and 1 down, and b, 2 left and 4 up, from the same point.', { grid: [[-3, -2], [4, 5]] })
+  practice('mixed', `a = ${shown(a)} and b = ${shown(b)}, as column vectors. Find 2a + b.`, 'T3 review (own numbers)', p, vector([4, 2]), 'Multiply a by 2 first.', boardModel([], [
+    { title: 'Double a', say: 'Multiply both parts of a by 2.', rows: [`2a = ${col([6, -2])}`], picture: p },
+    { title: 'Add b', say: 'Top with top, bottom with bottom.', rows: [`2a + b = ${col([6, -2])} + ${col(b)}`, `! 2a + b = ${col([4, 2])}`], picture: p },
+  ], '2a + b', p), vectorSlips([4, 2], [[[1, 3], 'Multiply a by 2 before adding b.']]))
+}
+{
+  const p = vecFig([{ from: [2, 5], v: [-3, -2], label: 'PQ' }], 'An arrow from P at (2, 5) to Q at (−1, 3).', { grid: [[-2, 2], [3, 6]] })
+  practice('mixed', 'P is at (2, 5) and Q is at (−1, 3). Write the vector from P to Q.', 'T3 review (own numbers)', p, vector([-3, -2]), 'Q’s numbers take away P’s.', boardModel([], [
+    { title: 'Across, then up', say: 'From 2 to −1 is 3 left. From 5 to 3 is 2 down.', rows: ['>0 3 left, 2 down'], picture: p },
+    { title: 'Write the column', say: 'Left and down are negative.', rows: [`! PQ = ${col([-3, -2])}`], picture: p },
+  ], 'PQ', p), vectorSlips([-3, -2], [[[3, 2], 'That’s Q to P. From P to Q goes left and down.']]))
+}
+
 add('mixed', 'Column vectors', 'T3 consolidation', text(
   'A column vector: across on top, up underneath. Left and down are negative.',
   'Add or subtract: top with top, bottom with bottom.',

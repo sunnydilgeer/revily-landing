@@ -177,6 +177,20 @@ ask(trials, 'Whose results are more reliable, and why?', 'P4 p173 Your Turn Q4c 
   { title: 'Count the trials', say: 'Susan rolled 500 times, Bob 100. Her 0.12 is also closer to the fair 1/8 = 0.125.', rows: ['Fair P(7) = {1|8} = 0.125', '! Susan’s: 500 trials'] },
 ], 'Trials'))
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+ask('mixed', 'A drawing pin lands point up 36 times in 120 throws. Find the relative frequency of point up.', 'P4 review (own numbers)', ['36 point up', '120 throws'], number(0.3, '0.3'), 'How often it happened ÷ how many tries.', boardModel([], [
+  { title: 'Divide by the throws', say: '36 out of 120 throws.', rows: ['36 ÷ 120 = 0.3', '! RF = 0.3'] },
+], 'Relative frequency'), slips(0.3, [[3.33, 'Divide 36 by 120, not 120 by 36.'], [36, 'Divide by the number of throws.']]), RF_BOX)
+ask('mixed', 'A spinner lands on 1 with probability 0.4. It is spun 250 times. How many 1s would you expect?', 'P4 review (own numbers)', ['P(1) = 0.4', '250 spins'], number(100, '100'), 'Probability × number of tries.', boardModel([], [
+  { title: 'Multiply', say: 'Expect 0.4 of the 250 spins.', rows: ['0.4 × 250 = 100', '! Expected = 100'] },
+], 'Expected'), slips(100, [[0.4, 'Multiply by the 250 spins.'], [625, 'Multiply, don’t divide: 0.4 × 250.']]), COUNT_BOX)
+ask('mixed', 'Ali gets 6 heads in 10 flips. Ben gets 489 heads in 1000 flips. Whose estimate of P(heads) is more reliable?', 'P4 review (own numbers)', ['Ali: 6 in 10', 'Ben: 489 in 1000'], choose('Ben’s',
+  ['Ali’s', '10 flips wobble a lot. More trials give a better estimate.'], ['Both the same', 'More trials settle closer to the true probability.']),
+'Who did more trials?', boardModel([], [
+  { title: 'More trials', say: 'The more trials, the closer relative frequency settles to the probability.', rows: ['! Ben’s: 1000 flips'] },
+], 'Trials'))
+
 add('mixed', 'Relative frequency', 'P4 consolidation', text(
   'Relative frequency = times it happened ÷ total trials.',
   'Expected frequency = probability × number of trials.',

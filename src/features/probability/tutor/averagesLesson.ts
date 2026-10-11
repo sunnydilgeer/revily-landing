@@ -203,6 +203,20 @@ ask(applied, 'Every rower gains 2% in weight. What is their new mean weight?', '
   { title: 'Add it on', say: 'Add the gain to the old mean.', rows: ['62.5 + 1.25 = 63.75', '! New mean = 63.75 kg'] },
 ], 'Mean'), slips(63.75, [[64.5, 'That adds 2 kg. It’s 2%: 62.5 × 0.02 = 1.25.'], [1.25, 'That’s the gain. Add it on to 62.5.']]), { label: 'Mean (kg)', prefix: 'Mean =' })
 
+/* ---------- Review: one of each, our own numbers ---------- */
+
+drag('mixed', 'Drag the last bar so the range of all seven values is 12.', 'P8 review (own numbers)', { mode: 'average', from: [7] }, ['15'], '15', 'The smallest is 3. What must the biggest be?', boardModel([], [
+  { title: 'Biggest − smallest', say: 'The smallest value is 3, so the biggest must be 3 + 12.', rows: ['3 + 12 = 15', '! Last value = 15'] },
+], 'Range'), r => { const v = Number(r); return `With ${v}, the range is ${Math.max(9, v)} − ${Math.min(3, v)} = ${Math.max(9, v) - Math.min(3, v)}. You need 12.` })
+ask('mixed', 'Find the median of 12, 7, 3, 15, 9 and 10.', 'P8 review (own numbers)', ['12, 7, 3, 15, 9, 10'], number(9.5, '9.5'), 'Put them in order first.', boardModel([], [
+  { title: 'Put them in order', say: 'Six values, so two in the middle.', rows: ['>0 3, 7, 9, 10, 12, 15'] },
+  { title: 'Halfway between', say: 'Halfway between 9 and 10.', rows: ['(9 + 10) ÷ 2 = 9.5', '! Median = 9.5'] },
+], 'Median'), slips(9.5, [[9, 'Six values: the median is halfway between the middle two, 9 and 10.'], [3, 'Put them in order first.']]), { label: 'Median', prefix: 'Median =' })
+ask('mixed', 'Four numbers have a mean of 6. A fifth number is added and the mean becomes 7. What is the fifth number?', 'P8 review (own numbers)', ['4 numbers, mean 6', '5 numbers, mean 7'], number(11, '11'), 'Find both totals.', boardModel([], [
+  { title: 'Both totals', say: 'Mean × how many gives the total.', rows: ['4 × 6 = 24', '5 × 7 = 35'] },
+  { title: 'The difference', say: 'The fifth number made the difference.', rows: ['35 − 24 = 11', '! Fifth number = 11'] },
+], 'Mean'), slips(11, [[7, 'That’s the new mean. Find the totals: 4 × 6 and 5 × 7.'], [1, 'Use the totals, not the means: 35 − 24.']]), { label: 'Number', prefix: 'Fifth =' })
+
 add('mixed', 'Mean, median, mode and range', 'P8 consolidation', text(
   'Mean: add them up, divide by how many. An outlier pulls it.',
   'Median: put them in order and find the middle. An outlier doesn’t move it.',

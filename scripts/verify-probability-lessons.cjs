@@ -16,31 +16,33 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8')
 const number = Number(process.argv[2])
 // Each typed answer in order, worked out by hand from the book's numbers or our own.
 const LESSONS = {
-  301: { file: 'probabilityLesson', name: 'tutorProbabilityLesson', boards: ['scale'], answers: ['1/2', '3/5', '3/5', '1/5', 0.05, 0.22, '5/12', '1/3', '1/4', 96, 9],
-    // 1 red part in 4: 0.25. No rain: 1 − 0.3 = 0.7.
-    drags: ['0.25', '0.7'] },
-  302: { file: 'frequencyTreesLesson', name: 'tutorFrequencyTreesLesson', boards: [], answers: [102, 31, 27, 44, '44/63', '16/25', '9/25', 240, 60, 120, '9/50'] },
-  303: { file: 'treeDiagramsLesson', name: 'tutorTreeDiagramsLesson', boards: ['tree'], answers: [0.5, '1/12', 0.08, '1/2', 0.65, 0.15, 0.0625, 0.48, '25/144', '35/72', 0.46],
-    // P(win both) = 0.42 = 0.6 × 0.7, either way round.
-    drags: ['6,7 or 7,6'] },
-  304: { file: 'relativeFrequencyLesson', name: 'tutorRelativeFrequencyLesson', boards: ['spin'], answers: [0.231, 0.308, 0.827, '23/50', 50, 40, 160, 64, 80, 0.1575, 0.315, 1575, 0.15, 0.12] },
-  305: { file: 'vennLesson', name: 'tutorVennLesson', boards: [], answers: [4, '2/11', '1/3', '7/71', 66, 13, 15, 39, '1/5'],
+  301: { file: 'probabilityLesson', name: 'tutorProbabilityLesson', boards: ['scale'], answers: ['1/2', '3/5', '3/5', '1/5', 0.05, 0.22, '5/12', '1/3', '1/4', 96, 9, '1/3', 0.25],
+    // 1 red part in 4: 0.25. No rain: 1 − 0.3 = 0.7. Review: 3 red counters of 4, 0.75.
+    drags: ['0.25', '0.7', '0.75'] },
+  302: { file: 'frequencyTreesLesson', name: 'tutorFrequencyTreesLesson', boards: [], answers: [102, 31, 27, 44, '44/63', '16/25', '9/25', 240, 60, 120, '9/50', 18, '2/5', 80] },
+  303: { file: 'treeDiagramsLesson', name: 'tutorTreeDiagramsLesson', boards: ['tree'], answers: [0.5, '1/12', 0.08, '1/2', 0.65, 0.15, 0.0625, 0.48, '25/144', '35/72', 0.46, 0.15],
+    // P(win both) = 0.42 = 0.6 × 0.7, either way round. Review: P(lose both) = 0.12 = 0.3 × 0.4 or 0.2 × 0.6.
+    drags: ['6,7 or 7,6', '8,4 or 7,6 or 6,7 or 4,8'] },
+  304: { file: 'relativeFrequencyLesson', name: 'tutorRelativeFrequencyLesson', boards: ['spin'], answers: [0.231, 0.308, 0.827, '23/50', 50, 40, 160, 64, 80, 0.1575, 0.315, 1575, 0.15, 0.12, 0.3, 100] },
+  305: { file: 'vennLesson', name: 'tutorVennLesson', boards: [], answers: [4, '2/11', '1/3', '7/71', 66, 13, 15, 39, '1/5', 3, '3/10'],
     // 1 to 11, odd and prime: 1 and 9 odd only, 2 prime only, 3 5 7 11 both, the evens outside. 1 to 12, even and
     // multiples of 3: 6 and 12 both, 3 and 9 B only, 2 4 8 10 A only, 1 5 7 11 outside.
-    sorts: ['play onlyA,onlyB,both,outside,both,outside,both,outside,onlyA,outside,both', 'outside,onlyA,onlyB,onlyA,outside,both,outside,onlyA,onlyB,onlyA,outside,both'] },
-  306: { file: 'setNotationLesson', name: 'tutorSetNotationLesson', boards: [], answers: [6, 8, 8, 4, 5],
+    sorts: ['play onlyA,onlyB,both,outside,both,outside,both,outside,onlyA,outside,both', 'outside,onlyA,onlyB,onlyA,outside,both,outside,onlyA,onlyB,onlyA,outside,both',
+      // Review, 1 to 10, factors of 12 and odd: 1 and 3 both, 2 4 6 A only, 5 7 9 B only, 8 and 10 outside.
+      'both,onlyA,both,onlyA,onlyB,onlyA,onlyB,outside,onlyB,outside'] },
+  306: { file: 'setNotationLesson', name: 'tutorSetNotationLesson', boards: [], answers: [6, 8, 8, 4, 5, 6],
     // 1 to 10: the odd ones in A, the even ones in A'.
-    sorts: ['play A,notA,A,notA,A,notA,A,notA,A,notA'] },
-  307: { file: 'dataTypesLesson', name: 'tutorDataTypesLesson', boards: [], answers: [3, 50],
+    sorts: ['play A,notA,A,notA,A,notA,A,notA,A,notA', 'one,both,one,both,neither,one,neither,one'] },
+  307: { file: 'dataTypesLesson', name: 'tutorDataTypesLesson', boards: [], answers: [3, 50, 24],
     // Hair colour, siblings, band, cube time, eye colour, goals; car colour, weight, sport, texts, country; heights,
     // queue, lengths, children, times; Michael, newspaper, traffic count, online survey, class vote.
-    sorts: ['play words,numbers,words,numbers,words,numbers', 'words,numbers,words,numbers,words', 'continuous,discrete,continuous,discrete,continuous', 'primary,secondary,primary,secondary,primary'] },
-  308: { file: 'averagesLesson', name: 'tutorAveragesLesson', boards: ['average'], answers: [8, 0.488, 169, 12, 350, 310, 1.3, 1.75, 11, 62.5, 63.75],
-    // Mean 7 of seven values: 49 − (3 + 5 + 5 + 6 + 8 + 9) = 13.
-    drags: ['13'] },
-  309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20],
+    sorts: ['play words,numbers,words,numbers,words,numbers', 'words,numbers,words,numbers,words', 'continuous,discrete,continuous,discrete,continuous', 'primary,secondary,primary,secondary,primary', 'discrete,continuous,qual,discrete,continuous,qual'] },
+  308: { file: 'averagesLesson', name: 'tutorAveragesLesson', boards: ['average'], answers: [8, 0.488, 169, 12, 350, 310, 1.3, 1.75, 11, 62.5, 63.75, 9.5, 11],
+    // Mean 7 of seven values: 49 − (3 + 5 + 5 + 6 + 8 + 9) = 13. Range 12 from a smallest of 3: 15.
+    drags: ['13', '15'] },
+  309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20, 45],
     // Library, school list, one road, online poll, field squares; crisps, ages, books, exercise, shopping day.
-    sorts: ['biased,fair,biased,biased,fair', 'play fault,fault,fine,fault,fine'] },
+    sorts: ['biased,fair,biased,biased,fair', 'play fault,fault,fine,fault,fine', 'biased,fair,biased,fair'] },
 }
 const spec = LESSONS[number]
 assert.ok(spec, `Give a lesson number, 301 to 309 (got ${process.argv[2]})`)
