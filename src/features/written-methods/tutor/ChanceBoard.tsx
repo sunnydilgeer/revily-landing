@@ -32,7 +32,7 @@ const likelihood = (p: number) => p === 0 ? 'impossible' : p === 1 ? 'certain' :
 /* scale: the line from 0 to 1. tree: two sliders, one for each event. average: the data's bars. */
 const SCALE = { x0: 58, x1: 262, y: 120 }
 const SLIDERS = [{ y: 178, label: 'Event 1' }, { y: 206, label: 'Event 2' }], SLIDE = { x0: 120, x1: 290 }
-const DATA = [3, 5, 5, 6, 8, 9], BARS = { x0: 26, w: 30, gap: 12, base: 196, unit: 5.2 }
+const DATA = [3, 5, 5, 6, 8, 9], BARS = { x0: 18, w: 26, gap: 9, base: 200, unit: 8 }
 
 export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
   const start: Record<ChanceBoardSpec['mode'], number[]> = { scale: [13], tree: [6, 7], spin: [], average: [7] }
@@ -48,7 +48,7 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
   const from = (p: P, pick: number): number[] | null => {
     if (spec.mode === 'scale') return [clamp(Math.round((p.x - SCALE.x0) / (SCALE.x1 - SCALE.x0) * 20), 0, 20)]
     if (spec.mode === 'tree') { const next = [...v]; next[pick] = clamp(Math.round((p.x - SLIDE.x0) / (SLIDE.x1 - SLIDE.x0) * 10), 0, 10); return next }
-    if (spec.mode === 'average') return [clamp(Math.round((BARS.base - p.y) / BARS.unit), 1, 30)]
+    if (spec.mode === 'average') return [clamp(Math.round((BARS.base - p.y) / BARS.unit), 1, 20)]
     return null
   }
   const toLocal = (event: PointerEvent): P | null => {
@@ -64,7 +64,7 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
     event.preventDefault()
     const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown'
     if (spec.mode === 'scale') set([clamp(v[0] + step, 0, 20)])
-    if (spec.mode === 'average') set([clamp(v[0] + step, 1, 30)])
+    if (spec.mode === 'average') set([clamp(v[0] + step, 1, 20)])
     // The tree: left and right change event 1, up and down event 2.
     if (spec.mode === 'tree') { const k = vertical ? 1 : 0, next = [...v]; next[k] = clamp(v[k] + step, 0, 10); set(next) }
   }
@@ -117,9 +117,9 @@ export function ChanceBoard({ spec }: { spec: ChanceBoardSpec }) {
         </g> })}
       </g>)}
       {SLIDERS.map((s, k) => <g key={s.label}>
-        <text className="measure-board__label" x={SLIDE.x0 - 54} y={s.y}>{s.label}</text>
+        <text className="measure-board__label" x={36} y={s.y}>{s.label}</text>
         <path className="ns-fig__line is-thin" d={`M${SLIDE.x0} ${s.y} L${SLIDE.x1} ${s.y}`} />
-        <text className="measure-board__label is-big" x={SLIDE.x0 - 14} y={s.y} style={{ fill: k ? '#7c3aed' : '#b45309' }}>{fmt(v[k] / 10, 1)}</text>
+        <text className="measure-board__label is-big" x={90} y={s.y} style={{ fill: k ? '#7c3aed' : '#b45309' }}>{fmt(v[k] / 10, 1)}</text>
       </g>)}
     </>
     spoken = `Event 1 is won with probability ${fmt(a, 1)}, event 2 with ${fmt(b, 1)}. Win both ${fmt(ps[0])}, win then lose ${fmt(ps[1])}, lose then win ${fmt(ps[2])}, lose both ${fmt(ps[3])}. They add up to 1.`
