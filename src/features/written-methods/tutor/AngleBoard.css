@@ -43,3 +43,35 @@
 /* The chance board (ChanceBoard.tsx): its spin buttons wrap on a narrow phone. */
 .chance-board .angle-board__sides { flex-wrap: wrap; justify-content: center; }
 .chance-board .angle-board__side { min-width: 0; }
+/* The sort board (SortBoard.tsx): tiles dragged, or tapped then placed, into a Venn diagram's regions or into bins. */
+.sort-board__venn { cursor: default; }
+.sort-board__frame, .sort-board__ring { fill: none; stroke: var(--rv-ink); stroke-width: 2; }
+.sort-board__name { fill: var(--rv-ink); font-size: 14px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
+.sort-board__chip { cursor: grab; outline: none; }
+.sort-board__chip rect { fill: var(--rv-surface, #fff); stroke: var(--rv-biro); stroke-width: 2; }
+.sort-board__chip text { fill: var(--rv-biro); font-size: 13px; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; font-variant-numeric: tabular-nums; }
+.sort-board__chip.is-picked rect, .sort-board__chip:focus-visible rect { fill: color-mix(in srgb, var(--rv-biro) 18%, #fff); stroke-width: 3; }
+.sort-board__chip.is-right rect { stroke: var(--rv-good); fill: var(--rv-good-tint); }
+.sort-board__chip.is-right text { fill: var(--rv-good-ink); }
+.sort-board__chip.is-wrong rect { stroke: #dc2626; fill: #fef2f2; }
+.sort-board__chip.is-wrong text { fill: #b91c1c; }
+.sort-board__chip.is-dragging { opacity: .35; }
+.sort-board__tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; max-width: 400px; min-height: 48px; padding: 8px; border: 2px dashed color-mix(in srgb, var(--rv-ink) 18%, transparent); border-radius: 12px; }
+.sort-board__tile { min-width: 40px; min-height: 40px; padding: 0 12px; border: 2px solid var(--rv-biro); border-radius: 10px; background: var(--rv-surface, #fff); color: var(--rv-biro); font: inherit; font-size: 16px; font-weight: 800; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; font-variant-numeric: tabular-nums; }
+.sort-board__tile:disabled { cursor: default; }
+.sort-board__tile.is-picked, .sort-board__tile:focus-visible { outline: 3px solid color-mix(in srgb, var(--rv-biro) 45%, transparent); outline-offset: 2px; background: color-mix(in srgb, var(--rv-biro) 12%, #fff); }
+.sort-board__tile.is-right { border-color: var(--rv-good); background: var(--rv-good-tint); color: var(--rv-good-ink); }
+.sort-board__tile.is-wrong { border-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+.sort-board__tile.is-dragging { opacity: .35; }
+.sort-board__tile.is-bounce, .sort-board__chip.is-bounce { animation: sort-board-no .4s ease-in-out; }
+@keyframes sort-board-no { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.sort-board__empty { align-self: center; color: color-mix(in srgb, var(--rv-ink) 55%, transparent); font-size: 14px; font-weight: 600; }
+.sort-board__bins { display: grid; gap: 8px; width: 100%; max-width: 400px; }
+.sort-board__bin { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 6px; min-height: 132px; padding: 8px 6px; border: 2px solid var(--rv-ink); border-radius: 12px; background: var(--rv-surface, #fff); cursor: pointer; }
+.sort-board__bin-name { width: 100%; margin-bottom: 4px; color: var(--rv-ink); font-size: 15px; font-weight: 800; text-align: center; }
+.sort-board__bin .sort-board__tile { min-height: 34px; font-size: 14px; padding: 0 8px; }
+.sort-board__moves { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sort-board__moves .angle-board__side { min-width: 0; min-height: 40px; font-size: 15px; }
+.sort-board__sum { font-size: 17px; }
+.sort-board__ghost { position: fixed; z-index: 50; transform: translate(-50%, -60%); padding: 6px 12px; border: 2px solid var(--rv-biro); border-radius: 10px; background: var(--rv-surface, #fff); color: var(--rv-biro); font-size: 16px; font-weight: 800; pointer-events: none; box-shadow: 0 6px 18px rgb(0 0 0 / .18); }
+@media (prefers-reduced-motion: reduce) { .sort-board__tile.is-bounce, .sort-board__chip.is-bounce { animation: none; } }

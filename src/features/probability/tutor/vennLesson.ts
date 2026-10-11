@@ -5,20 +5,25 @@ import { boardModel, choose, number, text } from '../../simultaneous-equations/t
 import { slips } from '../../geometry/tutor/figureLesson'
 import { chanceScreens } from './chanceLesson'
 import { fraction, venn3Fig, vennFig, type Venn3Region, type VennRegion } from './chancePictures'
+import type { SortTile } from '../../written-methods/tutor/SortBoard'
 
 /*
  * Probability and statistics lesson 5: Venn diagrams. From P5 in Sunny's revision book (p174–175), with the book's
  * numbers for the worked examples and our own for most questions. Four rungs: drawing a Venn diagram (numbers 1 to 11,
  * odd and prime: the overlap first, then each circle's own part, then the rest outside); probability from a Venn
  * diagram (what's in the region ÷ everything in the rectangle); counting in a Venn diagram, working backwards from
- * totals (Your Turn Q1 and Q2); and three sets (Your Turn Q3). No board: every screen is a Venn picture.
+ * totals (Your Turn Q1 and Q2); and three sets (Your Turn Q3).
+ *
+ * Brilliant-style (Sunny, 11 Oct): the lesson opens by dragging the numbers 1 to 11 into the circles on the sort board
+ * (SortBoard.tsx), each one saying why when it lands in the wrong place, and the first question is built the same way.
+ * The probability rung opens with a guess, answered before the rule is shown.
  *
  * Hidden on live: only the unlisted Probability shelf opens it.
  */
 
 const lesson = author(305)
 const { add, finish } = lesson
-const { worked, practice } = chanceScreens(lesson)
+const { worked, practice, playSort, sort } = chanceScreens(lesson)
 const fill = 'venn-fill'
 const probability = 'venn-probability'
 const counts = 'venn-counts'
@@ -47,22 +52,33 @@ const ALL: VennRegion[] = ['both', 'onlyA', 'onlyB', 'outside']
 
 /* ---------- Rung 1: drawing a Venn diagram ---------- */
 
+/** The numbers 1 to n as tiles, each sorted by two rules, with why it goes where it does. */
+function numberTiles(n: number, inA: (k: number) => boolean, inB: (k: number) => boolean, why: (k: number, a: boolean, b: boolean) => string): SortTile[] {
+  return Array.from({ length: n }, (_, i) => i + 1).map(k => {
+    const a = inA(k), b = inB(k)
+    return { label: String(k), to: a && b ? 'both' : a ? 'onlyA' : b ? 'onlyB' : 'outside', why: why(k, a, b) }
+  })
+}
+const PRIMES = new Set([2, 3, 5, 7, 11])
+const oddPrime = numberTiles(11, k => k % 2 === 1, k => PRIMES.has(k), (k, a, b) =>
+  k === 1 ? '1 is odd, but 1 is not a prime number.' : k === 9 ? '9 is odd, but not prime: 9 = 3 × 3.' : `${k} is ${a ? 'odd' : 'even'} and ${b ? 'prime' : 'not prime'}.`)
+const evenThree = numberTiles(12, k => k % 2 === 0, k => k % 3 === 0, (k, a, b) => `${k} is ${a ? 'even' : 'odd'} and ${b ? 'a multiple of 3' : 'not a multiple of 3'}.`)
+
+playSort(fill, 'Drag each number into the right place. A is odd numbers, B is prime numbers.', 'P5 p174 Example (play)', { kind: 'venn', names: ['A odd', 'B prime'], tiles: oddPrime })
 {
   const p = oddPrimeFig([])
   worked(fill, 'Put the numbers 1 to 11 in the Venn diagram. A is odd numbers, B is prime numbers.', 'Drawing a Venn diagram', 'P5 p174 Example (book’s numbers)', boardModel([], [
     { title: 'Start with the overlap', say: 'Which numbers are odd and prime? They go where the circles cross.', rows: ['Both = 3, 5, 7, 11'], picture: oddPrimeFig(['both'], { both: 'lit' }) },
     { title: 'Each circle’s own part', say: 'Odd but not prime: 1 and 9. Prime but not odd: just 2.', rows: ['A only = 1, 9', 'B only = 2'], picture: oddPrimeFig(['both', 'onlyA', 'onlyB'], { onlyA: 'lit', onlyB: 'lit' }) },
     { title: 'The rest go outside', say: 'Numbers in neither set still go in the rectangle, outside both circles.', rows: ['! Outside = 4, 6, 8, 10'], picture: oddPrimeFig(ALL, { outside: 'found' }, 'Every number placed once') },
-  ], 'Venn diagram', p), 'A Venn diagram sorts things into sets. Each circle is a set, the overlap is in both, and the rectangle (ξ) holds everything, so things in neither go outside the circles. Fill the overlap first.')
+  ], 'Venn diagram', p), 'Each circle is a set and the overlap is in both. Fill the overlap first; anything in neither still goes in the rectangle (ξ).')
 }
+sort(fill, 'Sort the numbers 1 to 12. A is even numbers, B is multiples of 3.', 'P5 p174 (own numbers)', { kind: 'venn', names: ['A even', 'B × of 3'], tiles: evenThree }, 'Do the overlap first: even and a multiple of 3.', boardModel([], [
+  { title: 'Start with the overlap', say: 'Multiples of 3 are 3, 6, 9, 12. The even ones go in the overlap.', rows: ['Both = 6, 12'], picture: evenThreeFig(['both'], { both: 'lit' }) },
+  { title: 'Each circle’s own part', say: 'Even but not a multiple of 3: 2, 4, 8, 10. Multiples of 3 that are odd: 3 and 9.', rows: ['A only = 2, 4, 8, 10', 'B only = 3, 9'], picture: evenThreeFig(['both', 'onlyA', 'onlyB'], { onlyA: 'lit', onlyB: 'lit' }) },
+  { title: 'The rest go outside', say: 'Odd and not a multiple of 3.', rows: ['! Outside = 1, 5, 7, 11'], picture: evenThreeFig(ALL, { outside: 'found' }) },
+], 'Venn diagram', evenThreeFig([])))
 {
-  const p = evenThreeFig([])
-  practice(fill, 'Put the numbers 1 to 12 in the Venn diagram. A is even numbers, B is multiples of 3. Which numbers go in the overlap?', 'P5 p174 (own numbers)', p, choose('6 and 12',
-    ['3, 6, 9 and 12', '3 and 9 are odd. They go in B only.'],
-    ['2, 3, 4, 6, 8, 9, 10, 12', 'That’s everything in either circle. The overlap is in both.'],
-    ['1, 5, 7 and 11', 'Those are in neither set. They go outside the circles.']), 'Even and a multiple of 3.', boardModel([], [
-    { title: 'Even and a multiple of 3', say: 'Go through the multiples of 3: 3, 6, 9, 12. Which are even?', rows: ['! Both = 6, 12'], picture: evenThreeFig(['both'], { both: 'found' }) },
-  ], 'Venn diagram', p))
   practice(fill, 'How many of the numbers 1 to 12 go outside both circles?', 'P5 p174 (own numbers)', evenThreeFig(['both', 'onlyA', 'onlyB']), number(4, '4'), 'Neither even nor a multiple of 3.', boardModel([], [
     { title: 'Neither set', say: 'Odd numbers that aren’t multiples of 3.', rows: ['Outside = 1, 5, 7, 11', '! 4 numbers'], picture: evenThreeFig(ALL, { outside: 'found' }) },
   ], 'Venn diagram', evenThreeFig(['both', 'onlyA', 'onlyB'])), slips(4, [[0, 'Numbers in neither set still go in the rectangle.'], [6, 'That’s all the odd numbers. 3 and 9 are multiples of 3.']]), COUNT_BOX)
@@ -70,6 +86,11 @@ const ALL: VennRegion[] = ['both', 'onlyA', 'onlyB', 'outside']
 
 /* ---------- Rung 2: probability from a Venn diagram ---------- */
 
+practice(probability, 'A number from 1 to 11 is picked at random. Guess first: which is more likely, odd or prime?', 'P5 p175 (guess first)', oddPrimeFig(ALL), choose('Odd',
+  ['Prime', 'Count them in the diagram: 5 primes (2, 3, 5, 7, 11) but 6 odd numbers (1, 3, 5, 7, 9, 11).'], ['Just as likely', 'Count each whole circle: 6 odd numbers, but only 5 primes.']),
+'Count each whole circle, the overlap too.', boardModel([], [
+  { title: 'Count each circle', say: 'A whole circle is its own part and the overlap. More numbers means more likely.', rows: ['Odd = 2 + 4 = 6', 'Prime = 4 + 1 = 5', '! Odd: 6 out of 11'], picture: oddPrimeFig(ALL, { onlyA: 'lit', both: 'lit' }) },
+], 'Probability', oddPrimeFig(ALL)))
 {
   const p = oddPrimeFig(ALL)
   worked(probability, 'A number from 1 to 11 is picked at random. Find P(odd and prime).', 'Probability from a Venn', 'P5 p175 (book’s numbers)', boardModel([], [

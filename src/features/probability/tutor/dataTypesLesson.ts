@@ -12,15 +12,18 @@ import { tableFig } from './chancePictures'
  * and our own numbers for the two typed questions. Four rungs: qualitative or quantitative (words or numbers);
  * discrete or continuous (exact values or anything in a range: time is continuous even on a stopwatch, shoe sizes are
  * discrete); primary or secondary (who collected it, with each one's advantages and disadvantages); and describing
- * data with both words at once (Your Turn Q2 and Q5). No board: mostly questions in words, with a table where a
- * picture helps.
+ * data with both words at once (Your Turn Q2 and Q5).
+ *
+ * Brilliant-style (Sunny, 11 Oct): the first three rungs are sorted by hand on the sort board (SortBoard.tsx), into
+ * bins, rather than picked from a list. Rung 1 opens with a play sort, rung 2 with a guess (shoe sizes) before the
+ * rule, and each card that lands in the wrong bin says why.
  *
  * Hidden on live: only the unlisted Probability shelf opens it.
  */
 
 const lesson = author(307)
 const { add, finish } = lesson
-const { worked, practice, ask } = chanceScreens(lesson)
+const { worked, practice, ask, playSort, sort } = chanceScreens(lesson)
 const kind = 'data-qualitative'
 const exact = 'data-discrete-continuous'
 const source = 'data-primary-secondary'
@@ -36,6 +39,15 @@ function kindsFig(head: string, items: string[], marks: string[], tones: Partial
 
 /* ---------- Rung 1: qualitative or quantitative ---------- */
 
+const WORDS_NUMBERS = [{ id: 'words', label: 'Words: qualitative' }, { id: 'numbers', label: 'Numbers: quantitative' }]
+playSort(kind, 'Sort each kind of data: is it words or numbers?', 'P7 p179 (play)', { kind: 'bins', bins: WORDS_NUMBERS, tiles: [
+  { label: 'Hair colour', to: 'words', why: 'Brown, black, blonde: words.' },
+  { label: 'Siblings', to: 'numbers', why: 'You count siblings: 0, 1, 2.' },
+  { label: 'Favourite band', to: 'words', why: 'A band’s name is words.' },
+  { label: 'Rubik’s cube time', to: 'numbers', why: 'A time is a number of seconds.' },
+  { label: 'Eye colour', to: 'words', why: 'Blue, brown, green: words.' },
+  { label: 'Goals scored', to: 'numbers', why: 'Goals are counted: 0, 1, 3.' },
+] })
 {
   const items = ['Hair colour', 'Siblings', 'Rubik’s time']
   const p = kindsFig('Words or numbers?', items, ['?', '?', '?'])
@@ -45,15 +57,15 @@ function kindsFig(head: string, items: string[], marks: string[], tones: Partial
     { title: 'Name them', say: 'So hair colour is the only qualitative data. The other two are quantitative.', rows: ['! Qualitative: hair colour'], picture: kindsFig('Words or numbers?', items, ['qualitative', 'quantitative', 'quantitative'], { 0: 'found' }, 'Hair colour is qualitative') },
   ], 'Type', p), 'Qualitative (or categorical) data is words, like football teams or favourite takeaways, and usually comes from a survey. Quantitative data is numbers.')
 }
-ask(kind, 'Students record their eye colours. What kind of data is this?', 'P7 Your Turn Q1(c) (book’s data)', ['Eye colours of the students in a class'], choose('Qualitative',
-  ['Quantitative', 'Eye colours are words, like blue or brown, not numbers.'], ['Discrete', 'Discrete data is numbers. Eye colours are words.'], ['Continuous', 'Continuous data is measured numbers. Eye colours are words.']),
-'Is it words or numbers?', boardModel([], [
-  { title: 'Words or numbers?', say: 'Blue, brown, green: eye colours are words, so they’re qualitative (categorical).', rows: ['Eye colour = words', '! Qualitative'] },
-], 'Type'))
-ask(kind, 'A coach records the number of goals each player scores. What kind of data is this?', 'P7 Your Turn Q1(d) (book’s data)', ['Goals scored by each player'], choose('Quantitative',
-  ['Qualitative', 'Goals scored is a number, like 0, 1 or 3. Qualitative data is words.'], ['Categorical', 'Categorical is the same as qualitative: words. Goals are counted.']),
-'Is it words or numbers?', boardModel([], [
-  { title: 'Words or numbers?', say: 'Goals are counted: 0, 1, 2, 3. Numbers are quantitative.', rows: ['Goals = numbers', '! Quantitative'] },
+sort(kind, 'Sort these into qualitative and quantitative data.', 'P7 Your Turn Q1 (book’s data, and our own)', { kind: 'bins', bins: WORDS_NUMBERS, tiles: [
+  { label: 'Car colour', to: 'words', why: 'Red, silver, black: words, so qualitative.' },
+  { label: 'Weight', to: 'numbers', why: 'A weight is a number of kilograms, so quantitative.' },
+  { label: 'Favourite sport', to: 'words', why: 'Football, tennis: words, so qualitative.' },
+  { label: 'Texts sent today', to: 'numbers', why: 'You count texts: a number, so quantitative.' },
+  { label: 'Country of birth', to: 'words', why: 'A country’s name is words, so qualitative.' },
+] }, 'Is it written in words or in numbers?', boardModel([], [
+  { title: 'Words', say: 'Colours, sports and countries are written in words: qualitative.', rows: ['>0 Car colour, sport, country'] },
+  { title: 'Numbers', say: 'Weight and texts sent are numbers: quantitative.', rows: ['! Weight, texts: quantitative'] },
 ], 'Type'))
 {
   const items = ['Football team', 'Shoe size', 'Takeaway', 'Height', 'Eye colour', 'Pets owned']
@@ -66,25 +78,25 @@ ask(kind, 'A coach records the number of goals each player scores. What kind of 
 
 /* ---------- Rung 2: discrete or continuous ---------- */
 
+ask(exact, 'Guess first: Tahani records the shoe sizes of her classmates. Discrete or continuous?', 'P7 Your Turn Q3 (book’s data)', ['Shoe sizes: 6, 7, 7½, 8, 9 …'], choose('Discrete',
+  ['Continuous', 'Feet can be any length, but shoes only come in certain sizes. There’s no size 7.3.'], ['Qualitative', 'Shoe sizes are numbers, so quantitative.']),
+'Can a shoe size be any value?', boardModel([], [
+  { title: 'Only certain sizes', say: 'A foot’s length is continuous, but shoe sizes only come in steps: 7, 7½, 8. Only exact values, so discrete.', rows: ['Size = 7, 7½, 8 …', '! Discrete'] },
+], 'Type'))
 worked(exact, 'Jason records how many siblings each classmate has, and how fast each solves a Rubik’s cube. Discrete or continuous?', 'Discrete or continuous', 'P7 p180 Example 1 (book’s data)', boardModel([], [
   { title: 'Counting siblings', say: 'You can have 1 or 2 siblings, but not 1.6. Only exact values: that’s discrete.', rows: ['Siblings = 0, 1, 2, 3 …', '>0 Only exact values: discrete'] },
   { title: 'Timing the cube', say: 'A stopwatch stops at hundredths of a second, but time itself can be any value in between. Time is continuous.', rows: ['Time = 47.36 s, 47.361 s …', '>0 Any value: continuous'] },
   { title: 'Name them', say: 'Counting gives discrete data. Measuring gives continuous data.', rows: ['! Siblings: discrete; time: continuous'] },
 ], 'Type'), 'Quantitative data is discrete or continuous. Discrete data can only take certain exact values, usually whole numbers: children, shoe sizes. Continuous data can take any value in a range: heights, weights, race times.')
-ask(exact, 'A vet measures the heights of 12 dogs. Discrete or continuous?', 'P7 Your Turn Q1(a) (book’s data)', ['Heights of 12 dogs'], choose('Continuous',
-  ['Discrete', 'A height can be any value, like 41.37 cm, not just whole numbers. It’s measured, so continuous.'], ['Qualitative', 'Heights are numbers, so quantitative. The question is which kind.']),
-'Is it counted or measured?', boardModel([], [
-  { title: 'Counted or measured?', say: 'A height is measured, and can be any value in a range: 41 cm, 41.3 cm, 41.37 cm.', rows: ['Height = any value', '! Continuous'] },
-], 'Type'))
-ask(exact, 'Tahani records the shoe sizes of her classmates. Discrete or continuous?', 'P7 Your Turn Q3 (book’s data)', ['Shoe sizes: 6, 7, 7½, 8, 9 …'], choose('Discrete',
-  ['Continuous', 'Feet can be any length, but shoes only come in certain sizes. There’s no size 7.3.'], ['Qualitative', 'Shoe sizes are numbers, so quantitative.']),
-'Can a shoe size be any value?', boardModel([], [
-  { title: 'Only certain sizes', say: 'A foot’s length is continuous, but shoe sizes only come in steps: 7, 7½, 8. Only exact values, so discrete.', rows: ['Size = 7, 7½, 8 …', '! Discrete'] },
-], 'Type'))
-ask(exact, 'A zoo keeper measures the lengths of 15 snakes. Discrete or continuous?', 'P7 Your Turn Q1(b) (book’s data)', ['Lengths of 15 snakes'], choose('Continuous',
-  ['Discrete', 'A length is measured, and can be any value. Discrete data is counted.'], ['Categorical', 'Lengths are numbers. Categorical data is words.']),
-'Is it counted or measured?', boardModel([], [
-  { title: 'Counted or measured?', say: 'A snake’s length is measured, and can be any value in a range.', rows: ['Length = any value', '! Continuous'] },
+sort(exact, 'Sort these into discrete and continuous data.', 'P7 Your Turn Q1 (book’s data, and our own)', { kind: 'bins', bins: [{ id: 'discrete', label: 'Discrete: counted' }, { id: 'continuous', label: 'Continuous: measured' }], tiles: [
+  { label: 'Dogs’ heights', to: 'continuous', why: 'A height is measured, and can be any value, like 41.37 cm.' },
+  { label: 'People in a queue', to: 'discrete', why: 'You count people: 7 or 8, never 7.5.' },
+  { label: 'Snakes’ lengths', to: 'continuous', why: 'A length is measured, and can be any value.' },
+  { label: 'Children in a family', to: 'discrete', why: 'You count children: whole numbers only.' },
+  { label: '100 m times', to: 'continuous', why: 'Time can be any value, even if a stopwatch rounds it.' },
+] }, 'Is it counted or measured?', boardModel([], [
+  { title: 'Counted', say: 'People and children are counted: only exact values.', rows: ['>0 Queue, children: discrete'] },
+  { title: 'Measured', say: 'Heights, lengths and times are measured: any value in a range.', rows: ['! Heights, lengths, times: continuous'] },
 ], 'Type'))
 
 /* ---------- Rung 3: primary or secondary ---------- */
@@ -94,10 +106,15 @@ worked(source, 'Chidi uses an online survey of 200 people from 10 years ago: fav
   { title: 'Words or numbers?', say: 'The answers are kinds of food: words. That’s categorical.', rows: ['Italian, Chinese … = words', '>0 Categorical'] },
   { title: 'Good and bad', say: 'It saved him time. But it’s 10 years old, and people only had 4 foods to choose from.', rows: ['>0 Advantage: saves time', '>0 Disadvantage: old, only 4 choices', '! Secondary, categorical'] },
 ], 'Describe'), 'Primary data is collected by you, first-hand: it’s relevant and you know it’s reliable, but it takes time and can cost money. Secondary data was collected by someone else: it’s quick and cheap, but may not suit you, and you can’t be sure it’s fair.')
-ask(source, 'Michael asks families directly how many children they have. What kind of data is this?', 'P7 Your Turn Q4 (book’s data)', ['Michael asks the families himself'], choose('Primary',
-  ['Secondary', 'Secondary data was collected by someone else. Michael asked the families himself.'], ['Qualitative', 'Number of children is a number. The question is who collected it.']),
-'Who collected it?', boardModel([], [
-  { title: 'Who collected it?', say: 'Michael collected it himself, first-hand.', rows: ['Collector = Michael', '! Primary'] },
+sort(source, 'Sort these into primary and secondary data.', 'P7 p179 and Your Turn Q4 (book’s examples, and our own)', { kind: 'bins', bins: [{ id: 'primary', label: 'Primary: you collect it' }, { id: 'secondary', label: 'Secondary: someone else did' }], tiles: [
+  { label: 'Michael asks families', to: 'primary', why: 'Michael asks the families himself, first-hand.' },
+  { label: 'Newspaper statistics', to: 'secondary', why: 'A newspaper collected it, not you.' },
+  { label: 'Your own traffic count', to: 'primary', why: 'You counted the cars yourself.' },
+  { label: 'An old online survey', to: 'secondary', why: 'Someone else ran the survey; you found it online.' },
+  { label: 'A class vote you run', to: 'primary', why: 'You ran the vote, so you collected it.' },
+] }, 'Who collected it: you, or someone else?', boardModel([], [
+  { title: 'You collected it', say: 'Asking, counting or voting yourself is first-hand: primary.', rows: ['>0 Michael, traffic count, class vote'] },
+  { title: 'Someone else did', say: 'Newspapers and old surveys were collected by other people: secondary.', rows: ['! Newspaper, online survey: secondary'] },
 ], 'Source'))
 ask(source, 'What’s an advantage of Michael collecting the data himself?', 'P7 Your Turn Q4 (book’s data)', ['Primary data: Michael asks the families'], choose('He knows how it was collected, so it’s reliable',
   ['It’s quicker than finding it', 'Collecting it yourself takes more time. That’s a disadvantage.'], ['It costs nothing', 'Primary data can cost money, for printing or paying people.'], ['Someone else checked it', 'No one else was involved. He collected it himself.']),

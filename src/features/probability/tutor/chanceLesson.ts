@@ -1,6 +1,7 @@
 import { working } from '../../written-methods/model'
 import type { TutorWorking } from '../../written-methods/tutor/model'
 import type { ChanceBoardSpec } from '../../written-methods/tutor/ChanceBoard'
+import { sortAnswer, sortMistake, sortPlaces, type SortBoardSpec } from '../../written-methods/tutor/SortBoard'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { text } from '../../simultaneous-equations/tutor/boardWorkings'
 import { screens, type Box } from '../../geometry/tutor/figureLesson'
@@ -20,6 +21,23 @@ export function chanceScreens(lesson: ReturnType<typeof author>) {
     play(topic: MicroSkillId, title: string, sourceRef: string, spec: ChanceBoardSpec) {
       const state = add(topic, title, sourceRef, text(title))
       state.chanceBoard = spec
+      return state
+    },
+    /** A play screen on the sort board: right tiles stay and turn green, wrong ones go back and say why. */
+    playSort(topic: MicroSkillId, title: string, sourceRef: string, spec: SortBoardSpec) {
+      const state = add(topic, title, sourceRef, text(title))
+      state.sortBoard = spec
+      return state
+    },
+    /** A question answered on the sort board: every tile placed, then checked; the first tile out of place says why. */
+    sort(topic: MicroSkillId, title: string, sourceRef: string, spec: SortBoardSpec, hint: string, model: TutorWorking) {
+      const places = sortPlaces(spec)
+      const shown = places.map(p => ({ p, tiles: spec.tiles.filter(t => t.to === p.id).map(t => t.label) })).filter(g => g.tiles.length).map(g => `${g.p.label}: ${g.tiles.join(', ')}`).join('; ')
+      const interaction: InteractionDefinition = { type: 'numericInput', correctAnswer: sortAnswer(spec), displayAnswer: shown, acceptanceRule: 'exact' }
+      const state = add(topic, title, sourceRef, text(title), interaction, working(shown, ...steps(model)), hint)
+      state.working = model
+      state.sortBoard = spec
+      state.diagnose = response => sortMistake(spec, response)
       return state
     },
     /** A question in words: `lines` are shown under its title (the data, or the survey question), then the answer. */

@@ -20,9 +20,15 @@ const LESSONS = {
   302: { file: 'frequencyTreesLesson', name: 'tutorFrequencyTreesLesson', boards: [], answers: [102, 31, 27, 44, '44/63', '16/25', '9/25', 240, 60, 120, '9/50'] },
   303: { file: 'treeDiagramsLesson', name: 'tutorTreeDiagramsLesson', boards: ['tree'], answers: [0.5, '1/12', 0.08, '1/2', 0.65, 0.15, 0.0625, 0.48, '25/144', '35/72', 0.46] },
   304: { file: 'relativeFrequencyLesson', name: 'tutorRelativeFrequencyLesson', boards: ['spin'], answers: [0.231, 0.308, 0.827, '23/50', 40, 160, 64, 80, 0.1575, 0.315, 1575, 0.15, 0.12] },
-  305: { file: 'vennLesson', name: 'tutorVennLesson', boards: [], answers: [4, '2/11', '1/3', '7/71', 66, 13, 15, 39, '1/5'] },
+  305: { file: 'vennLesson', name: 'tutorVennLesson', boards: [], answers: [4, '2/11', '1/3', '7/71', 66, 13, 15, 39, '1/5'],
+    // 1 to 11, odd and prime: 1 and 9 odd only, 2 prime only, 3 5 7 11 both, the evens outside. 1 to 12, even and
+    // multiples of 3: 6 and 12 both, 3 and 9 B only, 2 4 8 10 A only, 1 5 7 11 outside.
+    sorts: ['play onlyA,onlyB,both,outside,both,outside,both,outside,onlyA,outside,both', 'outside,onlyA,onlyB,onlyA,outside,both,outside,onlyA,onlyB,onlyA,outside,both'] },
   306: { file: 'setNotationLesson', name: 'tutorSetNotationLesson', boards: [], answers: [6, 8, 8, 4, 5] },
-  307: { file: 'dataTypesLesson', name: 'tutorDataTypesLesson', boards: [], answers: [3, 50] },
+  307: { file: 'dataTypesLesson', name: 'tutorDataTypesLesson', boards: [], answers: [3, 50],
+    // Hair colour, siblings, band, cube time, eye colour, goals; car colour, weight, sport, texts, country; heights,
+    // queue, lengths, children, times; Michael, newspaper, traffic count, online survey, class vote.
+    sorts: ['play words,numbers,words,numbers,words,numbers', 'words,numbers,words,numbers,words', 'continuous,discrete,continuous,discrete,continuous', 'primary,secondary,primary,secondary,primary'] },
   308: { file: 'averagesLesson', name: 'tutorAveragesLesson', boards: ['average'], answers: [8, 0.488, 169, 12, 350, 310, 1.3, 1.75, 11, 62.5, 63.75] },
   309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20] },
 }
@@ -32,6 +38,7 @@ const lesson = require(`../src/features/probability/tutor/${spec.file}.ts`)[spec
 const { fitFigure } = require('../src/features/written-methods/tutor/FigurePictures.tsx')
 const { steadyBounds } = require('../src/features/written-methods/tutor/AnglePictures.tsx')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
+const { sortAnswer, sortPlaces } = require('../src/features/written-methods/tutor/SortBoard.tsx')
 let shelf = null
 try { shelf = require('../src/features/probability/probabilityLessons.ts') } catch (error) { if (!/Cannot find module/.test(error.message)) throw error }
 
@@ -66,11 +73,32 @@ function checkPicture(f, where, group) {
 }
 
 let pictures = 0
-const typed = []
+const typed = [], sorted = []
+// Room in each Venn region on the sort board (SortBoard.tsx).
+const VENN_SLOTS = { onlyA: 6, both: 6, onlyB: 6, outside: 11 }
 for (const s of states) {
   if (s.visual.kind === 'angle') { checkPicture(s.visual.angle, s.id); pictures++ }
   const model = s.interaction.type === 'continue' ? s.visual : s.working
   if (s.interaction.type !== 'continue') assert.ok(s.hint, `${s.id}: has a hint`)
+  if (s.sortBoard) {
+    // The sort board: every tile goes to a real place and says why it goes there; a question's answer is where each
+    // tile goes, matched against the sorting worked out by hand below, and a wrong sorting names a tile out of place.
+    const places = sortPlaces(s.sortBoard).map(p => p.id)
+    for (const tile of s.sortBoard.tiles) { assert.ok(places.includes(tile.to), `${s.id}: ${tile.label} goes to a real place`); assert.ok(tile.why, `${s.id}: ${tile.label} says why`) }
+    assert.ok(new Set(s.sortBoard.tiles.map(t => t.to)).size >= 2, `${s.id}: the tiles go to more than one place`)
+    if (s.sortBoard.kind === 'venn') for (const place of places) assert.ok(s.sortBoard.tiles.filter(t => t.to === place).length <= VENN_SLOTS[place], `${s.id}: room in ${place}`)
+    if (s.interaction.type === 'continue') { sorted.push(`play ${sortAnswer(s.sortBoard)}`); continue }
+    const right = s.interaction.correctAnswer
+    assert.equal(right, sortAnswer(s.sortBoard), `${s.id}: the answer is where each tile goes`)
+    sorted.push(right)
+    assert.ok(checkAnswer(s.interaction, right), `${s.id} accepts the right sorting`)
+    const swapped = s.sortBoard.tiles.map((t, k) => k === 0 ? places.find(p => p !== t.to) : t.to).join(',')
+    assert.ok(!checkAnswer(s.interaction, swapped), `${s.id} refuses a tile out of place`)
+    assert.equal(s.diagnose(right), null, `${s.id}: no slip message on the right sorting`)
+    assert.match(s.diagnose(swapped), new RegExp(`^${s.sortBoard.tiles[0].label} belongs in`), `${s.id}: a wrong sorting names the tile`)
+    assert.ok(s.hint && model?.kind === 'method-worked', `${s.id}: has a hint and its working`)
+    continue
+  }
   if (model?.kind !== 'method-worked') { assert.ok(s.interaction.type === 'continue', `${s.id}: a question has its working`); continue }
   const steps = model.examples[0].steps
   steps.forEach((step, i) => {
@@ -103,6 +131,7 @@ for (const s of states) {
 }
 if (spec.answers) assert.deepEqual(typed, spec.answers, 'Every typed answer matches the one worked out by hand')
 else console.log('Typed answers:', JSON.stringify(typed))
+assert.deepEqual(sorted, spec.sorts ?? [], 'Every sorting matches the one worked out by hand')
 
 // Hidden: only the shelf page opens it.
 const hiddenFrom = new RegExp(`probability/tutor|${spec.name}|${id}\\b`)
@@ -115,4 +144,4 @@ if (shelf) {
   assert.ok(shelf.probabilityLessons.some(l => l.number === number), `Lesson ${number - 300} is on the Probability shelf`)
   assert.match(read(`app/preview/${shelf.PROBABILITY_SHELF_ID}/page.tsx`), /robots: \{ index: false, follow: false \}/, 'The preview page is noindexed')
 }
-console.log(`${lesson.title}: ${states.length} screens, ${pictures} pictures checked, ${typed.length} answers checked${shelf ? ', hidden on the Probability shelf' : ''}`)
+console.log(`${lesson.title}: ${states.length} screens, ${pictures} pictures checked, ${typed.length} answers and ${sorted.length} sortings checked${shelf ? ', hidden on the Probability shelf' : ''}`)
