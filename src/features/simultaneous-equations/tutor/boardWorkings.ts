@@ -10,6 +10,7 @@ import type { InteractionDefinition } from '../../number-types/types'
  * A row is written as text: "① 3x +2y = 16" (a labelled equation), "3x −x^ ~+2y ~−2y^ = 16 −8^" (a move: `^` marks
  * the part done to both sides, purple; `~` strikes out what cancels), "= x² +6x +9" (carrying on the left side of the
  * row above), "> ② × 2" (a note across the board, purple) and "! x = 4, y = 2" (the answer, in the green box).
+ * "({3|−2})" is a column vector, 3 across and −2 up (geometry lesson 21).
  */
 
 export const text = (...lines: string[]) => ({ kind: 'text' as const, lines })
@@ -34,7 +35,7 @@ export function rowTex(line: string) {
   const plain = line.replace(/^(>\d?|!) /, '').replace(/^[①②] /, '').replace(/[~^[\]]/g, '')
   if (/[a-z]{3,}/i.test(plain.replace(/\b(?:[a-z])\b/gi, ''))) return `\\text{${plain.replace(/[{}]/g, '').replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/[①②]/g, m => m === '①' ? '(1)' : '(2)').replace(/✓/g, '}\\checkmark\\text{').replace(/²/g, '}^{2}\\text{')}}`
   return plain.replace(/[①②]/g, m => m === '①' ? '(1)' : '(2)').replace(/≡/g, '\\equiv ').replace(/−/g, '-').replace(/×/g, '\\times ').replace(/÷/g, '\\div ')
-    .replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/²/g, '^{2}').replace(/°/g, '^{\\circ}').replace(/π/g, '\\pi ').replace(/✓/g, '\\checkmark').replace(/\{([^|]*)\|([^}]*)\}/g, '\\frac{$1}{$2}')
+    .replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/²/g, '^{2}').replace(/°/g, '^{\\circ}').replace(/π/g, '\\pi ').replace(/✓/g, '\\checkmark').replace(/\(\{([^|]*)\|([^}]*)\}\)/g, '\\begin{pmatrix}$1\\\\$2\\end{pmatrix}').replace(/\{([^|]*)\|([^}]*)\}/g, '\\frac{$1}{$2}')
 }
 
 /**

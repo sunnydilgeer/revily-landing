@@ -157,6 +157,8 @@ export type FigureItem =
   | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number }
   /** The area a picture covers from `from` to `to`, drawn on the lesson card's own squared paper; `axes` draws the x and y axes through 0, numbered when `numbers`. */
   | { kind: 'grid'; from: FigurePoint; to: FigurePoint; axes?: boolean; numbers?: boolean }
+  /** A shaded region with no outline: its loops are filled even-odd, so a loop inside another cuts a hole (a Venn diagram's A′). */
+  | { kind: 'shade'; loops: FigurePoint[][]; tone?: 'lit' | 'found' }
 /** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
 export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number }
 

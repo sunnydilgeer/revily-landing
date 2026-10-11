@@ -14,17 +14,22 @@ type Token = {
   root?: 'plain' | 'boxed' | 'struck'
   /** What follows the token with no gap: the ‹²› that squares it. */
   after?: string
+  /** A column vector, "({3|−2})": its top and bottom numbers in brackets, with no bar between them (geometry lesson 21). */
+  column?: boolean
 }
 
 /**
  * "~−3" → struck −3; "+3^" → the move +3; "{2x+1|~3}" → 2x + 1 over a struck 3; "{C−5|3^}" → C − 5 over the move ÷ 3.
  * A root over a whole fraction or bracket: "√{A|6}", "√(2A)"; "[√]{h|5}" boxes its sign and "«√»{h|5}‹²›" crosses it
- * out and squares it. Inside a token, «…» is crossed out and ‹…› is the move (Boxed in Powers.tsx).
+ * out and squares it. Inside a token, «…» is crossed out and ‹…› is the move (Boxed in Powers.tsx). A column vector:
+ * "({3|−2})", top number across and bottom number up, in brackets with no bar; its parts may have spaces: "({3 + 5|2 − 1})".
  */
 export function readTokens(side: string): Token[] {
-  return (side.match(/~?\{[^}]*\}\^?|\S+/g) ?? []).map(raw => {
+  return (side.match(/~?\(?\{[^}]*\}\)?\^?|\S+/g) ?? []).map(raw => {
     const struck = raw.startsWith('~'), move = raw.endsWith('^')
     const body = raw.replace(/^~/, '').replace(/\^$/, '')
+    const column = body.match(/^\(\{([^|]*)\|([^}]*)\}\)$/)
+    if (column) return { text: column[1], bottom: column[2], struck, move, column: true }
     const parts = body.match(/^(√|\[√\]|«√»)?(?:\{([^|]*)\|(~?)([^}]*?)(\^?)\}|(?<=√|\]|»)\(([^)]*)\))(.*)$/)
     if (!parts) return { text: body, struck, move }
     const [, sign, top, bottomStruck, bottom, bottomMove, under, after] = parts
@@ -36,6 +41,7 @@ export function readTokens(side: string): Token[] {
 }
 /** A token as plain words, for a screen reader and the KaTeX chain. */
 const words = (token: Token, first: boolean) => {
+  if (token.column) return `the column vector ${spaced(token.text)}, ${spaced(token.bottom ?? '')}`
   const inner = token.bottom !== undefined ? `${spaced(token.text)} over ${token.bottom}` : signed(token.text, first)
   return `${token.root ? `the square root of ${inner}` : inner}${token.after ?? ''}`.replace(/[«»‹›]/g, '')
 }
@@ -51,6 +57,7 @@ const Show = ({ text, plain }: { text: string; plain?: boolean }) => plain ? <Po
 
 function Body({ token, first, plain }: { token: Token; first: boolean; plain?: boolean }) {
   const bottomClass = [token.bottomStruck && !plain && 'is-struck', token.bottomMove && !plain && 'ns-eq__move'].filter(Boolean).join(' ') || undefined
+  if (token.column) return <span className="ns-eq__vec"><span><Show text={spaced(token.text)} plain={plain} /></span><span><Show text={spaced(token.bottom ?? '')} plain={plain} /></span></span>
   return token.bottom !== undefined
     ? <span className="ns-eq__frac"><span><Show text={spaced(token.text)} plain={plain} /></span><span className={bottomClass}><Show text={token.bottom} plain={plain} /></span></span>
     : <Show text={token.root ? spaced(token.text) : signed(token.text, first)} plain={plain} />
