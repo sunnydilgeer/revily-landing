@@ -74,6 +74,11 @@ ask(relative, 'A coin is flipped 50 times and lands on heads 23 times. What is t
 
 /* ---------- Rung 2: expected frequency ---------- */
 
+ask(expected, 'Guess first: a fair spinner has 4 equal parts. It is spun 200 times. How many times do you expect it to land on 1?', 'P4 p171 (guess first)', ['Spinner with 4 equal parts', '200 spins'], number(50, '50'), 'A quarter of the spins.', boardModel([], [
+  { title: 'A quarter of 200', say: 'P(1) = ¼, so expect about a quarter of the spins to land on 1.', rows: ['¼ × 200 = 50', '! About 50 times'] },
+], 'Expected'), slips(50, [[25, 'That’s for 100 spins. There are 200.'], [4, 'A quarter of the spins land on 1: 200 ÷ 4.']]), { label: 'Spins', prefix: 'Expect' })
+play(expected, 'Spin 100 times. About how many land on 1?', 'P4 p171 Expected frequency (play)', { mode: 'spin' })
+
 {
   const p = primFig('110', [[1, 1, 'lit']])
   worked(expected, 'Prim’s town has 20 000 people. How many would you expect to be vegetarian?', 'Expected frequency', 'P4 p171 Example 1 (book’s numbers)', boardModel([], [
@@ -141,6 +146,12 @@ ask(bias, 'Is there evidence that Bev’s die is more likely to land on 6?', 'P4
 }
 
 /* ---------- Rung 4: more trials ---------- */
+
+ask(trials, 'Guess first: one estimate of P(1) comes from 10 spins, another from 1000. Which would you trust more?', 'P4 p171 (guess first)', ['10 spins', '1000 spins'], choose('1000 spins',
+  ['10 spins', 'A few spins wobble a lot: 4 ones in 10 spins gives 0.4, far from 0.25.'], ['Both the same', 'More spins settle closer to the true probability, as on the spin board.']),
+'Think back to the spin board: when did it settle?', boardModel([], [
+  { title: 'More trials settle', say: 'The relative frequency wobbles for a few spins and settles near the probability as the spins add up.', rows: ['! 1000 spins'] },
+], 'Trials'))
 
 function coinFig(tones: [number, number, FigureTone][] = [], caption?: string): AngleFrame {
   return tableFig([['', 'Flips', 'Heads', 'RF'], ['Ali', '10', '7', '0.7'], ['Ben', '1000', '508', '0.508']],

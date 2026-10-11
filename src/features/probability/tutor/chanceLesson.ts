@@ -23,6 +23,18 @@ export function chanceScreens(lesson: ReturnType<typeof author>) {
       state.chanceBoard = spec
       return state
     },
+    /**
+     * A question answered on the chance board: the arrow's place on the scale, both sliders on the tree (any of
+     * `answers`, in tenths: "6,7"), or the last value on the average board. `say` is what a wrong answer is told.
+     */
+    drag(topic: MicroSkillId, title: string, sourceRef: string, spec: ChanceBoardSpec, answers: string[], shown: string, hint: string, model: TutorWorking, say: (response: string) => string) {
+      const interaction: InteractionDefinition = answers.length > 1 ? { type: 'numericInput', correctAnswer: answers, displayAnswer: shown, acceptanceRule: 'oneOf' } : { type: 'numericInput', correctAnswer: answers[0], displayAnswer: shown, acceptanceRule: 'exact' }
+      const state = add(topic, title, sourceRef, text(title), interaction, working(shown, ...steps(model)), hint)
+      state.working = model
+      state.chanceBoard = { ...spec, ask: true }
+      state.diagnose = response => answers.includes(response) ? null : say(response)
+      return state
+    },
     /** A play screen on the sort board: right tiles stay and turn green, wrong ones go back and say why. */
     playSort(topic: MicroSkillId, title: string, sourceRef: string, spec: SortBoardSpec) {
       const state = add(topic, title, sourceRef, text(title))

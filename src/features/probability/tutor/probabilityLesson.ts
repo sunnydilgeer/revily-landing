@@ -19,7 +19,7 @@ import { fraction, scaleFig, spinnerFig, tableFig, tilesFig } from './chancePict
 
 const lesson = author(301)
 const { add, finish } = lesson
-const { worked, practice, ask, play } = chanceScreens(lesson)
+const { worked, practice, ask, play, drag } = chanceScreens(lesson)
 const scale = 'chance-scale'
 const equally = 'chance-equally-likely'
 const sumOne = 'chance-sum-to-one'
@@ -62,7 +62,17 @@ ask(scale, 'You roll an ordinary dice. Which word describes rolling a 7?', 'P1 p
   { title: 'Can it happen?', say: 'The dice only shows 1 to 6. There are no ways to roll a 7, so the probability is 0.', rows: ['P(7) = 0', '! Impossible'] },
 ]))
 
+drag(scale, 'A spinner has 4 equal parts, and 1 of them is red. Drag the arrow to P(red).', 'P1 p162 (own numbers)', { mode: 'scale', from: [10] }, ['0.25'], '0.25', 'One part out of 4 equal parts.', boardModel([], [
+  { title: 'One out of four', say: '1 red part out of 4 equal parts: a quarter.', rows: ['P(red) = {1|4}', '! P(red) = 0.25'] },
+], 'Probability'), r => Number(r) > 0.5 ? 'Only 1 of the 4 parts is red, so red is unlikely: less than ½.' : `That’s ${r}. One part of 4 is a quarter: 0.25.`)
+
 /* ---------- Rung 2: equally likely outcomes ---------- */
+
+ask(equally, 'Guess first: on a fair dice, which is more likely, an even number or a number bigger than 4?', 'P1 p162 (guess first)', ['A fair dice: 1, 2, 3, 4, 5, 6'], choose('An even number',
+  ['A number bigger than 4', 'Bigger than 4 is only 5 and 6: 2 numbers. Even is 2, 4 and 6: 3 numbers.'], ['Just as likely', 'Count them: 3 even numbers, but only 2 bigger than 4.']),
+'Count the numbers that work for each.', boardModel([], [
+  { title: 'Count each one', say: 'Every number is equally likely, so the one with more numbers wins.', rows: ['Even = 2, 4, 6: 3 of 6', 'Bigger than 4 = 5, 6: 2 of 6', '! An even number'] },
+], 'Guess'))
 
 {
   const die = (lit: boolean, tone: FigureTone = 'lit') => tilesFig(['1', '2', '3', '4', '5', '6'], 'The six faces of a fair dice: 1, 2, 3, 4, 5 and 6.', lit ? { tones: { 1: tone, 3: tone, 5: tone } } : {})
@@ -102,6 +112,10 @@ ask(equally, 'A ticket numbered 1 to 50 is picked at random. What is the probabi
 
 /* ---------- Rung 3: adding up to 1 ---------- */
 
+drag(sumOne, 'Guess first: the probability it rains tomorrow is 0.3. Drag the arrow to the probability it doesn’t rain.', 'P1 p162 (guess first)', { mode: 'scale', from: [6] }, ['0.7'], '0.7', 'It either rains or it doesn’t.', boardModel([], [
+  { title: 'One or the other', say: 'It either rains or it doesn’t, so the two probabilities add up to 1.', rows: ['1 − 0.3 = 0.7', '! P(no rain) = 0.7'] },
+], 'Probability'), r => r === '0.3' ? 'That’s P(rain). Not raining is everything else: 1 − 0.3.' : 'Rain or no rain must happen, so together they make 1: 1 − 0.3.')
+
 {
   const t = (tones: [number, number, FigureTone][], draw = '?', charlie = '?') => tableFig([['Sarah', 'Draw', 'Charlie'], ['0.6', draw, charlie]], 'A table of the three outcomes: Sarah wins 0.6, a draw, Charlie wins.', { tones })
   worked(sumOne, 'Sarah and Charlie play a game. P(Sarah wins) = 0.6 and a draw is half as likely as Sarah winning. Find P(Charlie wins).', 'Adding up to 1', 'P1 p163 Example (book’s numbers)', boardModel([], [
@@ -138,6 +152,12 @@ ask(equally, 'A ticket numbered 1 to 50 is picked at random. What is the probabi
 }
 
 /* ---------- Rung 4: listing outcomes ---------- */
+
+ask(outcomes, 'Guess first: two coins are flipped. How many different outcomes are there?', 'P1 p163 (guess first)', ['Two fair coins, each heads or tails'], choose('4',
+  ['3', 'Heads then tails and tails then heads are different: HH, HT, TH, TT.'], ['2', 'Each coin can land 2 ways, for each way the other lands: HH, HT, TH, TT.']),
+'List them: what can the first coin do, and the second?', boardModel([], [
+  { title: 'List them in order', say: 'The first coin, then the second. HT and TH are different outcomes.', rows: ['>0 HH, HT, TH, TT', '! Outcomes = 4'] },
+], 'Outcomes'))
 
 /** A sample space for two spinners numbered 1 to n, added: the heading row and column, then each sum. */
 function sumSpace(n: number, lit: (sum: number) => boolean, tone: FigureTone | null, spoken: string): AngleFrame {

@@ -19,7 +19,7 @@ import { fraction, probTreeFig, spinnerFig, tableFig } from './chancePictures'
 
 const lesson = author(303)
 const { add, finish } = lesson
-const { worked, practice, ask, play } = chanceScreens(lesson)
+const { worked, practice, ask, play, drag } = chanceScreens(lesson)
 const andRule = 'chance-and-rule'
 const orRule = 'chance-or-rule'
 const tree = 'chance-tree'
@@ -61,7 +61,17 @@ ask(andRule, 'P(rain on Monday) = 0.4 and P(the bus is late) = 0.2, and they are
   { title: 'AND means multiply', say: '4 × 2 = 8, and two decimal places in all.', rows: ['! P = 0.4 × 0.2 = 0.08'] },
 ], 'Probability'), slips(0.08, [[0.6, 'That adds. AND means multiply.'], [0.8, 'Count the decimal places: 0.4 × 0.2 = 0.08.']]), P_BOX())
 
+drag(andRule, 'Set the sliders so that P(win both) = 0.42.', 'P3 p169 (own numbers)', { mode: 'tree', from: [5, 5] }, ['6,7', '7,6'], '0.6 and 0.7', 'Which two tenths multiply to make 0.42?', boardModel([], [
+  { title: 'Multiply along the path', say: 'Win both is P(win 1) × P(win 2). 6 × 7 = 42, so 0.6 × 0.7 = 0.42.', rows: ['0.6 × 0.7 = 0.42', '! 0.6 and 0.7'] },
+], 'AND rule'), r => { const [a, b] = r.split(',').map(Number); return `${a / 10} × ${b / 10} = ${Math.round(a * b) / 100}. Find two tenths that multiply to 0.42.` })
+
 /* ---------- Rung 2: the OR rule ---------- */
+
+ask(orRule, 'Guess first: a bag has 3 red, 5 blue and 2 green balls. Is P(red or blue) bigger or smaller than P(red)?', 'P3 p168 (guess first)', ['3 red, 5 blue, 2 green'], choose('Bigger',
+  ['Smaller', 'More balls count as a win, so it’s more likely, not less.'], ['The same', 'Blue balls count too, so there are more ways to win.']),
+'Which wins more often: red, or red or blue?', boardModel([], [
+  { title: 'More ways to win', say: 'Red wins with 3 balls. Red or blue wins with 3 + 5 = 8.', rows: ['P(red) = {3|10}', 'P(red or blue) = {8|10}', '! Bigger'] },
+], 'OR rule'))
 
 {
   const bag = (tones: [number, number, FigureTone][] = []) => tableFig([['Red', 'Blue', 'Green'], ['3', '5', '2']], 'A bag of 10 balls: 3 red, 5 blue and 2 green.', { tones })
@@ -123,6 +133,12 @@ ask(orRule, 'On a fair dice, can you add P(even) and P(more than 4) to get P(eve
 }
 
 /* ---------- Rung 4: using the tree ---------- */
+
+ask(both, 'Guess first: two fair coins are flipped. Is P(two heads) more or less than ½?', 'P3 p168 (guess first)', ['Two fair coins'], choose('Less than ½',
+  ['More than ½', 'Both have to land heads: ½ × ½ = ¼.'], ['Exactly ½', 'That’s one coin. Both heads is ½ × ½ = ¼.']),
+'Both coins have to land heads.', boardModel([], [
+  { title: 'Both have to happen', say: 'AND means multiply along the path.', rows: ['½ × ½ = ¼', '! Less than ½'] },
+], 'AND rule'))
 
 {
   const balls = treeOf(['R', 'B'], ['R', 'B'], ['1st pick', '2nd pick'], 'A tree for two picks with replacement from 4 red and 5 blue balls.')

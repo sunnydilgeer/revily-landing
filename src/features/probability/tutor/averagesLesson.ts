@@ -20,7 +20,7 @@ import { tilesFig } from './chancePictures'
 
 const lesson = author(308)
 const { add, finish } = lesson
-const { worked, practice, ask, play } = chanceScreens(lesson)
+const { worked, practice, ask, play, drag } = chanceScreens(lesson)
 const mean = 'average-mean'
 const middle = 'average-median-mode'
 const spread = 'average-range'
@@ -74,7 +74,19 @@ const timesSay = 'Ten reaction times in seconds.'
   ], 'Mean', p))
 }
 
+drag(mean, 'Drag the last bar so the mean of all seven values is 7.', 'P8 p182 (own numbers)', { mode: 'average', from: [7] }, ['13'], '13', 'Seven values with a mean of 7 add up to 7 × 7.', boardModel([], [
+  { title: 'The total you need', say: 'A mean of 7 for 7 values means they add up to 49.', rows: ['7 × 7 = 49'] },
+  { title: 'Take what’s there', say: 'The six bars already add up to 3 + 5 + 5 + 6 + 8 + 9 = 36.', rows: ['49 − 36 = 13', '! Last value = 13'] },
+], 'Mean'), r => `With ${r}, the total is ${36 + Number(r)}, so the mean is ${Math.round((36 + Number(r)) / 7 * 10) / 10}. You need a total of 7 × 7 = 49.`)
+
 /* ---------- Rung 2: median and mode ---------- */
+
+play(middle, 'Drag the last bar right up. Watch the median.', 'P8 p182 Median (play)', { mode: 'average' })
+ask(middle, 'Guess first: in 3, 5, 5, 6, 8, 9, the 9 changes to 50. Does the median change?', 'P8 p182 (guess first)', ['3, 5, 5, 6, 8, 9', 'The 9 becomes 50'], choose('No',
+  ['Yes', 'The median is the middle. 50 is still at the end, so the middle two stay 5 and 6.']),
+'Where is the middle of the list?', boardModel([], [
+  { title: 'The middle stays put', say: 'In order, the middle two are still 5 and 6. Only the end changed.', rows: ['>0 3, 5, 5, 6, 8, 50', 'Median = (5 + 6) ÷ 2 = 5.5', '! No, it stays 5.5'] },
+], 'Median'))
 
 {
   const scores = sorted([56, 79, 77, 48, 90, 68, 79, 92, 71])
@@ -124,6 +136,8 @@ const salesSay = 'Eleven values.'
 }
 
 /* ---------- Rung 3: the range ---------- */
+
+play(spread, 'Drag the last bar up and down. Watch the range.', 'P8 p183 Range (play)', { mode: 'average' })
 
 {
   const values = [12, 8, 4, 16, 15, 15, 5, 15, 10, 8], say = 'Ten values.'
