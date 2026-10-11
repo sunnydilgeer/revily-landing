@@ -670,6 +670,12 @@
    itself never scrolls, and a card taller than the space between the bars scrolls inside itself, with a soft fade at
    its bottom edge while there is more below (data-more, set by lessonFrame.ts). ---------- */
 .app-shell.app-shell--frame {
+  /* Pinned to the screen, so the page under it has nothing to scroll. In the page's flow, iPhone Safari let the page
+     scroll a little past 100dvh and opened lessons with the card's top under the top bar (Sunny, 11 Oct). */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 100vh;
   height: 100dvh;
   min-height: 0;
