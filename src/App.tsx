@@ -36,6 +36,8 @@ import TutorSubstitutionLesson from './features/substitution/tutor/SubstitutionL
 import TutorRatioLesson from './features/ratio/tutor/RatioLessonView'
 import TutorRatioBasicsLesson from './features/ratio/tutor/RatioBasicsLessonView'
 import TutorUnitsLesson from './features/ratio/tutor/UnitsLessonView'
+import TutorBestBuysLesson from './features/ratio/tutor/BestBuysLessonView'
+import TutorMeasuresLesson from './features/ratio/tutor/MeasuresLessonView'
 import TutorProportionLesson from './features/ratio/tutor/ProportionLessonView'
 import TutorPercentLesson from './features/ratio/tutor/PercentLessonView'
 import TutorReversePercentLesson from './features/ratio/tutor/ReversePercentLessonView'
@@ -333,6 +335,10 @@ function renderLesson(lesson: MathsLessonNumber) {
       return <TutorRatioBasicsLesson />
     case 38:
       return <TutorUnitsLesson />
+    case 39:
+      return <TutorBestBuysLesson />
+    case 40:
+      return <TutorMeasuresLesson />
     case 31:
       return <TutorProportionLesson />
     case 32:
