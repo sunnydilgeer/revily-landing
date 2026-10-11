@@ -58,6 +58,8 @@ type Props = {
   onOpenCurriculum: () => void
 }
 
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 export default function CardsView({ storageKey, decks, intro, footnote, unitName, onOpenCurriculum }: Props) {
   const states = useCardStates(storageKey)
   const [session, setSession] = useState<Session | null>(null)
@@ -68,7 +70,11 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
   function start(title: string, queue: StudyCard[]) {
     if (!queue.length) return
     setSession({ title, queue, index: 0, flipped: false, gotIt: 0, again: 0, requeued: new Set() })
-    requestAnimationFrame(() => cardRef.current?.focus())
+    // On a phone the study panel moves above the deck list, so go back up to it: the tap visibly opens the deck.
+    requestAnimationFrame(() => {
+      cardRef.current?.focus({ preventScroll: true })
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+    })
   }
 
   function answer(gotIt: boolean) {
