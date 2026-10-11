@@ -4,7 +4,7 @@
  * papers. The AQA 2022–25 references have not been counted for these skills yet, so `inspiredBy` says so, and the
  * weights in aqaWeights.ts are estimates.
  */
-import type { FractionPart, NumberPart, QuestionBody, Template } from '../types'
+import type { FractionPart, MethodStep, NumberPart, QuestionBody, Template } from '../types'
 
 const join = (list: (string | number)[]) => list.join(' : ')
 
@@ -82,6 +82,17 @@ function share(names: string[], ratio: number[], total: number, want: number, po
     mistakes: [{ answer: total / ratio.length, note: `Share by the ratio, not equally: there are ${parts} parts.` }, { answer: total / ratio[want], note: `Add up all the parts first: ${ratio.join(' + ')} = ${parts}.` }],
   }
   return { stem: `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} share ${pounds ? '£' : ''}${total} in the ratio $${join(ratio)}$.`, parts: [part] }
+}
+
+/** One conversion: `amount` × or ÷ `factor` (1 or 2 marks). */
+function convert(statement: string, stem: string, prompt: string, answer: number, line: string, why: string, mistakes: { answer: number; note: string }[], marks = 1, unit?: { prefix?: string; suffix?: string }, method?: MethodStep[]): QuestionBody {
+  const part: NumberPart = {
+    kind: 'number', prompt, answer, marks, statements: [statement], ...unit, ...(method ? { method } : {}),
+    hint: 'To a smaller unit, multiply; to a bigger unit, divide. Check the size of your answer makes sense.',
+    chain: [{ line, op: 'Convert', why }],
+    mistakes,
+  }
+  return { stem, parts: [part] }
 }
 
 /** Three shares in a ratio; one is `more` than another. Find a third share (2 marks, method: 1 part). */
@@ -168,6 +179,51 @@ function inverseProportion(a: number, time: number, b: number, workers: [string,
 }
 
 export const ratioTemplates: Template[] = [
+  {
+    id: 'units-metric', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'food', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R6.1 worksheet (multiply to a smaller unit, divide to a bigger one); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('38:units-metric', 'A bag of rice weighs $2.5$ kg.', 'How many grams is that?', 2500, '2.5 \\times 1000 = 2500', '1 kg = 1000 g, and grams are smaller.', [{ answer: 250, note: '1 kg is 1000 g, not 100.' }], 1, { suffix: 'g' }),
+      convert('38:units-metric', 'A ribbon is $340$ cm long.', 'How many metres is that?', 3.4, '340 \\div 100 = 3.4', '1 m = 100 cm, and metres are bigger.', [{ answer: 34000, note: 'Metres are bigger, so divide.' }, { answer: 0.34, note: '1 m is 100 cm, not 1000.' }], 1, { suffix: 'm' }),
+      convert('38:units-metric', 'A jug holds $1.75$ litres.', 'How many millilitres is that?', 1750, '1.75 \\times 1000 = 1750', '1 litre = 1000 ml.', [{ answer: 175, note: '1 litre is 1000 ml, not 100.' }], 1, { suffix: 'ml' }),
+    ],
+  },
+  {
+    id: 'units-area-volume', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'home', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R6.2 worksheet and R6 Example 2 (square the factor for area, cube it for volume); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('38:units-area-volume', 'A wall has an area of $6$ m².', 'What is that in cm²?', 60000, '6 \\times 100 \\times 100 = 60\\,000', '1 m² = 100 × 100 = 10 000 cm².', [{ answer: 600, note: 'For area, square the factor: 1 m² = 10 000 cm².' }], 1, { suffix: 'cm²' }),
+      convert('38:units-area-volume', 'A box has a volume of $2$ m³.', 'What is that in cm³?', 2000000, '2 \\times 100^3 = 2\\,000\\,000', '1 m³ = 100 × 100 × 100 cm³.', [{ answer: 200, note: 'For volume, cube the factor: 1 m³ = 1 000 000 cm³.' }, { answer: 20000, note: 'That squares the factor. For volume, cube it.' }], 1, { suffix: 'cm³' }),
+      convert('38:units-area-volume', 'A tile has an area of $9$ cm².', 'What is that in mm²?', 900, '9 \\times 10 \\times 10 = 900', '1 cm² = 10 × 10 = 100 mm².', [{ answer: 90, note: 'For area, square the factor: 1 cm² = 100 mm².' }], 1, { suffix: 'mm²' }),
+    ],
+  },
+  {
+    id: 'units-rates', topic: 'ratio', ramp: 'apply', style: 'standard', context: 'travel', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R6.3 worksheet and R6 Q1/Q5 (multiply from the 1, divide back); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('38:units-rates', 'Use $1$ kg $\\approx 2.2$ pounds.', 'About how many pounds is $8$ kg?', 17.6, '8 \\times 2.2 = 17.6', 'Each kilogram is 2.2 pounds.', [{ answer: 3.6363636363636362, note: 'Kilograms to pounds: multiply by 2.2.' }]),
+      convert('38:units-rates', 'The exchange rate is $£1 = 1.20$ euros.', 'How many pounds is $54$ euros?', 45, '54 \\div 1.2 = 45', 'Euros to pounds: divide by 1.20.', [{ answer: 64.8, note: 'Euros to pounds: divide, because each pound is 1.20 euros.' }], 1, { prefix: '£' }),
+      convert('38:units-rates', 'Use $1$ mile $\\approx 1.6$ km.', 'About how many km is $25$ miles?', 40, '25 \\times 1.6 = 40', 'Each mile is 1.6 km.', [{ answer: 15.625, note: 'Miles to km: multiply by 1.6.' }], 1, { suffix: 'km' }),
+    ],
+  },
+  {
+    id: 'units-time', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'travel', calculator: false,
+    inspiredBy: 'Estimate: modelled on our R6.4 worksheet (time is in 60s); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('38:units-time', 'A journey takes $1.5$ hours.', 'How many minutes is that?', 90, '1.5 \\times 60 = 90', '1 hour = 60 minutes.', [{ answer: 150, note: 'An hour is 60 minutes, not 100.' }], 1, { suffix: 'minutes' }),
+      convert('38:units-time', 'A film lasts $135$ minutes.', 'Write this in hours as a decimal.', 2.25, '135 \\div 60 = 2.25', '60 minutes make an hour.', [{ answer: 1.35, note: 'Divide by 60, not 100.' }, { answer: 2.15, note: '15 minutes is 0.25 of an hour, not 0.15.' }], 1, { suffix: 'hours' }),
+      convert('38:units-time', 'A race lasts $3$ hours $36$ minutes.', 'Write this in hours as a decimal.', 3.6, '3 + 36 \\div 60 = 3.6', '36 minutes is 36 ÷ 60 = 0.6 of an hour.', [{ answer: 3.36, note: '36 minutes is 36 ÷ 60 = 0.6 of an hour.' }], 1, { suffix: 'hours' }),
+    ],
+  },
+  {
+    id: 'units-speed', topic: 'ratio', ramp: 'multistep', style: 'standard', context: 'travel', calculator: true,
+    inspiredBy: 'Estimate: modelled on our R6.5 worksheet and the R6 speed example (change each unit, then divide); AQA 2022–25 references still to be counted',
+    variants: [
+      convert('38:units-speed', 'A bus travels at $54$ km/h.', 'What is that in m/s?', 15, '54\\,000 \\div 3600 = 15', '54 km = 54 000 m, and an hour is 3600 s.', [{ answer: 900, note: 'An hour is 3600 seconds, not 60.' }, { answer: 0.015, note: 'Change the km to metres first.' }], 2, { suffix: 'm/s' }, [{ prompt: 'How many metres is $54$ km?', answer: 54000 }]),
+      convert('38:units-speed', 'A runner goes at $5$ m/s.', 'What is that in km/h?', 18, '5 \\times 3600 \\div 1000 = 18', '× 3600 for an hour, ÷ 1000 for km.', [{ answer: 18000, note: 'That’s metres an hour. Divide by 1000 for km/h.' }, { answer: 0.3, note: 'An hour is 3600 seconds, not 60.' }], 2, { suffix: 'km/h' }, [{ prompt: 'How many metres in an hour? $5 \\times 3600 = ?$', answer: 18000 }]),
+      convert('38:units-speed', 'A car travels at $90$ km/h.', 'What is that in m/s?', 25, '90\\,000 \\div 3600 = 25', '90 km = 90 000 m, and an hour is 3600 s.', [{ answer: 1500, note: 'An hour is 3600 seconds, not 60.' }], 2, { suffix: 'm/s' }, [{ prompt: 'How many metres is $90$ km?', answer: 90000 }]),
+    ],
+  },
   {
     id: 'ratio-fractions', topic: 'ratio', ramp: 'recall', style: 'standard', context: 'school', calculator: false,
     inspiredBy: 'Estimate: modelled on our R1.1 worksheet (the whole is every part added); AQA 2022–25 references still to be counted',

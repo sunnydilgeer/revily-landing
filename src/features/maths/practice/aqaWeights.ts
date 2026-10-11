@@ -137,6 +137,12 @@ export const aqaMarks: Record<string, number> = {
   '36:substitution-expressions': 20,
   '36:substitution-negatives': 15,
   '36:substitution-formulae': 10,
+  // Estimates, not yet counted from the 18 papers: unit conversions turn up in most sittings, usually inside other questions.
+  '38:units-metric': 2,
+  '38:units-area-volume': 1,
+  '38:units-rates': 2,
+  '38:units-time': 1,
+  '38:units-speed': 1,
   // Estimates, not yet counted from the 18 papers: simplifying and sharing in a ratio are the most common ratio marks on Foundation.
   '37:ratio-fractions': 2,
   '37:ratio-simplifying': 2,

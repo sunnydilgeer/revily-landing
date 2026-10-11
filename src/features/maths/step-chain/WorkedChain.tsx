@@ -74,6 +74,8 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
   const controls = useRef<HTMLDivElement>(null)
   const roll = useRef<HTMLDivElement>(null)
   const [lines, setLines] = useState<HTMLDivElement | null>(null)
+  /** Lines handed to the window by the picture (<Working>). Watched in script: iPhone Safari didn't re-check a CSS :has(:empty) as they arrived, and left the window hidden (Sunny, 11 Oct). */
+  const [hasLines, setHasLines] = useState(false)
   /** The student hasn't scrolled the window themselves: it follows the working as it grows. */
   const following = useRef(true)
   const opened = useRef(revealed)
@@ -88,6 +90,15 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
     drive(mine)
     return () => drive(null)
   }, [drive, done, nextLabel, steps.length, total])
+
+  useEffect(() => {
+    if (!lines) return
+    const check = () => setHasLines(lines.childElementCount > 0)
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(lines, { childList: true })
+    return () => observer.disconnect()
+  }, [lines])
 
   // The fades at the window's edges say there is more above or below.
   function edges() {
@@ -158,7 +169,7 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
     <WorkingWindow.Provider value={lines}>
       {shown && <div className={`wc-picture${steady ? ' wc-picture--steady' : ''}`}>{shown}</div>}
     </WorkingWindow.Provider>
-    <div className="wc-roll" ref={roll}>
+    <div className="wc-roll" ref={roll} hidden={pictureOnly && !hasLines}>
       <div className="wc-roll__lines" ref={setLines} />
       {!pictureOnly && <StepChain steps={steps} layout={layout} revealed={revealed} pace={pace} />}
     </div>
