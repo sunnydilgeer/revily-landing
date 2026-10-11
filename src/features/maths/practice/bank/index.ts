@@ -20,6 +20,8 @@ import { functionMachineTemplates } from './functionMachines'
 import { ratioTemplates } from './ratio'
 import { percentageTemplates } from './percentages'
 import { interestTemplates } from './interest'
+import { negativesTemplates } from './negatives'
+import { substitutionTemplates } from './substitution'
 
 /** Every Practice template. Number only for now: the other branches are not taught yet. */
-export const templates: Template[] = [...calculationTemplates, ...moneyTemplates, ...fractionTemplates, ...accuracyTemplates, ...standardFormTemplates, ...likeTermsTemplates, ...indicesTemplates, ...expandingTemplates, ...factorisingTemplates, ...equationsTemplates, ...rearrangingTemplates, ...quadraticsTemplates, ...quadraticEquationsTemplates, ...sequencesTemplates, ...inequalitiesTemplates, ...simultaneousTemplates, ...proofTemplates, ...functionMachineTemplates, ...ratioTemplates, ...percentageTemplates, ...interestTemplates]
+export const templates: Template[] = [...calculationTemplates, ...moneyTemplates, ...fractionTemplates, ...accuracyTemplates, ...standardFormTemplates, ...likeTermsTemplates, ...indicesTemplates, ...expandingTemplates, ...factorisingTemplates, ...equationsTemplates, ...rearrangingTemplates, ...quadraticsTemplates, ...quadraticEquationsTemplates, ...sequencesTemplates, ...inequalitiesTemplates, ...simultaneousTemplates, ...proofTemplates, ...functionMachineTemplates, ...ratioTemplates, ...percentageTemplates, ...interestTemplates, ...negativesTemplates, ...substitutionTemplates]

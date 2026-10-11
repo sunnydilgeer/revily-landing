@@ -32,6 +32,8 @@ import { tutorProportionLesson } from '../ratio/tutor/proportionLesson'
 import { tutorPercentLesson } from '../ratio/tutor/percentLesson'
 import { tutorReversePercentLesson } from '../ratio/tutor/reversePercentLesson'
 import { tutorInterestLesson } from '../ratio/tutor/interestLesson'
+import { tutorNegativesLesson } from '../negatives/tutor/negativesLesson'
+import { tutorSubstitutionLesson } from '../substitution/tutor/substitutionLesson'
 import { sectionsFor, type MathsSection } from './sections'
 import { graphsChapter, graphsLessons, type GraphsLessonNumber } from '../graphs/graphsLessons'
 import { geometryChapter, geometryLessons, type GeometryLessonNumber } from '../geometry/geometryLessons'
@@ -39,7 +41,7 @@ import { probabilityChapter, probabilityLessons, type ProbabilityLessonNumber } 
 
 export { sectionsFor, type MathsSection }
 
-export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34
+export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36
   | GraphsLessonNumber | GeometryLessonNumber | ProbabilityLessonNumber
 
 export type MathsChapterId = 'number' | 'algebra' | 'ratio' | 'graphs' | 'geometry' | 'probability'
@@ -99,10 +101,14 @@ export const mathsLessons: MathsLessonEntry[] = [
   entry(9, tutorFractionsDecimalsPercentagesLesson, 'Fractions, decimals and percentages', 'Convert between equivalent fractions, decimals and percentages.', tutorFractionsDecimalsPercentagesLesson.labels),
   entry(10, tutorRoundingLesson, 'Rounding numbers', 'Round to decimal places, significant figures and powers of ten.', tutorRoundingLesson.labels),
   entry(11, tutorOrderingLesson, 'Ordering numbers', 'Compare and order decimals, large numbers, negatives and mixed forms.', tutorOrderingLesson.labels),
+  // Lesson 35 is written for Revily (not in the book): AQA N2, calculating with negatives, after ordering them (Sunny, 11 Oct).
+  entry(35, tutorNegativesLesson, 'Negative numbers', 'Add, subtract, multiply and divide with negative numbers, and use them for temperatures, money and floors.', tutorNegativesLesson.labels),
   entry(12, tutorEstimatingLesson, 'Estimating', 'Round to 1 significant figure and estimate calculations and formulas.', tutorEstimatingLesson.labels),
   entry(13, tutorBoundsLesson, 'Bounds and truncation', 'Find upper and lower bounds, write error intervals and truncate numbers.', tutorBoundsLesson.labels),
   entry(14, tutorStandardFormLesson, 'Standard form', 'Convert to and from standard form, and multiply and divide in standard form.', tutorStandardFormLesson.labels),
   entry(15, tutorLikeTermsLesson, 'Collecting like terms', 'Simplify expressions by collecting terms with the same letters and powers.', tutorLikeTermsLesson.labels, 'algebra'),
+  // Lesson 36 is written for Revily (not in the book): AQA A2, substitution, straight after collecting like terms (Sunny, 11 Oct).
+  entry(36, tutorSubstitutionLesson, 'Substitution', 'Put numbers into expressions and formulae, including negative numbers and powers, and work them out with BIDMAS.', tutorSubstitutionLesson.labels, 'algebra'),
   entry(16, tutorIndicesLesson, 'Powers and roots', 'Use the laws of indices, and work out square, cube and other roots.', tutorIndicesLesson.labels, 'algebra'),
   entry(17, tutorExpandingLesson, 'Expanding brackets', 'Expand single and double brackets, and simplify the result.', tutorExpandingLesson.labels, 'algebra'),
   entry(18, tutorFactorisingLesson, 'Factorising', 'Factorise expressions fully by taking out the highest common factor.', tutorFactorisingLesson.labels, 'algebra'),

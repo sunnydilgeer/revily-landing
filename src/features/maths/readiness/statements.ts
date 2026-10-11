@@ -137,6 +137,13 @@ export const canStatements: Record<string, string> = {
   '29:function-machines-forwards': 'I can put a number through a function machine, box by box, like 7 → × 4 → + 3 gives 31',
   '29:function-machines-backwards': 'I can work backwards through a function machine, undoing the last box first, like 26 back through × 5, − 4 gives 6',
   '29:function-machines-creating': 'I can turn an equation into a function machine in BIDMAS order, like y = 3x + 4 is × 3, then + 4',
+  '35:negatives-number-line': 'I can add and subtract with negative numbers, like −3 + 7 = 4 and 4 − 9 = −5',
+  '35:negatives-two-signs': 'I can swap two signs next to each other for one, like 6 − (−4) = 6 + 4',
+  '35:negatives-multiply-divide': 'I can multiply and divide with negative numbers, like −6 × 4 = −24 and −20 ÷ −5 = 4',
+  '35:negatives-problems': 'I can use negative numbers in problems, like a rise from −4°C to 9°C is 13 degrees',
+  '36:substitution-expressions': 'I can put numbers into an expression, like 3a + 2b = 22 when a = 4 and b = 5',
+  '36:substitution-negatives': 'I can put negative numbers into an expression, like 2x² = 18 when x = −3',
+  '36:substitution-formulae': 'I can put numbers into a formula, like v = u + at',
 
   '30:ratio-difference': 'I can find a share from the difference between two parts, like 2 : 3 : 6 with Fay 24 more than Dev gives Eli 18',
   '30:ratio-changing': 'I can solve a ratio that changes by calling 1 part x, like 7 : 3 then Mira gives Noel 10 to make them equal',
