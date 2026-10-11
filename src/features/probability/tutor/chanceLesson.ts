@@ -1,6 +1,7 @@
 import { working } from '../../written-methods/model'
 import type { TutorWorking } from '../../written-methods/tutor/model'
 import type { ChanceBoardSpec } from '../../written-methods/tutor/ChanceBoard'
+import type { ChartBoardSpec } from '../../written-methods/tutor/ChartBoard'
 import { sortAnswer, sortMistake, sortPlaces, type SortBoardSpec } from '../../written-methods/tutor/SortBoard'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import { text } from '../../simultaneous-equations/tutor/boardWorkings'
@@ -32,6 +33,24 @@ export function chanceScreens(lesson: ReturnType<typeof author>) {
       const state = add(topic, title, sourceRef, text(title), interaction, working(shown, ...steps(model)), hint)
       state.working = model
       state.chanceBoard = { ...spec, ask: true }
+      state.diagnose = response => answers.includes(response) ? null : say(response)
+      return state
+    },
+    /** A play screen on the chart board (ChartBoard.tsx, statistics lessons 10 to 18): build a chart and watch the numbers follow. */
+    chartPlay(topic: MicroSkillId, title: string, sourceRef: string, spec: ChartBoardSpec) {
+      const state = add(topic, title, sourceRef, text(title))
+      state.chartBoard = spec
+      return state
+    },
+    /**
+     * A question answered on the chart board: the free bars' or points' values in order ("4,15,12"), a pie slice's
+     * angle, a point ("190,88"), or what a line of best fit reads. Any of `answers` is right; `say` explains a wrong one.
+     */
+    chart(topic: MicroSkillId, title: string, sourceRef: string, spec: ChartBoardSpec, answers: string[], shown: string, hint: string, model: TutorWorking, say: (response: string) => string) {
+      const interaction: InteractionDefinition = answers.length > 1 ? { type: 'numericInput', correctAnswer: answers, displayAnswer: shown, acceptanceRule: 'oneOf' } : { type: 'numericInput', correctAnswer: answers[0], displayAnswer: shown, acceptanceRule: 'exact' }
+      const state = add(topic, title, sourceRef, text(title), interaction, working(shown, ...steps(model)), hint)
+      state.working = model
+      state.chartBoard = { ...spec, ask: true }
       state.diagnose = response => answers.includes(response) ? null : say(response)
       return state
     },

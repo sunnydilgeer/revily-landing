@@ -10,6 +10,7 @@ import { tutorSetNotationLesson } from './tutor/setNotationLesson'
 import { tutorDataTypesLesson } from './tutor/dataTypesLesson'
 import { tutorAveragesLesson } from './tutor/averagesLesson'
 import { tutorSamplingLesson } from './tutor/samplingLesson'
+import { tutorBarChartsLesson } from './tutor/barChartsLesson'
 
 /*
  * The hidden Probability and statistics shelf, built like the Geometry one (../geometry/geometryLessons.ts): P1 to P9
@@ -21,7 +22,7 @@ import { tutorSamplingLesson } from './tutor/samplingLesson'
  */
 export const PROBABILITY_SHELF_ID = 'probability-1df7422723d4'
 
-export type ProbabilityLessonNumber = 301 | 302 | 303 | 304 | 305 | 306 | 307 | 308 | 309
+export type ProbabilityLessonNumber = 301 | 302 | 303 | 304 | 305 | 306 | 307 | 308 | 309 | 315
 
 function entry(lesson: TutorMethodLesson & { number: ProbabilityLessonNumber }, title: string, description: string): MathsLessonEntry<ProbabilityLessonNumber, 'probability'> {
   return {
@@ -40,11 +41,12 @@ export const probabilityLessons = [
   entry(tutorDataTypesLesson as TutorMethodLesson & { number: 307 }, 'Types of data', 'Qualitative or quantitative, discrete or continuous, and primary or secondary data.'),
   entry(tutorAveragesLesson as TutorMethodLesson & { number: 308 }, 'Mean, median, mode and range', 'The three averages and the range, outliers, and working back from a mean.'),
   entry(tutorSamplingLesson as TutorMethodLesson & { number: 309 }, 'Sampling and questionnaires', 'Samples and bias, and spotting and fixing a poor questionnaire.'),
+  entry(tutorBarChartsLesson as TutorMethodLesson & { number: 315 }, 'Bar charts', 'Drawing a bar chart, reading one for totals and percentages, and dual bar charts.'),
 ]
 
 export const probabilityChapter: MathsChapter<ProbabilityLessonNumber, 'probability'> = {
   id: 'probability', title: 'Probability and statistics', description: 'Probability, frequency and tree diagrams, relative frequency, Venn diagrams and set notation; types of data, averages, sampling and questionnaires.', lessons: probabilityLessons,
 }
 
-export const lessonFor = (number: ProbabilityLessonNumber) => ({ 301: tutorProbabilityLesson, 302: tutorFrequencyTreesLesson, 303: tutorTreeDiagramsLesson, 304: tutorRelativeFrequencyLesson, 305: tutorVennLesson, 306: tutorSetNotationLesson, 307: tutorDataTypesLesson, 308: tutorAveragesLesson, 309: tutorSamplingLesson })[number]
+export const lessonFor = (number: ProbabilityLessonNumber) => ({ 301: tutorProbabilityLesson, 302: tutorFrequencyTreesLesson, 303: tutorTreeDiagramsLesson, 304: tutorRelativeFrequencyLesson, 305: tutorVennLesson, 306: tutorSetNotationLesson, 307: tutorDataTypesLesson, 308: tutorAveragesLesson, 309: tutorSamplingLesson, 315: tutorBarChartsLesson })[number]
 export const isProbabilityLessonNumber = (value: number): value is ProbabilityLessonNumber => probabilityLessons.some(item => item.number === value)

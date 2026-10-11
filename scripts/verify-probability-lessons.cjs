@@ -43,15 +43,29 @@ const LESSONS = {
   309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20, 45],
     // Library, school list, one road, online poll, field squares; crisps, ages, books, exercise, shopping day.
     sorts: ['biased,fair,biased,biased,fair', 'play fault,fault,fine,fault,fine', 'biased,fair,biased,fair'] },
+  // Toast 4 + 15 + 12 + 24 + 10 + 10 = 75; audio 3 of 20 = 15%; paperbacks − hardbacks 7 thousand; adults 5 + children
+  // 16 = 21; children 24 − 6 = 18; review blue 14 of 38 = 36.8%; bus girls 9 − boys 4 = 5.
+  // While a lesson is being written: no answers yet, so the script prints what it finds instead of checking it.
+  310: { file: 'pictogramsLesson', name: 'tutorPictogramsLesson', boards: [] },
+  311: { file: 'stemLeafLesson', name: 'tutorStemLeafLesson', boards: [] },
+  312: { file: 'frequencyTablesLesson', name: 'tutorFrequencyTablesLesson', boards: [] },
+  313: { file: 'groupedFrequencyLesson', name: 'tutorGroupedFrequencyLesson', boards: [] },
+  314: { file: 'estimatingMeanLesson', name: 'tutorEstimatingMeanLesson', boards: [] },
+  316: { file: 'scatterGraphsLesson', name: 'tutorScatterGraphsLesson', boards: [] },
+  317: { file: 'lineGraphsLesson', name: 'tutorLineGraphsLesson', boards: [] },
+  318: { file: 'pieChartsLesson', name: 'tutorPieChartsLesson', boards: [] },
+  315: { file: 'barChartsLesson', name: 'tutorBarChartsLesson', boards: [], answers: [75, 15, 7000, 21, 18, 36.8, 5],
+    drags: ['chart 4,15,12,24,10,10', 'chart 8,14,5,11'] },
 }
 const spec = LESSONS[number]
-assert.ok(spec, `Give a lesson number, 301 to 309 (got ${process.argv[2]})`)
+assert.ok(spec, `Give a lesson number, 301 to 318 (got ${process.argv[2]})`)
 const lesson = require(`../src/features/probability/tutor/${spec.file}.ts`)[spec.name]
 const { fitFigure } = require('../src/features/written-methods/tutor/FigurePictures.tsx')
 const { steadyBounds } = require('../src/features/written-methods/tutor/AnglePictures.tsx')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
 const { sortAnswer, sortPlaces } = require('../src/features/written-methods/tutor/SortBoard.tsx')
 const { chanceValue } = require('../src/features/written-methods/tutor/ChanceBoard.tsx')
+const { chartValue } = require('../src/features/written-methods/tutor/ChartBoard.tsx')
 let shelf = null
 try { shelf = require('../src/features/probability/probabilityLessons.ts') } catch (error) { if (!/Cannot find module/.test(error.message)) throw error }
 
@@ -109,6 +123,24 @@ for (const s of states) {
     assert.ok(s.hint && model?.kind === 'method-worked', `${s.id}: has a hint and its working`)
     continue
   }
+  if (s.chartBoard?.ask) {
+    // A question on the chart board: each right answer is accepted and is somewhere the board can reach, the board
+    // doesn't start on it, and a wrong one (one handle a step off) is refused and told why.
+    const c = s.chartBoard, rights = [s.interaction.correctAnswer].flat().map(String)
+    dragged.push(`chart ${rights.join(' or ')}`)
+    for (const right of rights) { assert.ok(checkAnswer(s.interaction, right), `${s.id} accepts ${right}`); assert.equal(s.diagnose(right), null, `${s.id}: no slip message on ${right}`) }
+    const start = c.mode === 'scatter' ? c.from : c.values
+    assert.ok(start, `${s.id}: the board says where it starts`)
+    assert.ok(!rights.includes(chartValue(c, start)), `${s.id}: doesn't start on the answer`)
+    if (c.mode === 'bars' || c.mode === 'line') for (const right of rights) right.split(',').map(Number).forEach(n => assert.ok(n >= 0 && n <= c.max && Math.abs(n / (c.snap ?? 1) - Math.round(n / (c.snap ?? 1))) < 1e-9, `${s.id}: the board can reach ${n}`))
+    if (c.mode === 'pie') { const total = c.values.reduce((a, b) => a + b, 0), e = c.edge ?? 0; for (const right of rights) assert.ok(Array.from({ length: c.values[e] + c.values[e + 1] + 1 }, (_, n) => chartValue(c, c.values.map((v, k) => k === e ? n : v))).includes(right), `${s.id}: the pie can reach ${right}° (${total} in all)`) }
+    const wrong = c.mode === 'scatter' && c.move !== 'line' ? `${Number(rights[0].split(',')[0]) + (c.snap?.[0] ?? 1)},${rights[0].split(',')[1]}` : rights[0].split(',').map((n, k) => k ? n : String(Number(n) + 1)).join(',')
+    assert.ok(!checkAnswer(s.interaction, wrong), `${s.id} refuses ${wrong}`)
+    assert.ok(s.diagnose(wrong), `${s.id}: says why ${wrong} is wrong`)
+    assert.ok(s.hint && model?.kind === 'method-worked', `${s.id}: has a hint and its working`)
+    continue
+  }
+  if (s.chartBoard) assert.ok(s.interaction.type === 'continue', `${s.id}: a chart board play screen`)
   if (s.sortBoard) {
     // The sort board: every tile goes to a real place and says why it goes there; a question's answer is where each
     // tile goes, matched against the sorting worked out by hand below, and a wrong sorting names a tile out of place.
@@ -160,8 +192,10 @@ for (const s of states) {
 }
 if (spec.answers) assert.deepEqual(typed, spec.answers, 'Every typed answer matches the one worked out by hand')
 else console.log('Typed answers:', JSON.stringify(typed))
-assert.deepEqual(sorted, spec.sorts ?? [], 'Every sorting matches the one worked out by hand')
-assert.deepEqual(dragged, spec.drags ?? [], 'Every board answer matches the one worked out by hand')
+if (spec.answers) {
+  assert.deepEqual(sorted, spec.sorts ?? [], 'Every sorting matches the one worked out by hand')
+  assert.deepEqual(dragged, spec.drags ?? [], 'Every board answer matches the one worked out by hand')
+} else console.log('Sortings:', JSON.stringify(sorted), 'Board answers:', JSON.stringify(dragged))
 
 // Hidden: only the shelf page opens it.
 const hiddenFrom = new RegExp(`probability/tutor|${spec.name}|${id}\\b`)
