@@ -13,6 +13,7 @@ import { TutorMethodMedia } from './TutorMethodVisual'
 import { SteadyPictures } from './steadyPictures'
 import { GraphBoard } from './GraphBoard'
 import { AngleBoard } from './AngleBoard'
+import { ChanceBoard } from './ChanceBoard'
 import { MeasureBoard } from './MeasureBoard'
 import { Powers } from './Powers'
 import { BackIcon } from '../../../ui/icons'
@@ -388,6 +389,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {teaching && board && <GraphBoard spec={board} />}
       {teaching && state.angleBoard && <AngleBoard spec={state.angleBoard} />}
       {teaching && state.measureBoard && <MeasureBoard spec={state.measureBoard} />}
+      {teaching && state.chanceBoard && <ChanceBoard spec={state.chanceBoard} />}
 
       {(numeric || fraction || pair) && <form className="rung-answer-form" id={`form-${state.id}`} onSubmit={event => { event.preventDefault(); if (!feedback && canCheck) engine.submit() }}>
         {board ? <GraphBoard spec={board} answer={boardAnswer} disabled={Boolean(feedback)} result={feedback ? feedback.correct ? 'correct' : 'incorrect' : undefined} onChange={engine.setInputValue} />

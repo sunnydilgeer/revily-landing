@@ -165,7 +165,7 @@ export function checkAnswer(interaction: InteractionDefinition, response: unknow
   if (interaction.acceptanceRule === 'normalisedNumber') {
     // An angle can be typed with its degree sign: 52° is 52. A length or area can be typed with its unit (cm, mm², m, km, miles),
     // and an answer in terms of π with its π, when the box says so: 24π is 24.
-    const actual = parseFormattedNumber(String(response).replace(/\s*(?:°|π?\s*(?:[ckm]?m[²2³3]?|miles?)?)\s*$/, ''))
+    const actual = parseFormattedNumber(String(response).replace(/\s*(?:°|π?\s*(?:[ckm]?m[²2³3]?|miles?|%|kg|s)?)\s*$/, ''))
     const wanted = parseFormattedNumber(expected)
     return actual !== null && wanted !== null && actual === wanted
   }

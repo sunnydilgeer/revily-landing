@@ -53,4 +53,4 @@ export function screens(lesson: ReturnType<typeof author>) {
 }
 
 /** Slip messages for a typed answer; a unit, π or degree sign typed with it is fine. */
-export const slips = (right: number, list: Slip[]) => (response: string) => diagnoseSlips(response.replace(/\s*(?:°|π?\s*(?:[ckm]?m[²2³3]?|miles?)?)\s*$/, ''), right, list.filter(([value]) => value !== right))
+export const slips = (right: number, list: Slip[]) => (response: string) => diagnoseSlips(response.replace(/\s*(?:°|π?\s*(?:[ckm]?m[²2³3]?|miles?|%|kg|s)?)\s*$/, ''), right, list.filter(([value]) => value !== right))
