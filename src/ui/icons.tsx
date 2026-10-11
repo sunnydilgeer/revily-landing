@@ -97,6 +97,10 @@ export function ContentsIcon(props: IconProps) {
   return <Svg {...props}><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4.5" cy="6" r="1" fill="currentColor" /><circle cx="4.5" cy="12" r="1" fill="currentColor" /><circle cx="4.5" cy="18" r="1" fill="currentColor" /></Svg>
 }
 
+export function ForwardIcon(props: IconProps) {
+  return <Svg {...props}><path d="M9 5l7 7-7 7" /></Svg>
+}
+
 export function ArrowIcon(props: IconProps) {
   return <Svg {...props}><path d="M5 12h14M13 6l6 6-6 6" /></Svg>
 }
