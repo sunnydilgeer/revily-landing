@@ -43,5 +43,5 @@
 .wc-roll__lines:empty { display: none; }
 /* A working with no diagram (an equation board on its own) has nothing to pin above its lines. */
 .wc-picture:has(> .ns-visual:empty) { display: none; }
-/* A working drawn wholly as its picture (no lines handed to the window) has no window. */
-.wc-roll:has(> .wc-roll__lines:empty):not(:has(> .sc)) { display: none; }
+/* A working drawn wholly as its picture (no lines handed to the window) has no window: WorkedChain.tsx sets `hidden`. */
+.wc-roll[hidden] { display: none; }

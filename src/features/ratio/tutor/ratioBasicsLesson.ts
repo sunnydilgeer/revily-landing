@@ -94,7 +94,7 @@ function ratioSlips(right: [number, number], list: [[number, number], string][] 
 
 const counters = bars(['Red', 4], ['Blue', 5])
 const bag = worked(fractions, 'Red and blue counters are in a bag in the ratio 4 : 5. What fraction of the counters are red?', 'Red : blue = 4 : 5. What fraction are red?', 'R1.1 video + Q1', ratioModel(counters, [
-  { title: 'Red compared with blue', say: 'Put the red number over the blue number: there are 4/5 as many red counters as blue counters. That compares the two parts, but the question asks about all the counters.', rows: ['> red over blue: {4|5}'] },
+  { title: 'Red compared with blue', say: 'Put the red number over the blue number: there are 4/5 as many red counters as blue counters. That compares the two parts, but the question asks about all the counters.', rows: ['> red over blue: 4/5'] },
   { title: 'Add the parts', say: 'Every 4 red counters come with 5 blue ones, so the counters come in groups of 9.', rows: ['4 + 5 = 9'], ratio: { note: '9 parts in total' } },
   { title: 'Part over total', say: 'Red is 4 of the 9 parts.', rows: ['! {4|9} of the counters are red'], ratio: { rings: [whole(0, 4)], lit: [0] } },
 ]), 'Our aim: part over part compares the two. For a fraction of the whole, add the parts and put the part over the total.')
@@ -197,7 +197,7 @@ practice(scaling, 'Concrete is made from cement, sand and gravel in the ratio 1 
 /* ---------- Rung 4: part to whole (R1.4) ---------- */
 
 const fruit = worked(partWhole, 'The ratio of oranges to all the fruit in a bag is 3 : 8. The rest are apples. Write the ratio of oranges to apples.', 'Oranges : all the fruit = 3 : 8', 'R1.4 video + Q1', ratioModel(bars(['Oranges', 3], ['Apples', 5]), [
-  { title: 'The 8 is the whole bag', say: 'The 8 includes the 3 oranges. So 3/8 of the fruit are oranges.', rows: ['> oranges are {3|8} of the fruit'], ratio: { rings: [whole(0, 3)], note: '8 pieces in all' } },
+  { title: 'The 8 is the whole bag', say: 'The 8 includes the 3 oranges. So 3/8 of the fruit are oranges.', rows: ['> oranges are 3/8 of the fruit'], ratio: { rings: [whole(0, 3)], note: '8 pieces in all' } },
   { title: 'Find the apples', say: 'The apples are what is left of the 8.', rows: ['8 − 3 = 5'], ratio: { rings: [whole(1, 5)], lit: [1] } },
   { title: 'Part to part', say: 'Now compare oranges with apples. A part : part ratio never includes the whole.', rows: ['! oranges : apples = 3 : 5'] },
 ]), 'Our aim: in a part : whole ratio, the whole includes the part. Take the part away from the whole to find the other part.')
