@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { MathSpan } from '../../../components/MathText'
 import { Button } from '../../ui'
+import { BackIcon, ForwardIcon } from '../../ui/icons'
 import { CARDS_EVENT, readCardStates, review, saveCardStates, todaysQueue, type CardStates } from './schedule'
 import './RevisionCards.css'
 
@@ -245,8 +246,9 @@ export default function CardsView({ storageKey, decks, intro, footnote, unitName
             {session.flipped && card.note && <span className="rc-card__note">{card.note}</span>}
           </button>
           <div className="rc-answer" aria-hidden={!session.flipped}>
-            <Button variant="secondary" size="lg" disabled={!session.flipped} onClick={() => answer(false)}>Still learning</Button>
-            <Button variant="good" size="lg" disabled={!session.flipped} onClick={() => answer(true)}>Got it</Button>
+            {/* Arrows like the lesson's back button (Sunny, 11 Oct): back is "Still learning", forward is "Got it". */}
+            <Button variant="ghost" icon aria-label="Still learning" title="Still learning" disabled={!session.flipped} onClick={() => answer(false)}><BackIcon size={22} /></Button>
+            <Button variant="ghost" icon aria-label="Got it" title="Got it" disabled={!session.flipped} onClick={() => answer(true)}><ForwardIcon size={22} /></Button>
           </div>
           <button type="button" className="rc-end" onClick={() => setSession(null)}>End session</button>
         </>}
