@@ -142,7 +142,11 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
       const scroller = scrollParent(target)
       const bottom = scroller ? scroller.getBoundingClientRect().bottom : window.innerHeight
       const clearance = parseFloat(getComputedStyle(target).scrollMarginBottom) || 0
-      if (target.getBoundingClientRect().bottom > bottom - clearance) target.scrollIntoView({ block: 'end' })
+      const over = target.getBoundingClientRect().bottom - (bottom - clearance)
+      if (over <= 0) return
+      // Scroll the card itself: scrollIntoView also nudges the page, which on iPhone left the lesson part-hidden.
+      if (scroller) scroller.scrollTop += over
+      else target.scrollIntoView({ block: 'end' })
     }
     const observer = new ResizeObserver(keepClear)
     observer.observe(working)

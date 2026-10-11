@@ -172,6 +172,7 @@ function App() {
     setView('lesson')
     setDrawerOpen(false)
     window.localStorage.setItem(MATHS_LAST_LESSON_STORAGE_KEY, String(number))
+    window.scrollTo({ top: 0 })
     pushLessonQuery(number, undefined, skill)
   }, [])
 

@@ -64,7 +64,12 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
     if (previousId.current === state.id) return
     previousId.current = state.id
     heading.current?.focus({ preventScroll: true })
-    document.getElementById(anchorId)?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    // The lesson is one fixed screen (lessonFrame.ts), so a new step starts at the top. Scrolling the anchor into view
+    // left it part-hidden under the top bar on iPhone (Sunny, 11 Oct), so put the page and every box round it back to 0.
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    const anchor = document.getElementById(anchorId)
+    for (let box = anchor; box; box = box.parentElement) box.scrollTop = 0
+    anchor?.querySelectorAll('.rung-card, .rung-done').forEach(card => { card.scrollTop = 0 })
     if (leaving) goToOverview()
   }, [state.id, anchorId, leaving])
 
