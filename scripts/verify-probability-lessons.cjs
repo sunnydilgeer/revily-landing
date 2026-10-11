@@ -43,15 +43,66 @@ const LESSONS = {
   309: { file: 'samplingLesson', name: 'tutorSamplingLesson', boards: [], answers: [120, 50, 20, 45],
     // Library, school list, one road, online poll, field squares; crisps, ages, books, exercise, shopping day.
     sorts: ['biased,fair,biased,biased,fair', 'play fault,fault,fine,fault,fine', 'biased,fair,biased,fair'] },
+  // Toast 4 + 15 + 12 + 24 + 10 + 10 = 75; audio 3 of 20 = 15%; paperbacks − hardbacks 7 thousand; adults 5 + children
+  // 16 = 21; children 24 − 6 = 18; review blue 14 of 38 = 36.8%; bus girls 9 − boys 4 = 5.
+  315: { file: 'barChartsLesson', name: 'tutorBarChartsLesson', boards: [], answers: [75, 15, 7000, 21, 18, 36.8, 5],
+    drags: ['chart 4,15,12,24,10,10', 'chart 8,14,5,11'] },
+  // Syd Aug 22 − Apr 11 = 11; village 6.8 − 0.9 = 5.9 thousand = 5900; rain Feb 210 − May 80 = 130; Ella's scale 0, 10, 20,
+  // [40] → 30; review ice creams Tue 45 − Wed 25 = 20; David Sat 9.1 − Sun 5.9 = 3.2. Boards: Syd 11,15,18,21,22,17; TVs
+  // 1,4,3,4,6; Roger's 2014 point at 700; plant 2,5,9,12,14.
+  317: { file: 'lineGraphsLesson', name: 'tutorLineGraphsLesson', boards: [], answers: [11, 5900, 130, 30, 20, 3.2],
+    drags: ['chart 11,15,18,21,22,17', 'chart 1,4,3,4,6', 'chart 700', 'chart 2,5,9,12,14'] },
+  // Blue 13 ÷ 60 × 360 = 78; cats 14 ÷ 40 × 360 = 126; John D 3 × 15 = 45; red 90 ÷ 360 × 32 = 8; yellow 60 ÷ 360 × 510 = 85;
+  // Renault 85 × (600 ÷ 40) = 1275; total 360 × 15 = 5400; Oliver golf 60 ÷ 360 × 12 = 2; Lewis golf 2 ÷ 9 × 360 = 80;
+  // class B art 144 ÷ 360 × 20 = 8; review swim 50 ÷ (360 ÷ 72) = 10; school X 60 − school Y 50 = 10. Boards: Brian's
+  // green 24 of 60 = 144°; John's A 6 × 15 = 90°; C 10 × 15 = 150°; review dogs 20 of 45 = 160°.
+  318: { file: 'pieChartsLesson', name: 'tutorPieChartsLesson', boards: [], answers: [78, 126, 45, 8, 85, 1275, 5400, 2, 80, 8, 10, 10],
+    drags: ['chart 144', 'chart 90', 'chart 150', 'chart 160'] },
+  // Joe 30 < h ≤ 40: 32, 39, 35, 32, 33, 31, 37, 38 = 8; 20 < h ≤ 30: 21, 22, 25, 27, 28, 30, 25 = 7; cats ≤ 3.5 kg 22 + 14
+  // = 36; median of 100 at (100 + 1) ÷ 2 = 50.5; physics above 40 (5 + 3) ÷ 25 = 32%; bike > 10 min 12 × £12.50 = 150;
+  // 10 to 21 min (4 + 6)/20 = 1/2; mean 280 ÷ 20 = 14; review over 20 min 9 + 4 = 13, 10 or less 6/30 = 20%.
+  // Sorts: 152 160 | 165 170 | 171 180; 9 20 | 25 30 | 32 40 | 46 | 21 in b; review 10 | 14 20 | 27 | 3 a | 21 c.
+  // Physics marks tallied 1, 8, 4, 4, 5, 3 (25).
+  313: { file: 'groupedFrequencyLesson', name: 'tutorGroupedFrequencyLesson', boards: [], answers: [8, 7, 36, 50.5, 32, 150, '1/2', 14, 13, 20],
+    sorts: ['play a,a,b,b,c,c', 'a,a,b,b,c,c,d,b', 'a,b,b,c,a,c'], drags: ['chart 1,8,4,4,5,3'] },
+  // Midpoints (4.5 + 6) ÷ 2 = 5.25, 125, 12; cats 438.25 ÷ 117 = 3.7; Adam 1415 ÷ 75 = 18.9; Emily 15 850 ÷ 118 = 134.3;
+  // fish without the 6 biggest 2615 ÷ 73 = 35.8; journeys 2443.5 ÷ 116 = 21.1; Suzanna 2225 ÷ 85 = 26.2; Floella in 20s
+  // 2190 ÷ 85 = 25.76 → 26; review 140 ÷ 10 = 14, midpoint of 2.5–3.5 = 3. Board: last bar 2 gives (10 + 75 + 50) ÷ 9 = 15.
+  314: { file: 'estimatingMeanLesson', name: 'tutorEstimatingMeanLesson', boards: [], answers: [5.25, 125, 12, 3.7, 18.9, 134.3, 35.8, 21.1, 26.2, 26, 14, 3],
+    drags: ['chart 2'] },
+  // Outlier (6, 85): 6 hours; line through (15, 95) and (95, 15) reads 70 at Maths 40; tea line (0, 95) to (10, 45) reads 65
+  // at 6 min; review line (0, 2) to (10, 20) reads 11 at 5. Sort: revision +, tea −, height +, shoe size none, car age −,
+  // runners +. Points (180, 86), (8, 55), (6, 14). Rey's least-squares line reads 94.8 at 190 cm (accept 92–98); revision
+  // without the outlier reads 78.1 at 22 h (accept 74–82).
+  316: { file: 'scatterGraphsLesson', name: 'tutorScatterGraphsLesson', boards: [], answers: [6, 70, 65, 11],
+    sorts: ['pos,neg,pos,none,neg,pos'],
+    drags: ['chart 180,86', 'chart 8,55', 'chart 98 or 97 or 96 or 95 or 94 or 93 or 92', 'chart 82 or 81 or 80 or 79 or 78 or 77 or 76 or 75 or 74', 'chart 6,14'] },
+  // Half a TV 30 ÷ 2 = 15; Riley Tue 4½ × 30 = 135; Alexis Tue 4¼ × 2 = 8.5 km; days ≥ 6 km (4, 8.5, 5, 6, 7) = 3; 55 ÷ 20
+  // = 2.75; 14 ÷ 8 = 1.75; ¼ of £20 = 5; over £50 (60, 60, 25, 60, 90, 75) = 5; under £60 = 1/6; review Sat 3½ × 12 − Sun
+  // 1¼ × 12 = 27; 15 ÷ 6 = 2.5. Boards in quarters: oranges 8, 9, 5, 8 ÷ 2; butterflies RA 180, SSB 120, BH 240, WW 90 ÷ 40;
+  // Gary 28, 32, 16, 24 ÷ 8; review cakes 12, 20, 6, 18 ÷ 8.
+  310: { file: 'pictogramsLesson', name: 'tutorPictogramsLesson', boards: [], answers: [15, 135, 8.5, 3, 2.75, 1.75, 5, 5, '1/6', 27, 2.5],
+    drags: ['chart 16,18,10,16', 'chart 18,12,24,9', 'chart 14,16,8,12', 'chart 6,10,3,9'] },
+  // 16 | 5 = 165 cm; 3 | 7 = 3.7 kg; Ramona mode 32; Wallace under 20: 8 of 15 = 53.3%; Jamal 9th of 17 = 19; over 25: 7/17
+  // = 0.4; calves 2740 ÷ 24 = 114; Spanish mode 57; ranges 57 − 45 = 12; medians (65 − 60) ÷ 60 = 8%; review median 23,
+  // range 34 − 12 = 22. Sorted by tens digit: Scott (play), Kim, review.
+  311: { file: 'stemLeafLesson', name: 'tutorStemLeafLesson', boards: [], answers: [165, 3.7, 32, 53.3, 19, 0.4, 114, 57, 12, 8, 23, 22],
+    sorts: ['play s15,s18,s17,s15,s16,s16,s18,s19', 's3,s1,s2,s3,s3,s2,s1,s2,s3,s3,s4,s4', 's2,s4,s3,s2,s4,s3'] },
+  // 66 − (30 + 21 + 5 + 7) = 3; not Gemma 24/32 = 3/4; shoe mode 5.5; bathrooms median 33.5th = 2; goals 102 ÷ 50 = 2.04 → 2;
+  // sharks x + y = 240 − 132 = 108; mode 2; median 120.5th (117 up to 2) = 3; mean 628 ÷ 240 = 2.62 → 3; review 45 ÷ 20 = 2.25,
+  // median 10.5th = 2. Boards: votes A4 D6 E4 G8 L3 S5 T2 (32); x, y = 108 ÷ 12 × 7, × 5 = 63, 45; dice 2, 1, 3, 4, 1, 1.
+  312: { file: 'frequencyTablesLesson', name: 'tutorFrequencyTablesLesson', boards: [], answers: [3, '3/4', 5.5, 2, 2, 108, 2, 3, 3, 2.25, 2],
+    drags: ['chart 4,6,4,8,3,5,2', 'chart 63,45', 'chart 2,1,3,4,1,1'] },
 }
 const spec = LESSONS[number]
-assert.ok(spec, `Give a lesson number, 301 to 309 (got ${process.argv[2]})`)
+assert.ok(spec, `Give a lesson number, 301 to 318 (got ${process.argv[2]})`)
 const lesson = require(`../src/features/probability/tutor/${spec.file}.ts`)[spec.name]
 const { fitFigure } = require('../src/features/written-methods/tutor/FigurePictures.tsx')
 const { steadyBounds } = require('../src/features/written-methods/tutor/AnglePictures.tsx')
 const { checkAnswer } = require('../src/features/number-types/lessonMath.ts')
 const { sortAnswer, sortPlaces } = require('../src/features/written-methods/tutor/SortBoard.tsx')
 const { chanceValue } = require('../src/features/written-methods/tutor/ChanceBoard.tsx')
+const { chartValue } = require('../src/features/written-methods/tutor/ChartBoard.tsx')
 let shelf = null
 try { shelf = require('../src/features/probability/probabilityLessons.ts') } catch (error) { if (!/Cannot find module/.test(error.message)) throw error }
 
@@ -109,6 +160,24 @@ for (const s of states) {
     assert.ok(s.hint && model?.kind === 'method-worked', `${s.id}: has a hint and its working`)
     continue
   }
+  if (s.chartBoard?.ask) {
+    // A question on the chart board: each right answer is accepted and is somewhere the board can reach, the board
+    // doesn't start on it, and a wrong one (one handle a step off) is refused and told why.
+    const c = s.chartBoard, rights = [s.interaction.correctAnswer].flat().map(String)
+    dragged.push(`chart ${rights.join(' or ')}`)
+    for (const right of rights) { assert.ok(checkAnswer(s.interaction, right), `${s.id} accepts ${right}`); assert.equal(s.diagnose(right), null, `${s.id}: no slip message on ${right}`) }
+    const start = c.mode === 'scatter' ? c.from : c.values
+    assert.ok(start, `${s.id}: the board says where it starts`)
+    assert.ok(!rights.includes(chartValue(c, start)), `${s.id}: doesn't start on the answer`)
+    if (c.mode === 'bars' || c.mode === 'line') for (const right of rights) right.split(',').map(Number).forEach(n => assert.ok(n >= 0 && n <= c.max && Math.abs(n / (c.snap ?? 1) - Math.round(n / (c.snap ?? 1))) < 1e-9, `${s.id}: the board can reach ${n}`))
+    if (c.mode === 'pie') { const total = c.values.reduce((a, b) => a + b, 0), e = c.edge ?? 0; for (const right of rights) assert.ok(Array.from({ length: c.values[e] + c.values[e + 1] + 1 }, (_, n) => chartValue(c, c.values.map((v, k) => k === e ? n : v))).includes(right), `${s.id}: the pie can reach ${right}° (${total} in all)`) }
+    const wrong = c.mode === 'scatter' && c.move !== 'line' ? `${Number(rights[0].split(',')[0]) + (c.snap?.[0] ?? 1)},${rights[0].split(',')[1]}` : rights[0].split(',').map((n, k) => k ? n : String(Number(n) + 1)).join(',')
+    assert.ok(!checkAnswer(s.interaction, wrong), `${s.id} refuses ${wrong}`)
+    assert.ok(s.diagnose(wrong), `${s.id}: says why ${wrong} is wrong`)
+    assert.ok(s.hint && model?.kind === 'method-worked', `${s.id}: has a hint and its working`)
+    continue
+  }
+  if (s.chartBoard) assert.ok(s.interaction.type === 'continue', `${s.id}: a chart board play screen`)
   if (s.sortBoard) {
     // The sort board: every tile goes to a real place and says why it goes there; a question's answer is where each
     // tile goes, matched against the sorting worked out by hand below, and a wrong sorting names a tile out of place.
@@ -160,8 +229,10 @@ for (const s of states) {
 }
 if (spec.answers) assert.deepEqual(typed, spec.answers, 'Every typed answer matches the one worked out by hand')
 else console.log('Typed answers:', JSON.stringify(typed))
-assert.deepEqual(sorted, spec.sorts ?? [], 'Every sorting matches the one worked out by hand')
-assert.deepEqual(dragged, spec.drags ?? [], 'Every board answer matches the one worked out by hand')
+if (spec.answers) {
+  assert.deepEqual(sorted, spec.sorts ?? [], 'Every sorting matches the one worked out by hand')
+  assert.deepEqual(dragged, spec.drags ?? [], 'Every board answer matches the one worked out by hand')
+} else console.log('Sortings:', JSON.stringify(sorted), 'Board answers:', JSON.stringify(dragged))
 
 // Hidden: only the shelf page opens it.
 const hiddenFrom = new RegExp(`probability/tutor|${spec.name}|${id}\\b`)
