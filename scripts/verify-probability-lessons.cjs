@@ -49,9 +49,6 @@ const LESSONS = {
   310: { file: 'pictogramsLesson', name: 'tutorPictogramsLesson', boards: [] },
   311: { file: 'stemLeafLesson', name: 'tutorStemLeafLesson', boards: [] },
   312: { file: 'frequencyTablesLesson', name: 'tutorFrequencyTablesLesson', boards: [] },
-  313: { file: 'groupedFrequencyLesson', name: 'tutorGroupedFrequencyLesson', boards: [] },
-  314: { file: 'estimatingMeanLesson', name: 'tutorEstimatingMeanLesson', boards: [] },
-  316: { file: 'scatterGraphsLesson', name: 'tutorScatterGraphsLesson', boards: [] },
   315: { file: 'barChartsLesson', name: 'tutorBarChartsLesson', boards: [], answers: [75, 15, 7000, 21, 18, 36.8, 5],
     drags: ['chart 4,15,12,24,10,10', 'chart 8,14,5,11'] },
   // Syd Aug 22 − Apr 11 = 11; village 6.8 − 0.9 = 5.9 thousand = 5900; rain Feb 210 − May 80 = 130; Ella's scale 0, 10, 20,
@@ -65,6 +62,25 @@ const LESSONS = {
   // green 24 of 60 = 144°; John's A 6 × 15 = 90°; C 10 × 15 = 150°; review dogs 20 of 45 = 160°.
   318: { file: 'pieChartsLesson', name: 'tutorPieChartsLesson', boards: [], answers: [78, 126, 45, 8, 85, 1275, 5400, 2, 80, 8, 10, 10],
     drags: ['chart 144', 'chart 90', 'chart 150', 'chart 160'] },
+  // Joe 30 < h ≤ 40: 32, 39, 35, 32, 33, 31, 37, 38 = 8; 20 < h ≤ 30: 21, 22, 25, 27, 28, 30, 25 = 7; cats ≤ 3.5 kg 22 + 14
+  // = 36; median of 100 at (100 + 1) ÷ 2 = 50.5; physics above 40 (5 + 3) ÷ 25 = 32%; bike > 10 min 12 × £12.50 = 150;
+  // 10 to 21 min (4 + 6)/20 = 1/2; mean 280 ÷ 20 = 14; review over 20 min 9 + 4 = 13, 10 or less 6/30 = 20%.
+  // Sorts: 152 160 | 165 170 | 171 180; 9 20 | 25 30 | 32 40 | 46 | 21 in b; review 10 | 14 20 | 27 | 3 a | 21 c.
+  // Physics marks tallied 1, 8, 4, 4, 5, 3 (25).
+  313: { file: 'groupedFrequencyLesson', name: 'tutorGroupedFrequencyLesson', boards: [], answers: [8, 7, 36, 50.5, 32, 150, '1/2', 14, 13, 20],
+    sorts: ['play a,a,b,b,c,c', 'a,a,b,b,c,c,d,b', 'a,b,b,c,a,c'], drags: ['chart 1,8,4,4,5,3'] },
+  // Midpoints (4.5 + 6) ÷ 2 = 5.25, 125, 12; cats 438.25 ÷ 117 = 3.7; Adam 1415 ÷ 75 = 18.9; Emily 15 850 ÷ 118 = 134.3;
+  // fish without the 6 biggest 2615 ÷ 73 = 35.8; journeys 2443.5 ÷ 116 = 21.1; Suzanna 2225 ÷ 85 = 26.2; Floella in 20s
+  // 2190 ÷ 85 = 25.76 → 26; review 140 ÷ 10 = 14, midpoint of 2.5–3.5 = 3. Board: last bar 2 gives (10 + 75 + 50) ÷ 9 = 15.
+  314: { file: 'estimatingMeanLesson', name: 'tutorEstimatingMeanLesson', boards: [], answers: [5.25, 125, 12, 3.7, 18.9, 134.3, 35.8, 21.1, 26.2, 26, 14, 3],
+    drags: ['chart 2'] },
+  // Outlier (6, 85): 6 hours; line through (15, 95) and (95, 15) reads 70 at Maths 40; tea line (0, 95) to (10, 45) reads 65
+  // at 6 min; review line (0, 2) to (10, 20) reads 11 at 5. Sort: revision +, tea −, height +, shoe size none, car age −,
+  // runners +. Points (180, 86), (8, 55), (6, 14). Rey's least-squares line reads 94.8 at 190 cm (accept 92–98); revision
+  // without the outlier reads 78.1 at 22 h (accept 74–82).
+  316: { file: 'scatterGraphsLesson', name: 'tutorScatterGraphsLesson', boards: [], answers: [6, 70, 65, 11],
+    sorts: ['pos,neg,pos,none,neg,pos'],
+    drags: ['chart 180,86', 'chart 8,55', 'chart 98 or 97 or 96 or 95 or 94 or 93 or 92', 'chart 82 or 81 or 80 or 79 or 78 or 77 or 76 or 75 or 74', 'chart 6,14'] },
 }
 const spec = LESSONS[number]
 assert.ok(spec, `Give a lesson number, 301 to 318 (got ${process.argv[2]})`)
