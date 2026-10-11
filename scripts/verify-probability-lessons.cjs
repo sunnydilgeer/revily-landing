@@ -45,10 +45,6 @@ const LESSONS = {
     sorts: ['biased,fair,biased,biased,fair', 'play fault,fault,fine,fault,fine', 'biased,fair,biased,fair'] },
   // Toast 4 + 15 + 12 + 24 + 10 + 10 = 75; audio 3 of 20 = 15%; paperbacks − hardbacks 7 thousand; adults 5 + children
   // 16 = 21; children 24 − 6 = 18; review blue 14 of 38 = 36.8%; bus girls 9 − boys 4 = 5.
-  // While a lesson is being written: no answers yet, so the script prints what it finds instead of checking it.
-  310: { file: 'pictogramsLesson', name: 'tutorPictogramsLesson', boards: [] },
-  311: { file: 'stemLeafLesson', name: 'tutorStemLeafLesson', boards: [] },
-  312: { file: 'frequencyTablesLesson', name: 'tutorFrequencyTablesLesson', boards: [] },
   315: { file: 'barChartsLesson', name: 'tutorBarChartsLesson', boards: [], answers: [75, 15, 7000, 21, 18, 36.8, 5],
     drags: ['chart 4,15,12,24,10,10', 'chart 8,14,5,11'] },
   // Syd Aug 22 − Apr 11 = 11; village 6.8 − 0.9 = 5.9 thousand = 5900; rain Feb 210 − May 80 = 130; Ella's scale 0, 10, 20,
@@ -81,6 +77,22 @@ const LESSONS = {
   316: { file: 'scatterGraphsLesson', name: 'tutorScatterGraphsLesson', boards: [], answers: [6, 70, 65, 11],
     sorts: ['pos,neg,pos,none,neg,pos'],
     drags: ['chart 180,86', 'chart 8,55', 'chart 98 or 97 or 96 or 95 or 94 or 93 or 92', 'chart 82 or 81 or 80 or 79 or 78 or 77 or 76 or 75 or 74', 'chart 6,14'] },
+  // Half a TV 30 ÷ 2 = 15; Riley Tue 4½ × 30 = 135; Alexis Tue 4¼ × 2 = 8.5 km; days ≥ 6 km (4, 8.5, 5, 6, 7) = 3; 55 ÷ 20
+  // = 2.75; 14 ÷ 8 = 1.75; ¼ of £20 = 5; over £50 (60, 60, 25, 60, 90, 75) = 5; under £60 = 1/6; review Sat 3½ × 12 − Sun
+  // 1¼ × 12 = 27; 15 ÷ 6 = 2.5. Boards in quarters: oranges 8, 9, 5, 8 ÷ 2; butterflies RA 180, SSB 120, BH 240, WW 90 ÷ 40;
+  // Gary 28, 32, 16, 24 ÷ 8; review cakes 12, 20, 6, 18 ÷ 8.
+  310: { file: 'pictogramsLesson', name: 'tutorPictogramsLesson', boards: [], answers: [15, 135, 8.5, 3, 2.75, 1.75, 5, 5, '1/6', 27, 2.5],
+    drags: ['chart 16,18,10,16', 'chart 18,12,24,9', 'chart 14,16,8,12', 'chart 6,10,3,9'] },
+  // 16 | 5 = 165 cm; 3 | 7 = 3.7 kg; Ramona mode 32; Wallace under 20: 8 of 15 = 53.3%; Jamal 9th of 17 = 19; over 25: 7/17
+  // = 0.4; calves 2740 ÷ 24 = 114; Spanish mode 57; ranges 57 − 45 = 12; medians (65 − 60) ÷ 60 = 8%; review median 23,
+  // range 34 − 12 = 22. Sorted by tens digit: Scott (play), Kim, review.
+  311: { file: 'stemLeafLesson', name: 'tutorStemLeafLesson', boards: [], answers: [165, 3.7, 32, 53.3, 19, 0.4, 114, 57, 12, 8, 23, 22],
+    sorts: ['play s15,s18,s17,s15,s16,s16,s18,s19', 's3,s1,s2,s3,s3,s2,s1,s2,s3,s3,s4,s4', 's2,s4,s3,s2,s4,s3'] },
+  // 66 − (30 + 21 + 5 + 7) = 3; not Gemma 24/32 = 3/4; shoe mode 5.5; bathrooms median 33.5th = 2; goals 102 ÷ 50 = 2.04 → 2;
+  // sharks x + y = 240 − 132 = 108; mode 2; median 120.5th (117 up to 2) = 3; mean 628 ÷ 240 = 2.62 → 3; review 45 ÷ 20 = 2.25,
+  // median 10.5th = 2. Boards: votes A4 D6 E4 G8 L3 S5 T2 (32); x, y = 108 ÷ 12 × 7, × 5 = 63, 45; dice 2, 1, 3, 4, 1, 1.
+  312: { file: 'frequencyTablesLesson', name: 'tutorFrequencyTablesLesson', boards: [], answers: [3, '3/4', 5.5, 2, 2, 108, 2, 3, 3, 2.25, 2],
+    drags: ['chart 4,6,4,8,3,5,2', 'chart 63,45', 'chart 2,1,3,4,1,1'] },
 }
 const spec = LESSONS[number]
 assert.ok(spec, `Give a lesson number, 301 to 318 (got ${process.argv[2]})`)
