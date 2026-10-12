@@ -58,9 +58,9 @@ const multiplier = (answer: [number, number], shown: string) => pair(['multiplie
 
 /* ---------- Rung 1: 1% to 100% (R4.1) ---------- */
 
-const headphones = worked(hundred, 'A pair of headphones costs £48 in a sale with 20% off. Work out the price of the headphones before the sale.', '£48 after 20% off. Work out the price before the sale.', 'R4.1 video + Q1', squareModel('the original', [
-  { title: 'Take off the 20% decrease', say: 'The original price is all 100 squares, 100%. 20% came off, so 80% is left.', rows: ['100% − 20% = 80%'], pieces: [piece(80, '80% left'), piece(20, '20% off', 'off')], note: '80 squares are left' },
-  { title: '80% = £48', say: '£48 is the price AFTER 20% came off, so it is the 80% that is left, not 100%.', rows: ['>0 the sale price is the 80% that’s left'], pieces: [piece(80, '80% = £48'), piece(20, '20% off', 'off')], note: '80 squares = £48' },
+const headphones = worked(hundred, 'A pair of headphones costs £48 in a sale with 20% off. Work out the price of the headphones before the sale.', '£48 after 20% off. Work out the price before the sale.', 'R4.1 video + Q1', squareModel('100%', [
+  { title: 'Take off the 20% decrease', say: 'The original price is all 100 squares, 100%. 20% came off, so 80% is left.', rows: ['100% − 20% = 80%'], pieces: [piece(80, '80% left'), piece(20, '20% off', 'off')], note: '20% off becomes 80 squares' },
+  { title: '£48 = 80% (20% off)', say: '£48 is the price AFTER 20% came off, so it is the 80% that is left, not 100%.', rows: ['>0 the sale price is the 80% that’s left'], pieces: [piece(80, '80% = £48'), piece(20, '20% off', 'off')], note: '80 squares = £48' },
   { title: 'Calculate 1%', say: '80 squares are £48. Divide by 80 to find 1 square, 1%.', rows: ['1% = £48 ÷ 80 = £0.60'], pieces: [piece(1, '1% = £0.60')], note: '1 square = £0.60' },
   { title: 'Calculate 100%', say: 'The original is all 100 squares: 100 lots of 1%.', rows: ['100% = £0.60 × 100 = £60', '! Price of the headphones before the sale = £60'], pieces: [piece(100, '100% = £60')], note: '100 squares = £60' },
   { title: 'Check it makes sense', say: 'Go forwards: take 20% off £60. It should leave £48.', rows: ['0.60 × 20 = 12', '60 − 12 = 48 ✓'], pieces: [piece(80, '80% = £48'), piece(20, '20% = £12', 'off')], note: '£60 − £12 = £48' },
@@ -75,23 +75,23 @@ video(headphones, media('one-to-hundred', '£48 after 20% off: the price before'
   'Where you see it: headphones are £48 after 20% off. £48 is 80%, so 1% is £0.60 and 100% is £60: 48 ÷ 80 = 0.60, 0.60 × 100 = 60. The original price is £60.',
   'Well done: work out what % the new price is, divide to find 1%, then multiply by 100 to find the original.',
 ]))
-pounds(practice(hundred, 'A book costs £6 after a 25% reduction. Work out the original price.', 'R4.1 Q2', number(8, '£8'), '£6 is what is left: 100% − 25% = 75%. Divide by 75 to find 1%.', squareModel('the original', [
-  { title: 'Take off the 25% decrease', say: 'The original price is all 100 squares, 100%. 25% came off, so 75% is left.', rows: ['100% − 25% = 75%'], pieces: [piece(75, '75% left'), piece(25, '25% off', 'off')], note: '75 squares are left' },
-  { title: '75% = £6', say: '£6 is the price AFTER 25% came off, so it is the 75% that is left, not 100%.', rows: ['>0 the sale price is the 75% that’s left'], pieces: [piece(75, '75% = £6'), piece(25, '25% off', 'off')], note: '75 squares = £6' },
+pounds(practice(hundred, 'A book costs £6 after a 25% reduction. Work out the original price.', 'R4.1 Q2', number(8, '£8'), '£6 is what is left: 100% − 25% = 75%. Divide by 75 to find 1%.', squareModel('100%', [
+  { title: 'Take off the 25% decrease', say: 'The original price is all 100 squares, 100%. 25% came off, so 75% is left.', rows: ['100% − 25% = 75%'], pieces: [piece(75, '75% left'), piece(25, '25% off', 'off')], note: '25% off becomes 75 squares' },
+  { title: '£6 = 75% (25% off)', say: '£6 is the price AFTER 25% came off, so it is the 75% that is left, not 100%.', rows: ['>0 the sale price is the 75% that’s left'], pieces: [piece(75, '75% = £6'), piece(25, '25% off', 'off')], note: '75 squares = £6' },
   { title: 'Calculate 1%', say: '75 squares are £6. Divide by 75 to find 1 square, 1%.', rows: ['1% = £6 ÷ 75 = £0.08'], pieces: [piece(1, '1% = £0.08')], note: '1 square = £0.08' },
   { title: 'Calculate 100%', say: 'The original is all 100 squares: 100 lots of 1%.', rows: ['100% = £0.08 × 100 = £8', '! Price of the book before the reduction = £8'], pieces: [piece(100, '100% = £8')], note: '100 squares = £8' },
   { title: 'Check it makes sense', say: 'Go forwards: take 25% off £8. It should leave £6.', rows: ['0.08 × 25 = 2', '8 − 2 = 6 ✓'], pieces: [piece(75, '75% = £6'), piece(25, '25% = £2', 'off')], note: '£8 − £2 = £6' },
 ]), slips(8, [[7.5, 'That adds 25% of £6. The 25% came off the original, so £6 is 75% of it: 6 ÷ 75, then × 100.'], [4.5, 'That takes another 25% off. The original is more than £6.'], [24, '£6 is 75% of the original, not 25%: divide by 75.']])))
 pounds(practice(hundred, 'A train ticket went up by 10% and now costs £33. Work out the price before the increase.', 'R4.1 Q3', number(30, '£30'), 'It went up, so £33 is 100% + 10% = 110%. Divide by 110 to find 1%.', boardModel([], [
   { title: 'Add the 10% increase', say: 'The old price is 100%. It went UP by 10%, so the new price is 110% of the old price.', rows: ['100% + 10% = 110%'] },
-  { title: '110% = £33', say: '£33 is the price AFTER the 10% was added, so it is the 110%, not 100%.', rows: ['>0 the new price is the 110%'] },
+  { title: '£33 = 110% (10% added)', say: '£33 is the price AFTER the 10% was added, so it is the 110%, not 100%.', rows: ['>0 the new price is the 110%'] },
   { title: 'Calculate 1%', say: 'Divide by 110 to find 1%.', rows: ['1% = £33 ÷ 110 = £0.30'] },
   { title: 'Calculate 100%', say: 'The old price is 100 lots of 1%.', rows: ['100% = £0.30 × 100 = £30', '! Price of the ticket before the increase = £30'] },
   { title: 'Check it makes sense', say: 'Go forwards: add 10% to £30. It should give £33.', rows: ['0.30 × 10 = 3', '30 + 3 = 33 ✓'] },
 ]), slips(30, [[29.7, 'That takes 10% of £33 off. The 10% was added to the old price, so £33 is 110%: 33 ÷ 110, then × 100.'], [36.3, 'It went up to £33, so the old price is less than £33.'], [0.3, 'That’s 1%. Multiply by 100 for the old price.']])))
-pounds(practice(hundred, 'A sofa is £364 in a sale. The sale takes 30% off every price. Work out the original price of the sofa.', 'R4.1 Q4a', number(520, '£520'), '£364 is what is left: 100% − 30% = 70%. Divide by 70 to find 1%.', squareModel('the original', [
-  { title: 'Take off the 30% decrease', say: 'The original price is all 100 squares, 100%. 30% came off, so 70% is left.', rows: ['100% − 30% = 70%'], pieces: [piece(70, '70% left'), piece(30, '30% off', 'off')], note: '70 squares are left' },
-  { title: '70% = £364', say: '£364 is the price AFTER 30% came off, so it is the 70% that is left, not 100%.', rows: ['>0 the sale price is the 70% that’s left'], pieces: [piece(70, '70% = £364'), piece(30, '30% off', 'off')], note: '70 squares = £364' },
+pounds(practice(hundred, 'A sofa is £364 in a sale. The sale takes 30% off every price. Work out the original price of the sofa.', 'R4.1 Q4a', number(520, '£520'), '£364 is what is left: 100% − 30% = 70%. Divide by 70 to find 1%.', squareModel('100%', [
+  { title: 'Take off the 30% decrease', say: 'The original price is all 100 squares, 100%. 30% came off, so 70% is left.', rows: ['100% − 30% = 70%'], pieces: [piece(70, '70% left'), piece(30, '30% off', 'off')], note: '30% off becomes 70 squares' },
+  { title: '£364 = 70% (30% off)', say: '£364 is the price AFTER 30% came off, so it is the 70% that is left, not 100%.', rows: ['>0 the sale price is the 70% that’s left'], pieces: [piece(70, '70% = £364'), piece(30, '30% off', 'off')], note: '70 squares = £364' },
   { title: 'Calculate 1%', say: '70 squares are £364. Divide by 70 to find 1 square, 1%.', rows: ['1% = £364 ÷ 70 = £5.20'], pieces: [piece(1, '1% = £5.20')], note: '1 square = £5.20' },
   { title: 'Calculate 100%', say: 'The original is all 100 squares: 100 lots of 1%.', rows: ['100% = £5.20 × 100 = £520', '! Price of the sofa before the sale = £520'], pieces: [piece(100, '100% = £520')], note: '100 squares = £520' },
   { title: 'Check it makes sense', say: 'Go forwards: take 30% off £520. It should leave £364.', rows: ['5.20 × 30 = 156', '520 − 156 = 364 ✓'], pieces: [piece(70, '70% = £364'), piece(30, '30% = £156', 'off')], note: '£520 − £156 = £364' },
@@ -99,7 +99,7 @@ pounds(practice(hundred, 'A sofa is £364 in a sale. The sale takes 30% off ever
 pounds(practice(hundred, 'The sofa was £520 and is £364 in the sale. How much money is saved by buying the sofa in the sale?', 'R4.1 Q4b', number(156, '£156'), 'Take the sale price off the original price.', boardModel([], [
   { title: 'Calculate the saving', say: 'The saving is the difference between the two prices.', rows: ['520 − 364 = 156', '! £156'] },
 ]), slips(156, [[109.2, 'That’s 30% of the sale price. The 30% is of the original: 520 − 364.'], [520, 'That’s the original price. Take the sale price off it.'], [884, 'Take the sale price off the original, don’t add them.']])))
-practice(hundred, 'In a school, 18% of the pupils cycle to school. 117 pupils cycle. Work out the total number of pupils in the school.', 'R4.1 Q5a', number(650, '650 pupils'), '117 pupils are 18%. Divide by 18 to find 1%.', squareModel('the school', [
+practice(hundred, 'In a school, 18% of the pupils cycle to school. 117 pupils cycle. Work out the total number of pupils in the school.', 'R4.1 Q5a', number(650, '650 pupils'), '117 pupils are 18%. Divide by 18 to find 1%.', squareModel('100%', [
   { title: '18% = 117 pupils', say: 'The whole school is 100 squares, 100%. The 117 pupils who cycle are 18 of them.', rows: ['>0 the 117 who cycle are 18% of the school'], pieces: [piece(18, '18% = 117')], note: '18 squares = 117 pupils' },
   { title: 'Calculate 1%', say: 'Divide by 18 to find 1 square, 1%.', rows: ['1% = 117 pupils ÷ 18 = 6.5 pupils'], pieces: [piece(1, '1% = 6.5')], note: '1 square = 6.5 pupils' },
   { title: 'Calculate 100%', say: 'The whole school is all 100 squares.', rows: ['100% = 6.5 pupils × 100 = 650 pupils', '! Pupils in the school = 650'], pieces: [piece(100, '100% = 650')], note: '100 squares = 650 pupils' },
@@ -127,7 +127,7 @@ practice(hundred, 'Ria says, “The headphones were £48 with 20% off, so the or
 
 const busPass = worked(decimal, 'A bus pass went up in price by 15%. It now costs £69. Work out the price before the increase.', '£69 after a 15% rise. Work out the price before.', 'R4.2 video + Q1', boardModel([], [
   { title: 'Add the 15% increase', say: 'The old price is 100%. It went up by 15%, so the new one is 115%.', rows: ['100% + 15% = 115%'] },
-  { title: '115% = £69', say: '£69 is the price AFTER the change, so it is the 115%, not 100%.', rows: ['>0 the new price is the 115%'] },
+  { title: '£69 = 115% (15% added)', say: '£69 is the price AFTER the change, so it is the 115%, not 100%.', rows: ['>0 the new price is the 115%'] },
   { title: 'Write 115% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['115% = 115 ÷ 100 = 1.15'] },
   { title: 'Undo the increase', say: 'Going forwards, the old price × 1.15 = £69. To undo × 1.15, divide by 1.15.', rows: ['old price × 1.15 = £69', 'old price = £69 ÷ 1.15 = £60', '! Price of the bus pass before the rise = £60'] },
   { title: 'Check it makes sense', say: 'Go forwards: £60 × 1.15 should give £69.', rows: ['£60 × 1.15 = £69 ✓'] },
@@ -144,21 +144,21 @@ video(busPass, media('decimals', '£69 after a 15% rise: the price before', 'R4.
 ]))
 pounds(practice(decimal, 'A coat costs £56 after 30% off. Work out the original price.', 'R4.2 Q2', number(80, '£80'), '30% off leaves 70% = 0.7. Divide £56 by 0.7.', boardModel([], [
   { title: 'Take off the 30% decrease', say: 'The old price is 100%. 30% came off, so what is left is 70%.', rows: ['100% − 30% = 70%'] },
-  { title: '70% = £56', say: '£56 is the price AFTER the change, so it is the 70%, not 100%.', rows: ['>0 the price now is the 70%'] },
+  { title: '£56 = 70% (30% off)', say: '£56 is the price AFTER the change, so it is the 70%, not 100%.', rows: ['>0 the price now is the 70%'] },
   { title: 'Write 70% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['70% = 70 ÷ 100 = 0.7'] },
   { title: 'Undo the decrease', say: 'Going forwards, the old price × 0.7 = £56. To undo × 0.7, divide by 0.7.', rows: ['old price × 0.7 = £56', 'old price = £56 ÷ 0.7 = £80', '! Price of the coat before the sale = £80'] },
   { title: 'Check it makes sense', say: 'Go forwards: £80 × 0.7 should give £56.', rows: ['£80 × 0.7 = £56 ✓'] },
 ]), slips(80, [[72.8, 'That adds 30% of £56. £56 is 70% of the original: 56 ÷ 0.7.'], [39.2, 'That takes 30% off again. Divide by 0.7 to undo it.'], [56 / 0.3, '30% was taken off, so 70% is left: divide by 0.7, not 0.3.']])))
 practice(decimal, 'A café raised its prices by 8%. A sandwich now costs £4.32. Write down the multiplier, and use it to find the price before the rise.', 'R4.2 Q3', multiplier([1.08, 4], '1.08 and £4'), '100% + 8% = 108%. Write it as a decimal, then divide £4.32 by it.', boardModel([], [
   { title: 'Add the 8% increase', say: 'The old price is 100%. It went up by 8%, so the new one is 108%.', rows: ['100% + 8% = 108%'] },
-  { title: '108% = £4.32', say: '£4.32 is the price AFTER the change, so it is the 108%, not 100%.', rows: ['>0 the new price is the 108%'] },
+  { title: '£4.32 = 108% (8% added)', say: '£4.32 is the price AFTER the change, so it is the 108%, not 100%.', rows: ['>0 the new price is the 108%'] },
   { title: 'Write 108% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['108% = 108 ÷ 100 = 1.08'] },
   { title: 'Undo the increase', say: 'Going forwards, the old price × 1.08 = £4.32. To undo × 1.08, divide by 1.08.', rows: ['old price × 1.08 = £4.32', 'old price = £4.32 ÷ 1.08 = £4', '! Multiplier 1.08, price before the rise = £4'] },
   { title: 'Check it makes sense', say: 'Go forwards: £4 × 1.08 should give £4.32.', rows: ['£4 × 1.08 = £4.32 ✓'] },
 ]), response => /0\.08/.test(response) ? '0.08 is only the 8%. Keep the 100% too: 108% = 1.08.' : /\b1\.8\b/.test(response) ? '8% is 0.08, so the multiplier is 1 + 0.08 = 1.08.' : /4\.6\d/.test(response) ? 'Divide by 1.08 to go back, don’t multiply: the old price is less than £4.32.' : null)
 practice(decimal, 'A laptop is reduced by 35% in a sale. The sale price is £338. Write down the multiplier, and use it to find the original price.', 'R4.2 Q4a', multiplier([0.65, 520], '0.65 and £520'), '35% off leaves 65%. Write it as a decimal, then divide £338 by it.', boardModel([], [
   { title: 'Take off the 35% decrease', say: 'The old price is 100%. 35% came off, so what is left is 65%.', rows: ['100% − 35% = 65%'] },
-  { title: '65% = £338', say: '£338 is the price AFTER the change, so it is the 65%, not 100%.', rows: ['>0 the price now is the 65%'] },
+  { title: '£338 = 65% (35% off)', say: '£338 is the price AFTER the change, so it is the 65%, not 100%.', rows: ['>0 the price now is the 65%'] },
   { title: 'Write 65% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['65% = 65 ÷ 100 = 0.65'] },
   { title: 'Undo the decrease', say: 'Going forwards, the old price × 0.65 = £338. To undo × 0.65, divide by 0.65.', rows: ['old price × 0.65 = £338', 'old price = £338 ÷ 0.65 = £520', '! Multiplier 0.65, price before the sale = £520'] },
   { title: 'Check it makes sense', say: 'Go forwards: £520 × 0.65 should give £338.', rows: ['£520 × 0.65 = £338 ✓'] },
@@ -168,14 +168,14 @@ pounds(practice(decimal, 'The laptop’s original price was £520. Check your an
 ]), slips(338, [[182, 'That’s the 35% taken off. Multiply by 0.65 for what is left.'], [702, 'Take 35% off, don’t add it on: 520 × 0.65.']])))
 practice(decimal, 'A runner’s new 400 m time is 54.6 seconds. This is 9% faster than her old time. Work out her old time in seconds.', 'R4.2 Q5a', number(60, '60 seconds'), 'Faster means the time went DOWN by 9%, so the new time is 91% = 0.91 of the old time.', boardModel([], [
   { title: 'Take off the 9% decrease', say: '9% faster means the time went DOWN by 9%. The old time is 100%, so the new time is 91%.', rows: ['100% − 9% = 91%'] },
-  { title: '91% = 54.6 seconds', say: '54.6 seconds is the time AFTER the change, so it is the 91%, not 100%.', rows: ['>0 the time now is the 91%'] },
+  { title: '54.6 seconds = 91% (9% off)', say: '54.6 seconds is the time AFTER the change, so it is the 91%, not 100%.', rows: ['>0 the time now is the 91%'] },
   { title: 'Write 91% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['91% = 91 ÷ 100 = 0.91'] },
   { title: 'Undo the decrease', say: 'Going forwards, the old time × 0.91 = 54.6 seconds. To undo × 0.91, divide by 0.91.', rows: ['old time × 0.91 = 54.6 seconds', 'old time = 54.6 seconds ÷ 0.91 = 60 seconds', '! Old time = 60 seconds'] },
   { title: 'Check it makes sense', say: 'Go forwards: 60 seconds × 0.91 should give 54.6 seconds.', rows: ['60 seconds × 0.91 = 54.6 seconds ✓'] },
 ]), slips(60, [[59.514, 'That adds 9% of 54.6. The new time is 91% of the old: 54.6 ÷ 0.91.'], [54.6 / 1.09, 'Faster means the time went down, so the new time is 91%: divide by 0.91, not 1.09.'], [49.686, 'Divide by 0.91, don’t multiply: the old time is longer.']]))
 pounds(practice(decimal, 'A house price rose by 12% to £201,600. Work out the price before the rise.', 'R4.2 Q5b', number(180000, '£180,000'), 'A 12% rise gives 112% = 1.12. Divide by 1.12.', boardModel([], [
   { title: 'Add the 12% increase', say: 'The old price is 100%. It went up by 12%, so the new one is 112%.', rows: ['100% + 12% = 112%'] },
-  { title: '112% = £201600', say: '£201600 is the price AFTER the change, so it is the 112%, not 100%.', rows: ['>0 the new price is the 112%'] },
+  { title: '£201600 = 112% (12% added)', say: '£201600 is the price AFTER the change, so it is the 112%, not 100%.', rows: ['>0 the new price is the 112%'] },
   { title: 'Write 112% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['112% = 112 ÷ 100 = 1.12'] },
   { title: 'Undo the increase', say: 'Going forwards, the old price × 1.12 = £201600. To undo × 1.12, divide by 1.12.', rows: ['old price × 1.12 = £201600', 'old price = £201600 ÷ 1.12 = £180000', '! Price of the house before the rise = £180,000'] },
   { title: 'Check it makes sense', say: 'Go forwards: £180000 × 1.12 should give £201600.', rows: ['£180000 × 1.12 = £201600 ✓'] },
