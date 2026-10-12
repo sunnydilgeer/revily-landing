@@ -107,15 +107,15 @@ video(bag, media('fractions', 'Red : blue = 4 : 5. What fraction are red?', 'R1.
   'Part over part compares the two. Add the parts for the total. Part over total is the fraction of the whole.',
 ]))
 practice(fractions, 'At an animal shelter the ratio of cats to dogs is 2 : 7. What fraction of the animals are cats?', 'R1.1 Q2', true, fraction('2/9'), 'Add the parts for the total, then put the cats over it.', ratioModel(bars(['Cats', 2], ['Dogs', 7]), [
-  { title: 'Add the parts', say: 'The animals come in groups of 2 + 7.', rows: ['2 + 7 = 9'], ratio: { note: '9 parts in total' } },
-  { title: 'Part over total', say: 'Cats are 2 of the 9 parts.', rows: ['! {2|9} are cats'], ratio: { rings: [whole(0, 2)], lit: [0] } },
+  { title: 'Add the parts', say: 'The animals come in groups of 2 + 7.', rows: ['2 + 7 = 9'], tags: ['2', '7'], ratio: { note: '9 parts in total' } },
+  { title: 'Write the cats as a fraction of all the animals', say: 'Cats are 2 of the 9 parts.', rows: ['! {2|9} are cats'], ratio: { rings: [whole(0, 2)], lit: [0] } },
 ]))
 practice(fractions, 'In a choir the ratio of boys to girls is 5 : 3. There are how many times as many girls as boys? Give a fraction.', 'R1.1 Q3', true, fraction('3/5'), '“As many as” compares the two parts: girls over boys.', ratioModel(bars(['Boys', 5], ['Girls', 3]), [
-  { title: 'Girls over boys', say: 'This compares girls with boys, so no total: put the girls’ number over the boys’ number.', rows: ['! {3|5} as many girls as boys'], ratio: { lit: [1] } },
+  { title: 'Compare the girls with the boys', say: 'This compares girls with boys, so no total: put the girls’ number over the boys’ number.', rows: ['! {3|5} as many girls as boys'], ratio: { lit: [1] } },
 ]))
 practice(fractions, 'A drink is made from juice and water in the ratio 1 : 4. What fraction of the drink is water?', 'R1.1 Q4', true, fraction('4/5'), 'The whole drink is 1 + 4 parts.', ratioModel(bars(['Juice', 1], ['Water', 4]), [
-  { title: 'Add the parts', say: 'The whole drink is 1 + 4 parts.', rows: ['1 + 4 = 5'], ratio: { note: '5 parts in total' } },
-  { title: 'Part over total', say: 'Water is 4 of the 5 parts.', rows: ['! {4|5} of the drink is water'], ratio: { rings: [whole(1, 4)], lit: [1] } },
+  { title: 'Add the parts', say: 'The whole drink is 1 + 4 parts.', rows: ['1 + 4 = 5'], tags: ['1', '4'], ratio: { note: '5 parts in total' } },
+  { title: 'Write the water as a fraction of the drink', say: 'Water is 4 of the 5 parts.', rows: ['! {4|5} of the drink is water'], ratio: { rings: [whole(1, 4)], lit: [1] } },
 ]))
 practice(fractions, 'In a school the ratio of students with brown hair to students with blonde hair is 3 : 5. There are 320 students. How many have brown hair?', 'R1.1 Q5', true, number(120, '120 students'), 'Brown hair is 3/8 of the students.', ratioModel(bars(['Brown', 3], ['Blonde', 5]), [
   { title: 'The fraction', say: 'There are 3 + 5 = 8 parts, so 3/8 of the students have brown hair.', rows: ['3 + 5 = 8'], ratio: { rings: [whole(0, 3)], note: '3/8 have brown hair' } },
@@ -167,7 +167,7 @@ practice(simplifying, 'Write 1.5 : 2.5 in its simplest form.', 'R1.2 Q5b', false
 const squash = bars(['Squash', 2], ['Water', 7])
 const mix = worked(scaling, 'Squash and water are mixed in the ratio 2 : 7. How much water is needed with 10 cups of squash?', 'Squash : water = 2 : 7, and 10 cups of squash', 'R1.3 video + Q1', ratioModel(squash, [
   { title: 'Find 1 part', say: '2 parts of squash are 10 cups, so 1 part is 10 ÷ 2 = 5 cups.', rows: ['10 ÷ 2 = 5'], ratio: { rings: [whole(0, 2)], each: '5', note: '1 part = 5 cups' }, tags: ['10'] },
-  { title: 'Find the water', say: 'Water is 7 parts, and every part is 5 cups.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
+  { title: 'Calculate the water', say: 'Water is 7 parts, and every part is 5 cups.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
 ]), 'Our aim: use the part you know to find what 1 part is worth, then multiply to get the part you want. Never add.')
 video(mix, media('scaling', 'Squash : water = 2 : 7, with 10 cups of squash', 'R1.3_Scaling_Ratios.mp4', 55, [
   'Making squash: squash and water are mixed in the ratio 2 : 7. How much water goes with 10 cups of squash?',

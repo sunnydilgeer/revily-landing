@@ -158,12 +158,14 @@ pounds(practice(difference, `Jo says, “One part is £84 ÷ 16, because there a
 const cards = bars(['Mira', 7], ['Noel', 3])
 const swap = worked(changing, 'Mira and Noel collect football cards. The ratio of Mira’s cards to Noel’s cards is 7 : 3. Mira gives Noel 10 cards. Now they have the same number of cards. How many cards did Mira have at first?', '7 : 3, then Mira gives Noel 10 and they’re equal. How many did Mira have?', 'R1.7 video + Q1', ratioModel(cards, [
   { title: 'Call 1 part x', say: 'We don’t know 1 part yet, so call it x. Mira has 7 parts and Noel has 3.', rows: ['> Mira 7x, Noel 3x'], tags: ['7x', '3x'], ratio: { lit: [0, 1] } },
-  { title: 'After the swap', say: 'Mira gives 10 away and Noel gets those 10. Now they have the same, so put = between them.', rows: ['7x −10 = 3x +10'], tags: ['7x − 10', '3x + 10'], ratio: { lit: [0, 1] } },
-  { title: 'Take 3x from both sides', say: 'Get x on one side only. The boxed 3x cancels on the right.', marks: [[-1, box('3x')]], rows: ['7x −3x^ −10 = ~3x ~−3x^ +10', '4x −10 = 10'] },
+  { title: 'Mira gives Noel 10 cards', say: 'Mira gives 10 cards away, so she has 7x − 10. Noel gets those 10 cards, so he has 3x + 10.', rows: ['> Mira 7x − 10, Noel 3x + 10'], tags: ['7x − 10', '3x + 10'], ratio: { lit: [0, 1] } },
+  { title: 'Make them equal', say: 'Now they have the same number of cards, so put = between them.', rows: ['7x −10 = 3x +10'], tags: ['7x − 10', '3x + 10'], ratio: { lit: [0, 1] } },
+  { title: 'Solve the equation', say: 'Solve 7x − 10 = 3x + 10 to find x, the number of cards in 1 part.', rows: ['>0 find x, the size of 1 part'] },
+  { title: 'Take 3x from both sides', say: 'Get x on one side only. The boxed 3x cancels on the right.', marks: [[-2, box('3x')]], rows: ['7x −3x^ −10 = ~3x ~−3x^ +10', '4x −10 = 10'] },
   { title: 'Add 10 to both sides', say: 'The boxed −10 is with 4x. Add 10 to both sides, so it cancels.', marks: [[-1, box('−10')]], rows: ['4x ~−10 ~+10^ = 10 +10^', '4x = 20'] },
   { title: 'Divide both sides by 4', say: 'The boxed 4 multiplies x. Divide both sides by 4 to leave x: that is 1 part.', marks: [[-1, box('4x', '[4]x')]], rows: ['4x ÷4^ = 20 ÷4^', 'x = 5'], tags: ['7x', '3x'], ratio: { each: '5', note: '1 part = 5 cards' } },
-  { title: 'Mira at first', say: 'At first Mira had 7 parts, and each part is 5 cards.', rows: ['7 × 5 = 35', '! Mira had 35 cards'], tags: ['35'], ratio: { rings: [whole(0, 7)], lit: [0] } },
-]), 'Our aim: call 1 part x, write each amount after the change, and make them equal.')
+  { title: 'Calculate Mira’s cards', say: 'At first Mira had 7 parts, and each part is 5 cards.', rows: ['7 × 5 = 35', '! Mira had 35 cards'], tags: ['35'], ratio: { rings: [whole(0, 7)], lit: [0] } },
+]), 'Our aim: call 1 part x, write each amount after the change, make them equal, then solve the equation.')
 video(swap, media('changing', 'Mira gives Noel 10: how many did Mira have?', 'R1.7_Changing_Ratios.mp4', 121, [
   'Swapping football cards: Mira and Noel’s cards are in the ratio 7 : 3. Mira gives Noel 10 cards. Now they have the same.',
   'Read the question: Mira gives Noel 10 football cards, and now they have the same number of cards. We want how many cards Mira had at first. We don’t know 1 part yet, so call it x.',
@@ -177,40 +179,46 @@ video(swap, media('changing', 'Mira gives Noel 10: how many did Mira have?', 'R1
 ]))
 const gift = bars(['Ben', 3], ['Cal', 1])
 practice(changing, 'Ben and Cal share £40 in the ratio 3 : 1. Ben then gives Cal £10. Write the new ratio of Ben’s money to Cal’s money in its simplest form.', 'R1.7 Q2', gift, ratio([1, 1]), 'Find each share first: £40 is 4 parts. Then move the £10 and simplify.', ratioModel(gift, [
-  { title: 'Find 1 part', say: '£40 is the total, shared over 3 + 1 = 4 parts.', rows: ['40 ÷ 4 = 10'], ratio: { rings: [whole(0, 3), whole(1, 1)], each: '10', note: '4 parts = £40' } },
-  { title: 'Each share', say: 'Ben has 3 parts. Cal has 1 part, £10.', rows: ['3 × 10 = 30'], tags: ['£30', '£10'], ratio: { lit: [0] } },
-  { title: 'After the gift', say: 'Ben gives £10 away and Cal gets it. Change the money, not the ratio numbers.', rows: ['30 −10 = 20', '10 +10 = 20'], tags: ['£20', '£20'], ratio: { each: undefined, lit: [0, 1], note: 'after the gift' } },
+  { title: 'Add the parts', say: 'Ben has 3 parts and Cal has 1, so £40 is shared over 3 + 1 = 4 parts.', rows: ['3 + 1 = 4'], tags: ['3', '1'], ratio: { rings: [whole(0, 3), whole(1, 1)], note: '4 parts = £40' } },
+  { title: 'Find 1 part', say: '4 parts are £40, so 1 part is 40 ÷ 4.', rows: ['40 ÷ 4 = 10'], tags: ['3', '1'], ratio: { each: '10', note: '1 part = £10' } },
+  { title: 'Calculate each share', say: 'Ben has 3 parts. Cal has 1 part, £10.', rows: ['3 × 10 = 30'], tags: ['£30', '£10'], ratio: { lit: [0] } },
+  { title: 'Ben gives Cal £10', say: 'Ben gives £10 away and Cal gets it. Change the money, not the ratio numbers.', rows: ['30 −10 = 20', '10 +10 = 20'], tags: ['£20', '£20'], ratio: { each: undefined, lit: [0, 1], note: 'after the gift' } },
   { title: 'Simplify', say: 'Both are 20. Divide both by 20.', rows: ['> 20 : 20, divide both by 20', '! 1 : 1'] },
 ]), ratioSlips([1, 1], [[[20, 20], 'That’s right before simplifying. Divide both by 20.'], [[3, 1], 'That’s the ratio before the gift. Move the £10 first.'], [[2, 1], 'Ben gives £10 to Cal, so Cal gets £10 more too: £20 and £20.']]))
 const savings = bars(['Lena', 3], ['Max', 2])
 practice(changing, 'Lena and Max save money in the ratio 3 : 2. Lena has saved £45. Max’s gran gives him £20. Write the new ratio of Lena’s savings to Max’s savings in its simplest form.', 'R1.7 Q3', savings, ratio([9, 10]), 'Lena’s 3 parts are £45. Find 1 part, then Max’s savings, then add the £20.', ratioModel(savings, [
-  { title: 'Find 1 part', say: 'Lena’s 3 parts are £45. Share it equally between them.', rows: ['45 ÷ 3 = 15'], tags: ['£45'], ratio: { rings: [whole(0, 3)], each: '15', note: '3 parts = £45' } },
-  { title: 'Max at first', say: 'Max has 2 parts, and each part is £15.', rows: ['2 × 15 = 30'], tags: [undefined, '£30'], ratio: { lit: [1] } },
-  { title: 'Add the £20', say: 'Max’s gran gives him £20. Change his money, not the ratio numbers.', rows: ['30 +20 = 50'], tags: [undefined, '£50'], ratio: { each: undefined, lit: [1], note: 'after the gift' } },
+  { title: 'Match Lena’s parts to £45', say: 'Lena has 3 parts and Max has 2. Lena’s 3 parts are her £45.', rows: ['>0 3 parts = £45'], tags: ['3 parts = £45', '2 parts'], ratio: { rings: [whole(0, 3)] } },
+  { title: 'Find 1 part', say: 'Share Lena’s £45 equally between her 3 parts.', rows: ['45 ÷ 3 = 15'], tags: ['£45', '2 parts'], ratio: { rings: [whole(0, 3)], each: '15', note: '1 part = £15' } },
+  { title: 'Calculate Max’s savings', say: 'Max has 2 parts, and each part is £15.', rows: ['2 × 15 = 30'], tags: [undefined, '£30'], ratio: { lit: [1] } },
+  { title: 'Add Gran’s £20', say: 'Max’s gran gives him £20. Change his money, not the ratio numbers.', rows: ['30 +20 = 50'], tags: [undefined, '£50'], ratio: { each: undefined, lit: [1], note: 'after the gift' } },
   { title: 'Simplify', say: '45 and 50 are both in the 5 times table. Divide both by 5.', rows: ['> 45 : 50, divide both by 5', '! 9 : 10'] },
 ]), ratioSlips([9, 10], [[[45, 50], 'That’s right before simplifying. Divide both by 5.'], [[3, 2], 'That’s the ratio before the gift. Add the £20 to Max first.'], [[3, 4], '£20 is money, not parts. Add it to Max’s £30.']]))
 const stall = bars(['Apples', 3], ['Pears', 2])
 practice(changing, 'A fruit stall has apples and pears in the ratio 3 : 2. The owner adds 12 more pears. Now there are the same number of apples and pears. How many apples are there?', 'R1.7 Q4a', stall, number(36, '36 apples'), 'Call 1 part x: apples are 3x and pears are 2x. After adding 12 pears they are equal.', ratioModel(stall, [
   { title: 'Call 1 part x', say: 'We don’t know 1 part, so call it x. Apples have 3 parts and pears have 2.', rows: ['> apples 3x, pears 2x'], tags: ['3x', '2x'], ratio: { lit: [0, 1] } },
-  { title: 'After adding 12 pears', say: 'Pears go up by 12. Now there are the same number, so put = between them.', rows: ['3x = 2x +12'], tags: [undefined, '2x + 12'], ratio: { lit: [1] } },
-  { title: 'Take 2x from both sides', say: 'The boxed 2x cancels on the right, leaving x on its own.', marks: [[-1, box('2x')]], rows: ['3x −2x^ = ~2x ~−2x^ +12', 'x = 12'], ratio: { each: '12', note: '1 part = 12' } },
-  { title: 'The apples', say: 'Apples have 3 parts, and each part is 12.', rows: ['3 × 12 = 36', '! 36 apples'], tags: ['36'], ratio: { rings: [whole(0, 3)], lit: [0] } },
+  { title: 'The owner adds 12 pears', say: 'Pears go up by 12, so there are 2x + 12 pears. The apples stay at 3x.', rows: ['> apples 3x, pears 2x + 12'], tags: [undefined, '2x + 12'], ratio: { lit: [1] } },
+  { title: 'Make them equal', say: 'Now there are the same number, so put = between them.', rows: ['3x = 2x +12'], tags: [undefined, '2x + 12'], ratio: { lit: [0, 1] } },
+  { title: 'Solve the equation', say: 'Solve 3x = 2x + 12 to find x, 1 part.', rows: ['>0 find x, the size of 1 part'] },
+  { title: 'Take 2x from both sides', say: 'The boxed 2x cancels on the right, leaving x on its own.', marks: [[-2, box('2x')]], rows: ['3x −2x^ = ~2x ~−2x^ +12', 'x = 12'], ratio: { each: '12', note: '1 part = 12' } },
+  { title: 'Calculate the apples', say: 'Apples have 3 parts, and each part is 12.', rows: ['3 × 12 = 36', '! 36 apples'], tags: ['36'], ratio: { rings: [whole(0, 3)], lit: [0] } },
 ]), slips(36, [[12, 'That’s 1 part, x. Apples have 3 parts.'], [24, 'That’s the pears at first. The question asks for apples.'], [60, 'That’s apples and pears together at first. Apples are 3 parts.']]))
 practice(changing, 'The same stall had apples and pears in the ratio 3 : 2, with 1 part = 12. The owner added 12 more pears. How many pears are there now?', 'R1.7 Q4b', { ...stall, each: '12' }, number(36, '36 pears'), 'Pears at first are 2 parts. Then add the 12.', ratioModel({ ...stall, each: '12' }, [
-  { title: 'Pears at first', say: 'Pears had 2 parts, and each part is 12.', rows: ['2 × 12 = 24'], tags: [undefined, '24'], ratio: { rings: [whole(1, 2)], lit: [1] } },
+  { title: 'Calculate the pears at first', say: 'Pears had 2 parts, and each part is 12.', rows: ['2 × 12 = 24'], tags: [undefined, '24'], ratio: { rings: [whole(1, 2)], lit: [1] } },
   { title: 'Add the 12', say: 'The owner adds 12 more pears.', rows: ['24 +12 = 36', '! 36 pears'], tags: [undefined, '36'], ratio: { each: undefined, lit: [1], note: 'after adding 12' } },
 ]), slips(36, [[24, 'That’s the pears at first. The owner adds 12 more.'], [12, 'That’s 1 part. Pears at first are 2 parts, then add 12.']]))
 const cinema = bars(['Adults', 6], ['Children', 5])
 practice(changing, 'In a cinema the ratio of adults to children is 6 : 5. 8 adults leave and 4 more children come in. Now there are the same number of adults and children. How many children were in the cinema at first?', 'R1.7 Q5a', cinema, number(60, '60 children'), 'Adults are 6x and children are 5x. Write each one after the change and make them equal.', ratioModel(cinema, [
   { title: 'Call 1 part x', say: 'We don’t know 1 part, so call it x. Adults have 6 parts and children have 5.', rows: ['> adults 6x, children 5x'], tags: ['6x', '5x'], ratio: { lit: [0, 1] } },
-  { title: 'After the change', say: '8 adults leave and 4 children come in. Now they are the same, so put = between them.', rows: ['6x −8 = 5x +4'], tags: ['6x − 8', '5x + 4'], ratio: { lit: [0, 1] } },
-  { title: 'Take 5x from both sides', say: 'The boxed 5x cancels on the right.', marks: [[-1, box('5x')]], rows: ['6x −5x^ −8 = ~5x ~−5x^ +4', 'x −8 = 4'] },
+  { title: '8 adults leave and 4 children come in', say: '8 adults leave, so there are 6x − 8 adults. 4 children come in, so there are 5x + 4 children.', rows: ['> adults 6x − 8, children 5x + 4'], tags: ['6x − 8', '5x + 4'], ratio: { lit: [0, 1] } },
+  { title: 'Make them equal', say: 'Now there are the same number, so put = between them.', rows: ['6x −8 = 5x +4'], tags: ['6x − 8', '5x + 4'], ratio: { lit: [0, 1] } },
+  { title: 'Solve the equation', say: 'Solve 6x − 8 = 5x + 4 to find x, 1 part.', rows: ['>0 find x, the size of 1 part'] },
+  { title: 'Take 5x from both sides', say: 'The boxed 5x cancels on the right.', marks: [[-2, box('5x')]], rows: ['6x −5x^ −8 = ~5x ~−5x^ +4', 'x −8 = 4'] },
   { title: 'Add 8 to both sides', say: 'The boxed −8 is with x. Add 8 to both sides, so it cancels.', marks: [[-1, box('−8')]], rows: ['x ~−8 ~+8^ = 4 +8^', 'x = 12'], ratio: { each: '12', note: '1 part = 12 people' } },
-  { title: 'Children at first', say: 'Children had 5 parts, and each part is 12 people.', rows: ['5 × 12 = 60', '! 60 children'], tags: [undefined, '60'], ratio: { rings: [whole(1, 5)], lit: [1] } },
+  { title: 'Calculate the children at first', say: 'Children had 5 parts, and each part is 12 people.', rows: ['5 × 12 = 60', '! 60 children'], tags: [undefined, '60'], ratio: { rings: [whole(1, 5)], lit: [1] } },
 ]), slips(60, [[12, 'That’s 1 part, x. Children are 5 parts.'], [72, 'That’s the adults at first. The question asks for children.'], [64, 'That’s the children now. The question asks how many at first.']]))
 practice(changing, 'The same cinema had adults and children in the ratio 6 : 5, with 1 part = 12. 8 adults left and 4 more children came in. How many people are in the cinema now?', 'R1.7 Q5b', { ...cinema, each: '12' }, number(128, '128 people'), 'Work out the adults now and the children now, then add them.', ratioModel({ ...cinema, each: '12' }, [
-  { title: 'Adults now', say: 'Adults had 6 parts. Then 8 left.', rows: ['6 × 12 −8 = 64'], tags: ['64'], ratio: { each: undefined, rings: [whole(0, 6)], lit: [0], note: '8 adults left' } },
-  { title: 'Children now', say: 'Children had 5 parts. Then 4 more came in.', rows: ['5 × 12 +4 = 64'], tags: [undefined, '64'], ratio: { rings: [whole(1, 5)], lit: [1], note: '4 more children came in' } },
+  { title: 'Calculate the adults now', say: 'Adults had 6 parts. Then 8 left.', rows: ['6 × 12 −8 = 64'], tags: ['64'], ratio: { each: undefined, rings: [whole(0, 6)], lit: [0], note: '8 adults left' } },
+  { title: 'Calculate the children now', say: 'Children had 5 parts. Then 4 more came in.', rows: ['5 × 12 +4 = 64'], tags: [undefined, '64'], ratio: { rings: [whole(1, 5)], lit: [1], note: '4 more children came in' } },
   { title: 'Add them', say: 'Everyone in the cinema now is an adult or a child.', rows: ['64 +64 = 128', '! 128 people'] },
 ]), slips(128, [[132, 'That’s everyone at first. 8 left and 4 came in.'], [64, 'That’s one group. Add the adults and the children.']]))
 practice(changing, 'Omar says, “After 8 adults leave and 4 children come in, the ratio is (6 − 8) : (5 + 4) = −2 : 9.” Why is Omar wrong?', 'R1.7 Q5c', { ...cinema, each: '12' }, choose(
