@@ -256,8 +256,11 @@ export type RatioFrame = {
  */
 export type PercentFrame = {
   whole: string
-  pieces: { size: number; label: string }[]
+  /** Pieces fill the squares in order; squares past 100 (an increase) sit in columns to the right. `off` fades a piece: taken off. */
+  pieces: { size: number; label: string; off?: boolean }[]
   note?: string
+  /** Columns kept to the right of the square for squares past 100, the same on every step so nothing moves. */
+  room?: number
   /** The square on the opening screen, before the first step fills it. */
   before?: Omit<PercentFrame, 'before'>
 }

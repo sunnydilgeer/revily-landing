@@ -458,6 +458,10 @@
 .ns-percent text { text-anchor: middle; dominant-baseline: central; }
 .ns-percent__square { fill: var(--rv-surface); stroke: var(--rv-line-strong, #cbd5e1); stroke-width: 1; }
 .ns-percent__square.is-on { fill: #bfdbfe; stroke: var(--rv-biro); }
+.ns-percent__square.is-extra.is-on { fill: #fde68a; stroke: #d97706; }
+.ns-percent__square.is-off { fill: var(--rv-surface); stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 2 2; opacity: .6; }
+.ns-percent__pill.is-off rect { stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 4 3; }
+.ns-percent__pill.is-off text { fill: var(--rv-ink-soft, #64748b); }
 .ns-percent__pill rect { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2; }
 .ns-percent__pill text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
 .ns-percent__note { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
