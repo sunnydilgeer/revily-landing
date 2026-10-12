@@ -139,7 +139,10 @@ function RootsAnswerInput({ id, letter, unit, disabled, onChange }: { id: string
  */
 function ListAnswerInput({ id, count, joiner, unit, labels, disabled, onChange }: { id: string; count: number; joiner: string; unit?: string; labels?: string[]; disabled: boolean; onChange: (value: string) => void }) {
   const [values, setValues] = useState<string[]>(() => Array(count).fill(''))
-  const update = (i: number, value: string) => {
+  // A ratio (☐ : ☐) is numbers only: letters typed into its boxes are dropped.
+  const ratio = joiner === ':'
+  const update = (i: number, typed: string) => {
+    const value = ratio ? typed.replace(/[^0-9.]/g, '') : typed
     const next = values.map((old, k) => k === i ? value : old)
     setValues(next)
     onChange(next.every(v => !v.trim()) ? '' : next.map(v => v.trim().replace(/^[−–]/, '-') || '?').join(', '))
@@ -148,7 +151,7 @@ function ListAnswerInput({ id, count, joiner, unit, labels, disabled, onChange }
     {values.map((value, i) => <span key={i} className="rung-roots__pair">
       {labels?.[i] && <span className="rung-answer__eq" aria-hidden="true">{labels[i]}</span>}
       <label htmlFor={`list-${i}-${id}`}><span className="sr-only">{labels?.[i] ? `${labels[i].replace(/=$/, 'equals').trim()}` : `Number ${i + 1} of ${count}`}</span>
-        <input id={`list-${i}-${id}`} className="pvb-input rung-answer__input" inputMode="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value} onChange={event => update(i, event.target.value)} /></label>
+        <input id={`list-${i}-${id}`} className="pvb-input rung-answer__input" inputMode={ratio ? 'decimal' : 'text'} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="?" disabled={disabled} value={value} onChange={event => update(i, event.target.value)} /></label>
       {unit && <span className="rung-answer__eq" aria-hidden="true">{unit}</span>}
       {i < count - 1 && <span className="rung-roots__or" aria-hidden="true">{joiner}</span>}
     </span>)}

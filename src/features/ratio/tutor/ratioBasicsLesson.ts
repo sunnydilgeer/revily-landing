@@ -124,10 +124,10 @@ practice(fractions, 'In a school the ratio of students with brown hair to studen
 
 /* ---------- Rung 2: simplifying (R1.2) ---------- */
 
-const simplify = worked(simplifying, 'Write 12 : 18 : 30 in its simplest form.', 'Simplify 12 : 18 : 30', 'R1.2 video + Q1', boardModel([], [
-  { title: 'Find the HCF', say: '2, 3 and 6 all divide 12, 18 and 30. The biggest is 6, the highest common factor.', rows: ['>0 HCF of 12, 18 and 30 = 6'] },
+const simplify = worked(simplifying, 'Write 12 : 18 : 30 in its simplest form.', 'Simplify 12 : 18 : 30', 'R1.2 video + Q1', boardModel(['>0 12 : 18 : 30'], [
+  { title: 'Find the HCF', say: '2, 3 and 6 all divide 12, 18 and 30. The biggest is 6, the highest common factor.', rows: ['>0 The HCF of 12, 18 and 30 = 6'] },
   { title: 'Divide every part by 6', say: '12 ÷ 6 = 2, 18 ÷ 6 = 3 and 30 ÷ 6 = 5.', rows: ['12 : 18 : 30 = 2 : 3 : 5'] },
-  { title: 'Is it simplest?', say: 'Nothing but 1 divides 2, 3 and 5, so it is in its simplest form.', rows: ['! 2 : 3 : 5'] },
+  { title: 'Check it’s fully simplified', say: 'Nothing but 1 divides 2, 3 and 5, so it is in its simplest form.', rows: ['! 2 : 3 : 5'] },
 ]), 'Our aim: divide every part of the ratio by the same number, the highest common factor, so the numbers are as small as they can be.')
 video(simplify, media('simplifying', 'Simplify 12 : 18 : 30', 'R1.2_Simplifying_Ratios.mp4', 55, [
   'Simplify a ratio: write 12 : 18 : 30 in its simplest form, the smallest whole numbers in the same ratio.',
@@ -138,7 +138,8 @@ video(simplify, media('simplifying', 'Simplify 12 : 18 : 30', 'R1.2_Simplifying_
   'Find the HCF of every part, divide every part by it, and use the same units first.',
 ]))
 practice(simplifying, 'Write 10 : 25 in its simplest form.', 'R1.2 Q2', false, ratio([2, 5]), 'Both numbers are in the 5 times table.', boardModel([], [
-  { title: 'Divide both by 5', say: '5 is the highest common factor of 10 and 25.', rows: ['10 : 25 = 2 : 5', '! 2 : 5'] },
+  { title: 'Find the HCF', say: '5 is the biggest number that divides both 10 and 25.', rows: ['>0 The HCF of 10 and 25 = 5'] },
+  { title: 'Divide both by 5', say: '10 ÷ 5 = 2 and 25 ÷ 5 = 5.', rows: ['10 : 25 = 2 : 5', '! 2 : 5'] },
 ]), ratioSlips([2, 5]))
 practice(simplifying, 'Write 36 : 48 in its simplest form.', 'R1.2 Q3', false, ratio([3, 4]), 'The HCF of 36 and 48 is 12.', boardModel([], [
   { title: 'Divide both by 12', say: '12 is the highest common factor of 36 and 48.', rows: ['36 : 48 = 3 : 4', '! 3 : 4'] },
@@ -157,16 +158,17 @@ practice(simplifying, 'Write 2 m : 40 cm in its simplest form.', 'R1.2 Q5a', fal
 ]), ratioSlips([5, 1], [[[1, 20], 'Make the units the same first: 2 m is 200 cm, not 2.'], [[20, 4], 'You divided by 10. Keep going: 20 and 4 share a factor of 4.']]))
 practice(simplifying, 'Write 1.5 : 2.5 in its simplest form.', 'R1.2 Q5b', false, ratio([3, 5]), 'Multiply both by 10 to make whole numbers first.', boardModel([], [
   { title: 'Make whole numbers', say: 'Multiply both by 10.', rows: ['1.5 : 2.5 = 15 : 25'] },
-  { title: 'Divide both by 5', say: '5 is the highest common factor of 15 and 25.', rows: ['15 : 25 = 3 : 5', '! 3 : 5'] },
+  { title: 'Find the HCF', say: '5 is the biggest number that divides both 15 and 25.', rows: ['>0 The HCF of 15 and 25 = 5'] },
+  { title: 'Divide both by 5', say: '15 ÷ 5 = 3 and 25 ÷ 5 = 5.', rows: ['15 : 25 = 3 : 5', '! 3 : 5'] },
 ]), ratioSlips([3, 5], [[[15, 25], 'Whole numbers now, but 15 and 25 can both be divided by 5.']]))
 
 /* ---------- Rung 3: scaling (R1.3) ---------- */
 
 const squash = bars(['Squash', 2], ['Water', 7])
 const mix = worked(scaling, 'Squash and water are mixed in the ratio 2 : 7. How much water is needed with 10 cups of squash?', 'Squash : water = 2 : 7, and 10 cups of squash', 'R1.3 video + Q1', ratioModel(squash, [
-  { title: 'Find the multiplier', say: 'The squash goes from 2 cups to 10 cups, so the whole recipe is 5 times as big.', rows: ['10 ÷ 2 = 5'], ratio: { rings: [whole(0, 2)], each: '5', note: '1 part = 5 cups' } },
-  { title: 'Multiply the water too', say: 'Scaling multiplies every part by the same number.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
-]), 'Our aim: find what the part you know was multiplied by, then multiply every part by the same number. Never add.')
+  { title: 'Find 1 part', say: '2 parts of squash are 10 cups, so 1 part is 10 ÷ 2 = 5 cups.', rows: ['10 ÷ 2 = 5'], ratio: { rings: [whole(0, 2)], each: '5', note: '1 part = 5 cups' }, tags: ['10'] },
+  { title: 'Find the water', say: 'Water is 7 parts, and every part is 5 cups.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
+]), 'Our aim: use the part you know to find what 1 part is worth, then multiply to get the part you want. Never add.')
 video(mix, media('scaling', 'Squash : water = 2 : 7, with 10 cups of squash', 'R1.3_Scaling_Ratios.mp4', 55, [
   'Making squash: squash and water are mixed in the ratio 2 : 7. How much water goes with 10 cups of squash?',
   'Step 1, find the multiplier: the squash goes from 2 cups to 10 cups. 10 ÷ 2 = 5, so the whole recipe is 5 times as big.',
@@ -179,8 +181,8 @@ practice(scaling, 'Two numbers are in the ratio 3 : 4. The first number is 9. Wh
   { title: 'Find the multiplier', say: '3 became 9, so it was multiplied by 3.', rows: ['9 ÷ 3 = 3'] },
   { title: 'Multiply the 4', say: 'Multiply the other part by the same number.', rows: ['4 × 3 = 12', '! 12'] },
 ]), slips(12, [[10, 'Scaling multiplies, it doesn’t add: 3 × 3 = 9, so 4 × 3 = 12.']]))
-practice(scaling, 'A recipe uses flour and butter in the ratio 5 : 2. How much butter goes with 300 g of flour?', 'R1.3 Q3', true, number(120, '120 g'), '300 ÷ 5 is the multiplier.', ratioModel(bars(['Flour', 5], ['Butter', 2]), [
-  { title: 'Find the multiplier', say: '5 parts of flour are 300 g, so 1 part is 60 g.', rows: ['300 ÷ 5 = 60'], ratio: { each: '60', note: '1 part = 60 g' } },
+practice(scaling, 'A recipe uses flour and butter in the ratio 5 : 2. How much butter goes with 300 g of flour?', 'R1.3 Q3', true, number(120, '120 g'), '5 parts of flour are 300 g: find 1 part first.', ratioModel(bars(['Flour', 5], ['Butter', 2]), [
+  { title: 'Find 1 part', say: '5 parts of flour are 300 g, so 1 part is 60 g.', rows: ['300 ÷ 5 = 60'], ratio: { each: '60', note: '1 part = 60 g' } },
   { title: 'The butter', say: 'Butter is 2 parts.', rows: ['2 × 60 = 120', '! 120 g'], ratio: { each: '60', rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '120 g'] },
 ]), slips(120, [[750, 'Butter is the smaller part: divide 300 by 5 first, then multiply by 2.'], [60, 'That’s 1 part. Butter is 2 parts.'], [297, 'Scaling multiplies, it doesn’t add or take away.']]))
 practice(scaling, 'Red and white paint are mixed in the ratio 3 : 8. Ali uses 40 litres of white paint. How much red paint does he use?', 'R1.3 Q4', true, number(15, '15 litres'), '8 parts of white are 40 litres.', ratioModel(bars(['Red', 3], ['White', 8]), [

@@ -205,6 +205,8 @@
 .ns-eq.is-plain .ns-eq__token { color: var(--rv-ink); }
 .ns-eq__heading, .ns-eq__note { grid-column: 1 / -1; margin: 0; text-align: center; contain: inline-size; }
 .ns-eq__note { color: var(--f); }
+/* A question given as a note ("12 : 18 : 30") opens big in the middle of an otherwise empty board, in plain ink. */
+.ns-eq.is-plain .ns-eq__note { color: var(--rv-ink); font-size: clamp(27px, 6vw, 44px); padding: 28px 0; }
 .ns-eq .is-struck { text-decoration: line-through 2px #dc2626; opacity: .75; }
 .ns-eq__frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; }
 .ns-eq__frac > span:first-child { padding: 0 4px 2px; border-bottom: 2px solid currentColor; }
