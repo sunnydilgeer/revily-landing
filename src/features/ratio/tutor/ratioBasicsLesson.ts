@@ -94,9 +94,8 @@ function ratioSlips(right: [number, number], list: [[number, number], string][] 
 
 const counters = bars(['Red', 4], ['Blue', 5])
 const bag = worked(fractions, 'Red and blue counters are in a bag in the ratio 4 : 5. What fraction of the counters are red?', 'Red : blue = 4 : 5. What fraction are red?', 'R1.1 video + Q1', ratioModel(counters, [
-  { title: 'Red compared with blue', say: 'Put the red number over the blue number: there are 4/5 as many red counters as blue counters. That compares the two parts, but the question asks about all the counters.', rows: ['> red over blue: 4/5'] },
-  { title: 'Add the parts', say: 'Every 4 red counters come with 5 blue ones, so the counters come in groups of 9.', rows: ['4 + 5 = 9'], ratio: { note: '9 parts in total' } },
-  { title: 'Part over total', say: 'Red is 4 of the 9 parts.', rows: ['! {4|9} of the counters are red'], ratio: { rings: [whole(0, 4)], lit: [0] } },
+  { title: 'Compare the red counters with the blue ones', say: 'The ratio of red to blue is 4 : 5. That compares the two parts, but the question asks about all the counters.', rows: ['> the ratio of red to blue is 4 : 5'] },
+  { title: 'Add the parts', say: 'Every 4 red counters come with 5 blue ones, so the counters come in groups of 9. Red is 4 of the 9 parts.', rows: ['4 + 5 = 9', '! {4|9} of the counters are red'], tags: ['4', '5'], ratio: { note: '9 parts in total', rings: [whole(0, 4)] } },
 ]), 'Our aim: part over part compares the two. For a fraction of the whole, add the parts and put the part over the total.')
 video(bag, media('fractions', 'Red : blue = 4 : 5. What fraction are red?', 'R1.1_Writing_Ratios_As_Fractions.mp4', 70, [
   'Red and blue counters: a bag has red and blue counters in the ratio 4 : 5. For every 4 red counters there are 5 blue ones.',

@@ -433,6 +433,8 @@
 .ns-ratio__bar { --b: #b45309; --bt: #fef3c7; }
 .ns-ratio__bar.is-b1 { --b: var(--rv-biro); --bt: var(--rv-biro-tint); }
 .ns-ratio__bar.is-b2 { --b: #0f766e; --bt: #ccfbf1; }
+/* A bar of red counters is drawn red (Sunny, 12 Oct), whatever its place. */
+.ns-ratio__bar.is-red { --b: #dc2626; --bt: #fee2e2; }
 .ns-ratio .ns-ratio__name { text-anchor: end; fill: var(--rv-ink); font-size: 17px; font-weight: 700; }
 .ns-ratio__block { fill: var(--bt); stroke: var(--b); stroke-width: 1.5; }
 .ns-ratio__each { fill: var(--b); font-weight: 800; }
