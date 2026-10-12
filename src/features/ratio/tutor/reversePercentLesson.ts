@@ -126,11 +126,12 @@ practice(hundred, 'Ria says, “The headphones were £48 with 20% off, so the or
 /* ---------- Rung 2: dividing by the multiplier (R4.2) ---------- */
 
 const busPass = worked(decimal, 'A bus pass went up in price by 15%. It now costs £69. Work out the price before the increase.', '£69 after a 15% rise. Work out the price before.', 'R4.2 video + Q1', boardModel([], [
-  { title: 'Add the 15% increase', say: 'The old price is 100%. It went up by 15%, so the new price is 115% of the old one.', rows: ['100% + 15% = 115%'] },
-  { title: 'Write 115% as a multiplier', say: 'A percentage as a decimal: divide by 100.', rows: ['115 ÷ 100 = 1.15'] },
-  { title: 'Divide by the multiplier to undo it', say: 'Going forwards, old × 1.15 = £69. To undo × 1.15, divide by 1.15.', rows: ['69 ÷ 1.15 = 60', '! £60'] },
-  { title: 'Check it makes sense', say: 'Go forwards: the old price × 1.15 should give £69.', rows: ['60 × 1.15 = 69 ✓'] },
-]), 'Our aim: write the new % as a decimal, then divide the new amount by it.')
+  { title: 'Add the 15% increase', say: 'The old price is 100%. It went up by 15%, so the new one is 115%.', rows: ['100% + 15% = 115%'] },
+  { title: '115% = £69', say: '£69 is the price AFTER the change, so it is the 115%, not 100%.', rows: ['>0 the new price is the 115%'] },
+  { title: 'Write 115% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['115% = 115 ÷ 100 = 1.15'] },
+  { title: 'Undo the increase', say: 'Going forwards, the old price × 1.15 = £69. To undo × 1.15, divide by 1.15.', rows: ['old price × 1.15 = £69', 'old price = £69 ÷ 1.15 = £60', '! Price of the bus pass before the rise = £60'] },
+  { title: 'Check it makes sense', say: 'Go forwards: £60 × 1.15 should give £69.', rows: ['£60 × 1.15 = £69 ✓'] },
+]), 'Our aim: write the new % as a decimal, then divide to undo it.')
 video(busPass, media('decimals', '£69 after a 15% rise: the price before', 'R4.2_Reverse_Percentages_Using_Decimals.mp4', 100, [
   'A bus pass goes up: a bus pass went up by 15% to £69. What did it cost BEFORE the rise?',
   'Going backwards: £69 is the price AFTER a 15% rise. We know the NEW price and we want the old one. The old price is 100%, and it went UP by 15%: 100% + 15% = 115%, so 115% = £69. Trap: do not take 15% off £69.',
@@ -142,37 +143,42 @@ video(busPass, media('decimals', '£69 after a 15% rise: the price before', 'R4.
   'Well done: work out the new % (100 + or − the change), turn it into a decimal, then DIVIDE the new amount by it. The answer is £60.',
 ]))
 pounds(practice(decimal, 'A coat costs £56 after 30% off. Work out the original price.', 'R4.2 Q2', number(80, '£80'), '30% off leaves 70% = 0.7. Divide £56 by 0.7.', boardModel([], [
-  { title: 'Take off the 30% decrease', say: 'The old price is 100%. 30% came off, so the new price is the 70% that is left.', rows: ['100% − 30% = 70%'] },
-  { title: 'Write 70% as a multiplier', say: 'A percentage as a decimal: divide by 100.', rows: ['70 ÷ 100 = 0.7'] },
-  { title: 'Divide by the multiplier to undo it', say: 'Going forwards, old × 0.7 = £56. To undo × 0.7, divide by 0.7.', rows: ['56 ÷ 0.7 = 80', '! £80'] },
-  { title: 'Check it makes sense', say: 'Go forwards: the old price × 0.7 should give £56.', rows: ['80 × 0.7 = 56 ✓'] },
+  { title: 'Take off the 30% decrease', say: 'The old price is 100%. 30% came off, so what is left is 70%.', rows: ['100% − 30% = 70%'] },
+  { title: '70% = £56', say: '£56 is the price AFTER the change, so it is the 70%, not 100%.', rows: ['>0 the price now is the 70%'] },
+  { title: 'Write 70% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['70% = 70 ÷ 100 = 0.7'] },
+  { title: 'Undo the decrease', say: 'Going forwards, the old price × 0.7 = £56. To undo × 0.7, divide by 0.7.', rows: ['old price × 0.7 = £56', 'old price = £56 ÷ 0.7 = £80', '! Price of the coat before the sale = £80'] },
+  { title: 'Check it makes sense', say: 'Go forwards: £80 × 0.7 should give £56.', rows: ['£80 × 0.7 = £56 ✓'] },
 ]), slips(80, [[72.8, 'That adds 30% of £56. £56 is 70% of the original: 56 ÷ 0.7.'], [39.2, 'That takes 30% off again. Divide by 0.7 to undo it.'], [56 / 0.3, '30% was taken off, so 70% is left: divide by 0.7, not 0.3.']])))
 practice(decimal, 'A café raised its prices by 8%. A sandwich now costs £4.32. Write down the multiplier, and use it to find the price before the rise.', 'R4.2 Q3', multiplier([1.08, 4], '1.08 and £4'), '100% + 8% = 108%. Write it as a decimal, then divide £4.32 by it.', boardModel([], [
-  { title: 'Add the 8% increase', say: 'The old price is 100%. It went up by 8%, so the new price is 108% of the old one.', rows: ['100% + 8% = 108%'] },
-  { title: 'Write 108% as a multiplier', say: 'A percentage as a decimal: divide by 100.', rows: ['108 ÷ 100 = 1.08'] },
-  { title: 'Divide by the multiplier to undo it', say: 'Going forwards, old × 1.08 = £4.32. To undo × 1.08, divide by 1.08.', rows: ['4.32 ÷ 1.08 = 4', '! 1.08 and £4'] },
-  { title: 'Check it makes sense', say: 'Go forwards: the old price × 1.08 should give £4.32.', rows: ['4 × 1.08 = 4.32 ✓'] },
+  { title: 'Add the 8% increase', say: 'The old price is 100%. It went up by 8%, so the new one is 108%.', rows: ['100% + 8% = 108%'] },
+  { title: '108% = £4.32', say: '£4.32 is the price AFTER the change, so it is the 108%, not 100%.', rows: ['>0 the new price is the 108%'] },
+  { title: 'Write 108% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['108% = 108 ÷ 100 = 1.08'] },
+  { title: 'Undo the increase', say: 'Going forwards, the old price × 1.08 = £4.32. To undo × 1.08, divide by 1.08.', rows: ['old price × 1.08 = £4.32', 'old price = £4.32 ÷ 1.08 = £4', '! Multiplier 1.08, price before the rise = £4'] },
+  { title: 'Check it makes sense', say: 'Go forwards: £4 × 1.08 should give £4.32.', rows: ['£4 × 1.08 = £4.32 ✓'] },
 ]), response => /0\.08/.test(response) ? '0.08 is only the 8%. Keep the 100% too: 108% = 1.08.' : /\b1\.8\b/.test(response) ? '8% is 0.08, so the multiplier is 1 + 0.08 = 1.08.' : /4\.6\d/.test(response) ? 'Divide by 1.08 to go back, don’t multiply: the old price is less than £4.32.' : null)
 practice(decimal, 'A laptop is reduced by 35% in a sale. The sale price is £338. Write down the multiplier, and use it to find the original price.', 'R4.2 Q4a', multiplier([0.65, 520], '0.65 and £520'), '35% off leaves 65%. Write it as a decimal, then divide £338 by it.', boardModel([], [
-  { title: 'Take off the 35% decrease', say: 'The old price is 100%. 35% came off, so the new price is the 65% that is left.', rows: ['100% − 35% = 65%'] },
-  { title: 'Write 65% as a multiplier', say: 'A percentage as a decimal: divide by 100.', rows: ['65 ÷ 100 = 0.65'] },
-  { title: 'Divide by the multiplier to undo it', say: 'Going forwards, old × 0.65 = £338. To undo × 0.65, divide by 0.65.', rows: ['338 ÷ 0.65 = 520', '! 0.65 and £520'] },
-  { title: 'Check it makes sense', say: 'Go forwards: the old price × 0.65 should give £338.', rows: ['520 × 0.65 = 338 ✓'] },
+  { title: 'Take off the 35% decrease', say: 'The old price is 100%. 35% came off, so what is left is 65%.', rows: ['100% − 35% = 65%'] },
+  { title: '65% = £338', say: '£338 is the price AFTER the change, so it is the 65%, not 100%.', rows: ['>0 the price now is the 65%'] },
+  { title: 'Write 65% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['65% = 65 ÷ 100 = 0.65'] },
+  { title: 'Undo the decrease', say: 'Going forwards, the old price × 0.65 = £338. To undo × 0.65, divide by 0.65.', rows: ['old price × 0.65 = £338', 'old price = £338 ÷ 0.65 = £520', '! Multiplier 0.65, price before the sale = £520'] },
+  { title: 'Check it makes sense', say: 'Go forwards: £520 × 0.65 should give £338.', rows: ['£520 × 0.65 = £338 ✓'] },
 ]), response => /0\.35/.test(response) ? '0.35 is the 35% taken off. Use what is left: 100% − 35% = 65% = 0.65.' : /1\.35/.test(response) ? 'That’s the multiplier for an increase. A decrease leaves 65%: 0.65.' : /219\.7/.test(response) ? 'Divide by 0.65 to go back, don’t multiply: the original is more than £338.' : null)
 pounds(practice(decimal, 'The laptop’s original price was £520. Check your answer by working forwards: what is £520 with 35% off?', 'R4.2 Q4b', number(338, '£338'), 'Multiply the original by the multiplier, 0.65.', boardModel([], [
   { title: 'Work forwards', say: 'Original × 0.65 should give the sale price.', rows: ['520 × 0.65 = 338', '> the sale price ✓', '! £338'] },
 ]), slips(338, [[182, 'That’s the 35% taken off. Multiply by 0.65 for what is left.'], [702, 'Take 35% off, don’t add it on: 520 × 0.65.']])))
 practice(decimal, 'A runner’s new 400 m time is 54.6 seconds. This is 9% faster than her old time. Work out her old time in seconds.', 'R4.2 Q5a', number(60, '60 seconds'), 'Faster means the time went DOWN by 9%, so the new time is 91% = 0.91 of the old time.', boardModel([], [
-  { title: 'Take off the 9% decrease', say: '9% faster means the time went DOWN by 9%. The old time is 100%, so the new time is the 91% that is left.', rows: ['100% − 9% = 91%'] },
-  { title: 'Write 91% as a multiplier', say: 'A percentage as a decimal: divide by 100.', rows: ['91 ÷ 100 = 0.91'] },
-  { title: 'Divide by the multiplier to undo it', say: 'Going forwards, old × 0.91 = 54.6. To undo × 0.91, divide by 0.91.', rows: ['54.6 ÷ 0.91 = 60', '! 60 seconds'] },
-  { title: 'Check it makes sense', say: 'Go forwards: the old time × 0.91 should give 54.6.', rows: ['60 × 0.91 = 54.6 ✓'] },
+  { title: 'Take off the 9% decrease', say: '9% faster means the time went DOWN by 9%. The old time is 100%, so the new time is 91%.', rows: ['100% − 9% = 91%'] },
+  { title: '91% = 54.6 seconds', say: '54.6 seconds is the time AFTER the change, so it is the 91%, not 100%.', rows: ['>0 the time now is the 91%'] },
+  { title: 'Write 91% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['91% = 91 ÷ 100 = 0.91'] },
+  { title: 'Undo the decrease', say: 'Going forwards, the old time × 0.91 = 54.6 seconds. To undo × 0.91, divide by 0.91.', rows: ['old time × 0.91 = 54.6 seconds', 'old time = 54.6 seconds ÷ 0.91 = 60 seconds', '! Old time = 60 seconds'] },
+  { title: 'Check it makes sense', say: 'Go forwards: 60 seconds × 0.91 should give 54.6 seconds.', rows: ['60 seconds × 0.91 = 54.6 seconds ✓'] },
 ]), slips(60, [[59.514, 'That adds 9% of 54.6. The new time is 91% of the old: 54.6 ÷ 0.91.'], [54.6 / 1.09, 'Faster means the time went down, so the new time is 91%: divide by 0.91, not 1.09.'], [49.686, 'Divide by 0.91, don’t multiply: the old time is longer.']]))
 pounds(practice(decimal, 'A house price rose by 12% to £201,600. Work out the price before the rise.', 'R4.2 Q5b', number(180000, '£180,000'), 'A 12% rise gives 112% = 1.12. Divide by 1.12.', boardModel([], [
-  { title: 'Add the 12% increase', say: 'The old price is 100%. It went up by 12%, so the new price is 112% of the old one.', rows: ['100% + 12% = 112%'] },
-  { title: 'Write 112% as a multiplier', say: 'A percentage as a decimal: divide by 100.', rows: ['112 ÷ 100 = 1.12'] },
-  { title: 'Divide by the multiplier to undo it', say: 'Going forwards, old × 1.12 = £201600. To undo × 1.12, divide by 1.12.', rows: ['201600 ÷ 1.12 = 180000', '! £180,000'] },
-  { title: 'Check it makes sense', say: 'Go forwards: the old price × 1.12 should give £201600.', rows: ['180000 × 1.12 = 201600 ✓'] },
+  { title: 'Add the 12% increase', say: 'The old price is 100%. It went up by 12%, so the new one is 112%.', rows: ['100% + 12% = 112%'] },
+  { title: '112% = £201600', say: '£201600 is the price AFTER the change, so it is the 112%, not 100%.', rows: ['>0 the new price is the 112%'] },
+  { title: 'Write 112% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['112% = 112 ÷ 100 = 1.12'] },
+  { title: 'Undo the increase', say: 'Going forwards, the old price × 1.12 = £201600. To undo × 1.12, divide by 1.12.', rows: ['old price × 1.12 = £201600', 'old price = £201600 ÷ 1.12 = £180000', '! Price of the house before the rise = £180,000'] },
+  { title: 'Check it makes sense', say: 'Go forwards: £180000 × 1.12 should give £201600.', rows: ['£180000 × 1.12 = £201600 ✓'] },
 ]), slips(180000, [[177408, 'That takes 12% of £201,600 off. Divide by 1.12 instead.'], [225792, 'Divide by 1.12, don’t multiply: the old price is less.'], [1680000, 'Divide by 1.12, not 0.12: the new price is 112%.']])))
 practice(decimal, 'Tom says, “To undo a 15% increase, take 15% off the new price.” The bus pass went up 15% to £69, and the old price was £60. Why is Tom wrong?', 'R4.2 Q5c', choose(
   '15% of £69 is more than 15% of £60, so taking it off gives £58.65, not £60',
