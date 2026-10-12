@@ -96,9 +96,11 @@ function ratioSlips(right: [number, number], list: [[number, number], string][] 
 
 const cupcakes = bars(['Dev', 2], ['Eli', 3], ['Fay', 6])
 const bakeSale = worked(difference, 'At a bake sale Dev, Eli and Fay share some cupcakes in the ratio 2 : 3 : 6. Fay gets 24 more cupcakes than Dev. How many cupcakes does Eli get?', '2 : 3 : 6, and Fay has 24 more than Dev. How many for Eli?', 'R1.6 video + Q1', ratioModel(cupcakes, [
-  { title: 'Line Fay up with Dev', say: '24 is not the total. It is how many more Fay has than Dev. Fay’s first 2 parts match Dev’s 2, so Fay has 6 − 2 = 4 parts more, the ringed ones.', rows: ['6 − 2 = 4'], ratio: { ...extra(2, 2, 6, 0), note: '4 parts = 24' } },
-  { title: 'Find 1 part', say: 'So 4 parts are worth 24. Divide to find 1 part.', rows: ['24 ÷ 4 = 6'], ratio: { each: '6', note: '1 part = 6' } },
-  { title: 'Eli’s share', say: 'Eli has 3 parts, and each part is 6 cupcakes.', rows: ['3 × 6 = 18', '! Eli gets 18 cupcakes'], ratio: { rings: [whole(1, 3)], lit: [1] }, tags: [undefined, '18'] },
+  { title: 'Compare Fay with Dev', say: 'Fay has 6 parts and Dev has 2, so Fay has 6 − 2 = 4 more parts.', rows: ['6 − 2 = 4'], ratio: { ...extra(2, 2, 6, 0), note: 'Fay has 4 more parts' } },
+  { title: 'Match the extra parts to the 24', say: 'Every part holds the same number of cupcakes. Fay’s first 2 parts match Dev’s 2, so they cancel out. Fay’s 24 extra cupcakes must all be in her 4 extra parts. 24 is not the total.', rows: ['>0 4 parts = 24'], ratio: { ...extra(2, 2, 6, 0) } },
+  { title: 'Find 1 part', say: '4 parts are 24 cupcakes, so 1 part is 24 ÷ 4.', rows: ['24 ÷ 4 = 6'], ratio: { each: '6', note: '1 part = 6 cupcakes' } },
+  { title: 'Calculate Eli’s share', say: 'Eli has 3 parts, and each part is 6 cupcakes.', rows: ['3 × 6 = 18', '! Eli gets 18 cupcakes'], ratio: { each: '6', rings: [whole(1, 3)], lit: [1] }, tags: [undefined, '18'] },
+  { title: 'Check it', say: 'Dev has 2 × 6 = 12 and Fay has 6 × 6 = 36. Fay has 36 − 12 = 24 more, just as the question says.', rows: ['36 − 12 = 24 ✓'], ratio: { each: '6' }, tags: ['12', '18', '36'] },
 ]), 'Our aim: turn the difference into 1 part, then multiply for the share you want.')
 video(bakeSale, media('difference', 'Fay has 24 more than Dev: how many for Eli?', 'R1.6_Difference_Between_Parts_Of_A_Ratio.mp4', 104, [
   'Sharing cupcakes: Dev, Eli and Fay share cupcakes in the ratio 2 : 3 : 6. Fay has 24 more than Dev. How many does Eli have?',
@@ -112,21 +114,24 @@ video(bakeSale, media('difference', 'Fay has 24 more than Dev: how many for Eli?
 ]))
 const sweets = bars(['Ruth', 5], ['Sam', 2])
 practice(difference, 'Ruth and Sam share some sweets in the ratio 5 : 2. Ruth gets 18 more sweets than Sam. How many sweets does Sam get?', 'R1.6 Q2', sweets, number(12, '12 sweets'), 'Ruth has 3 parts more than Sam. Those 3 parts are the 18 sweets.', ratioModel(sweets, [
-  { title: 'Line Ruth up with Sam', say: 'Ruth’s first 2 parts match Sam’s 2, so Ruth has 5 − 2 = 3 parts more than Sam, the ringed ones. Those 3 parts are the 18 extra sweets.', rows: ['5 − 2 = 3'], ratio: { ...extra(0, 2, 5, 1), note: '3 parts = 18' } },
-  { title: 'Find 1 part', say: 'Share the 18 sweets equally between those 3 parts.', rows: ['18 ÷ 3 = 6'], ratio: { each: '6', note: '1 part = 6' } },
-  { title: 'Sam’s share', say: 'Sam has 2 parts, and each part is 6 sweets.', rows: ['2 × 6 = 12', '! Sam gets 12 sweets'], ratio: { rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '12'] },
+  { title: 'Compare Ruth with Sam', say: 'Ruth has 5 parts and Sam has 2, so Ruth has 5 − 2 = 3 more parts.', rows: ['5 − 2 = 3'], ratio: { ...extra(0, 2, 5, 1), note: 'Ruth has 3 more parts' } },
+  { title: 'Match the extra parts to the 18', say: 'Every part holds the same number of sweets. Ruth’s first 2 parts match Sam’s 2, so they cancel out. Ruth’s 18 extra sweets must all be in her 3 extra parts.', rows: ['>0 3 parts = 18'], ratio: { ...extra(0, 2, 5, 1) } },
+  { title: 'Find 1 part', say: '3 parts are 18 sweets, so 1 part is 18 ÷ 3.', rows: ['18 ÷ 3 = 6'], ratio: { each: '6', note: '1 part = 6 sweets' } },
+  { title: 'Calculate Sam’s share', say: 'Sam has 2 parts, and each part is 6 sweets.', rows: ['2 × 6 = 12', '! Sam gets 12 sweets'], ratio: { rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '12'] },
 ]), slips(12, [[6, 'That’s 1 part. Sam has 2 parts.'], [30, 'That’s Ruth’s share. The question asks for Sam’s.'], [36, '18 is the difference, 3 parts, not 1 part. Divide by 3 first.']]))
 const trip = bars(['Tom', 3], ['Uma', 4], ['Vik', 8])
 pounds(practice(difference, 'Tom, Uma and Vik save money for a school trip in the ratio 3 : 4 : 8. Vik saves £45 more than Tom. How much does Uma save?', 'R1.6 Q3', trip, number(36, '£36'), 'Vik has 5 parts more than Tom. Those 5 parts are the £45.', ratioModel(trip, [
-  { title: 'Line Vik up with Tom', say: 'Vik’s first 3 parts match Tom’s 3. Vik’s extra £45 is in Vik’s other parts, the ringed ones: 8 − 3 = 5 parts.', rows: ['8 − 3 = 5'], ratio: { ...extra(2, 3, 8, 0), note: '5 parts = £45' } },
-  { title: 'Find 1 part', say: 'Share the £45 equally between those 5 parts.', rows: ['45 ÷ 5 = 9'], ratio: { each: '9', note: '1 part = £9' } },
-  { title: 'Uma’s share', say: 'Uma has 4 parts, and each part is £9.', rows: ['4 × 9 = 36', '! Uma saves £36'], ratio: { rings: [whole(1, 4)], lit: [1] }, tags: [undefined, '£36'] },
+  { title: 'Compare Vik with Tom', say: 'Vik has 8 parts and Tom has 3, so Vik has 8 − 3 = 5 more parts.', rows: ['8 − 3 = 5'], ratio: { ...extra(2, 3, 8, 0), note: 'Vik has 5 more parts' } },
+  { title: 'Match the extra parts to the £45', say: 'Every part holds the same amount. Vik’s first 3 parts match Tom’s 3, so they cancel out. Vik’s extra £45 must all be in his 5 extra parts.', rows: ['>0 5 parts = £45'], ratio: { ...extra(2, 3, 8, 0) } },
+  { title: 'Find 1 part', say: '5 parts are £45, so 1 part is 45 ÷ 5.', rows: ['45 ÷ 5 = 9'], ratio: { each: '9', note: '1 part = £9' } },
+  { title: 'Calculate Uma’s share', say: 'Uma has 4 parts, and each part is £9.', rows: ['4 × 9 = 36', '! Uma saves £36'], ratio: { rings: [whole(1, 4)], lit: [1] }, tags: [undefined, '£36'] },
 ]), slips(36, [[9, 'That’s 1 part. Uma has 4 parts.'], [12, '£45 is the difference between Vik and Tom, not the total: 8 − 3 = 5 parts.'], [72, 'That’s Vik’s share. The question asks for Uma’s.'], [27, 'That’s Tom’s share. The question asks for Uma’s.']])))
 const cafe = bars(['Teas', 7], ['Coffees', 3], ['Hot choc', 2])
 practice(difference, 'A café sells teas, coffees and hot chocolates in the ratio 7 : 3 : 2. One day it sells 45 more teas than hot chocolates. How many coffees does it sell that day?', 'R1.6 Q4a', cafe, number(27, '27 coffees'), 'Teas have 5 parts more than hot chocolates. Those 5 parts are the 45.', ratioModel(cafe, [
-  { title: 'Line teas up with hot chocs', say: 'The first 2 parts of teas match the 2 parts of hot chocolates. The 45 extra teas are in the other parts, the ringed ones: 7 − 2 = 5 parts.', rows: ['7 − 2 = 5'], ratio: { ...extra(0, 2, 7, 2), note: '5 parts = 45' } },
-  { title: 'Find 1 part', say: 'Share the 45 equally between those 5 parts.', rows: ['45 ÷ 5 = 9'], ratio: { each: '9', note: '1 part = 9' } },
-  { title: 'The coffees', say: 'Coffees have 3 parts, and each part is 9 drinks.', rows: ['3 × 9 = 27', '! 27 coffees'], ratio: { rings: [whole(1, 3)], lit: [1] }, tags: [undefined, '27'] },
+  { title: 'Compare the teas with the hot chocolates', say: 'Teas have 7 parts and hot chocolates have 2, so teas have 7 − 2 = 5 more parts.', rows: ['7 − 2 = 5'], ratio: { ...extra(0, 2, 7, 2), note: 'Teas have 5 more parts' } },
+  { title: 'Match the extra parts to the 45', say: 'Every part holds the same number of drinks. The first 2 parts of teas match the 2 parts of hot chocolates, so they cancel out. The 45 extra teas must all be in the 5 extra parts.', rows: ['>0 5 parts = 45'], ratio: { ...extra(0, 2, 7, 2) } },
+  { title: 'Find 1 part', say: '5 parts are 45 drinks, so 1 part is 45 ÷ 5.', rows: ['45 ÷ 5 = 9'], ratio: { each: '9', note: '1 part = 9 drinks' } },
+  { title: 'Calculate the coffees', say: 'Coffees have 3 parts, and each part is 9 drinks.', rows: ['3 × 9 = 27', '! 27 coffees'], ratio: { rings: [whole(1, 3)], lit: [1] }, tags: [undefined, '27'] },
 ]), slips(27, [[9, 'That’s 1 part. Coffees have 3 parts.'], [63, 'That’s the teas. The question asks for coffees.'], [18, 'That’s the hot chocolates. The question asks for coffees.'], [15, '45 is the difference, 5 parts, not 3 parts. Find 1 part first: 45 ÷ 5.']]))
 practice(difference, 'The same café sells teas, coffees and hot chocolates in the ratio 7 : 3 : 2, and 1 part is 9 drinks. How many drinks does it sell that day in total?', 'R1.6 Q4b', { ...cafe, each: '9' }, number(108, '108 drinks'), 'Add up all the parts, then multiply by 9.', ratioModel({ ...cafe, each: '9' }, [
   { title: 'Add up the parts', say: 'Every drink is in one of the parts. Count the parts in all three bars.', rows: ['7 + 3 + 2 = 12'], ratio: { rings: [whole(0, 7), whole(1, 3), whole(2, 2)], note: '12 parts' } },
@@ -134,9 +139,10 @@ practice(difference, 'The same café sells teas, coffees and hot chocolates in t
 ]), slips(108, [[12, 'That’s the number of parts. Each part is 9 drinks.'], [45, '45 is the difference. Add up all the parts, then multiply by 9.'], [27, 'That’s just the coffees. Add every part: 7 + 3 + 2.']]))
 const charity = bars(['First', 2], ['Second', 5], ['Third', 9])
 pounds(practice(difference, 'A school shares the money it raises between three charities in the ratio 2 : 5 : 9. The largest amount is £84 more than the smallest amount. How much does the middle charity get?', 'R1.6 Q5a', charity, number(60, '£60'), 'The largest has 7 parts more than the smallest. Those 7 parts are the £84.', ratioModel(charity, [
-  { title: 'Line Third up with First', say: 'The largest share’s first 2 parts match the smallest share’s 2. The extra £84 is in its other parts, the ringed ones: 9 − 2 = 7 parts.', rows: ['9 − 2 = 7'], ratio: { ...extra(2, 2, 9, 0), note: '7 parts = £84' } },
-  { title: 'Find 1 part', say: 'Share the £84 equally between those 7 parts.', rows: ['84 ÷ 7 = 12'], ratio: { each: '12', note: '1 part = £12' } },
-  { title: 'The middle share', say: 'The middle charity has 5 parts, and each part is £12.', rows: ['5 × 12 = 60', '! The middle charity gets £60'], ratio: { rings: [whole(1, 5)], lit: [1] }, tags: [undefined, '£60'] },
+  { title: 'Compare the largest share with the smallest', say: 'The largest share has 9 parts and the smallest has 2, so the largest has 9 − 2 = 7 more parts.', rows: ['9 − 2 = 7'], ratio: { ...extra(2, 2, 9, 0), note: 'The largest has 7 more parts' } },
+  { title: 'Match the extra parts to the £84', say: 'Every part holds the same amount. The largest share’s first 2 parts match the smallest share’s 2, so they cancel out. The extra £84 must all be in the 7 extra parts.', rows: ['>0 7 parts = £84'], ratio: { ...extra(2, 2, 9, 0) } },
+  { title: 'Find 1 part', say: '7 parts are £84, so 1 part is 84 ÷ 7.', rows: ['84 ÷ 7 = 12'], ratio: { each: '12', note: '1 part = £12' } },
+  { title: 'Calculate the middle share', say: 'The middle charity has 5 parts, and each part is £12.', rows: ['5 × 12 = 60', '! The middle charity gets £60'], ratio: { rings: [whole(1, 5)], lit: [1] }, tags: [undefined, '£60'] },
 ]), slips(60, [[12, 'That’s 1 part. The middle charity has 5 parts.'], [108, 'That’s the largest share. The middle charity has 5 parts.'], [24, 'That’s the smallest share. The middle charity has 5 parts.'], [140, '£84 is the difference, 7 parts, not 3 parts. Find 1 part first: 84 ÷ 7.']])))
 pounds(practice(difference, 'The same school shares its money in the ratio 2 : 5 : 9, and 1 part is £12. How much money did the school raise in total?', 'R1.6 Q5b', { ...charity, each: '12' }, number(192, '£192'), 'Add up all the parts, then multiply by £12.', ratioModel({ ...charity, each: '12' }, [
   { title: 'Add up the parts', say: 'All the money is in the parts. Count the parts in all three bars.', rows: ['2 + 5 + 9 = 16'], ratio: { rings: [whole(0, 2), whole(1, 5), whole(2, 9)], note: '16 parts' } },
