@@ -55,7 +55,7 @@ export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boole
         return <g key={i} className={`ns-ratio__bar is-b${i % 3}${bar.name === 'Red' ? ' is-red' : ''}${match && !match.bars.includes(i) ? ' is-out' : ''}${!plain && frame.dim?.includes(i) ? ' is-dim' : ''}${frame.hide?.includes(i) ? ' is-hidden' : ''}`}>
           <text className="ns-ratio__name" x={barX - GAP} y={y + BAR_H / 2}>{bar.name}</text>
           {Array.from({ length: bar.parts }, (_, k) => <rect key={k} className={`ns-ratio__block${faded(i, k) ? ' is-faded' : ''}`} x={barX + k * block} y={y} width={block} height={BAR_H} rx="2" />)}
-          {frame.each && Array.from({ length: bar.parts }, (_, k) => <text key={k} className="ns-ratio__each" x={barX + (k + 0.5) * block} y={y + BAR_H / 2} fontSize={eachSize}>{frame.each}</text>)}
+          {frame.each && (!frame.eachIn || frame.eachIn.includes(i)) && Array.from({ length: bar.parts }, (_, k) => <text key={k} className="ns-ratio__each" x={barX + (k + 0.5) * block} y={y + BAR_H / 2} fontSize={eachSize}>{frame.each}</text>)}
           {frame.groups && Array.from({ length: frame.groups }, (_, k) => {
             // Every other group is shaded, so the equal groups read at a glance even on thin blocks.
             const size = bar.parts / frame.groups! * block, x = barX + k * size
