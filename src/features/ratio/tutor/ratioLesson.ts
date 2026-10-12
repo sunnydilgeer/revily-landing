@@ -235,7 +235,7 @@ practice(changing, 'Omar says, “After 8 adults leave and 4 children come in, t
 
 const concrete = bars(['Cement', 6], ['Sand', 15])
 const mix = worked(unitForm, 'A builder mixes cement and sand in the ratio 6 : 15. Write this ratio in the form 1 : n.', 'Cement : sand = 6 : 15. Write it in the form 1 : n.', 'R1.8 video + Q1', ratioModel(concrete, [
-  { title: 'Make 6 into 1', say: '1 : n means the first number is 1. To turn the 6 into 1, divide by 6. Do the same to the 15: share both bars into 6 equal groups.', rows: ['> Divide both by 6'], ratio: { groups: 6, note: '6 equal groups' } },
+  { title: 'In 1 : n the first number must be 1', say: '1 : n means the first number is 1. The first number is 6, and 6 ÷ 6 = 1, so divide by 6. Do the same to the 15 so the ratio stays the same: share both bars into 6 equal groups.', rows: ['> 6 ÷ 6 = 1, so divide both by 6'], ratio: { groups: 6, note: '6 equal groups' } },
   { title: 'One group', say: 'Divide both by 6: one group is 1 part of cement and two and a half parts of sand.', rows: ['6 ÷ 6 = 1', '15 ÷ 6 = 2.5', '! 1 : 2.5'], tags: ['1', '2.5'], ratio: { groups: 6, rings: [{ bar: 0, from: 0, to: 1 }, { bar: 1, from: 0, to: 2.5 }], lit: [0, 1], note: '1 group' } },
 ]), 'Our aim: make the first number 1, by dividing both numbers by it.')
 video(mix, media('unit-form', '6 : 15 in the form 1 : n', 'R1.8_Reducing_Ratios_To_The_Form_1_n.mp4', 104, [
@@ -249,14 +249,17 @@ video(mix, media('unit-form', '6 : 15 in the form 1 : n', 'R1.8_Reducing_Ratios_
   'For 1 : n, divide by the first number. For n : 1, divide by the second number. Do the same to both numbers.',
 ]))
 practice(unitForm, 'A fruit drink uses juice and water in the ratio 5 : 20. Write this ratio in the form 1 : n.', 'R1.8 Q2', null, ratio([1, 4]), 'The first number must become 1. Divide both numbers by 5.', boardModel([], [
-  { title: 'Divide both by 5', say: 'The first number must become 1, so divide both numbers by 5.', rows: ['5 ÷ 5 = 1', '20 ÷ 5 = 4', '! 1 : 4'] },
+  { title: 'In 1 : n the first number must be 1', say: 'The first number is 5, and 5 ÷ 5 = 1. So divide by 5, and divide the 20 by 5 too, so the ratio stays the same.', rows: ['> 5 ÷ 5 = 1, so divide both by 5'] },
+  { title: 'Divide both by 5', say: 'Divide the juice and the water by 5.', rows: ['5 ÷ 5 = 1', '20 ÷ 5 = 4', '! 1 : 4'] },
 ]), ratioSlips([1, 4], [[[1, 15], 'Divide, don’t subtract: 20 ÷ 5 = 4.'], [[4, 1], 'In 1 : n the first number is 1: 1 : 4.']]))
 const slabs = bars(['Grey', 14], ['Red', 4])
 practice(unitForm, 'A garden path uses grey slabs and red slabs in the ratio 14 : 4. Write this ratio in the form n : 1.', 'R1.8 Q3', slabs, ratio([3.5, 1]), 'This time the second number must become 1. Divide both numbers by 4.', ratioModel(slabs, [
-  { title: 'Divide both by 4', say: 'In n : 1 the second number is 1, so share both bars into 4 equal groups. Each group of grey has three and a half parts.', rows: ['14 ÷ 4 = 3.5', '4 ÷ 4 = 1', '! 3.5 : 1'], tags: ['3.5', '1'], ratio: { groups: 4, rings: [{ bar: 0, from: 0, to: 3.5 }, { bar: 1, from: 0, to: 1 }], lit: [0, 1], note: '1 group' } },
+  { title: 'In n : 1 the second number must be 1', say: 'The second number is 4, and 4 ÷ 4 = 1. So divide by 4, and divide the 14 by 4 too, so the ratio stays the same.', rows: ['> 4 ÷ 4 = 1, so divide both by 4'], ratio: { rings: [{ bar: 1, from: 0, to: 4 }], lit: [1] } },
+  { title: 'Divide both by 4', say: 'Share both bars into 4 equal groups. Each group of grey has three and a half parts.', rows: ['14 ÷ 4 = 3.5', '4 ÷ 4 = 1', '! 3.5 : 1'], tags: ['3.5', '1'], ratio: { groups: 4, rings: [{ bar: 0, from: 0, to: 3.5 }, { bar: 1, from: 0, to: 1 }], lit: [0, 1], note: '1 group' } },
 ]), ratioSlips([3.5, 1], [[[10, 1], 'Divide, don’t subtract: 14 ÷ 4 = 3.5.'], [[3, 1], '14 ÷ 4 is 3.5: 4 goes into 14 three times with 2 left, and 2 ÷ 4 = 0.5.']]))
 practice(unitForm, 'In a school the ratio of teachers to pupils is 3 : 100. Write this ratio in the form 1 : n. Give n correct to 1 decimal place.', 'R1.8 Q4a', null, ratio([1, 33.3]), 'Divide both numbers by 3, then round n to 1 decimal place.', boardModel([], [
-  { title: 'Divide both by 3', say: 'The first number must become 1, so divide both numbers by 3. 100 ÷ 3 doesn’t stop: the 3s go on for ever.', rows: ['3 ÷ 3 = 1', '> 100 ÷ 3 = 33.333…'] },
+  { title: 'In 1 : n the first number must be 1', say: 'The first number is 3, and 3 ÷ 3 = 1. So divide by 3, and divide the 100 by 3 too, so the ratio stays the same.', rows: ['> 3 ÷ 3 = 1, so divide both by 3'] },
+  { title: 'Divide both by 3', say: '100 ÷ 3 doesn’t stop: the 3s go on for ever.', rows: ['3 ÷ 3 = 1', '> 100 ÷ 3 = 33.333…'] },
   { title: 'Round to 1 decimal place', say: 'Keep one digit after the point. The next digit is 3, less than 5, so round down.', rows: ['! 1 : 33.3'] },
 ]), ratioSlips([1, 33.3], [[[1, 33.33], 'Give n to 1 decimal place: one digit after the point.'], [[1, 33.4], 'The next digit is 3, less than 5, so round down: 33.3.'], [[1, 97], 'Divide, don’t subtract: 100 ÷ 3.'], [[1, 33], 'Give n to 1 decimal place, not a whole number: 33.3.']]))
 practice(unitForm, 'In a school the ratio of teachers to pupils is 3 : 100. Another school has the same ratio and 600 pupils. How many teachers does it have?', 'R1.8 Q4b', null, number(18, '18 teachers'), 'Every 100 pupils need 3 teachers. How many lots of 100 are in 600?', boardModel([], [
@@ -264,7 +267,8 @@ practice(unitForm, 'In a school the ratio of teachers to pupils is 3 : 100. Anot
   { title: 'The teachers', say: 'Each lot of 100 pupils needs 3 teachers.', rows: ['6 × 3 = 18', '! 18 teachers'] },
 ]), slips(18, [[6, 'That’s how many lots of 100. Each lot needs 3 teachers.'], [200, 'That’s 600 ÷ 3. Every 100 pupils need 3 teachers: 600 ÷ 100 = 6 lots.'], [1800, 'Every 100 pupils need 3 teachers, not every pupil: 600 ÷ 100 = 6 lots.']]))
 practice(unitForm, 'A painter mixes white paint and blue paint in the ratio 8 : 36. Write this ratio in the form 1 : n.', 'R1.8 Q5a', null, ratio([1, 4.5]), 'The first number must become 1. Divide both numbers by 8.', boardModel([], [
-  { title: 'Divide both by 8', say: 'The first number must become 1, so divide both numbers by 8.', rows: ['8 ÷ 8 = 1', '36 ÷ 8 = 4.5', '! 1 : 4.5'] },
+  { title: 'In 1 : n the first number must be 1', say: 'The first number is 8, and 8 ÷ 8 = 1. So divide by 8, and divide the 36 by 8 too, so the ratio stays the same.', rows: ['> 8 ÷ 8 = 1, so divide both by 8'] },
+  { title: 'Divide both by 8', say: 'Divide the white and the blue by 8.', rows: ['8 ÷ 8 = 1', '36 ÷ 8 = 4.5', '! 1 : 4.5'] },
 ]), ratioSlips([1, 4.5], [[[1, 28], 'Divide, don’t subtract: 36 ÷ 8 = 4.5.'], [[1, 4], '36 ÷ 8 is 4.5: 8 goes into 36 four times with 4 left, and 4 ÷ 8 = 0.5.']]))
 practice(unitForm, 'The painter mixes white and blue paint in the ratio 1 : 4.5. She uses 12 litres of white paint. How much blue paint does she need?', 'R1.8 Q5b', null, number(54, '54 litres'), '1 litre of white needs 4.5 litres of blue. Multiply by 12.', boardModel([], [
   { title: 'Multiply by 12', say: 'Every 1 litre of white needs 4.5 litres of blue, and she uses 12 litres of white.', rows: ['12 × 4.5 = 54', '! 54 litres'] },
