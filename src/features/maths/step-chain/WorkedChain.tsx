@@ -48,6 +48,66 @@ export function stepNeed(box: HTMLElement) {
   return Math.min(box.scrollHeight, box.scrollHeight - stepFrom(box))
 }
 
+/** One step of a worked example, drawn out of sight at the card's width (see Rehearsal). */
+function RehearsedStep({ steps, layout, picture, pictureOnly, steady, revealed }: WorkedChainProps & { revealed: number }) {
+  const [lines, setLines] = useState<HTMLDivElement | null>(null)
+  const shown = picture?.(revealed)
+  return <div className="wc-rehearsal__step">
+    <WorkingWindow.Provider value={lines}>
+      {shown && <div className={`wc-picture${steady ? ' wc-picture--steady' : ''}`}>{shown}</div>}
+    </WorkingWindow.Provider>
+    <div className="wc-roll">
+      <div className="wc-roll__lines" ref={setLines} />
+      {!pictureOnly && <StepChain steps={steps} layout={layout} revealed={revealed} reduceMotion />}
+    </div>
+  </div>
+}
+
+/** What a worked example needs at its tallest: the window for one step (as stepNeed), all the working, and the picture. */
+export type ChainRoom = { need: number, full: number, picture: number }
+
+/**
+ * Every step of the worked example, drawn at once out of sight, to measure the room its tallest step needs. The
+ * lesson screen (lessonFrame.ts) sizes the diagram for that step from the opening screen on, so the diagram stays one
+ * size on every step instead of shrinking as the working or the picture grows (Sunny, 12 Oct).
+ */
+function Rehearsal({ onMeasure, ...chain }: WorkedChainProps & { onMeasure: (room: ChainRoom) => void }) {
+  const box = useRef<HTMLDivElement>(null)
+  const report = useRef(onMeasure)
+  report.current = onMeasure
+  useLayoutEffect(() => {
+    const element = box.current
+    if (!element || typeof ResizeObserver === 'undefined') return
+    const rolls = () => [...element.querySelectorAll<HTMLElement>('.wc-roll')]
+    const pictures = () => [...element.querySelectorAll<HTMLElement>('.wc-picture')]
+    const measure = () => {
+      const all = rolls()
+      report.current({
+        need: Math.max(0, ...all.map(stepNeed)),
+        full: Math.max(0, ...all.map(roll => roll.scrollHeight)),
+        picture: Math.max(0, ...pictures().map(picture => picture.offsetHeight)),
+      })
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    for (const roll of rolls()) for (const child of roll.children) observer.observe(child)
+    for (const picture of pictures()) observer.observe(picture)
+    document.fonts?.ready.then(measure)
+    return () => observer.disconnect()
+  }, [chain.steps.length])
+  return <div ref={box} className="wc-rehearsal" aria-hidden="true" inert>
+    {chain.steps.map((_, i) => <RehearsedStep key={i} {...chain} revealed={i + 1} />)}
+  </div>
+}
+
+type WorkedChainProps = {
+  steps: ChainStep[]
+  layout?: ChainLayout
+  picture?: (revealed: number) => ReactNode
+  pictureOnly?: boolean
+  steady?: boolean
+}
+
 /**
  * Every worked example has one layout (Sunny, 10 Oct): the diagram, which stays put, then the working window, then
  * small controls (back, dots and Next step). The working rolls like film credits: each step's lines roll into the
@@ -59,14 +119,10 @@ export function stepNeed(box: HTMLElement) {
  * <Working> (working.tsx); the rest of the picture is the diagram.
  * On a lesson's teaching screen, Next step moves to the bottom bar (see stepDriver.ts), so there is one button to press.
  * With `steady`, the picture always fills the card's width, so it is the same size on the opening screen as on every step.
+ * The window carries the room its tallest step needs (data-need, measured by Rehearsal) and all the working (data-full),
+ * and the picture its tallest height (data-tallest), so the lesson screen can size the diagram once for every step.
  */
-export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
-  steps: ChainStep[]
-  layout?: ChainLayout
-  picture?: (revealed: number) => ReactNode
-  pictureOnly?: boolean
-  steady?: boolean
-}) {
+export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: WorkedChainProps) {
   const [revealed, setRevealed] = useState(1)
   const { pace } = useStepPace()
   const drive = useContext(StepDriverContext)
@@ -76,6 +132,7 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
   const [lines, setLines] = useState<HTMLDivElement | null>(null)
   /** Lines handed to the window by the picture (<Working>). Watched in script: iPhone Safari didn't re-check a CSS :has(:empty) as they arrived, and left the window hidden (Sunny, 11 Oct). */
   const [hasLines, setHasLines] = useState(false)
+  const [room, setRoom] = useState<ChainRoom | null>(null)
   /** The student hasn't scrolled the window themselves: it follows the working as it grows. */
   const following = useRef(true)
   const opened = useRef(revealed)
@@ -167,9 +224,9 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
 
   return <figure ref={figure} className={`wc${pictureOnly ? ' wc--picture' : ''}`}>
     <WorkingWindow.Provider value={lines}>
-      {shown && <div className={`wc-picture${steady ? ' wc-picture--steady' : ''}`}>{shown}</div>}
+      {shown && <div className={`wc-picture${steady ? ' wc-picture--steady' : ''}`} data-tallest={room?.picture}>{shown}</div>}
     </WorkingWindow.Provider>
-    <div className="wc-roll" ref={roll} hidden={pictureOnly && !hasLines}>
+    <div className="wc-roll" ref={roll} hidden={pictureOnly && !hasLines} data-need={room?.need} data-full={room?.full}>
       <div className="wc-roll__lines" ref={setLines} />
       {!pictureOnly && <StepChain steps={steps} layout={layout} revealed={revealed} pace={pace} />}
     </div>
@@ -180,5 +237,7 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: {
         ? <button type="button" className="wc-next wc-next--again" aria-label="Watch the working again" onClick={() => setRevealed(1)}>↺ Again</button>
         : !drive && <button type="button" className="wc-next" onClick={() => setRevealed(revealed + 1)}>{nextLabel}</button>}
     </div>}
+    {total > 0 && <Rehearsal steps={steps} layout={layout} picture={picture} pictureOnly={pictureOnly} steady={steady}
+      onMeasure={next => setRoom(old => old && old.need === next.need && old.full === next.full && old.picture === next.picture ? old : next)} />}
   </figure>
 }
