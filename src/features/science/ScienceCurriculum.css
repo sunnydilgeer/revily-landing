@@ -12,7 +12,7 @@
 .cur-toc__subjects button:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
 .cur-toc__chapters .cur-toc__chapter { min-height: 52px; }
 
-@media (max-width: 799px) {
+@container (max-width: 800px) {
   .cur-toc__subjects { margin: 0 16px 10px; }
 }
 

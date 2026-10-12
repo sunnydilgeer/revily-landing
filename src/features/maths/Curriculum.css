@@ -1,6 +1,6 @@
 /* Curriculum: a compact contents page (chapters on the left, the chosen chapter's lessons on a line) */
 
-.cur { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; color: var(--rv-ink); }
+.cur { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; color: var(--rv-ink); container-type: inline-size; }
 .cur h1, .cur h2, .cur h3 { margin: 0; }
 .cur-kicker { margin: 0; color: var(--rv-muted); font-family: var(--rv-font-body); font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
 .cur-kicker--night { color: var(--rv-on-night-muted); }
@@ -116,7 +116,8 @@
 .cur-lesson__fold:focus-visible, .cur-sections button:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: -3px; }
 .cur-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-@media (max-width: 799px) {
+/* Stack by the page's own width, not the window's: with the sidebar showing, a mid-size window leaves too little room for two columns. */
+@container (max-width: 800px) {
   .cur-toc { grid-template-columns: minmax(0, 1fr); }
   /* Chapters become a strip you swipe along. */
   .cur-toc__chapters { margin: 0 -16px; overflow-x: auto; scrollbar-width: none; }
