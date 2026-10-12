@@ -60,5 +60,7 @@ export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
   steadyPictures?: boolean
   /** Pictures show half as big again (up to 600px wide instead of 400px), for lessons whose shapes are small. */
   largePictures?: boolean
+  /** A Graphs lesson: every card has one fixed graph slot, the same size and place on every screen (GraphSlot.tsx). */
+  graphCard?: boolean
   states: TutorMethodState[]
 }

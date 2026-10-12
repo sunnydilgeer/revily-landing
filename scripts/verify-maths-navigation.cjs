@@ -90,7 +90,8 @@ for (const renderer of ['src/features/written-methods/tutor/NumberSenseWorkedExa
 assert.ok(!stepChain.includes('FOLD_AFTER'), 'The working rolls rather than folding')
 assert.ok(workedChain.includes('function stepTop(') && workedChain.includes('STEP_START'), "The roll must bring the step's start into view, not just its last line")
 assert.ok(frameSource.includes('MIN_TEXT') && frameSource.includes('smallestText('), 'Shrinking a diagram must stop before its labels get unreadable')
-assert.ok(frameSource.includes('function fit(card') && frameSource.includes("'--rv-paper-grid-size'") && frameSource.includes('style.zoom') && frameSource.includes('MIN_ROLL'), 'Lesson cards must fit their working window and diagrams to the screen')
+assert.ok(frameSource.includes('function fit(card') && frameSource.includes('style.zoom') && frameSource.includes('MIN_ROLL'), 'Lesson cards must fit their working window and diagrams to the screen')
+assert.ok(frameSource.includes("classList.contains('rung-card--graph')) return false") && read('src/features/written-methods/tutor/GraphSlot.tsx').includes('export function useGraphCard('), 'A Graphs card keeps its one graph at one size: the lesson screen never resizes it')
 for (const view of ['src/features/written-methods/tutor/TutorMethodLessonView.tsx', 'src/features/number-types/NumberTypesLessonView.tsx', 'src/features/order-of-operations/variant-c/VariantCLessonView.tsx', 'src/features/place-value/tutor/PlaceValueLessonView.tsx']) {
   assert.ok(read(view).includes('icon aria-label="Back"'), `${view} must show Back as an icon`)
 }

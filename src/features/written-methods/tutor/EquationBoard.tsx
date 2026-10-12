@@ -1,7 +1,8 @@
 'use client'
 
 import { useId, useState, type ReactNode } from 'react'
-import { GraphVisual, fmt, balanced, useMostAcross } from './GraphPictures'
+import { GraphVisual, fmt, fillGrid } from './GraphPictures'
+import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 import { fractionText } from './TiltBoard'
@@ -36,8 +37,7 @@ function Stepper({ name, value, onDown, onUp, disabled, className }: { name: str
 }
 
 export function EquationBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
-  const grid = balanced(spec.grid, most)
+  const grid = fillGrid(spec.grid)
   const [y0, y1] = grid.y
   const startM = spec.rule?.m ?? 1, startC = spec.rule?.c ?? 0
   const [mi, setMi] = useState(Math.max(0, M_VALUES.indexOf(startM)))
@@ -65,9 +65,10 @@ export function EquationBoard({ spec, result, disabled, onChange }: { spec: Grap
   }
   const live = `${equationText(m, c)}: gradient ${fractionText(m * step, step).replace('−', 'minus ')}, crosses the y axis at ${fmt(c)}`
 
-  return <div ref={roomRef} className={`graph-board graph-board--equation${disabled ? ' is-disabled' : ''}`}>
-    <div className="graph-board__surface" role="group" aria-label={`The line ${live}. A grid with x from ${fmt(grid.x[0])} to ${fmt(grid.x[1])} and y from ${fmt(y0)} to ${fmt(y1)}.`}>
-      <GraphVisual frame={frame} mostAcross={most} live={{
+  const boardClass = `graph-board graph-board--equation${disabled ? ' is-disabled' : ''}`
+  return <div className={boardClass}>
+    <InGraphSlot className={boardClass}><div className="graph-board__surface" role="group" aria-label={`The line ${live}. A grid with x from ${fmt(grid.x[0])} to ${fmt(grid.x[1])} and y from ${fmt(y0)} to ${fmt(y1)}.`}>
+      <GraphVisual frame={frame} live={{
         draw: ({ px, py }) => {
           const at = (p: GraphPoint) => ({ x: px(p.x) + 0.5, y: py(p.y) + 0.5 })
           const arrow = (from: GraphPoint, to: GraphPoint, family: number, key: string) => {
@@ -84,7 +85,7 @@ export function EquationBoard({ spec, result, disabled, onChange }: { spec: Grap
           </>
         },
       }} />
-    </div>
+    </div></InGraphSlot>
     <div className="graph-board__tools">
       <Stepper name="m" className="is-m" value={<b className="graph-board__gradient">{fractionText(m * step, step)}</b>} disabled={disabled} onDown={() => set(mi - 1, c)} onUp={() => set(mi + 1, c)} />
       <Stepper name="c" className="is-c" value={<b className="is-y">{fmt(c)}</b>} disabled={disabled} onDown={() => set(mi, c - 1)} onUp={() => set(mi, c + 1)} />

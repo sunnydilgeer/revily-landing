@@ -154,5 +154,6 @@ export const tutorSimultaneousGraphsLesson: TutorMethodLesson = {
   id: 'L105', number: 105, title: 'Simultaneous equations by graph', level: 'GCSE Foundation',
   goal: 'Solve a pair of simultaneous equations by drawing both lines and reading where they cross, rearranging an equation into y = mx + c first if needed.',
   labels: { [read]: 'Where the lines cross', [draw]: 'Draw both, then read', [rearrange]: 'Rearrange first', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

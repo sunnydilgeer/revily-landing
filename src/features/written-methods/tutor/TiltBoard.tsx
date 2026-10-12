@@ -1,7 +1,8 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
-import { GraphVisual, UNIT, fmt, balanced, useMostAcross } from './GraphPictures'
+import { GraphVisual, fmt, squareOf, fillGrid } from './GraphPictures'
+import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -27,8 +28,7 @@ export function fractionText(up: number, across: number) {
 const same = (a: GraphPoint, b: GraphPoint) => a.x === b.x && a.y === b.y
 
 export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
-  const grid = balanced(spec.grid, most)
+  const grid = fillGrid(spec.grid)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const [ends, setEnds] = useState<[GraphPoint, GraphPoint]>(spec.ends ?? [{ x: 0, y: 0 }, { x: 2, y: 2 }])
   const [active, setActive] = useState<0 | 1>(1)
@@ -46,8 +46,8 @@ export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
     onChange?.(r.x === l.x ? '' : `${r.y - l.y}/${r.x - l.x}`)
   }
   function corner(event: PointerEvent<SVGSVGElement>): GraphPoint {
-    const box = event.currentTarget.getBoundingClientRect()
-    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / UNIT), y: y1 - Math.round((event.clientY - box.top - 0.5) / UNIT) }
+    const box = event.currentTarget.getBoundingClientRect(), square = squareOf(event.currentTarget, box)
+    return { x: x0 + Math.round((event.clientX - box.left - 0.5) / square), y: y1 - Math.round((event.clientY - box.top - 0.5) / square) }
   }
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (disabled) return
@@ -85,10 +85,11 @@ export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
   else readout = <>{up > 0 ? 'up' : 'down'} {Y(Math.abs(up))}, across {X(across)}: {Y(up)} ÷ {X(across)} = <b className="graph-board__gradient">{fractionText(up, across)}</b></>
   const live = across === 0 ? 'The line is straight up and down.' : `Across ${across}, ${up >= 0 ? 'up' : 'down'} ${Math.abs(up)}: gradient ${fractionText(up, across).replace('−', 'minus ')}`
 
-  return <div ref={roomRef} className={`graph-board graph-board--tilt${held ? ' is-held' : ''}${disabled ? ' is-disabled' : ''}`}>
-    <div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown}
+  const boardClass = `graph-board graph-board--tilt${held ? ' is-held' : ''}${disabled ? ' is-disabled' : ''}`
+  return <div className={boardClass}>
+    <InGraphSlot className={boardClass}><div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown}
       aria-label={`A line through two dots. Arrow keys move a dot; Enter switches dot. A grid with x from ${fmt(x0)} to ${fmt(x1)} and y from ${fmt(y0)} to ${fmt(y1)}.`} aria-describedby={`${id}-live`}>
-      <GraphVisual frame={frame} mostAcross={most} live={{
+      <GraphVisual frame={frame} live={{
         svg: disabled ? undefined : {
           onPointerDown: event => {
             event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId)
@@ -122,7 +123,7 @@ export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
           </>
         },
       }} />
-    </div>
+    </div></InGraphSlot>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
     <p className="graph-board__note graph-board__sum" aria-hidden="true">{readout}</p>
   </div>

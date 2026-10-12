@@ -182,5 +182,6 @@ export const tutorRealLifeGraphsLesson: TutorMethodLesson = {
   id: 'L108', number: 108, title: 'Real-life graphs', level: 'GCSE Foundation',
   goal: 'Read a conversion graph both ways, use the gradient as a rate of change, and read a fixed charge and a rate from a cost graph.',
   labels: { [convert]: 'Conversion graphs', [rates]: 'The gradient is a rate', [fixed]: 'Fixed charge plus a rate', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

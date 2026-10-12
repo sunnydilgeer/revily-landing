@@ -195,5 +195,6 @@ export const tutorLinesLesson: TutorMethodLesson = {
   id: 'L102', number: 102, title: 'Lines from coordinates', level: 'GCSE Foundation',
   goal: 'Draw lines across and up and down, fill in a table of values from a rule, and plot it as a straight line.',
   labels: { [straight]: 'Across and up-and-down lines', [table]: 'Table of values', [join]: 'Plot and join', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

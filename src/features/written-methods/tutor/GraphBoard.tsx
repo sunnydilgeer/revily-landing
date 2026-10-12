@@ -1,7 +1,8 @@
 'use client'
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel, squareOf, balanced, useMostAcross } from './GraphPictures'
+import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel, squareOf, fillGrid } from './GraphPictures'
+import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import { LineBoard } from './LineBoard'
 import { TiltBoard } from './TiltBoard'
@@ -113,8 +114,7 @@ function CurveSum({ text, x }: { text: string; x: number }) {
 }
 
 function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
-  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
-  const { mode } = spec, grid = balanced(spec.grid, most)
+  const { mode } = spec, grid = fillGrid(spec.grid)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const walk = mode === 'walk'
   const play = mode === 'explore' || mode === 'midpoint' || mode === 'rule'
@@ -211,10 +211,11 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
   const status = result === 'correct' || (mode === 'midpoint' && halfway) ? ' is-right' : result === 'incorrect' ? ' is-wrong' : ''
   const live = `${walk && stage === 'across' ? `Across ${fmt(dot?.x ?? 0)}` : dot ? `The dot is at ${said(dot)}` : 'No dot yet'}${mode === 'midpoint' && halfway ? '. Halfway!' : ''}`
 
-  return <div ref={roomRef} className={`graph-board graph-board--${mode}${held ? ' is-held' : ''}${disabled ? ' is-disabled' : ''}`}>
-    <div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown}
+  const boardClass = `graph-board graph-board--${mode}${held ? ' is-held' : ''}${disabled ? ' is-disabled' : ''}`
+  return <div className={boardClass}>
+    <InGraphSlot className={boardClass}><div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown}
       aria-label={`${walk ? 'Walk across, then up or down: arrow keys left and right go across, then up and down.' : 'Move the dot with the arrow keys.'} A grid with x from ${fmt(x0)} to ${fmt(x1)} and y from ${fmt(y0)} to ${fmt(y1)}.`} aria-describedby={`${id}-live`}>
-      <GraphVisual frame={frame} mostAcross={most} live={{
+      <GraphVisual frame={frame} live={{
         svg: disabled ? undefined : {
           onPointerDown: event => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); pressed.current = true; setHeld(true); moveTo(corner(event)) },
           onPointerMove: event => { if (pressed.current) moveTo(corner(event)) },
@@ -299,7 +300,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
           return parts
         },
       }} />
-    </div>
+    </div></InGraphSlot>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
     {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true">{spec.reads ? <><span className="is-x">{spec.reads[0]}{axisText(sx, dot.x)}</span> is <span className="is-y">{spec.reads[1]}{axisText(sy, dot.y)}</span></> : curve && spec.curveText ? <CurveSum text={spec.curveText} x={dot.x} /> : <RuleSum rule={rule} x={dot.x} />}</p>}
     {mode === 'midpoint' && <p className={`graph-board__note${halfway ? ' is-right' : ''}`} aria-hidden="true">{halfway ? 'Halfway: both halves match' : 'Drag the dot until both halves match'}</p>}

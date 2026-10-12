@@ -1,4 +1,4 @@
-import type { GraphPoint } from '../../written-methods/tutor/methodWorking'
+import { GRAPH_SQUARES, type GraphPoint } from '../../written-methods/tutor/methodWorking'
 import { sameFormula } from '../../number-types/lessonMath'
 import { latex } from '../../inequalities/tutor/inequalityWorkings'
 import { answerMove, bracket, mark, pt, shared, type GraphGrid, type GraphMove } from '../../straight-line-graphs/tutor/graphWorkings'
@@ -216,8 +216,14 @@ export function lineSlips(mTop: number, mBottom: number, c: number) {
   }
 }
 
-/** A grid for an equation from two points: both points and (0, c) on it, a square spare all round. */
+/**
+ * A grid for an equation from two points: both points and (0, c) on it, a square spare all round. Points too far
+ * apart up and down for the graph's 11 squares (GRAPH_SQUARES) put the y axis in 2s or 5s, so it still fits.
+ */
 export function gridFor(points: GraphPoint[], c: number, extra: GraphGrid['lines'] = []): GraphGrid {
   const xs = [...points.map(p => p.x), 0], ys = [...points.map(p => p.y), c, 0]
-  return { x: [Math.min(...xs) - 1, Math.max(...xs) + 1], y: [Math.min(...ys) - 1, Math.max(...ys) + 1], lines: extra, points: points.map(p => ({ ...p, at: -1 })) }
+  const low = Math.min(...ys) - 1, high = Math.max(...ys) + 1
+  const yStep = [1, 2, 5, 10].find(step => Math.ceil(high / step) - Math.floor(low / step) <= GRAPH_SQUARES) ?? 10
+  const y: [number, number] = [Math.floor(low / yStep) * yStep, Math.ceil(high / yStep) * yStep]
+  return { x: [Math.min(...xs) - 1, Math.max(...xs) + 1], y, ...(yStep > 1 && { yStep }), lines: extra, points: points.map(p => ({ ...p, at: -1 })) }
 }

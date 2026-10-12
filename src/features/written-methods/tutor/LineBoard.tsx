@@ -1,7 +1,8 @@
 'use client'
 
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { GraphVisual, UNIT, fmt, squareOf, balanced, useMostAcross } from './GraphPictures'
+import { GraphVisual, UNIT, fmt, squareOf, fillGrid } from './GraphPictures'
+import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
 
@@ -29,8 +30,7 @@ export const lineName = (p: GraphPoint, q: GraphPoint) => p.y === q.y ? `y = ${f
 const same = (a: GraphPoint, b: GraphPoint) => a.x === b.x && a.y === b.y
 
 export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
-  const { ref: roomRef, most } = useMostAcross<HTMLDivElement>()
-  const grid = balanced(spec.grid, most)
+  const grid = fillGrid(spec.grid)
   const [x0, x1] = grid.x, [y0, y1] = grid.y
   const play = !spec.line
   const [taps, setTaps] = useState<GraphPoint[]>([])
@@ -84,17 +84,18 @@ export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
   const status = result === 'correct' ? 'is-right' : result === 'incorrect' ? 'is-wrong' : ''
   const live = drawn ? `A line through (${fmt(drawn.from.x)}, ${fmt(drawn.from.y)}) and (${fmt(drawn.to.x)}, ${fmt(drawn.to.y)})${lineName(drawn.from, drawn.to) ? `: ${lineName(drawn.from, drawn.to)}` : ''}` : `${taps.length} of 2 points`
 
-  return <div ref={roomRef} className={`graph-board graph-board--line${disabled ? ' is-disabled' : ''}${status ? ` ${status}` : ''}`}>
-    <div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown} onBlur={() => setCursor(null)}
+  const boardClass = `graph-board graph-board--line${disabled ? ' is-disabled' : ''}${status ? ` ${status}` : ''}`
+  return <div className={boardClass}>
+    <InGraphSlot className={boardClass}><div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown} onBlur={() => setCursor(null)}
       aria-label={`Tap two points to draw a line through them: arrow keys move, Enter taps. A grid with x from ${fmt(x0)} to ${fmt(x1)} and y from ${fmt(y0)} to ${fmt(y1)}.`} aria-describedby={`${id}-live`}>
-      <GraphVisual frame={frame} mostAcross={most} live={{
+      <GraphVisual frame={frame} live={{
         svg: disabled ? undefined : {
           onPointerDown: event => { event.preventDefault(); setCursor(null); tap(corner(event)) },
           style: { touchAction: 'none', cursor: 'pointer' },
         },
         draw: ({ px, py }) => cursor && !disabled ? <circle className="graph-board__cursor" cx={px(cursor.x) + 0.5} cy={py(cursor.y) + 0.5} r="11" /> : null,
       }} />
-    </div>
+    </div></InGraphSlot>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
     {!disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{taps.length === 2 ? 'Tap again to move a point' : taps.length === 1 ? 'Now tap a second point' : 'Tap two points to draw a line'}</p>

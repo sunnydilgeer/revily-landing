@@ -376,6 +376,8 @@ export type GraphTable = { xs: number[]; ys: (number | null)[]; ask?: number; li
  *  square is numbered (from `start`), `clock` writes hours as 09:30, and `name` is written at the axis's end instead of
  *  x or y. With a scale, every coordinate in the frame is in these units. */
 export type AxisScale = { per: number; start: number; every?: number; clock?: boolean; name: string }
+/** How many squares across (and up) every graph is on a Graphs lesson's card (GraphSlot.tsx): grids are widened to it. */
+export const GRAPH_SQUARES = 11
 export type GraphFrame = {
   /** The grid runs from x[0] to x[1] across and y[0] to y[1] up, one square per unit. */
   x: [number, number]
@@ -383,6 +385,9 @@ export type GraphFrame = {
   /** `segment` draws only from one point to the other (a midpoint question), not edge to edge. */
   lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean; wrong?: boolean }[]
   scale?: { x: AxisScale; y: AxisScale }
+  /** The y axis counts in this many a square (2, 5), for a line whose points are too far apart for one a square
+   *  (graphs lesson 3). The axes still cross at 0; a point between two numbers is drawn between the lines. */
+  yStep?: number
   /** Curves (graphs lesson 6): the rule's numbers [constant, x, x², x³], drawn smooth from x = `from` to x = `to`. */
   curves?: { coeffs: number[]; from: number; to: number; label?: string; at: number; answer?: boolean }[]
   /** A table of values above the grid (graphs lesson 2): the x row amber, the y row biro blue. A null y is an empty
