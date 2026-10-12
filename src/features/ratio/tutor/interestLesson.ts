@@ -92,10 +92,12 @@ const multiplierMove = (change: number, rise: boolean, say: string): BoardMove =
 /* ---------- Rung 1: simple interest (R5.1) ---------- */
 
 const savings = worked(simple, 'Mia puts £800 into a savings account. The account pays 5% simple interest per year. How much money is in the account after 3 years?', '£800 at 5% simple interest. How much after 3 years?', 'R5.1 video + Q1', barsModel(years(800, [840, 880, 920]), [
-  { title: 'Interest for 1 year', say: 'Simple interest is the same every year, always worked out on the ORIGINAL £800. Find 1%, then multiply by 5.', rows: ['800 ÷ 100 = 8', '5 × 8 = 40 each'] },
-  { title: 'Interest for 3 years', say: '3 years of £40 each.', rows: ['3 × 40 = 120 total'] },
-  { title: 'Add it on', say: 'Add the interest to the original. Each year is £40 more: £840, £880, £920.', rows: ['800 + 120 = 920', '! £920'], reach: 3 },
-]), 'Our aim: find 1 year’s interest on the original, multiply by the years, then add it on.')
+  { title: 'Calculate 1% of £800', say: 'Simple interest is always worked out on the ORIGINAL £800. Divide by 100 to find 1%.', rows: ['1% = £800 ÷ 100 = £8'] },
+  { title: 'Calculate the interest for 1 year', say: '5% is 5 lots of 1%. Simple interest is the same every year.', rows: ['5% = £8 × 5 = £40', '>0 the same £40 is added every year'], reach: 1 },
+  { title: 'Calculate the interest for 3 years', say: '3 years of £40.', rows: ['£40 × 3 = £120'], reach: 3 },
+  { title: 'Add the interest to the £800', say: 'Add the interest to the original £800.', rows: ['£800 + £120 = £920', '! Money in the account after 3 years = £920'] },
+  { title: 'Check it makes sense', say: 'Go year by year: £40 is added each year.', rows: ['£800 + £40 + £40 + £40 = £920 ✓'] },
+]), 'Our aim: calculate 1 year’s interest on the original, multiply by the years, then add it on.')
 video(savings, media('simple', '£800 at 5% simple interest for 3 years', 'R5.1_Simple_Interest.mp4', 96, [
   'A savings account: Mia saves £800 at 5% simple interest per year. How much is there after 3 years?',
   'What is simple interest? Interest is extra money the bank gives you for saving. SIMPLE interest: the same amount is added every year, and it is always worked out on the ORIGINAL £800. We want the total after 3 years.',
@@ -107,36 +109,42 @@ video(savings, media('simple', '£800 at 5% simple interest for 3 years', 'R5.1_
   'Well done: find the % of the ORIGINAL, multiply by the number of years, and add it on. The answer is £920.',
 ]))
 pounds(practice(simple, '£500 is invested at 4% simple interest per year. How much interest is earned in 1 year?', 'R5.1 Q2', number(20, '£20'), 'Find 1% of £500, then multiply by 4.', boardModel([], [
-  { title: 'Find 1%', say: 'Divide by 100 to find 1% of £500.', rows: ['500 ÷ 100 = 5'] },
-  { title: 'Multiply by 4', say: '4% is 4 lots of 1%.', rows: ['4 × 5 = 20', '! £20'] },
+  { title: 'Calculate 1% of £500', say: 'Divide by 100 to find 1% of £500.', rows: ['1% = £500 ÷ 100 = £5'] },
+  { title: 'Calculate the interest for 1 year', say: '4% is 4 lots of 1%.', rows: ['4% = £5 × 4 = £20', '! Interest for 1 year = £20'] },
 ]), slips(20, [[520, 'That’s the total in the account. The question asks for the interest.'], [125, '4% is 4 lots of 1%: 1% of £500 is £5, so 4 × 5.'], [200, '4% of £500 is £20: 1% is £5, not £50.']])))
 pounds(practice(simple, 'Jay borrows £1200 at 6% simple interest per year. He pays it back after 2 years. How much does he pay back in total?', 'R5.1 Q3', number(1344, '£1344'), 'Find the interest for 1 year, double it, then add the £1200.', barsModel(years(1200, [1272, 1344]), [
-  { title: 'Interest for 1 year', say: 'Simple interest is on the original £1200 every year. 1% is £12, so 6% is 6 × 12.', rows: ['1200 ÷ 100 = 12', '6 × 12 = 72 each'] },
-  { title: 'Interest for 2 years', say: '2 years of £72 each.', rows: ['2 × 72 = 144 total'] },
-  { title: 'Add it on', say: 'He pays back the £1200 and the interest.', rows: ['1200 + 144 = 1344', '! £1344'], reach: 2 },
+  { title: 'Calculate 1% of £1200', say: 'Simple interest is always worked out on the ORIGINAL £1200. Divide by 100 to find 1%.', rows: ['1% = £1200 ÷ 100 = £12'] },
+  { title: 'Calculate the interest for 1 year', say: '6% is 6 lots of 1%. Simple interest is the same every year.', rows: ['6% = £12 × 6 = £72', '>0 the same £72 is added every year'], reach: 1 },
+  { title: 'Calculate the interest for 2 years', say: '2 years of £72.', rows: ['£72 × 2 = £144'], reach: 2 },
+  { title: 'Add the interest to the £1200', say: 'Add the interest to the original £1200.', rows: ['£1200 + £144 = £1344', '! Total paid back = £1344'] },
+  { title: 'Check it makes sense', say: 'Go year by year: £72 is added each year.', rows: ['£1200 + £72 + £72 = £1344 ✓'] },
 ]), slips(1344, [[144, 'That’s the interest. He pays back the £1200 too.'], [1272, 'That’s 1 year. He borrows for 2 years: 2 × 72.'], [1348.32, 'Simple interest is on the original £1200 every year: £72 each year.']])))
 pounds(practice(simple, 'Priya saves £2500 at 3% simple interest per year. How much is in the account after 4 years?', 'R5.1 Q4a', number(2800, '£2800'), 'Find 1 year’s interest, multiply by 4, then add the £2500.', barsModel(years(2500, [2575, 2650, 2725, 2800]), [
-  { title: 'Interest for 1 year', say: 'Find 1% of £2500, then multiply by 3.', rows: ['2500 ÷ 100 = 25', '3 × 25 = 75 each'] },
-  { title: 'Interest for 4 years', say: '4 years of £75 each.', rows: ['4 × 75 = 300 total'] },
-  { title: 'Add it on', say: 'Add the interest to the original £2500.', rows: ['2500 + 300 = 2800', '! £2800'], reach: 4 },
+  { title: 'Calculate 1% of £2500', say: 'Simple interest is always worked out on the ORIGINAL £2500. Divide by 100 to find 1%.', rows: ['1% = £2500 ÷ 100 = £25'] },
+  { title: 'Calculate the interest for 1 year', say: '3% is 3 lots of 1%. Simple interest is the same every year.', rows: ['3% = £25 × 3 = £75', '>0 the same £75 is added every year'], reach: 1 },
+  { title: 'Calculate the interest for 4 years', say: '4 years of £75.', rows: ['£75 × 4 = £300'], reach: 4 },
+  { title: 'Add the interest to the £2500', say: 'Add the interest to the original £2500.', rows: ['£2500 + £300 = £2800', '! Money in the account after 4 years = £2800'] },
+  { title: 'Check it makes sense', say: 'Go year by year: £75 is added each year.', rows: ['£2500 + £75 + £75 + £75 + £75 = £2800 ✓'] },
 ]), slips(2800, [[300, 'That’s the interest. Add the £2500 too.'], [2575, 'That’s 1 year. Multiply the £75 by 4 years.'], [2500 * 1.03 ** 4, 'Simple interest is on the original £2500 every year: £75 each year.']])))
 practice(simple, 'Priya earns £75 interest each year. How many years will it take for the interest to reach £450?', 'R5.1 Q4b', number(6, '6 years'), 'Divide the target by the interest each year.', boardModel([], [
-  { title: 'Divide by each year', say: 'Each year adds £75. How many lots of £75 make £450?', rows: ['450 ÷ 75 = 6', '! 6 years'] },
+  { title: 'Calculate the number of years', say: 'Each year adds £75. How many lots of £75 make £450?', rows: ['£450 ÷ £75 = 6', '! 6 years'] },
 ]), slips(6, [[150, 'Divide by the £75 earned each year, not by the 3%.'], [5, '5 years earns 5 × 75 = £375. 450 ÷ 75 = 6.']]))
 percent(practice(simple, 'An account pays simple interest. £1500 grows to £1680 in 3 years. Work out the interest rate per year.', 'R5.1 Q5a', number(4, '4%'), 'Find the total interest, then the interest each year, then write it as a % of £1500.', boardModel([], [
-  { title: 'Interest each year', say: 'Find the total interest, then share it over the 3 years.', rows: ['1680 − 1500 = 180 total', '180 ÷ 3 = 60 each'] },
-  { title: 'As a % of £1500', say: 'Divide by the original £1500, then multiply by 100.', rows: ['60 ÷ 1500 × 100 = 4', '! 4%'] },
+  { title: 'Calculate the total interest', say: 'The difference between what it grew to and the original.', rows: ['£1680 − £1500 = £180'] },
+  { title: 'Calculate the interest for 1 year', say: 'Share the interest over the 3 years.', rows: ['£180 ÷ 3 = £60'] },
+  { title: 'Write the interest as a fraction of the £1500', say: 'The rate compares 1 year’s interest with the original £1500.', rows: ['interest ÷ original = {60|1500}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{60|1500} × 100 = 4', '! Interest rate = 4% per year'] },
 ]), slips(4, [[12, 'That’s the interest over all 3 years. Divide by 3 first: £60 each year.'], [60, 'That’s the interest each year in pounds. Write it as a % of £1500.'], [60 / 1680 * 100, 'Divide by the original £1500, not £1680.']])))
 pounds(practice(simple, 'The account pays £60 interest each year on £1500. How much would be in the account after 10 years?', 'R5.1 Q5b', number(2100, '£2100'), '10 years of £60 each, then add the original.', boardModel([], [
-  { title: 'Interest for 10 years', say: '10 years of £60 each.', rows: ['10 × 60 = 600 total'] },
-  { title: 'Add it on', say: 'Add the interest to the original £1500.', rows: ['1500 + 600 = 2100', '! £2100'] },
+  { title: 'Calculate the interest for 10 years', say: '10 years of £60.', rows: ['£60 × 10 = £600'] },
+  { title: 'Add the interest to the £1500', say: 'Add the interest to the original £1500.', rows: ['£1500 + £600 = £2100', '! Money in the account after 10 years = £2100'] },
 ]), slips(2100, [[600, 'That’s the interest. Add the £1500 too.'], [1500 * 1.04 ** 10, 'Simple interest is £60 every year: 10 × 60, then add £1500.'], [16800, 'The interest is £60 a year on the £1500: 1500 + 10 × 60.']])))
 practice(simple, 'Ben says, “With simple interest, the interest I get in year 2 is bigger than in year 1, because I have more money.” Is Ben correct?', 'R5.1 Q5c', choose(
   'No: simple interest is always on the original amount, so it is the same every year',
   ['Yes: there is more money in year 2', 'That’s compound interest. Simple interest is always worked out on the original amount.'],
   ['No: the interest gets smaller each year', 'It stays the same: the same % of the same original amount.'],
 ), 'Think about what simple interest is worked out on.', boardModel([], [
-  { title: 'The same every year', say: 'Simple interest is always worked out on the ORIGINAL amount. Mia’s £800 at 5% earns £40 in year 1 and £40 again in year 2.', rows: ['800 ÷ 100 × 5 = 40', '> year 2: still £40', '! Ben is wrong'] },
+  { title: 'The same every year', say: 'Simple interest is always worked out on the ORIGINAL amount. Mia’s £800 at 5% earns £40 in year 1 and £40 again in year 2.', rows: ['1% = £800 ÷ 100 = £8', '5% = £8 × 5 = £40', '> year 2: still £40', '! Ben is wrong'] },
 ], 'Why'))
 
 /* ---------- Rung 2: compound growth (R5.2) ---------- */
