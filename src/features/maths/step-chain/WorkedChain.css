@@ -1,5 +1,5 @@
 /* A step chain inside a lesson card. Tokens come from src/ui/revily-tokens.css. */
-.wc { margin: 4px 0 0; display: grid; gap: 14px; }
+.wc { position: relative; margin: 4px 0 0; display: grid; gap: 14px; }
 .wc-picture { display: flex; justify-content: center; }
 /* A steady picture fills the width on every step, the opening screen too, so it never changes size. */
 .wc-picture--steady > * { flex: 1; min-width: 0; }
@@ -45,3 +45,6 @@
 .wc-picture:has(> .ns-visual:empty) { display: none; }
 /* A working drawn wholly as its picture (no lines handed to the window) has no window: WorkedChain.tsx sets `hidden`. */
 .wc-roll[hidden] { display: none; }
+/* Every step's working drawn out of sight, at the window's width, to measure the tallest step (Rehearsal in WorkedChain.tsx).
+   It takes no room and never adds to the card's scrolling. */
+.wc-rehearsal { position: absolute; inset: 0 0 auto; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; }

@@ -69,11 +69,20 @@ function fit(card: HTMLElement) {
   // A worked example's working rolls in its own window (WorkedChain.tsx). The window gives way first, but never below
   // what the step on screen needs, so none of the step's lines are hidden (Sunny, 10 Oct); short of that the diagram
   // shrinks to make room, and only then does the window get shorter still. It grows back first when there is room.
+  // The diagram is sized once for the worked example's tallest step (Sunny, 12 Oct: the bars shrank on the last steps
+  // as the working grew). WorkedChain.tsx measures every step up front, so the window keeps its room on every step, and
+  // on the opening screen the diagram already leaves the room the later steps will need (`ahead`).
   const roll = card.querySelector<HTMLElement>('.wc-roll')
-  let short = 0
+  let short = 0, ahead = 0
+  const tallest = Number(roll?.dataset.need) || 0
+  const eventual = Math.min(Number(roll?.dataset.full) || 0, Math.max(MIN_ROLL, tallest))
+  if (roll && !roll.offsetParent && eventual) {
+    // No working yet (a picture-only working before its first step): the window and its gap are still to come.
+    ahead = eventual + (parseFloat(getComputedStyle(roll.parentElement!).rowGap) || 0)
+  }
   if (roll && roll.offsetParent) {
     const height = roll.clientHeight, capped = roll.style.maxHeight !== ''
-    const keep = Math.max(MIN_ROLL, stepNeed(roll))
+    const keep = Math.max(MIN_ROLL, stepNeed(roll), tallest)
     if (over > 0 && height > keep) {
       roll.style.maxHeight = `${Math.max(keep, Math.floor(height - over - 2))}px`
       return true
@@ -85,8 +94,15 @@ function fit(card: HTMLElement) {
       return true
     }
     if (capped) short = Math.max(0, Math.min(roll.scrollHeight, keep) - height)
+    ahead = Math.max(0, eventual - height)
   }
-  if (diagramFits(card, over + short)) return true
+  // A picture that grows on a later step (a row added) leaves room for that too, at its present zoom.
+  const picture = card.querySelector<HTMLElement>('.wc-picture[data-tallest]')
+  if (picture) {
+    const zoom = parseFloat(picture.style.zoom) || 1
+    ahead += Math.max(0, Number(picture.dataset.tallest) * zoom - picture.getBoundingClientRect().height)
+  }
+  if (diagramFits(card, over + Math.max(short, ahead))) return true
   // The diagram can't give any more. Missing lines are worse than a card that scrolls a little (Sunny, 10 Oct), so
   // the window still shows the whole step and the card scrolls instead.
   if (roll && short > 0) {
@@ -120,9 +136,11 @@ function diagramFits(card: HTMLElement, over: number) {
     return true
   }
   const candidates = SHRINKABLE.flatMap(([selector, floor]) => [...card.querySelectorAll<HTMLElement>(selector)]
-    // A box holding a worked example's working window is not a diagram: its picture (.wc-picture) is.
-    .filter(el => !el.querySelector(KEEP_SIZE) && !el.closest(KEEP_SIZE) && !el.querySelector('.wc-roll'))
-    .map(el => ({ el, floor, height: el.getBoundingClientRect().height })))
+    // A box holding a worked example's working window is not a diagram: its picture (.wc-picture) is. Nor is anything
+    // in a worked example's out-of-sight rehearsal (WorkedChain.tsx).
+    .filter(el => !el.querySelector(KEEP_SIZE) && !el.closest(KEEP_SIZE) && !el.querySelector('.wc-roll') && !el.closest('.wc-rehearsal'))
+    // A worked example's picture counts at its tallest step's height (data-tallest, WorkedChain.tsx).
+    .map(el => ({ el, floor, height: Math.max(el.getBoundingClientRect().height, Number(el.dataset.tallest) * (parseFloat(el.style.zoom) || 1) || 0) })))
   const shrunk = candidates.find(c => c.el.style.zoom)
   const target = shrunk ?? candidates.sort((a, b) => b.height - a.height)[0]
   if (!target || target.height < 120 && !shrunk) return false
@@ -163,7 +181,7 @@ export function useLessonFrame(root: HTMLElement | null) {
       if (typing instanceof HTMLInputElement && root.contains(typing)) window.requestAnimationFrame(() => typing.scrollIntoView({ block: 'nearest' }))
     }
     const changes = new MutationObserver(schedule)
-    changes.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] })
+    changes.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style', 'data-need', 'data-full', 'data-tallest'] })
     const resize = new ResizeObserver(schedule)
     resize.observe(root)
     root.addEventListener('scroll', schedule, true)
