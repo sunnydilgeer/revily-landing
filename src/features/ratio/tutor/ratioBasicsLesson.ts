@@ -111,15 +111,16 @@ practice(fractions, 'At an animal shelter the ratio of cats to dogs is 2 : 7. Wh
   { title: 'Write the cats as a fraction of all the animals', say: 'Cats are 2 of the 9 parts.', rows: ['! {2|9} are cats'], ratio: { rings: [whole(0, 2)], lit: [0] } },
 ]))
 practice(fractions, 'In a choir the ratio of boys to girls is 5 : 3. There are how many times as many girls as boys? Give a fraction.', 'R1.1 Q3', true, fraction('3/5'), '“As many as” compares the two parts: girls over boys.', ratioModel(bars(['Boys', 5], ['Girls', 3]), [
-  { title: 'Compare the girls with the boys', say: 'This compares girls with boys, so no total: put the girls’ number over the boys’ number.', rows: ['! {3|5} as many girls as boys'], ratio: { lit: [1] } },
+  { title: 'Compare the girls with the boys', say: 'This compares girls with boys, so no total: put the girls’ number over the boys’ number.', rows: ['! {3|5} as many girls as boys'], tags: ['5', '3'], ratio: { lit: [1] } },
 ]))
 practice(fractions, 'A drink is made from juice and water in the ratio 1 : 4. What fraction of the drink is water?', 'R1.1 Q4', true, fraction('4/5'), 'The whole drink is 1 + 4 parts.', ratioModel(bars(['Juice', 1], ['Water', 4]), [
   { title: 'Add the parts', say: 'The whole drink is 1 + 4 parts.', rows: ['1 + 4 = 5'], tags: ['1', '4'], ratio: { note: '5 parts in total' } },
   { title: 'Write the water as a fraction of the drink', say: 'Water is 4 of the 5 parts.', rows: ['! {4|5} of the drink is water'], ratio: { rings: [whole(1, 4)], lit: [1] } },
 ]))
 practice(fractions, 'In a school the ratio of students with brown hair to students with blonde hair is 3 : 5. There are 320 students. How many have brown hair?', 'R1.1 Q5', true, number(120, '120 students'), 'Brown hair is 3/8 of the students.', ratioModel(bars(['Brown', 3], ['Blonde', 5]), [
-  { title: 'The fraction', say: 'There are 3 + 5 = 8 parts, so 3/8 of the students have brown hair.', rows: ['3 + 5 = 8'], ratio: { rings: [whole(0, 3)], note: '3/8 have brown hair' } },
-  { title: 'Find 3/8 of 320', say: 'Divide by 8, then multiply by 3.', rows: ['320 ÷ 8 = 40', '40 × 3 = 120', '! 120 students'], ratio: { each: '40', lit: [0] } },
+  { title: 'The fraction', say: 'There are 3 + 5 = 8 parts, so 3/8 of the students have brown hair.', rows: ['3 + 5 = 8'], tags: ['3', '5'], ratio: { rings: [whole(0, 3)], note: '3/8 have brown hair' } },
+  { title: 'Calculate each part', say: 'The 320 students are shared into 8 equal parts.', rows: ['320 ÷ 8 = 40'], ratio: { each: '40' } },
+  { title: 'Calculate the students with brown hair', say: 'Brown hair is 3 parts, and each part is 40.', rows: ['3 × 40 = 120', '! Students with brown hair = 120'], ratio: { each: '40', lit: [0] } },
 ]), slips(120, [[200, 'That’s the blonde students. The question asks about brown hair.'], [40, 'That’s 1 part. Brown hair is 3 parts.'], [192, 'Brown is 3/8 of the students, not 3/5: there are 3 + 5 = 8 parts.']]))
 
 /* ---------- Rung 2: simplifying (R1.2) ---------- */
