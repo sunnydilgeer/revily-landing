@@ -293,5 +293,6 @@ export const tutorGradientLesson: TutorMethodLesson = {
   id: 'L103', number: 103, title: 'Gradient and y = mx + c', level: 'GCSE Foundation',
   goal: 'Find the gradient of a straight line from a graph or from two points, and its equation y = mx + c from a graph, from two points or by rearranging, and draw a line from its equation.',
   labels: { [fromGraph]: 'Gradient from a graph', [sign]: 'Up or down', [fromPoints]: 'Gradient from two points', [lineGraph]: 'y = mx + c from a graph', [linePoints]: 'y = mx + c from two points', [rearrange]: 'Rearranging to y = mx + c', [drawLine]: 'Drawing from y = mx + c', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

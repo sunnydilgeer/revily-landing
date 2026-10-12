@@ -12,13 +12,10 @@ import { stepNeed } from './step-chain/WorkedChain'
 /** Diagrams that may shrink to fit, with how small each may go: pictures most, worked working least (it is text). */
 const SHRINKABLE: [string, number][] = [['.wc-picture', 0.55], ['.pvb-stage.ns-visual', 0.6], ['.pvb-stage', 0.8]]
 /**
- * Boards students drag on keep their size: their touch maths assumes it. Graphs are never zoomed either: one on the
- * card's paper shrinks with the paper, and while it is still lining up (or draws its own grid) it is left as it is.
+ * Boards students drag on keep their size: their touch maths assumes it. Graphs are never zoomed either: a Graphs
+ * lesson's card holds its graph at one size (GraphSlot.tsx) and is left alone (fit).
  */
 const KEEP_SIZE = '.angle-board, .graph-board, .ns-graph__picture'
-/** The smallest square of squared paper a graph may shrink to, and the least share of its usual square it keeps. */
-const MIN_SQUARE = 24
-const MIN_SHARE = 0.6
 /**
  * The most one adjustment may shrink by. A step change can overflow for a moment while the old picture is still
  * there; small steps, each measured afresh, settle on the right size instead of overshooting on that moment.
@@ -58,13 +55,13 @@ function overflowOf(card: HTMLElement) {
 }
 
 /**
- * Makes a card's content fit the screen, so it rarely scrolls. A worked example's working window shrinks first. A
- * graph is drawn square for square on the card's
- * squared paper, so the paper's squares shrink (or grow back) and the graph follows them (GraphPictures.tsx realigns
- * on resize). Any other diagram is scaled with CSS zoom, never below its floor or past readable text (MIN_TEXT).
- * Returns true when it changed something.
+ * Makes a card's content fit the screen, so it rarely scrolls. A worked example's working window shrinks first; then
+ * the diagram is scaled with CSS zoom, never below its floor or past readable text (MIN_TEXT). Returns true when it
+ * changed something.
  */
 function fit(card: HTMLElement) {
+  // A Graphs lesson's card is laid out around its fixed graph (GraphSlot.tsx, graphs.css): nothing on it is resized.
+  if (card.classList.contains('rung-card--graph')) return false
   const over = overflowOf(card)
   // A worked example's working rolls in its own window (WorkedChain.tsx). The window gives way first, but never below
   // what the step on screen needs, so none of the step's lines are hidden (Sunny, 10 Oct); short of that the diagram
@@ -115,28 +112,13 @@ function fit(card: HTMLElement) {
   return false
 }
 
-/** The card's diagram is drawn smaller than its own size (zoomed, or its graph's paper shrunk). */
+/** The card's diagram is drawn smaller than its own size (zoomed). */
 function diagramShrunk(card: HTMLElement) {
-  const base = Number(card.dataset.paperBase) || 0, square = parseFloat(card.style.getPropertyValue('--rv-paper-grid-size')) || base
-  return square < base || [...card.querySelectorAll<HTMLElement>('[style*="zoom"]')].some(el => !el.querySelector('.wc-roll'))
+  return [...card.querySelectorAll<HTMLElement>('[style*="zoom"]')].some(el => !el.querySelector('.wc-roll'))
 }
 
 /** Shrinks (or grows back) the card's diagram by `over` pixels. Returns true when it changed something. */
 function diagramFits(card: HTMLElement, over: number) {
-  const graph = card.querySelector<SVGSVGElement>('svg.ns-graph__picture')
-  if (graph) {
-    if (graph.classList.contains('has-grid')) return false
-    const base = Number(card.dataset.paperBase ||= String(parseFloat(getComputedStyle(card).backgroundSize) || 32))
-    const square = parseFloat(card.style.getPropertyValue('--rv-paper-grid-size')) || base
-    const height = graph.getBoundingClientRect().height, across = height / square
-    let next = square
-    if (over > 0) next = Math.max(MIN_SQUARE, Math.ceil(base * MIN_SHARE), Math.floor(square * MAX_STEP), Math.floor(square * (height - over - 2) / height))
-    else if (square < base && -over >= across + 4) next = Math.min(base, square + Math.floor((-over - 4) / across))
-    if (next === square) return false
-    card.style.setProperty('--rv-paper-grid-size', `${next}px ${next}px`)
-    window.dispatchEvent(new Event('resize'))
-    return true
-  }
   const candidates = SHRINKABLE.flatMap(([selector, floor]) => [...card.querySelectorAll<HTMLElement>(selector)]
     // A box holding a worked example's working window is not a diagram: its picture (.wc-picture) is. Nor is anything
     // in a worked example's out-of-sight rehearsal (WorkedChain.tsx).

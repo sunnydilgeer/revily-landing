@@ -4,6 +4,7 @@ import { useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNod
 import { StepChain, StepDots, useStepPace, type ChainLayout, type ChainStep } from './StepChain'
 import { StepDriverContext } from './stepDriver'
 import { WorkingWindow } from './working'
+import { GraphSlot } from '../../written-methods/tutor/GraphSlot'
 import { prefersReducedMotion } from './flip'
 import './WorkedChain.css'
 
@@ -95,8 +96,9 @@ function Rehearsal({ onMeasure, ...chain }: WorkedChainProps & { onMeasure: (roo
     document.fonts?.ready.then(measure)
     return () => observer.disconnect()
   }, [chain.steps.length])
+  // Its graphs are drawn here, out of sight, not in the card's graph slot (GraphSlot.tsx).
   return <div ref={box} className="wc-rehearsal" aria-hidden="true" inert>
-    {chain.steps.map((_, i) => <RehearsedStep key={i} {...chain} revealed={i + 1} />)}
+    <GraphSlot.Provider value={null}>{chain.steps.map((_, i) => <RehearsedStep key={i} {...chain} revealed={i + 1} />)}</GraphSlot.Provider>
   </div>
 }
 

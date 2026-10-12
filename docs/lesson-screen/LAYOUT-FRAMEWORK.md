@@ -91,9 +91,8 @@ Measured on 10 October with the UI sweep (`scripts/ui/sweep.cjs`: every lesson, 
 ### Graphs (101–108)
 
 - **Visuals:** axes on squared paper, plotted points, lines and curves, tables of values, interactive boards (drag a point, draw a line, tilt a line, journeys).
-- **Diagram slot:** a square, the largest that fits the slot: phone up to the card's width; laptop and desktop up to 50% of the card's height in one column, or the full left half in the wide layout. Every graph in the chapter is drawn to that square, so they are all the same size (the squares per unit change, not the graph's size).
-- **Working:** headings, readings ("y = 2x + 3: m = 2") and tables go in the working window, not inside the graph. Today they are drawn inside the graph picture, which is why graph screens don't roll and overflow most.
-- **Fix needed:** the rebuild in [GRAPHS-REFACTOR.md](./GRAPHS-REFACTOR.md).
+- **Diagram slot (built, 12 October):** one square of 11 × 11 squares of the card's own paper, with no grid of its own, in the same place on every screen: top left on a laptop or desktop with the words beside it, top of the card on a phone with the words under it. Its size comes from the screen alone. See [GRAPHS-REFACTOR.md](./GRAPHS-REFACTOR.md).
+- **Working:** headings, readings ("y = 2x + 3: m = 2") and tables go in the words column beside or under the graph, in the working window.
 
 ### Geometry (201–218)
 

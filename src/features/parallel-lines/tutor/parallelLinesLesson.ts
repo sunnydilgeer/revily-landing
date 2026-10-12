@@ -211,5 +211,6 @@ export const tutorParallelLinesLesson: TutorMethodLesson = {
   id: 'L104', number: 104, title: 'Parallel lines', level: 'GCSE Foundation',
   goal: 'Know that parallel lines have the same gradient, rearrange equations to compare gradients, and find a line parallel to another through a point.',
   labels: { [sameGradient]: 'Same gradient', [rearrange]: 'Is it parallel?', [through]: 'Parallel through a point', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

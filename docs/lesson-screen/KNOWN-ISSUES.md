@@ -7,8 +7,8 @@ Found and not yet fixed, as of 10 October 2026. Measured with `scripts/ui/` unle
 | # | Issue | Where | Size | Fix (see) |
 |---|---|---|---|---|
 | 1 | Diagrams and graphs are not consistent in size and position from screen to screen | All chapters with pictures, most visible in Ratio, Graphs and Geometry | | Per-chapter diagram slots (LAYOUT-FRAMEWORK.md §5) |
-| 2 | Graph screens scroll inside the card | Graphs 101–108, worst 103, 104, 105, 107 | 54% of laptop screens (up to 324px), 28% desktop, 17% phone | Graph rebuild (GRAPHS-REFACTOR.md) |
-| 3 | Graph worked examples don't roll: their headings and readings are drawn inside the graph | Graphs 101–108 | | GRAPHS-REFACTOR.md step 2 |
+| 2 | ~~Graph screens scroll inside the card~~ Fixed 12 October: the graph keeps one size and place, and only the words column beside or under it scrolls, on small phones | Graphs 101–108 | | GRAPHS-REFACTOR.md |
+| 3 | ~~Graph worked examples don't roll: their headings and readings are drawn inside the graph~~ Fixed 12 October: they go in the words column | Graphs 101–108 | | GRAPHS-REFACTOR.md |
 | 4 | The BIDMAS video player is taller than a laptop screen | Lesson 2, opening screen | Up to 371px over (316px on a phone) | Size the player to the card |
 | 5 | Four full-width answer choices squeeze the diagram students answer from | Geometry questions, e.g. 212 (translation grid), 209 (sector) | | Two-column choices on wide cards (LAYOUT-FRAMEWORK.md §4) |
 | 6 | A laptop still needs inner scroll on some screens | Ratio 30–33, Geometry 206, 209, 210, 212 | Ratio 12%, Geometry about 4% of laptop screens | Wide layout and fixed slots |

@@ -152,5 +152,6 @@ export const tutorCoordinatesLesson: TutorMethodLesson = {
   id: 'L101', number: 101, title: 'Coordinates', level: 'GCSE Foundation',
   goal: 'Plot and read points in all four quadrants, across then up, and find the midpoint of a line.',
   labels: { [across]: 'Across, then up', [quadrants]: 'All four quadrants', [middle]: 'The midpoint', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

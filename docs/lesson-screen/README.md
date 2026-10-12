@@ -5,7 +5,7 @@ Where the Maths lesson page stands after the work of 10 October 2026, how it is 
 | Doc | What it is for |
 |---|---|
 | [LAYOUT-FRAMEWORK.md](./LAYOUT-FRAMEWORK.md) | The screen's anatomy, the three kinds of screen, chapter-by-chapter layout rules and the definition of done |
-| [GRAPHS-REFACTOR.md](./GRAPHS-REFACTOR.md) | The plan for rebuilding the graph components |
+| [GRAPHS-REFACTOR.md](./GRAPHS-REFACTOR.md) | How Graphs cards work: one fixed graph on the page's squares (rebuilt 12 October) |
 | [SEE-THE-WORKING.md](./SEE-THE-WORKING.md) | Options for making "See the working" match worked examples (decision pending) |
 | [KNOWN-ISSUES.md](./KNOWN-ISSUES.md) | Everything found and not yet fixed |
 | [DEVICE-CHECKLIST.md](./DEVICE-CHECKLIST.md) | What to check on a real iPhone and Android phone |
@@ -28,13 +28,13 @@ These sit alongside the existing guides: [`src/features/LESSON_DESIGN.md`](../..
 |---|---|---|
 | Top bar | `src/App.tsx`, `src/features/graphs/GraphsShelf.tsx`, `src/features/geometry/GeometryShelf.tsx` | `header.lesson-bar` with a slot the section header draws into (`LessonBarSlot`, `src/features/maths/rungs.tsx`) |
 | Fixed screen | `src/features/maths/MathsNavigation.css` (`.app-shell--frame`) | One screen tall, flex column, card in the middle, bottom bar at the foot |
-| Fitting | `src/features/maths/lessonFrame.ts` | Per card: size the working window, then shrink the diagram (graph paper or `zoom`, down to readable labels), then let the card scroll. Marks `data-more` for the fade. Keeps the answer box above the phone keyboard. |
+| Fitting | `src/features/maths/lessonFrame.ts` | Per card: size the working window, then shrink the diagram (`zoom`, down to readable labels), then let the card scroll. Marks `data-more` for the fade. Keeps the answer box above the phone keyboard. A Graphs card is left alone (GRAPHS-REFACTOR.md). |
 | One main button | `src/features/maths/step-chain/stepDriver.ts`, `rungs.tsx` (`DriveSteps`, `flow.advance`) | A teaching screen's worked example hands "Next step" to the bottom bar |
 | Worked example layout and roll | `src/features/maths/step-chain/WorkedChain.tsx`, `WorkedChain.css` | Diagram (`.wc-picture`), working window (`.wc-roll`), controls. Rolls to the step's start (`stepTop`), reports how tall the step is (`stepNeed`). |
 | Working hand-off | `src/features/maths/step-chain/working.tsx` | `<Working>` sends a step's heading, lines and answer into the window (a portal); outside a worked example it draws in place |
 | Bottom bar | `src/ui/index.tsx` (`CheckBar`), lesson views, `MathsNavigation.css` | Idle bar 64px; result panels keep one row of actions |
 
-The order a card gives way when it is short of room: **working window → diagram → card scroll.** The working window never goes below what the current step needs, so no line of the step is hidden. Diagram labels never go below 11px. Graphs never use `zoom`; their paper shrinks instead (60% of normal at the smallest).
+The order a card gives way when it is short of room: **working window → diagram → card scroll.** The working window never goes below what the current step needs, so no line of the step is hidden. Diagram labels never go below 11px. Graphs are never resized: a Graphs card holds one graph at one size and place, and its words column scrolls instead (GRAPHS-REFACTOR.md).
 
 ## Rolling back
 
@@ -69,5 +69,4 @@ For anything that changes the lesson screen, also run the browser checks in [`sc
 
 1. How "See the working" after an answer should behave (SEE-THE-WORKING.md).
 2. The layout framework's per-chapter diagram slots (LAYOUT-FRAMEWORK.md, "Decisions needed").
-3. The graph rebuild's look (GRAPHS-REFACTOR.md, "Questions for Sunny").
-4. Whether Science moves onto the fixed lesson screen, so both subjects feel the same.
+3. Whether Science moves onto the fixed lesson screen, so both subjects feel the same.

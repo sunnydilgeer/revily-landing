@@ -1,5 +1,62 @@
-/* The Graphs chapter on a desktop (Sunny, 8 Oct: graphs are busy diagrams): bigger squared paper. Each graph is drawn
-   a square of its own to a square of the paper (GraphPictures.tsx), so the graphs grow with it. */
-@media (min-width: 900px) {
-  .lesson-preview--graphs .rung-lesson { --rv-paper-grid-size: 56px 56px; }
+/*
+ * A Graphs lesson's card (GraphSlot.tsx, Sunny 12 Oct): one graph, one size, one place, on the card's own squared
+ * paper with no second grid. The card is laid out around its graph slot, 11 squares of --graph-square across and up
+ * (GRAPH_SQUARES), and always fills the screen, so neither the card nor the graph moves from screen to screen:
+ *   phone       the graph at the top, then the question and the words (working, answer, notes) under it, so a
+ *               question's length never moves the graph;
+ *   900px wide  the graph at the top left, the question and the words beside it.
+ * The square comes from the screen's size only (useGraphCard), and the card's paper is lined up under the slot.
+ */
+.rung-lesson .rung-card--graph {
+  --graph-box: calc(var(--graph-square, 32px) * 11 + 1px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas: "graph" "title" "words";
+  row-gap: 14px;
 }
+.app-shell--frame .rung-lesson > .rung-card--graph { flex: 1 1 auto; }
+.rung-card--graph > .rung-card__title { grid-area: title; min-width: 0; }
+.rung-lesson .rung-card--graph > .rung-card__title h3 { margin-bottom: 6px; }
+.rung-lesson .rung-card--graph > .rung-card__title > :last-child { margin-bottom: 0; }
+.rung-card--graph > .graph-slot { grid-area: graph; justify-self: center; width: var(--graph-box); height: var(--graph-box); }
+.rung-card--graph > .graph-slot > * { width: 100%; height: 100%; gap: 0; align-items: flex-start; }
+.rung-card--graph > .rung-card__words {
+  grid-area: words; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; gap: 12px;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+}
+.rung-card--graph > .rung-card__words::-webkit-scrollbar { display: none; }
+/* A screen with no graph on it (a question in words only): the words take the card. */
+.rung-card--graph > .graph-slot:empty { display: none; }
+.rung-lesson .rung-card--graph:has(> .graph-slot:empty) { grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "title" "words"; }
+
+@media (min-width: 900px) {
+  /* Room for the graph and the words side by side: the lesson screen, its bars included, is wider for Graphs. */
+  .app-shell.app-shell--study:has(.rung-card--graph) { width: min(980px, calc(100% - 32px)); }
+  .rung-lesson:has(> .rung-card--graph) { max-width: 980px; }
+  .rung-lesson:has(> .rung-card--graph) .rv-checkbar__inner { max-width: none; }
+  .rung-lesson .rung-card--graph {
+    grid-template-columns: var(--graph-box) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "graph title" "graph words";
+    column-gap: calc(var(--graph-square, 32px) * 1.5);
+  }
+  .rung-card--graph > .graph-slot { align-self: start; }
+  .rung-lesson .rung-card--graph:has(> .graph-slot:empty) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "words"; }
+}
+
+/* The words column: everything sits on the paper (no boxes), at its own height. When it is more than the column holds
+   (a small phone), the column scrolls, and a worked example keeps its step controls in view (WorkedChain.tsx). */
+.rung-card--graph .rung-card__words > *, .rung-card--graph .rung-media > *, .rung-card--graph .pvb-stage > *, .rung-card--graph .wc > * { flex: none; }
+.rung-card--graph .rung-media, .rung-card--graph .rung-media > .pvb-stage, .rung-card--graph .wc { display: flex; flex-direction: column; }
+.rung-lesson .rung-card--graph .pvb-stage { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.rung-card--graph .rung-working-panel { margin-top: 0; }
+/* The graph went to the slot: what is left of it where it was drawn takes no room. */
+.rung-card--graph .ns-graph:empty, .rung-card--graph .graph-slot__words:empty { display: none; }
+.rung-card--graph .graph-slot__words { display: contents; }
+.rung-card--graph .wc-picture:not(:has(svg, table, p, img, li, button)) { display: none; }
+.rung-card--graph .rung-worked__visual { margin: 0; }
+/* The words that went with a graph read like the rest of the working: left-aligned in the column on a wide screen. */
+.rung-card--graph .ns-graph--words { align-items: stretch; }
+.rung-card--graph .graph-board { gap: 8px; }

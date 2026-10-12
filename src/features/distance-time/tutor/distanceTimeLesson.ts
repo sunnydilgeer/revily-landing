@@ -165,5 +165,6 @@ export const tutorDistanceTimeLesson: TutorMethodLesson = {
   id: 'L107', number: 107, title: 'Distance–time graphs', level: 'GCSE Foundation',
   goal: 'Read a journey from a distance–time graph, work out the speed of each part as distance ÷ time, and draw a journey from its story.',
   labels: { [reading]: 'Reading a journey', [speeds]: 'Speed is the gradient', [drawing]: 'Drawing a journey', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

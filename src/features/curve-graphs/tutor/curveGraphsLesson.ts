@@ -187,5 +187,6 @@ export const tutorCurveGraphsLesson: TutorMethodLesson = {
   id: 'L106', number: 106, title: 'Quadratic and cubic graphs', level: 'GCSE Foundation',
   goal: 'Fill in a table of values for a quadratic or cubic, plot it and join it with a smooth curve, and know the U, ∩ and S shapes.',
   labels: { [tables]: 'Tables for curves', [plot]: 'Plot a smooth curve', [shapes]: 'Cubics and shapes', mixed: 'Review' },
+  graphCard: true,
   states: finish(),
 }

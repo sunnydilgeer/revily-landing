@@ -1,14 +1,18 @@
 'use client'
 
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode, type SVGProps } from 'react'
+import { Working } from '../../maths/step-chain/working'
+import { GRAPH_SQUARES, GraphWords, InGraphSlot } from './GraphSlot'
 import type { AxisScale, GraphFrame, GraphPoint, GraphTable } from './methodWorking'
 import { Powers } from './Powers'
 import { curvePath, valueAt } from './curves'
 
 /*
  * The graphs lessons (coordinates, lines, gradient). The graph is drawn on the page's own squared paper: one
- * square of the card's grid is one unit, and the picture is nudged so its axes sit on the card's grid lines (Sunny,
- * 5 Oct: a second grid on top was jarring). Where there is no squared paper behind it, the picture draws the same
+ * square of the card's grid is one unit, and the card's paper is lined up under it, so its axes sit on the paper's
+ * lines (Sunny, 5 Oct: a second grid on top was jarring). Every graph is GRAPH_SQUARES squares across and up, in the
+ * card's one graph slot (GraphSlot.tsx), so it is the same size and in the same place on every screen; its heading,
+ * table and working go in the words beside it. Where there is no squared paper behind it, the picture draws the same
  * squares itself. Everything stays inside the grid: arrows end at its edge and every label is kept within it.
  *
  * On it: the axes, straight lines edge to edge, points with their coordinates, and the step from one point to another:
@@ -19,7 +23,7 @@ import { curvePath, valueAt } from './curves'
 
 /** One unit: the side of a square of the page's grid (--rv-paper-grid-size). */
 export const UNIT = 32
-/** A square of a drawn picture on screen: UNIT, or bigger where the paper behind it is (the Graphs chapter on a desktop). */
+/** A square of a drawn picture on screen: UNIT times the card's --rv-graph-scale (GraphSlot.tsx). */
 export const squareOf = (svg: SVGSVGElement, box = svg.getBoundingClientRect()) => UNIT * box.width / (svg.viewBox.baseVal.width || box.width)
 const FAMILY = ['var(--rv-biro)', '#b45309', 'var(--rv-good-ink)', '#7c3aed']
 /** x numbers are always amber and y numbers biro blue: on the axes, in a point's brackets and in the working. */
@@ -31,9 +35,9 @@ export const coordinate = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
 export const clock = (hours: number) => { const m = Math.round(hours * 60); return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` }
 /** A number on an axis, as that axis writes it: a time on a clock axis. */
 export const axisText = (scale: AxisScale | undefined, v: number) => scale?.clock ? clock(v) : fmt(Math.round(v * 1000) / 1000)
-/** The numbered values along an axis, other than where the axes cross and the grid's edges. */
-export function ticks(from: number, to: number, cross: number, scale?: AxisScale, end = 1) {
-  if (!scale) return Array.from({ length: to - from + 1 }, (_, i) => from + i).filter(v => v !== cross && v !== from && v !== to)
+/** The numbered values along an axis, other than where the axes cross and the grid's edges: `by` apart on an axis in steps. */
+export function ticks(from: number, to: number, cross: number, scale?: AxisScale, end = 1, by = 1) {
+  if (!scale) return Array.from({ length: Math.round((to - from) / by) + 1 }, (_, i) => from + i * by).filter(v => v !== cross && v !== from && v !== to)
   // A real-life axis starts where the axes cross; its last number keeps `end` squares clear of the arrow and the axis's name.
   const out: number[] = [], step = scale.per * (scale.every ?? 1)
   for (let v = cross + step; v < to - scale.per * end + 1e-9 && v < to - 1e-9; v += step) out.push(Math.round(v * 1e6) / 1e6)
@@ -152,95 +156,60 @@ function spoken(frame: GraphFrame, plain?: boolean) {
 }
 
 /**
- * Lines the picture up with the squared paper behind it: finds the nearest box whose background is the page grid
- * (nothing opaque in between), and returns the nudge that puts the picture's grid lines on its lines, and how much to
- * enlarge the picture so one of its squares is one of the paper's (the Graphs chapter's paper is bigger on a desktop).
- * The nudge is null when there is no squared paper behind, so the picture draws its own.
+ * Whether the picture is drawn on squared paper: the nearest box behind it whose background is the page grid (nothing
+ * opaque in between). On a lesson card the card sets the square (--rv-graph-scale, the paper's square over UNIT, from
+ * useGraphCard in GraphSlot.tsx) and lines its paper up under the graph. On any other paper the picture takes that
+ * paper's square and lines the paper up itself. Either way the paper moves, never the picture, so the picture's size
+ * can't chase the paper's (Sunny, 12 Oct: graphs flickered between two sizes). Off paper it draws its own squares.
  */
-function useGridAlignment() {
-  const ref = useRef<SVGSVGElement>(null)
-  const [shift, setShift] = useState<{ x: number; y: number } | null>(null)
-  const [zoom, setZoom] = useState(1)
-  const shiftRef = useRef(shift)
-  shiftRef.current = shift
+function usePaper() {
+  // The picture may be drawn some time after the graph (once it has the card's slot), so this follows the element.
+  const [svg, ref] = useState<SVGSVGElement | null>(null)
+  const [paper, setPaper] = useState<{ scale?: number } | null>(null)
   useLayoutEffect(() => {
-    const svg = ref.current
-    if (!svg) return
-    let paper: HTMLElement | null = null, square = UNIT
-    for (let el = svg.parentElement; el; el = el.parentElement) {
+    let host: HTMLElement | null = null, square = UNIT
+    for (let el = svg?.parentElement; el; el = el.parentElement) {
       const style = getComputedStyle(el)
       const size = style.backgroundSize.match(/^([\d.]+)px ([\d.]+)px/)
-      if (style.backgroundImage.includes('linear-gradient') && size && size[1] === size[2]) { paper = el; square = parseFloat(size[1]); break }
+      if (style.backgroundImage.includes('linear-gradient') && size && size[1] === size[2]) { host = el; square = parseFloat(size[1]); break }
       if (style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent') break
     }
-    const host = paper, side = square
-    function align() {
-      if (!svg) return
-      if (!host) { setShift(current => current === null ? current : null); setZoom(1); return }
-      const box = host.getBoundingClientRect(), style = getComputedStyle(host)
-      // On the fixed lesson screen the card scrolls inside itself and its paper scrolls with it (background-attachment:
-      // local), so the paper starts where the content does: its scroll position never moves the picture's nudge.
-      const originX = box.left + parseFloat(style.borderLeftWidth) - host.scrollLeft, originY = box.top + parseFloat(style.borderTopWidth) - host.scrollTop
-      const own = svg.getBoundingClientRect()
-      const current = shiftRef.current ?? { x: 0, y: 0 }
-      // Where the picture would be without a nudge, and the smallest nudge (half a square either way) onto the paper's lines.
-      // On bigger paper half a square would cover the words above or below, so the nudge is only ever down, as a margin.
-      const off = (from: number, origin: number) => ((origin - from) % side + side) % side
-      const near = (from: number, origin: number) => { const o = off(from, origin); return o >= side / 2 ? o - side : o }
-      const next = { x: near(own.left - current.x, originX), y: side > UNIT ? off(own.top - current.y, originY) : near(own.top - current.y, originY) }
-      setZoom(side / UNIT)
-      if (!shiftRef.current || Math.abs(next.x - shiftRef.current.x) > 0.25 || Math.abs(next.y - shiftRef.current.y) > 0.25) setShift(next)
+    if (!svg || !host || host.matches('.rung-card, .rung-done')) { setPaper(host ? {} : null); return }
+    setPaper({ scale: square / UNIT })
+    const sheet = host, side = square
+    const align = () => {
+      const g = svg.getBoundingClientRect(), c = sheet.getBoundingClientRect()
+      const wrap = (v: number) => ((v % side) + side) % side
+      sheet.style.backgroundPosition = `${wrap(g.left - c.left - sheet.clientLeft + sheet.scrollLeft)}px ${wrap(g.top - c.top - sheet.clientTop + sheet.scrollTop)}px`
     }
     align()
     const observer = new ResizeObserver(align)
-    if (host) observer.observe(host)
-    window.addEventListener('resize', align)
-    document.fonts?.ready.then(align)
-    return () => { observer.disconnect(); window.removeEventListener('resize', align) }
-  })
-  return { ref, shift, zoom }
+    observer.observe(sheet)
+    observer.observe(svg)
+    return () => { observer.disconnect(); sheet.style.backgroundPosition = '' }
+  }, [svg])
+  return { ref, paper }
 }
 
-/** The fewest squares a graph may go across to: what a phone's card holds. Wider screens hold more (useMostAcross). */
-export const MOST_ACROSS = 9
 /**
- * The same number of squares across as up (Sunny, 8 Oct: a graph mostly in positive territory should still look
- * balanced). The shorter axis grows at its longer end, so a graph mostly to the right grows further right; across
- * stops at `most`, what the screen holds. The boards balance their grid the same way, so a tap lands where the picture shows it.
+ * Every graph GRAPH_SQUARES squares across and up, so every graph is the same size (Sunny, 12 Oct). Each axis grows
+ * to that many squares: an axis that starts at 0 or at a real-life start grows at its far end; one either side of 0
+ * grows at both ends, the extra square at its longer end, so the question's part stays near the middle. A grid that
+ * already needs more squares keeps them (the slot draws it smaller, with its own squares). Boards use the same grid,
+ * so a tap lands where the picture shows it.
  */
-export function balanced<T extends { x: [number, number]; y: [number, number]; scale?: { x: AxisScale; y: AxisScale } }>(g: T, most = MOST_ACROSS): T {
-  const perX = g.scale?.x.per ?? 1, perY = g.scale?.y.per ?? 1
-  const across = Math.round((g.x[1] - g.x[0]) / perX), up = Math.round((g.y[1] - g.y[0]) / perY)
+export function fillGrid<T extends { x: [number, number]; y: [number, number]; scale?: { x: AxisScale; y: AxisScale }; yStep?: number }>(g: T, squares = GRAPH_SQUARES): T {
   const tidy = (n: number) => Math.round(n * 1e6) / 1e6
-  const grow = (r: [number, number], by: number, per: number): [number, number] => r[1] >= -r[0] ? [r[0], tidy(r[1] + by * per)] : [tidy(r[0] - by * per), r[1]]
-  if (across < up && across < most) return { ...g, x: grow(g.x, Math.min(up, most) - across, perX) }
-  if (up < across) return { ...g, y: grow(g.y, across - up, perY) }
-  return g
-}
-
-/** How many squares across fit in the box `ref` is on, in the paper's own squares (bigger on a desktop), half a square spare. */
-export function useMostAcross<E extends HTMLElement>() {
-  const ref = useRef<E>(null)
-  const [most, setMost] = useState(MOST_ACROSS)
-  useLayoutEffect(() => {
-    const box = ref.current
-    if (!box) return
-    function measure() {
-      if (!box) return
-      let square = UNIT
-      for (let el = box.parentElement; el; el = el.parentElement) {
-        const style = getComputedStyle(el), size = style.backgroundSize.match(/^([\d.]+)px ([\d.]+)px/)
-        if (style.backgroundImage.includes('linear-gradient') && size && size[1] === size[2]) { square = parseFloat(size[1]); break }
-      }
-      const next = Math.max(MOST_ACROSS, Math.floor((box.getBoundingClientRect().width - square / 2 - 1) / square))
-      setMost(current => current === next ? current : next)
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(box)
-    return () => observer.disconnect()
-  }, [])
-  return { ref, most }
+  const grow = (r: [number, number], per: number, scaled: boolean): [number, number] => {
+    const by = squares - Math.round((r[1] - r[0]) / per)
+    if (by <= 0) return r
+    if (scaled || r[0] >= 0) return [r[0], tidy(r[1] + by * per)]
+    if (r[1] <= 0) return [tidy(r[0] - by * per), r[1]]
+    const far = Math.ceil(by / 2), near = by - far
+    return r[1] >= -r[0] ? [tidy(r[0] - near * per), tidy(r[1] + far * per)] : [tidy(r[0] - far * per), tidy(r[1] + near * per)]
+  }
+  const x = grow(g.x, g.scale?.x.per ?? 1, !!g.scale), y = grow(g.y, g.scale?.y.per ?? g.yStep ?? 1, !!g.scale)
+  return x === g.x && y === g.y ? g : { ...g, x, y }
 }
 
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
@@ -250,27 +219,32 @@ export type GraphLive = {
   svg?: SVGProps<SVGSVGElement>
 }
 
-export function GraphVisual({ frame: given, heading, plain, focus, live, mostAcross }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean; live?: GraphLive; mostAcross?: number }) {
-  // A board measures its own room and passes it in, so its taps and this picture use the same balanced grid.
-  const space = useMostAcross<HTMLDivElement>()
-  const frame = balanced(given, mostAcross ?? space.most)
+export function GraphVisual({ frame: given, heading, plain, focus, live }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean; live?: GraphLive }) {
+  // Boards fill their grid the same way, so their taps and this picture agree.
+  const frame = fillGrid(given)
   // Older parts grey out; what the step before added stays clear, because this step works on it (Sunny, 1 Oct).
   // A part with `at` −1 is the question's own picture: it is shown from the start and never greyed.
   const done = (at: number) => focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''
   const shown = (at: number) => !plain || at < 0
   const head = (adds: GraphFrame['adds']) => !plain && frame.adds === adds && heading ? <div className="ns-graph__heading">{heading}</div> : null
-  const { ref, shift, zoom } = useGridAlignment()
+  const { ref, paper } = usePaper()
   const [x0, x1] = frame.x, [y0, y1] = frame.y
   // Real-life axes (graphs lessons 7 and 8): a square is `per` units, and the axes cross at `start`.
-  const sx = frame.scale?.x, sy = frame.scale?.y, perX = sx?.per ?? 1, perY = sy?.per ?? 1
+  const sx = frame.scale?.x, sy = frame.scale?.y, perX = sx?.per ?? 1, perY = sy?.per ?? frame.yStep ?? 1
   const xName = sx?.name ?? 'x', yName = sy?.name ?? 'y'
   const width = Math.round((x1 - x0) / perX) * UNIT, height = Math.round((y1 - y0) / perY) * UNIT
+  // A grid of more squares than the slot holds is drawn smaller, to the slot's size, with its own squares (not the paper's).
+  const most = Math.max(width, height) / UNIT, oversize = most > GRAPH_SQUARES
+  const onPaper = !!paper && !oversize
+  const scale = `${paper?.scale ?? 'var(--rv-graph-scale, 1)'}${oversize ? ` * ${GRAPH_SQUARES / most}` : ''}`
   const px = (x: number) => (x - x0) / perX * UNIT, py = (y: number) => (y1 - y) / perY * UNIT
   const range = (from: number, to: number, per = 1) => Array.from({ length: Math.round((to - from) / per) + 1 }, (_, i) => from + i * per)
   const axisX = sx ? sx.start : Math.min(Math.max(0, x0), x1), axisY = sy ? sy.start : Math.min(Math.max(0, y0), y1)
   const xText = (v: number) => axisText(sx, v), yText = (v: number) => axisText(sy, v)
   // A scaled axis also numbers a value it reads that falls between its numbers (10:30 on an hourly axis).
-  const xTicks = ticks(x0, x1, axisX, sx, 1 + xName.length * 7.5 / UNIT), yTicks = ticks(y0, y1, axisY, sy)
+  const xTicks = ticks(x0, x1, axisX, sx, 1 + xName.length * 7.5 / UNIT), yTicks = ticks(y0, y1, axisY, sy, 1, perY)
+  // An axis that counts in steps (frame.yStep) also numbers a value it reads that falls between its numbers.
+  const between = !!sy || perY !== 1
   const lines = (frame.lines ?? []).filter(line => shown(line.at))
   const curves = (frame.curves ?? []).filter(curve => shown(curve.at))
   // A curve as short straight pieces inside the grid, so labels keep off it like they keep off a line.
@@ -326,10 +300,12 @@ export function GraphVisual({ frame: given, heading, plain, focus, live, mostAcr
     }
     return 0
   }
-  /** Real-life axes: a plain time that a highlighted one (on the same row) would cover is left out. */
+  /** Real-life axes: a plain time that a highlighted one (on the same row) would cover is left out. So is a plain
+   *  number under a dot, as when the y axis counts in 2s and a point at y = −1 sits on the x axis's numbers. */
   function hidden(x: number) {
-    if (!sx) return false
     const half = (v: number) => xText(v).length * 4.5 + 5
+    if (points.some(p => Math.abs(px(p.x) - px(x)) < half(x) + 6 && py(p.y) - py(axisY) > 3 && py(p.y) - py(axisY) < 29)) return true
+    if (!sx) return false
     return marks.some(m => m.axis === 'x' && m.value !== x && !lowered(m.value) && Math.abs(px(m.value) - px(x)) < half(m.value) + half(x))
   }
   /** The axis numbers: the plain ones under everything, the highlighted ones on top so a ring never hides them. */
@@ -341,7 +317,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live, mostAcr
         <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18 + down)}>{label}</text>
       </g>
     })}
-    {[...yTicks, ...(sy && marked ? marks.filter(m => m.axis === 'y' && m.value !== axisY && !yTicks.includes(m.value)).map(m => m.value) : [])].filter(y => !!markOf('y', y) === marked).map(y => {
+    {[...yTicks, ...(between && marked ? marks.filter(m => m.axis === 'y' && m.value !== axisY && !yTicks.includes(m.value)).map(m => m.value) : [])].filter(y => !!markOf('y', y) === marked).map(y => {
       const mark = markOf('y', y), label = yText(y)
       return <g key={`ny${y}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.y } : undefined}>
         {mark && <rect x={fix(px(axisX) - 4 - label.length * 9 - 6)} y={fix(py(y) - 9)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
@@ -372,12 +348,9 @@ export function GraphVisual({ frame: given, heading, plain, focus, live, mostAcr
     })()}
   </g>
 
-  return <div ref={space.ref} className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
-    {head('picture')}
-    {frame.table && <ValueTable table={frame.table} />}
-    <svg ref={ref} className={`ns-graph__picture${shift ? '' : ' has-grid'}`} width={fix((width + 1) * zoom)} height={fix((height + 1) * zoom)} viewBox={`0 0 ${width + 1} ${height + 1}`}
-      {...live?.svg} style={shift ? { ...(zoom > 1 ? { transform: `translateX(${fix(shift.x)}px)`, marginTop: `${fix(shift.y)}px` } : { transform: `translate(${fix(shift.x)}px, ${fix(shift.y)}px)` }), ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
-      {!shift && <g className="ns-graph__grid">
+  const picture = <svg ref={ref} className={`ns-graph__picture${onPaper ? '' : ' has-grid'}`} width={width + 1} height={height + 1} viewBox={`0 0 ${width + 1} ${height + 1}`}
+      {...live?.svg} style={paper ? { width: `calc(${width + 1}px * ${scale})`, height: `calc(${height + 1}px * ${scale})`, ...live?.svg?.style } : live?.svg?.style} aria-hidden="true">
+      {!onPaper && <g className="ns-graph__grid">
         {range(x0, x1, perX).map(x => <line key={`gx${x}`} x1={fix(px(x) + 0.5)} x2={fix(px(x) + 0.5)} y1="0" y2={height + 1} />)}
         {range(y0, y1, perY).map(y => <line key={`gy${y}`} x1="0" x2={width + 1} y1={fix(py(y) + 0.5)} y2={fix(py(y) + 0.5)} />)}
       </g>}
@@ -516,13 +489,26 @@ export function GraphVisual({ frame: given, heading, plain, focus, live, mostAcr
       {!plain && (frame.boxed ?? []).map((point, i) => <circle key={`b${i}`} className="ns-graph__box" cx={fix(px(point.x) + 0.5)} cy={fix(py(point.y) + 0.5)} r="11" />)}
       {axisNumbers(true)}
     </svg>
+
+  // The step's heading, the table and the working: words, not picture.
+  const lead = head('picture'), written = working.length > 0, answer = !plain && frame.answer
+  const words = (lead || frame.table || written || answer) && <div className="ns-graph ns-graph--words">
+    {lead}
+    {frame.table && <ValueTable table={frame.table} />}
     {working.map((line, i) => <Fragment key={`w${i}`}>
       {frame.adds === 'lines' && line.at === frame.step && working.findIndex(l => l.at === frame.step) === i && head('lines')}
       <p className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
     </Fragment>)}
-    {!plain && frame.answer && <>
+    {answer && <>
       {head('answer')}
-      <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer.text} /></p>
+      <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer!.text} /></p>
     </>}
+  </div>
+
+  // The grid goes in the card's graph slot (a board puts its whole surface there itself). The words go in the worked
+  // example's working window, or beside the slot on a question (GraphWords): never inside the graph's box.
+  return <div className={`ns-graph${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame, plain)}>
+    {live ? picture : <InGraphSlot className="ns-graph">{picture}</InGraphSlot>}
+    {words && <GraphWords><Working>{words}</Working></GraphWords>}
   </div>
 }

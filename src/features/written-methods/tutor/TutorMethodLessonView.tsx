@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useRef, useState, type Ref } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { parseInequality } from '../../number-types/lessonMath'
 import { MethodWorkedExample } from './MethodWorkedExample'
@@ -12,6 +12,7 @@ import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import { SteadyPictures } from './steadyPictures'
 import { GraphBoard } from './GraphBoard'
+import { GraphSlot, useGraphCard, useGraphSlot } from './GraphSlot'
 import { AngleBoard } from './AngleBoard'
 import { SortBoard } from './SortBoard'
 import { ChanceBoard } from './ChanceBoard'
@@ -299,6 +300,19 @@ function FormulaAnswerInput({ id, disabled, onChange }: { id: string; disabled: 
   </div>
 }
 
+/**
+ * A card's parts. On a Graphs lesson's card: the title, the graph slot (GraphSlot.tsx) and the words, which the card's
+ * grid lays out with the graph in the same place on every screen (graphs.css). Anywhere else, just the parts in order.
+ */
+function GraphCardParts({ graph, slot, slotRef, title, children }: { graph?: boolean; slot: ReturnType<typeof useGraphSlot>['slot']; slotRef: (element: HTMLDivElement | null) => void; title: ReactNode; children: ReactNode }) {
+  if (!graph) return <>{title}{children}</>
+  return <GraphSlot.Provider value={slot}>
+    <div className="rung-card__title">{title}</div>
+    <div className="graph-slot" ref={slotRef} />
+    <div className="rung-card__words">{children}</div>
+  </GraphSlot.Provider>
+}
+
 function WorkingPanel({ visual, ref }: { visual: TutorWorking; ref?: Ref<HTMLDivElement> }) {
   return <div className="pvb-stage rung-working-panel" ref={ref}>
     {visual.kind === 'step-worked' ? <StepWorkedExample working={visual} />
@@ -347,6 +361,10 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   // Opening the working brings it into view above the folded answer ribbon, so the ribbon never sits on top of it.
   const workingPanel = useRef<HTMLDivElement>(null)
   useEffect(() => { if (showWorking) workingPanel.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }, [showWorking])
+  // A Graphs lesson's card has one graph slot: every graph on the card is drawn there, one size, in one place.
+  const graphSlot = useGraphSlot()
+  const card = useRef<HTMLElement>(null)
+  useGraphCard(card, lesson.graphCard ? graphSlot.slot.element : null)
 
   const numeric = state.interaction.type === 'numericInput'
   const fraction = state.interaction.type === 'fractionInput'
@@ -386,9 +404,11 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}${lesson.largePictures ? ' has-large-pictures' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
     <DriveSteps flow={flow}>
-    <article className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
+    <article ref={card} className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}${lesson.graphCard ? ' rung-card--graph' : ''}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
+      <GraphCardParts graph={lesson.graphCard} slot={graphSlot.slot} slotRef={graphSlot.ref} title={<>
       <h3 ref={heading} tabIndex={-1}><Powers text={state.content.heading ?? state.content.title} /></h3>
       {state.content.heading && state.content.heading !== state.content.title && <p className="pvb-body rung-card__question"><Powers text={state.content.title} /></p>}
+      </>}>
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
       {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'growth' || state.visual.kind === 'angle') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
@@ -443,6 +463,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
 
       {!teaching && !feedback && state.hint && <Hint text={state.hint} onConsult={engine.markHintUsed} />}
       {feedback && showWorking && state.working && <WorkingPanel visual={state.working} ref={workingPanel} />}
+      </GraphCardParts>
     </article></DriveSteps>
 
     {feedback
