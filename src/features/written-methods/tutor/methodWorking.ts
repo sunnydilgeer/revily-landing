@@ -236,6 +236,8 @@ export type RatioBar = { name: string; parts: number; tag?: string }
 export type RatioFrame = {
   bars: RatioBar[]
   each?: string
+  /** The bars `each` is written in; every bar when left out. */
+  eachIn?: number[]
   rings?: { bar: number; from: number; to: number }[]
   /** Two bars lined up, [smaller, bigger]: a dashed line at the end of the smaller one, the bigger one's first `at` parts fade, and every other bar fades. */
   match?: { bars: [number, number]; at: number }

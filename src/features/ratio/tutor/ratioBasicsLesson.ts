@@ -44,6 +44,8 @@ function ratioModel(start: RatioFrame, moves: RatioMove[], label = 'Work it out'
   return model
 }
 const whole = (bar: number, parts: number) => ({ bar, from: 0, to: parts })
+/** The bars with each one's number of parts in its pill, as the question gives them. */
+const counted = (...list: [string, number][]): RatioFrame => ({ bars: list.map(([name, parts]) => ({ name, parts, tag: String(parts) })) })
 
 /* ---------- Screens ---------- */
 
@@ -154,7 +156,7 @@ practice(simplifying, 'Write 24 : 40 : 56 in its simplest form.', 'R1.2 Q4', fal
   { title: 'Divide every part by 8', say: '8 is the highest common factor of 24, 40 and 56.', rows: ['24 : 40 : 56 = 3 : 5 : 7', '! 3 : 5 : 7'] },
 ]))
 practice(simplifying, 'Write 2 m : 40 cm in its simplest form.', 'R1.2 Q5a', false, ratio([5, 1]), 'Make the units the same first: 2 m is 200 cm.', boardModel([], [
-  { title: 'Same units', say: 'There are 100 cm in a metre, so 2 m is 200 cm.', rows: ['2 m : 40 cm = 200 : 40'] },
+  { title: 'Convert 2 m to cm', say: 'There are 100 cm in a metre, so 2 m is 200 cm.', rows: ['2 m = 200 cm', '2 m : 40 cm = 200 cm : 40 cm'] },
   { title: 'Divide both by 40', say: '40 is the highest common factor of 200 and 40.', rows: ['200 : 40 = 5 : 1', '! 5 : 1'] },
 ]), ratioSlips([5, 1], [[[1, 20], 'Make the units the same first: 2 m is 200 cm, not 2.'], [[20, 4], 'You divided by 10. Keep going: 20 and 4 share a factor of 4.']]))
 practice(simplifying, 'Write 1.5 : 2.5 in its simplest form.', 'R1.2 Q5b', false, ratio([3, 5]), 'Multiply both by 10 to make whole numbers first.', boardModel([], [
@@ -165,10 +167,13 @@ practice(simplifying, 'Write 1.5 : 2.5 in its simplest form.', 'R1.2 Q5b', false
 
 /* ---------- Rung 3: scaling (R1.3) ---------- */
 
-const squash = bars(['Squash', 2], ['Water', 7])
+const squash = counted(['Squash', 2], ['Water', 7])
 const mix = worked(scaling, 'Squash and water are mixed in the ratio 2 : 7. How much water is needed with 10 cups of squash?', 'Squash : water = 2 : 7, and 10 cups of squash', 'R1.3 video + Q1', ratioModel(squash, [
-  { title: 'Find 1 part', say: '2 parts of squash are 10 cups, so 1 part is 10 ÷ 2 = 5 cups.', rows: ['10 ÷ 2 = 5'], ratio: { rings: [whole(0, 2)], each: '5', note: '1 part = 5 cups' }, tags: ['10'] },
-  { title: 'Calculate the water', say: 'Water is 7 parts, and every part is 5 cups.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
+  { title: 'Squash : water = 2 : 7', say: 'For every 2 parts of squash there are 7 parts of water.', rows: ['> for every 2 parts of squash, 7 parts of water'], ratio: { rings: [whole(0, 2), whole(1, 7)] } },
+  { title: '2 parts of squash = 10 cups', say: 'The question tells us the squash is 10 cups.', rows: ['> the squash is 10 cups'], ratio: { rings: [whole(0, 2)] }, tags: ['10 cups'] },
+  { title: 'Calculate 1 part', say: 'Share the 10 cups equally between the 2 squash parts.', rows: ['10 cups ÷ 2 = 5 cups'], ratio: { rings: [whole(0, 2)], each: '5', eachIn: [0], note: '1 part = 5 cups' } },
+  { title: 'Calculate the water', say: 'Every part is the same size, so each of the 7 water parts is 5 cups too.', rows: ['7 × 5 cups = 35 cups', '! Water needed = 35 cups'], ratio: { each: '5', eachIn: undefined, rings: [whole(1, 7)], lit: [1] }, tags: [undefined, '35 cups'] },
+  { title: 'Check it makes sense', say: 'Divide both amounts by 5 to get back to the ratio.', rows: ['10 : 35 = 2 : 7 ✓'] },
 ]), 'Our aim: use the part you know to find what 1 part is worth, then multiply to get the part you want. Never add.')
 video(mix, media('scaling', 'Squash : water = 2 : 7, with 10 cups of squash', 'R1.3_Scaling_Ratios.mp4', 55, [
   'Making squash: squash and water are mixed in the ratio 2 : 7. How much water goes with 10 cups of squash?',
@@ -182,18 +187,27 @@ practice(scaling, 'Two numbers are in the ratio 3 : 4. The first number is 9. Wh
   { title: 'Find the multiplier', say: '3 became 9, so it was multiplied by 3.', rows: ['9 ÷ 3 = 3'] },
   { title: 'Multiply the 4', say: 'Multiply the other part by the same number.', rows: ['4 × 3 = 12', '! 12'] },
 ]), slips(12, [[10, 'Scaling multiplies, it doesn’t add: 3 × 3 = 9, so 4 × 3 = 12.']]))
-practice(scaling, 'A recipe uses flour and butter in the ratio 5 : 2. How much butter goes with 300 g of flour?', 'R1.3 Q3', true, number(120, '120 g'), '5 parts of flour are 300 g: find 1 part first.', ratioModel(bars(['Flour', 5], ['Butter', 2]), [
-  { title: 'Find 1 part', say: '5 parts of flour are 300 g, so 1 part is 60 g.', rows: ['300 ÷ 5 = 60'], ratio: { each: '60', note: '1 part = 60 g' } },
-  { title: 'The butter', say: 'Butter is 2 parts.', rows: ['2 × 60 = 120', '! 120 g'], ratio: { each: '60', rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '120 g'] },
+practice(scaling, 'A recipe uses flour and butter in the ratio 5 : 2. How much butter goes with 300 g of flour?', 'R1.3 Q3', true, number(120, '120 g'), '5 parts of flour are 300 g: find 1 part first.', ratioModel(counted(['Flour', 5], ['Butter', 2]), [
+  { title: 'Flour : butter = 5 : 2', say: 'For every 5 parts of flour there are 2 parts of butter.', rows: ['> for every 5 parts of flour, 2 parts of butter'], ratio: { rings: [whole(0, 5), whole(1, 2)] } },
+  { title: '5 parts of flour = 300 g', say: 'The question tells us the flour is 300 g.', rows: ['> the flour is 300 g'], ratio: { rings: [whole(0, 5)] }, tags: ['300 g'] },
+  { title: 'Calculate 1 part', say: 'Share the 300 g equally between the 5 flour parts.', rows: ['300 g ÷ 5 = 60 g'], ratio: { rings: [whole(0, 5)], each: '60', eachIn: [0], note: '1 part = 60 g' } },
+  { title: 'Calculate the butter', say: 'Every part is the same size, so each of the 2 butter parts is 60 g too.', rows: ['2 × 60 g = 120 g', '! Butter needed = 120 g'], ratio: { each: '60', eachIn: undefined, rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '120 g'] },
+  { title: 'Check it makes sense', say: 'Divide both amounts by 60 to get back to the ratio.', rows: ['300 : 120 = 5 : 2 ✓'] },
 ]), slips(120, [[750, 'Butter is the smaller part: divide 300 by 5 first, then multiply by 2.'], [60, 'That’s 1 part. Butter is 2 parts.'], [297, 'Scaling multiplies, it doesn’t add or take away.']]))
-practice(scaling, 'Red and white paint are mixed in the ratio 3 : 8. Ali uses 40 litres of white paint. How much red paint does he use?', 'R1.3 Q4', true, number(15, '15 litres'), '8 parts of white are 40 litres.', ratioModel(bars(['Red', 3], ['White', 8]), [
-  { title: 'Find 1 part', say: '8 parts of white are 40 litres, so 1 part is 5 litres.', rows: ['40 ÷ 8 = 5'], ratio: { each: '5', note: '1 part = 5 litres' } },
-  { title: 'The red', say: 'Red is 3 parts.', rows: ['3 × 5 = 15', '! 15 litres'], ratio: { each: '5', rings: [whole(0, 3)], lit: [0] }, tags: ['15 l'] },
+practice(scaling, 'Red and white paint are mixed in the ratio 3 : 8. Ali uses 40 litres of white paint. How much red paint does he use?', 'R1.3 Q4', true, number(15, '15 litres'), '8 parts of white are 40 litres.', ratioModel(counted(['Red', 3], ['White', 8]), [
+  { title: 'Red : white = 3 : 8', say: 'For every 3 parts of red paint there are 8 parts of white.', rows: ['> for every 3 parts of red, 8 parts of white'], ratio: { rings: [whole(0, 3), whole(1, 8)] } },
+  { title: '8 parts of white = 40 litres', say: 'The question tells us the white paint is 40 litres.', rows: ['> the white paint is 40 litres'], ratio: { rings: [whole(1, 8)] }, tags: [undefined, '40 l'] },
+  { title: 'Calculate 1 part', say: 'Share the 40 litres equally between the 8 white parts.', rows: ['40 litres ÷ 8 = 5 litres'], ratio: { rings: [whole(1, 8)], each: '5', eachIn: [1], note: '1 part = 5 litres' } },
+  { title: 'Calculate the red paint', say: 'Every part is the same size, so each of the 3 red parts is 5 litres too.', rows: ['3 × 5 litres = 15 litres', '! Red paint = 15 litres'], ratio: { each: '5', eachIn: undefined, rings: [whole(0, 3)], lit: [0] }, tags: ['15 l'] },
+  { title: 'Check it makes sense', say: 'Divide both amounts by 5 to get back to the ratio.', rows: ['15 : 40 = 3 : 8 ✓'] },
 ]), slips(15, [[5, 'That’s 1 part. Red is 3 parts.'], [120, '40 litres is the white, 8 parts. Divide by 8 first.'], [35, 'Scaling multiplies, it doesn’t add or take away.']]))
-practice(scaling, 'Concrete is made from cement, sand and gravel in the ratio 1 : 2 : 4. A builder uses 18 kg of sand. What is the total mass of the concrete?', 'R1.3 Q5', true, number(63, '63 kg'), 'Sand is 2 parts, so find 1 part first.', ratioModel(bars(['Cement', 1], ['Sand', 2], ['Gravel', 4]), [
-  { title: 'Find 1 part', say: 'Sand is 2 parts and weighs 18 kg, so 1 part is 9 kg.', rows: ['18 ÷ 2 = 9'], ratio: { each: '9', rings: [whole(1, 2)], note: '1 part = 9 kg' } },
-  { title: 'Every part', say: 'Cement is 1 part, gravel is 4 parts.', rows: ['1 × 9 = 9', '4 × 9 = 36'], ratio: { each: '9' }, tags: ['9', '18', '36'] },
-  { title: 'Add them up', say: 'The total is all three together.', rows: ['9 + 18 + 36 = 63', '! 63 kg'], ratio: { each: '9', note: '7 parts = 63 kg' } },
+practice(scaling, 'Concrete is made from cement, sand and gravel in the ratio 1 : 2 : 4. A builder uses 18 kg of sand. What is the total mass of the concrete?', 'R1.3 Q5', true, number(63, '63 kg'), 'Sand is 2 parts, so find 1 part first.', ratioModel(counted(['Cement', 1], ['Sand', 2], ['Gravel', 4]), [
+  { title: 'Cement : sand : gravel = 1 : 2 : 4', say: 'For every 1 part of cement there are 2 parts of sand and 4 parts of gravel.', rows: ['> 1 part cement, 2 parts sand, 4 parts gravel'], ratio: { rings: [whole(0, 1), whole(1, 2), whole(2, 4)] } },
+  { title: '2 parts of sand = 18 kg', say: 'The question tells us the sand is 18 kg.', rows: ['> the sand is 18 kg'], ratio: { rings: [whole(1, 2)] }, tags: [undefined, '18 kg'] },
+  { title: 'Calculate 1 part', say: 'Share the 18 kg equally between the 2 sand parts.', rows: ['18 kg ÷ 2 = 9 kg'], ratio: { rings: [whole(1, 2)], each: '9', eachIn: [1], note: '1 part = 9 kg' } },
+  { title: 'Calculate the cement and the gravel', say: 'Every part is the same size, so each cement and gravel part is 9 kg too.', rows: ['1 × 9 kg = 9 kg', '4 × 9 kg = 36 kg'], ratio: { each: '9', eachIn: undefined }, tags: ['9 kg', '18 kg', '36 kg'] },
+  { title: 'Calculate the total', say: 'The concrete is all three together.', rows: ['9 kg + 18 kg + 36 kg = 63 kg', '! Total mass of the concrete = 63 kg'], ratio: { each: '9', note: '7 parts = 63 kg' } },
+  { title: 'Check it makes sense', say: '7 parts in total, and every part is 9 kg.', rows: ['7 × 9 kg = 63 kg ✓'] },
 ]), slips(63, [[36, 'That’s the gravel. The question asks for all of the concrete.'], [126, 'Sand is 2 parts, so 1 part is 18 ÷ 2 = 9 kg.'], [45, 'Add all three: 9 + 18 + 36.']]))
 
 /* ---------- Rung 4: part to whole (R1.4) ---------- */
