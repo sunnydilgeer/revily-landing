@@ -198,9 +198,9 @@ practice(scaling, 'Concrete is made from cement, sand and gravel in the ratio 1 
 /* ---------- Rung 4: part to whole (R1.4) ---------- */
 
 const fruit = worked(partWhole, 'The ratio of oranges to all the fruit in a bag is 3 : 8. The rest are apples. Write the ratio of oranges to apples.', 'Oranges : all the fruit = 3 : 8', 'R1.4 video + Q1', ratioModel(bars(['Oranges', 3], ['Apples', 5]), [
-  { title: 'The 8 is the whole bag', say: 'The 8 includes the 3 oranges. So 3/8 of the fruit are oranges.', rows: ['> oranges are 3/8 of the fruit'], ratio: { rings: [whole(0, 3)], note: '8 pieces in all' } },
-  { title: 'Find the apples', say: 'The apples are what is left of the 8.', rows: ['8 − 3 = 5'], ratio: { rings: [whole(1, 5)], lit: [1] } },
-  { title: 'Part to part', say: 'Now compare oranges with apples. A part : part ratio never includes the whole.', rows: ['! oranges : apples = 3 : 5'] },
+  { title: 'The 8 is the whole bag', say: 'The 8 includes the 3 oranges. So 3/8 of the fruit are oranges.', rows: ['> oranges are {3|8} of the fruit'], ratio: { rings: [whole(0, 3)], note: '8 pieces in total' }, tags: ['3'] },
+  { title: 'Calculate the apples', say: 'The apples are what is left of the 8: 8 − 3 = 5. Check: 3 + 5 = 8.', rows: ['8 − 3 = 5'], ratio: { rings: [whole(1, 5)], lit: [1], note: '3 + 5 = 8 pieces in total' }, tags: ['3', '5'] },
+  { title: 'Compare the oranges with the apples', say: 'Now compare oranges with apples. A part : part ratio never includes the whole.', rows: ['! oranges : apples = 3 : 5'], ratio: { note: '3 + 5 = 8 pieces in total' } },
 ]), 'Our aim: in a part : whole ratio, the whole includes the part. Take the part away from the whole to find the other part.')
 video(fruit, media('part-whole', 'Oranges : all the fruit = 3 : 8', 'R1.4_Part_To_Whole_Ratios.mp4', 52, [
   'A bag of fruit: the ratio of oranges to all the fruit is 3 : 8. The rest are apples. The 8 is the whole bag, and it includes the 3 oranges.',
@@ -211,21 +211,21 @@ video(fruit, media('part-whole', 'Oranges : all the fruit = 3 : 8', 'R1.4_Part_T
   'Part : whole includes the part. Whole take away part gives the other part. Part over whole is the fraction.',
 ]))
 practice(partWhole, 'The ratio of boys to the whole class is 4 : 9. What fraction of the class are girls?', 'R1.4 Q2', false, fraction('5/9'), 'The 9 is the whole class, boys included.', boardModel([], [
-  { title: 'Find the girls', say: 'The 9 is the whole class, so the girls are what is left.', rows: ['9 − 4 = 5'] },
-  { title: 'Part over whole', say: 'Girls are 5 of every 9.', rows: ['! {5|9} are girls'] },
+  { title: 'Calculate the girls', say: 'The 9 is the whole class, so the girls are what is left.', rows: ['9 − 4 = 5'] },
+  { title: 'Write the girls as a fraction of the class', say: 'Girls are 5 of every 9.', rows: ['! {5|9} are girls'] },
 ]))
 practice(partWhole, 'The ratio of red sweets to all the sweets in a jar is 2 : 7. Write the ratio of red sweets to other sweets.', 'R1.4 Q3', false, ratio([2, 5]), 'The 7 includes the red sweets.', boardModel([], [
-  { title: 'Find the others', say: 'The 7 is all the sweets, red included.', rows: ['7 − 2 = 5'] },
-  { title: 'Part to part', say: 'Red compared with the others.', rows: ['! red : others = 2 : 5'] },
+  { title: 'Calculate the other sweets', say: 'The 7 is all the sweets, red included.', rows: ['7 − 2 = 5'] },
+  { title: 'Compare the red sweets with the other sweets', say: 'Red compared with the others.', rows: ['! red : others = 2 : 5'] },
 ]), ratioSlips([2, 5], [[[2, 7], 'That’s red to all the sweets. The others are 7 − 2 = 5.'], [[2, 9], 'The 7 already includes the red sweets: take 2 away, don’t add.']]))
 practice(partWhole, '2/5 of the counters in a bag are blue. The rest are red. Write the ratio of blue to red counters.', 'R1.4 Q4', false, ratio([2, 3]), '2 out of every 5 are blue.', boardModel([], [
-  { title: 'Find the red', say: '2 out of every 5 counters are blue, so the other 3 are red.', rows: ['5 − 2 = 3'] },
-  { title: 'Part to part', say: 'Blue compared with red.', rows: ['! blue : red = 2 : 3'] },
+  { title: 'Calculate the red counters', say: '2 out of every 5 counters are blue, so the other 3 are red.', rows: ['5 − 2 = 3'] },
+  { title: 'Compare the blue counters with the red ones', say: 'Blue compared with red.', rows: ['! blue : red = 2 : 3'] },
 ]), ratioSlips([2, 3], [[[2, 5], 'That’s blue to all the counters. The red are 5 − 2 = 3.']]))
 practice(partWhole, 'A bag has 40 sweets. The ratio of sour sweets to all the sweets is 3 : 8. How many sweets are not sour?', 'R1.4 Q5', false, number(25, '25 sweets'), 'The 8 parts are all 40 sweets.', boardModel([], [
   { title: 'Find 1 part', say: 'All 40 sweets are 8 parts.', rows: ['40 ÷ 8 = 5'] },
-  { title: 'Sour sweets', say: 'Sour sweets are 3 parts.', rows: ['3 × 5 = 15'] },
-  { title: 'Not sour', say: 'Take the sour sweets away from all of them.', rows: ['40 − 15 = 25', '! 25 sweets'] },
+  { title: 'Calculate the sour sweets', say: 'Sour sweets are 3 parts.', rows: ['3 × 5 = 15'] },
+  { title: 'Calculate the sweets that are not sour', say: 'Take the sour sweets away from all of them.', rows: ['40 − 15 = 25', '! 25 sweets'] },
 ]), slips(25, [[15, 'That’s the sour sweets. The question asks for the others.'], [16, 'The 8 is all the sweets, not the other sweets: 40 ÷ 8 = 5, then 3 × 5 = 15 sour.'], [5, 'That’s 1 part.']]))
 
 /* ---------- Rung 5: sharing an amount (R1.5) ---------- */

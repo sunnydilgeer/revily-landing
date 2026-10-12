@@ -86,7 +86,7 @@ const FRACTION = /(\{[^|}]*\|[^}]*\})/
 
 /** Words for a screen reader: "5x − 3 + 3 = 27 + 3, with − 3 + 3 cancelling". */
 function spoken(row: EquationRow) {
-  if ('note' in row) return row.note
+  if ('note' in row) return row.note.replace(/\{([^|}]*)\|([^}]*)\}/g, '$1 over $2')
   const said = (side: string) => readTokens(side).map((token, i) => words(token, i === 0)).join(' ')
   if ('answer' in row) {
     const at = row.answer.indexOf(' = ')
@@ -120,7 +120,9 @@ export function EquationVisual({ frame, newFrom, heading, plain, focus }: { fram
           // Words with a fraction in them: "{4|9} of the counters are red", the fraction drawn with its bar.
           : row.answer.split(FRACTION).map((part, k) => k % 2 ? <span key={k} className="ns-eq__answer-side"><Side side={part} plain /></span> : <Powers key={k} text={part} />)}</p>
         : 'note' in row
-        ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}`} aria-hidden="true"><Powers text={spaced(row.note)} /></p>
+        ? <p key={i} className={`ns-eq__note is-f${(row.family ?? 3) % 4}${done(i)}`} aria-hidden="true">{FRACTION.test(row.note)
+          ? row.note.split(FRACTION).map((part, k) => k % 2 ? <span key={k} className="ns-eq__answer-side"><Side side={part} plain /></span> : <Powers key={k} text={part} />)
+          : <Powers text={spaced(row.note)} />}</p>
         : <div key={i} className={`ns-eq__row${proof && !row.left ? ' is-carry' : ''}${done(i)}`} aria-hidden="true">
           {row.label && <span className="ns-eq__label">{row.label}</span>}
           <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
