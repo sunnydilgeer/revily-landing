@@ -233,9 +233,11 @@ practice(decrease, 'Sam says, “25% off then 10% off is the same as 35% off.”
 /* ---------- Rung 4: a percentage change (R3.4) ---------- */
 
 const phone = worked(change, 'A phone cost £400. A year later it is sold for £250. Work out the percentage change in its value.', '£400 to £250. Work out the percentage change.', 'R3.4 video + Q1', boardModel([], [
-  { title: 'Find the change', say: 'The change is the difference between the two values.', rows: ['400 − 250 = 150'] },
-  { title: 'Divide by the original', say: 'Divide the change by the ORIGINAL value, then multiply by 100. It went down, so it is a decrease.', rows: ['150 ÷ 400 × 100 = 37.5', '! 37.5% decrease'] },
-]), 'Our aim: find the change, divide it by the original, then multiply by 100.')
+  { title: 'Calculate the decrease in value', say: 'The difference between the two values.', rows: ['£400 − £250 = £150'] },
+  { title: 'Write the decrease as a fraction of the original value', say: 'A percentage change compares the change with what it started at, the original £400. Put the change over the original.', rows: ['>0 compare the £150 with the £400 it started at', 'decrease ÷ original = {150|400}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{150|400} × 100 = 37.5', '! 37.5% decrease'] },
+  { title: 'Check it makes sense', say: '37.5% of the original £400 should be the decrease, £150. Find 1%, then multiply by 37.5.', rows: ['400 ÷ 100 = 4', '4 × 37.5 = 150 ✓'] },
+]), 'Our aim: calculate the change, write it as a fraction of the original, then multiply by 100.')
 video(phone, media('change', '£400 to £250: the percentage change', 'R3.4_Percentage_Change.mp4', 100, [
   'A phone loses value: a phone cost £400, and a year later it sells for £250. What is the percentage change?',
   'What is percentage change? It tells us how big the change is as a percentage, always compared with the original, the starting value. Percentage change = change ÷ original × 100.',
@@ -246,40 +248,51 @@ video(phone, media('change', '£400 to £250: the percentage change', 'R3.4_Perc
   'Where you see it: the tag changes from £400 to £250, 37.5% down. 150 ÷ 400 × 100 = 37.5, a 37.5% decrease.',
   'Well done: find the change, divide by the original, multiply by 100, and say increase or decrease. The answer is a 37.5% decrease.',
 ]))
-percent(practice(change, 'A plant grows from 20 cm to 25 cm. Work out the percentage increase in its height.', 'R3.4 Q2', number(25, '25%'), 'The change is 5 cm. Divide by the original 20 cm, then × 100.', boardModel([], [
-  { title: 'Find the change', say: 'The difference between the two heights.', rows: ['25 − 20 = 5'] },
-  { title: 'Divide by the original', say: 'Divide the change by the original 20 cm, then multiply by 100.', rows: ['5 ÷ 20 × 100 = 25', '! 25% increase'] },
-]), slips(25, [[20, 'Divide by the original, 20 cm, not the new height: 5 ÷ 20 × 100.'], [5, 'That’s the change in cm. Divide by 20, then × 100.'], [0.25, 'Multiply by 100 to make it a percentage: 25%.']])))
-percent(practice(change, 'A shop’s sales went from £3,200 in March to £3,680 in April. Work out the percentage increase in sales.', 'R3.4 Q3', number(15, '15%'), 'Find the change, then divide by the March sales.', boardModel([], [
-  { title: 'Find the change', say: 'The difference between the two months.', rows: ['3680 − 3200 = 480'] },
-  { title: 'Divide by the original', say: 'Divide by the original, the March sales, then multiply by 100.', rows: ['480 ÷ 3200 × 100 = 15', '! 15% increase'] },
-]), slips(15, [[480 / 3680 * 100, 'Divide by the original, March’s £3,200, not April’s.'], [480, 'That’s the change in pounds. Divide by 3,200, then × 100.'], [0.15, 'Multiply by 100 to make it a percentage: 15%.']])))
-percent(practice(change, 'A football club’s attendance fell from 24,000 to 20,400. Work out the percentage decrease in attendance.', 'R3.4 Q4a', number(15, '15%'), 'Find the change, then divide by the original 24,000.', boardModel([], [
-  { title: 'Find the change', say: 'The difference between the two attendances.', rows: ['24000 − 20400 = 3600'] },
-  { title: 'Divide by the original', say: 'Divide by the original 24,000, then multiply by 100.', rows: ['3600 ÷ 24000 = 0.15', '0.15 × 100 = 15', '! 15% decrease'] },
-]), slips(15, [[3600 / 20400 * 100, 'Divide by the original, 24,000, not the new attendance.'], [3600, 'That’s the change. Divide by 24,000, then × 100.']])))
+percent(practice(change, 'A plant grows from 20 cm to 25 cm. Work out the percentage increase in its height.', 'R3.4 Q2', number(25, '25%'), 'The increase is 5 cm. Write it as a fraction of the original 20 cm, then × 100.', boardModel([], [
+  { title: 'Calculate the increase in height', say: 'The difference between the two heights.', rows: ['25 cm − 20 cm = 5 cm'] },
+  { title: 'Write the increase as a fraction of the original height', say: 'A percentage change compares the change with what it started at, the original 20 cm. Put the change over the original.', rows: ['>0 compare the 5 cm with the 20 cm it started at', 'increase ÷ original = {5|20}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{5|20} × 100 = 25', '! 25% increase'] },
+  { title: 'Check it makes sense', say: '25% of the original 20 cm should be the increase, 5 cm. Find 1%, then multiply by 25.', rows: ['20 ÷ 100 = 0.2', '0.2 × 25 = 5 ✓'] },
+]), slips(25, [[20, 'Compare with the original, 20 cm, not the new height: 5 ÷ 20 × 100.'], [5, 'That’s the change in cm. Write it over 20, then × 100.'], [0.25, 'Multiply by 100 to make it a percentage: 25%.']])))
+percent(practice(change, 'A shop’s sales went from £3,200 in March to £3,680 in April. Work out the percentage increase in sales.', 'R3.4 Q3', number(15, '15%'), 'Calculate the increase, then write it as a fraction of the March sales.', boardModel([], [
+  { title: 'Calculate the increase in sales', say: 'The difference between the two months.', rows: ['£3680 − £3200 = £480'] },
+  { title: 'Write the increase as a fraction of the original sales', say: 'A percentage change compares the change with what it started at, the original £3200. Put the change over the original.', rows: ['>0 compare the £480 with the £3200 it started at', 'increase ÷ original = {480|3200}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{480|3200} × 100 = 15', '! 15% increase'] },
+  { title: 'Check it makes sense', say: '15% of the original £3200 should be the increase, £480. Find 1%, then multiply by 15.', rows: ['3200 ÷ 100 = 32', '32 × 15 = 480 ✓'] },
+]), slips(15, [[480 / 3680 * 100, 'Compare with the original, March’s £3,200, not April’s.'], [480, 'That’s the change in pounds. Write it over 3,200, then × 100.'], [0.15, 'Multiply by 100 to make it a percentage: 15%.']])))
+percent(practice(change, 'A football club’s attendance fell from 24,000 to 20,400. Work out the percentage decrease in attendance.', 'R3.4 Q4a', number(15, '15%'), 'Calculate the decrease, then write it as a fraction of the original 24,000.', boardModel([], [
+  { title: 'Calculate the decrease in attendance', say: 'The difference between the two attendances.', rows: ['24000 − 20400 = 3600'] },
+  { title: 'Write the decrease as a fraction of the original attendance', say: 'A percentage change compares the change with what it started at, the original 24000. Put the change over the original.', rows: ['>0 compare the 3600 with the 24000 it started at', 'decrease ÷ original = {3600|24000}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{3600|24000} × 100 = 15', '! 15% decrease'] },
+  { title: 'Check it makes sense', say: '15% of the original 24000 should be the decrease, 3600. Find 1%, then multiply by 15.', rows: ['24000 ÷ 100 = 240', '240 × 15 = 3600 ✓'] },
+]), slips(15, [[3600 / 20400 * 100, 'Compare with the original, 24,000, not the new attendance.'], [3600, 'That’s the change. Write it over 24,000, then × 100.']])))
 practice(change, 'Jack divides 3,600 by 20,400 and gets 17.6% for the fall from 24,000 to 20,400. What is Jack’s mistake?', 'R3.4 Q4b', choose(
   'He divided by the new value. Divide by the original, 24,000',
   ['He should have multiplied by 100 first', 'The order doesn’t matter. The problem is the number he divided by: use the original, 24,000.'],
   ['He should have divided 20,400 by 3,600', 'That gives about 5.7, not a percentage. Divide the change by the original: 3,600 ÷ 24,000.'],
   ['Nothing: 17.6% is right', 'A percentage change is always compared with the original, 24,000: 15%.'],
 ), 'Which number should the change be compared with?', boardModel([], [
-  { title: 'Divide by the original', say: 'Jack divided by the new value. A percentage change is always compared with the original.', rows: ['3600 ÷ 24000 = 0.15', '0.15 × 100 = 15', '! 15%, not 17.6%'] },
+  { title: 'Write the decrease as a fraction of the original attendance', say: 'Jack divided by the new value. A percentage change always compares the change with the original, 24,000.', rows: ['decrease ÷ original = {3600|24000}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{3600|24000} × 100 = 15', '! 15%, not 17.6%'] },
 ], 'Why'))
-percent(practice(change, 'A house was bought for £180,000 and sold for £207,000. Work out the percentage profit. Give your answer to 1 decimal place.', 'R3.4 Q5a', number(15, '15.0%'), 'Find the profit, then divide by the price it was bought for.', boardModel([], [
-  { title: 'Find the change', say: 'The profit is the difference between the two prices.', rows: ['207000 − 180000 = 27000'] },
-  { title: 'Divide by the original', say: 'Divide by the original, the price it was bought for, then multiply by 100.', rows: ['27000 ÷ 180000 = 0.15', '0.15 × 100 = 15', '! 15.0% profit'] },
-]), slips(15, [[27000 / 207000 * 100, 'Divide by the original, £180,000, not the selling price.'], [27000, 'That’s the profit in pounds. Divide by 180,000, then × 100.']])))
-percent(practice(change, 'A second house was bought for £250,000 and sold for £230,000. Work out the percentage loss.', 'R3.4 Q5b', number(8, '8%'), 'The change is £20,000. Divide by the original £250,000.', boardModel([], [
-  { title: 'Find the change', say: 'The loss is the difference between the two prices.', rows: ['250000 − 230000 = 20000'] },
-  { title: 'Divide by the original', say: 'Divide by the original £250,000, then multiply by 100.', rows: ['20000 ÷ 250000 = 0.08', '0.08 × 100 = 8', '! 8% loss'] },
-]), slips(8, [[20000 / 230000 * 100, 'Divide by the original, £250,000, not the selling price.'], [20000, 'That’s the loss in pounds. Divide by 250,000, then × 100.']])))
+percent(practice(change, 'A house was bought for £180,000 and sold for £207,000. Work out the percentage profit. Give your answer to 1 decimal place.', 'R3.4 Q5a', number(15, '15.0%'), 'Calculate the profit, then write it as a fraction of the price paid.', boardModel([], [
+  { title: 'Calculate the profit', say: 'The difference between the two prices.', rows: ['£207000 − £180000 = £27000'] },
+  { title: 'Write the profit as a fraction of the price paid', say: 'A percentage change compares the change with what it started at, the original £180000. Put the change over the original.', rows: ['>0 compare the £27000 with the £180000 it started at', 'profit ÷ original = {27000|180000}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{27000|180000} × 100 = 15', '! 15.0% profit'] },
+  { title: 'Check it makes sense', say: '15% of the original £180000 should be the profit, £27000. Find 1%, then multiply by 15.', rows: ['180000 ÷ 100 = 1800', '1800 × 15 = 27000 ✓'] },
+]), slips(15, [[27000 / 207000 * 100, 'Compare with the original, £180,000, not the selling price.'], [27000, 'That’s the profit in pounds. Write it over 180,000, then × 100.']])))
+percent(practice(change, 'A second house was bought for £250,000 and sold for £230,000. Work out the percentage loss.', 'R3.4 Q5b', number(8, '8%'), 'The loss is £20,000. Write it as a fraction of the price paid, £250,000.', boardModel([], [
+  { title: 'Calculate the loss', say: 'The difference between the two prices.', rows: ['£250000 − £230000 = £20000'] },
+  { title: 'Write the loss as a fraction of the price paid', say: 'A percentage change compares the change with what it started at, the original £250000. Put the change over the original.', rows: ['>0 compare the £20000 with the £250000 it started at', 'loss ÷ original = {20000|250000}'] },
+  { title: 'Change the fraction to a percentage', say: 'Multiply by 100 to make it a percentage.', rows: ['{20000|250000} × 100 = 8', '! 8% loss'] },
+  { title: 'Check it makes sense', say: '8% of the original £250000 should be the loss, £20000. Find 1%, then multiply by 8.', rows: ['250000 ÷ 100 = 2500', '2500 × 8 = 20000 ✓'] },
+]), slips(8, [[20000 / 230000 * 100, 'Compare with the original, £250,000, not the selling price.'], [20000, 'That’s the loss in pounds. Write it over 250,000, then × 100.']])))
 practice(change, 'Mia says, “The first house made more money, so it must have the bigger percentage change.” The first house made £27,000 on £180,000, a 15% profit. The second lost £20,000 on £250,000, an 8% loss. Is Mia’s reasoning correct?', 'R3.4 Q5c', choose(
   'Her answer is right here, but her reason is wrong: the percentage depends on the original too',
   ['Yes: more money always means a bigger percentage', 'Not always: £20,000 on £250,000 is 8%, but £20,000 on £100,000 would be 20%.'],
   ['Her answer is wrong: the second house has the bigger percentage', '15% is bigger than 8%, so her answer is right here. It’s her reason that is wrong.'],
 ), 'The percentage depends on the change and the original.', boardModel([], [
-  { title: 'Both percentages', say: 'Each change is compared with its own original.', rows: ['27000 ÷ 180000 = 0.15', '0.15 × 100 = 15', '20000 ÷ 250000 = 0.08', '0.08 × 100 = 8'] },
+  { title: 'Both percentages', say: 'Each change is compared with its own original.', rows: ['{27000|180000} × 100 = 15', '{20000|250000} × 100 = 8'] },
   { title: 'Her reason', say: '15% is bigger, so her answer is right here. But a bigger change on a much bigger original can give a smaller percentage.', rows: ['> her answer is right here', '! Wrong reason'] },
 ], 'Why'))
 
@@ -287,7 +300,7 @@ add('mixed', 'Percentages', 'R3.1-R3.4 consolidation', text(
   'One method for all of them: find 1% (÷ 100), then multiply by the percentage you want. 23% of £80 is 23 × 0.80 = £18.40.',
   'An increase: you want 100% + the increase. Up 15% is 115 lots of 1%, the same as × 1.15.',
   'A decrease: you want what is left. 30% off leaves 70 lots of 1%, the same as × 0.7.',
-  'A percentage change: change ÷ original × 100. Always divide by the original.',
+  'A percentage change: write the change as a fraction of the original, then × 100. Always compare with the original.',
 ))
 
 export const tutorPercentLesson: TutorMethodLesson = {
