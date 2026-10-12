@@ -83,11 +83,6 @@ const rounded = (list: Slip[]): Slip[] => list.flatMap(([wrong, note]) => [[wron
 const slips = (right: number, list: Slip[]) => (response: string) => diagnoseSlips(response, right, rounded(list))
 const pounds = (state: TutorMethodState) => { state.answerPrefix = '£'; return state }
 const percent = (state: TutorMethodState) => { state.answerPrefix = '%'; return state }
-/** The multiplier from a rise or a fall, as its own move. */
-const multiplierMove = (change: number, rise: boolean, say: string): BoardMove => {
-  const kept = rise ? 100 + change : 100 - change
-  return { title: 'The multiplier', say, rows: [`100% ${rise ? '+' : '−'} ${change}% = ${kept}%`, `${kept} ÷ 100 = ${kept / 100}`] }
-}
 
 /* ---------- Rung 1: simple interest (R5.1) ---------- */
 
@@ -206,9 +201,11 @@ pounds(practice(growth, 'Sam says that £1000 at 3% compound interest for 2 year
 /* ---------- Rung 3: compound decay (R5.3) ---------- */
 
 const car = worked(decay, 'A car costs £12,000 new. Its value falls by 20% every year. Work out its value after 2 years.', '£12,000, loses 20% a year. Its value after 2 years.', 'R5.3 video + Q1', barsModel(years(12000, [9600, 7680]), [
-  multiplierMove(20, false, 'Decay: the value goes DOWN each year, and the 20% is taken off the NEW value. It keeps 100% − 20% = 80%.'),
-  { title: 'Year 1', say: 'Multiply the £12,000 by 0.8. It lost £2400.', rows: ['12000 × 0.8 = 9600'], reach: 1 },
-  { title: 'Year 2', say: 'Keep 80% of the NEW value. It lost £1920 this year, less than £2400.', rows: ['9600 × 0.8 = 7680', '! £7680'], reach: 2 },
+  { title: 'Take off the 20% decrease', say: 'Decay: the value goes DOWN each year, and the 20% is taken off the NEW value.', rows: ['100% − 20% = 80%', '>0 each year the 20% comes off the new value'] },
+  { title: 'Write 80% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['80% = 80 ÷ 100 = 0.8'] },
+  { title: 'Calculate the value after year 1', say: 'Multiply the £12,000 by 0.8. It lost £2400.', rows: ['£12000 × 0.8 = £9600'], reach: 1 },
+  { title: 'Calculate the value after year 2', say: 'Keep 80% of the NEW value. It lost £1920 this year, less than £2400.', rows: ['£9600 × 0.8 = £7680', '>0 the 20% now comes off £9600, not £12000', '! Value after 2 years = £7680'], reach: 2 },
+  { title: 'Check it makes sense', say: 'Simple decay would lose £2400 twice, £4800. Compound loses less, because year 2 loses 20% of a smaller value.', rows: ['£12000 − £7680 = £4320', '>0 less than 2 × £2400 = £4800 ✓'] },
 ]), 'Our aim: find the multiplier for what is left, then multiply by it once for every year.')
 video(car, media('decay', '£12,000 losing 20% a year for 2 years', 'R5.3_Compound_Decay.mp4', 104, [
   'A car loses value: a car costs £12000 and loses 20% of its value every year. What is it worth after 2 years?',
@@ -221,29 +218,33 @@ video(car, media('decay', '£12,000 losing 20% a year for 2 years', 'R5.3_Compou
   'Well done: the multiplier is 1 − the decimal. Multiply year after year, or original × multiplier ^ years. The answer is £7680.',
 ]))
 pounds(practice(decay, 'A phone worth £500 loses 10% of its value each year. What is it worth after 2 years?', 'R5.3 Q2', number(405, '£405'), 'It keeps 90% = 0.9 each year. Multiply by 0.9 twice.', barsModel(years(500, [450, 405]), [
-  multiplierMove(10, false, 'It loses 10%, so it keeps 100% − 10% = 90%.'),
-  { title: 'Year 1', say: 'Multiply the £500 by 0.9.', rows: ['500 × 0.9 = 450'], reach: 1 },
-  { title: 'Year 2', say: 'Keep 90% of the NEW value.', rows: ['450 × 0.9 = 405', '! £405'], reach: 2 },
+  { title: 'Take off the 10% decrease', say: 'It loses 10%, so it keeps 100% − 10% = 90%.', rows: ['100% − 10% = 90%', '>0 each year the 10% comes off the new value'] },
+  { title: 'Write 90% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['90% = 90 ÷ 100 = 0.9'] },
+  { title: 'Calculate the value after year 1', say: 'Multiply the £500 by 0.9.', rows: ['£500 × 0.9 = £450'], reach: 1 },
+  { title: 'Calculate the value after year 2', say: 'Keep 90% of the NEW value.', rows: ['£450 × 0.9 = £405', '>0 the 10% now comes off £450, not £500', '! Value after 2 years = £405'], reach: 2 },
+  { title: 'Check it makes sense', say: 'Simple decay would lose £50 twice, £100. Compound loses a bit less.', rows: ['£500 − £405 = £95', '>0 less than 2 × £50 = £100 ✓'] },
 ]), slips(405, [[400, 'That takes £50 off twice. Year 2’s 10% is of £450.'], [450, 'That’s 1 year. Multiply by 0.9 again.'], [95, 'That’s the value lost. The question asks what it is worth.']])))
 practice(decay, 'A lake has 8000 fish. The number falls by 15% each year. How many fish are there after 3 years, to the nearest whole number?', 'R5.3 Q3', number(4913, '4913 fish'), 'The multiplier is 0.85. Use 8000 × 0.85³.', boardModel([], [
-  multiplierMove(15, false, 'It falls by 15%, so it keeps 100% − 15% = 85%.'),
-  { title: 'Use the power', say: '3 years is × 0.85 three times, which is × 0.85³.', rows: ['8000 × 0.85³ = 4913', '! 4913 fish'] },
+  { title: 'Take off the 15% decrease', say: 'It falls by 15%, so it keeps 100% − 15% = 85%.', rows: ['100% − 15% = 85%', '>0 each year the 15% comes off the new number of fish'] },
+  { title: 'Write 85% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['85% = 85 ÷ 100 = 0.85'] },
+  { title: 'Calculate the fish after 3 years', say: '3 years is × 0.85 three times, which is × 0.85³.', rows: ['8000 × 0.85³ = 4913', '>0 × 0.85 once for each year', '! Fish after 3 years = 4913'] },
 ]), slips(4913, [[4400, 'That takes 15% of 8000 off three times. Multiply by 0.85 three times.'], [6800, 'That’s 1 year. Use 0.85³ for 3 years.'], [12167, 'The number falls: the multiplier is 0.85, not 1.15.']]))
 pounds(practice(decay, 'A van is bought for £24,000. It depreciates by 25% in the first year and by 12% in the second year. Work out its value after 2 years.', 'R5.3 Q4a', number(15840, '£15,840'), 'A different multiplier each year: 0.75, then 0.88.', barsModel(years(24000, [18000, 15840]), [
-  { title: 'Year 1', say: '25% off leaves 75%: multiply by 0.75.', rows: ['24000 × 0.75 = 18000'], reach: 1 },
-  { title: 'Year 2', say: '12% off leaves 88%: multiply the NEW value by 0.88.', rows: ['18000 × 0.88 = 15840', '! £15,840'], reach: 2 },
+  { title: 'Calculate the value after year 1', say: '25% off leaves 75%: multiply by 0.75.', rows: ['100% − 25% = 75% = 0.75', '£24000 × 0.75 = £18000'], reach: 1 },
+  { title: 'Calculate the value after year 2', say: '12% off leaves 88%: multiply the NEW value by 0.88.', rows: ['100% − 12% = 88% = 0.88', '£18000 × 0.88 = £15840', '! Value after 2 years = £15,840'], reach: 2 },
 ]), slips(15840, [[15120, 'That takes 37% of £24,000 off. The 12% comes off £18,000.'], [18000, 'That’s 1 year. Take 12% off too: × 0.88.'], [13500, 'The second year is 12%, not 25%: × 0.88.']])))
 percent(practice(decay, 'The van went from £24,000 to £15,840. Work out the total percentage decrease over the 2 years.', 'R5.3 Q4b', number(34, '34%'), 'Write the final value as a fraction of the original, then take it from 100%.', boardModel([], [
-  { title: 'Compare with the original', say: 'Divide the final value by the original: 0.66 is 66% of it left.', rows: ['15840 ÷ 24000 = 0.66'] },
-  { title: 'The decrease', say: '66% is left, so the rest has gone.', rows: ['100 − 66 = 34', '! 34%'] },
+  { title: 'Write the final value as a fraction of the original', say: 'Compare what is left with the original £24,000: 0.66 is 66% of it left.', rows: ['final ÷ original = {15840|24000} = 0.66', '>0 66% is left'] },
+  { title: 'Calculate the percentage decrease', say: '66% is left, so the rest has gone.', rows: ['100% − 66% = 34%', '! Total decrease = 34%'] },
 ]), slips(34, [[37, '25% + 12% isn’t right here: the 12% is of £18,000. Work out 15840 ÷ 24000.'], [66, 'That’s the part left. Take it from 100%.'], [0.66, 'That’s the part left as a decimal: 66%. The decrease is 100 − 66.']])))
 practice(decay, 'A medicine dose of 200 mg leaves the body at 30% per hour. How much is left after 4 hours? Give your answer to 1 decimal place.', 'R5.3 Q5a', number(48, '48.0 mg'), 'It keeps 70% = 0.7 each hour. Use 200 × 0.7⁴.', boardModel([], [
-  multiplierMove(30, false, '30% leaves each hour, so 100% − 30% = 70% stays.'),
-  { title: 'Use the power', say: '4 hours is × 0.7⁴. Round to 1 decimal place.', rows: ['200 × 0.7⁴ = 48.02', '! 48.0 mg'] },
+  { title: 'Take off the 30% decrease', say: '30% leaves each hour, so 100% − 30% = 70% stays.', rows: ['100% − 30% = 70%', '>0 each hour the 30% comes off the new dose'] },
+  { title: 'Write 70% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['70% = 70 ÷ 100 = 0.7'] },
+  { title: 'Calculate the dose left after 4 hours', say: '4 hours is × 0.7⁴. Round to 1 decimal place.', rows: ['200 mg × 0.7⁴ = 48.02 mg', '>0 × 0.7 once for each hour', '! Dose left after 4 hours = 48.0 mg'] },
 ]), slips(48, [[48.02, 'Give it to 1 decimal place: 48.0 mg.'], [140, 'That’s 1 hour. Use 0.7⁴ for 4 hours.'], [1.62, 'Multiply by what stays, 0.7, not by the 0.3 that leaves.']]))
 practice(decay, 'The 200 mg dose keeps 70% each hour. After how many whole hours is less than 50 mg left?', 'R5.3 Q5b', number(4, '4 hours'), 'Try 3 hours and 4 hours: 200 × 0.7³ and 200 × 0.7⁴.', boardModel([], [
-  { title: 'Try 3 hours', say: 'After 3 hours there is still more than 50 mg.', rows: ['200 × 0.7³ = 68.6', '> more than 50'] },
-  { title: 'Try 4 hours', say: 'After 4 hours it is under 50 mg for the first time.', rows: ['200 × 0.7⁴ = 48.02', '! 4 hours'] },
+  { title: 'Calculate the dose left after 3 hours', say: 'After 3 hours there is still more than 50 mg.', rows: ['200 mg × 0.7³ = 68.6 mg', '> still more than 50 mg'] },
+  { title: 'Calculate the dose left after 4 hours', say: 'After 4 hours it is under 50 mg for the first time.', rows: ['200 mg × 0.7⁴ = 48.02 mg', '> under 50 mg for the first time', '! 4 hours'] },
 ]), slips(4, [[3, 'After 3 hours 68.6 mg is left, still more than 50.'], [5, 'After 4 hours it is already 48.0 mg, less than 50.']]))
 practice(decay, 'Nia says, “If a car loses 20% a year, after 5 years it has lost 100% and is worth nothing.” Why is Nia wrong?', 'R5.3 Q5c', choose(
   'Each 20% is of a smaller value, so the car never reaches £0',
@@ -256,10 +257,11 @@ practice(decay, 'Nia says, “If a car loses 20% a year, after 5 years it has lo
 /* ---------- Rung 4: finding the number of years (R5.4) ---------- */
 
 const rent = worked(periods, 'Rent is £800 a month. It rises by 5% every year. After how many years will the rent first be more than £1000 a month?', '£800 rising 5% a year. When is it over £1000?', 'R5.4 video + Q1', barsModel(years(800, [1, 2, 3, 4, 5].map(n => 800 * 1.05 ** n), 'now', n => String(n)).map(([name, value]): Bar => [name, value, `£${Math.floor(value)}`]), [
-  multiplierMove(5, true, 'This time the number of years, n, is the mystery. A 5% rise is a multiplier of 1.05 each year.'),
-  { title: 'Try n = 3', say: 'Try values of n until the rent goes over £1000. Each year the rent is × 1.05: £840, £882, £926.', rows: ['800 × 1.05³ = 926.10', '> too low'], reach: 3 },
-  { title: 'Try n = 4', say: 'Still under £1000: getting close. One more.', rows: ['800 × 1.05⁴ = 972.41', '> too low'], reach: 4 },
-  { title: 'Try n = 5', say: 'Over £1000 for the first time. n = 4 was under, n = 5 is over, so it takes 5 years.', rows: ['800 × 1.05⁵ = 1021.03', '! 5 years'], reach: 5 },
+  { title: 'Add the 5% rise', say: 'This time the number of years, n, is the mystery. The rent keeps its 100% and adds 5% each year.', rows: ['100% + 5% = 105%'] },
+  { title: 'Write 105% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['105% = 105 ÷ 100 = 1.05'] },
+  { title: 'Calculate the rent after 3 years', say: 'Try years until the rent goes over £1000. Each year the rent is × 1.05: £840, £882, £926.', rows: ['£800 × 1.05³ = £926.10', '> still under £1000'], reach: 3 },
+  { title: 'Calculate the rent after 4 years', say: 'Still under £1000: getting close. One more.', rows: ['£800 × 1.05⁴ = £972.41', '> still under £1000'], reach: 4 },
+  { title: 'Calculate the rent after 5 years', say: 'Over £1000 for the first time. 4 years was under, 5 years is over, so it takes 5 years.', rows: ['£800 × 1.05⁵ = £1021.03', '> over £1000 for the first time', '! 5 years'], reach: 5 },
 ]), 'Our aim: try values of n, and stop at the first one that goes over.')
 video(rent, media('periods', '£800 rising 5% a year: when is it over £1000?', 'R5.4_Finding_The_Number_Of_Periods.mp4', 112, [
   'A rising rent: rent is £800 a month and rises 5% a year. After how many years is it over £1000? £800 × 1.05ⁿ > £1000.',
@@ -272,40 +274,43 @@ video(rent, media('periods', '£800 rising 5% a year: when is it over £1000?', 
   'Well done: set up original × multiplier ^ n, try n = 1, 2, 3 …, and stop at the first one that works. The answer is 5 years.',
 ]))
 practice(periods, '£100 is saved at 10% compound interest per year. After how many years is there more than £120?', 'R5.4 Q2', number(2, '2 years'), 'Multiply by 1.1 each year until it is over £120.', barsModel(years(100, [110, 121]), [
-  { title: 'Year 1', say: '10% interest: multiply by 1.1.', rows: ['100 × 1.1 = 110', '> not more than £120'], reach: 1 },
-  { title: 'Year 2', say: 'Multiply by 1.1 again: over £120 for the first time.', rows: ['110 × 1.1 = 121', '! 2 years'], reach: 2 },
+  { title: 'Calculate the money after year 1', say: '10% interest: 100% + 10% = 110% = 1.1. Multiply by 1.1.', rows: ['£100 × 1.1 = £110', '> not more than £120'], reach: 1 },
+  { title: 'Calculate the money after year 2', say: 'Multiply by 1.1 again: over £120 for the first time.', rows: ['£110 × 1.1 = £121', '> over £120 for the first time', '! 2 years'], reach: 2 },
 ]), slips(2, [[1, 'After 1 year there is £110, not more than £120.'], [3, 'After 2 years there is £121, already more than £120.']]))
 practice(periods, 'A town has 20,000 people. The population grows by 4% each year. After how many whole years will it first be above 23,000?', 'R5.4 Q3', number(4, '4 years'), 'The multiplier is 1.04. Try n = 3 and n = 4.', boardModel([], [
-  multiplierMove(4, true, 'A 4% rise each year: keep the 100% and add 4%.'),
-  { title: 'Try n = 3', say: 'After 3 years it is still below 23,000.', rows: ['20000 × 1.04³ = 22497.28', '> too low'] },
-  { title: 'Try n = 4', say: 'After 4 years it is above 23,000 for the first time.', rows: ['20000 × 1.04⁴ = 23397.17', '! 4 years'] },
+  { title: 'Add the 4% rise', say: 'A 4% rise each year: keep the 100% and add 4%.', rows: ['100% + 4% = 104%'] },
+  { title: 'Write 104% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['104% = 104 ÷ 100 = 1.04'] },
+  { title: 'Calculate the population after 3 years', say: 'After 3 years it is still below 23,000.', rows: ['20000 × 1.04³ = 22497.28', '> still below 23,000'] },
+  { title: 'Calculate the population after 4 years', say: 'After 4 years it is above 23,000 for the first time.', rows: ['20000 × 1.04⁴ = 23397.17', '> above 23,000 for the first time', '! 4 years'] },
 ]), slips(4, [[3, 'After 3 years it is 22,497, still below 23,000.'], [5, 'After 4 years it is already 23,397, above 23,000.'], [3.75, 'That adds 800 people every year: simple growth. Try n = 3 and n = 4 with 1.04.']]))
 practice(periods, 'A car worth £15,000 loses 18% of its value each year. After how many years will it first be worth less than £8000?', 'R5.4 Q4a', number(4, '4 years'), 'The multiplier is 0.82. Try n = 3 and n = 4.', boardModel([], [
-  multiplierMove(18, false, 'It loses 18%, so it keeps 100% − 18% = 82%.'),
-  { title: 'Try n = 3', say: 'After 3 years it is still worth more than £8000.', rows: ['15000 × 0.82³ = 8270.52', '> still more than £8000'] },
-  { title: 'Try n = 4', say: 'After 4 years it is worth less than £8000 for the first time.', rows: ['15000 × 0.82⁴ = 6781.83', '! 4 years'] },
+  { title: 'Take off the 18% decrease', say: 'It loses 18%, so it keeps 100% − 18% = 82%.', rows: ['100% − 18% = 82%', '>0 each year the 18% comes off the new value'] },
+  { title: 'Write 82% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['82% = 82 ÷ 100 = 0.82'] },
+  { title: 'Calculate the value after 3 years', say: 'After 3 years it is still worth more than £8000.', rows: ['£15000 × 0.82³ = £8270.52', '> still more than £8000'] },
+  { title: 'Calculate the value after 4 years', say: 'After 4 years it is worth less than £8000 for the first time.', rows: ['£15000 × 0.82⁴ = £6781.83', '> less than £8000 for the first time', '! 4 years'] },
 ]), slips(4, [[3, 'After 3 years it is £8270.52, still more than £8000.'], [5, 'After 4 years it is already £6781.83, less than £8000.']]))
 practice(periods, 'Explain how you know 3 years is not enough for the £15,000 car to be worth less than £8000.', 'R5.4 Q4b', choose(
   'After 3 years it is £8270.52, still more than £8000',
   ['After 3 years it is less than £8000', '15000 × 0.82³ = £8270.52, more than £8000.'],
   ['3 × 18% = 54% off is not enough', 'Work it out with the multiplier: 15000 × 0.82³ = £8270.52.'],
 ), 'Look at the n = 3 value.', boardModel([], [
-  { title: 'Look at n = 3', say: 'Work out the value after 3 years and compare it with £8000.', rows: ['15000 × 0.82³ = 8270.52', '> more than £8000', '! Not enough at 3'] },
+  { title: 'Calculate the value after 3 years', say: 'Work out the value after 3 years and compare it with £8000.', rows: ['£15000 × 0.82³ = £8270.52', '> more than £8000', '! Not enough at 3'] },
 ], 'Why'))
 practice(periods, 'Jade saves £1500 at 6% compound interest. She wants £2000. How many whole years will she have to wait?', 'R5.4 Q5a', number(5, '5 years'), 'The multiplier is 1.06. Try n = 4 and n = 5.', boardModel([], [
-  multiplierMove(6, true, 'A 6% rise each year: keep the 100% and add 6%.'),
-  { title: 'Try n = 4', say: 'After 4 years she still has less than £2000.', rows: ['1500 × 1.06⁴ = 1893.72', '> too low'] },
-  { title: 'Try n = 5', say: 'After 5 years she has more than £2000 for the first time.', rows: ['1500 × 1.06⁵ = 2007.34', '! 5 years'] },
+  { title: 'Add the 6% interest', say: 'A 6% interest each year: keep the 100% and add 6%.', rows: ['100% + 6% = 106%'] },
+  { title: 'Write 106% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['106% = 106 ÷ 100 = 1.06'] },
+  { title: 'Calculate the money after 4 years', say: 'After 4 years she still has less than £2000.', rows: ['£1500 × 1.06⁴ = £1893.72', '> still under £2000'] },
+  { title: 'Calculate the money after 5 years', say: 'After 5 years she has more than £2000 for the first time.', rows: ['£1500 × 1.06⁵ = £2007.34', '> over £2000 for the first time', '! 5 years'] },
 ]), slips(5, [[4, 'After 4 years she has £1893.72, still under £2000.'], [6, 'After 5 years she has £2007.34, already over £2000.'], [500 / 90, 'That’s simple interest. Try n = 4 and n = 5 with 1.06.']]))
 practice(periods, 'Would Jade reach £2000 any quicker at 7% interest?', 'R5.4 Q5b', choose(
   'No: at 7% it still takes 5 years',
   ['Yes: 4 years', '1500 × 1.07⁴ = £1966.19, still under £2000.'],
   ['Yes: 3 years', 'After 4 years at 7% it is £1966.19, still under £2000.'],
 ), 'Try n = 4 at 7%: 1500 × 1.07⁴.', boardModel([], [
-  { title: 'Try n = 4 and n = 5', say: 'At 7% the multiplier is 1.07. After 4 years it is still under £2000.', rows: ['1500 × 1.07⁴ = 1966.19', '1500 × 1.07⁵ = 2103.83', '> 4 years is still too low', '! No, still 5 years'] },
+  { title: 'Calculate the money after 4 and 5 years at 7%', say: 'At 7%, 100% + 7% = 107% = 1.07. After 4 years it is still under £2000.', rows: ['£1500 × 1.07⁴ = £1966.19', '£1500 × 1.07⁵ = £2103.83', '> 4 years is still too low', '! No, still 5 years'] },
 ], 'Check'))
 pounds(practice(periods, 'Kai says, “5% a year means it takes 20 years to double, because 20 × 5% = 100%.” Show that Kai is wrong: how much is £100 worth after 20 years at 5% compound interest?', 'R5.4 Q5c', number(265.33, '£265.33'), 'Work out 100 × 1.05²⁰.', boardModel([], [
-  { title: 'Use the power', say: '20 years at 5% is × 1.05²⁰. That is far more than double: it doubles in about 15 years.', rows: ['100 × 1.05²⁰ = 265.33', '> far more than double', '! £265.33'] },
+  { title: 'Calculate the value after 20 years', say: '20 years at 5% is × 1.05²⁰. That is far more than double: it doubles in about 15 years.', rows: ['£100 × 1.05²⁰ = £265.33', '>0 × 1.05 once for each year', '> far more than double', '! £265.33'] },
 ]), slips(265.33, [[200, 'That’s simple interest: £5 a year. Compound: 100 × 1.05²⁰.'], [105, 'That’s 1 year. Use 1.05²⁰.']])))
 
 add('mixed', 'Interest, growth and decay', 'R5.1-R5.4 consolidation', text(
