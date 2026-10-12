@@ -60,8 +60,8 @@ const multiplier = (answer: [number, number], shown: string) => pair(['multiplie
 /* ---------- Rung 1: a percentage of an amount (R3.1) ---------- */
 
 const trainers = worked(ofAmount, 'A pair of trainers costs £80. A shop takes 23% off. Work out 23% of £80.', 'Work out 23% of £80.', 'R3.1 video + Q1', squareModel('£80', [
-  { title: 'Find 1%', say: 'Per cent means out of 100, so the whole £80 is 100 squares. 1% is 1 square: divide by 100.', rows: ['80 ÷ 100 = 0.80'], pieces: [piece(1, '1% = £0.80')] },
-  { title: 'Multiply by 23', say: '23% is 23 squares, so 23 lots of 1%.', rows: ['23 × 0.80 = 18.40', '! £18.40'], pieces: [piece(23, '23% = £18.40')], note: '23 squares = £18.40' },
+  { title: 'Calculate 1% of the price', say: 'Per cent means out of 100, so the whole £80 is 100 squares. 1% is 1 square: divide by 100.', rows: ['80 ÷ 100 = 0.80'], pieces: [piece(1, '1% = £0.80')] },
+  { title: 'Calculate 23% of the price', say: '23% is 23 squares, so 23 lots of 1%.', rows: ['0.80 × 23 = 18.40', '! £18.40'], pieces: [piece(23, '23% = £18.40')], note: '23 squares = £18.40' },
 ]), 'Our aim: find 1%, then multiply by the percentage you want.')
 video(trainers, media('of-amount', 'Work out 23% of £80', 'R3.1_Percentage_Of_An_Amount.mp4', 104, [
   'A trainers discount: trainers cost £80, and the shop takes 23% off. How much is 23% of £80?',
@@ -74,24 +74,26 @@ video(trainers, media('of-amount', 'Work out 23% of £80', 'R3.1_Percentage_Of_A
   'Well done: 10% is divide by 10, 1% is divide by 100, then add the pieces to build the percentage. The answer is £18.40.',
 ]))
 practice(ofAmount, 'A cinema has 300 seats. 40% of the seats are taken. How many seats are taken?', 'R3.1 Q2', number(120, '120 seats'), '1% of 300 is 3. Multiply by 40.', squareModel('300 seats', [
-  { title: 'Find 1%', say: 'The 300 seats are 100 squares. 1% is 1 square: divide by 100.', rows: ['300 ÷ 100 = 3'], pieces: [piece(1, '1% = 3')] },
-  { title: 'Multiply by 40', say: '40% is 40 lots of 1%.', rows: ['40 × 3 = 120', '! 120 seats'], pieces: [piece(40, '40% = 120')], note: '40 squares = 120 seats' },
-]), slips(120, [[30, 'That’s 10%. 40% is 40 lots of 1%: 40 × 3.'], [12, '1% of 300 is 3 seats, not 0.3. 40% is 40 × 3.'], [180, 'That’s the seats left. The question asks how many are taken.']]))
+  { title: 'Calculate 1% of the seats', say: 'The 300 seats are 100 squares. 1% is 1 square: divide by 100.', rows: ['300 ÷ 100 = 3'], pieces: [piece(1, '1% = 3')] },
+  { title: 'Calculate 40% of the seats', say: '40% is 40 lots of 1%.', rows: ['3 × 40 = 120', '! 120 seats'], pieces: [piece(40, '40% = 120')], note: '40 squares = 120 seats' },
+]), slips(120, [[30, 'That’s 10%. 40% is 40 lots of 1%: 3 × 40.'], [12, '1% of 300 is 3 seats, not 0.3. 40% is 3 × 40.'], [180, 'That’s the seats left. The question asks how many are taken.']]))
 pounds(practice(ofAmount, 'A phone bill is £64. 35% of the bill is for calls. Work out how much of the bill is for calls.', 'R3.1 Q3', number(22.4, '£22.40'), '1% of £64 is £0.64. Multiply by 35.', squareModel('£64', [
-  { title: 'Find 1%', say: 'The whole £64 is 100 squares. 1% is 1 square: divide by 100.', rows: ['64 ÷ 100 = 0.64'], pieces: [piece(1, '1% = £0.64')] },
-  { title: 'Multiply by 35', say: '35% is 35 lots of 1%.', rows: ['35 × 0.64 = 22.40', '! £22.40'], pieces: [piece(35, '35% = £22.40')], note: '35 squares = £22.40' },
-]), slips(22.4, [[6.4, 'That’s 10%. 35% is 35 lots of 1%: 35 × 0.64.'], [19.2, 'That’s 30%. 35% is 35 lots of 1%: 35 × 0.64.'], [41.6, 'That’s what is left. The question asks for the calls, 35%.']])))
+  { title: 'Calculate 1% of the bill', say: 'The whole £64 is 100 squares. 1% is 1 square: divide by 100.', rows: ['64 ÷ 100 = 0.64'], pieces: [piece(1, '1% = £0.64')] },
+  { title: 'Calculate 35% of the bill', say: '35% is 35 lots of 1%.', rows: ['0.64 × 35 = 22.40', '! £22.40'], pieces: [piece(35, '35% = £22.40')], note: '35 squares = £22.40' },
+]), slips(22.4, [[6.4, 'That’s 10%. 35% is 35 lots of 1%: 0.64 × 35.'], [19.2, 'That’s 30%. 35% is 35 lots of 1%: 0.64 × 35.'], [41.6, 'That’s what is left. The question asks for the calls, 35%.']])))
 practice(ofAmount, 'A school has 850 pupils. 18% of the pupils walk to school. Work out how many pupils walk to school.', 'R3.1 Q4a', number(153, '153 pupils'), '1% of 850 is 8.5. Multiply by 18.', squareModel('850', [
-  { title: 'Find 1%', say: 'The 850 pupils are 100 squares. 1% is 1 square: divide by 100.', rows: ['850 ÷ 100 = 8.5'], pieces: [piece(1, '1% = 8.5')] },
-  { title: 'Multiply by 18', say: '18% is 18 lots of 1%.', rows: ['18 × 8.5 = 153', '! 153 pupils'], pieces: [piece(18, '18% = 153')], note: '18 squares = 153 pupils' },
-]), slips(153, [[85, 'That’s 10%. 18% is 18 lots of 1%: 18 × 8.5.'], [127.5, 'That’s 15%. 18% is 18 lots of 1%: 18 × 8.5.'], [697, 'That’s the pupils who don’t walk. The question asks for the 18% who do.']]))
+  { title: 'Calculate 1% of the pupils', say: 'The 850 pupils are 100 squares. 1% is 1 square: divide by 100.', rows: ['850 ÷ 100 = 8.5'], pieces: [piece(1, '1% = 8.5')] },
+  { title: 'Calculate 18% of the pupils', say: '18% is 18 lots of 1%.', rows: ['8.5 × 18 = 153', '! 153 pupils'], pieces: [piece(18, '18% = 153')], note: '18 squares = 153 pupils' },
+]), slips(153, [[85, 'That’s 10%. 18% is 18 lots of 1%: 8.5 × 18.'], [127.5, 'That’s 15%. 18% is 18 lots of 1%: 8.5 × 18.'], [697, 'That’s the pupils who don’t walk. The question asks for the 18% who do.']]))
 practice(ofAmount, 'Use a calculator to check that 18% of 850 is 153. First write 18% as a decimal. What is 18% as a decimal?', 'R3.1 Q4b', number(0.18, '0.18'), 'Per cent means out of 100: divide 18 by 100.', boardModel([], [
   { title: 'Per cent to decimal', say: 'Per cent means out of 100, so divide by 100.', rows: ['18 ÷ 100 = 0.18'] },
   { title: 'Check on a calculator', say: 'Multiply the amount by the decimal. It gives 153 again.', rows: ['0.18 × 850 = 153', '! 0.18'] },
 ]), slips(0.18, [[1.8, '18 ÷ 100 is 0.18: move the digits two places, not one.'], [18, 'Write it as a decimal: divide 18 by 100.'], [0.018, '18 ÷ 100 is 0.18, not 0.018.']]))
 pounds(practice(ofAmount, 'A coat costs £120. In a sale it has 35% off. Work out the sale price of the coat.', 'R3.1 Q5a', number(78, '£78'), '35% off leaves 65% to pay. Find 1%, then multiply by 65.', squareModel('£120', [
-  { title: 'Find 1%', say: 'The whole £120 is 100 squares. 1% is 1 square: divide by 100.', rows: ['120 ÷ 100 = 1.20'], pieces: [piece(1, '1% = £1.20')] },
-  { title: 'Multiply by 65', say: '35% off leaves 100% − 35% = 65% to pay: 65 lots of 1%.', rows: ['65 × 1.20 = 78', '! £78'], pieces: [piece(65, '65% = £78')], note: '65 squares are left = £78' },
+  { title: 'Calculate 1% of the price', say: 'The whole £120 is 100 squares. 1% is 1 square: divide by 100.', rows: ['120 ÷ 100 = 1.20'], pieces: [piece(1, '1% = £1.20')] },
+  { title: 'Take off the 35% decrease', say: 'The price was 100%. Take the 35% off: what is left is what you pay.', rows: ['100% − 35% = 65%'], pieces: [piece(65, '65% left'), piece(35, '35% off', 'off')], note: '65 squares are left' },
+  { title: 'Calculate 65% of the price', say: '65% is 65 lots of 1%.', rows: ['1.20 × 65 = 78', '! £78'], pieces: [piece(65, '65% = £78'), piece(35, '35% off', 'off')], note: '65 squares are left = £78' },
+  { title: 'Check it makes sense', say: 'The 35% decrease is 35 lots of £1.20. Take it off the £120.', rows: ['1.20 × 35 = 42', '120 − 42 = 78 ✓'], pieces: [piece(65, '65% = £78'), piece(35, '35% = £42', 'off')], note: '£120 − £42 = £78' },
 ]), slips(78, [[42, 'That’s the 35% taken off. The sale price is what is left: 120 − 42.'], [85, '35% of £120 is £42, not £35. 1% is £1.20, and you pay 65 lots of it.'], [162, 'It’s a sale: take the 35% off, don’t add it on.']])))
 practice(ofAmount, 'The first shop sells the coat for £78. A second shop sells the same £120 coat with 1/3 off. Which shop is cheaper?', 'R3.1 Q5b', choose(
   'The first shop: £78 is less than £80',
@@ -114,8 +116,10 @@ practice(ofAmount, 'Ella says, “23% of £80 is £18.40, so 23% of £40 is £9.
 /* ---------- Rung 2: a percentage increase (R3.2) ---------- */
 
 const rent = worked(increase, 'Rent is £600 a month. The landlord increases the rent by 15%. Work out the new rent.', '£600 goes up by 15%. Work out the new rent.', 'R3.2 video + Q1', squareModel('£600', [
-  { title: 'Find 1%', say: 'The original £600 is 100%, 100 squares. 1% is 1 square: divide by 100.', rows: ['600 ÷ 100 = 6'], pieces: [piece(1, '1% = £6')] },
-  { title: 'Multiply by 115', say: 'The new rent is all 100% and 15% more: 115%, so 115 lots of 1%.', rows: ['115 × 6 = 690', '! £690'], pieces: [piece(100, '100% = £600')], note: '115 squares = £690' },
+  { title: 'Calculate 1% of the rent', say: 'The original £600 is 100%, 100 squares. 1% is 1 square: divide by 100.', rows: ['600 ÷ 100 = 6'], pieces: [piece(1, '1% = £6')] },
+  { title: 'Add the 15% increase', say: 'The new rent is all of the old rent, 100%, plus 15% more on top.', rows: ['100% + 15% = 115%'], pieces: [piece(100, '100% = £600'), piece(15, '15% more')], note: '115 squares' },
+  { title: 'Calculate 115% of the rent', say: '115% is 115 lots of 1%.', rows: ['6 × 115 = 690', '! £690'], pieces: [piece(115, '115% = £690')], note: '115 squares = £690' },
+  { title: 'Check it makes sense', say: 'The 15% increase is 15 lots of £6. Add it on to the £600.', rows: ['6 × 15 = 90', '600 + 90 = 690 ✓'], pieces: [piece(100, '100% = £600'), piece(15, '15% = £90')], note: '£600 + £90 = £690' },
 ]), 'Our aim: find 1%, then multiply by 100% plus the increase.')
 video(rent, media('increase', '£600 increased by 15%', 'R3.2_Percentage_Increase.mp4', 100, [
   'A rent rise: rent is £600 a month, and it goes up by 15%. What is the new rent?',
@@ -128,12 +132,16 @@ video(rent, media('increase', '£600 increased by 15%', 'R3.2_Percentage_Increas
   'Well done: find the percentage of the original and add it on, or multiply by 1 + the decimal. The answer is £690.',
 ]))
 pounds(practice(increase, 'A bus fare of £2 goes up by 10%. Work out the new fare.', 'R3.2 Q2', number(2.2, '£2.20'), '1% of £2 is 2p. The new fare is 100% + 10% = 110%.', squareModel('£2', [
-  { title: 'Find 1%', say: 'The £2 fare is 100 squares. 1% is 1 square: divide by 100.', rows: ['2 ÷ 100 = 0.02'], pieces: [piece(1, '1% = £0.02')] },
-  { title: 'Multiply by 110', say: 'The new fare is 100% + 10% = 110%, so 110 lots of 1%.', rows: ['110 × 0.02 = 2.20', '! £2.20'], pieces: [piece(100, '100% = £2')], note: '110 squares = £2.20' },
+  { title: 'Calculate 1% of the fare', say: 'The £2 fare is 100 squares. 1% is 1 square: divide by 100.', rows: ['2 ÷ 100 = 0.02'], pieces: [piece(1, '1% = £0.02')] },
+  { title: 'Add the 10% increase', say: 'The new fare is all of the old fare, 100%, plus 10% more on top.', rows: ['100% + 10% = 110%'], pieces: [piece(100, '100% = £2'), piece(10, '10% more')], note: '110 squares' },
+  { title: 'Calculate 110% of the fare', say: '110% is 110 lots of 1%.', rows: ['0.02 × 110 = 2.20', '! £2.20'], pieces: [piece(110, '110% = £2.20')], note: '110 squares = £2.20' },
+  { title: 'Check it makes sense', say: 'The 10% increase is 10 lots of £0.02. Add it on to the £2.', rows: ['0.02 × 10 = 0.20', '2 + 0.20 = 2.20 ✓'], pieces: [piece(100, '100% = £2'), piece(10, '10% = £0.20')], note: '£2 + £0.20 = £2.20' },
 ]), slips(2.2, [[0.2, 'That’s the 10% increase. Add it on to the £2.'], [12, 'Add 10% of £2, not £10: 10% of £2 is £0.20.'], [1.8, 'It goes up, so add the 20p, don’t take it off.']])))
 pounds(practice(increase, 'A worker earns £28,000 a year. She gets a 4% pay rise. Work out her new salary.', 'R3.2 Q3', number(29120, '£29,120'), '1% of £28,000 is £280. The new salary is 104%.', squareModel('£28,000', [
-  { title: 'Find 1%', say: 'The £28,000 is 100 squares. 1% is 1 square: divide by 100.', rows: ['28000 ÷ 100 = 280'], pieces: [piece(1, '1% = £280')] },
-  { title: 'Multiply by 104', say: 'The new salary is 100% + 4% = 104%, so 104 lots of 1%.', rows: ['104 × 280 = 29120', '! £29,120'], pieces: [piece(100, '100% = £28,000')], note: '104 squares = £29,120' },
+  { title: 'Calculate 1% of the salary', say: 'The £28,000 is 100 squares. 1% is 1 square: divide by 100.', rows: ['28000 ÷ 100 = 280'], pieces: [piece(1, '1% = £280')] },
+  { title: 'Add the 4% increase', say: 'The new salary is all of the old salary, 100%, plus 4% more on top.', rows: ['100% + 4% = 104%'], pieces: [piece(100, '100% = £28,000'), piece(4, '4% more')], note: '104 squares' },
+  { title: 'Calculate 104% of the salary', say: '104% is 104 lots of 1%.', rows: ['280 × 104 = 29120', '! £29,120'], pieces: [piece(104, '104% = £29,120')], note: '104 squares = £29,120' },
+  { title: 'Check it makes sense', say: 'The 4% increase is 4 lots of £280. Add it on to the £28,000.', rows: ['280 × 4 = 1120', '28000 + 1120 = 29120 ✓'], pieces: [piece(100, '100% = £28,000'), piece(4, '4% = £1,120')], note: '£28,000 + £1,120 = £29,120' },
 ]), slips(29120, [[1120, 'That’s the 4% rise. Add it on to £28,000.'], [28004, 'Add 4% of £28,000, not £4: 4 × 280 = £1,120.'], [26880, 'A pay rise goes up: add the £1,120, don’t take it off.']])))
 practice(increase, 'A gym membership costs £35 a month. The price goes up by 12%. Write down the multiplier for a 12% increase, and use it to find the new price.', 'R3.2 Q4a', multiplier([1.12, 39.2], '1.12 and £39.20'), '100% + 12% = 112%. Write 112% as a decimal.', boardModel([], [
   { title: 'The multiplier', say: 'You keep the whole 100% and add 12%: 112%. 112 lots of 1% is the same as × 1.12: divide 112 by 100.', rows: ['112 ÷ 100 = 1.12'] },
@@ -148,8 +156,10 @@ practice(increase, 'Why is the multiplier for a percentage increase always great
   { title: 'Think about 100%', say: '100% is the whole original, and as a decimal that is 1. An increase keeps all of it and adds more on top.', rows: ['> 100% = 1, and more on top', '! More than 1'] },
 ], 'Why'))
 pounds(practice(increase, 'A savings account pays 3% interest per year. Amir puts in £2,000. How much is in the account after 1 year?', 'R3.2 Q5a', number(2060, '£2,060'), '1% of £2,000 is £20. After a year there is 100% + 3% = 103%.', boardModel([], [
-  { title: 'Find 1%', say: '1% of £2,000: divide by 100.', rows: ['2000 ÷ 100 = 20'] },
-  { title: 'Multiply by 103', say: 'After a year there is 100% + 3% = 103%, so 103 lots of 1%.', rows: ['103 × 20 = 2060', '! £2,060'] },
+  { title: 'Calculate 1% of the savings', say: '1% of £2,000: divide by 100.', rows: ['2000 ÷ 100 = 20'] },
+  { title: 'Add the 3% increase', say: 'After a year there is all of the £2,000, 100%, plus 3% interest on top.', rows: ['100% + 3% = 103%'] },
+  { title: 'Calculate 103% of the savings', say: '103% is 103 lots of 1%.', rows: ['20 × 103 = 2060', '! £2,060'] },
+  { title: 'Check it makes sense', say: 'The 3% increase is 3 lots of £20. Add it on to the £2,000.', rows: ['20 × 3 = 60', '2000 + 60 = 2060 ✓'] },
 ]), slips(2060, [[60, 'That’s the interest. Add it on to the £2,000.'], [2003, '3% of £2,000 is £60, not £3.'], [2600, '3% of £2,000 is £60: 1% is £20.']])))
 pounds(practice(increase, 'Amir’s £2,060 stays in the account for a second year at 3%. How much is in the account after 2 years?', 'R3.2 Q5b', number(2121.8, '£2,121.80'), 'The second year’s 3% is on the new amount, £2,060.', boardModel([], [
   { title: 'Multiply the new amount', say: 'The second year’s 3% is worked out on £2,060, not on £2,000. Multiply by 1.03 again.', rows: ['2060 × 1.03 = 2121.80', '! £2,121.80'] },
@@ -163,8 +173,10 @@ pounds(practice(increase, 'Priya says, “A 20% increase then another 20% increa
 /* ---------- Rung 3: a percentage decrease (R3.3) ---------- */
 
 const jacket = worked(decrease, 'A jacket costs £45. In a sale it is reduced by 30%. Work out the sale price.', '£45 reduced by 30%. Work out the sale price.', 'R3.3 video + Q1', squareModel('£45', [
-  { title: 'Find 1%', say: 'The original £45 is 100 squares. 1% is 1 square: divide by 100.', rows: ['45 ÷ 100 = 0.45'], pieces: [piece(1, '1% = £0.45')] },
-  { title: 'Multiply by 70', say: '30% off leaves 100% − 30% = 70% to pay, so 70 lots of 1%.', rows: ['70 × 0.45 = 31.50', '! £31.50'], pieces: [piece(70, '70% = £31.50')], note: '70 squares are left = £31.50' },
+  { title: 'Calculate 1% of the price', say: 'The original £45 is 100 squares. 1% is 1 square: divide by 100.', rows: ['45 ÷ 100 = 0.45'], pieces: [piece(1, '1% = £0.45')] },
+  { title: 'Take off the 30% decrease', say: 'The price was 100%. Take the 30% off: what is left is what you pay.', rows: ['100% − 30% = 70%'], pieces: [piece(70, '70% left'), piece(30, '30% off', 'off')], note: '70 squares are left' },
+  { title: 'Calculate 70% of the price', say: '70% is 70 lots of 1%.', rows: ['0.45 × 70 = 31.50', '! £31.50'], pieces: [piece(70, '70% = £31.50'), piece(30, '30% off', 'off')], note: '70 squares are left = £31.50' },
+  { title: 'Check it makes sense', say: 'The 30% decrease is 30 lots of £0.45. Take it off the £45.', rows: ['0.45 × 30 = 13.50', '45 − 13.50 = 31.50 ✓'], pieces: [piece(70, '70% = £31.50'), piece(30, '30% = £13.50', 'off')], note: '£45 − £13.50 = £31.50' },
 ]), 'Our aim: work out the percentage left to pay, then find 1% and multiply.')
 video(jacket, media('decrease', '£45 reduced by 30%', 'R3.3_Percentage_Decrease.mp4', 100, [
   'A jacket in the sale: a jacket costs £45, and the sale takes 30% off. What is the sale price?',
@@ -177,12 +189,16 @@ video(jacket, media('decrease', '£45 reduced by 30%', 'R3.3_Percentage_Decrease
   'Well done: find the percentage of the original and take it off, or multiply by 1 − the decimal. The answer is £31.50.',
 ]))
 pounds(practice(decrease, 'A game costs £50. It is reduced by 20%. Work out the new price.', 'R3.3 Q2', number(40, '£40'), '20% off leaves 80% to pay. 1% of £50 is 50p.', squareModel('£50', [
-  { title: 'Find 1%', say: 'The £50 is 100 squares. 1% is 1 square: divide by 100.', rows: ['50 ÷ 100 = 0.50'], pieces: [piece(1, '1% = £0.50')] },
-  { title: 'Multiply by 80', say: '20% off leaves 100% − 20% = 80% to pay, so 80 lots of 1%.', rows: ['80 × 0.50 = 40', '! £40'], pieces: [piece(80, '80% = £40')], note: '80 squares are left = £40' },
+  { title: 'Calculate 1% of the price', say: 'The £50 is 100 squares. 1% is 1 square: divide by 100.', rows: ['50 ÷ 100 = 0.50'], pieces: [piece(1, '1% = £0.50')] },
+  { title: 'Take off the 20% decrease', say: 'The price was 100%. Take the 20% off: what is left is what you pay.', rows: ['100% − 20% = 80%'], pieces: [piece(80, '80% left'), piece(20, '20% off', 'off')], note: '80 squares are left' },
+  { title: 'Calculate 80% of the price', say: '80% is 80 lots of 1%.', rows: ['0.50 × 80 = 40', '! £40'], pieces: [piece(80, '80% = £40'), piece(20, '20% off', 'off')], note: '80 squares are left = £40' },
+  { title: 'Check it makes sense', say: 'The 20% decrease is 20 lots of £0.50. Take it off the £50.', rows: ['0.50 × 20 = 10', '50 − 10 = 40 ✓'], pieces: [piece(80, '80% = £40'), piece(20, '20% = £10', 'off')], note: '£50 − £10 = £40' },
 ]), slips(40, [[10, 'That’s the 20% taken off. The new price is what is left: 50 − 10.'], [30, '20% of £50 is £10, not £20. Take £10 off.'], [60, 'It is reduced: take the £10 off, don’t add it on.']])))
 pounds(practice(decrease, 'A car was worth £9,000. Its value falls by 15% in a year. Work out its value after the year.', 'R3.3 Q3', number(7650, '£7,650'), 'A 15% fall leaves 85%. 1% of £9,000 is £90.', squareModel('£9,000', [
-  { title: 'Find 1%', say: 'The £9,000 is 100 squares. 1% is 1 square: divide by 100.', rows: ['9000 ÷ 100 = 90'], pieces: [piece(1, '1% = £90')] },
-  { title: 'Multiply by 85', say: 'A 15% fall leaves 100% − 15% = 85%, so 85 lots of 1%.', rows: ['85 × 90 = 7650', '! £7,650'], pieces: [piece(85, '85% = £7,650')], note: '85 squares are left = £7,650' },
+  { title: 'Calculate 1% of the value', say: 'The £9,000 is 100 squares. 1% is 1 square: divide by 100.', rows: ['9000 ÷ 100 = 90'], pieces: [piece(1, '1% = £90')] },
+  { title: 'Take off the 15% decrease', say: 'The value was 100%. Take the 15% off: what is left is its value.', rows: ['100% − 15% = 85%'], pieces: [piece(85, '85% left'), piece(15, '15% off', 'off')], note: '85 squares are left' },
+  { title: 'Calculate 85% of the value', say: '85% is 85 lots of 1%.', rows: ['90 × 85 = 7650', '! £7,650'], pieces: [piece(85, '85% = £7,650'), piece(15, '15% off', 'off')], note: '85 squares are left = £7,650' },
+  { title: 'Check it makes sense', say: 'The 15% decrease is 15 lots of £90. Take it off the £9,000.', rows: ['90 × 15 = 1350', '9000 − 1350 = 7650 ✓'], pieces: [piece(85, '85% = £7,650'), piece(15, '15% = £1,350', 'off')], note: '£9,000 − £1,350 = £7,650' },
 ]), slips(7650, [[1350, 'That’s the 15% fall. Take it off the £9,000.'], [8100, 'That’s 10% off. A 15% fall leaves 85%: 85 × 90.'], [10350, 'The value falls: take the £1,350 off, don’t add it on.']])))
 practice(decrease, 'A TV costs £480. The shop reduces the price by 35%. Write down the multiplier for a 35% decrease, and use it to find the new price.', 'R3.3 Q4a', multiplier([0.65, 312], '0.65 and £312'), '100% − 35% = 65% is left. Write 65% as a decimal.', boardModel([], [
   { title: 'The multiplier', say: '100% − 35% = 65% is left. 65 lots of 1% is the same as × 0.65: divide 65 by 100.', rows: ['65 ÷ 100 = 0.65'] },

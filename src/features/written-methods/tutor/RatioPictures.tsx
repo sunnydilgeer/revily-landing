@@ -37,7 +37,7 @@ export function ratioLayout(frame: RatioFrame) {
 export const RATIO_HEIGHT = ratioLayout({ bars: [0, 1, 2].map(() => ({ name: '', parts: 1 })) }).height
 
 function spoken(frame: RatioFrame) {
-  const bars = frame.bars.map(bar => `${bar.name}, ${bar.parts} ${bar.parts === 1 ? 'part' : 'parts'}${bar.tag ? `: ${bar.tag}` : ''}`).join('; ')
+  const bars = frame.bars.filter((_, i) => !frame.hide?.includes(i)).map(bar => `${bar.name}, ${bar.parts} ${bar.parts === 1 ? 'part' : 'parts'}${bar.tag ? `: ${bar.tag}` : ''}`).join('; ')
   return `Ratio bars. ${bars}.${frame.each ? ` Each part is ${frame.each}.` : ''}${frame.groups ? ` Split into ${frame.groups} equal groups.` : ''}${frame.match ? ` ${frame.bars[frame.match.bars[0]].name} and ${frame.bars[frame.match.bars[1]].name} lined up: the first ${frame.match.at} parts match.` : ''}${frame.note ? ` ${frame.note}.` : ''}`
 }
 
@@ -52,7 +52,7 @@ export function RatioVisual({ frame, plain }: { frame: RatioFrame; plain?: boole
     <svg viewBox={`0 0 ${RATIO_WIDTH} ${Math.max(RATIO_HEIGHT, height)}`} aria-hidden="true"><g transform={`translate(${(RATIO_WIDTH - width) / 2} ${Math.max(0, (RATIO_HEIGHT - height) / 2)})`}>
       {frame.bars.map((bar, i) => {
         const y = rowY(i)
-        return <g key={i} className={`ns-ratio__bar is-b${i % 3}${match && !match.bars.includes(i) ? ' is-out' : ''}${!plain && frame.dim?.includes(i) ? ' is-dim' : ''}`}>
+        return <g key={i} className={`ns-ratio__bar is-b${i % 3}${bar.name === 'Red' ? ' is-red' : ''}${match && !match.bars.includes(i) ? ' is-out' : ''}${!plain && frame.dim?.includes(i) ? ' is-dim' : ''}${frame.hide?.includes(i) ? ' is-hidden' : ''}`}>
           <text className="ns-ratio__name" x={barX - GAP} y={y + BAR_H / 2}>{bar.name}</text>
           {Array.from({ length: bar.parts }, (_, k) => <rect key={k} className={`ns-ratio__block${faded(i, k) ? ' is-faded' : ''}`} x={barX + k * block} y={y} width={block} height={BAR_H} rx="2" />)}
           {frame.each && Array.from({ length: bar.parts }, (_, k) => <text key={k} className="ns-ratio__each" x={barX + (k + 0.5) * block} y={y + BAR_H / 2} fontSize={eachSize}>{frame.each}</text>)}

@@ -94,9 +94,8 @@ function ratioSlips(right: [number, number], list: [[number, number], string][] 
 
 const counters = bars(['Red', 4], ['Blue', 5])
 const bag = worked(fractions, 'Red and blue counters are in a bag in the ratio 4 : 5. What fraction of the counters are red?', 'Red : blue = 4 : 5. What fraction are red?', 'R1.1 video + Q1', ratioModel(counters, [
-  { title: 'Red compared with blue', say: 'Put the red number over the blue number: there are 4/5 as many red counters as blue counters. That compares the two parts, but the question asks about all the counters.', rows: ['> red over blue: 4/5'] },
-  { title: 'Add the parts', say: 'Every 4 red counters come with 5 blue ones, so the counters come in groups of 9.', rows: ['4 + 5 = 9'], ratio: { note: '9 parts in total' } },
-  { title: 'Part over total', say: 'Red is 4 of the 9 parts.', rows: ['! {4|9} of the counters are red'], ratio: { rings: [whole(0, 4)], lit: [0] } },
+  { title: 'Compare the red counters with the blue ones', say: 'The ratio of red to blue is 4 : 5. That compares the two parts, but the question asks about all the counters.', rows: ['> the ratio of red to blue is 4 : 5'] },
+  { title: 'Add the parts', say: 'Every 4 red counters come with 5 blue ones, so the counters come in groups of 9. Red is 4 of the 9 parts.', rows: ['4 + 5 = 9', '! {4|9} of the counters are red'], tags: ['4', '5'], ratio: { note: '9 parts in total', rings: [whole(0, 4)] } },
 ]), 'Our aim: part over part compares the two. For a fraction of the whole, add the parts and put the part over the total.')
 video(bag, media('fractions', 'Red : blue = 4 : 5. What fraction are red?', 'R1.1_Writing_Ratios_As_Fractions.mp4', 70, [
   'Red and blue counters: a bag has red and blue counters in the ratio 4 : 5. For every 4 red counters there are 5 blue ones.',
@@ -108,15 +107,15 @@ video(bag, media('fractions', 'Red : blue = 4 : 5. What fraction are red?', 'R1.
   'Part over part compares the two. Add the parts for the total. Part over total is the fraction of the whole.',
 ]))
 practice(fractions, 'At an animal shelter the ratio of cats to dogs is 2 : 7. What fraction of the animals are cats?', 'R1.1 Q2', true, fraction('2/9'), 'Add the parts for the total, then put the cats over it.', ratioModel(bars(['Cats', 2], ['Dogs', 7]), [
-  { title: 'Add the parts', say: 'The animals come in groups of 2 + 7.', rows: ['2 + 7 = 9'], ratio: { note: '9 parts in total' } },
-  { title: 'Part over total', say: 'Cats are 2 of the 9 parts.', rows: ['! {2|9} are cats'], ratio: { rings: [whole(0, 2)], lit: [0] } },
+  { title: 'Add the parts', say: 'The animals come in groups of 2 + 7.', rows: ['2 + 7 = 9'], tags: ['2', '7'], ratio: { note: '9 parts in total' } },
+  { title: 'Write the cats as a fraction of all the animals', say: 'Cats are 2 of the 9 parts.', rows: ['! {2|9} are cats'], ratio: { rings: [whole(0, 2)], lit: [0] } },
 ]))
 practice(fractions, 'In a choir the ratio of boys to girls is 5 : 3. There are how many times as many girls as boys? Give a fraction.', 'R1.1 Q3', true, fraction('3/5'), '“As many as” compares the two parts: girls over boys.', ratioModel(bars(['Boys', 5], ['Girls', 3]), [
-  { title: 'Girls over boys', say: 'This compares girls with boys, so no total: put the girls’ number over the boys’ number.', rows: ['! {3|5} as many girls as boys'], ratio: { lit: [1] } },
+  { title: 'Compare the girls with the boys', say: 'This compares girls with boys, so no total: put the girls’ number over the boys’ number.', rows: ['! {3|5} as many girls as boys'], ratio: { lit: [1] } },
 ]))
 practice(fractions, 'A drink is made from juice and water in the ratio 1 : 4. What fraction of the drink is water?', 'R1.1 Q4', true, fraction('4/5'), 'The whole drink is 1 + 4 parts.', ratioModel(bars(['Juice', 1], ['Water', 4]), [
-  { title: 'Add the parts', say: 'The whole drink is 1 + 4 parts.', rows: ['1 + 4 = 5'], ratio: { note: '5 parts in total' } },
-  { title: 'Part over total', say: 'Water is 4 of the 5 parts.', rows: ['! {4|5} of the drink is water'], ratio: { rings: [whole(1, 4)], lit: [1] } },
+  { title: 'Add the parts', say: 'The whole drink is 1 + 4 parts.', rows: ['1 + 4 = 5'], tags: ['1', '4'], ratio: { note: '5 parts in total' } },
+  { title: 'Write the water as a fraction of the drink', say: 'Water is 4 of the 5 parts.', rows: ['! {4|5} of the drink is water'], ratio: { rings: [whole(1, 4)], lit: [1] } },
 ]))
 practice(fractions, 'In a school the ratio of students with brown hair to students with blonde hair is 3 : 5. There are 320 students. How many have brown hair?', 'R1.1 Q5', true, number(120, '120 students'), 'Brown hair is 3/8 of the students.', ratioModel(bars(['Brown', 3], ['Blonde', 5]), [
   { title: 'The fraction', say: 'There are 3 + 5 = 8 parts, so 3/8 of the students have brown hair.', rows: ['3 + 5 = 8'], ratio: { rings: [whole(0, 3)], note: '3/8 have brown hair' } },
@@ -125,10 +124,10 @@ practice(fractions, 'In a school the ratio of students with brown hair to studen
 
 /* ---------- Rung 2: simplifying (R1.2) ---------- */
 
-const simplify = worked(simplifying, 'Write 12 : 18 : 30 in its simplest form.', 'Simplify 12 : 18 : 30', 'R1.2 video + Q1', boardModel([], [
-  { title: 'Find the HCF', say: '2, 3 and 6 all divide 12, 18 and 30. The biggest is 6, the highest common factor.', rows: ['>0 HCF of 12, 18 and 30 = 6'] },
+const simplify = worked(simplifying, 'Write 12 : 18 : 30 in its simplest form.', 'Simplify 12 : 18 : 30', 'R1.2 video + Q1', boardModel(['>0 12 : 18 : 30'], [
+  { title: 'Find the HCF', say: '2, 3 and 6 all divide 12, 18 and 30. The biggest is 6, the highest common factor.', rows: ['>0 The HCF of 12, 18 and 30 = 6'] },
   { title: 'Divide every part by 6', say: '12 ÷ 6 = 2, 18 ÷ 6 = 3 and 30 ÷ 6 = 5.', rows: ['12 : 18 : 30 = 2 : 3 : 5'] },
-  { title: 'Is it simplest?', say: 'Nothing but 1 divides 2, 3 and 5, so it is in its simplest form.', rows: ['! 2 : 3 : 5'] },
+  { title: 'Check it’s fully simplified', say: 'Nothing but 1 divides 2, 3 and 5, so it is in its simplest form.', rows: ['! 2 : 3 : 5'] },
 ]), 'Our aim: divide every part of the ratio by the same number, the highest common factor, so the numbers are as small as they can be.')
 video(simplify, media('simplifying', 'Simplify 12 : 18 : 30', 'R1.2_Simplifying_Ratios.mp4', 55, [
   'Simplify a ratio: write 12 : 18 : 30 in its simplest form, the smallest whole numbers in the same ratio.',
@@ -139,7 +138,8 @@ video(simplify, media('simplifying', 'Simplify 12 : 18 : 30', 'R1.2_Simplifying_
   'Find the HCF of every part, divide every part by it, and use the same units first.',
 ]))
 practice(simplifying, 'Write 10 : 25 in its simplest form.', 'R1.2 Q2', false, ratio([2, 5]), 'Both numbers are in the 5 times table.', boardModel([], [
-  { title: 'Divide both by 5', say: '5 is the highest common factor of 10 and 25.', rows: ['10 : 25 = 2 : 5', '! 2 : 5'] },
+  { title: 'Find the HCF', say: '5 is the biggest number that divides both 10 and 25.', rows: ['>0 The HCF of 10 and 25 = 5'] },
+  { title: 'Divide both by 5', say: '10 ÷ 5 = 2 and 25 ÷ 5 = 5.', rows: ['10 : 25 = 2 : 5', '! 2 : 5'] },
 ]), ratioSlips([2, 5]))
 practice(simplifying, 'Write 36 : 48 in its simplest form.', 'R1.2 Q3', false, ratio([3, 4]), 'The HCF of 36 and 48 is 12.', boardModel([], [
   { title: 'Divide both by 12', say: '12 is the highest common factor of 36 and 48.', rows: ['36 : 48 = 3 : 4', '! 3 : 4'] },
@@ -158,16 +158,17 @@ practice(simplifying, 'Write 2 m : 40 cm in its simplest form.', 'R1.2 Q5a', fal
 ]), ratioSlips([5, 1], [[[1, 20], 'Make the units the same first: 2 m is 200 cm, not 2.'], [[20, 4], 'You divided by 10. Keep going: 20 and 4 share a factor of 4.']]))
 practice(simplifying, 'Write 1.5 : 2.5 in its simplest form.', 'R1.2 Q5b', false, ratio([3, 5]), 'Multiply both by 10 to make whole numbers first.', boardModel([], [
   { title: 'Make whole numbers', say: 'Multiply both by 10.', rows: ['1.5 : 2.5 = 15 : 25'] },
-  { title: 'Divide both by 5', say: '5 is the highest common factor of 15 and 25.', rows: ['15 : 25 = 3 : 5', '! 3 : 5'] },
+  { title: 'Find the HCF', say: '5 is the biggest number that divides both 15 and 25.', rows: ['>0 The HCF of 15 and 25 = 5'] },
+  { title: 'Divide both by 5', say: '15 ÷ 5 = 3 and 25 ÷ 5 = 5.', rows: ['15 : 25 = 3 : 5', '! 3 : 5'] },
 ]), ratioSlips([3, 5], [[[15, 25], 'Whole numbers now, but 15 and 25 can both be divided by 5.']]))
 
 /* ---------- Rung 3: scaling (R1.3) ---------- */
 
 const squash = bars(['Squash', 2], ['Water', 7])
 const mix = worked(scaling, 'Squash and water are mixed in the ratio 2 : 7. How much water is needed with 10 cups of squash?', 'Squash : water = 2 : 7, and 10 cups of squash', 'R1.3 video + Q1', ratioModel(squash, [
-  { title: 'Find the multiplier', say: 'The squash goes from 2 cups to 10 cups, so the whole recipe is 5 times as big.', rows: ['10 ÷ 2 = 5'], ratio: { rings: [whole(0, 2)], each: '5', note: '1 part = 5 cups' } },
-  { title: 'Multiply the water too', say: 'Scaling multiplies every part by the same number.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
-]), 'Our aim: find what the part you know was multiplied by, then multiply every part by the same number. Never add.')
+  { title: 'Find 1 part', say: '2 parts of squash are 10 cups, so 1 part is 10 ÷ 2 = 5 cups.', rows: ['10 ÷ 2 = 5'], ratio: { rings: [whole(0, 2)], each: '5', note: '1 part = 5 cups' }, tags: ['10'] },
+  { title: 'Calculate the water', say: 'Water is 7 parts, and every part is 5 cups.', rows: ['7 × 5 = 35', '! 35 cups of water'], ratio: { each: '5', rings: [whole(1, 7)], lit: [1] }, tags: ['10', '35'] },
+]), 'Our aim: use the part you know to find what 1 part is worth, then multiply to get the part you want. Never add.')
 video(mix, media('scaling', 'Squash : water = 2 : 7, with 10 cups of squash', 'R1.3_Scaling_Ratios.mp4', 55, [
   'Making squash: squash and water are mixed in the ratio 2 : 7. How much water goes with 10 cups of squash?',
   'Step 1, find the multiplier: the squash goes from 2 cups to 10 cups. 10 ÷ 2 = 5, so the whole recipe is 5 times as big.',
@@ -180,8 +181,8 @@ practice(scaling, 'Two numbers are in the ratio 3 : 4. The first number is 9. Wh
   { title: 'Find the multiplier', say: '3 became 9, so it was multiplied by 3.', rows: ['9 ÷ 3 = 3'] },
   { title: 'Multiply the 4', say: 'Multiply the other part by the same number.', rows: ['4 × 3 = 12', '! 12'] },
 ]), slips(12, [[10, 'Scaling multiplies, it doesn’t add: 3 × 3 = 9, so 4 × 3 = 12.']]))
-practice(scaling, 'A recipe uses flour and butter in the ratio 5 : 2. How much butter goes with 300 g of flour?', 'R1.3 Q3', true, number(120, '120 g'), '300 ÷ 5 is the multiplier.', ratioModel(bars(['Flour', 5], ['Butter', 2]), [
-  { title: 'Find the multiplier', say: '5 parts of flour are 300 g, so 1 part is 60 g.', rows: ['300 ÷ 5 = 60'], ratio: { each: '60', note: '1 part = 60 g' } },
+practice(scaling, 'A recipe uses flour and butter in the ratio 5 : 2. How much butter goes with 300 g of flour?', 'R1.3 Q3', true, number(120, '120 g'), '5 parts of flour are 300 g: find 1 part first.', ratioModel(bars(['Flour', 5], ['Butter', 2]), [
+  { title: 'Find 1 part', say: '5 parts of flour are 300 g, so 1 part is 60 g.', rows: ['300 ÷ 5 = 60'], ratio: { each: '60', note: '1 part = 60 g' } },
   { title: 'The butter', say: 'Butter is 2 parts.', rows: ['2 × 60 = 120', '! 120 g'], ratio: { each: '60', rings: [whole(1, 2)], lit: [1] }, tags: [undefined, '120 g'] },
 ]), slips(120, [[750, 'Butter is the smaller part: divide 300 by 5 first, then multiply by 2.'], [60, 'That’s 1 part. Butter is 2 parts.'], [297, 'Scaling multiplies, it doesn’t add or take away.']]))
 practice(scaling, 'Red and white paint are mixed in the ratio 3 : 8. Ali uses 40 litres of white paint. How much red paint does he use?', 'R1.3 Q4', true, number(15, '15 litres'), '8 parts of white are 40 litres.', ratioModel(bars(['Red', 3], ['White', 8]), [
@@ -197,9 +198,9 @@ practice(scaling, 'Concrete is made from cement, sand and gravel in the ratio 1 
 /* ---------- Rung 4: part to whole (R1.4) ---------- */
 
 const fruit = worked(partWhole, 'The ratio of oranges to all the fruit in a bag is 3 : 8. The rest are apples. Write the ratio of oranges to apples.', 'Oranges : all the fruit = 3 : 8', 'R1.4 video + Q1', ratioModel(bars(['Oranges', 3], ['Apples', 5]), [
-  { title: 'The 8 is the whole bag', say: 'The 8 includes the 3 oranges. So 3/8 of the fruit are oranges.', rows: ['> oranges are 3/8 of the fruit'], ratio: { rings: [whole(0, 3)], note: '8 pieces in all' } },
-  { title: 'Find the apples', say: 'The apples are what is left of the 8.', rows: ['8 − 3 = 5'], ratio: { rings: [whole(1, 5)], lit: [1] } },
-  { title: 'Part to part', say: 'Now compare oranges with apples. A part : part ratio never includes the whole.', rows: ['! oranges : apples = 3 : 5'] },
+  { title: 'The 8 is the whole bag', say: 'The 8 includes the 3 oranges. So 3/8 of the fruit are oranges.', rows: ['> oranges are {3|8} of the fruit'], ratio: { rings: [whole(0, 3)], note: '8 pieces in total' }, tags: ['3'] },
+  { title: 'Calculate the apples', say: 'The apples are what is left of the 8: 8 − 3 = 5. Check: 3 + 5 = 8.', rows: ['8 − 3 = 5'], ratio: { rings: [whole(1, 5)], lit: [1], note: '3 + 5 = 8 pieces in total' }, tags: ['3', '5'] },
+  { title: 'Compare the oranges with the apples', say: 'Now compare oranges with apples. A part : part ratio never includes the whole.', rows: ['! oranges : apples = 3 : 5'], ratio: { note: '3 + 5 = 8 pieces in total' } },
 ]), 'Our aim: in a part : whole ratio, the whole includes the part. Take the part away from the whole to find the other part.')
 video(fruit, media('part-whole', 'Oranges : all the fruit = 3 : 8', 'R1.4_Part_To_Whole_Ratios.mp4', 52, [
   'A bag of fruit: the ratio of oranges to all the fruit is 3 : 8. The rest are apples. The 8 is the whole bag, and it includes the 3 oranges.',
@@ -210,21 +211,21 @@ video(fruit, media('part-whole', 'Oranges : all the fruit = 3 : 8', 'R1.4_Part_T
   'Part : whole includes the part. Whole take away part gives the other part. Part over whole is the fraction.',
 ]))
 practice(partWhole, 'The ratio of boys to the whole class is 4 : 9. What fraction of the class are girls?', 'R1.4 Q2', false, fraction('5/9'), 'The 9 is the whole class, boys included.', boardModel([], [
-  { title: 'Find the girls', say: 'The 9 is the whole class, so the girls are what is left.', rows: ['9 − 4 = 5'] },
-  { title: 'Part over whole', say: 'Girls are 5 of every 9.', rows: ['! {5|9} are girls'] },
+  { title: 'Calculate the girls', say: 'The 9 is the whole class, so the girls are what is left.', rows: ['9 − 4 = 5'] },
+  { title: 'Write the girls as a fraction of the class', say: 'Girls are 5 of every 9.', rows: ['! {5|9} are girls'] },
 ]))
 practice(partWhole, 'The ratio of red sweets to all the sweets in a jar is 2 : 7. Write the ratio of red sweets to other sweets.', 'R1.4 Q3', false, ratio([2, 5]), 'The 7 includes the red sweets.', boardModel([], [
-  { title: 'Find the others', say: 'The 7 is all the sweets, red included.', rows: ['7 − 2 = 5'] },
-  { title: 'Part to part', say: 'Red compared with the others.', rows: ['! red : others = 2 : 5'] },
+  { title: 'Calculate the other sweets', say: 'The 7 is all the sweets, red included.', rows: ['7 − 2 = 5'] },
+  { title: 'Compare the red sweets with the other sweets', say: 'Red compared with the others.', rows: ['! red : others = 2 : 5'] },
 ]), ratioSlips([2, 5], [[[2, 7], 'That’s red to all the sweets. The others are 7 − 2 = 5.'], [[2, 9], 'The 7 already includes the red sweets: take 2 away, don’t add.']]))
 practice(partWhole, '2/5 of the counters in a bag are blue. The rest are red. Write the ratio of blue to red counters.', 'R1.4 Q4', false, ratio([2, 3]), '2 out of every 5 are blue.', boardModel([], [
-  { title: 'Find the red', say: '2 out of every 5 counters are blue, so the other 3 are red.', rows: ['5 − 2 = 3'] },
-  { title: 'Part to part', say: 'Blue compared with red.', rows: ['! blue : red = 2 : 3'] },
+  { title: 'Calculate the red counters', say: '2 out of every 5 counters are blue, so the other 3 are red.', rows: ['5 − 2 = 3'] },
+  { title: 'Compare the blue counters with the red ones', say: 'Blue compared with red.', rows: ['! blue : red = 2 : 3'] },
 ]), ratioSlips([2, 3], [[[2, 5], 'That’s blue to all the counters. The red are 5 − 2 = 3.']]))
 practice(partWhole, 'A bag has 40 sweets. The ratio of sour sweets to all the sweets is 3 : 8. How many sweets are not sour?', 'R1.4 Q5', false, number(25, '25 sweets'), 'The 8 parts are all 40 sweets.', boardModel([], [
   { title: 'Find 1 part', say: 'All 40 sweets are 8 parts.', rows: ['40 ÷ 8 = 5'] },
-  { title: 'Sour sweets', say: 'Sour sweets are 3 parts.', rows: ['3 × 5 = 15'] },
-  { title: 'Not sour', say: 'Take the sour sweets away from all of them.', rows: ['40 − 15 = 25', '! 25 sweets'] },
+  { title: 'Calculate the sour sweets', say: 'Sour sweets are 3 parts.', rows: ['3 × 5 = 15'] },
+  { title: 'Calculate the sweets that are not sour', say: 'Take the sour sweets away from all of them.', rows: ['40 − 15 = 25', '! 25 sweets'] },
 ]), slips(25, [[15, 'That’s the sour sweets. The question asks for the others.'], [16, 'The 8 is all the sweets, not the other sweets: 40 ÷ 8 = 5, then 3 × 5 = 15 sour.'], [5, 'That’s 1 part.']]))
 
 /* ---------- Rung 5: sharing an amount (R1.5) ---------- */

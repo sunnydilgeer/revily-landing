@@ -205,6 +205,8 @@
 .ns-eq.is-plain .ns-eq__token { color: var(--rv-ink); }
 .ns-eq__heading, .ns-eq__note { grid-column: 1 / -1; margin: 0; text-align: center; contain: inline-size; }
 .ns-eq__note { color: var(--f); }
+/* A question given as a note ("12 : 18 : 30") opens big in the middle of an otherwise empty board, in plain ink. */
+.ns-eq.is-plain .ns-eq__note { color: var(--rv-ink); font-size: clamp(27px, 6vw, 44px); padding: 28px 0; }
 .ns-eq .is-struck { text-decoration: line-through 2px #dc2626; opacity: .75; }
 .ns-eq__frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; }
 .ns-eq__frac > span:first-child { padding: 0 4px 2px; border-bottom: 2px solid currentColor; }
@@ -433,6 +435,8 @@
 .ns-ratio__bar { --b: #b45309; --bt: #fef3c7; }
 .ns-ratio__bar.is-b1 { --b: var(--rv-biro); --bt: var(--rv-biro-tint); }
 .ns-ratio__bar.is-b2 { --b: #0f766e; --bt: #ccfbf1; }
+/* A bar of red counters is drawn red (Sunny, 12 Oct), whatever its place. */
+.ns-ratio__bar.is-red { --b: #dc2626; --bt: #fee2e2; }
 .ns-ratio .ns-ratio__name { text-anchor: end; fill: var(--rv-ink); font-size: 17px; font-weight: 700; }
 .ns-ratio__block { fill: var(--bt); stroke: var(--b); stroke-width: 1.5; }
 .ns-ratio__each { fill: var(--b); font-weight: 800; }
@@ -448,11 +452,16 @@
 .ns-ratio__block.is-faded { opacity: .3; }
 .ns-ratio__bar.is-out .ns-ratio__name, .ns-ratio__bar.is-out .ns-ratio__tag { opacity: .3; }
 .ns-ratio__bar.is-dim { opacity: .25; }
+.ns-ratio__bar.is-hidden { visibility: hidden; }
 .ns-percent { display: flex; justify-content: center; width: 100%; margin-bottom: 6px; }
 .ns-percent svg { display: block; width: 100%; max-width: 440px; font-family: var(--rv-font-body); }
 .ns-percent text { text-anchor: middle; dominant-baseline: central; }
 .ns-percent__square { fill: var(--rv-surface); stroke: var(--rv-line-strong, #cbd5e1); stroke-width: 1; }
 .ns-percent__square.is-on { fill: #bfdbfe; stroke: var(--rv-biro); }
+.ns-percent__square.is-extra.is-on { fill: #fde68a; stroke: #d97706; }
+.ns-percent__square.is-off { fill: var(--rv-surface); stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 2 2; opacity: .6; }
+.ns-percent__pill.is-off rect { stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 4 3; }
+.ns-percent__pill.is-off text { fill: var(--rv-ink-soft, #64748b); }
 .ns-percent__pill rect { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2; }
 .ns-percent__pill text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
 .ns-percent__note { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
