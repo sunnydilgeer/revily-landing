@@ -150,10 +150,12 @@ practice(simple, 'Ben says, “With simple interest, the interest I get in year 
 /* ---------- Rung 2: compound growth (R5.2) ---------- */
 
 const leo = worked(growth, 'Leo puts £2000 into a savings account paying 3% compound interest per year. How much is in the account after 2 years?', '£2000 at 3% compound interest. How much after 2 years?', 'R5.2 video + Q1', barsModel(years(2000, [2060, 2121.8]), [
-  multiplierMove(3, true, 'Compound interest: each year the 3% is worked out on the NEW total. Keep the 100% and add 3%, then write it as a decimal.'),
-  { title: 'Year 1', say: 'Multiply the £2000 by 1.03.', rows: ['2000 × 1.03 = 2060'], reach: 1 },
-  { title: 'Year 2', say: 'Multiply the NEW total by 1.03 again. This year’s interest is £61.80, more than £60.', rows: ['2060 × 1.03 = 2121.80', '! £2121.80'], reach: 2 },
-]), 'Our aim: find the multiplier, then multiply by it once for every year.')
+  { title: 'Add the 3% interest', say: 'Compound interest: each year the 3% is worked out on the NEW total. Keep the 100% and add 3%.', rows: ['100% + 3% = 103%', '>0 each year the 3% is on the new total'] },
+  { title: 'Write 103% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['103% = 103 ÷ 100 = 1.03'] },
+  { title: 'Calculate the money after year 1', say: 'Multiply the £2000 by 1.03.', rows: ['£2000 × 1.03 = £2060'], reach: 1 },
+  { title: 'Calculate the money after year 2', say: 'Multiply the NEW total by 1.03 again. This year’s interest is £61.80, more than £60.', rows: ['£2060 × 1.03 = £2121.80', '>0 the 3% is now on £2060, not £2000', '! Money in the account after 2 years = £2121.80'], reach: 2 },
+  { title: 'Check it makes sense', say: 'Simple interest would add £60 twice, £120. Compound gives a bit more, because year 2 earns interest on the interest.', rows: ['£2121.80 − £2000 = £121.80', '>0 more than simple interest’s £120 ✓'] },
+]), 'Our aim: write the new % as a decimal, then multiply by it once for every year.')
 video(leo, media('growth', '£2000 at 3% compound interest for 2 years', 'R5.2_Compound_Growth.mp4', 104, [
   'Interest on interest: Leo saves £2000 at 3% compound interest per year. How much after 2 years?',
   'What is compound interest? COMPOUND interest: each year the 3% is worked out on the NEW total, so you get interest on last year’s interest too. The amount added grows a little every year. We want the total after 2 years.',
@@ -165,24 +167,29 @@ video(leo, media('growth', '£2000 at 3% compound interest for 2 years', 'R5.2_C
   'Well done: the multiplier is 1 + the decimal. Multiply year after year, or original × multiplier ^ years. The answer is £2121.80.',
 ]))
 pounds(practice(growth, '£400 is saved at 10% compound interest per year. How much is there after 2 years?', 'R5.2 Q2', number(484, '£484'), 'The multiplier is 1.1. Multiply by it twice.', barsModel(years(400, [440, 484]), [
-  multiplierMove(10, true, 'Keep the 100% and add 10%, then write it as a decimal.'),
-  { title: 'Year 1', say: 'Multiply the £400 by 1.1.', rows: ['400 × 1.1 = 440'], reach: 1 },
-  { title: 'Year 2', say: 'Multiply the NEW total by 1.1 again.', rows: ['440 × 1.1 = 484', '! £484'], reach: 2 },
+  { title: 'Add the 10% interest', say: 'Keep the 100% and add 10%.', rows: ['100% + 10% = 110%', '>0 each year the 10% is on the new total'] },
+  { title: 'Write 110% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['110% = 110 ÷ 100 = 1.1'] },
+  { title: 'Calculate the money after year 1', say: 'Multiply the £400 by 1.1.', rows: ['£400 × 1.1 = £440'], reach: 1 },
+  { title: 'Calculate the money after year 2', say: 'Multiply the NEW total by 1.1 again.', rows: ['£440 × 1.1 = £484', '>0 the 10% is now on £440, not £400', '! Money after 2 years = £484'], reach: 2 },
+  { title: 'Check it makes sense', say: 'Simple interest would add £40 twice, £80. Compound gives a bit more.', rows: ['£484 − £400 = £84', '>0 more than simple interest’s £80 ✓'] },
 ]), slips(484, [[480, 'That adds £40 twice: simple interest. Year 2’s 10% is on £440.'], [440, 'That’s 1 year. Multiply by 1.1 again.'], [84, 'That’s the interest. The question asks how much there is.']])))
 practice(growth, 'A town’s population is 15,000. It grows by 2% each year. Work out the population after 3 years, to the nearest whole number.', 'R5.2 Q3', number(15918, '15,918'), 'The multiplier is 1.02. Multiply by it 3 times: 15,000 × 1.02³.', boardModel([], [
-  multiplierMove(2, true, 'Keep the 100% and add 2%, then write it as a decimal.'),
-  { title: 'Use the power', say: '3 years is × 1.02 three times, which is × 1.02³. Round to the nearest whole number.', rows: ['15000 × 1.02³ = 15918.12', '! 15,918'] },
+  { title: 'Add the 2% interest', say: 'Keep the 100% and add 2%.', rows: ['100% + 2% = 102%', '>0 each year the 2% is on the new total'] },
+  { title: 'Write 102% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['102% = 102 ÷ 100 = 1.02'] },
+  { title: 'Calculate the population after 3 years', say: '3 years is × 1.02 three times, which is × 1.02³. Round to the nearest whole number.', rows: ['15000 × 1.02³ = 15918.12', '>0 × 1.02 once for each year', '! Population after 3 years = 15,918'] },
 ]), slips(15918, [[15900, 'That adds 2% of 15,000 three times: simple interest. Multiply by 1.02 three times.'], [15300, 'That’s 1 year. Use 1.02³ for 3 years.'], [15918.12, 'Round to the nearest whole number: 15,918 people.']]))
 pounds(practice(growth, 'Amira invests £3500 at 4% compound interest per year. Work out the value after 5 years, to the nearest penny.', 'R5.2 Q4a', number(4258.29, '£4258.29'), 'The multiplier is 1.04. Use 3500 × 1.04⁵.', boardModel([], [
-  multiplierMove(4, true, 'Keep the 100% and add 4%, then write it as a decimal.'),
-  { title: 'Use the power', say: '5 years is × 1.04⁵. Round to the nearest penny: the 5 after 4258.28 rounds up.', rows: ['3500 × 1.04⁵ = 4258.285…', '! £4258.29'] },
+  { title: 'Add the 4% interest', say: 'Keep the 100% and add 4%.', rows: ['100% + 4% = 104%', '>0 each year the 4% is on the new total'] },
+  { title: 'Write 104% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['104% = 104 ÷ 100 = 1.04'] },
+  { title: 'Calculate the value after 5 years', say: '5 years is × 1.04⁵. Round to the nearest penny: the 5 after 4258.28 rounds up.', rows: ['£3500 × 1.04⁵ = £4258.285…', '>0 × 1.04 once for each year', '! Value after 5 years = £4258.29'] },
 ]), slips(4258.29, [[4200, 'That’s simple interest: £140 each year. Multiply by 1.04 five times.'], [4258.28, 'Round 4258.285… to the nearest penny: the next digit is 5, so it rounds up to £4258.29.'], [4258.27, 'Work out 3500 × 1.04⁵ again: it is 4258.285…, so £4258.29.'], [3640, 'That’s 1 year. Use 1.04⁵ for 5 years.']])))
 pounds(practice(growth, 'Amira’s £3500 grew to £4258.29. How much interest did she earn in total?', 'R5.2 Q4b', number(758.29, '£758.29'), 'Final value minus the original.', boardModel([], [
-  { title: 'Final minus original', say: 'The interest is what she has now minus what she put in.', rows: ['4258.29 − 3500 = 758.29', '! £758.29'] },
+  { title: 'Calculate the interest', say: 'The interest is what she has now minus what she put in.', rows: ['£4258.29 − £3500 = £758.29', '! Interest = £758.29'] },
 ]), slips(758.29, [[4258.29, 'That’s the value. Take off the £3500 she put in.'], [700, 'That’s simple interest. Use the compound value: 4258.29 − 3500.']])))
 pounds(practice(growth, 'A car park’s charge is £6 per day. It goes up by 5% each year for 3 years. Work out the charge after 3 years, to the nearest penny.', 'R5.2 Q5a', number(6.95, '£6.95'), 'The multiplier is 1.05. Use 6 × 1.05³.', boardModel([], [
-  multiplierMove(5, true, 'Keep the 100% and add 5%, then write it as a decimal.'),
-  { title: 'Use the power', say: '3 years is × 1.05³. Round to the nearest penny.', rows: ['6 × 1.05³ = 6.945…', '! £6.95'] },
+  { title: 'Add the 5% rise', say: 'Keep the 100% and add 5%.', rows: ['100% + 5% = 105%', '>0 each year the 5% is on the new charge'] },
+  { title: 'Write 105% as a decimal', say: 'A percentage as a decimal: divide by 100.', rows: ['105% = 105 ÷ 100 = 1.05'] },
+  { title: 'Calculate the charge after 3 years', say: '3 years is × 1.05³. Round to the nearest penny.', rows: ['£6 × 1.05³ = £6.945…', '>0 × 1.05 once for each year', '! Charge after 3 years = £6.95'] },
 ]), slips(6.95, [[6.9, 'That adds 5% of £6 three times. Multiply by 1.05 three times.'], [6.3, 'That’s 1 year. Use 1.05³.'], [6.94, 'Round 6.945… to the nearest penny: £6.95.']])))
 practice(growth, 'Explain why the car park charge after 3 years is not simply 6 × 1.15.', 'R5.2 Q5b', choose(
   'Each year’s 5% is of a bigger charge, so the rises get bigger',
@@ -192,8 +199,8 @@ practice(growth, 'Explain why the car park charge after 3 years is not simply 6 
   { title: 'Compare', say: '6 × 1.15 only adds the same 5% of £6 three times. Compound works out each 5% on the new, bigger charge.', rows: ['6 × 1.15 = 6.90', '6 × 1.05³ = 6.945…', '> each 5% is of a bigger amount', '! The rises grow'] },
 ], 'Why'))
 pounds(practice(growth, 'Sam says that £1000 at 3% compound interest for 2 years gives £1060. Work it out with compound interest: how much is there after 2 years?', 'R5.2 Q5c', number(1060.9, '£1060.90'), 'Multiply by 1.03, then by 1.03 again.', barsModel(years(1000, [1030, 1060.9]), [
-  { title: 'Year 1', say: 'Multiply the £1000 by 1.03.', rows: ['1000 × 1.03 = 1030'], reach: 1 },
-  { title: 'Year 2', say: 'Multiply the NEW total by 1.03 again. Sam used simple interest: year 2 earns interest on the £30 too.', rows: ['1030 × 1.03 = 1060.90', '> not £1060: Sam is wrong', '! £1060.90'], reach: 2 },
+  { title: 'Calculate the money after year 1', say: 'Multiply the £1000 by 1.03.', rows: ['£1000 × 1.03 = £1030'], reach: 1 },
+  { title: 'Calculate the money after year 2', say: 'Multiply the NEW total by 1.03 again. Sam used simple interest: year 2 earns interest on the £30 too.', rows: ['£1030 × 1.03 = £1060.90', '> not £1060: Sam is wrong', '! £1060.90'], reach: 2 },
 ]), slips(1060.9, [[1060, 'That’s Sam’s simple interest. Year 2’s 3% is on £1030.'], [1030, 'That’s 1 year. Multiply by 1.03 again.']])))
 
 /* ---------- Rung 3: compound decay (R5.3) ---------- */
