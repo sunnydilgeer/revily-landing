@@ -96,9 +96,11 @@ function fit(card: HTMLElement) {
     if (capped) short = Math.max(0, Math.min(roll.scrollHeight, keep) - height)
     ahead = Math.max(0, eventual - height)
   }
-  // A picture that grows on a later step (a row added) leaves room for that too, at its present zoom.
+  // A picture that grows on a later step (a row added) leaves room for that too, at its present zoom. Not a graph or a
+  // board: they keep their size or follow the paper, so the rehearsal's copy is a moving target (Sunny, 12 Oct: the
+  // graph on "Draw y = 3" flickered between two sizes).
   const picture = card.querySelector<HTMLElement>('.wc-picture[data-tallest]')
-  if (picture) {
+  if (picture && !picture.querySelector(KEEP_SIZE)) {
     const zoom = parseFloat(picture.style.zoom) || 1
     ahead += Math.max(0, Number(picture.dataset.tallest) * zoom - picture.getBoundingClientRect().height)
   }
