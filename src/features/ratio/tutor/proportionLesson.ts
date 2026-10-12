@@ -32,7 +32,7 @@ function rowModel(start: RatioFrame, moves: RowMove[], label = 'Work it out'): T
   if (model.kind !== 'method-worked') throw new Error('A proportion working is a board')
   let current: RatioFrame = start
   const frames = moves.map(({ ratio, tags }) => {
-    current = { ...current, rings: undefined, note: undefined, lit: undefined, ...ratio }
+    current = { ...current, rings: undefined, note: undefined, lit: undefined, hide: undefined, ...ratio }
     if (tags) current = { ...current, bars: current.bars.map((bar, k) => tags[k] === undefined ? bar : { ...bar, tag: tags[k] }) }
     return current
   })
@@ -79,8 +79,8 @@ const pounds = (state: TutorMethodState) => { state.answerPrefix = '£'; return 
 /* ---------- Rung 1: direct proportion (R2.1) ---------- */
 
 const party = rows(['4 people', 4, '12 slices'], ['1 person', 1], ['7 people', 7, '?'])
-const pizza = worked(direct, 'At a party, 4 people eat 12 slices of pizza. The number of slices is directly proportional to the number of people. How many slices are needed for 7 people?', '4 people eat 12 slices. How many slices for 7 people?', 'R2.1 video + Q1', rowModel({ ...party, dim: [1] }, [
-  { title: 'Find the slices for 1 person', say: '4 people share the 12 slices. Share 12 between the 4 people to find what 1 person needs.', rows: ['12 slices total ÷ 4 people = 3 slices each'], tags: [undefined, '3 slices'], ratio: { dim: [], rings: [whole(0, 4)], lit: [1], note: '1 person needs 3 slices' } },
+const pizza = worked(direct, 'At a party, 4 people eat 12 slices of pizza. The number of slices is directly proportional to the number of people. How many slices are needed for 7 people?', '4 people eat 12 slices. How many slices for 7 people?', 'R2.1 video + Q1', rowModel({ ...party, hide: [1] }, [
+  { title: 'Find the slices for 1 person', say: '4 people share the 12 slices. Share 12 between the 4 people to find what 1 person needs.', rows: ['12 slices total ÷ 4 people = 3 slices each'], tags: [undefined, '3 slices'], ratio: { hide: [2], rings: [whole(0, 4)], lit: [1], note: '1 person needs 3 slices' } },
   { title: 'Calculate the slices for 7 people', say: '7 people need 7 lots of 3 slices.', rows: ['7 people × 3 slices each = 21 slices total', '! 21 slices'], tags: [undefined, undefined, '21 slices'], ratio: { rings: [whole(2, 7)], lit: [1, 2] } },
   { title: 'Check it makes sense', say: '7 people is more than 4, so they need more slices: 21 is more than 12.', rows: ['>0 7 people > 4 people, so 21 slices > 12 slices ✓'] },
 ]), 'Our aim: divide to find what 1 needs, then multiply for as many as you want.')
@@ -104,16 +104,16 @@ practice(direct, 'A recipe uses 300 g of flour to make 12 biscuits. Work out how
   { title: 'Calculate the flour for 20 biscuits', say: '20 biscuits need 20 lots of 25 g.', rows: ['20 biscuits × 25 g each = 500 g total', '! 500 g'] },
 ]), slips(500, [[25, 'That’s 1 biscuit. Multiply by 20.'], [308, 'Divide and multiply, don’t add: find 1 biscuit first, 300 ÷ 12.'], [6000, '300 g makes 12 biscuits, not 1. Find 1 biscuit first: 300 ÷ 12.']]))
 const car = rows(['6 litres', 6, '84 miles'], ['1 litre', 1], ['10 litres', 10, '?'])
-practice(direct, 'A car uses 6 litres of petrol to travel 84 miles. How far can the car travel on 10 litres of petrol?', 'R2.1 Q4a', car, number(140, '140 miles'), 'Find the miles for 1 litre first: share 84 between 6.', rowModel({ ...car, dim: [1] }, [
-  { title: 'Find the miles for 1 litre', say: 'Share the 84 miles between the 6 litres.', rows: ['84 miles total ÷ 6 litres = 14 miles each'], tags: [undefined, '14 miles'], ratio: { dim: [], rings: [whole(0, 6)], lit: [1], note: '1 litre goes 14 miles' } },
+practice(direct, 'A car uses 6 litres of petrol to travel 84 miles. How far can the car travel on 10 litres of petrol?', 'R2.1 Q4a', car, number(140, '140 miles'), 'Find the miles for 1 litre first: share 84 between 6.', rowModel({ ...car, hide: [1] }, [
+  { title: 'Find the miles for 1 litre', say: 'Share the 84 miles between the 6 litres.', rows: ['84 miles total ÷ 6 litres = 14 miles each'], tags: [undefined, '14 miles'], ratio: { hide: [2], rings: [whole(0, 6)], lit: [1], note: '1 litre goes 14 miles' } },
   { title: 'Calculate the miles for 10 litres', say: '10 litres go 10 lots of 14 miles.', rows: ['10 litres × 14 miles each = 140 miles total', '! 140 miles'], tags: [undefined, undefined, '140 miles'], ratio: { rings: [whole(2, 10)], lit: [2] } },
 ]), slips(140, [[14, 'That’s 1 litre. Multiply by 10.'], [88, 'Multiply, don’t add: find 1 litre first, then × 10.'], [840, '84 miles is for 6 litres, not 1. Find 1 litre first: 84 ÷ 6.']]))
 practice(direct, 'The same car travels 14 miles on 1 litre of petrol. How many litres of petrol does it need to travel 217 miles?', 'R2.1 Q4b', null, number(15.5, '15.5 litres'), 'Every 14 miles uses 1 litre. How many lots of 14 are in 217?', boardModel([], [
   { title: 'Calculate the litres for 217 miles', say: 'Each litre goes 14 miles, so divide the miles by 14. 14 × 15 = 210, and the 7 miles left are half of 14.', rows: ['217 miles ÷ 14 miles each = 15.5 litres', '! 15.5 litres'] },
 ]), slips(15.5, [[15, '217 ÷ 14 is 15.5: 14 × 15 = 210, and the 7 miles left are half a litre.'], [3038, 'Divide, don’t multiply: 217 ÷ 14.'], [16, 'Don’t round: 217 ÷ 14 is exactly 15.5.']]))
 const printer = rows(['3 minutes', 3, '45 pages'], ['1 minute', 1], ['8 minutes', 8, '?'])
-practice(direct, 'A printer prints 45 pages in 3 minutes. How many pages does it print in 8 minutes?', 'R2.1 Q5a', printer, number(120, '120 pages'), 'Find the pages in 1 minute first: share 45 between 3.', rowModel({ ...printer, dim: [1] }, [
-  { title: 'Find the pages in 1 minute', say: 'Share the 45 pages between the 3 minutes.', rows: ['45 pages total ÷ 3 minutes = 15 pages each'], tags: [undefined, '15 pages'], ratio: { dim: [], rings: [whole(0, 3)], lit: [1], note: '1 minute prints 15 pages' } },
+practice(direct, 'A printer prints 45 pages in 3 minutes. How many pages does it print in 8 minutes?', 'R2.1 Q5a', printer, number(120, '120 pages'), 'Find the pages in 1 minute first: share 45 between 3.', rowModel({ ...printer, hide: [1] }, [
+  { title: 'Find the pages in 1 minute', say: 'Share the 45 pages between the 3 minutes.', rows: ['45 pages total ÷ 3 minutes = 15 pages each'], tags: [undefined, '15 pages'], ratio: { hide: [2], rings: [whole(0, 3)], lit: [1], note: '1 minute prints 15 pages' } },
   { title: 'Calculate the pages in 8 minutes', say: '8 minutes print 8 lots of 15 pages.', rows: ['8 minutes × 15 pages each = 120 pages total', '! 120 pages'], tags: [undefined, undefined, '120 pages'], ratio: { rings: [whole(2, 8)], lit: [2] } },
 ]), slips(120, [[15, 'That’s 1 minute. Multiply by 8.'], [50, 'Multiply, don’t add: find 1 minute first, then × 8.'], [360, '45 pages take 3 minutes, not 1. Find 1 minute first: 45 ÷ 3.']]))
 /** Minutes and seconds typed in two boxes, with the slips of a decimal minute. */
@@ -143,8 +143,8 @@ practice(direct, 'A printer prints 45 pages in 3 minutes. Maya says, “3 minute
 /* ---------- Rung 2: inverse proportion (R2.2) ---------- */
 
 const fence = rows(['4 painters', 4, '9 hours'], ['1 painter', 1], ['6 painters', 6, '?'])
-const painters = worked(inverse, '4 painters take 9 hours to paint a fence. The time taken is inversely proportional to the number of painters. How long would 6 painters take?', '4 painters take 9 hours. How long for 6 painters?', 'R2.2 video + Q1', rowModel({ ...fence, dim: [1] }, [
-  { title: 'Find the time for 1 painter', say: 'One painter does all the work alone, so it takes 4 times longer. Multiply.', rows: ['4 painters × 9 hours each = 36 hours total'], tags: [undefined, '36 hours'], ratio: { dim: [], rings: [whole(0, 4)], lit: [1], note: '1 painter alone: 4 times longer' } },
+const painters = worked(inverse, '4 painters take 9 hours to paint a fence. The time taken is inversely proportional to the number of painters. How long would 6 painters take?', '4 painters take 9 hours. How long for 6 painters?', 'R2.2 video + Q1', rowModel({ ...fence, hide: [1] }, [
+  { title: 'Find the time for 1 painter', say: 'One painter does all the work alone, so it takes 4 times longer. Multiply.', rows: ['4 painters × 9 hours each = 36 hours total'], tags: [undefined, '36 hours'], ratio: { hide: [2], rings: [whole(0, 4)], lit: [1], note: '1 painter alone: 4 times longer' } },
   { title: 'Calculate the time for 6 painters', say: '6 painters share the 36 hours of work, so divide by 6.', rows: ['36 hours total ÷ 6 painters = 6 hours each', '! 6 hours'], tags: [undefined, undefined, '6 hours'], ratio: { rings: [whole(2, 6)], lit: [2] } },
   { title: 'Check it makes sense', say: 'More painters share the work, so the job is quicker: 6 hours is less than 9.', rows: ['>0 6 painters > 4 painters, so 6 hours < 9 hours ✓'] },
 ]), 'Our aim: multiply to find how long 1 takes, then divide to share the work.')
@@ -164,21 +164,21 @@ practice(inverse, 'It takes 2 people 6 hours to clear a garden. How long would i
   { title: 'Calculate the time for 4 people', say: 'Twice as many people share the work, so it takes half the time.', rows: ['6 hours ÷ 2 = 3 hours', '! 3 hours'], tags: [undefined, '3 hours'], ratio: { lit: [1] } },
 ]), slips(3, [[12, 'More people means less time, not more. Double the people, halve the time.'], [8, 'More people means less time. Double the people, so halve the 6 hours.'], [4, 'Take away doesn’t work here. Double the people, halve the time: 6 ÷ 2.']]))
 const tank = rows(['6 campers', 6, '5 days'], ['1 camper', 1], ['10 campers', 10, '?'])
-practice(inverse, 'A tank of water lasts 5 days when 6 campers use it. How many days would the same tank last 10 campers?', 'R2.2 Q3', tank, number(3, '3 days'), 'Find how long the tank lasts 1 camper first: 1 camper uses less, so it lasts 6 times longer.', rowModel({ ...tank, dim: [1] }, [
-  { title: 'Find the days for 1 camper', say: 'One camper uses less, so the water lasts 6 times longer. Multiply.', rows: ['6 campers × 5 days each = 30 days total'], tags: [undefined, '30 days'], ratio: { dim: [], rings: [whole(0, 6)], lit: [1], note: '1 camper: 6 times longer' } },
+practice(inverse, 'A tank of water lasts 5 days when 6 campers use it. How many days would the same tank last 10 campers?', 'R2.2 Q3', tank, number(3, '3 days'), 'Find how long the tank lasts 1 camper first: 1 camper uses less, so it lasts 6 times longer.', rowModel({ ...tank, hide: [1] }, [
+  { title: 'Find the days for 1 camper', say: 'One camper uses less, so the water lasts 6 times longer. Multiply.', rows: ['6 campers × 5 days each = 30 days total'], tags: [undefined, '30 days'], ratio: { hide: [2], rings: [whole(0, 6)], lit: [1], note: '1 camper: 6 times longer' } },
   { title: 'Calculate the days for 10 campers', say: '10 campers use the water 10 times faster, so divide by 10.', rows: ['30 days total ÷ 10 campers = 3 days each', '! 3 days'], tags: [undefined, undefined, '3 days'], ratio: { rings: [whole(2, 10)], lit: [2] } },
 ]), slips(3, [[30, 'That’s 1 camper. 10 campers use it 10 times faster: divide by 10.'], [50 / 6, 'That’s direct proportion. More campers use the water faster, so it lasts less time.'], [50, 'More campers make the water run out sooner, not later. Find 1 camper first: 6 × 5.']]))
 const bread = rows(['3 bakers', 3, '8 hours'], ['1 baker', 1], ['4 bakers', 4, '?'])
-practice(inverse, 'It takes 3 bakers 8 hours to make the bread for a wedding. How long would it take 4 bakers?', 'R2.2 Q4a', bread, number(6, '6 hours'), 'Find the time for 1 baker first: 1 baker takes 3 times longer.', rowModel({ ...bread, dim: [1] }, [
-  { title: 'Find the time for 1 baker', say: 'One baker does all the work alone, so it takes 3 times longer. Multiply.', rows: ['3 bakers × 8 hours each = 24 hours total'], tags: [undefined, '24 hours'], ratio: { dim: [], rings: [whole(0, 3)], lit: [1], note: '1 baker alone: 3 times longer' } },
+practice(inverse, 'It takes 3 bakers 8 hours to make the bread for a wedding. How long would it take 4 bakers?', 'R2.2 Q4a', bread, number(6, '6 hours'), 'Find the time for 1 baker first: 1 baker takes 3 times longer.', rowModel({ ...bread, hide: [1] }, [
+  { title: 'Find the time for 1 baker', say: 'One baker does all the work alone, so it takes 3 times longer. Multiply.', rows: ['3 bakers × 8 hours each = 24 hours total'], tags: [undefined, '24 hours'], ratio: { hide: [2], rings: [whole(0, 3)], lit: [1], note: '1 baker alone: 3 times longer' } },
   { title: 'Calculate the time for 4 bakers', say: '4 bakers share the 24 hours of work, so divide by 4.', rows: ['24 hours total ÷ 4 bakers = 6 hours each', '! 6 hours'], tags: [undefined, undefined, '6 hours'], ratio: { rings: [whole(2, 4)], lit: [2] } },
 ]), slips(6, [[24, 'That’s 1 baker. 4 bakers share the work: divide by 4.'], [32 / 3, 'That’s direct proportion. More bakers means less time.'], [32, 'More bakers finish sooner, not later. Find 1 baker first: 3 × 8.']]))
 practice(inverse, 'The bread takes 1 baker 24 hours. It must be ready in 2 hours. How many bakers are needed?', 'R2.2 Q4b', null, number(12, '12 bakers'), '1 baker takes 24 hours. How many bakers share it so each works only 2 hours?', boardModel([], [
   { title: 'Calculate the bakers needed', say: '1 baker takes 24 hours. Share those 24 hours into 2-hour jobs, one for each baker.', rows: ['24 hours total ÷ 2 hours each = 12 bakers', '! 12 bakers'] },
 ]), slips(12, [[48, 'Less time needs more bakers, but divide: 24 ÷ 2.'], [1 / 12, 'Divide the other way: 24 hours ÷ 2 hours.'], [6, 'Use 1 baker’s 24 hours, not 4 bakers’ time: 24 ÷ 2.']]))
 const gate = rows(['8 stewards', 8, '45 min'], ['1 steward', 1], ['12 stewards', 12, '?'])
-practice(inverse, 'At a festival, 8 stewards take 45 minutes to check all the tickets at a gate. How long would it take 12 stewards?', 'R2.2 Q5a', gate, number(30, '30 minutes'), 'Find the time for 1 steward first: 1 steward takes 8 times longer.', rowModel({ ...gate, dim: [1] }, [
-  { title: 'Find the time for 1 steward', say: 'One steward checks every ticket alone, so it takes 8 times longer. Multiply.', rows: ['8 stewards × 45 minutes each = 360 minutes total'], tags: [undefined, '360 min'], ratio: { dim: [], rings: [whole(0, 8)], lit: [1], note: '1 steward: 8 times longer' } },
+practice(inverse, 'At a festival, 8 stewards take 45 minutes to check all the tickets at a gate. How long would it take 12 stewards?', 'R2.2 Q5a', gate, number(30, '30 minutes'), 'Find the time for 1 steward first: 1 steward takes 8 times longer.', rowModel({ ...gate, hide: [1] }, [
+  { title: 'Find the time for 1 steward', say: 'One steward checks every ticket alone, so it takes 8 times longer. Multiply.', rows: ['8 stewards × 45 minutes each = 360 minutes total'], tags: [undefined, '360 min'], ratio: { hide: [2], rings: [whole(0, 8)], lit: [1], note: '1 steward: 8 times longer' } },
   { title: 'Calculate the time for 12 stewards', say: '12 stewards share the 360 minutes of work, so divide by 12.', rows: ['360 minutes total ÷ 12 stewards = 30 minutes each', '! 30 minutes'], tags: [undefined, undefined, '30 min'], ratio: { rings: [whole(2, 12)], lit: [2] } },
 ]), slips(30, [[360, 'That’s 1 steward. 12 stewards share the work: divide by 12.'], [67.5, 'That’s direct proportion. More stewards means less time.'], [540, 'More stewards finish sooner, not later. Find 1 steward first: 8 × 45.']]))
 practice(inverse, 'The tickets take 1 steward 360 minutes to check. The gate must be cleared in 20 minutes. How many stewards are needed?', 'R2.2 Q5b', null, number(18, '18 stewards'), '1 steward takes 360 minutes. Divide by the 20 minutes allowed.', boardModel([], [

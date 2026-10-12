@@ -244,6 +244,8 @@ export type RatioFrame = {
   lit?: number[]
   /** Rows not reached yet (proportion, lesson 31): drawn faint, so the picture keeps its size from the first step. */
   dim?: number[]
+  /** Rows not on screen yet (proportion, lesson 31): kept in the layout but not drawn, so students see one row at a time. */
+  hide?: number[]
   room?: number
   /** The bars on the opening screen, before the first step changes them. */
   before?: Omit<RatioFrame, 'before'>
