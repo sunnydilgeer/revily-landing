@@ -339,6 +339,8 @@
 .ns-graph__numbers text { fill: var(--rv-muted); font-size: 13px; font-weight: 600; text-anchor: middle; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; stroke-linejoin: round; }
 .ns-graph__numbers text.is-y { text-anchor: end; }
 .ns-graph__numbers .is-marked rect { fill: currentColor; }
+/* A patch of paper behind a plain axis number a line runs through, so the number reads (−3 under y = 3x − 2). */
+.ns-graph__numbers .ns-graph__clear { fill: var(--rv-paper); }
 .ns-graph__numbers .is-marked text { fill: #fff; stroke: none; font-weight: 800; }
 .ns-graph__line line { stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; }
 .ns-graph__line text { fill: var(--rv-ink); font-size: 17px; font-weight: 700; font-style: italic; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }

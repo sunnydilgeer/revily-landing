@@ -312,12 +312,24 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   function hiddenY(y: number) {
     return between && marks.some(m => m.axis === 'y' && m.value !== y && Math.abs(py(m.value) - py(y)) < 19)
   }
+  /** Whether a drawn line runs through a box (a plain axis number's): then the number gets a patch of paper behind it. */
+  function crossed(l: number, t: number, r: number, b: number) {
+    return lines.some(line => {
+      const [a, z] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to)
+      for (let i = 0; i <= 60; i++) {
+        const x = px(a.x + (z.x - a.x) * i / 60) + 0.5, y = py(a.y + (z.y - a.y) * i / 60) + 0.5
+        if (x > l && x < r && y > t && y < b) return true
+      }
+      return false
+    })
+  }
   /** The axis numbers: the plain ones under everything, the highlighted ones on top so a ring never hides them. */
   const axisNumbers = (marked: boolean) => <g className="ns-graph__numbers">
     {[...xTicks, ...(sx && marked ? marks.filter(m => m.axis === 'x' && m.value !== axisX && !xTicks.includes(m.value)).map(m => m.value) : [])].filter(x => !!markOf('x', x) === marked && (marked || !hidden(x))).map(x => {
       const mark = markOf('x', x), label = xText(x), down = mark ? lowered(x) : 0
       return <g key={`nx${x}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.x } : undefined}>
         {mark && <rect x={fix(px(x) + 0.5 - label.length * 4.5 - 5)} y={fix(py(axisY) + 4 + down)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
+        {!mark && crossed(px(x) - label.length * 4.5 - 3, py(axisY) + 5, px(x) + label.length * 4.5 + 4, py(axisY) + 22) && <rect className="ns-graph__clear" x={fix(px(x) + 0.5 - label.length * 4 - 3)} y={fix(py(axisY) + 6)} width={fix(label.length * 8 + 6)} height="15" rx="3" />}
         <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18 + down)}>{label}</text>
       </g>
     })}
@@ -325,6 +337,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
       const mark = markOf('y', y), label = yText(y)
       return <g key={`ny${y}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.y } : undefined}>
         {mark && <rect x={fix(px(axisX) - 4 - label.length * 9 - 6)} y={fix(py(y) - 9)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
+        {!mark && crossed(px(axisX) - 6 - label.length * 8, py(y) - 8, px(axisX) - 2, py(y) + 8) && <rect className="ns-graph__clear" x={fix(px(axisX) - 7 - label.length * 8)} y={fix(py(y) - 7)} width={fix(label.length * 8 + 4)} height="15" rx="3" />}
         <text className="is-y" x={fix(px(axisX) - 5)} y={fix(py(y) + 5)}>{label}</text>
       </g>
     })}
@@ -367,7 +380,6 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         <text className="ns-graph__axis-name" x={width - 6} y={fix(py(axisY) + 19)} textAnchor="end">{xName}</text>
         <text className="ns-graph__axis-name" x={fix(px(axisX) + 9)} y="15">{yName}</text>
       </g>
-      {axisNumbers(false)}
       {lines.map((line, i) => {
         const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to)
         // The label sits near one end, nudged off the line: the right end of a line across, the bottom of a line up
@@ -444,6 +456,8 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
           {fitted && <text x={fix(fitted.l + 2)} y={fix(fitted.base)}>{curve.label}</text>}
         </g>
       })}
+      {/* The plain numbers over the lines, their halo parting a line that runs through one (−3 under y = 3x − 2), under the steps and dots. */}
+      {axisNumbers(false)}
       {legs.map((leg, i) => {
         const across = leg.from.y === leg.to.y
         const ax = px(leg.from.x) + 0.5, ay = py(leg.from.y) + 0.5, bx = px(leg.to.x) + 0.5, by = py(leg.to.y) + 0.5
@@ -451,7 +465,9 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         const arrow = across ? `M${fix(bx - dir * 8)} ${fix(by - 6)} L${fix(bx)} ${fix(by)} L${fix(bx - dir * 8)} ${fix(by + 6)}` : `M${fix(bx - 6)} ${fix(by - dir * 8)} L${fix(bx)} ${fix(by)} L${fix(bx + 6)} ${fix(by - dir * 8)}`
         // Each size goes outside the triangle the two steps make, so the line through it never crosses a label.
         const other = legs.find(o => o !== leg && (across ? o.to.x === leg.from.x && o.to.y === leg.from.y : o.from.x === leg.to.x && o.from.y === leg.to.y))
-        const outside = across ? (other ? other.to.y > other.from.y : leg.from.y <= (y0 + y1) / 2) : (other ? other.to.x > other.from.x : false)
+        // Across first (the lessons' order): the step up starts where this one ends, and the triangle is on its side. On the x axis it stays above, clear of the numbers.
+        const next = across ? legs.find(o => o !== leg && o.from.x === o.to.x && o.from.x === leg.to.x && o.from.y === leg.to.y) : undefined
+        const outside = across ? (next ? next.to.y < next.from.y || leg.from.y === axisY : other ? other.to.y > other.from.y : leg.from.y <= (y0 + y1) / 2) : (other ? other.to.x > other.from.x : false)
         const anchor = across ? 'middle' as const : outside ? 'end' as const : 'start' as const
         // A size that would sit on an axis (and its numbers) moves to the middle of the leg's longer side of it.
         const [lo, hi, axisAt] = across ? [Math.min(ax, bx), Math.max(ax, bx), px(axisX) + 0.5] : [Math.min(ay, by), Math.max(ay, by), py(axisY) + 0.5]

@@ -42,33 +42,56 @@ export const typedLine = (mTop: number, mBottom: number, c: number) => {
   return `${n}${d === 1 ? '' : `/${d}`}*x${c < 0 ? '' : '+'}${c}`
 }
 
+/** Moves: what m and c are, before any numbers, each in the colour it is found in (Sunny, 14 Oct). */
+const meaning: GraphMove = {
+  title: 'What y = mx + c means', equation: latex('m is the gradient, c is where the line crosses the y axis'), adds: 'lines',
+  say: 'Every straight line can be written as y = mx + c. Find the two numbers m and c, and you have its equation.',
+  change: (frame, step) => ({
+    ...frame, working: [...(frame.working ?? []),
+      { text: 'm is the gradient: how steep the line is (up ÷ across)', family: 3, at: step },
+      { text: 'c is where the line crosses the y axis', family: 0, at: step }],
+  }),
+}
 /** Moves: c, where the line crosses the y axis, its y lit on the axis. */
 const crossing = (c: number): GraphMove => ({
-  title: 'Find c', equation: latex(`c = ${show(c)}`), adds: 'lines',
-  say: `c is where the line crosses the y axis. It crosses at ${show(c)}.`,
+  title: 'Find c, where the line crosses the y axis', equation: latex(`c = ${show(c)}`), adds: 'lines',
+  say: `Look where the line cuts the y axis: at ${show(c)}.`,
   change: (frame, step) => ({
     // Its number lit on the y axis marks the spot: a dot there would sit on top of the number.
     ...frame, marks: [mark('y', c)],
-    working: [...(frame.working ?? []), { text: `c = ${show(c)}`, family: 0, at: step }],
+    working: [...(frame.working ?? []), { text: `The line crosses the y axis at ${show(c)}, so c = ${show(c)}`, family: 0, at: step }],
   }),
 })
 /** Moves: m, up over across, a halfway result. */
 const gradientLine = (up: number, across: number): GraphMove => ({
-  title: 'So m is', equation: latex(`m = ${show(up)} ÷ ${show(across)} = ${numberText(up, across)}`), adds: 'lines',
-  say: 'm is the gradient: up over across.',
-  change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), { text: `m = ${show(up)} ÷ ${show(across)} = ${numberText(up, across)}`, family: 3, at: step }] }),
+  title: 'Find m, the gradient', equation: latex(`m = ${show(up)} ÷ ${show(across)} = ${numberText(up, across)}`), adds: 'lines',
+  say: 'm is the gradient: divide the up by the across.',
+  change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), { text: `m = up ÷ across = ${show(up)} ÷ ${show(across)} = ${numberText(up, across)}`, family: 3, at: step }] }),
 })
-/** The answer: y = mx + c, the line going green. */
-const writeIt = (mTop: number, mBottom: number, c: number, say = 'Put m and c into y = mx + c.'): GraphMove =>
-  answerMove(lineText(mTop, mBottom, c), 'y = mx + c', say, [0], { title: '', say: '', equation: '', adds: 'answer', change: frame => ({ ...frame, marks: [mark('y', c)] }) })
+/** The answer: m and c side by side, then y = mx + c, the line going green. */
+const writeIt = (mTop: number, mBottom: number, c: number, say = 'Put m in front of x and c on the end.'): GraphMove =>
+  answerMove(lineText(mTop, mBottom, c), 'Put m and c into y = mx + c', say, [0], {
+    title: '', say: '', equation: '', adds: 'answer',
+    change: (frame, step) => ({ ...frame, marks: [mark('y', c)], working: [...(frame.working ?? []), { text: `m = ${numberText(mTop, mBottom)} and c = ${cText(c)}`, family: 2, at: step }] }),
+  })
+/** Check it makes sense: put the second point's x in, and out comes its y. */
+const checkLine = (mTop: number, mBottom: number, c: number, b: GraphPoint): GraphMove => {
+  const tail = c === 0 ? '' : ` ${c < 0 ? '−' : '+'} ${cText(Math.abs(c))}`
+  const text = `At x = ${show(b.x)}, y = ${numberText(mTop, mBottom)} × ${bracket(b.x)}${tail} = ${show(b.y)}, and the line goes through ${pair(b)}`
+  return {
+    title: 'Check it makes sense', equation: latex(text), adds: 'lines',
+    say: 'Put a point’s x into the equation. The y that comes out should be on the line.',
+    change: (frame, step) => ({ ...frame, boxed: [b], marks: [mark('y', c), ...shared([b])], working: [...(frame.working ?? []), { text, family: 2, at: step }] }),
+  }
+}
 
 /**
- * From a graph: c, then across `across` from where it crosses the y axis and up (or down) `up` to the line, then
- * m = up ÷ across, then the equation. The grid's first line is the line.
+ * From a graph: what m and c mean, c, then across `across` from where it crosses the y axis and up (or down) `up` to
+ * the line, then m = up ÷ across, then the equation, then a check. The grid's first line is the line.
  */
 export function fromGraphMoves(c: number, across: number, up: number): GraphMove[] {
   const a = pt(0, c), b = pt(across, c + up)
-  return [crossing(c), acrossFrom(a, b, false), upTo(a, b, false), gradientLine(up, across), writeIt(up, across, c)]
+  return [meaning, crossing(c), acrossFrom(a, b, false), upTo(a, b, false), gradientLine(up, across), writeIt(up, across, c), checkLine(up, across, c, b)]
 }
 
 /**

@@ -40,8 +40,8 @@ const keep = (words: string) => words.replace(/\((−?[\d.]+), (−?[\d.]+)\)/g,
 function workingSteps(visual: TutorWorking) {
   return visual.kind === 'method-worked' ? visual.examples.flatMap(example => example.steps).map(step => [step.title, step.instruction] as [string, string]) : []
 }
-function explore(topic: MicroSkillId, title: string, sourceRef: string, spec: GraphBoardSpec) {
-  const state = add(topic, keep(title), sourceRef, text(keep(title)))
+function explore(topic: MicroSkillId, title: string, sourceRef: string, spec: GraphBoardSpec, note?: string) {
+  const state = add(topic, keep(title), sourceRef, text(note ?? keep(title)))
   state.board = spec
 }
 function worked(topic: MicroSkillId, title: string, heading: string, sourceRef: string, model: TutorWorking, body: string) {
@@ -177,7 +177,7 @@ function equationOf(c: number, across: number, up: number, x: Range, y: Range, s
 }
 
 explore(lineGraph, 'Change m and c. Watch what each one does to the line.', 'GR2 p72 The straight line equation (play)',
-  { mode: 'equation', grid: grid([-3, 5], [-4, 5]), rule: { m: 1, c: 0 } })
+  { mode: 'equation', grid: grid([-3, 5], [-4, 5]), rule: { m: 1, c: 0 } }, 'm changes how steep the line is. c moves it up and down.')
 worked(lineGraph, 'Find the equation of the line.', 'y = mx + c', 'GR2 p72 Skill 1: equation from a graph (own numbers)', lineModel(-2, 1, 3, [-2, 4], [-4, 5]),
   'Every straight line is y = mx + c. m is the gradient. c is where the line crosses the y axis, the y-intercept. Find c first, then m.').video = {
   id: 'graphs-3-equation', src: `/media/${GRADIENT_PREVIEW_ID}/equation.mp4`, poster: `/media/${GRADIENT_PREVIEW_ID}/equation.svg`,
