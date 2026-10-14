@@ -1,15 +1,20 @@
 'use client'
 
-import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { useId, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
 import { GraphVisual, UNIT, fmt, squareOf, fillGrid } from './GraphPictures'
 import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
 import type { GraphBoardSpec } from './GraphBoard'
+import { fractionText } from './TiltBoard'
+import { lineText, numberText } from '../../gradient/tutor/equationWorkings'
 
 /*
  * The graph board's "draw a line" mode (graphs lesson 2): tap two corners and a straight line runs through them, edge
  * to edge. A line across or up and down is named on the grid (y = 3, x = −2). Tapping a dot again lifts it; a third
  * tap moves the nearer dot. Arrow keys move a ring over the corners and Enter or Space taps.
+ *
+ * As a play screen (no right line) it says what the drawn line is: its m, its c and y = mx + c, so tapping where it
+ * crosses the y axis and one more point has something to show for it (Sunny, 14 Oct).
  *
  * The answer is the line itself, written so that every pair of points on it gives the same three numbers: a, b, c in
  * ax + by = c, with no common factor and a or b positive first (lineKey). So any two points on y = 2x − 1 are right.
@@ -82,7 +87,21 @@ export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
     points: [...(grid.points ?? []), ...taps.map(p => ({ ...p, at: 0, label: play ? undefined : '' }))],
   }
   const status = result === 'correct' ? 'is-right' : result === 'incorrect' ? 'is-wrong' : ''
-  const live = drawn ? `A line through (${fmt(drawn.from.x)}, ${fmt(drawn.from.y)}) and (${fmt(drawn.to.x)}, ${fmt(drawn.to.y)})${lineName(drawn.from, drawn.to) ? `: ${lineName(drawn.from, drawn.to)}` : ''}` : `${taps.length} of 2 points`
+  const named = lineName(drawn?.from ?? { x: 0, y: 0 }, drawn?.to ?? { x: 1, y: 1 }) ?? (play && drawn && drawn.from.x !== drawn.to.x ? lineText(drawn.to.y - drawn.from.y, drawn.to.x - drawn.from.x, drawn.from.y - (drawn.to.y - drawn.from.y) / (drawn.to.x - drawn.from.x) * drawn.from.x) : undefined)
+  const live = drawn ? `A line through (${fmt(drawn.from.x)}, ${fmt(drawn.from.y)}) and (${fmt(drawn.to.x)}, ${fmt(drawn.to.y)})${named ? `: ${named}` : ''}` : `${taps.length} of 2 points`
+
+  // The play screen's sum: m from the two dots, c where the line crosses the y axis, and the line's equation.
+  let sum: ReactNode = null
+  if (play && drawn) {
+    const [l, r] = drawn.from.x <= drawn.to.x ? [drawn.from, drawn.to] : [drawn.to, drawn.from]
+    const up = r.y - l.y, across = r.x - l.x
+    if (across === 0) sum = <>Straight up and down: <b>x = {fmt(l.x)}</b>. It has no gradient, so it isn’t y = mx + c.</>
+    else {
+      const cTop = l.y * across - up * l.x
+      sum = <>m = <span className="is-y">up</span> ÷ <span className="is-x">across</span> = {fmt(up)} ÷ {fmt(across)} = <b className="graph-board__m">{fractionText(up, across)}</b>, c = <b className="graph-board__c">{numberText(cTop, across)}</b><br />
+        This line is <b className="graph-board__gradient">{lineText(up, across, cTop / across)}</b></>
+    }
+  }
 
   const boardClass = `graph-board graph-board--line${disabled ? ' is-disabled' : ''}${status ? ` ${status}` : ''}`
   return <div className={boardClass}>
@@ -97,6 +116,7 @@ export function LineBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
       }} />
     </div></InGraphSlot>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
+    {sum && <p className="graph-board__note graph-board__sum" aria-hidden="true">{sum}</p>}
     {!disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{taps.length === 2 ? 'Tap again to move a point' : taps.length === 1 ? 'Now tap a second point' : 'Tap two points to draw a line'}</p>
       {taps.length > 0 && <button type="button" className="graph-board__again" onClick={() => update([])}>Start again</button>}

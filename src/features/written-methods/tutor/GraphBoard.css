@@ -38,6 +38,8 @@
 .graph-board__count { font-size: 18px; font-weight: 800; fill: var(--f); }
 .graph-board__count.is-halo { stroke-width: 5px; stroke-linejoin: round; }
 .graph-board__gradient { color: var(--rv-good-ink); font-weight: 800; }
+.graph-board__m { color: #7c3aed; font-weight: 800; }
+.graph-board__c { color: var(--rv-biro); font-weight: 800; }
 
 /* y = mx + c mode: a stepper for m (the gradient, green) and one for c (where it crosses the y axis, biro blue). */
 .graph-board__stepper { display: inline-flex; align-items: center; gap: 8px; }

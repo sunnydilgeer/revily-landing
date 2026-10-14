@@ -386,6 +386,8 @@
 .ns-graph__leg.is-dashed line { stroke-width: 3; stroke-dasharray: 2 7; }
 .ns-graph__box { fill: none; stroke: #7c3aed; stroke-width: 2.5; }
 .ns-graph__text { color: var(--f); }
+.ns-graph__text.is-plain { --f: var(--rv-ink); }
+.ns-graph__mark { color: var(--f); font-weight: inherit; }
 .ns-graph .is-done { opacity: .35; transition: opacity .2s ease; }
 .ns-graph .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* An inequality with two signs on the board (lesson 25): three parts, each column lined up down the board. */

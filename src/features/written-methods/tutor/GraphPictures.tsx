@@ -115,7 +115,17 @@ export function ValueTable({ table }: { table: GraphTable }) {
   </table>
 }
 /** A line of working with every (x, y) in it coloured like the axes. */
+/** A working line's colour: families 0 to 3, or 4 for plain ink (an equation with m and c marked in it). */
+const family = (f: number) => f === 4 ? 'is-plain' : `is-f${f % 4}`
+/** Working text without its colour marks: "[[3|m]]" → "m". */
+export const plainWorking = (text: string) => text.replace(/\[\[\d\|([^\]]*)\]\]/g, '$1')
+/** A working line: "[[3|−⅓]]" colours −⅓ purple (family 3), so m and c keep their colour as they move (Sunny, 14 Oct). */
 function Coordinates({ text }: { text: string }) {
+  const marked = text.split(/(\[\[\d\|[^\]]*\]\])/)
+  if (marked.length > 1) return <>{marked.map((part, i) => {
+    const mark = /^\[\[(\d)\|([^\]]*)\]\]$/.exec(part)
+    return mark ? <b key={i} className={`ns-graph__mark is-f${mark[1]}`}>{mark[2]}</b> : <Coordinates key={i} text={part} />
+  })}</>
   const parts = text.split(/(\(−?[\d.]+, −?[\d.]+\))/)
   return <>{parts.map((part, i) => {
     const pair = /^\((−?[\d.]+), (−?[\d.]+)\)$/.exec(part)
@@ -149,7 +159,7 @@ function spoken(frame: GraphFrame, plain?: boolean) {
   for (const point of own(frame.points)) parts.push(`A point at ${coordinate(point)}.`)
   if (!plain) {
     for (const leg of (frame.legs ?? []).filter(leg => !leg.dashed)) parts.push(`${leg.from.y === leg.to.y ? 'Across' : leg.to.y > leg.from.y ? 'Up' : 'Down'} ${leg.label}.`)
-    for (const line of frame.working ?? []) parts.push(`${line.text}.`)
+    for (const line of frame.working ?? []) parts.push(`${plainWorking(line.text)}.`)
     if (frame.answer) parts.push(`The answer: ${frame.answer.text}.`)
   }
   return parts.join(' ')
@@ -517,7 +527,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   /** Lines of working in order, each step's heading above its first line. */
   const workingLines = (lines: typeof working) => lines.map((line, i) => <Fragment key={`w${line.at}-${i}`}>
     {frame.adds === 'lines' && line.at === frame.step && lines.findIndex(l => l.at === frame.step) === i && head('lines')}
-    <p className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
+    <p className={`ns-graph__text ${family(line.family)}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
   </Fragment>)
   const words = (lead || frame.table || written || answer) && <div className="ns-graph ns-graph--words">
     {lead}
@@ -526,7 +536,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
     {answer && <>
       {head('answer')}
       {/* The answer's own lines (its formula) go under its heading, then the answer; steps after it (a check) follow. */}
-      {working.filter(line => line.at === frame.answer!.at).map((line, i) => <p key={`a${i}`} className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>)}
+      {working.filter(line => line.at === frame.answer!.at).map((line, i) => <p key={`a${i}`} className={`ns-graph__text ${family(line.family)}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>)}
       <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer!.text} /></p>
       {workingLines(working.filter(line => line.at > frame.answer!.at))}
     </>}
