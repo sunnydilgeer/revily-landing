@@ -24,8 +24,9 @@ type Token = {
  * out and squares it. Inside a token, «…» is crossed out and ‹…› is the move (Boxed in Powers.tsx). A column vector:
  * "({3|−2})", top number across and bottom number up, in brackets with no bar; its parts may have spaces: "({3 + 5|2 − 1})".
  */
+/** A number written in spaced thousands (30 000) is one token, so it never breaks across a line and can be boxed whole. */
 export function readTokens(side: string): Token[] {
-  return (side.match(/~?\(?\{[^}]*\}\)?\^?|\S+/g) ?? []).map(raw => {
+  return (side.match(/(?<!\S)\[?\d{1,3}(?: \d{3})+\]?(?!\S)|~?\(?\{[^}]*\}\)?\^?|\S+/g) ?? []).map(raw => {
     const struck = raw.startsWith('~'), move = raw.endsWith('^')
     const body = raw.replace(/^~/, '').replace(/\^$/, '')
     const column = body.match(/^\(\{([^|]*)\|([^}]*)\}\)$/)

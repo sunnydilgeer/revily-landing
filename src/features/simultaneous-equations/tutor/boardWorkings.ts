@@ -69,7 +69,7 @@ export const box = (token: string, boxed = `[${token}]`) => (line: string) => {
   const label = /^[①②] /.test(line) ? line.slice(0, 2) : ''
   let found = false
   const next = line.slice(label.length).split(/( [=≡] )/).map((part, i) => i % 2 ? part
-    : (part.match(/~?\{[^}]*\}\^?|\S+/g) ?? []).map(t => t === token ? (found = true, boxed) : t).join(' '))
+    : (part.match(/(?<!\S)\d{1,3}(?: \d{3})+(?!\S)|~?\{[^}]*\}\^?|\S+/g) ?? []).map(t => t === token ? (found = true, boxed) : t).join(' '))
   if (!found) throw new Error(`No ${token} to box in ${line}`)
   return label + next.join('')
 }
