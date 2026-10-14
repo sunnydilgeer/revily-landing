@@ -76,22 +76,42 @@ export function GraphWords({ children }: { children: ReactNode }) {
 
 /** The bottom bar at rest, and the card's gap above it (MathsNavigation.css): room the card never has. */
 const BAR = 64 + 12
+/** The lesson screen's side gutter on a wide screen (graphs.css). */
+const GUTTER = 16
+/** Wide screens, in squares: a square of margin all round, the graph, a square's gap, and the words (10 to 12 across). */
+const MARGIN = 1, GAP = 1, WORDS_MIN = 10, WORDS_MAX = 12
+const SQUARE_MAX = 60
+
+/** A wide graph card's whole layout, in squares of `square` px (Sunny, 14 Oct: no empty half card, even margins). */
+type Wide = { square: number; width: number; top: number; bottom: number }
+
+const wide = () => window.matchMedia('(min-width: 900px)').matches
 
 /**
- * The square of a graph card's paper, in px. From the card's width and the lesson screen's height only, never from
- * what is on the card or how tall the bottom bar is just now (a result panel is taller), so a graph keeps its size
- * from the question to its working, and changes only with the window.
+ * A wide graph card, worked out from the screen alone (never from what is on the card, or how tall the bottom bar is
+ * just now), so a graph keeps its size and place from the question to its working, and changes only with the window.
+ * The square is as big as the screen's height allows (up to SQUARE_MAX), and the card is a whole number of squares
+ * across, so its paper meets both edges on a line and the left and right margins are both one square. Height left
+ * over is split evenly above and below the graph and the words.
  */
-function squareFor(card: HTMLElement) {
+function wideLayout(card: HTMLElement, section: HTMLElement): Wide {
+  const style = getComputedStyle(card), px = (value: string) => parseFloat(value) || 0
+  const borderX = px(style.borderLeftWidth) + px(style.borderRightWidth), borderY = px(style.borderTopWidth) + px(style.borderBottomWidth)
+  const roomX = window.innerWidth - 2 * GUTTER - borderX
+  const roomY = section.clientHeight - BAR - borderY
+  const across = 2 * MARGIN + GRAPH_SQUARES + GAP
+  const square = Math.max(28, Math.min(SQUARE_MAX, Math.floor((roomY - 1) / (GRAPH_SQUARES + 2 * MARGIN)), Math.floor(roomX / (across + WORDS_MIN))))
+  const words = Math.max(WORDS_MIN, Math.min(WORDS_MAX, Math.floor(roomX / square) - across))
+  const rows = Math.floor(roomY / square), spare = roomY - rows * square
+  const above = MARGIN + Math.max(0, Math.floor((rows - GRAPH_SQUARES - 2 * MARGIN) / 2))
+  const top = Math.round(spare / 2 + above * square)
+  return { square, width: (across + words) * square + borderX, top, bottom: Math.round(spare / 2 + MARGIN * square) }
+}
+
+/** A phone's graph card: the graph as wide as the card. The phone keyboard opening never shrinks it. */
+function narrowSquare(card: HTMLElement) {
   const style = getComputedStyle(card), px = (value: string) => parseFloat(value) || 0
   const width = card.clientWidth - px(style.paddingLeft) - px(style.paddingRight)
-  if (window.matchMedia('(min-width: 900px)').matches) {
-    // Beside the words: as tall as the screen allows, leaving the words column at least 280px.
-    const section = card.parentElement ?? card
-    const height = section.clientHeight - BAR - px(style.paddingTop) - px(style.paddingBottom) - px(style.borderTopWidth) - px(style.borderBottomWidth)
-    return Math.max(28, Math.min(36, Math.floor((height - 1) / GRAPH_SQUARES), Math.floor((width - 281) / (GRAPH_SQUARES + 1.5))))
-  }
-  // At the top of the card: as wide as it. The phone keyboard opening never shrinks it.
   return Math.max(22, Math.min(36, Math.floor((width - 1) / GRAPH_SQUARES)))
 }
 
@@ -112,19 +132,30 @@ export function useGraphCard(card: RefObject<HTMLElement | null>, slot: HTMLElem
         // No graph on this screen (the slot is hidden): where it would be, so the paper stays put for the next one.
         const style = getComputedStyle(box), px = (value: string) => parseFloat(value) || 0
         const room = box.clientWidth - px(style.paddingLeft) - px(style.paddingRight)
-        left = px(style.paddingLeft) + (window.matchMedia('(min-width: 900px)').matches ? 0 : (room - square * GRAPH_SQUARES - 1) / 2)
+        left = px(style.paddingLeft) + (wide() ? 0 : (room - square * GRAPH_SQUARES - 1) / 2)
         top = px(style.paddingTop)
       }
       const wrap = (v: number) => Math.round(((v % square) + square) % square * 100) / 100
       const position = `${wrap(left)}px ${wrap(top)}px`
       if (box.style.backgroundPosition !== position) box.style.backgroundPosition = position
     }
+    const shell = box.closest<HTMLElement>('.app-shell')
     let measured = ''
     const size = () => {
-      const key = `${section.clientWidth}x${section.clientHeight}`
+      const key = `${window.innerWidth}x${section.clientHeight}`
       if (key !== measured) {
         measured = key
-        const square = squareFor(box)
+        let square
+        if (wide()) {
+          const layout = wideLayout(box, section)
+          square = layout.square
+          shell?.style.setProperty('--graph-card-width', `${layout.width}px`)
+          box.style.padding = `${layout.top}px ${square}px ${layout.bottom}px`
+        } else {
+          shell?.style.removeProperty('--graph-card-width')
+          box.style.padding = ''
+          square = narrowSquare(box)
+        }
         box.style.setProperty('--graph-square', `${square}px`)
         box.style.setProperty('--rv-graph-scale', String(square / GRAPH_UNIT))
         box.style.backgroundSize = `${square}px ${square}px`
@@ -140,7 +171,8 @@ export function useGraphCard(card: RefObject<HTMLElement | null>, slot: HTMLElem
       observer.disconnect()
       box.removeEventListener('scroll', align)
       for (const name of ['--graph-square', '--rv-graph-scale']) box.style.removeProperty(name)
-      box.style.backgroundSize = box.style.backgroundPosition = ''
+      shell?.style.removeProperty('--graph-card-width')
+      box.style.backgroundSize = box.style.backgroundPosition = box.style.padding = ''
     }
   }, [card, slot])
 }

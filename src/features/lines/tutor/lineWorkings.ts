@@ -44,7 +44,7 @@ export const ends = (s: Straight): [GraphPoint, GraphPoint] => s.axis === 'y' ? 
 export const sharing = (s: Straight, along: number[]): GraphMove => {
   const points = along.map(v => s.axis === 'y' ? pt(v, s.k) : pt(s.k, v))
   return {
-    title: s.axis === 'y' ? `Points with y ${show(s.k)}` : `Points with x ${show(s.k)}`, equation: latex(points.map(pair).join(', ')), adds: 'picture',
+    title: s.axis === 'y' ? `Points with y = ${show(s.k)}` : `Points with x = ${show(s.k)}`, equation: latex(points.map(pair).join(', ')), adds: 'picture',
     say: s.axis === 'y' ? `Every point on ${named(s)} has y ${show(s.k)}, whatever its x.` : `Every point on ${named(s)} has x ${show(s.k)}, whatever its y.`,
     change: (frame, step) => ({ ...frame, points: [...(frame.points ?? []), ...points.map(p => ({ ...p, at: step }))], marks: [mark(s.axis, s.k)] }),
   }

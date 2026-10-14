@@ -308,6 +308,10 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
     if (!sx) return false
     return marks.some(m => m.axis === 'x' && m.value !== x && !lowered(m.value) && Math.abs(px(m.value) - px(x)) < half(m.value) + half(x))
   }
+  /** A plain number on the y axis that a highlighted value between the numbers would cover (€12 over the 10). */
+  function hiddenY(y: number) {
+    return between && marks.some(m => m.axis === 'y' && m.value !== y && Math.abs(py(m.value) - py(y)) < 19)
+  }
   /** The axis numbers: the plain ones under everything, the highlighted ones on top so a ring never hides them. */
   const axisNumbers = (marked: boolean) => <g className="ns-graph__numbers">
     {[...xTicks, ...(sx && marked ? marks.filter(m => m.axis === 'x' && m.value !== axisX && !xTicks.includes(m.value)).map(m => m.value) : [])].filter(x => !!markOf('x', x) === marked && (marked || !hidden(x))).map(x => {
@@ -317,7 +321,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         <text x={fix(px(x) + 0.5)} y={fix(py(axisY) + 18 + down)}>{label}</text>
       </g>
     })}
-    {[...yTicks, ...(between && marked ? marks.filter(m => m.axis === 'y' && m.value !== axisY && !yTicks.includes(m.value)).map(m => m.value) : [])].filter(y => !!markOf('y', y) === marked).map(y => {
+    {[...yTicks, ...(between && marked ? marks.filter(m => m.axis === 'y' && m.value !== axisY && !yTicks.includes(m.value)).map(m => m.value) : [])].filter(y => !!markOf('y', y) === marked && (marked || !hiddenY(y))).map(y => {
       const mark = markOf('y', y), label = yText(y)
       return <g key={`ny${y}`} className={mark ? 'is-marked' : undefined} style={mark ? { color: AXIS.y } : undefined}>
         {mark && <rect x={fix(px(axisX) - 4 - label.length * 9 - 6)} y={fix(py(y) - 9)} width={fix(label.length * 9 + 10)} height="19" rx="9.5" />}
@@ -327,6 +331,8 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
     {sx && sy && (() => {
       // Real-life axes: where they cross has a number on each, the x one under it and the y one to its left.
       const mx = markOf('x', axisX), my = markOf('y', axisY), lx = xText(axisX), ly = yText(axisY)
+      // Both axes start at 0: one 0 where they cross, as on the other graphs, not a 0 on each.
+      if (!mx && !my && lx === '0' && ly === '0') return marked ? null : <text className="is-y" x={fix(ax - 5)} y={fix(ay + 18)}>0</text>
       return <>
         {!!mx === marked && <g className={mx ? 'is-marked' : undefined} style={mx ? { color: AXIS.x } : undefined}>
           {mx && <rect x={fix(ax - lx.length * 4.5 - 5)} y={fix(ay + 4)} width={fix(lx.length * 9 + 10)} height="19" rx="9.5" />}

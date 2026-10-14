@@ -69,7 +69,7 @@ for (const state of states) {
   const steps = model.examples[0].steps
   steps.forEach((step, i) => {
     checkGrid(step.frame.graph, `${state.id} step ${i + 1}`)
-    assert.ok(step.title.split(' ').length <= 4, `${state.id} step ${i + 1}: heading "${step.title}" is short`)
+    assert.ok(step.title.split(' ').filter(word => word !== '=').length <= 4, `${state.id} step ${i + 1}: heading "${step.title}" is short`)
     assert.equal(Boolean(step.frame.graph.answer?.at === i), i === steps.length - 1, `${state.id} step ${i + 1}: the answer comes once, at the end`)
   })
   const last = steps.at(-1).frame.graph
