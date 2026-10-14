@@ -82,7 +82,8 @@ export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
   if (across === 0) readout = 'Straight up and down: no gradient'
   else if (spec.subtract) readout = <>({Y(r.y)} − {Y(bracket(l.y))}) ÷ ({X(r.x)} − {X(bracket(l.x))}) = {Y(up)} ÷ {X(across)} = <b className="graph-board__gradient">{fractionText(up, across)}</b></>
   else if (up === 0) readout = <>Flat: up {Y(0)}, so the gradient is <b className="graph-board__gradient">0</b></>
-  else readout = <>{up > 0 ? 'up' : 'down'} {Y(Math.abs(up))}, across {X(across)}: {Y(up)} ÷ {X(across)} = <b className="graph-board__gradient">{fractionText(up, across)}</b></>
+  // Two lines: the counts, then the formula with them in it (Sunny, 14 Oct).
+  else readout = <>{up > 0 ? 'up' : 'down'} {Y(Math.abs(up))}, across {X(across)}<br />Gradient = {Y('up')} ÷ {X('across')} = {Y(up)} ÷ {X(across)} = <b className="graph-board__gradient">{fractionText(up, across)}</b></>
   const live = across === 0 ? 'The line is straight up and down.' : `Across ${across}, ${up >= 0 ? 'up' : 'down'} ${Math.abs(up)}: gradient ${fractionText(up, across).replace('−', 'minus ')}`
 
   const boardClass = `graph-board graph-board--tilt${held ? ' is-held' : ''}${disabled ? ' is-disabled' : ''}`
@@ -111,7 +112,11 @@ export function TiltBoard({ spec, result, disabled, onChange }: { spec: GraphBoa
             // The up arrow stops short of the dot it ends at, so its head shows.
             const end = isAcross ? b : { x: b.x, y: b.y - dir * 9 }
             const head = isAcross ? `M${end.x - dir * 8} ${end.y - 6} L${end.x} ${end.y} L${end.x - dir * 8} ${end.y + 6}` : `M${end.x - 6} ${end.y - dir * 8} L${end.x} ${end.y} L${end.x + 6} ${end.y - dir * 8}`
-            return <g key={key} className={`ns-graph__leg is-f${family}`}><line x1={a.x} y1={a.y} x2={end.x} y2={end.y} /><path d={head} /></g>
+            // Its count beside it, outside the triangle the two arrows make (Sunny, 14 Oct: where the up and across come from).
+            const count = fmt(Math.abs(isAcross ? across : up))
+            const label = isAcross ? { x: (a.x + b.x) / 2, y: up > 0 ? a.y + 22 : a.y - 10, anchor: 'middle' as const } : { x: a.x + 10, y: (a.y + b.y) / 2 + 6, anchor: 'start' as const }
+            return <g key={key} className={`ns-graph__leg is-f${family}`}><line x1={a.x} y1={a.y} x2={end.x} y2={end.y} /><path d={head} />
+              <text x={label.x} y={label.y} textAnchor={label.anchor}>{count}</text></g>
           }
           return <>
             {across !== 0 && arrow(l, corner3, 1, 'across')}

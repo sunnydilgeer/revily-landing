@@ -50,19 +50,19 @@ assert.ok(states.find(state => state.microSkillId === lineRungs[0]).board?.mode 
     const model = state.interaction.type === 'continue' ? state.visual : state.working
     if (model?.kind !== 'method-worked') continue
     const titles = model.examples[0].steps.map(step => step.title)
-    assert.deepEqual(titles.slice(-5).map(t => t.split(' ')[0]), ['Plot', 'Across', 'Then', 'Plot', 'Join'], `${state.id}: plot c, across, then up or down, plot, join`)
+    assert.deepEqual(titles.slice(-5).map(t => t.split(' ')[0]), ['Plot', 'Count', 'Count', 'Plot', 'Join'], `${state.id}: plot c, across, then up or down, plot, join`)
   }
 }
 assert.equal(states.filter(state => state.interaction.type === 'select').length, 1, 'Multiple choice only for the one concept check')
 for (const mode of ['tilt', 'walk']) assert.ok(states.filter(state => state.board?.mode === mode && state.interaction.type !== 'continue').length >= 2, `Questions on the board's ${mode} mode`)
 
-// ---------- Workings: across first, then up, up over across ----------
+// ---------- Workings: two points, count across, count up, calculate the gradient, check it (Sunny, 14 Oct) ----------
 let checked = 0
 for (const state of states.filter(state => rungs.includes(state.microSkillId))) {
   const model = state.interaction.type === 'continue' ? state.visual : state.working
   if (model?.kind !== 'method-worked') continue
   const steps = model.examples[0].steps
-  assert.deepEqual(steps.map(step => step.title.split(' ')[0]), ['Two', 'Across', 'Then', 'Up'], `${state.id}: two points, across, then up or down, then up over across`)
+  assert.deepEqual(steps.map(step => step.title.split(' ')[0]).map(w => w === 'Count' ? 'Calculate' : w), ['Pick', 'Calculate', 'Calculate', 'Calculate', 'Check'], `${state.id}: two points, across, then up or down, then up over across, then a check`)
   const frames = steps.map(step => step.frame.graph)
   for (const frame of frames) assert.ok(frame.x[1] - frame.x[0] <= 9, `${state.id}: at most 9 squares across`)
   const [across, up] = [frames[1].legs.at(-1), frames[2].legs.at(-1)]
@@ -71,8 +71,9 @@ for (const state of states.filter(state => rungs.includes(state.microSkillId))) 
   for (const m of frames.flatMap(frame => frame.marks ?? [])) assert.equal(m.family, m.axis === 'x' ? 1 : 0, `${state.id}: ${m.axis} highlighted in its colour`)
   const a = across.from, b = up.to, value = (b.y - a.y) / (b.x - a.x)
   const answer = frames[3].answer.text
-  assert.match(answer, /^Gradient = (−?\d+) ÷ (−?\d+) = /, `${state.id}: the answer is up ÷ across`)
-  const [, u, c] = /^Gradient = (−?\d+) ÷ (−?\d+)/.exec(answer)
+  assert.ok(frames[3].working.some(line => line.text === 'Gradient = up ÷ across'), `${state.id}: the formula before its numbers`)
+  assert.match(answer, /^= (−?\d+) ÷ (−?\d+) = /, `${state.id}: the answer is up ÷ across`)
+  const [, u, c] = /^= (−?\d+) ÷ (−?\d+)/.exec(answer)
   assert.ok(Math.abs(num(u) / num(c) - value) < 1e-9 && num(u) === b.y - a.y, `${state.id}: up over across = ${value}`)
   // The question's own points or line give the same gradient.
   const named = pairs(state.content.title)

@@ -18,8 +18,8 @@ export const gradientText = (a: GraphPoint, b: GraphPoint) => fractionText(b.y -
 
 /** Moves: the two points, ringed, their numbers lit on the axes. */
 const pickTwo = (a: GraphPoint, b: GraphPoint, given: boolean): GraphMove => ({
-  title: 'Two points', equation: latex(`${pair(a)} and ${pair(b)}`), adds: 'picture',
-  say: given ? 'Start from the first point.' : 'Pick two points where the line crosses grid corners exactly. Start from the left one.',
+  title: 'Pick two points on the line', equation: latex(`${pair(a)} and ${pair(b)}`), adds: 'picture',
+  say: given ? 'Start from the first point.' : 'Choose points where the line crosses grid corners exactly. Start from the left one.',
   change: (frame, step) => ({
     ...frame, boxed: [a, b], marks: shared([a, b]),
     points: [...(frame.points ?? []).filter(p => !((p.x === a.x && p.y === a.y) || (p.x === b.x && p.y === b.y))), { ...a, at: step }, { ...b, at: step }],
@@ -28,14 +28,15 @@ const pickTwo = (a: GraphPoint, b: GraphPoint, given: boolean): GraphMove => ({
 /** Moves: across from the first point to under (or over) the second, amber; its count, or subtraction, under the grid. */
 export const acrossFrom = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   const n = b.x - a.x
-  const text = subtract ? `across: ${show(b.x)} − ${bracket(a.x)} = ${show(n)}` : `across ${show(n)}`
+  const text = subtract ? `across = ${show(b.x)} − ${bracket(a.x)} = ${show(n)}` : `x = ${show(a.x)} to x = ${show(b.x)} is ${show(n)} across`
   return {
-    title: n < 0 ? 'Across (left)' : 'Across', equation: latex(text), adds: 'lines',
+    title: subtract ? 'Calculate the across' : n < 0 ? 'Count the squares across (left)' : 'Count the squares across', equation: latex(text), adds: 'lines',
     say: subtract ? 'Take the first x from the second.' : n < 0 ? 'Count the squares across to the other point. Going left counts as negative.' : 'Count the squares across to the other point.',
     change: (frame, step) => ({
       ...frame, marks: [mark('x', a.x), mark('x', b.x)],
       points: (frame.points ?? []).map(p => ({ ...p, label: '' })),
-      legs: [...(frame.legs ?? []), { from: a, to: pt(b.x, a.y), label: '', family: 1, at: step }],
+      // The count beside its arrow, so it is plain where the number comes from (Sunny, 14 Oct).
+      legs: [...(frame.legs ?? []), { from: a, to: pt(b.x, a.y), label: show(n), family: 1, at: step }],
       working: [...(frame.working ?? []), { text, family: 1, at: step }],
     }),
   }
@@ -43,30 +44,44 @@ export const acrossFrom = (a: GraphPoint, b: GraphPoint, subtract: boolean): Gra
 /** Moves: then up (or down) to the second point, biro blue. */
 export const upTo = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   const n = b.y - a.y
-  const text = subtract ? `up: ${show(b.y)} − ${bracket(a.y)} = ${show(n)}` : n < 0 ? `down ${show(-n)}` : `up ${show(n)}`
+  const counted = `y = ${show(a.y)} to y = ${show(b.y)} is ${show(Math.abs(n))} ${n < 0 ? 'down' : 'up'}`
+  const text = subtract ? `up = ${show(b.y)} − ${bracket(a.y)} = ${show(n)}` : n < 0 ? `${counted}, so up = ${show(n)}` : counted
   return {
-    title: n < 0 ? 'Then down' : 'Then up', equation: latex(text), adds: 'lines',
+    title: subtract ? 'Calculate the up' : n < 0 ? 'Count the squares down' : 'Count the squares up', equation: latex(text), adds: 'lines',
     say: subtract ? 'Take the first y from the second, in the same order.' : n < 0 ? 'Then count down to the point. Going down counts as negative.' : 'Then count up to the point.',
     change: (frame, step) => ({
       ...frame, marks: [mark('y', a.y), mark('y', b.y)],
-      legs: [...(frame.legs ?? []), { from: pt(b.x, a.y), to: b, label: '', family: 0, at: step }],
+      legs: [...(frame.legs ?? []), { from: pt(b.x, a.y), to: b, label: show(Math.abs(n)), family: 0, at: step }],
       working: [...(frame.working ?? []), { text, family: 0, at: step }],
     }),
   }
 }
-/** The answer: up over across. */
+/** The answer: the formula first, then the numbers in it (Sunny, 14 Oct: "Gradient = up ÷ across", then "= 6 ÷ 2 = 3"). */
 const overAcross = (a: GraphPoint, b: GraphPoint, subtract: boolean): GraphMove => {
   const up = b.y - a.y, across = b.x - a.x
   const down = up < 0 && across > 0
   // GR1's formula, said beside ours: up is the change in y and across the change in x.
   const formula = subtract ? ' That’s the formula gradient = (y₂ − y₁) ÷ (x₂ − x₁): the change in y over the change in x.' : ''
-  return answerMove(`Gradient = ${show(up)} ÷ ${show(across)} = ${gradientText(a, b)}`, 'Up over across',
+  const rule = 'Gradient = up ÷ across'
+  return answerMove(`= ${show(up)} ÷ ${show(across)} = ${gradientText(a, b)}`, 'Calculate the gradient',
     (down ? 'Divide the up by the across. The line goes down from left to right, so its gradient is negative.' : 'Divide the up by the across: how far the line goes up for every one square across.') + formula, [],
-    { title: '', say: '', equation: '', adds: 'answer', change: frame => ({ ...frame, marks: shared([a, b]) }) })
+    { title: '', say: '', equation: '', adds: 'answer', change: (frame, step) => ({ ...frame, marks: shared([a, b]), working: [...(frame.working ?? []), { text: rule, family: 2, at: step }] }) })
+}
+/** Check it makes sense: how far up for each square across, and uphill is positive, downhill negative. */
+const checkGradient = (a: GraphPoint, b: GraphPoint): GraphMove => {
+  const up = b.y - a.y, across = b.x - a.x, m = up / across
+  const per = Number.isInteger(m) ? `${Math.abs(m) === m ? 'up' : 'down'} ${show(Math.abs(m))} for every 1 across` : `${up < 0 ? 'down' : 'up'} ${show(Math.abs(up))} for every ${show(Math.abs(across))} across`
+  const way = m > 0 ? 'uphill, so the gradient is positive' : m < 0 ? 'downhill, so the gradient is negative' : 'flat, so the gradient is 0'
+  const text = `${per[0].toUpperCase()}${per.slice(1)}: ${way}`
+  return {
+    title: 'Check it makes sense', equation: latex(text), adds: 'lines',
+    say: `The line goes ${per}. Going left to right it is ${way}.`,
+    change: (frame, step) => ({ ...frame, marks: shared([a, b]), working: [...(frame.working ?? []), { text, family: 2, at: step }] }),
+  }
 }
 /** Across, then up, then up over across. `given`: the points are named in the question (from two points). */
 export function gradientMoves(a: GraphPoint, b: GraphPoint, { subtract = false, given = false } = {}) {
-  return [pickTwo(a, b, given), acrossFrom(a, b, subtract), upTo(a, b, subtract), overAcross(a, b, subtract)]
+  return [pickTwo(a, b, given), acrossFrom(a, b, subtract), upTo(a, b, subtract), overAcross(a, b, subtract), checkGradient(a, b)]
 }
 
 /** A grid around two points (and 0), a square spare all round, for a gradient from two points. */

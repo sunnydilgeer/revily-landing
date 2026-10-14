@@ -498,16 +498,21 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
 
   // The step's heading, the table and the working: words, not picture.
   const lead = head('picture'), written = working.length > 0, answer = !plain && frame.answer
+  /** Lines of working in order, each step's heading above its first line. */
+  const workingLines = (lines: typeof working) => lines.map((line, i) => <Fragment key={`w${line.at}-${i}`}>
+    {frame.adds === 'lines' && line.at === frame.step && lines.findIndex(l => l.at === frame.step) === i && head('lines')}
+    <p className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
+  </Fragment>)
   const words = (lead || frame.table || written || answer) && <div className="ns-graph ns-graph--words">
     {lead}
     {frame.table && <ValueTable table={frame.table} />}
-    {working.map((line, i) => <Fragment key={`w${i}`}>
-      {frame.adds === 'lines' && line.at === frame.step && working.findIndex(l => l.at === frame.step) === i && head('lines')}
-      <p className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
-    </Fragment>)}
+    {written && workingLines(working.filter(line => !answer || line.at < frame.answer!.at))}
     {answer && <>
       {head('answer')}
+      {/* The answer's own lines (its formula) go under its heading, then the answer; steps after it (a check) follow. */}
+      {working.filter(line => line.at === frame.answer!.at).map((line, i) => <p key={`a${i}`} className={`ns-graph__text is-f${line.family % 4}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>)}
       <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer!.text} /></p>
+      {workingLines(working.filter(line => line.at > frame.answer!.at))}
     </>}
   </div>
 
