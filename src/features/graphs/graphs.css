@@ -70,7 +70,7 @@
   .rung-card--graph .ns-graph--words .ns-step { justify-content: flex-start; text-align: left; }
   .rung-card--graph .wc-controls { justify-content: flex-start; }
   .rung-card--graph .graph-board__tools { justify-content: flex-start; }
-  .rung-card--graph .graph-board__note { text-align: left; }
+  .rung-card--graph .graph-board__note { text-align: left; align-self: flex-start; }
   .rung-card--graph .rung-media__videos { order: -1; }
 }
 .rung-card--graph .wc:not(:has(> .wc-roll)) > .wc-controls { display: none; }
