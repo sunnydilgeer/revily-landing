@@ -81,8 +81,9 @@ practice(unit, 'Rice comes as 1.5 kg for £4.20, 600 g for £1.74 or 2 kg for £
 /* ---------- Rung 2: offers (R8.2) ---------- */
 
 const juice = worked(offers, 'A 1 litre carton of juice costs £1.20, and the second carton is half price. A 2 litre carton costs £1.70. Which is cheaper for 2 litres?', 'Offer or the big carton?', 'R8.2 video + Q1', board([
+  { title: 'What the offer means', say: 'Half price means you pay half, so the second carton is £1.20 ÷ 2.', rows: ['> Second carton half price: pay full price for 1 carton, then half price for the next', 'Second carton = £1.20 ÷ 2 = £0.60'] },
   { title: 'Pick a common amount', say: 'Compare 2 litres each way: 2 small cartons on the offer, or 1 large carton.', rows: ['> To get 2 litres, buy 2 small cartons or 1 large carton'] },
-  { title: 'Calculate buying 2 small cartons', say: 'The first carton is full price. The second is half price: half of £1.20 is £0.60.', rows: ['2 small cartons = £1.20 + £0.60 = £1.80'] },
+  { title: 'Calculate buying 2 small cartons', say: 'The first carton is full price and the second is £0.60.', rows: ['2 small cartons = £1.20 + £0.60 = £1.80'] },
   { title: 'Calculate buying 1 large carton', say: 'The large carton is 2 litres on its own.', rows: ['1 large carton = £1.70'] },
   { title: 'Compare', say: 'Both give 2 litres, and £1.70 is less.', rows: ['! The 2 litre carton is cheaper, even with the offer'] },
 ]), 'Our aim: work out what an offer really costs, then compare the same amount each way.')
@@ -94,21 +95,25 @@ video(juice, media('offers', 'Offer or the big carton?', 'R8.2_Offers.mp4', 39, 
   'Work out what the offer really costs, compare the same amount each way, and for extra free increase the amount, not the price.',
 ]))
 pounds(practice(offers, 'Chocolate bars cost £1.50 each, on a 3 for 2 offer. How much does each bar cost with the offer?', 'R8.2 Q2', number(1, '£1'), '3 for 2: you pay for 2 bars and get 3.', board([
-  { title: 'Calculate the cost of 3 bars', say: '3 for 2: you pay for 2 bars and get 3.', rows: ['3 bars = £1.50 × 2 = £3.00'] },
+  { title: 'What the offer means', say: 'You take 3 bars but only pay for 2.', rows: ['> 3 for 2: take 3 bars, pay for only 2. The third bar is free'] },
+  { title: 'Calculate the cost of 3 bars', say: 'You pay for 2 bars and get 3.', rows: ['3 bars = £1.50 × 2 = £3.00'] },
   { title: 'Calculate the cost of 1 bar', say: '£3.00 buys 3 bars, so divide by 3.', rows: ['1 bar = £3.00 ÷ 3 = £1.00', '! £1 each'] },
 ]), [[0.75, 'You pay for 2 bars and get 3, so £3 ÷ 3.'], [3, 'That’s the cost of 3 bars. Divide by 3 for each one.']]))
 practice(offers, 'Brand A: 400 g for £2 with 25% extra free. Brand B: 450 g for £1.89. How many grams are in a pack of Brand A with the offer?', 'R8.2 Q3', number(500, '500 g'), '25% extra: multiply the amount by 1.25.', board([
-  { title: 'Calculate Brand A with the offer', say: '25% extra free means 125% of 400 g, for the same price.', rows: ['Brand A = 400 g × 1.25 = 500 g'] },
+  { title: 'What the offer means', say: 'The price stays £2. Only the amount goes up.', rows: ['> 25% extra free: you get 25% more in the pack, for the same price'] },
+  { title: 'Calculate the extra', say: '25% is a quarter, so divide 400 g by 4.', rows: ['25% of 400 g = 400 g ÷ 4 = 100 g'] },
+  { title: 'Calculate Brand A with the offer', say: 'Add the extra to the 400 g.', rows: ['Brand A = 400 g + 100 g = 500 g'] },
   { title: 'Calculate the cost of 100 g', say: 'A is now 500 g, 5 lots of 100 g, so divide by 5. B is 450 g, 4.5 lots, so divide by 4.5.', rows: ['A: cost of 100 g = £2.00 ÷ 5 = £0.40', 'B: cost of 100 g = £1.89 ÷ 4.5 = £0.42', '! 500 g, so Brand A is better value'] },
 ]), [[100, 'That’s the extra 25%. Add it to the 400 g.'], [425, '25% of 400 g is 100 g, not 25 g.']])
 practice(offers, 'Shop X sells cereal at £2.40 a box, buy one get one free. Shop Y sells it at 2 boxes for £2.20. Kai wants 2 boxes. Where is it cheaper?', 'R8.2 Q4', choose('Shop Y', ['Shop X', 'Buy one get one free means 2 boxes for £2.40, which is more than £2.20.'], ['They cost the same', 'X is £2.40 for 2 boxes; Y is £2.20.']), 'Find what 2 boxes cost in each shop.', board([
-  { title: 'Pick a common amount', say: 'Kai wants 2 boxes, so find what 2 boxes cost in each shop.', rows: ['> Compare the cost of 2 boxes in each shop'] },
-  { title: 'Calculate 2 boxes in each shop', say: 'Buy one get one free: pay for 1 box, get 2.', rows: ['Shop X: 2 boxes = £2.40', 'Shop Y: 2 boxes = £2.20'] },
+  { title: 'What the offer means', say: 'At Shop X, the second box is free.', rows: ['> Buy one get one free: pay for 1 box, get 2'] },
+  { title: 'Calculate 2 boxes in each shop', say: 'Kai wants 2 boxes. At Shop X you pay for 1 of them.', rows: ['Shop X: 2 boxes = £2.40 × 1 = £2.40', 'Shop Y: 2 boxes = £2.20'] },
   { title: 'Compare', say: '£2.20 is less.', rows: ['! Shop Y'] },
 ]))
 pounds(practice(offers, 'Lee needs 6 cans. Shop A sells cans at 75p each, 3 for 2. Shop B sells 6 cans for £3.30 with 10% off. How much does Lee pay at the cheaper shop?', 'R8.2 Q5', number(2.97, '£2.97'), 'Cost 6 cans at each shop: 3 for 2 means paying for 4 of the 6.', board([
-  { title: 'Calculate 6 cans at Shop A', say: '3 for 2: for every 3 cans you pay for 2, so 6 cans means paying for 4.', rows: ['Shop A: 6 cans = £0.75 × 4 = £3.00'] },
-  { title: 'Calculate 6 cans at Shop B', say: '10% off leaves 90% of the price.', rows: ['Shop B: 6 cans = £3.30 × 0.9 = £2.97'] },
+  { title: 'What the offers mean', say: 'Shop A gives free cans. Shop B takes money off the price.', rows: ['> 3 for 2: for every 3 cans, pay for 2', '> 10% off: pay 90% of the price'] },
+  { title: 'Calculate 6 cans at Shop A', say: '6 cans is 2 lots of 3, so you pay for 2 × 2 = 4 cans.', rows: ['Shop A: 6 cans = £0.75 × 4 = £3.00'] },
+  { title: 'Calculate 6 cans at Shop B', say: '90% is 0.9, so multiply the price by 0.9.', rows: ['Shop B: 6 cans = £3.30 × 0.9 = £2.97'] },
   { title: 'Compare', say: '£2.97 is cheaper.', rows: ['! £2.97 at Shop B'] },
 ]), [[3, 'That’s Shop A. Shop B, with 10% off, is cheaper.'], [3.3, 'Take off the 10%: 3.30 × 0.9.']]))
 
