@@ -33,14 +33,15 @@
 
 @media (min-width: 900px) {
   /* Room for the graph and the words side by side: the lesson screen, its bars included, is wider for Graphs. */
-  .app-shell.app-shell--study:has(.rung-card--graph) { width: min(980px, calc(100% - 32px)); }
-  .rung-lesson:has(> .rung-card--graph) { max-width: 980px; }
+  /* The card is a whole number of squares across (--graph-card-width, GraphSlot.tsx), and the bars line up with it. */
+  .app-shell.app-shell--study:has(.rung-card--graph) { width: min(var(--graph-card-width, 980px), calc(100% - 32px)); }
+  .rung-lesson:has(> .rung-card--graph) { max-width: none; }
   .rung-lesson:has(> .rung-card--graph) .rv-checkbar__inner { max-width: none; }
   .rung-lesson .rung-card--graph {
     grid-template-columns: var(--graph-box) minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas: "graph title" "graph words";
-    column-gap: calc(var(--graph-square, 32px) * 1.5);
+    column-gap: var(--graph-square, 32px);
   }
   .rung-card--graph > .graph-slot { align-self: start; }
   .rung-lesson .rung-card--graph:has(> .graph-slot:empty) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "words"; }
@@ -60,3 +61,19 @@
 /* The words that went with a graph read like the rest of the working: left-aligned in the column on a wide screen. */
 .rung-card--graph .ns-graph--words { align-items: stretch; }
 .rung-card--graph .graph-board { gap: 8px; }
+
+/* One edge for the words column on a wide screen (Sunny, 14 Oct): headings, step titles, step buttons and a board's
+   notes all start on the column's left edge, like the question above them. The video sits first, under the question,
+   so it stays in one place as steps are added; the step buttons only appear once there is a step to go back to. */
+@media (min-width: 900px) {
+  .rung-card--graph .ns-graph--words, .rung-card--graph .ns-graph--words .ns-graph__heading { text-align: left; }
+  .rung-card--graph .ns-graph--words .ns-step { justify-content: flex-start; text-align: left; }
+  .rung-card--graph .wc-controls { justify-content: flex-start; }
+  .rung-card--graph .graph-board__tools { justify-content: flex-start; }
+  .rung-card--graph .graph-board__note { text-align: left; align-self: flex-start; }
+  .rung-card--graph .rung-media__videos { order: -1; }
+}
+.rung-card--graph .wc:not(:has(> .wc-roll)) > .wc-controls { display: none; }
+/* A question whose picture is only its graph: the graph is in the slot, so its empty stage takes no room in the words
+   (it pushed the answer box to the foot of the card, and out of sight under a result on a phone). */
+.rung-card--graph .rung-card__words > .pvb-stage:not(:has(svg, table, p, img, li, button, input, math, .katex)) { display: none; }

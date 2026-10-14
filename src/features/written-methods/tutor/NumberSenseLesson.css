@@ -339,6 +339,8 @@
 .ns-graph__numbers text { fill: var(--rv-muted); font-size: 13px; font-weight: 600; text-anchor: middle; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 3px; stroke-linejoin: round; }
 .ns-graph__numbers text.is-y { text-anchor: end; }
 .ns-graph__numbers .is-marked rect { fill: currentColor; }
+/* A patch of paper behind a plain axis number a line runs through, so the number reads (−3 under y = 3x − 2). */
+.ns-graph__numbers .ns-graph__clear { fill: var(--rv-paper); }
 .ns-graph__numbers .is-marked text { fill: #fff; stroke: none; font-weight: 800; }
 .ns-graph__line line { stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; }
 .ns-graph__line text { fill: var(--rv-ink); font-size: 17px; font-weight: 700; font-style: italic; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
@@ -384,6 +386,8 @@
 .ns-graph__leg.is-dashed line { stroke-width: 3; stroke-dasharray: 2 7; }
 .ns-graph__box { fill: none; stroke: #7c3aed; stroke-width: 2.5; }
 .ns-graph__text { color: var(--f); }
+.ns-graph__text.is-plain { --f: var(--rv-ink); }
+.ns-graph__mark { color: var(--f); font-weight: inherit; }
 .ns-graph .is-done { opacity: .35; transition: opacity .2s ease; }
 .ns-graph .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* An inequality with two signs on the board (lesson 25): three parts, each column lined up down the board. */

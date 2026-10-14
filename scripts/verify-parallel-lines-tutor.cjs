@@ -126,7 +126,7 @@ for (const state of states.filter(state => rungs.includes(state.microSkillId))) 
   }
   const last = frames.at(-1)
   assert.ok(last.answer?.text, `${state.id}: ends on its answer`)
-  assert.equal(frames.filter(frame => frame.answer).length, 1, `${state.id}: the answer is written once`)
+  assert.equal(frames.filter(frame => frame.answer && frame.answer.at === frame.step).length, 1, `${state.id}: the answer is written once`)
   if (state.microSkillId === 'graphs-parallel-through') {
     const given = linear(equations(state.content.title)[0]), p = pointOf(state.content.title), c = p.y - given.m * p.x
     const drawn = last.lines.at(-1)

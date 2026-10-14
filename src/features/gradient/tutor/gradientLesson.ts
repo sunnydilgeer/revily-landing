@@ -40,8 +40,8 @@ const keep = (words: string) => words.replace(/\((−?[\d.]+), (−?[\d.]+)\)/g,
 function workingSteps(visual: TutorWorking) {
   return visual.kind === 'method-worked' ? visual.examples.flatMap(example => example.steps).map(step => [step.title, step.instruction] as [string, string]) : []
 }
-function explore(topic: MicroSkillId, title: string, sourceRef: string, spec: GraphBoardSpec) {
-  const state = add(topic, keep(title), sourceRef, text(keep(title)))
+function explore(topic: MicroSkillId, title: string, sourceRef: string, spec: GraphBoardSpec, note?: string) {
+  const state = add(topic, keep(title), sourceRef, text(note ?? keep(title)))
   state.board = spec
 }
 function worked(topic: MicroSkillId, title: string, heading: string, sourceRef: string, model: TutorWorking, body: string) {
@@ -177,7 +177,7 @@ function equationOf(c: number, across: number, up: number, x: Range, y: Range, s
 }
 
 explore(lineGraph, 'Change m and c. Watch what each one does to the line.', 'GR2 p72 The straight line equation (play)',
-  { mode: 'equation', grid: grid([-3, 5], [-4, 5]), rule: { m: 1, c: 0 } })
+  { mode: 'equation', grid: grid([-3, 5], [-4, 5]), rule: { m: 1, c: 0 } }, 'm changes how steep the line is. c moves it up and down.')
 worked(lineGraph, 'Find the equation of the line.', 'y = mx + c', 'GR2 p72 Skill 1: equation from a graph (own numbers)', lineModel(-2, 1, 3, [-2, 4], [-4, 5]),
   'Every straight line is y = mx + c. m is the gradient. c is where the line crosses the y axis, the y-intercept. Find c first, then m.').video = {
   id: 'graphs-3-equation', src: `/media/${GRADIENT_PREVIEW_ID}/equation.mp4`, poster: `/media/${GRADIENT_PREVIEW_ID}/equation.svg`,
@@ -224,37 +224,35 @@ throughPoints(pt(2, 4), pt(6, 6), 'GR2 p73 Q2 (own numbers)', 'm = (6 − 4) ÷ 
 /* ---------- Rung 6: rearranging into y = mx + c (GR2) ---------- */
 
 /** ax + by = k, made into y = mx + c, the line coming in on its grid. */
-const rearrangeModel = (a: number, b: number, k: number, x: Range, y: Range) => {
-  const named = `${a === 1 ? '' : a === -1 ? '−' : String(a).replace('-', '−')}x ${b < 0 ? '−' : '+'} ${Math.abs(b) === 1 ? '' : Math.abs(b)}y = ${String(k).replace('-', '−')}`
-  return graphModel(named, grid(x, y), rearrangeMoves(a, b, k), 'Make y the subject')
-}
-worked(rearrange, 'Find the gradient and y-intercept of x + 3y = 12.', 'Rearranging', 'GR2 p73 Skill 3: rearranging (own numbers)', rearrangeModel(1, 3, 12, [-1, 7], [-1, 6]),
+const rearrangeModel = (start: string, a: number, b: number, k: number, x: Range, y: Range) =>
+  graphModel(start, grid(x, y), rearrangeMoves(a, b, k, start), 'Make y the subject')
+worked(rearrange, 'Find the gradient and y-intercept of x + 3y = 12.', 'Rearranging', 'GR2 p73 Skill 3: rearranging (own numbers)', rearrangeModel('x + 3y = 12', 1, 3, 12, [-1, 7], [-1, 6]),
   'Make y the subject, one move at a time, until it says y = mx + c. Then read off m and c.')
 practice(rearrange, 'Find the gradient of the line 2x + y = 7.', 'GR2 p73 Skill 3 (own numbers)', { interaction: gradient(-2, 'Gradient = −2'), prefix: 'Gradient =' },
-  'Take 2x from both sides first.', rearrangeModel(2, 1, 7, [-1, 5], [-2, 8]),
+  'Take 2x from both sides first.', rearrangeModel('2x + y = 7', 2, 1, 7, [-1, 5], [-2, 8]),
   response => response.trim() === '2' ? 'Taking 2x from both sides leaves −2x: the gradient is negative.' : response.trim() === '7' ? 'That’s c. The gradient is the number in front of x.' : null)
 practice(rearrange, 'Write 4y − 8x = 12 in the form y = mx + c.', 'GR2 p73 Skill 3 (own numbers)', { interaction: lineAnswer(2, 1, 3), prefix: 'y =' },
-  'Add 8x to both sides, then divide every term by 4.', rearrangeModel(-8, 4, 12, [-3, 3], [-2, 6]), lineSlips(2, 1, 3))
+  'Add 8x to both sides, then divide every term by 4.', rearrangeModel('4y − 8x = 12', -8, 4, 12, [-3, 3], [-2, 6]), lineSlips(2, 1, 3))
 practice(rearrange, '3x + 2y = 10. Tap where the line crosses the y axis.', 'GR2 p73 Skill 3 (own numbers)',
   { interaction: at(pt(0, 5)), board: { mode: 'plot', grid: grid([-2, 5], [-2, 7]) } },
-  'Make y the subject. c is where it crosses the y axis.', rearrangeModel(3, 2, 10, [-2, 5], [-2, 7]),
+  'Make y the subject. c is where it crosses the y axis.', rearrangeModel('3x + 2y = 10', 3, 2, 10, [-2, 5], [-2, 7]),
   response => response.replace(/\s/g, '') === '0,10' ? 'Divide the 10 by 2 as well: y = −3/2x + 5.' : response.replace(/\s/g, '') === '5,0' ? 'On the y axis x is 0: across 0, then up.' : null)
 
 /* ---------- Rung 7: drawing a line from y = mx + c (GR4 method 2) ---------- */
 
 /** Make y the subject (if it isn't), plot c, step the gradient, join. */
 const drawModel = (question: string, moves: Move[], up: number, across: number, c: number, x: Range, y: Range) =>
-  graphModel(question, grid(x, y), drawMoves(moves, up, across, c), 'c, then the gradient')
+  graphModel(question, grid(x, y), drawMoves(question, moves, up, across, c), 'c, then the gradient')
 function drawFrom(title: string, question: string, sourceRef: string, moves: Move[], up: number, across: number, c: number, x: Range, y: Range, hint: string) {
   const ends: [GraphPoint, GraphPoint] = [pt(0, c), pt(across, c + up)]
   return practice(drawLine, title, sourceRef, { interaction: drawnLine(...ends), board: { mode: 'line', grid: grid(x, y), line: ends } },
     hint, drawModel(question, moves, up, across, c, x, y), drawSlips(up, across, c))
 }
 
-explore(drawLine, 'Tap where a line crosses the y axis, then tap one step of a gradient on. Watch the line go through them.', 'GR4 p76 Method 2: using y = mx + c (play)',
-  { mode: 'line', grid: grid([-3, 5], [-3, 6]) })
+explore(drawLine, 'Tap where a line crosses the y axis, then tap one more point. See its m, its c and its equation.', 'GR4 p76 Method 2: using y = mx + c (play)',
+  { mode: 'line', grid: grid([-3, 5], [-3, 6]) }, 'Try c = 2: tap 2 on the y axis, then across 1 and up 3. You have drawn y = 3x + 2.')
 worked(drawLine, 'Draw the graph of 2y + 4x = 10.', 'Draw 2y + 4x = 10', 'GR4 p76 Method 2: using y = mx + c (own numbers)',
-  drawModel('2y + 4x = 10', [['Take 4x from both sides', '2y = −4x + 10', 'Get it into y = mx + c first. Take the x term to the other side.'], ['Divide by 2', 'y = −2x + 5', 'Divide every term by 2, so y is on its own.']], -2, 1, 5, [-1, 4], [-2, 7]),
+  drawModel('2y + 4x = 10', [['Take 4x from both sides', '2y + 4x − 4x = 10 − 4x\n2y = 10 − 4x', 'Take 4x away from both sides, so the y term is on its own on the left.'], ['Put the x term first', '2y = −4x + 10', 'Swap the order on the right, so it reads like y = mx + c: the x term, then the number.'], ['Divide every term by 2', 'y = −4x ÷ 2 + 10 ÷ 2\ny = −2x + 5', 'Divide every term by 2, so y is on its own.']], -2, 1, 5, [-1, 4], [-2, 7]),
   'No table needed. Get the equation into y = mx + c, plot c on the y axis, then step the gradient from there: across 1, then up or down by m. Join the points with one straight line.').video = {
   id: 'graphs-3-drawing', src: `/media/${GRADIENT_PREVIEW_ID}/drawing.mp4`, poster: `/media/${GRADIENT_PREVIEW_ID}/drawing.svg`,
   title: 'Drawing a line from y = mx + c', durationSeconds: 72, sourceFile: 'GR4.2_Drawing_from_y_mx_c.mp4 (tools/lesson-kit/packs/GR4.2-drawing-from-y-mx-c.cjs)',
@@ -271,13 +269,13 @@ drawFrom('Draw the line y = 3x − 4.', 'y = 3x − 4', 'GR4 p76 Method 2 (own n
   'Plot c, −4, on the y axis. Then across 1 and up 3.')
 practice(drawLine, 'Write 2y − 1 = 4x in the form y = mx + c.', 'GR4 p77 Q2 (own numbers)', { interaction: lineAnswer(2, 1, 0.5), prefix: 'y =' },
   'Add 1 to both sides, then divide every term by 2.',
-  graphModel('2y − 1 = 4x', grid([-2, 3], [-3, 5]), rearrangedMoves([['Add 1 to both sides', '2y = 4x + 1', 'Get the y term on its own first.'], ['Divide by 2', 'y = 2x + ½', 'Divide every term by 2, the 1 too: 1 ÷ 2 = ½.']], 2, 1, 0.5), 'Make y the subject'),
+  graphModel('2y − 1 = 4x', grid([-2, 3], [-3, 5]), rearrangedMoves('2y − 1 = 4x', [['Add 1 to both sides', '2y − 1 + 1 = 4x + 1\n2y = 4x + 1', 'Add 1 to both sides, so the y term is on its own on the left.'], ['Divide every term by 2', 'y = 4x ÷ 2 + 1 ÷ 2\ny = 2x + ½', 'Divide every term by 2, the 1 too: 1 ÷ 2 = ½.']], 2, 1, 0.5), 'Make y the subject'),
   lineSlips(2, 1, 0.5))
-drawFrom('Draw the graph of 2y + 4 = 3x.', '2y + 4 = 3x', 'GR4 p78 Q4 (own numbers)', [['Take 4 from both sides', '2y = 3x − 4', 'Get the y term on its own first.'], ['Divide by 2', 'y = 3/2x − 2', 'Divide every term by 2: the gradient is 3/2.']], 3, 2, -2, [-1, 5], [-3, 5],
+drawFrom('Draw the graph of 2y + 4 = 3x.', '2y + 4 = 3x', 'GR4 p78 Q4 (own numbers)', [['Take 4 from both sides', '2y + 4 − 4 = 3x − 4\n2y = 3x − 4', 'Take 4 away from both sides, so the y term is on its own on the left.'], ['Divide every term by 2', 'y = 3x ÷ 2 − 4 ÷ 2\ny = 3/2x − 2', 'Divide every term by 2: the gradient is 3/2.']], 3, 2, -2, [-1, 5], [-3, 5],
   'Make y the subject: y = 3/2x − 2. Plot −2 on the y axis, then across 2 and up 3.')
-drawFrom('Draw the graph of y + 3x − 1 = 0.', 'y + 3x − 1 = 0', 'GR4 p78 Q5 (own numbers)', [['Take 3x from both sides', 'y − 1 = −3x', 'Move the x term to the other side.'], ['Add 1 to both sides', 'y = −3x + 1', 'Now y is on its own.']], -3, 1, 1, [-2, 3], [-4, 5],
+drawFrom('Draw the graph of y + 3x − 1 = 0.', 'y + 3x − 1 = 0', 'GR4 p78 Q5 (own numbers)', [['Take 3x from both sides', 'y + 3x − 1 − 3x = 0 − 3x\ny − 1 = −3x', 'Take 3x away from both sides, so the x term is on the right.'], ['Add 1 to both sides', 'y − 1 + 1 = −3x + 1\ny = −3x + 1', 'Add 1 to both sides. Now y is on its own.']], -3, 1, 1, [-2, 3], [-4, 5],
   'Make y the subject: y = −3x + 1. Plot 1 on the y axis, then across 1 and down 3.')
-drawFrom('Draw the graph of y − 1 = −½x.', 'y − 1 = −½x', 'GR4 p77 Q3 (own numbers)', [['Add 1 to both sides', 'y = −½x + 1', 'One move and y is on its own.']], -1, 2, 1, [-3, 5], [-2, 4],
+drawFrom('Draw the graph of y − 1 = −½x.', 'y − 1 = −½x', 'GR4 p77 Q3 (own numbers)', [['Add 1 to both sides', 'y − 1 + 1 = −½x + 1\ny = −½x + 1', 'Add 1 to both sides. One move and y is on its own.']], -1, 2, 1, [-3, 5], [-2, 4],
   'y = −½x + 1. Plot 1 on the y axis. A half: across 2, then down 1.')
 
 add('mixed', 'Gradient and y = mx + c', 'GR1 and GR2 consolidation', text(
