@@ -325,7 +325,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
       ? `That’s ${spec.curveText}: ${shapeOf(curve)}. Every x gives one y, and the dots join with a smooth curve, not straight lines.`
       : filled ? 'Every x is done: the dots join in a straight line.' : 'Drag the dot left or right, or tap a number in the x row.'}</p>}
     {onLines.length > 1 && dot && <p className={`graph-board__note graph-board__sum${onBoth ? ' is-right' : ''}`} aria-hidden="true">{onBoth
-      ? <>{pair(dot)} is on both lines! x = {fmt(dot.x)}, y = {fmt(dot.y)} makes both equations true.</>
+      ? <>{pair(dot)} is on both lines! x = {fmt(dot.x)}, y = {fmt(dot.y)} work in both equations.</>
       : onLines.map((l, i) => <Fragment key={i}>{i > 0 && <br />}On {l.label}? At x = <span className="is-x">{fmt(dot.x)}</span> it has y = <span className="is-y">{fmt(l.y)}</span> {l.on ? '✓' : '✗'}</Fragment>)}</p>}
     {mode === 'midpoint' && <p className={`graph-board__note${halfway ? ' is-right' : ''}`} aria-hidden="true">{halfway ? 'Halfway: both halves match' : 'Drag the dot until both halves match'}</p>}
     {walk && !disabled && <div className="graph-board__tools">

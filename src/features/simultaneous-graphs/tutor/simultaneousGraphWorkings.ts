@@ -38,9 +38,9 @@ const words = (frame: Parameters<GraphMove['change']>[0], step: number, lines: [
 
 /** Moves: what solving by graph means, before any drawing (Sunny, 15 Oct: where does the answer come from?). */
 const meaning: GraphMove = {
-  title: 'What it means', equation: latex('the one point on both lines'), adds: 'lines',
-  say: 'Simultaneous equations are both true at the same time, for the same x and y. Each one is a straight line, so the answer is the one point on both lines: where they cross.',
-  change: (frame, step) => ({ ...frame, working: words(frame, step, [['Both equations are true at the same time, for the same x and y', 4], ['Each one is a line: we want the one point on both lines', 4]]) }),
+  title: 'What it means', equation: latex('where the two lines cross'), adds: 'lines',
+  say: 'We need one x and one y that work in both equations. Each equation draws a straight line, and where the two lines cross works in both.',
+  change: (frame, step) => ({ ...frame, working: words(frame, step, [['We need one x and one y that work in both equations', 4], ['Each equation draws a straight line. Where the two lines cross works in both', 4]]) }),
 }
 
 /** Moves: one line drawn, named on the grid, c lit on the y axis. */
@@ -83,12 +83,12 @@ function drawSteps(l: Line, which: string, label = named(l)): GraphMove[] {
 /** Moves: where the lines cross, ringed: the one point on both. */
 export const findCrossing = (p: GraphPoint): GraphMove => ({
   title: 'Find where the lines cross', equation: latex(pair(p)), adds: 'picture',
-  say: 'The lines cross at one point. It is the only point on both lines, so it is the answer.',
+  say: 'The two lines cross here. This point is on both lines, so its x and y work in both equations.',
   change: (frame, step) => ({
     ...frame, legs: [], boxed: [p], marks: [],
     // Its brackets go on the side away from both axes, clear of the reading lines running to them.
     points: [...(frame.points ?? []).map(q => ({ ...q, label: '' })), { ...p, at: step, place: { dx: p.x < 0 ? -1 : 1, dy: p.y < 0 ? 1 : -1 } }],
-    working: words(frame, step, [['The lines cross here: the one point on both lines', 4]]),
+    working: words(frame, step, [['The lines cross here: this x and y work in both equations', 4]]),
   }),
 })
 /** Moves: its x, read straight down (or up) to the x axis. */
@@ -122,7 +122,7 @@ export const checkBoth = (a: Line, b: Line, p: GraphPoint, labels?: [string, str
 })
 /** The answer, written once: x = 2, y = 1. */
 export const solution = (p: GraphPoint): GraphMove =>
-  answerMove(`x = ${show(p.x)}, y = ${show(p.y)}`, 'The solution', 'The x and y where the lines cross make both equations true at the same time.', [], {
+  answerMove(`x = ${show(p.x)}, y = ${show(p.y)}`, 'The solution', 'The x and y where the lines cross work in both equations.', [], {
     title: '', say: '', equation: '', adds: 'answer',
     change: frame => ({ ...frame, marks: shared([p]), points: (frame.points ?? []).map(q => q.x === p.x && q.y === p.y ? { ...q, answer: true } : q) }),
   })
@@ -162,7 +162,7 @@ export function crossingSlips(a: Line, b: Line) {
     if (!Number.isFinite(x) || !Number.isFinite(y)) return null
     if (x === p.y && y === p.x && x !== y) return 'That’s y then x. Read x first, down on the x axis.'
     const onA = Math.abs(yOf(a, x) - y) < 1e-9, onB = Math.abs(yOf(b, x) - y) < 1e-9
-    if (onA !== onB) return `That point is on ${onA ? named(a) : named(b)} only. The solution is on both lines: where they cross.`
+    if (onA !== onB) return `That point is on ${onA ? named(a) : named(b)} only. We need the x and y that work in both equations: where the lines cross.`
     return null
   }
 }
