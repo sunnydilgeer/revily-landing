@@ -123,14 +123,14 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const p = circleFig('radius', '4.5 cm')
   const A = Math.PI * 4.5 ** 2
   worked(area, 'Find the area of this circle, to 1 decimal place.', 'Area of a circle', 'GM7 p128 Example 1 (own numbers)', boardModel([], [
-    { title: 'A = πr²', say: 'Square the radius first, then times π. (r² means r × r, not 2 × r.)', rows: ['A = πr²', 'r² = 4.5 × 4.5 = 20.25'], picture: circleFig('radius', '4.5 cm', 'lit') },
+    { title: 'A = πr²', say: 'Square the radius first, then times π. (r² means r × r, not 2 × r.)', rows: ['> Area of a circle = π × radius × radius', 'A = πr²', 'r² = 4.5 × 4.5 = 20.25'], picture: circleFig('radius', '4.5 cm', 'lit') },
     { title: 'Times π', say: `π × 20.25 = ${A.toFixed(3)}…, which is ${show(r1(A), 1)} to 1 decimal place.`, rows: ['A = π × 20.25', `= ${A.toFixed(3)}…`, `! A = ${show(r1(A), 1)} cm²`], picture: circleFig('radius', '4.5 cm', 'given', true, `A = ${show(r1(A), 1)} cm²`) },
   ], 'Find A', p), 'Area of a circle = πr². Use the radius: if you’re given the diameter, halve it first.')
 }
 {
   const p = circleFig('radius', '6 cm')
   practice(area, 'Find the area of this circle. Give your answer in terms of π.', 'GM7 p129 Q2 (own numbers)', p, number(36, '36π cm²'), 'Square the radius: 6² = 36.', boardModel([], [
-    { title: 'A = πr²', say: 'r² = 6 × 6 = 36, so the area is 36 lots of π.', rows: ['A = π × 6²', '! A = 36π cm²'], picture: circleFig('radius', '6 cm', 'lit', true) },
+    { title: 'A = πr²', say: 'r² = 6 × 6 = 36, so the area is 36 lots of π.', rows: ['> Area of a circle = π × radius × radius', 'A = π × 6²', '! A = 36π cm²'], picture: circleFig('radius', '6 cm', 'lit', true) },
   ], 'Find A', p), slips(36, [[12, '6² is 6 × 6, not 2 × 6.'], [r1(36 * Math.PI), 'Right size, but leave it in terms of π: type the number in front of π.'], [144, 'Use the radius, 6, not the diameter.']]), A_BOX('π cm'))
 }
 {
@@ -138,14 +138,14 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const A = Math.PI * 4.6 ** 2, ans = sf(A, 3)
   practice(area, 'Find the area of this circle, to 3 significant figures.', 'GM7 p129 Q1b (own numbers)', p, number(ans, `${ans} mm²`), 'The diameter is given: halve it to get the radius.', boardModel([], [
     { title: 'Radius from diameter', say: 'A = πr² needs the radius: half of 9.2 is 4.6.', rows: ['r = 9.2 ÷ 2 = 4.6'], picture: circleFig('radius', '4.6 mm', 'lit') },
-    { title: 'A = πr²', say: `π × 4.6² = π × 21.16 = ${A.toFixed(3)}…. To 3 significant figures that is ${ans}.`, rows: ['A = π × 4.6²', `= ${A.toFixed(3)}…`, `! A = ${ans} mm²`], picture: circleFig('radius', '4.6 mm', 'given', true, `A = ${ans} mm²`) },
+    { title: 'A = πr²', say: `π × 4.6² = π × 21.16 = ${A.toFixed(3)}…. To 3 significant figures that is ${ans}.`, rows: ['> Area of a circle = π × radius × radius', 'A = π × 4.6²', `= ${A.toFixed(3)}…`, `! A = ${ans} mm²`], picture: circleFig('radius', '4.6 mm', 'given', true, `A = ${ans} mm²`) },
   ], 'Find A', p), slips(ans, [[sf(Math.PI * 9.2 ** 2, 3), 'That uses the diameter. Halve it: r = 4.6.'], [sf(Math.PI * 9.2, 3), 'That’s the circumference, πd. Area is πr².'], [dp(A, 1), 'Right, but give it to 3 significant figures.']]), A_BOX('mm'))
 }
 {
   const p = circleFig('radius', '7 cm')
   const A = r1(Math.PI * 49)
   practice(area, 'Find the area of this circle, to 1 decimal place.', 'GM7 p128 (own numbers)', p, number(A, `${A} cm²`), 'r² = 49.', boardModel([], [
-    { title: 'A = πr²', say: `7² = 49, and π × 49 = ${(Math.PI * 49).toFixed(3)}….`, rows: ['A = π × 7²', '= π × 49', `! A = ${A} cm²`], picture: circleFig('radius', '7 cm', 'given', true, `A = ${A} cm²`) },
+    { title: 'A = πr²', say: `7² = 49, and π × 49 = ${(Math.PI * 49).toFixed(3)}….`, rows: ['> Area of a circle = π × radius × radius', 'A = π × 7²', '= π × 49', `! A = ${A} cm²`], picture: circleFig('radius', '7 cm', 'given', true, `A = ${A} cm²`) },
   ], 'Find A', p), slips(A, [[r1(Math.PI * 14), 'That’s π × 14: r² is 7 × 7.'], [r1(Math.PI * 196), 'Use the radius, 7, not the diameter.']]), A_BOX('cm'))
 }
 
