@@ -55,6 +55,12 @@ export function fitFigure(frame: FigureFrame, w = W, h = H, pad = FIGURE_PAD, sh
 const tone = (t?: string) => t === 'x' ? 'is-x' : t === 'lit' ? 'is-lit' : t === 'found' ? 'is-found' : t === 'faint' ? 'is-faint' : 'is-given'
 
 /** A word or number in the picture; `found` sits in a green box, `lit` in a purple one. */
+/** The picture, grown past W by H where a label (boxed, 28 tall) would run off its edge. */
+function viewBox(room: (P & { w: number })[]) {
+  const left = Math.min(0, ...room.map(p => p.x - p.w / 2 - 3)), right = Math.max(W, ...room.map(p => p.x + p.w / 2 + 3))
+  const top = Math.min(0, ...room.map(p => p.y - 17)), bottom = Math.max(H, ...room.map(p => p.y + 17))
+  return `${left} ${top} ${right - left} ${bottom - top}`
+}
 function Label({ at, text, t }: { at: P; text: string; t?: string }) {
   const boxed = t === 'found' || t === 'lit'
   const width = text.length * 9 + 14
@@ -69,6 +75,8 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
   const t = (value?: string) => plain && value !== 'faint' ? undefined : value
   const parts: ReactNode[] = []
   const labels: ReactNode[] = []
+  // Where each measurement's label sits, so the picture can grow to show it whole (Sunny, 15 Oct: the 7 cm was cut off).
+  const room: (P & { w: number })[] = []
   // A picture on squares marks one square, and the lesson card's own squared paper is lined up with it (cardPaper.ts).
   const square = useRef<SVGRectElement>(null)
   const grid = frame.items.find(item => item.kind === 'grid')
@@ -129,7 +137,9 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
       if (item.label) {
         const side = item.side ?? 1, m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
         const gap = 12 + Math.abs(n.x) * item.label.length * 4.2
-        labels.push(<Label key={`m${i}`} at={{ x: m.x + n.x * gap * side, y: m.y + n.y * gap * side }} text={item.label} t={t(item.tone)} />)
+        const spot = { x: m.x + n.x * gap * side, y: m.y + n.y * gap * side }
+        room.push({ ...spot, w: item.label.length * 9 + 14 })
+        labels.push(<Label key={`m${i}`} at={spot} text={item.label} t={t(item.tone)} />)
       }
     }
     if (item.kind === 'right') {
@@ -156,7 +166,7 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     }
   })
   return <div className={`ns-angles ns-fig${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.spoken}>
-    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">{parts}{labels}</svg>
+    <svg viewBox={viewBox(room)} aria-hidden="true">{parts}{labels}</svg>
     <Caption text={frame.caption} keep={keepCaption} />
   </div>
 }
