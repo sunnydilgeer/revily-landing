@@ -93,11 +93,11 @@ const A_BOX = (unit: string) => ({ label: `Area (${unit}²)`, prefix: 'A =' })
 
 /* ---------- Rung 2: circumference ---------- */
 
-explore(circumference, 'Drag the circle bigger and smaller. Watch C ÷ d.', 'GM7 p128 Circumference (play)', { mode: 'circle' })
+explore(circumference, 'Drag the circle bigger and smaller. Watch circumference ÷ diameter.', 'GM7 p128 Circumference (play)', { mode: 'circle' })
 {
   const p = circleFig('radius', '9 cm')
   worked(circumference, 'Find the circumference of a circle with radius 9 cm.', 'Circumference', 'GM7 p128 Example 2 (own numbers)', boardModel([], [
-    { title: 'Diameter from radius', say: 'C = πd, and the diameter is two radii.', rows: ['C = πd = 2πr', 'd = 2 × 9 = 18'], picture: circleFig('diameter', '18 cm', 'lit') },
+    { title: 'Diameter from radius', say: 'C = πd, and the diameter is two radii.', rows: ['> Circumference = π × diameter', 'C = πd = 2πr', 'd = 2 × 9 = 18'], picture: circleFig('diameter', '18 cm', 'lit') },
     { title: 'In terms of π', say: 'Leave π as π: that’s exact. “In terms of π” means stop here.', rows: ['C = 18π cm'], picture: circleFig('diameter', '18 cm', 'lit') },
     { title: 'As a number', say: 'Or use the π button: 18 × π = 56.548…, which is 56.5 to 1 decimal place.', rows: ['= 56.548…', '! C = 56.5 cm (1 dp)'], picture: circleFig('diameter', '18 cm', 'given', false, 'C = 56.5 cm') },
   ], 'Find C', p), 'Circumference = πd = 2πr. π is 3.14159…: the circumference is always just over 3 diameters.')
@@ -105,7 +105,7 @@ explore(circumference, 'Drag the circle bigger and smaller. Watch C ÷ d.', 'GM7
 {
   const p = circleFig('diameter', '7.6 mm')
   practice(circumference, 'Find the circumference of this circle. Give your answer in terms of π.', 'GM7 p129 Q1a (own numbers)', p, number(7.6, '7.6π mm'), 'C = πd, and the diameter is given.', boardModel([], [
-    { title: 'C = πd', say: 'The diameter is 7.6 mm, so the circumference is π × 7.6.', rows: ['C = π × 7.6', '! C = 7.6π mm'], picture: circleFig('diameter', '7.6 mm', 'lit') },
+    { title: 'C = πd', say: 'The diameter is 7.6 mm, so the circumference is π × 7.6.', rows: ['> Circumference = π × diameter', 'C = π × 7.6', '! C = 7.6π mm'], picture: circleFig('diameter', '7.6 mm', 'lit') },
   ], 'Find C', p), slips(7.6, [[15.2, 'That’s 2 × 7.6: that would be 2πr with the diameter. C = πd.'], [r1(7.6 * Math.PI), 'Right size, but leave it in terms of π: type the number in front of π.'], [3.8, 'C = πd uses the whole diameter, 7.6.']]), C_BOX('π mm'))
 }
 for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']] as const) {
@@ -113,7 +113,7 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const p = circleFig(kind, `${value} ${unit}`)
   practice(circumference, 'Find the circumference of this circle, to 1 decimal place.', 'GM7 p128 (own numbers)', p, number(C, `${show(C, 1)} ${unit}`), kind === 'radius' ? 'Double the radius first, then times π.' : 'C = π × d.', boardModel([], [
     ...(kind === 'radius' ? [{ title: 'Diameter', say: 'Two radii make the diameter.', rows: [`d = 2 × ${value} = ${d}`], picture: circleFig('diameter', `${d} ${unit}`, 'lit') }] : []),
-    { title: 'C = πd', say: `π × ${d} = ${(Math.PI * d).toFixed(3)}…, then round to 1 decimal place.`, rows: [`C = π × ${d}`, `= ${(Math.PI * d).toFixed(3)}…`, `! C = ${show(C, 1)} ${unit}`], picture: circleFig('diameter', `${d} ${unit}`, 'given', false, `C = ${show(C, 1)} ${unit}`) },
+    { title: 'C = πd', say: `π × ${d} = ${(Math.PI * d).toFixed(3)}…, then round to 1 decimal place.`, rows: ['> Circumference = π × diameter', `C = π × ${d}`, `= ${(Math.PI * d).toFixed(3)}…`, `! C = ${show(C, 1)} ${unit}`], picture: circleFig('diameter', `${d} ${unit}`, 'given', false, `C = ${show(C, 1)} ${unit}`) },
   ], 'Find C', p), slips(C, [...(kind === 'radius' ? [[r1(Math.PI * value), 'That’s π × the radius. Use the diameter: double it first.'] as [number, string]] : [[r1(Math.PI * value / 2), 'That’s π × the radius. C = πd uses the whole diameter.'] as [number, string]]), [r1(Math.PI * (d / 2) ** 2), 'That’s πr²: the area. Circumference is πd.']]), C_BOX(unit))
 }
 
@@ -155,7 +155,7 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const r = Math.sqrt(150 / Math.PI)
   const p = circleFig('radius', 'r')
   worked(backwards, 'A circle has an area of 150 cm². Find its radius, to 1 decimal place.', 'Working backwards', 'GM7 p129 Q3 (own numbers)', boardModel([], [
-    { title: 'Put in the area', say: 'Write A = πr² with the area you know.', rows: ['150 = πr²'], picture: circleFig('radius', 'r', 'x', true) },
+    { title: 'Put in the area', say: 'Write A = πr² with the area you know.', rows: ['> Area of a circle = π × radius × radius', '150 = πr²'], picture: circleFig('radius', 'r', 'x', true) },
     { title: 'Divide by π', say: 'Undo the times π: divide both sides by π.', rows: [`r² = 150 ÷ π = ${(150 / Math.PI).toFixed(3)}…`], picture: circleFig('radius', 'r', 'x', true) },
     { title: 'Square root', say: 'Undo the square: square root both sides. Round only at the end.', rows: [`r = √${(150 / Math.PI).toFixed(3)}…`, `! r = ${show(r1(r), 1)} cm`], picture: circleFig('radius', `${show(r1(r), 1)} cm`, 'found', true) },
   ], 'Find r', p), 'Working backwards: put what you know into the formula, then undo each step in reverse order.')
@@ -164,7 +164,7 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const d = 80 / Math.PI, ans = sf(d, 3)
   const p = circleFig('diameter', 'd')
   practice(backwards, 'A circle has a circumference of 80 cm. Find its diameter, to 3 significant figures.', 'GM7 p129 Q4 (own numbers)', p, number(ans, `${ans} cm`), 'C = πd, so d = C ÷ π.', boardModel([], [
-    { title: 'Put in C', say: 'C = πd, so 80 = π × d.', rows: ['80 = π × d'], picture: circleFig('diameter', 'd', 'x') },
+    { title: 'Put in C', say: 'C = πd, so 80 = π × d.', rows: ['> Circumference = π × diameter', '80 = π × d'], picture: circleFig('diameter', 'd', 'x') },
     { title: 'Divide by π', say: `80 ÷ π = ${d.toFixed(4)}…, which is ${ans} to 3 significant figures.`, rows: ['d = 80 ÷ π', `! d = ${ans} cm`], picture: circleFig('diameter', `${ans} cm`, 'found') },
   ], 'Find d', p), slips(ans, [[sf(80 * Math.PI, 3), 'Divide by π, don’t multiply.'], [sf(d / 2, 3), 'That’s the radius. The question asks for the diameter.']]), { label: 'Diameter (cm)', prefix: 'd =' })
 }
@@ -172,7 +172,7 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const r = Math.sqrt(100 / Math.PI), ans = r1(r)
   const p = circleFig('radius', 'r')
   practice(backwards, 'A circle has an area of 100 cm². Find its radius, to 1 decimal place.', 'GM7 p129 Q3 (own numbers)', p, number(ans, `${ans} cm`), 'Divide by π, then square root.', boardModel([], [
-    { title: 'Divide by π', say: '100 = πr², so r² = 100 ÷ π.', rows: ['100 = πr²', `r² = ${(100 / Math.PI).toFixed(3)}…`], picture: circleFig('radius', 'r', 'x', true) },
+    { title: 'Divide by π', say: '100 = πr², so r² = 100 ÷ π.', rows: ['> Area of a circle = π × radius × radius', '100 = πr²', `r² = ${(100 / Math.PI).toFixed(3)}…`], picture: circleFig('radius', 'r', 'x', true) },
     { title: 'Square root', say: `√${(100 / Math.PI).toFixed(3)}… = ${r.toFixed(3)}….`, rows: [`! r = ${ans} cm`], picture: circleFig('radius', `${ans} cm`, 'found', true) },
   ], 'Find r', p), slips(ans, [[r1(100 / Math.PI), 'That’s r². Square root it.'], [r1(Math.sqrt(100) / Math.PI), 'Divide by π first, then square root.'], [r1(100 / (2 * Math.PI)), 'That’s from the circumference formula. Area is πr².']]), { label: 'Radius (cm)', prefix: 'r =' })
 }
@@ -180,7 +180,7 @@ for (const [kind, value, unit] of [['radius', 6.5, 'cm'], ['diameter', 15, 'm']]
   const r = 50 / (2 * Math.PI), ans = r1(r)
   const p = circleFig('radius', 'r')
   practice(backwards, 'A circle has a circumference of 50 cm. Find its radius, to 1 decimal place.', 'GM7 p128 (working backwards)', p, number(ans, `${show(ans, 1)} cm`), 'C = 2πr, so r = C ÷ 2π.', boardModel([], [
-    { title: 'Put in C', say: 'C = 2πr, so 50 = 2 × π × r.', rows: ['50 = 2πr'], picture: circleFig('radius', 'r', 'x') },
+    { title: 'Put in C', say: 'C = 2πr, so 50 = 2 × π × r.', rows: ['> Circumference = 2 × π × radius', '50 = 2πr'], picture: circleFig('radius', 'r', 'x') },
     { title: 'Divide by 2π', say: `50 ÷ 2π = ${r.toFixed(3)}….`, rows: ['r = 50 ÷ 2π', `! r = ${show(ans, 1)} cm`], picture: circleFig('radius', `${show(ans, 1)} cm`, 'found') },
   ], 'Find r', p), slips(ans, [[r1(50 / Math.PI), 'That’s the diameter. Halve it for the radius.'], [r1(Math.sqrt(50 / Math.PI)), 'That would use the area formula. Circumference is 2πr.']]), { label: 'Radius (cm)', prefix: 'r =' })
 }

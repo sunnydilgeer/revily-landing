@@ -224,12 +224,15 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
       <circle className="ns-fig__shape" cx={O.x} cy={O.y} r={R} />
       <path className="ns-fig__line is-x" d={`M${O.x - R} ${O.y} L${O.x + R} ${O.y}`} />
       <circle className="ns-fig__point" cx={O.x} cy={O.y} r="3.5" />
-      <text className="measure-board__label is-big" x="262" y="70">d = {fmt(2 * r)}</text>
-      <text className="measure-board__label is-big is-c" x="262" y="105">C = {fmt(2 * Math.PI * r)}</text>
-      <text className="measure-board__label is-big is-a" x="262" y="140">A = {fmt(Math.PI * r * r)}</text>
+      <text className="measure-board__label is-word" x="262" y="50">Diameter</text>
+      <text className="measure-board__label is-big" x="262" y="68">d = {fmt(2 * r)}</text>
+      <text className="measure-board__label is-word is-c" x="262" y="98">Circumference</text>
+      <text className="measure-board__label is-big is-c" x="262" y="116">C = {fmt(2 * Math.PI * r)}</text>
+      <text className="measure-board__label is-word is-a" x="262" y="146">Area</text>
+      <text className="measure-board__label is-big is-a" x="262" y="164">A = {fmt(Math.PI * r * r)}</text>
     </>
     spoken = `Radius ${r}, diameter ${2 * r}, circumference ${fmt(2 * Math.PI * r)}, area ${fmt(Math.PI * r * r)}. Circumference divided by diameter is 3.14.`
-    footer = <span aria-hidden="true"><span className="angle-board__n c1">C</span> ÷ <span className="angle-board__n c0">d</span> = {fmt(2 * Math.PI * r)} ÷ {fmt(2 * r)} = {pill('3.14… = π')}</span>
+    footer = <span aria-hidden="true"><span className="angle-board__n c1">Circumference</span> ÷ <span className="angle-board__n c0">diameter</span> = {fmt(2 * Math.PI * r)} ÷ {fmt(2 * r)} = {pill('3.14… = π')}</span>
   } else if (spec.mode === 'sector') {
     const a = v[0], O = { x: 110, y: 112 }, R = 85, r = 6
     const end = { x: O.x + R * Math.cos(rad(a)), y: O.y - R * Math.sin(rad(a)) }

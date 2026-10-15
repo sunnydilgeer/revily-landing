@@ -476,8 +476,11 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
       {axisNumbers(false)}
       {legs.map((leg, i) => {
         const across = leg.from.y === leg.to.y
-        const ax = px(leg.from.x) + 0.5, ay = py(leg.from.y) + 0.5, bx = px(leg.to.x) + 0.5, by = py(leg.to.y) + 0.5
-        const dir = across ? Math.sign(bx - ax) : Math.sign(by - ay)
+        const ax = px(leg.from.x) + 0.5, ay = py(leg.from.y) + 0.5, tx = px(leg.to.x) + 0.5, ty = py(leg.to.y) + 0.5
+        const dir = across ? Math.sign(tx - ax) : Math.sign(ty - ay)
+        // A step that ends on a point stops just short of its dot, so the arrow's tip stays in sight (Sunny, 15 Oct).
+        const short = points.some(p => p.x === leg.to.x && p.y === leg.to.y) ? 7 : 0
+        const bx = across ? tx - dir * short : tx, by = across ? ty : ty - dir * short
         const arrow = across ? `M${fix(bx - dir * 8)} ${fix(by - 6)} L${fix(bx)} ${fix(by)} L${fix(bx - dir * 8)} ${fix(by + 6)}` : `M${fix(bx - 6)} ${fix(by - dir * 8)} L${fix(bx)} ${fix(by)} L${fix(bx + 6)} ${fix(by - dir * 8)}`
         // Each size goes outside the triangle the two steps make, so the line through it never crosses a label.
         const other = legs.find(o => o !== leg && (across ? o.to.x === leg.from.x && o.to.y === leg.from.y : o.from.x === leg.to.x && o.from.y === leg.to.y))
@@ -487,8 +490,10 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         const anchor = across ? 'middle' as const : outside ? 'end' as const : 'start' as const
         // A size that would sit on an axis (and its numbers) moves to the middle of the leg's longer side of it.
         const [lo, hi, axisAt] = across ? [Math.min(ax, bx), Math.max(ax, bx), px(axisX) + 0.5] : [Math.min(ay, by), Math.max(ay, by), py(axisY) + 0.5]
+        // A step up or down that ends on a point keeps its size nearer its start, clear of that point's coordinates (Sunny, 15 Oct).
+        const ends = !across && points.some(p => p.x === leg.to.x && p.y === leg.to.y)
         const middle = lo < axisAt - 14 && hi > axisAt + 14 && Math.abs((lo + hi) / 2 - axisAt) < 24
-          ? (axisAt - lo >= hi - axisAt ? (lo + axisAt) / 2 : (axisAt + hi) / 2) : (lo + hi) / 2
+          ? (axisAt - lo >= hi - axisAt ? (lo + axisAt) / 2 : (axisAt + hi) / 2) : ends ? ay + (by - ay) * 0.3 : (lo + hi) / 2
         const label = inside(across ? middle : ax + (outside ? -9 : 9), across ? ay + (outside ? -10 : 22) : middle + 6, leg.label, 18, anchor)
         if (leg.dashed) return <g key={`g${i}`} className={`ns-graph__leg is-dashed is-f${leg.family % 4}${done(leg.at)}`}>
           <line x1={fix(ax)} y1={fix(ay)} x2={fix(bx)} y2={fix(by)} />

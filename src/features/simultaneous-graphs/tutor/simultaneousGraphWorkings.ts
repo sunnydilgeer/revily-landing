@@ -55,6 +55,8 @@ export const drawLine = (l: Line, title: string, say: string, label = named(l)):
 function drawSteps(l: Line, which: string, label = named(l)): GraphMove[] {
   const a = pt(0, l.c), b = pt(l.bottom, l.c + l.top), m = numberText(l.top, l.bottom)
   const way = `across ${l.bottom}, ${l.top < 0 ? 'down' : 'up'} ${Math.abs(l.top)}`
+  // Why across 1 (Sunny, 15 Oct, option A): the gradient is how far the line goes up for every 1 across.
+  const every = `every ${l.bottom} across, the line goes ${l.top < 0 ? 'down' : 'up'} ${Math.abs(l.top)}`
   return [
     {
       title: `Match the ${which} line to y = mx + c`, equation: latex(`m = ${m}, c = ${show(l.c)}`), adds: 'lines',
@@ -68,12 +70,13 @@ function drawSteps(l: Line, which: string, label = named(l)): GraphMove[] {
     },
     {
       title: 'Step the gradient', equation: latex(pair(b)), adds: 'picture',
-      say: `The gradient is ${m}: from c, ${way}. That lands on ${pair(b)}.`,
+      say: `m = ${m}: ${every}. From c, ${way} lands on ${pair(b)}.`,
       change: (frame, step) => ({
         ...frame, marks: shared([b]),
         legs: [{ from: a, to: pt(b.x, a.y), label: show(l.bottom), family: 1, at: step }, { from: pt(b.x, a.y), to: b, label: show(Math.abs(l.top)), family: 0, at: step }],
-        points: [...(frame.points ?? []), { ...b, at: step }],
-        working: words(frame, step, [[`m = ${m}: ${way}, which lands on ${pair(b)}`, 3]]),
+        // A step down lands from above, so its coordinates go under the point, clear of the step (Sunny, 15 Oct).
+        points: [...(frame.points ?? []), { ...b, at: step, ...(l.top < 0 ? { place: { dx: 1, dy: 1 } } : {}) }],
+        working: words(frame, step, [[`m = ${m}: ${every}. ${way[0].toUpperCase()}${way.slice(1)} lands on ${pair(b)}`, 3]]),
       }),
     },
     drawLine(l, 'Join them', 'Join the two points with one straight line, right across the grid.', label),
