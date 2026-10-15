@@ -11,7 +11,7 @@ import { diagnoseAmount, diagnoseFraction } from '../../fractions/tutor/fraction
 import { diagnoseNumber } from './numberDiagnosis'
 import { TutorMethodMedia } from './TutorMethodVisual'
 import { SteadyPictures } from './steadyPictures'
-import { GraphBoard } from './GraphBoard'
+import { GraphBoard, hasGoal } from './GraphBoard'
 import { GraphSlot, useGraphCard, useGraphSlot } from './GraphSlot'
 import { AngleBoard } from './AngleBoard'
 import { SortBoard } from './SortBoard'
@@ -358,6 +358,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const { feedback, selection } = engine
   const [showWorking, setShowWorking] = useState(false)
   useEffect(() => setShowWorking(false), [state.id])
+  const [goalAt, setGoalAt] = useState<string | null>(null)
   // Opening the working brings it into view above the folded answer ribbon, so the ribbon never sits on top of it.
   const workingPanel = useRef<HTMLDivElement>(null)
   useEffect(() => { if (showWorking) workingPanel.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }, [showWorking])
@@ -380,6 +381,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const point = numeric && state.interaction.responseShape === 'point'
   // A graph board question is answered by moving the dot; on a teaching screen it is a play screen.
   const board = state.board
+  // A play screen with a goal keeps Continue until the goal is reached (Sunny, 15 Oct).
+  const waiting = Boolean(teaching && board && hasGoal(board) && goalAt !== state.id)
   const boardAnswer = (() => { const [x, y] = String(state.interaction.correctAnswer ?? '').split(',').map(Number); return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined })()
   const multi = state.interaction.type === 'multiSelect'
   const pair = state.interaction.type === 'quotientRemainderInput'
@@ -412,7 +415,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
       {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'growth' || state.visual.kind === 'angle') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}
       {teaching && state.video && state.content.body && !stepChain && <p className="pvb-body rung-card__tip">{state.content.body}</p>}
-      {teaching && board && <GraphBoard spec={board} />}
+      {teaching && board && <GraphBoard spec={board} onDone={done => setGoalAt(done ? state.id : null)} />}
       {teaching && state.angleBoard && <AngleBoard spec={state.angleBoard} />}
       {teaching && state.measureBoard && <MeasureBoard spec={state.measureBoard} />}
       {teaching && state.chanceBoard && <ChanceBoard spec={state.chanceBoard} />}
@@ -478,7 +481,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
         </CheckBar>
       : <CheckBar>
           {engine.canGoBack && <Button variant="ghost" icon aria-label="Back" onClick={engine.back}><BackIcon size={22} /></Button>}
-          {teaching && <Button ref={continueButton} size="lg" onClick={flow.advance}>{flow.advanceLabel}</Button>}
+          {teaching && <Button ref={continueButton} size="lg" disabled={waiting} onClick={flow.advance}>{flow.advanceLabel}</Button>}
           {multi && <Button size="lg" disabled={!selection.length} onClick={engine.submit}>Check</Button>}
           {(numeric || fraction || pair) && <Button type="submit" form={`form-${state.id}`} size="lg" disabled={!canCheck}>Check</Button>}
         </CheckBar>}

@@ -91,7 +91,11 @@ type BoardProps = {
   result?: 'correct' | 'incorrect'
   disabled?: boolean
   onChange?: (value: string) => void
+  /** A play screen with a goal (the journey board) says when it is reached: Continue waits for it. */
+  onDone?: (done: boolean) => void
 }
+/** Play screens whose Continue waits for their goal. */
+export const hasGoal = (spec: GraphBoardSpec) => spec.mode === 'journey' && !spec.journey
 
 export function GraphBoard(props: BoardProps) {
   return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : props.spec.mode === 'equation' ? <EquationBoard {...props} />

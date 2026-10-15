@@ -56,42 +56,92 @@ export function readAcross(l: Line, xa: Amount, ya: Amount, y: number): GraphMov
     change: (frame, step) => ({ ...frame, boxed: [p], marks: [mark('x', p.x), mark('y', p.y)], legs: reading(p, step), points: [...(frame.points ?? []), { ...p, at: step, label: '' }] }),
   })
 }
-/** Moves: an amount off the graph, read as a smaller one that's on it, then multiplied up. */
-export function scaleUpMoves(l: Line, xa: Amount, ya: Amount, x: number, times: number): GraphMove[] {
-  const small = x / times, p = pt(small, yOf(l, small))
+const words = (frame: Parameters<GraphMove['change']>[0], step: number, lines: [string, number][]) => [...(frame.working ?? []), ...lines.map(([text, family]) => ({ text, family, at: step }))]
+/** An amount's number in a sum: "£5" keeps its £, "12" (litres) leaves the unit to the end. */
+const inSum = (a: Amount, n: number) => a.before ? amountText(a, n) : show(n)
+/** A money axis in words: "£" is pounds. */
+const plural = (a: Amount) => ({ '£': 'pounds', '€': 'euros' } as Record<string, string>)[a.name] ?? a.name
+/** Money per one, in pence too: €1.20. */
+const rateText = (a: Amount, n: number) => a.before && !Number.isInteger(n) ? `${a.before}${n.toFixed(2)}` : amountText(a, n)
+const one = (a: Amount) => plural(a).replace(/s$/, '')
+
+/**
+ * Moves: an amount off the graph, a move a step (Sunny, 15 Oct: what is × 10 doing?): it's off the graph; split it
+ * into an amount you can read times a number; read that; times the reading by the same number; check by the rate.
+ */
+export function scaleUpMoves(l: Line, xa: Amount, ya: Amount, x: number, times: number, end: number): GraphMove[] {
+  const small = x / times, p = pt(small, yOf(l, small)), big = p.y * times, X = amountText(xa, x), S = amountText(xa, small), Y = amountText(ya, p.y)
   return [
     {
-      title: `Read ${amountText(xa, small)}`, equation: latex(`${amountText(xa, small)} = ${amountText(ya, p.y)}`), adds: 'picture',
-      say: `${amountText(xa, x)} is off the graph, but ${amountText(xa, x)} is ${times} lots of ${amountText(xa, small)}. Read ${amountText(xa, small)}: up to the line and across.`,
-      change: (frame, step) => ({ ...frame, boxed: [p], marks: [mark('x', p.x), mark('y', p.y)], legs: reading(p, step), points: [{ ...p, at: step, label: '' }], working: [{ text: `${amountText(xa, small)} = ${amountText(ya, p.y)}`, family: 0, at: step }] }),
+      title: `${X} is off the graph`, equation: latex(`${X} > ${amountText(xa, end)}`), adds: 'lines',
+      say: `The graph only goes up to ${amountText(xa, end)}, so ${X} can't be read straight off it.`,
+      change: (frame, step) => ({ ...frame, working: words(frame, step, [[`${X} is off the graph: it only goes up to ${amountText(xa, end)}`, 4]]) }),
     },
-    answerMove(amountText(ya, p.y * times), `× ${times}`, `${times} times as much: ${amountText(ya, p.y)} × ${times} = ${amountText(ya, p.y * times)}.`, [], {
+    {
+      title: 'Split it into an amount you can read', equation: latex(`${X} = ${S} × ${times}`), adds: 'lines',
+      say: `${S} is on the graph, and ${X} is ${times} lots of ${S}.`,
+      change: (frame, step) => ({ ...frame, working: words(frame, step, [[`${X} = ${S} × ${times}`, 4]]) }),
+    },
+    {
+      title: `Read ${S}`, equation: latex(`${S} = ${Y}`), adds: 'picture',
+      say: `Up from ${S} to the line, then across: ${Y}.`,
+      change: (frame, step) => ({ ...frame, boxed: [p], marks: [mark('x', p.x), mark('y', p.y)], legs: reading(p, step), points: [{ ...p, at: step, label: '' }], working: words(frame, step, [[`${S} = ${Y}`, 0]]) }),
+    },
+    {
+      title: `${times} times the ${plural(xa)} is ${times} times the ${plural(ya)}`, equation: latex(`${Y} × ${times} = ${amountText(ya, big)}`), adds: 'lines',
+      say: `${X} is ${times} times ${S}, so it changes into ${times} times ${Y}: ${Y} × ${times} = ${amountText(ya, big)}.`,
+      change: (frame, step) => ({ ...frame, working: words(frame, step, [[`${Y} × ${times} = ${amountText(ya, big)}`, 3]]) }),
+    },
+    answerMove(amountText(ya, big), 'Check it makes sense', `Each ${one(xa)} is worth ${rateText(ya, l.m)}, and ${show(x)} × ${show(l.m)} = ${amountText(ya, big)} too.`, [], {
       title: '', say: '', equation: '', adds: 'lines',
-      change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), { text: `${amountText(xa, x)} = ${amountText(ya, p.y)} × ${times} = ${amountText(ya, p.y * times)}`, family: 3, at: step }] }),
+      change: (frame, step) => ({ ...frame, working: words(frame, step, [[`${Y} ÷ ${S} = ${rateText(ya, l.m)} per ${one(xa)}, and ${show(x)} × ${show(l.m)} = ${amountText(ya, big)} ✓`, 2]]) }),
     }),
   ]
 }
-/** Moves: the rate, the line's gradient: the amount across (amber), the amount up or down (biro blue), up ÷ across. */
+/**
+ * Moves: the rate, the line's gradient, a move a step (Sunny, 15 Oct: how does a student know to go across 10?): two
+ * points read exactly, where the line crosses a grid corner; the amount across (amber); the amount up or down (biro
+ * blue); up ÷ across; then a check halfway between them, and the rate as the answer.
+ */
 export function rateMoves(a: GraphPoint, b: GraphPoint, xa: Amount, ya: Amount, rate: string): GraphMove[] {
-  const across = b.x - a.x, up = b.y - a.y, turn = pt(b.x, a.y), r = Math.abs(up) / across
+  const across = b.x - a.x, up = b.y - a.y, turn = pt(b.x, a.y), r = Math.abs(up) / across, way = up < 0 ? 'Down' : 'Up'
+  const per = ya.before ? `${amountText(ya, r)} ${rate}` : `${show(r)} ${rate}`
+  const half = across / 2, c = pt(a.x + half, a.y + up / 2)
+  const sum = `${a.y ? `${inSum(ya, a.y)} ${up < 0 ? '−' : '+'} ` : ''}${show(half)} × ${inSum(ya, r)} = ${amountText(ya, c.y)}`
   return [
     {
-      title: 'Across', equation: latex(amountText(xa, across)), adds: 'lines', say: `Two points on the line. Across from one to the other: ${amountText(xa, across)}.`,
+      title: 'Pick two points you can read exactly', equation: latex(`(${show(a.x)}, ${show(a.y)}), (${show(b.x)}, ${show(b.y)})`), adds: 'picture',
+      say: `Pick two points where the line crosses a grid corner, so both can be read exactly: (${show(a.x)}, ${show(a.y)}) and (${show(b.x)}, ${show(b.y)}).`,
       change: (frame, step) => ({
-        ...frame, boxed: [a, b], marks: [mark('x', a.x), mark('x', b.x)], points: [...(frame.points ?? []), { ...a, at: step, label: '' }, { ...b, at: step, label: '' }],
-        legs: [{ from: a, to: turn, label: amountText(xa, across), family: 1, at: step }], working: [{ text: `across: ${amountText(xa, across)}`, family: 1, at: step }],
+        ...frame, boxed: [a, b], marks: [mark('x', a.x), mark('x', b.x), mark('y', a.y), mark('y', b.y)], points: [...(frame.points ?? []), { ...a, at: step, label: '' }, { ...b, at: step, label: '' }],
+        working: [{ text: `(${show(a.x)}, ${show(a.y)}) and (${show(b.x)}, ${show(b.y)}): the line crosses a grid corner at each`, family: 4, at: step }],
       }),
     },
     {
-      title: up < 0 ? 'Down' : 'Up', equation: latex(amountText(ya, Math.abs(up))), adds: 'lines', say: `${up < 0 ? 'Down' : 'Up'} from one to the other: ${amountText(ya, Math.abs(up))}.`,
+      title: 'Across', equation: latex(amountText(xa, across)), adds: 'picture', say: `Across from one point to the other: ${show(a.x)} to ${amountText(xa, b.x)} is ${amountText(xa, across)}.`,
       change: (frame, step) => ({
-        ...frame, marks: [mark('y', a.y), mark('y', b.y)], legs: [...(frame.legs ?? []), { from: turn, to: b, label: amountText(ya, Math.abs(up)), family: 0, at: step }],
-        working: [...(frame.working ?? []), { text: `${up < 0 ? 'down' : 'up'}: ${amountText(ya, Math.abs(up))}`, family: 0, at: step }],
+        ...frame, marks: [mark('x', a.x), mark('x', b.x)],
+        legs: [{ from: a, to: turn, label: amountText(xa, across), family: 1, at: step }], working: words(frame, step, [[`Across: ${show(a.x)} to ${amountText(xa, b.x)} is ${amountText(xa, across)}`, 1]]),
       }),
     },
-    answerMove(`${show(r)} ${rate}`, 'The rate', `The gradient is a rate: ${show(Math.abs(up))} ÷ ${show(across)} = ${show(r)} ${rate}.${up < 0 ? ' The line goes down, so the amount is falling.' : ''}`, [], {
-      title: '', say: '', equation: '', adds: 'lines',
-      change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), { text: `${show(Math.abs(up))} ÷ ${show(across)} = ${show(r)} ${rate}`, family: 3, at: step }] }),
+    {
+      title: way, equation: latex(amountText(ya, Math.abs(up))), adds: 'picture', say: `${way} from one point to the other: ${show(a.y)} to ${amountText(ya, b.y)} is ${amountText(ya, Math.abs(up))}.`,
+      change: (frame, step) => ({
+        ...frame, marks: [mark('y', a.y), mark('y', b.y)], legs: [...(frame.legs ?? []), { from: turn, to: b, label: amountText(ya, Math.abs(up)), family: 0, at: step }],
+        working: words(frame, step, [[`${way}: ${show(a.y)} to ${amountText(ya, b.y)} is ${amountText(ya, Math.abs(up))}`, 0]]),
+      }),
+    },
+    {
+      title: 'Calculate the rate', equation: latex(per), adds: 'lines',
+      say: `The rate is ${way.toLowerCase()} ÷ across: ${amountText(ya, Math.abs(up))} ÷ ${amountText(xa, across)} = ${per}.${up < 0 ? ' The line goes down, so the amount is falling.' : ''}`,
+      change: (frame, step) => ({ ...frame, working: words(frame, step, [[`Rate = ${way.toLowerCase()} ÷ across = ${amountText(ya, Math.abs(up))} ÷ ${amountText(xa, across)} = ${per}`, 3]]) }),
+    },
+    answerMove(`${show(r)} ${rate}`, 'Check it makes sense', `Halfway, after ${amountText(xa, c.x)}: ${sum}. The line is there too, so the rate is right.`, [], {
+      title: '', say: '', equation: '', adds: 'picture',
+      change: (frame, step) => ({
+        ...frame, legs: reading(c, step), boxed: [c], marks: [mark('x', c.x), mark('y', c.y)], points: [...(frame.points ?? []), { ...c, at: step, label: '' }],
+        working: words(frame, step, [[`After ${amountText(xa, c.x)}: ${sum}, and the line is at ${inSum(ya, c.y)} ✓`, 2]]),
+      }),
     }),
   ]
 }
