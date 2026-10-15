@@ -74,12 +74,12 @@ function drawSecond(topic: MicroSkillId, title: string, a: Line, b: Line, x: Ran
 
 explore(read, 'Drag the dot. Can you put it on both lines at once?', 'GR7 p84 Two linear graphs (play)',
   { mode: 'explore', grid: gridWith([[line(1, 1)], [line(-1, 5)]], [-2, 6], [-2, 7]), start: { x: 0, y: 1 } },
-  'A point on a line makes its equation true. Find the one point that makes both true.')
+  'A point on a line works in its equation. Find the one point that works in both.')
 {
   const a = line(2, -1), b = line(-1, 5)
   worked(read, 'Use the graph to solve the simultaneous equations y = 2x − 1 and y = −x + 5.', 'Solve y = 2x − 1 and y = −x + 5', 'GR7 p84 Two linear graphs (own numbers)',
     graphModel('y = 2x − 1 and y = −x + 5', gridWith([[a], [b]], [-2, 5], [-2, 7]), solveMoves(a, b, { given: 2 }), 'Where they cross'),
-    'Simultaneous equations are both true at the same time, for the same x and y. Each one is a straight line, and the one point on both lines is where they cross: its x and y are the solution.').video = {
+    'We need one x and one y that work in both equations. Each equation draws a straight line. Where the two lines cross works in both: its x and y are the solution.').video = {
     id: 'graphs-5-simultaneous', src: `/media/${SIMULTANEOUS_MEDIA_ID}/simultaneous.mp4`, poster: `/media/${SIMULTANEOUS_MEDIA_ID}/simultaneous.svg`,
     title: 'Simultaneous equations by graph', durationSeconds: 74, sourceFile: 'GR7.1_Simultaneous_equations_by_graph.mp4 (tools/lesson-kit/packs/GR7.1-simultaneous-equations-by-graph.cjs)',
     textAlternative: [
@@ -91,7 +91,7 @@ explore(read, 'Drag the dot. Can you put it on both lines at once?', 'GR7 p84 Tw
     ],
   }
 }
-tapCrossing(read, 'Tap the point that solves both equations.', line(1, 2), line(-1, 4), [-2, 5], [-1, 6], 'GR7 p85 Q1 (own numbers)', 'The point on both lines: where they cross.')
+tapCrossing(read, 'Tap the point that solves both equations.', line(1, 2), line(-1, 4), [-2, 5], [-1, 6], 'GR7 p85 Q1 (own numbers)', 'Where the two lines cross works in both.')
 {
   const a = line(3, -2), b = line(1, 2), p = crossing(a, b), start = gridWith([[a], [b]], [-2, 5], [-3, 7])
   practice(read, 'Use the graph to solve y = 3x − 2 and y = x + 2.', 'GR7 p85 Q1 (own numbers)', { interaction: xy(p), picture: start },
@@ -101,11 +101,11 @@ tapCrossing(read, 'Tap the point that solves both equations.', line(-2, -1), lin
 {
   const a = line(2, -3), b = line(-1, 3), start = gridWith([[a], [b]], [-2, 5], [-4, 5])
   practice(read, 'The lines y = 2x − 3 and y = −x + 3 cross at one point. What does that point tell you?', 'GR7 p84 Two linear graphs (concept)', { interaction: choose(
-    'The x and y that make both equations true',
+    'The x and y that work in both equations',
     ['Only the answer to y = 2x − 3', 'The point is on both lines, so its x and y work in both equations.'],
     ['The gradients of the two lines', 'The gradients are how steep each line is. Where they cross is a point: an x and a y.'],
     ['Where each line crosses the y axis', 'That’s c for each line. The solution is where the two lines cross each other.'],
-  ), picture: start }, 'A point on a line makes its equation true.', graphModel('y = 2x − 3 and y = −x + 3', start, solveMoves(a, b, { given: 2 }), 'Where they cross'))
+  ), picture: start }, 'A point on a line works in its equation.', graphModel('y = 2x − 3 and y = −x + 3', start, solveMoves(a, b, { given: 2 }), 'Where they cross'))
 }
 
 /* ---------- Rung 2: draw both, then read ---------- */
@@ -144,10 +144,10 @@ tapCrossing(rearrange, 'Now tap the point that solves y = 2x − 5 and 3y + x = 
 }
 
 add('mixed', 'Simultaneous equations by graph', 'GR7 consolidation', text(
-  'Simultaneous equations are both true at the same time, for the same x and y.',
-  'Each equation is a straight line. Make y the subject first if it isn’t y = mx + c.',
+  'We need one x and one y that work in both equations.',
+  'Each equation draws a straight line. Make y the subject first if it isn’t y = mx + c.',
   'Draw both lines on the same grid: start at c, then step the gradient.',
-  'The solution is where they cross: read x down to the x axis and y across to the y axis.',
+  'Where the two lines cross works in both: read x down to the x axis and y across to the y axis.',
   'Check it: put x into both equations and both should give the same y.',
 ))
 
