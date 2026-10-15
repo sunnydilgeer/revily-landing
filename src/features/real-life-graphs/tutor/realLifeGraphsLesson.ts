@@ -79,7 +79,7 @@ practice(convert, 'Tap the point on the line that shows €60 in pounds.', 'GR9 
   response => response.replace(/\s/g, '') === '60,72' ? 'That’s £60. Start at €60 on the euro axis, then across to the line.' : null)
 practice(convert, 'Lena changes £400 into euros. The graph only goes to £80. How many euros does she get?', 'GR9 p90 Q3: an amount off the graph (own numbers)',
   { interaction: amount(480, '€480'), picture: euroGrid, prefix: '€' }, '£400 is 10 lots of £40. Read £40, then times 10.',
-  graphModel('£400 into euros', euroGrid, scaleUpMoves(euro, pounds, euros, 400, 10), 'Read, then scale up'),
+  graphModel('£400 into euros', euroGrid, scaleUpMoves(euro, pounds, euros, 400, 10, 80), 'Read, then scale up'),
   slips([[48, 'That’s £40. £400 is 10 times as much.'], [40, '£40 is the amount to read on the graph: go up to the line, across to euros, then times 10.']]))
 
 /* ---------- Rung 2: the gradient is a rate ---------- */
@@ -126,7 +126,7 @@ const hours: Amount = { after: ' h', name: 'hours', per: 1 }
   const plumber: Line = { m: 20, c: 40 }
   const g = rlGrid(hours, 7, pounds20, 180, [plumber])
   worked(fixed, 'A plumber’s charges are shown. How much does a 3-hour job cost?', 'GR9 p90 Q2 Flat rate plus an amount (own numbers)',
-    graphModel('a 3-hour job', g, [fixedMove(plumber, pounds20, 'The line starts at £40, at 0 hours: £40 just to come out. That’s the fixed charge.'), ...rateMoves(pt(0, 40), pt(1, 60), hours, pounds20, 'an hour').slice(0, 2), readUp(plumber, hours, pounds20, 3, '3 hours')], 'Start, rate, read'),
+    graphModel('a 3-hour job', g, [fixedMove(plumber, pounds20, 'The line starts at £40, at 0 hours: £40 just to come out. That’s the fixed charge.'), ...rateMoves(pt(0, 40), pt(1, 60), hours, pounds20, 'an hour').slice(0, 3), readUp(plumber, hours, pounds20, 3, '3 hours')], 'Start, rate, read'),
     'Where the line starts on the cost axis is the fixed charge, paid before any work. Its gradient is the rate: £20 more for each hour.')
 }
 {

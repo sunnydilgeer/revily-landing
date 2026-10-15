@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { Fragment, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { AXIS, GraphVisual, HaloText, UNIT, axisText, dotBox, fitLabel, fmt, labelWidth, placeLabel, squareOf, fillGrid } from './GraphPictures'
 import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
@@ -91,7 +91,11 @@ type BoardProps = {
   result?: 'correct' | 'incorrect'
   disabled?: boolean
   onChange?: (value: string) => void
+  /** A play screen with a goal (the journey board) says when it is reached: Continue waits for it. */
+  onDone?: (done: boolean) => void
 }
+/** Play screens whose Continue waits for their goal. */
+export const hasGoal = (spec: GraphBoardSpec) => spec.mode === 'journey' && !spec.journey
 
 export function GraphBoard(props: BoardProps) {
   return props.spec.mode === 'line' ? <LineBoard {...props} /> : props.spec.mode === 'tilt' ? <TiltBoard {...props} /> : props.spec.mode === 'equation' ? <EquationBoard {...props} />
@@ -106,6 +110,9 @@ function RuleSum({ rule, x }: { rule: { m: number; c: number }; x: number }) {
   const times = rule.m === 1 ? X : <>{fmt(rule.m)} × {X}</>
   return <>y = {times}{rule.c ? ` ${rule.c < 0 ? '−' : '+'} ${Math.abs(rule.c)}` : ''} = {Y}</>
 }
+
+/** A curve's shape in words, from its numbers [constant, x, x², x³]: a U, an upside-down U, or an S. */
+const shapeOf = (curve: number[]) => curve[3] ? 'an S shape, a cubic' : (curve[2] ?? 0) < 0 ? 'an upside-down U shape, a quadratic' : 'a U shape, a quadratic'
 
 /** y = (−2)² − 3 = 4 − 3 = 1: a curve's sum at x, its y biro blue. */
 function CurveSum({ text, x }: { text: string; x: number }) {
@@ -207,8 +214,16 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     ...(curve && grid.table && grid.table.xs.every(x => visited.includes(x)) ? { curves: [...(grid.curves ?? []), { coeffs: curve, from: Math.min(...grid.table.xs), to: Math.max(...grid.table.xs), at: 0 }] } : {}),
   }
 
+  // Exploring two lines (graphs lesson 5): is the dot on each one? On both is the goal.
+  const onLines = mode === 'explore' && dot ? (grid.lines ?? []).filter(l => l.label && l.from.x !== l.to.x).map(l => {
+    const m = (l.to.y - l.from.y) / (l.to.x - l.from.x), y = l.from.y + m * (dot.x - l.from.x)
+    return { label: l.label!, y, on: Math.abs(y - dot.y) < 1e-9 }
+  }) : []
+  const onBoth = onLines.length > 1 && onLines.every(l => l.on)
+  // Every x in the table visited: the curve (or line) is drawn through the dots, and the screen says what it is.
+  const filled = !!rule && !!grid.table && grid.table.xs.every(x => visited.includes(x))
   const labelled = play || !!result
-  const status = result === 'correct' || (mode === 'midpoint' && halfway) ? ' is-right' : result === 'incorrect' ? ' is-wrong' : ''
+  const status = result === 'correct' || (mode === 'midpoint' && halfway) || onBoth ? ' is-right' : result === 'incorrect' ? ' is-wrong' : ''
   const live = `${walk && stage === 'across' ? `Across ${fmt(dot?.x ?? 0)}` : dot ? `The dot is at ${said(dot)}` : 'No dot yet'}${mode === 'midpoint' && halfway ? '. Halfway!' : ''}`
 
   const boardClass = `graph-board graph-board--${mode}${held ? ' is-held' : ''}${disabled ? ' is-disabled' : ''}`
@@ -216,6 +231,7 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     <InGraphSlot className={boardClass}><div className="graph-board__surface" tabIndex={disabled ? -1 : 0} role="group" onKeyDown={onKeyDown}
       aria-label={`${walk ? 'Walk across, then up or down: arrow keys left and right go across, then up and down.' : 'Move the dot with the arrow keys.'} A grid with x from ${fmt(x0)} to ${fmt(x1)} and y from ${fmt(y0)} to ${fmt(y1)}.`} aria-describedby={`${id}-live`}>
       <GraphVisual frame={frame} live={{
+        pickX: rule && !disabled ? x => moveTo({ x, y: f(x) }) : undefined,
         svg: disabled ? undefined : {
           onPointerDown: event => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); pressed.current = true; setHeld(true); moveTo(corner(event)) },
           onPointerMove: event => { if (pressed.current) moveTo(corner(event)) },
@@ -293,6 +309,8 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
           if (dot && showDot && !(walk && !disabled && (stage === 'across' || held))) {
             parts.push(<g key={`dot${dot.x},${dot.y}`} className={`graph-board__dot${status}${walk ? ' is-pop' : ''}`}>
               {!disabled && !walk && <circle className="graph-board__halo" cx={at(dot).x} cy={at(dot).y} r="16" />}
+              {/* Sliding along a rule: faint arrows either side say the dot moves, and which way. */}
+              {rule && !disabled && <path className="graph-board__nudge" d={`M${at(dot).x - 22} ${at(dot).y - 6} L${at(dot).x - 28} ${at(dot).y} L${at(dot).x - 22} ${at(dot).y + 6} M${at(dot).x + 22} ${at(dot).y - 6} L${at(dot).x + 28} ${at(dot).y} L${at(dot).x + 22} ${at(dot).y + 6}`} />}
               <circle cx={at(dot).x} cy={at(dot).y} r="7" />
               {own}
             </g>)
@@ -303,6 +321,12 @@ function PointBoard({ spec, answer, result, disabled, onChange }: BoardProps) {
     </div></InGraphSlot>
     <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
     {rule && dot && <p className="graph-board__note graph-board__sum" aria-hidden="true">{spec.reads ? <><span className="is-x">{spec.reads[0]}{axisText(sx, dot.x)}</span> is <span className="is-y">{spec.reads[1]}{axisText(sy, dot.y)}</span></> : curve && spec.curveText ? <CurveSum text={spec.curveText} x={dot.x} /> : <RuleSum rule={rule} x={dot.x} />}</p>}
+    {rule && grid.table && !disabled && <p className={`graph-board__note${filled ? ' is-right' : ''}`} aria-hidden="true">{filled && curve && spec.curveText
+      ? `That’s ${spec.curveText}: ${shapeOf(curve)}. Every x gives one y, and the dots join with a smooth curve, not straight lines.`
+      : filled ? 'Every x is done: the dots join in a straight line.' : 'Drag the dot left or right, or tap a number in the x row.'}</p>}
+    {onLines.length > 1 && dot && <p className={`graph-board__note graph-board__sum${onBoth ? ' is-right' : ''}`} aria-hidden="true">{onBoth
+      ? <>{pair(dot)} is on both lines! x = {fmt(dot.x)}, y = {fmt(dot.y)} makes both equations true.</>
+      : onLines.map((l, i) => <Fragment key={i}>{i > 0 && <br />}On {l.label}? At x = <span className="is-x">{fmt(dot.x)}</span> it has y = <span className="is-y">{fmt(l.y)}</span> {l.on ? '✓' : '✗'}</Fragment>)}</p>}
     {mode === 'midpoint' && <p className={`graph-board__note${halfway ? ' is-right' : ''}`} aria-hidden="true">{halfway ? 'Halfway: both halves match' : 'Drag the dot until both halves match'}</p>}
     {walk && !disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{stage === 'across' ? <>Drag the <span className="is-x">amber</span> handle across</> : <>Now drag the <span className="is-y">blue</span> handle up or down</>}</p>

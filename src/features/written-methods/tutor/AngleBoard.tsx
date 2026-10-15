@@ -63,6 +63,30 @@ function apex(A: P, B: P, a: number, b: number): P {
   return { x: A.x + t * Math.cos(a * r), y: A.y - t * Math.sin(a * r) }
 }
 
+/*
+ * The triangle boards keep the top corner on the board (Sunny, 15 Oct: it ran off the top). A triangle too tall for
+ * the board is drawn smaller, about the middle of its base. The isosceles board's top corner follows the finger up
+ * and down, and the base narrows as it climbs, so a steep triangle still fits: at height h the half-base is HB(h).
+ */
+const BASE_Y = 195, TOP = 22, MID = 160, TALL = BASE_Y - TOP
+const HB = (h: number) => 125 - (h / TALL) * 85
+const isoAngle = (h: number) => Math.atan2(h, HB(h)) * 180 / Math.PI
+function isoscelesCorners(a: number) {
+  let h = TALL, hb = TALL / Math.tan(rad(a))
+  if (a < isoAngle(TALL)) {
+    let lo = 0, hi = TALL
+    for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (isoAngle(m) < a) lo = m; else hi = m }
+    h = (lo + hi) / 2; hb = HB(h)
+  }
+  return { A: { x: MID - hb, y: BASE_Y }, B: { x: MID + hb, y: BASE_Y }, C: { x: MID, y: BASE_Y - h } }
+}
+function fitted(a: number, b: number) {
+  const A = { x: 35, y: BASE_Y }, B = { x: 285, y: BASE_Y }, C = apex(A, B, a, b)
+  const s = Math.min(1, TALL / (BASE_Y - C.y), C.x > MID ? (W - 20 - MID) / (C.x - MID) : C.x < MID ? (MID - 20) / (MID - C.x) : 1)
+  const at = (p: P): P => ({ x: MID + (p.x - MID) * s, y: BASE_Y + (p.y - BASE_Y) * s })
+  return { A: at(A), B: at(B), C: at(C) }
+}
+
 type Shape = { lines: string[]; angles: { V: P; from: P; to: P; size: number }[]; handles: P[]; total: number; ticks?: string[]; lit?: string; corners?: P[] }
 
 /* ---------- Shapes with n sides ---------- */
@@ -178,9 +202,8 @@ function shapeOf(mode: AngleBoardSpec['mode'], v: number[], pair: AngleBoardSpec
     return { lines: [`M${A.x} ${A.y} L${B.x} ${B.y} L${C.x} ${C.y} L${D.x} ${D.y} Z`], handles: [D], total: 360,
       angles: [{ V: A, from: B, to: D, size: sizes[0] }, { V: B, from: C, to: A, size: sizes[1] }, { V: C, from: D, to: B, size: sizes[2] }, { V: D, from: A, to: C, size: sizes[3] }] }
   }
-  const A = { x: 35, y: 195 }, B = { x: 285, y: 195 }
   const [a, b] = mode === 'isosceles' ? [v[0], v[0]] : v
-  const C = apex(A, B, a, b)
+  const { A, B, C } = mode === 'isosceles' ? isoscelesCorners(a) : fitted(a, b)
   // kinds: a tick on each side that matches another (the side opposite each equal angle).
   const c = 180 - a - b, sides: [P, P, number][] = [[B, C, a], [C, A, b], [A, B, c]]
   const kindTicks = sides.filter(([, , x], i) => sides.some(([, , y], j) => i !== j && x === y)).map(([p, q]) => tick(p, q))
@@ -209,7 +232,7 @@ function dragTo(mode: AngleBoardSpec['mode'], v: number[], handle: number, p: P)
   }
   const A = { x: 35, y: 195 }, B = { x: 285, y: 195 }
   const C = { x: clamp(p.x, 20, 300), y: clamp(p.y, 12, 175) }
-  if (mode === 'isosceles') return [clamp(Math.round(Math.atan2(A.y - C.y, 125) * 180 / Math.PI), 10, 80)]
+  if (mode === 'isosceles') return [clamp(Math.round(isoAngle(clamp(BASE_Y - p.y, 20, TALL))), 10, 80)]
   const a = Math.round(turnBetween(up(A), up(B), up(C))), b = Math.round(turnBetween(up(B), up(C), up(A)))
   return a >= 10 && b >= 10 && a + b <= 170 ? [a, b] : null
 }

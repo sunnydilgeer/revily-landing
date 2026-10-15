@@ -65,7 +65,7 @@ const [mA, , mC, mD] = [[maya.start, maya.corners[0]], [maya.corners[0], maya.co
 
 /* ---------- Rung 1: reading a journey ---------- */
 
-explore(reading, 'Tap to build a journey. Watch each part’s speed.', 'GR8 p86 Key things to remember (play)',
+explore(reading, 'Tap to build a journey that stops, then comes home. Watch each part’s speed.', 'GR8 p86 Key things to remember (play)',
   { mode: 'journey', grid: dtGrid(null, [9, 13], 0.5, 40, 5), start: pt(9, 0) })
 worked(reading, 'Maya’s bike ride is shown. How long did she stop for?', 'How long did Maya stop?', 'GR8 p87 Example: bike ride (own numbers)',
   graphModel('Maya’s bike ride', mayaGrid, stopMoves(maya.corners[0], maya.corners[1]), 'Read the flat part'),

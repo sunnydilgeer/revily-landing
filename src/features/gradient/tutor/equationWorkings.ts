@@ -141,7 +141,7 @@ function markedLine(mTop: number, mBottom: number, c: number) {
   return `y = ${mx}${cc}`
 }
 /** The lines matching an equation to y = mx + c, m and c in their colours, in plain ink (family 4). */
-function matchLines(mTop: number, mBottom: number, c: number) {
+export function matchLines(mTop: number, mBottom: number, c: number) {
   return [`y = ${mIn('m')}x + ${cIn('c')}`, markedLine(mTop, mBottom, c),
     `${mIn(`m = ${numberText(mTop, mBottom)}`)}: the number in front of x, the gradient`,
     `${cIn(`c = ${cText(c)}`)}: the number on its own, where the line crosses the y axis`]

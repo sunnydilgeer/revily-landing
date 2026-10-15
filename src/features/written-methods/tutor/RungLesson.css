@@ -59,6 +59,8 @@
 .rung-answer { display: inline-flex; align-items: center; gap: 14px; font-size: 2rem; }
 .rung-answer__eq { color: var(--rv-ink); font-weight: 500; white-space: nowrap; }
 .rung-answer__unit { color: var(--rv-muted); font-size: 1.1rem; }
+/* A degree sign sits top right of the box, as big as the number it belongs to (Sunny, 15 Oct). */
+.rung-answer__unit.is-degree { align-self: flex-start; margin-left: -8px; color: var(--rv-ink); font-size: 2.6rem; font-weight: 800; line-height: 1; }
 .rung-lesson .rung-answer__input,
 .rung-fraction input {
   width: 5.2em; height: 64px; padding: 0 12px; border: 3px dashed var(--rv-line-strong); border-radius: 14px;

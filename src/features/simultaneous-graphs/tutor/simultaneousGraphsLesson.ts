@@ -32,8 +32,8 @@ const keep = (words: string) => words.replace(/\((−?[\d.]+), (−?[\d.]+)\)/g,
 function workingSteps(visual: TutorWorking) {
   return visual.kind === 'method-worked' ? visual.examples.flatMap(example => example.steps).map(step => [step.title, step.instruction] as [string, string]) : []
 }
-function explore(topic: MicroSkillId, title: string, sourceRef: string, spec: GraphBoardSpec) {
-  const state = add(topic, keep(title), sourceRef, text(keep(title)))
+function explore(topic: MicroSkillId, title: string, sourceRef: string, spec: GraphBoardSpec, note?: string) {
+  const state = add(topic, keep(title), sourceRef, text(note ?? keep(title)))
   state.board = spec
 }
 function worked(topic: MicroSkillId, title: string, heading: string, sourceRef: string, model: TutorWorking, body: string) {
@@ -73,7 +73,8 @@ function drawSecond(topic: MicroSkillId, title: string, a: Line, b: Line, x: Ran
 /* ---------- Rung 1: where the lines cross ---------- */
 
 explore(read, 'Drag the dot. Can you put it on both lines at once?', 'GR7 p84 Two linear graphs (play)',
-  { mode: 'explore', grid: gridWith([[line(1, 1)], [line(-1, 5)]], [-2, 6], [-2, 7]), start: { x: 0, y: 1 } })
+  { mode: 'explore', grid: gridWith([[line(1, 1)], [line(-1, 5)]], [-2, 6], [-2, 7]), start: { x: 0, y: 1 } },
+  'A point on a line makes its equation true. Find the one point that makes both true.')
 {
   const a = line(2, -1), b = line(-1, 5)
   worked(read, 'Use the graph to solve the simultaneous equations y = 2x − 1 and y = −x + 5.', 'Solve y = 2x − 1 and y = −x + 5', 'GR7 p84 Two linear graphs (own numbers)',
@@ -129,12 +130,12 @@ drawSecond(draw, 'y = 2x − 1 is drawn. Draw y = −x − 4 on the same grid.',
 {
   const a = line(1, -1), b = line(-1, 2, 2)
   worked(rearrange, 'By drawing their graphs, solve y = x − 1 and 2y + x = 4.', 'Solve y = x − 1 and 2y + x = 4', 'GR7 p85 Q2 Rearrange first (own numbers)',
-    graphModel('y = x − 1 and 2y + x = 4', grid([-2, 6], [-3, 5]), solveMoves(a, b, { movesB: [['Take x from both sides', '2y = −x + 4', 'To draw 2y + x = 4, get it into y = mx + c first. Take x from both sides.'], ['Divide by 2', 'y = −½x + 2', 'Divide every term by 2, so y is on its own.']], labels: ['y = x − 1', '2y + x = 4'] }), 'Make y the subject'),
+    graphModel('y = x − 1 and 2y + x = 4', grid([-2, 6], [-3, 5]), solveMoves(a, b, { movesB: [['Start with the equation', '2y + x = 4', 'To draw 2y + x = 4, get it into y = mx + c first, one move at a time.'], ['Take x from both sides', '2y + x − x = 4 − x\n2y = 4 − x\n2y = −x + 4', 'Take x away from both sides, then put the x term first, as in y = mx + c.'], ['Divide every term by 2', 'y = −x ÷ 2 + 4 ÷ 2\ny = −½x + 2', 'Divide every term by 2, so y is on its own.']], labels: ['y = x − 1', '2y + x = 4'] }), 'Make y the subject'),
     'An equation that isn’t y = mx + c gets rearranged first, so you can draw it from c and its gradient. Then it’s the same: draw both, read where they cross, check.')
 }
 drawSecond(rearrange, 'y = 2x − 5 is drawn. Draw 3y + x = 6 on the same grid.', line(2, -5), line(-1, 2, 3), [-2, 6], [-6, 4], 'GR7 p85 Q3 (own numbers)',
   'Make y the subject: y = −⅓x + 2. Start at 2 on the y axis, then across 3 and down 1.',
-  [['Take x from both sides', '3y = −x + 6', 'Get the y term on its own first.'], ['Divide by 3', 'y = −⅓x + 2', 'Divide every term by 3.']], '3y + x = 6')
+  [['Start with the equation', '3y + x = 6', 'To draw 3y + x = 6, get it into y = mx + c first, one move at a time.'], ['Take x from both sides', '3y + x − x = 6 − x\n3y = 6 − x\n3y = −x + 6', 'Take x away from both sides, then put the x term first, as in y = mx + c.'], ['Divide every term by 3', 'y = −x ÷ 3 + 6 ÷ 3\ny = −⅓x + 2', 'Divide every term by 3, so y is on its own.']], '3y + x = 6')
 tapCrossing(rearrange, 'Now tap the point that solves y = 2x − 5 and 3y + x = 6.', line(2, -5), line(-1, 2, 3), [-2, 6], [-6, 4], 'GR7 p85 Q3 (own numbers)', 'Where the lines cross: x first.', ['y = 2x − 5', '3y + x = 6'])
 {
   const a = line(2, 3), b = line(-2, -1), p = crossing(a, b), start = gridWith([[a, 'y = 2x + 3'], [b, '2y + 4x = −2']], [-4, 3], [-4, 5])

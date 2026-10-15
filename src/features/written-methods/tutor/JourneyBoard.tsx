@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { Fragment, useEffect, useId, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { GraphVisual, HaloText, UNIT, axisText, fitLabel, squareOf, fillGrid } from './GraphPictures'
 import { InGraphSlot } from './GraphSlot'
 import type { GraphFrame, GraphPoint } from './methodWorking'
@@ -13,7 +13,8 @@ import type { GraphBoardSpec } from './GraphBoard'
  * back. One corner a time: a second tap at the same time moves it, and tapping a corner lifts it. Arrow keys move a
  * ring over the corners and Enter or Space taps.
  *
- * On the play screen (no `journey`) each part shows its speed, distance ÷ time. The answer is the journey's corners in
+ * On the play screen (no `journey`) each part shows its speed, distance ÷ time, beside it where there's room and always
+ * in a list under the grid. Its goal (Sunny, 15 Oct) is a journey that stops, then comes home: Continue waits for it. The answer is the journey's corners in
  * time order, "t, d, t, d", with any corner in the middle of a straight part left out (journeyKey), so tapping an extra
  * point along a straight part doesn't make it wrong. After a wrong answer the right journey is drawn green.
  */
@@ -32,7 +33,7 @@ export const journeyKey = (start: GraphPoint, points: GraphPoint[]) => corners(s
 /** A part's speed, in the graph's units an hour (the time axis is in hours). */
 export const speedOf = (a: GraphPoint, b: GraphPoint) => Math.abs(b.y - a.y) / (b.x - a.x)
 
-export function JourneyBoard({ spec, result, disabled, onChange }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void }) {
+export function JourneyBoard({ spec, result, disabled, onChange, onDone }: { spec: GraphBoardSpec; result?: 'correct' | 'incorrect'; disabled?: boolean; onChange?: (value: string) => void; onDone?: (done: boolean) => void }) {
   const grid = fillGrid(spec.grid)
   const scale = grid.scale!
   const [x0, x1] = grid.x, [, y1] = grid.y
@@ -82,6 +83,11 @@ export function JourneyBoard({ spec, result, disabled, onChange }: { spec: Graph
   }
   const unit = scale.y.name.replace(/^.*\((.*)\)$/, '$1')
   const speedText = (a: GraphPoint, b: GraphPoint) => a.y === b.y ? 'stopped' : `${Math.round(speedOf(a, b) * 100) / 100} ${unit}/h`
+  // The goal: a stop away from home, then back down to home at the end.
+  const stop = path.findIndex((p, i) => i > 0 && p.y === path[i - 1].y && p.y !== start.y)
+  const home = play && stop > 0 && path.length > stop + 1 && last!.y === start.y
+  useEffect(() => { if (play) onDone?.(home) }, [play, home, onDone])
+  const partText = (a: GraphPoint, b: GraphPoint) => b.y < a.y ? `${speedText(a, b)} back${b.y === start.y ? ' home' : ''}` : speedText(a, b)
   const live = path.length > 1 ? `${path.length - 1} part${path.length > 2 ? 's' : ''}. The last ends at ${axisText(scale.x, last!.x)}, ${axisText(scale.y, last!.y)} ${unit}` : 'No parts yet'
 
   const boardClass = `graph-board graph-board--journey${disabled ? ' is-disabled' : ''}`
@@ -106,7 +112,11 @@ export function JourneyBoard({ spec, result, disabled, onChange }: { spec: Graph
         </>,
       }} />
     </div></InGraphSlot>
-    <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}</p>
+    <p className="sr-only" id={`${id}-live`} aria-live="polite">{live}{home ? '. Home!' : ''}</p>
+    {play && path.length > 1 && <p className="graph-board__note graph-board__sum" aria-hidden="true">
+      {path.slice(1).map((p, i) => <Fragment key={i}>{i > 0 && <br />}Part {i + 1}: <b>{partText(path[i], p)}</b></Fragment>)}
+    </p>}
+    {home && <p className="graph-board__note is-right">Home! Steeper means faster, and flat means stopped.</p>}
     {!disabled && <div className="graph-board__tools">
       <p className="graph-board__note" aria-hidden="true">{taps.length ? 'Tap where the next part ends. Tap a corner to lift it' : 'Tap where the first part ends'}</p>
       {taps.length > 0 && <button type="button" className="graph-board__again" onClick={() => update([])}>Start again</button>}

@@ -14,7 +14,7 @@ import { FIGURE_PAD, FigureVisual, figureExtent } from './FigurePictures'
  */
 
 export type P = { x: number; y: number }
-const W = 320, H = 210, PAD = 30
+const W = 380, H = 250, PAD = 24
 export const rad = (deg: number) => deg * Math.PI / 180
 const sub = (a: P, b: P): P => ({ x: a.x - b.x, y: a.y - b.y })
 const unit = (v: P): P => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l } }
@@ -82,7 +82,16 @@ export function fitInto(raw: Record<string, P>, w: number, h: number, pad: numbe
   for (const [k, p] of Object.entries(raw)) out[k] = { x: offX + (p.x - minX) * scale, y: h - offY - (p.y - minY) * scale }
   return { at: out, left: offX, right: w - offX }
 }
-const fit = (frame: AngleFrame, shared?: Bounds) => fitInto(corners(frame), W, H, PAD, frame.parallel ? 0.28 : 0, shared)
+const fit = (frame: AngleFrame, h: number, shared?: Bounds) => fitInto(corners(frame), W, h, PAD, frame.parallel ? 0.28 : 0, shared)
+/**
+ * How tall a picture is: a shape as tall as it is wide (a hexagon, a narrow triangle, lines round a point) gets a taller
+ * picture, so it is drawn bigger and its labels have room (Sunny, 15 Oct). A worked example's steps share one height.
+ */
+function heightFor(b: Bounds | null) {
+  if (!b) return H
+  const aspect = (b.maxY - b.minY) / ((b.maxX - b.minX) || 1)
+  return Math.round(Math.min(300, Math.max(H, (W - 2 * b.pad) * aspect + 2 * b.pad)))
+}
 
 /*
  * Steady pictures (Sunny, 10 Oct): every step of a worked example draws its picture at one scale and in one place, so
@@ -140,7 +149,67 @@ export function angle(V: P, P1: P, Q: P, degrees?: number, size = 1) {
     ? `M${V.x + u.x * 14} ${V.y + u.y * 14} L${V.x + (u.x + v.x) * 14} ${V.y + (u.y + v.y) * 14} L${V.x + v.x * 14} ${V.y + v.y * 14}`
     : `M${V.x + u.x * r} ${V.y + u.y * r} A${r} ${r} 0 ${reflex ? 1 : 0} ${reflex ? 1 - sweep : sweep} ${V.x + v.x * r} ${V.y + v.y * r}`
   const distance = reflex ? r + 18 : Math.min(64, Math.max(r + 17, 15 / Math.sin(between / 2)))
-  return { path, label: { x: V.x + mid.x * distance, y: V.y + mid.y * distance } }
+  // The arc as points, so a label can be kept off it.
+  const from = Math.atan2(u.y, u.x), span = reflex ? 2 * Math.PI - between : between, turn = sweep ? 1 : -1
+  const arc = square ? [{ x: V.x + u.x * 14, y: V.y + u.y * 14 }, { x: V.x + (u.x + v.x) * 14, y: V.y + (u.y + v.y) * 14 }, { x: V.x + v.x * 14, y: V.y + v.y * 14 }]
+    : Array.from({ length: 13 }, (_, k) => { const t = from + turn * (reflex ? -1 : 1) * span * k / 12; return { x: V.x + Math.cos(t) * r, y: V.y + Math.sin(t) * r } })
+  return { path, label: { x: V.x + mid.x * distance, y: V.y + mid.y * distance }, at: V, mid, distance, half: (reflex ? 2 * Math.PI - between : between) / 2, arc }
+}
+
+/*
+ * Labels clear of everything (Sunny, 15 Oct: a boxed answer sat on the lines and the arc). Each label, measured as
+ * its box, slides out along its angle's middle (and a little either side of it) until it touches no line, no arc, no
+ * other label and stays on the picture. It is measured boxed on every step, so it doesn't move when its box appears.
+ */
+type Mark = { path: string; label: P; text: string; cls: string; boxed: boolean; found: boolean } & Partial<Pick<ReturnType<typeof angle>, 'at' | 'mid' | 'distance' | 'half' | 'arc'>>
+type Box = { l: number; r: number; t: number; b: number }
+const segmentsOf = (d: string) => {
+  const out: [P, P][] = []
+  let start: P | null = null, at: P | null = null
+  for (const [, cmd, x, y] of d.matchAll(/([MLZ])\s*(-?[\d.]+(?:e-?\d+)?)?\s*(-?[\d.]+(?:e-?\d+)?)?/g)) {
+    if (cmd === 'Z') { if (at && start) out.push([at, start]); at = start; continue }
+    const p = { x: Number(x), y: Number(y) }
+    if (cmd === 'L' && at) out.push([at, p])
+    if (cmd === 'M') start = p
+    at = p
+  }
+  return out
+}
+const inBox = (p: P, b: Box) => p.x > b.l && p.x < b.r && p.y > b.t && p.y < b.b
+function crossesBox([p, q]: [P, P], b: Box) {
+  if (inBox(p, b) || inBox(q, b)) return true
+  const edges: [P, P][] = [[{ x: b.l, y: b.t }, { x: b.r, y: b.t }], [{ x: b.r, y: b.t }, { x: b.r, y: b.b }], [{ x: b.r, y: b.b }, { x: b.l, y: b.b }], [{ x: b.l, y: b.b }, { x: b.l, y: b.t }]]
+  return edges.some(([a, c]) => crosses(p, q, a, c))
+}
+function crosses(p: P, q: P, a: P, c: P) {
+  const side = (o: P, s: P, t: P) => (s.x - o.x) * (t.y - o.y) - (s.y - o.y) * (t.x - o.x)
+  const d1 = side(a, c, p), d2 = side(a, c, q), d3 = side(p, q, a), d4 = side(p, q, c)
+  return ((d1 > 0) !== (d2 > 0)) && ((d3 > 0) !== (d4 > 0))
+}
+export function placeLabels(marks: Mark[], lines: string[], keep: Box[] = [], w = W, h = H) {
+  const segments = [...lines.flatMap(segmentsOf), ...marks.flatMap(m => (m.arc ?? []).slice(1).map((p, i): [P, P] => [m.arc![i], p]))]
+  const placed: Box[] = [...keep]
+  const boxAt = (m: Mark, c: P): Box => { const bw = m.text.length * 10 + 16; return { l: c.x - bw / 2 - 3, r: c.x + bw / 2 + 3, t: c.y - 18, b: c.y + 18 } }
+  const clash = (b: Box) => (b.l < 1 || b.t < 1 || b.r > w - 1 || b.b > h - 1 ? 1 : 0) + segments.filter(sg => crossesBox(sg, b)).length + placed.filter(o => b.l < o.r && b.r > o.l && b.t < o.b && b.b > o.t).length
+  // The answer and boxed labels are placed first: they are the biggest and matter most.
+  const order = marks.map((m, i) => i).sort((i, j) => Number(marks[j].found || marks[j].boxed) - Number(marks[i].found || marks[i].boxed))
+  for (const i of order) {
+    const m = marks[i]
+    if (!m.at || !m.mid) { placed.push(boxAt(m, m.label)); continue }
+    const base = Math.atan2(m.mid.y, m.mid.x), half = m.half ?? 0.5
+    const turns = [0, 0.12, -0.12, 0.24, -0.24, 0.36, -0.36].filter(t => Math.abs(t) < half * 0.8 || t === 0)
+    let best = { c: m.label, n: Infinity }
+    for (let d = (m.distance ?? 30) - 4; d < (m.distance ?? 30) + 130 && best.n; d += 3) {
+      for (const t of turns) {
+        const c = { x: m.at.x + Math.cos(base + t) * d, y: m.at.y + Math.sin(base + t) * d }, n = clash(boxAt(m, c))
+        if (n < best.n) best = { c, n }
+        if (!n) break
+      }
+    }
+    m.label = best.c
+    placed.push(boxAt(m, m.label))
+  }
+  return marks
 }
 
 function spoken(frame: AngleFrame) {
@@ -238,11 +307,12 @@ function ParallelVisual({ frame, plain }: { frame: AngleFrame; plain?: boolean }
     const a = angle(V, arms[k], arms[(k + 1) % 4], placeSize(t, k), 0.9)
     marks.push({ ...a, text, cls: fam(i), boxed: !plain && Boolean(frame.boxed?.includes(i)), found: !plain && Boolean(frame.found?.includes(i)) })
   })
+  const keepClear: Box[] = []
   return <div className={`ns-angles${plain ? ' is-plain' : ''}`} role="img" aria-label={parallelSpoken(frame)}>
     <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
       {!plain && lit.map((p, i) => <path key={`lit${i}`} className="ns-angles__lit" d={p} />)}
       {lines.map((p, i) => <path key={i} className="ns-angles__line" d={p} />)}
-      {marks.map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
+      {placeLabels(marks, lines, keepClear).map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
         <path d={m.path} />
         {(m.boxed || m.found) && <rect className={m.found ? 'ns-angles__found' : 'ns-angles__box'} x={m.label.x - m.text.length * 5 - 8} y={m.label.y - 15} width={m.text.length * 10 + 16} height="30" rx="7" />}
         <text x={m.label.x} y={m.label.y}>{m.text}</text>
@@ -293,7 +363,8 @@ function PolygonVisual({ frame, plain, shared, keepCaption }: { frame: AngleFram
   // Room round the shape for outside angles and corner names.
   const { raw, named, extra, pad } = polygonPoints(frame)
   const n = raw.length
-  const { at } = fitInto({ ...named, ...extra }, W, H, pad, 0, shared)
+  const h = heightFor(shared ?? ownBounds(frame))
+  const { at } = fitInto({ ...named, ...extra }, W, h, pad, 0, shared)
   const V = raw.map((_, i) => at[`v${i}`])
   const fam = (i: number) => { const f = frame.families?.[i]; return plain || f === -1 ? 'is-plain' : `is-f${(f ?? 0) % 4}` }
   const lines = [`M${V.map(p => `${p.x} ${p.y}`).join(' L')} Z`]
@@ -325,11 +396,12 @@ function PolygonVisual({ frame, plain, shared, keepCaption }: { frame: AngleFram
     for (let k = 0; k < arrows; k++) { const o = (ticks ? 16 : 4) + k * 8, c = { x: m.x + w.x * o, y: m.y + w.y * o }; lines.push(`M${c.x - w.x * 7 + nrm.x * 6} ${c.y - w.y * 7 + nrm.y * 6} L${c.x} ${c.y} L${c.x - w.x * 7 - nrm.x * 6} ${c.y - w.y * 7 - nrm.y * 6}`) }
   })
   const centre = V.reduce((c, p) => ({ x: c.x + p.x / n, y: c.y + p.y / n }), { x: 0, y: 0 })
+  const keepClear: Box[] = (frame.names ?? []).map((_, i) => { const u = unit(sub(V[i], centre)), c = { x: V[i].x + u.x * 16, y: V[i].y + u.y * 16 }; return { l: c.x - 8, r: c.x + 8, t: c.y - 9, b: c.y + 9 } })
   return <div className={`ns-angles${plain ? ' is-plain' : ''}`} role="img" aria-label={polygonSpoken(frame)}>
-    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+    <svg viewBox={`0 0 ${W} ${h}`} aria-hidden="true">
       {!plain && lit.map((p, i) => <path key={`lit${i}`} className="ns-angles__lit" d={p} />)}
       {lines.map((p, i) => <path key={i} className="ns-angles__line" d={p} />)}
-      {marks.map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
+      {placeLabels(marks, lines, keepClear, W, h).map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
         <path d={m.path} />
         {(m.boxed || m.found) && <rect className={m.found ? 'ns-angles__found' : 'ns-angles__box'} x={m.label.x - m.text.length * 5 - 8} y={m.label.y - 15} width={m.text.length * 10 + 16} height="30" rx="7" />}
         <text x={m.label.x} y={m.label.y}>{m.text}</text>
@@ -347,7 +419,8 @@ export function AngleVisual({ frame, plain, group }: { frame: AngleFrame; plain?
   if (frame.shape === 'figure' && frame.figure) return <FigureVisual frame={frame.figure} plain={plain} shared={shared} keepCaption={keepCaption} />
   if (frame.shape === 'polygon') return <PolygonVisual frame={frame} plain={plain} shared={shared} keepCaption={keepCaption} />
   if (frame.shape === 'parallel' || frame.shape === 'cross') return <ParallelVisual frame={frame} plain={plain} />
-  const { at, left, right } = fit(frame, shared)
+  const h = heightFor(shared ?? ownBounds(frame))
+  const { at, left, right } = fit(frame, h, shared)
   const fam = (i: number) => {
     const f = frame.families?.[i]
     return plain || f === -1 ? 'is-plain' : `is-f${(f ?? [1, 0, 2, 3][i] ?? 0) % 4}`
@@ -416,12 +489,13 @@ export function AngleVisual({ frame, plain, group }: { frame: AngleFrame; plain?
       }
     }
   }
+  const keepClear: Box[] = []
   return <div className={`ns-angles${plain ? ' is-plain' : ''}`} role="img" aria-label={spoken(frame)}>
-    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+    <svg viewBox={`0 0 ${W} ${h}`} aria-hidden="true">
       {!plain && lit.map((d, i) => <path key={`lit${i}`} className="ns-angles__lit" d={d} />)}
       {lines.map((d, i) => <path key={i} className="ns-angles__line" d={d} />)}
       {extra}
-      {marks.map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
+      {placeLabels(marks, lines, keepClear, W, h).map((m, i) => <g key={i} className={`ns-angles__mark ${m.found ? 'is-f2' : m.cls}`}>
         <path d={m.path} />
         {(m.boxed || m.found) && <rect className={m.found ? 'ns-angles__found' : 'ns-angles__box'} x={m.label.x - m.text.length * 5 - 8} y={m.label.y - 15} width={m.text.length * 10 + 16} height="30" rx="7" />}
         <text x={m.label.x} y={m.label.y}>{m.text}</text>
