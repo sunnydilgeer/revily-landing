@@ -389,6 +389,11 @@
 .ns-graph__text.is-plain { --f: var(--rv-ink); }
 .ns-graph__mark { color: var(--f); font-weight: inherit; }
 .ns-graph .is-done { opacity: .35; transition: opacity .2s ease; }
+/* Red marks a number being put in. It shows only once the lines around it go quiet (grey): then it alone stands out. */
+.ns-graph__mark.is-f5 { color: inherit; }
+.ns-graph__text.is-quiet { --f: #a3a9b8; }
+.ns-graph__text.is-quiet .ns-graph__mark:not(.is-f5) { color: inherit; }
+.ns-graph__text.is-quiet .ns-graph__mark.is-f5, .ns-graph__text.is-plain .ns-graph__mark.is-f5 { color: #dc2626; }
 .ns-graph .ns-eq__answer { max-width: 100%; white-space: normal; text-align: center; text-wrap: balance; border-radius: 22px; }
 /* An inequality with two signs on the board (lesson 25): three parts, each column lined up down the board. */
 .ns-eq.is-three { grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto minmax(0, max-content) auto minmax(0, max-content) minmax(0, 1fr); column-gap: 6px; }
