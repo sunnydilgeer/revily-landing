@@ -1,5 +1,6 @@
 'use client'
 
+import { keepWhole } from './methodWorking'
 import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
 import { useLessonEngine } from '../../number-types/useLessonEngine'
 import { parseInequality } from '../../number-types/lessonMath'
@@ -32,6 +33,7 @@ import './TutorMethod.css'
 import './NumberSenseLesson.css'
 import '../../fractions/tutor/FractionsLesson.css'
 import '../../fractions-decimals-percentages/tutor/FractionsDecimalsPercentages.css'
+
 
 function Hint({ text, onConsult }: { text: string; onConsult: () => void }) {
   const [open, setOpen] = useState(false), id = useId()
@@ -409,8 +411,8 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
     <DriveSteps flow={flow}>
     <article ref={card} className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}${lesson.graphCard ? ' rung-card--graph' : ''}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>
       <GraphCardParts graph={lesson.graphCard} slot={graphSlot.slot} slotRef={graphSlot.ref} title={<>
-      <h3 ref={heading} tabIndex={-1}><Powers text={state.content.heading ?? state.content.title} /></h3>
-      {state.content.heading && state.content.heading !== state.content.title && <p className="pvb-body rung-card__question"><Powers text={state.content.title} /></p>}
+      <h3 ref={heading} tabIndex={-1}><Powers text={keepWhole(state.content.heading ?? state.content.title)} /></h3>
+      {state.content.heading && state.content.heading !== state.content.title && <p className="pvb-body rung-card__question"><Powers text={keepWhole(state.content.title)} /></p>}
       </>}>
       {teaching && !state.video && state.content.body && !stepChain && <p className="pvb-body">{state.content.body}</p>}
       {(teaching || !numberSense || extraLines || figure || state.visual.kind === 'machine' || state.visual.kind === 'ratio' || state.visual.kind === 'percent' || state.visual.kind === 'growth' || state.visual.kind === 'angle') && !repeatsTitle(state) && !drawnInWorking && (teaching || !extraLines ? <TutorMethodMedia state={state} /> : <div className="rung-given">{state.visual.kind === 'text' && state.visual.lines.map(line => <p key={line}><Powers text={line} /></p>)}</div>)}

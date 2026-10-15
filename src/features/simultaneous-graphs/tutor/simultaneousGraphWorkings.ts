@@ -22,9 +22,9 @@ export function crossing(a: Line, b: Line): GraphPoint {
 }
 
 /** The line's sum at x, as it is written: "2 × 2 − 1 = 3", "−2 + 5 = 3", "½ × 4 + 1 = 3". */
-export function sum(l: Line, x: number) {
-  const m = gradientOf(l), X = bracket(x)
-  const times = m === 1 ? show(x) : m === -1 ? `−${X}` : `${mText(l)} × ${X}`
+export function sum(l: Line, x: number, red = false) {
+  const m = gradientOf(l), X = red ? `[[5|${bracket(x)}]]` : bracket(x)
+  const times = m === 1 ? (red ? `[[5|${show(x)}]]` : show(x)) : m === -1 ? `−${X}` : `${mText(l)} × ${X}`
   const constant = l.c ? ` ${l.c < 0 ? '−' : '+'} ${numberText(Math.round(Math.abs(l.c) * 6), 6)}` : ''
   return `${times}${constant} = ${show(yOf(l, x))}`
 }
@@ -98,7 +98,7 @@ const readX = (p: GraphPoint): GraphMove => ({
   change: (frame, step) => ({
     ...frame, marks: [mark('x', p.x)],
     legs: p.y ? [{ from: p, to: pt(p.x, 0), label: '', family: 1, at: step, dashed: true }] : [],
-    working: words(frame, step, [[`Straight down to the x axis: x = ${show(p.x)}`, 1]]),
+    working: words(frame, step, [[`Straight down to the x axis: x = [[5|${show(p.x)}]]`, 1]]),
   }),
 })
 /** Moves: its y, read straight across to the y axis. */
@@ -116,8 +116,8 @@ export const checkBoth = (a: Line, b: Line, p: GraphPoint, labels?: [string, str
   title: 'Check in both', equation: latex(`${sum(a, p.x)}, ${sum(b, p.x)}`), adds: 'lines',
   say: `Put x = ${show(p.x)} into both equations. Both give y = ${show(p.y)}, so ${pair(p)} is on both lines.`,
   change: (frame, step) => ({
-    ...frame, marks: shared([p]), legs: [],
-    working: words(frame, step, [[`Put x = ${show(p.x)} into each. Both should give y = ${show(p.y)}`, 4], [`${labels?.[0] ?? named(a)}: ${sum(a, p.x)} ✓`, 2], [`${labels?.[1] ?? named(b)}: ${sum(b, p.x)} ✓`, 2]]),
+    ...frame, marks: shared([p]), legs: [], quiet: step,
+    working: words(frame, step, [[`Put x = [[5|${show(p.x)}]] into each. Both should give y = ${show(p.y)}`, 4], [`${labels?.[0] ?? named(a)}: ${sum(a, p.x, true)} ✓`, 4], [`${labels?.[1] ?? named(b)}: ${sum(b, p.x, true)} ✓`, 4]]),
   }),
 })
 /** The answer, written once: x = 2, y = 1. */

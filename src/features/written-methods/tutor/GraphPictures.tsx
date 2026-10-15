@@ -4,6 +4,7 @@ import { Fragment, useLayoutEffect, useRef, useState, type ReactNode, type SVGPr
 import { Working } from '../../maths/step-chain/working'
 import { GRAPH_SQUARES, GraphWords, InGraphSlot } from './GraphSlot'
 import type { AxisScale, GraphFrame, GraphPoint, GraphTable } from './methodWorking'
+import { keepWhole } from './methodWorking'
 import { Powers } from './Powers'
 import { curvePath, valueAt } from './curves'
 
@@ -118,7 +119,7 @@ export function ValueTable({ table, pick }: { table: GraphTable; pick?: (x: numb
 }
 /** A line of working with every (x, y) in it coloured like the axes. */
 /** A working line's colour: families 0 to 3, or 4 for plain ink (an equation with m and c marked in it). */
-const family = (f: number) => f === 4 ? 'is-plain' : `is-f${f % 4}`
+const family = (f: number) => f === 4 ? 'is-plain' : f === 5 ? 'is-f5' : `is-f${f % 4}`
 /** Working text without its colour marks: "[[3|m]]" → "m". */
 export const plainWorking = (text: string) => text.replace(/\[\[\d\|([^\]]*)\]\]/g, '$1')
 /** A working line: "[[3|−⅓]]" colours −⅓ purple (family 3), so m and c keep their colour as they move (Sunny, 14 Oct). */
@@ -238,7 +239,8 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   const frame = fillGrid(given)
   // Older parts grey out; what the step before added stays clear, because this step works on it (Sunny, 1 Oct).
   // A part with `at` −1 is the question's own picture: it is shown from the start and never greyed.
-  const done = (at: number) => focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''
+  const done = (at: number) => frame.quiet !== undefined && frame.step >= frame.quiet && !plain && at >= 0 && at < frame.step ? ' is-quiet'
+    : focus && !plain && at >= 0 && frame.step > 0 && at < frame.step - 1 ? ' is-done' : ''
   const shown = (at: number) => !plain || at < 0
   const head = (adds: GraphFrame['adds']) => !plain && frame.adds === adds && heading ? <div className="ns-graph__heading">{heading}</div> : null
   const { ref, paper } = usePaper()
@@ -531,7 +533,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   /** Lines of working in order, each step's heading above its first line. */
   const workingLines = (lines: typeof working) => lines.map((line, i) => <Fragment key={`w${line.at}-${i}`}>
     {frame.adds === 'lines' && line.at === frame.step && lines.findIndex(l => l.at === frame.step) === i && head('lines')}
-    <p className={`ns-graph__text ${family(line.family)}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>
+    <p className={`ns-graph__text ${family(line.family)}${done(line.at)}`} aria-hidden="true"><Coordinates text={keepWhole(line.text)} /></p>
   </Fragment>)
   const words = (lead || frame.table || written || answer) && <div className="ns-graph ns-graph--words">
     {lead}
@@ -540,7 +542,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
     {answer && <>
       {head('answer')}
       {/* The answer's own lines (its formula) go under its heading, then the answer; steps after it (a check) follow. */}
-      {working.filter(line => line.at === frame.answer!.at).map((line, i) => <p key={`a${i}`} className={`ns-graph__text ${family(line.family)}${done(line.at)}`} aria-hidden="true"><Coordinates text={line.text} /></p>)}
+      {working.filter(line => line.at === frame.answer!.at).map((line, i) => <p key={`a${i}`} className={`ns-graph__text ${family(line.family)}${done(line.at)}`} aria-hidden="true"><Coordinates text={keepWhole(line.text)} /></p>)}
       <p className="ns-eq__answer" aria-hidden="true"><Powers text={frame.answer!.text} /></p>
       {workingLines(working.filter(line => line.at > frame.answer!.at))}
     </>}

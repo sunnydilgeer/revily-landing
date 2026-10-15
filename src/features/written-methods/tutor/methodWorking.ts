@@ -404,6 +404,11 @@ export type GraphFrame = {
   /** The numbers on the axes this step reads, highlighted x amber and y biro blue (as in the brackets): x = 3 marks the 3. One step only. */
   marks?: { axis: 'x' | 'y'; value: number; family: number }[]
   working?: { text: string; family: number; at: number }[]
+  /**
+   * From this step on, every earlier line of working goes grey and only its red marks ("[[5|2]]") keep their colour:
+   * the number being put in stands out and nothing else does (Sunny, 15 Oct).
+   */
+  quiet?: number
   answer?: { text: string; at: number }
   step: number
   adds: 'picture' | 'lines' | 'answer'
@@ -935,3 +940,9 @@ export function methodProgress(visual: MethodWorking, revealed: number) {
   const completed = working.flatMap(({ example, count }, index) => example.steps.slice(0, count).map((step, i) => ({ step, example, index, number: i + 1 })))
   return { total, working, active, current, completed }
 }
+
+/**
+ * An equation in a title or a line of working never breaks across lines (Sunny, 15 Oct: "+ 5" was left on a line of its own): the spaces
+ * inside "y = −x + 5" become non-breaking, so a long title breaks between equations, not inside one.
+ */
+export const keepWhole = (text: string) => text.replace(/[^\s,.:?]+(?: [=+−×÷<>≤≥] [^\s,.:?]+)+/g, eq => eq.replace(/ /g, '\u00a0'))
