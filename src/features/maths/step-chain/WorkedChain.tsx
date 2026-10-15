@@ -205,7 +205,9 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: Wor
     if (opened.current === revealed) return
     opened.current = revealed
     const working = figure.current, target = controls.current
-    if (!drive || !working || !target || typeof ResizeObserver === 'undefined') return
+    // With or without the bottom bar driving it: a question's "See the working" steps with its own Next step button,
+    // and its new lines were left below the edge of the words column (Sunny, 15 Oct).
+    if (!working || !target || typeof ResizeObserver === 'undefined') return
     // On the fixed lesson screen the card scrolls inside itself; elsewhere the page scrolls. Chrome ignores
     // scroll-margin for block 'nearest' while the element is on screen, so measure, then align its end.
     const keepClear = () => {
@@ -222,7 +224,7 @@ export function WorkedChain({ steps, layout, picture, pictureOnly, steady }: Wor
     observer.observe(working)
     const stop = window.setTimeout(() => observer.disconnect(), 1200)
     return () => { observer.disconnect(); window.clearTimeout(stop) }
-  }, [drive, revealed])
+  }, [revealed])
 
   return <figure ref={figure} className={`wc${pictureOnly ? ' wc--picture' : ''}`}>
     <WorkingWindow.Provider value={lines}>

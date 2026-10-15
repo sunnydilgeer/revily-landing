@@ -368,6 +368,20 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   const graphSlot = useGraphSlot()
   const card = useRef<HTMLElement>(null)
   useGraphCard(card, lesson.graphCard ? graphSlot.slot.element : null)
+  // On a graph card only the words column scrolls: a scroll over the graph or the title scrolls the words too, so the
+  // working is never stuck where the pointer happens to be (Sunny, 15 Oct: "I can't scroll down").
+  useEffect(() => {
+    const box = card.current
+    if (!lesson.graphCard || !box) return
+    const onWheel = (event: WheelEvent) => {
+      const words = box.querySelector<HTMLElement>(':scope > .rung-card__words')
+      if (!words || words.contains(event.target as Node) || words.scrollHeight <= words.clientHeight) return
+      words.scrollTop += event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY
+      event.preventDefault()
+    }
+    box.addEventListener('wheel', onWheel, { passive: false })
+    return () => box.removeEventListener('wheel', onWheel)
+  }, [lesson.graphCard, state.id])
 
   const numeric = state.interaction.type === 'numericInput'
   const fraction = state.interaction.type === 'fractionInput'
