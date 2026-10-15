@@ -59,3 +59,8 @@
 .graph-board .ns-graph__leg { opacity: .45; }
 .graph-board .ns-graph__leg line { stroke-width: 2; }
 .graph-board .ns-graph__leg path { stroke-width: 2; }
+/* A dot sliding along a rule: faint arrows either side, and the table's x row as buttons (Sunny, 15 Oct). */
+.graph-board__nudge { fill: none; stroke: var(--rv-biro); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
+.ns-graph__pick { all: unset; display: block; width: 100%; cursor: pointer; border-radius: 6px; }
+.ns-graph__pick:hover { background: color-mix(in srgb, #b45309 14%, transparent); }
+.ns-graph__pick:focus-visible { outline: 2px solid var(--rv-biro); outline-offset: 1px; }

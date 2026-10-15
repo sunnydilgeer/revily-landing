@@ -101,7 +101,7 @@ for (const state of states.filter(state => rungs.includes(state.microSkillId))) 
   // The working: lines drawn, the crossing read and checked in both, the answer once.
   const model = interaction.type === 'continue' ? state.visual : state.working
   const steps = model.examples[0].steps, frames = steps.map(step => step.frame.graph)
-  assert.deepEqual(steps.slice(-3).map(step => step.title), ['Where they cross', 'Check in both', 'The solution'], `${state.id}: read, check, answer`)
+  assert.deepEqual(steps.slice(-5).map(step => step.title), ['Find where the lines cross', 'Read x', 'Read y', 'Check in both', 'The solution'], `${state.id}: cross, read, check, answer`)
   assert.equal(frames.at(-1).answer.text, `x = ${p.x}, y = ${p.y}`.replace(/-/g, '−'), `${state.id}: the answer is the solution`)
   assert.equal(frames.filter(frame => frame.answer).length, 1, `${state.id}: the answer is written once`)
   const last = frames.at(-1)

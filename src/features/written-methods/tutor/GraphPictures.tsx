@@ -104,12 +104,14 @@ export function fitLabel(candidates: LabelBox[], room: LabelRoom, optional = fal
 export const dotBox = (x: number, y: number, r = 6) => ({ l: x - r, r: x + r, t: y - r, b: y + r })
 /** A table of values: x (amber) along the top, y (biro blue) underneath, one column a point. The y row's heading
  *  can carry the rule, y = 2x − 1, its x amber, so each y in the row says where it comes from. */
-export function ValueTable({ table }: { table: GraphTable }) {
+export function ValueTable({ table, pick }: { table: GraphTable; pick?: (x: number) => void }) {
   const cell = (i: number) => `${table.lit === i ? ' is-lit' : ''}${table.answer === i ? ' is-answer' : ''}${table.ask === i ? ' is-ask' : ''}`
   // A long table (six columns or more) packs its cells tighter, so it fits a phone.
   return <table className={`ns-graph__table${table.xs.length > 5 ? ' is-long' : ''}`}>
     <tbody>
-      <tr className="is-x"><th scope="row">x</th>{table.xs.map((x, i) => <td key={i} className={cell(i)}>{fmt(x)}</td>)}</tr>
+      <tr className="is-x"><th scope="row">x</th>{table.xs.map((x, i) => <td key={i} className={cell(i)}>{pick
+        // On a board the x row is buttons: tap one and the dot goes to that x (Sunny, 15 Oct: how do you know where to drag?).
+        ? <button type="button" className="ns-graph__pick" onClick={() => pick(x)} aria-label={`Go to x = ${fmt(x)}`}>{fmt(x)}</button> : fmt(x)}</td>)}</tr>
       <tr className="is-y"><th scope="row">y{table.rule && <span className="ns-graph__rule"> = {table.rule.split('x').flatMap((part, i) => i ? [<span key={i} className="is-x">x</span>, part] : [part])}</span>}</th>{table.ys.map((y, i) => <td key={i} className={cell(i)}>{table.ask === i ? '?' : y === null ? '' : fmt(y)}</td>)}</tr>
     </tbody>
   </table>
@@ -227,6 +229,8 @@ export function fillGrid<T extends { x: [number, number]; y: [number, number]; s
 export type GraphLive = {
   draw: (at: { px: (x: number) => number; py: (y: number) => number; width: number; height: number; room: LabelRoom }) => ReactNode
   svg?: SVGProps<SVGSVGElement>
+  /** A tap on a number in the table's x row (a dot sliding along a rule goes there). */
+  pickX?: (x: number) => void
 }
 
 export function GraphVisual({ frame: given, heading, plain, focus, live }: { frame: GraphFrame; heading?: ReactNode; plain?: boolean; focus?: boolean; live?: GraphLive }) {
@@ -531,7 +535,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   </Fragment>)
   const words = (lead || frame.table || written || answer) && <div className="ns-graph ns-graph--words">
     {lead}
-    {frame.table && <ValueTable table={frame.table} />}
+    {frame.table && <ValueTable table={frame.table} pick={live?.pickX} />}
     {written && workingLines(working.filter(line => !answer || line.at < frame.answer!.at))}
     {answer && <>
       {head('answer')}

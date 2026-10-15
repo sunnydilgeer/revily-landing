@@ -2,7 +2,7 @@ import type { GraphPoint } from '../../written-methods/tutor/methodWorking'
 import type { InteractionDefinition } from '../../number-types/types'
 import { latex } from '../../inequalities/tutor/inequalityWorkings'
 import { answerMove, bracket, mark, pt, shared, type GraphGrid, type GraphMove } from '../../straight-line-graphs/tutor/graphWorkings'
-import { numberText, type Move } from '../../gradient/tutor/equationWorkings'
+import { matchLines, numberText, type Move } from '../../gradient/tutor/equationWorkings'
 import { ends, gradientOf, mText, named, type Line } from '../../parallel-lines/tutor/parallelWorkings'
 
 /*
@@ -29,45 +29,95 @@ export function sum(l: Line, x: number) {
   return `${times}${constant} = ${show(yOf(l, x))}`
 }
 
-/** A rearranging step, its line of working under the grid (purple, as in lessons 3 and 4). */
+/** A rearranging step, its lines of working under the grid (purple, as in lesson 3): the move written out, then what it leaves. */
 const moveLine = ([title, text, say]: Move): GraphMove => ({
-  title, equation: latex(text), adds: 'lines', say,
-  change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), { text, family: 3, at: step }] }),
+  title, equation: latex(text.split('\n').at(-1)!), adds: 'lines', say,
+  change: (frame, step) => ({ ...frame, working: [...(frame.working ?? []), ...text.split('\n').map(line => ({ text: line, family: 3, at: step }))] }),
 })
+const words = (frame: Parameters<GraphMove['change']>[0], step: number, lines: [string, number][]) => [...(frame.working ?? []), ...lines.map(([text, family]) => ({ text, family, at: step }))]
+
+/** Moves: what solving by graph means, before any drawing (Sunny, 15 Oct: where does the answer come from?). */
+const meaning: GraphMove = {
+  title: 'What it means', equation: latex('the one point on both lines'), adds: 'lines',
+  say: 'Simultaneous equations are both true at the same time, for the same x and y. Each one is a straight line, so the answer is the one point on both lines: where they cross.',
+  change: (frame, step) => ({ ...frame, working: words(frame, step, [['Both equations are true at the same time, for the same x and y', 4], ['Each one is a line: we want the one point on both lines', 4]]) }),
+}
 
 /** Moves: one line drawn, named on the grid, c lit on the y axis. */
 export const drawLine = (l: Line, title: string, say: string, label = named(l)): GraphMove => ({
   title, equation: latex(named(l)), adds: 'picture', say,
-  change: (frame, step) => ({ ...frame, lines: [...(frame.lines ?? []), { from: ends(l)[0], to: ends(l)[1], at: step, label }], marks: [mark('y', l.c)] }),
+  change: (frame, step) => ({ ...frame, legs: [], lines: [...(frame.lines ?? []), { from: ends(l)[0], to: ends(l)[1], at: step, label }], marks: [mark('y', l.c)] }),
 })
-/** Says how to draw a line from y = mx + c: c, then a step of the gradient. */
-export const howToDraw = (l: Line) => {
-  const m = gradientOf(l)
-  const step = l.bottom === 1 ? `across 1, ${m < 0 ? 'down' : 'up'} ${show(Math.abs(m))}` : `across ${l.bottom}, ${l.top < 0 ? 'down' : 'up'} ${Math.abs(l.top)}`
-  return `Start at ${show(l.c)} on the y axis, then step the gradient: ${step}. Join them, edge to edge.`
+/**
+ * Moves: drawing one line the lesson 3 way (Sunny, 15 Oct), a move a step: m and c matched to y = mx + c, c plotted
+ * on the y axis, one step of the gradient from there, then the two joined edge to edge.
+ */
+function drawSteps(l: Line, which: string, label = named(l)): GraphMove[] {
+  const a = pt(0, l.c), b = pt(l.bottom, l.c + l.top), m = numberText(l.top, l.bottom)
+  const way = `across ${l.bottom}, ${l.top < 0 ? 'down' : 'up'} ${Math.abs(l.top)}`
+  return [
+    {
+      title: `Match the ${which} line to y = mx + c`, equation: latex(`m = ${m}, c = ${show(l.c)}`), adds: 'lines',
+      say: `${named(l)} is y = mx + c with m = ${m} and c = ${show(l.c)}. m is the number in front of x; c is the number on its own.`,
+      change: (frame, step) => ({ ...frame, legs: [], working: words(frame, step, matchLines(l.top, l.bottom, l.c).slice(1).map(text => [text, 4] as [string, number])) }),
+    },
+    {
+      title: 'Plot c on the y axis', equation: latex(pair(a)), adds: 'picture',
+      say: `c is where the line crosses the y axis: ${pair(a)}.`,
+      change: (frame, step) => ({ ...frame, marks: [mark('y', l.c)], working: words(frame, step, [[`c = ${show(l.c)}: start at ${pair(a)}`, 0]]) }),
+    },
+    {
+      title: 'Step the gradient', equation: latex(pair(b)), adds: 'picture',
+      say: `The gradient is ${m}: from c, ${way}. That lands on ${pair(b)}.`,
+      change: (frame, step) => ({
+        ...frame, marks: shared([b]),
+        legs: [{ from: a, to: pt(b.x, a.y), label: show(l.bottom), family: 1, at: step }, { from: pt(b.x, a.y), to: b, label: show(Math.abs(l.top)), family: 0, at: step }],
+        points: [...(frame.points ?? []), { ...b, at: step }],
+        working: words(frame, step, [[`m = ${m}: ${way}, which lands on ${pair(b)}`, 3]]),
+      }),
+    },
+    drawLine(l, 'Join them', 'Join the two points with one straight line, right across the grid.', label),
+  ]
 }
 
-/** Moves: where the lines cross, ringed, read down to the x axis and across to the y axis. */
-export const readCrossing = (p: GraphPoint): GraphMove => ({
-  title: 'Where they cross', equation: latex(pair(p)), adds: 'picture',
-  say: 'The solution is the point on both lines: where they cross. Read its x down on the x axis and its y across on the y axis.',
+/** Moves: where the lines cross, ringed: the one point on both. */
+export const findCrossing = (p: GraphPoint): GraphMove => ({
+  title: 'Find where the lines cross', equation: latex(pair(p)), adds: 'picture',
+  say: 'The lines cross at one point. It is the only point on both lines, so it is the answer.',
   change: (frame, step) => ({
-    ...frame, boxed: [p], marks: shared([p]),
+    ...frame, legs: [], boxed: [p], marks: [],
     // Its brackets go on the side away from both axes, clear of the reading lines running to them.
-    points: [...(frame.points ?? []), { ...p, at: step, place: { dx: p.x < 0 ? -1 : 1, dy: p.y < 0 ? 1 : -1 } }],
-    legs: [
-      ...(p.y ? [{ from: p, to: pt(p.x, 0), label: '', family: 1, at: step, dashed: true }] : []),
-      ...(p.x ? [{ from: p, to: pt(0, p.y), label: '', family: 0, at: step, dashed: true }] : []),
-    ],
+    points: [...(frame.points ?? []).map(q => ({ ...q, label: '' })), { ...p, at: step, place: { dx: p.x < 0 ? -1 : 1, dy: p.y < 0 ? 1 : -1 } }],
+    working: words(frame, step, [['The lines cross here: the one point on both lines', 4]]),
+  }),
+})
+/** Moves: its x, read straight down (or up) to the x axis. */
+const readX = (p: GraphPoint): GraphMove => ({
+  title: 'Read x', equation: latex(`x = ${show(p.x)}`), adds: 'picture',
+  say: 'Go straight down (or up) from the crossing to the x axis, and read the number there.',
+  change: (frame, step) => ({
+    ...frame, marks: [mark('x', p.x)],
+    legs: p.y ? [{ from: p, to: pt(p.x, 0), label: '', family: 1, at: step, dashed: true }] : [],
+    working: words(frame, step, [[`Straight down to the x axis: x = ${show(p.x)}`, 1]]),
+  }),
+})
+/** Moves: its y, read straight across to the y axis. */
+const readY = (p: GraphPoint): GraphMove => ({
+  title: 'Read y', equation: latex(`y = ${show(p.y)}`), adds: 'picture',
+  say: 'Go straight across from the crossing to the y axis, and read the number there.',
+  change: (frame, step) => ({
+    ...frame, marks: shared([p]),
+    legs: [...(frame.legs ?? []), ...(p.x ? [{ from: p, to: pt(0, p.y), label: '', family: 0, at: step, dashed: true }] : [])],
+    working: words(frame, step, [[`Straight across to the y axis: y = ${show(p.y)}`, 0]]),
   }),
 })
 /** Moves: the crossing put into both equations: each gives the same y, so it is on both lines. */
-export const checkBoth = (a: Line, b: Line, p: GraphPoint): GraphMove => ({
+export const checkBoth = (a: Line, b: Line, p: GraphPoint, labels?: [string, string]): GraphMove => ({
   title: 'Check in both', equation: latex(`${sum(a, p.x)}, ${sum(b, p.x)}`), adds: 'lines',
   say: `Put x = ${show(p.x)} into both equations. Both give y = ${show(p.y)}, so ${pair(p)} is on both lines.`,
   change: (frame, step) => ({
     ...frame, marks: shared([p]), legs: [],
-    working: [...(frame.working ?? []), { text: `${named(a)}: ${sum(a, p.x)} ✓`, family: 0, at: step }, { text: `${named(b)}: ${sum(b, p.x)} ✓`, family: 0, at: step }],
+    working: words(frame, step, [[`Put x = ${show(p.x)} into each. Both should give y = ${show(p.y)}`, 4], [`${labels?.[0] ?? named(a)}: ${sum(a, p.x)} ✓`, 2], [`${labels?.[1] ?? named(b)}: ${sum(b, p.x)} ✓`, 2]]),
   }),
 })
 /** The answer, written once: x = 2, y = 1. */
@@ -78,16 +128,18 @@ export const solution = (p: GraphPoint): GraphMove =>
   })
 
 /**
- * Solving by graph: rearrange where needed (`moves`, each line's own), draw each line, read where they cross, check it
- * in both, then the answer. `given` lines are already on the grid (the question drew them).
+ * Solving by graph, a move a step: what it means; for each line not on the grid yet, rearrange it where needed
+ * (`moves`), match it to y = mx + c, plot c, step the gradient and join; then find where the lines cross, read x, read
+ * y, check in both, and the answer. `given` lines are already on the grid (the question drew them).
  */
 export function solveMoves(a: Line, b: Line, { movesA = [], movesB = [], given = 0, labels }: { movesA?: Move[]; movesB?: Move[]; given?: 0 | 1 | 2; labels?: [string, string] } = {}): GraphMove[] {
   const p = crossing(a, b)
   return [
-    ...(given < 1 ? [...movesA.map(moveLine), drawLine(a, 'Draw the first line', howToDraw(a), labels?.[0])] : []),
-    ...(given < 2 ? [...movesB.map(moveLine), drawLine(b, given === 1 ? 'Draw the line' : 'Draw the second', howToDraw(b), labels?.[1])] : []),
-    readCrossing(p),
-    checkBoth(a, b, p),
+    meaning,
+    ...(given < 1 ? [...movesA.map(moveLine), ...drawSteps(a, 'first', labels?.[0])] : []),
+    ...(given < 2 ? [...movesB.map(moveLine), ...drawSteps(b, given === 1 ? 'other' : 'second', labels?.[1])] : []),
+    findCrossing(p), readX(p), readY(p),
+    checkBoth(a, b, p, labels),
     solution(p),
   ]
 }
