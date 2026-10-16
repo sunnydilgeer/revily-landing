@@ -34,6 +34,7 @@ function extent(items: FigureItem[]): P[] {
     if (item.kind === 'point' || item.kind === 'text') return [pt(item.at)]
     if (item.kind === 'grid') return [pt(item.from), pt(item.to)]
     if (item.kind === 'shade') return item.loops.flat().map(pt)
+    if (item.kind === 'beat') return [...(item.shape ?? []), ...(item.line ?? []), ...(item.at ? [item.at] : [])].map(pt)
     return []
   })
 }
@@ -78,6 +79,8 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
   const labels: ReactNode[] = []
   // Where each measurement's label sits, so the picture can grow to show it whole (Sunny, 15 Oct: the 7 cm was cut off).
   const room: (P & { w: number })[] = []
+  // How many beats each lighting-up loop in the picture has, so its keyframes can be written.
+  const beats = new Set<number>()
   // A picture on squares marks one square, and the lesson card's own squared paper is lined up with it (cardPaper.ts).
   const square = useRef<SVGRectElement>(null)
   const grid = frame.items.find(item => item.kind === 'grid')
@@ -109,7 +112,7 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
         const id = `cut-${uid}-${i}`
         parts.push(<defs key={`p${i}`}><pattern id={id} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line className="ns-fig__hatch" x1="0" y1="0" x2="0" y2="7" /></pattern></defs>,
           <path key={i} className="ns-fig__cut" d={d} fill={`url(#${id})`} />)
-      } else parts.push(<path key={i} className={`ns-fig__shape${item.fill === 'none' || item.open ? ' is-empty' : item.fill === 'part' ? ' is-part' : ''}${item.dashed ? ' is-dashed' : ''}`} d={d} />)
+      } else parts.push(<path key={i} className={`ns-fig__shape${item.fill === 'none' || item.open ? ' is-empty' : item.fill === 'part' ? ' is-part' : ''}${item.dashed ? ' is-dashed' : ''}${item.faint ? ' is-faint' : ''}`} d={d} />)
     }
     if (item.kind === 'line') {
       const a = at(item.from), b = at(item.to)
@@ -159,6 +162,21 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
       const u = { x: (b.x - a.x) / len, y: (b.y - a.y) / len }, n = { x: -u.y, y: u.x }, m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
       for (let k = 0; k < item.count; k++) { const c = { x: m.x + u.x * (k - (item.count - 1) / 2) * 6, y: m.y + u.y * (k - (item.count - 1) / 2) * 6 }; parts.push(<path key={`${i}-${k}`} className="ns-fig__line is-plain" d={`M${c.x - n.x * 7} ${c.y - n.y * 7} L${c.x + n.x * 7} ${c.y + n.y * 7}`} />) }
     }
+    if (item.kind === 'beat') {
+      // Lit for its own beat of the loop and hidden for the rest; the keyframes for a loop of `of` beats are written once below.
+      beats.add(item.of)
+      const style = { animationName: `ns-beat-${item.of}`, animationDuration: `${item.of * (item.beat ?? 1)}s`, animationDelay: `${item.slot * (item.beat ?? 1)}s` }
+      const g: ReactNode[] = []
+      if (item.shape) { const d = `M${item.shape.map(p => { const q = at(p); return `${q.x} ${q.y}` }).join(' L')} Z`; g.push(<path key="s" className={item.quiet ? 'ns-fig__beat-slice' : 'ns-fig__beat-face'} d={d} />) }
+      if (item.line) g.push(<path key="l" className="ns-fig__line is-lit is-beat" d={`M${item.line.map(p => { const q = at(p); return `${q.x} ${q.y}` }).join(' L')}`} />)
+      if (item.at) { const p = at(item.at); g.push(<circle key="p" className="ns-fig__beat-dot" cx={p.x} cy={p.y} r="7" />) }
+      if (item.text) {
+        const pts = item.label ? [item.label] : item.shape ?? (item.line ? [item.line[Math.floor(item.line.length / 2)], item.line[Math.ceil(item.line.length / 2) - 1]] : item.at ? [item.at] : [])
+        const m = at([pts.reduce((n, p) => n + p[0], 0) / pts.length, pts.reduce((n, p) => n + p[1], 0) / pts.length])
+        g.push(<text key="t" className="ns-fig__beat-count" x={m.x} y={m.y}>{item.text}</text>)
+      }
+      parts.push(<g key={i} className="ns-fig__beat" style={style}>{g}</g>)
+    }
     if (item.kind === 'point') {
       const p = at(item.at)
       parts.push(<circle key={i} className="ns-fig__point" cx={p.x} cy={p.y} r="4" />)
@@ -172,7 +190,10 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     }
   })
   return <div className={`ns-angles ns-fig${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.spoken}>
-    <svg viewBox={viewBox(room)} aria-hidden="true">{parts}{labels}</svg>
+    <svg viewBox={viewBox(room)} aria-hidden="true">
+      {beats.size > 0 && <style>{[...beats].map(n => `@keyframes ns-beat-${n} { 0% { opacity: 0 } ${(30 / n).toFixed(2)}% { opacity: 1 } ${(100 / n * 0.85).toFixed(2)}% { opacity: 1 } ${(100 / n).toFixed(2)}% { opacity: 0 } 100% { opacity: 0 } }`).join('\n')}</style>}
+      {parts}{labels}
+    </svg>
     <Caption text={frame.caption} keep={keepCaption} />
   </div>
 }

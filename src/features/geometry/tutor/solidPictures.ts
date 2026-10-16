@@ -137,3 +137,60 @@ export function frustum(b: number, t: number, h: number): FigureItem[] {
     line(f0, g0), line(f1, g1), line(b1, h1), line(b0, h0, true),
   ]
 }
+
+/**
+ * A solid's faces, edges and vertices, in the same places the drawings above put them, for lighting them up one at a
+ * time (lesson 13). Curved faces are outlines of what you see of them; curved edges are traced through their points.
+ */
+export type Parts = { faces: FigurePoint[][]; edges: FigurePoint[][]; vertices: FigurePoint[] }
+
+export function prismParts(face: FigurePoint[], length: number): Parts {
+  const rear = face.map(p => back(p, length)), n = face.length, next = (i: number) => (i + 1) % n
+  return {
+    faces: [face, rear, ...face.map((p, i) => [p, face[next(i)], rear[next(i)], rear[i]])],
+    edges: [...face.map((p, i) => [p, face[next(i)]]), ...rear.map((p, i) => [p, rear[next(i)]]), ...face.map((p, i) => [p, rear[i]])],
+    vertices: [...face, ...rear],
+  }
+}
+
+export function squarePyramidParts(b: number, h: number): Parts {
+  const f0: FigurePoint = [0, 0], f1: FigurePoint = [b, 0], b1 = back(f1, b), b0 = back(f0, b)
+  const mid: FigurePoint = [(f0[0] + b1[0]) / 2, (f0[1] + b1[1]) / 2], apex: FigurePoint = [mid[0], mid[1] + h]
+  const base = [f0, f1, b1, b0]
+  return {
+    faces: [base, ...base.map((p, i) => [p, base[(i + 1) % 4], apex])],
+    edges: [...base.map((p, i) => [p, base[(i + 1) % 4]]), ...base.map(p => [p, apex])],
+    vertices: [...base, apex],
+  }
+}
+
+export function tetrahedronParts(s: number): Parts {
+  const a: FigurePoint = [0, 0], b: FigurePoint = [s, 0], c = back([s * 0.5, 0], s * 0.6), top: FigurePoint = [s * 0.5, s * 0.95]
+  return { faces: [[a, b, c], [a, b, top], [b, c, top], [c, a, top]], edges: [[a, b], [b, c], [c, a], [a, top], [b, top], [c, top]], vertices: [a, b, c, top] }
+}
+
+export function frustumParts(b: number, t: number, h: number): Parts {
+  const f0: FigurePoint = [0, 0], f1: FigurePoint = [b, 0], b1 = back(f1, b), b0 = back(f0, b)
+  const inset = (b - t) / 2, g0: FigurePoint = back([inset, h], inset), g1: FigurePoint = [g0[0] + t, g0[1]], h1 = back(g1, t), h0 = back(g0, t)
+  const low = [f0, f1, b1, b0], high = [g0, g1, h1, h0]
+  return {
+    faces: [low, high, ...low.map((p, i) => [p, low[(i + 1) % 4], high[(i + 1) % 4], high[i]])],
+    edges: [...low.map((p, i) => [p, low[(i + 1) % 4]]), ...high.map((p, i) => [p, high[(i + 1) % 4]]), ...low.map((p, i) => [p, high[i]])],
+    vertices: [...low, ...high],
+  }
+}
+
+export function cylinderParts(r: number, h: number): Parts {
+  const top = ellipse([0, h], r, r * RY), bottom = ellipse([0, 0], r, r * RY)
+  const side = [...ellipse([0, 0], r, r * RY, 180, 360), ...ellipse([0, h], r, r * RY, 360, 180)]
+  return { faces: [top, side, bottom], edges: [top, bottom], vertices: [] }
+}
+
+export function coneParts(r: number, h: number): Parts {
+  const base = ellipse([0, 0], r, r * RY)
+  return { faces: [[...ellipse([0, 0], r, r * RY, 180, 360), [0, h]], base], edges: [base], vertices: [[0, h]] }
+}
+
+export function sphereParts(r: number): Parts {
+  return { faces: [ellipse([0, 0], r, r, 0, 360, 48)], edges: [], vertices: [] }
+}
