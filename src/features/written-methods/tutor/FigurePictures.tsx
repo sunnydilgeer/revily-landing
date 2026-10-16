@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react'
+import { useId, useRef, type ReactNode } from 'react'
 import type { FigureFrame, FigureItem, FigurePoint } from './methodWorking'
 import { Caption, type Bounds } from './AnglePictures'
 import { useCardPaper } from './cardPaper'
@@ -71,6 +71,7 @@ function Label({ at, text, t }: { at: P; text: string; t?: string }) {
 }
 
 export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: FigureFrame; plain?: boolean; shared?: Bounds; keepCaption?: string[] }) {
+  const uid = useId().replace(/:/g, '')
   const { at, scale } = fitFigure(frame, W, H, FIGURE_PAD, shared)
   const t = (value?: string) => plain && value !== 'faint' ? undefined : value
   const parts: ReactNode[] = []
@@ -103,7 +104,12 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     if (item.kind === 'shape') {
       const d = `M${item.points.map(p => { const q = at(p); return `${q.x} ${q.y}` }).join(' L')}${item.open ? '' : ' Z'}`
       if (!plain && item.lit) parts.push(<path key={`l${i}`} className="ns-angles__lit" d={d} />)
-      parts.push(<path key={i} className={`ns-fig__shape${item.fill === 'none' || item.open ? ' is-empty' : item.fill === 'part' ? ' is-part' : ''}${item.dashed ? ' is-dashed' : ''}`} d={d} />)
+      // A piece cut away (Sunny, 16 Oct): faint stripes inside a dashed edge, so the missing corner is seen but not mistaken for the shape.
+      if (item.fill === 'cut') {
+        const id = `cut-${uid}-${i}`
+        parts.push(<defs key={`p${i}`}><pattern id={id} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line className="ns-fig__hatch" x1="0" y1="0" x2="0" y2="7" /></pattern></defs>,
+          <path key={i} className="ns-fig__cut" d={d} fill={`url(#${id})`} />)
+      } else parts.push(<path key={i} className={`ns-fig__shape${item.fill === 'none' || item.open ? ' is-empty' : item.fill === 'part' ? ' is-part' : ''}${item.dashed ? ' is-dashed' : ''}`} d={d} />)
     }
     if (item.kind === 'line') {
       const a = at(item.from), b = at(item.to)

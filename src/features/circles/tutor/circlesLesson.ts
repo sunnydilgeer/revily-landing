@@ -61,8 +61,8 @@ function partFig(part: Part, caption?: string): AngleFrame {
 
 /**
  * The circle words on one circle that builds up (Sunny, 16 Oct: "Centre" was written three times, and each part had a
- * circle of its own). Each step adds its part in purple with its name beside it; the parts before it stay, in ink, with
- * their names in grey, so the last step shows every part on the one circle. Placed so no two parts cross.
+ * circle of its own). Each step adds its part in purple with its name beside it; the parts before it stay, in ink, so
+ * the last step shows every part on the one circle. Placed so no two parts cross.
  */
 const BUILD: Part[] = ['centre', 'radius', 'diameter', 'circumference', 'chord', 'arc', 'sector', 'segment', 'tangent']
 function buildFig(upTo: number): AngleFrame {
@@ -70,19 +70,20 @@ function buildFig(upTo: number): AngleFrame {
   const touch = at(80), along: FigurePoint = [-Math.sin(80 * Math.PI / 180) * 0.6, Math.cos(80 * Math.PI / 180) * 0.6]
   BUILD.slice(0, upTo + 1).forEach((part, k) => {
     const now = k === upTo, style = now ? 'lit' as const : 'plain' as const
-    const name = (where: FigurePoint, text: string, dx = 0, dy = 0) => items.push({ kind: 'text', at: where, text, tone: now ? 'lit' : 'faint', dx, dy })
+    // Only the new part is named: the names of all nine on one small circle crowd each other out.
+    const name = (where: FigurePoint, text: string, dx = 0, dy = 0) => { if (now) items.push({ kind: 'text', at: where, text, tone: 'lit', dx, dy }) }
     if (part === 'centre') name([0, 0], 'Centre', 0, 18)
-    if (part === 'radius') { items.push({ kind: 'line', from: [0, 0], to: at(60), style }); name(at(60, 0.55), 'Radius', 30, 2) }
-    if (part === 'diameter') { items.push({ kind: 'line', from: at(180), to: at(0), style }); name([-0.5, 0], 'Diameter', 0, -14) }
+    if (part === 'radius') { items.push({ kind: 'line', from: [0, 0], to: at(60), style }); name(at(60, 0.6), 'Radius', 36, 12) }
+    if (part === 'diameter') { items.push({ kind: 'line', from: at(180), to: at(0), style }); name([-0.45, 0], 'Diameter', 0, 16) }
     if (part === 'circumference') { if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style }); name(at(235, 1.22), 'Circumference', -10, 0) }
-    if (part === 'chord') { items.push({ kind: 'line', from: at(210), to: at(330), style }); name([0.3, -0.5], 'Chord', 0, -14) }
+    if (part === 'chord') { items.push({ kind: 'line', from: at(210), to: at(330), style }); name([0, -0.5], 'Chord', 0, 16) }
     if (part === 'arc') { items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 15, to: 45, style }); name(at(30, 1.18), 'Arc', 14, 0) }
     if (part === 'sector') {
       if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 105, to: 150, sector: true, fill: 'part', style })
-      items.push({ kind: 'line', from: [0, 0], to: at(105), style }, { kind: 'line', from: [0, 0], to: at(150), style }); name(at(127, 0.62), 'Sector')
+      items.push({ kind: 'line', from: [0, 0], to: at(105), style }, { kind: 'line', from: [0, 0], to: at(150), style }); name(at(127, 1.25), 'Sector', -10, 0)
     }
     if (part === 'segment') { if (now) items.push({ kind: 'shape', points: arcPoints(210, 330), fill: 'part' }); name([0, -0.76], 'Segment') }
-    if (part === 'tangent') { items.push({ kind: 'line', from: [touch[0] + along[0], touch[1] + along[1]], to: [touch[0] - along[0], touch[1] - along[1]], style }); name(at(80, 1.2), 'Tangent', 34, -4) }
+    if (part === 'tangent') { items.push({ kind: 'line', from: [touch[0] + along[0], touch[1] + along[1]], to: [touch[0] - along[0], touch[1] - along[1]], style }); name(at(80, 1.42), 'Tangent') }
   })
   items.push({ kind: 'point', at: [0, 0] })
   const shown = BUILD.slice(0, upTo + 1).join(', ')
@@ -124,6 +125,23 @@ const A_BOX = (unit: string) => ({ label: `Area (${unit}²)`, prefix: 'A =' })
 /* ---------- Rung 2: circumference ---------- */
 
 explore(circumference, 'Drag the circle bigger and smaller. Watch circumference ÷ diameter.', 'GM7 p128 Circumference (play)', { mode: 'circle' })
+{
+  // What π is (Sunny, 16 Oct), coloured like the picture: the diameter blue, the circumference purple.
+  const piFig = (round: boolean) => fig([
+    { kind: 'circle', centre: [0, 0], r: 1, fill: 'none' },
+    ...(round ? [{ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style: 'lit' } as FigureItem, { kind: 'text', at: at(225, 1.32), text: 'Circumference', tone: 'lit', dx: -14 } as FigureItem] : []),
+    { kind: 'line', from: [-1, 0], to: [1, 0], style: 'x' },
+    { kind: 'text', at: [0, 0], text: 'Diameter', tone: 'x', dy: -16 },
+    { kind: 'point', at: [0, 0] },
+  ], round ? 'A circle with its diameter in blue and its circumference in purple.' : 'A circle with its diameter in blue.')
+  worked(circumference, 'What is π?', 'What is π?', 'GM7 p128 π', boardModel([], [
+    { title: 'Straight across', say: 'The diameter is the distance straight across a circle, through the centre.', rows: ['> The diameter goes straight across'], picture: piFig(false) },
+    { title: 'All the way round', say: 'The circumference is the distance all the way round the edge.', rows: ['> The circumference goes all the way round'], picture: piFig(true) },
+    { title: 'Divide one by the other', say: 'Measure both, then divide the circumference by the diameter. Every circle, big or small, gives the same number.', rows: ['> Circumference ÷ diameter = 3.14159…'], picture: piFig(true) },
+    { title: 'That number is π', say: 'That number is called π, said “pie”. Its digits go on for ever without repeating, so use the π button on your calculator (or 3.14 if a question says so).', rows: ['> π = 3.14159…, a little more than 3'], picture: piFig(true) },
+    { title: 'So the circumference is', say: 'The way round is always just over 3 diameters, π of them exactly. So to find a circumference, times the diameter by π.', rows: ['> Circumference = π × diameter', '! C = πd'], picture: piFig(true) },
+  ], 'What is π?', piFig(false)), 'π is circumference ÷ diameter, the same for every circle: 3.14159…. So circumference = π × diameter.')
+}
 {
   const p = circleFig('radius', '9 cm')
   worked(circumference, 'Find the circumference of a circle with radius 9 cm.', 'Circumference', 'GM7 p128 Example 2 (own numbers)', boardModel([], [
@@ -226,6 +244,7 @@ add('mixed', 'Circles', 'GM7 consolidation', text(
 export const tutorCirclesLesson: TutorMethodLesson = {
   id: 'L207', number: 207, title: 'Circles', level: 'GCSE Foundation',
   steadyPictures: true,
+  calmColours: true,
   goal: 'Name the parts of a circle, find its circumference and area in terms of π or rounded, and work back from them to the radius or diameter.',
   labels: { [parts]: 'Parts of a circle', [circumference]: 'Circumference', [area]: 'Area', [backwards]: 'Working backwards', mixed: 'Review' },
   states: finish(),

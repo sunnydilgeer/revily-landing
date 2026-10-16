@@ -44,6 +44,9 @@ function polyFig(points: FigurePoint[], sides: Side[], spoken: string, extra: Fi
   })
   return roomy(fig(items, spoken, caption))
 }
+/** The corner cut out of an L-shape, [[0, 0], [w, 0], [w, h], [x, h], [x, H], [0, H]]: faint stripes in a dashed box, its
+ * sides the missing a and b, so it shows why a and b are what is left (Sunny, 16 Oct). */
+const cutAway = (pts: FigurePoint[]): FigureItem => ({ kind: 'shape', fill: 'cut', points: [pts[3], pts[2], [pts[2][0], pts[5][1]], [pts[3][0], pts[5][1]]] })
 /** Room beside the figure for the labels outside its sides. */
 const roomy = (frame: AngleFrame, room = 20): AngleFrame => ({ ...frame, figure: { ...frame.figure!, room } })
 
@@ -105,7 +108,7 @@ practice(simple, 'Which is the perimeter of a 5 m by 3 m rectangle?', 'GM8 p130 
 explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and the perimeter.', 'GM8 p130 Compound shapes (play)', { mode: 'notch' })
 {
   const pts: FigurePoint[] = [[0, 0], [12, 0], [12, 5], [7, 5], [7, 9], [0, 9]]
-  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '12 cm' }, { label: '5 cm' }, { inside: true, ...a }, b, { label: '7 cm' }, { label: '9 cm' }], 'An L-shape: bottom 12 cm, left 9 cm, top 7 cm, the lower right side 5 cm; the two sides of the step are missing.', [], caption)
+  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '12 cm' }, { label: '5 cm' }, { inside: true, ...a }, b, { label: '7 cm' }, { label: '9 cm' }], 'An L-shape: bottom 12 cm, left 9 cm, top 7 cm, the lower right side 5 cm; the two sides of the step are missing.', [cutAway(pts)], caption)
   const p = L({ label: 'a', tone: 'x' }, { label: 'b', tone: 'x' })
   worked(compound, 'Find the perimeter of this shape.', 'Missing sides', 'GM8 p130 Example 1 (own numbers)', boardModel([], [
     { title: 'Across', say: 'The whole bottom is 12. The top 7 and side a make the same width.', rows: ['a = 12 − 7 = 5'], picture: L({ label: '5 cm', tone: 'found' }, { label: 'b', tone: 'x' }) },
@@ -115,7 +118,7 @@ explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and
 }
 {
   const pts: FigurePoint[] = [[0, 0], [14, 0], [14, 4], [8, 4], [8, 10], [0, 10]]
-  const L = (x: Side, caption?: string) => polyFig(pts, [{ label: '14 cm' }, {}, x, {}, { label: '8 cm' }, { label: '10 cm' }], 'An L-shape: bottom 14 cm, top 8 cm, left 10 cm. The step across is x.', [], caption)
+  const L = (x: Side, caption?: string) => polyFig(pts, [{ label: '14 cm' }, {}, x, {}, { label: '8 cm' }, { label: '10 cm' }], 'An L-shape: bottom 14 cm, top 8 cm, left 10 cm. The step across is x.', [cutAway(pts)], caption)
   const p = L({ label: 'x', tone: 'x' })
   practice(compound, 'Find the length x.', 'GM8 p130 (own numbers)', p, number(6, 'x = 6 cm'), 'The top and x together are as wide as the bottom.', boardModel([], [
     { title: 'Across', say: 'The bottom, 14, is the top, 8, and x together.', rows: ['8 + x = 14', '! x = 6 cm'], picture: L({ label: '6 cm', tone: 'found' }) },
@@ -123,7 +126,7 @@ explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and
 }
 {
   const pts: FigurePoint[] = [[0, 0], [15, 0], [15, 6], [9, 6], [9, 10], [0, 10]]
-  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '15 cm' }, { label: '6 cm' }, { inside: true, ...a }, b, { label: '9 cm' }, { label: '10 cm' }], 'An L-shape: bottom 15 cm, lower right side 6 cm, top 9 cm, left 10 cm; two sides of the step are missing.', [], caption)
+  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '15 cm' }, { label: '6 cm' }, { inside: true, ...a }, b, { label: '9 cm' }, { label: '10 cm' }], 'An L-shape: bottom 15 cm, lower right side 6 cm, top 9 cm, left 10 cm; two sides of the step are missing.', [cutAway(pts)], caption)
   const p = L({}, {})
   practice(compound, 'Find the perimeter of this shape.', 'GM8 p131 Q4 (own numbers)', p, number(50, '50 cm'), 'Find the two missing sides first.', boardModel([], [
     { title: 'Missing sides', say: 'Across: 15 − 9 = 6. Up: 10 − 6 = 4.', rows: ['a = 15 − 9 = 6', 'b = 10 − 6 = 4'], picture: L({ label: '6 cm', tone: 'found' }, { label: '4 cm', tone: 'found' }) },
@@ -146,6 +149,8 @@ explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and
   // A 10 by 7 rectangle with a semicircle on its top side.
   const arch = (tone?: FigureTone, arc: 'lit' | 'plain' = 'plain', caption?: string) => fig([
     { kind: 'shape', points: [[10, 7], [10, 0], [0, 0], [0, 7]], open: true },
+    // While the curve is worked on, the half circle it comes from is shaded and named (Sunny, 16 Oct).
+    ...(arc === 'lit' ? [{ kind: 'arc', centre: [5, 7], r: 5, from: 0, to: 180, sector: true, fill: 'part' } as FigureItem, { kind: 'text', at: [5, 9], text: 'Half a circle', tone: 'lit' } as FigureItem] : []),
     { kind: 'arc', centre: [5, 7], r: 5, from: 0, to: 180, style: arc },
     { kind: 'line', from: [0, 7], to: [10, 7], style: 'dashed' },
     { kind: 'right', at: [0, 0], a: [1, 0], b: [0, 1] },
@@ -155,7 +160,7 @@ explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and
   ], 'A 10 cm by 7 cm rectangle with a semicircle on its top, 10 cm side. The top side is dashed: it is inside the shape.', caption)
   const half = Math.PI * 10 / 2
   worked(curved, 'Find the perimeter of this shape, to 1 decimal place.', 'A curved edge', 'GM8 p132 Example 1 (own numbers)', boardModel([], [
-    { title: 'The curved part', say: `The curve is half a circle of diameter 10: half of π × 10 = ${half.toFixed(3)}….`, rows: [`{1|2} × π × 10 = ${half.toFixed(3)}…`], picture: arch(undefined, 'lit') },
+    { title: 'The curved part', say: `The curved edge is half of a circle with diameter 10, so it is half of that circle’s circumference: half of π × 10 = ${half.toFixed(3)}….`, rows: ['> The curve is half a circle, diameter 10', `{1|2} × π × 10 = ${half.toFixed(3)}…`], picture: arch(undefined, 'lit') },
     { title: 'The straight sides', say: 'The dashed side is inside the shape, so it isn’t part of the perimeter. Only three straight sides count.', rows: ['7 + 10 + 7 = 24'], picture: arch('lit') },
     { title: 'Add', say: 'Add the curve and the straight sides; round at the end.', rows: [`P = 24 + ${half.toFixed(3)}…`, `! P = ${show(r1(24 + half), 1)} cm`], picture: arch(undefined, 'plain', `P = ${show(r1(24 + half), 1)} cm`) },
   ], 'Find P', arch()), 'A curved edge is part of a circumference: a semicircle’s is ½ × π × d. Only count edges on the outside.')
