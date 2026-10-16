@@ -34,8 +34,11 @@
 .measure-board__label { fill: var(--rv-ink); font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper, #fff); stroke-width: 4px; }
 .measure-board__label.is-h { fill: #b45309; text-anchor: start; }
 .measure-board__label.is-big { font-size: 17px; }
+.measure-board__label.is-tiny { font-size: 11.5px; font-weight: 600; opacity: .8; }
 .measure-board__label.is-c { fill: #b45309; }
 .measure-board__label.is-d { fill: var(--rv-biro); }
+.measure-board__match { fill: var(--rv-good-tint); stroke: var(--rv-good); }
+.measure-board__overlay { fill: none; stroke: var(--rv-good); stroke-width: 3; stroke-dasharray: 6 5; }
 .measure-board__arc { stroke: #b45309; stroke-width: 5; fill: none; }
 .measure-board__edge { stroke: #7c3aed; stroke-width: 3.5; }
 .measure-board__label.is-a { fill: #7c3aed; }
