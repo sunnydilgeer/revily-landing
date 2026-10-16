@@ -112,7 +112,7 @@ export type BracketFrame = { outside: string; inside: { text: string; family: nu
  * Simultaneous equations (lesson 27) put two equations on the board at once: each is a row with a `label` (① or ②) in
  * the gutter, and `given` says how many rows the question itself shows before the first move (1 when left out).
  */
-export type EquationRow = { left: string; right: string; sign?: string; middle?: string; sign2?: string; label?: string } | { note: string; family?: number } | { answer: string }
+export type EquationRow = { left: string; right: string; sign?: string; middle?: string; sign2?: string; label?: string; tint?: number } | { note: string; family?: number } | { answer: string }
 export type EquationFrame = { rows: EquationRow[]; given?: number }
 /**
  * An angle picture for geometric proof (lesson 28, A13.3), drawn above the board: a triangle drawn to its angles, the
@@ -146,7 +146,7 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
 export type FigurePoint = [number, number]
 export type FigureTone = 'given' | 'x' | 'lit' | 'found' | 'faint'
 export type FigureItem =
-  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean; faint?: boolean }
+  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean; faint?: boolean; tint?: number }
   | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found'; arrow?: boolean }
   | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
   | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed' }

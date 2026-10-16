@@ -53,12 +53,12 @@ function rim(c: FigurePoint, r: number, hiddenBack: boolean, fill = false): Figu
 }
 
 /** A cylinder standing up: radius r, height h, with its radius and height measured. */
-export function cylinder(r: number, h: number, labels: { r?: Measure; h?: Measure } = {}, lit?: 'top' | 'side'): FigureItem[] {
+export function cylinder(r: number, h: number, labels: { r?: Measure; h?: Measure } = {}, lit?: 'top' | 'side' | 'none'): FigureItem[] {
   const items: FigureItem[] = [
     ...rim([0, 0], r, true),
     { kind: 'line', from: [-r, 0], to: [-r, h], style: lit === 'side' ? 'lit' : 'plain' },
     { kind: 'line', from: [r, 0], to: [r, h], style: lit === 'side' ? 'lit' : 'plain' },
-    { kind: 'shape', points: ellipse([0, h], r, r * RY), fill: 'part', lit: lit === 'top' },
+    { kind: 'shape', points: ellipse([0, h], r, r * RY), fill: lit === 'none' ? 'none' : 'part', lit: lit === 'top' },
   ]
   if (labels.r) items.push({ kind: 'line', from: [0, h], to: [r, h], style: 'plain' }, { kind: 'point', at: [0, h] }, { kind: 'text', at: [r / 2, h], text: labels.r.label, tone: labels.r.tone, dy: -16 })
   if (labels.h) items.push({ kind: 'measure', from: [r, 0], to: [r, h], label: labels.h.label, tone: labels.h.tone, offset: 12 })
