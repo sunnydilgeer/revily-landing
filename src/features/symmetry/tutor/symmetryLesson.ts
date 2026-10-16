@@ -67,7 +67,7 @@ function orderModel(shape: MeasureShape) {
   const corner = (deg: number): FigurePoint => { const p = SHAPES[shape][0], a = deg * Math.PI / 180; return [p.x * Math.cos(a) - p.y * Math.sin(a), p.x * Math.sin(a) + p.y * Math.cos(a)] }
   const dots = (k: number): FigureItem[] => [0, ...turns.slice(0, k).filter(t => t < 360)].map((t, i) => ({ kind: 'point', at: corner(t), label: String(i + 1), dx: corner(t)[0] >= 0 ? 12 : -12, dy: corner(t)[1] >= 0 ? -12 : 14 }))
   const moves: BoardMove[] = [
-    { title: 'Mark a corner', say: 'Put a dot on one corner, so you can see the shape turn round its centre.', rows: ['> Mark a corner'], picture: shapeFig(shape, [], undefined, dots(0)) },
+    { title: 'Mark a corner', say: 'Put a dot on one corner, so you can see the shape turn round its centre.', rows: [], picture: shapeFig(shape, [], undefined, dots(0)) },
     { title: 'Turn it', say: n > 1 ? `Turn it about its centre. It fits its outline again after ${turns[0]}°, then every ${turns[0]}° after that: the dot visits ${n} corners before it is back where it started.` : 'Turn it about its centre. It only fits its outline again when it is back where it started, after a full 360°.', rows: [n > 1 ? `> Fits every ${turns[0]}°` : '> Fits only at 360°'], picture: shapeFig(shape, [], undefined, dots(n)) },
     { title: 'Count the fits', say: `In one full turn it fits ${n} time${n === 1 ? '' : 's'}${n > 1 ? `: 360 ÷ ${turns[0]} = ${n}` : ''}.`, rows: [`! Order ${n}`], picture: shapeFig(shape, [], `Rotational symmetry order ${n}`, dots(n)) },
   ]

@@ -112,7 +112,7 @@ worked(distance, 'Draw the locus of points 2 cm from the point P.', 'A fixed dis
 explore(perpendicular, 'Drag P about. When is it the same distance from A and B?', 'GM17 p151 Constructing a perpendicular bisector (play)', { mode: 'locus' })
 worked(perpendicular, 'Construct the perpendicular bisector of AB.', 'Perpendicular bisector', 'GM17 p151 Constructing a perpendicular bisector', boardModel([], [
   { title: 'Arcs from A', say: 'Open the compasses to more than half of AB. With the point on A, draw an arc above the line and one below.', rows: ['>0 Compasses more than half AB'], picture: bisector('6 cm', 1) },
-  { title: 'Same arcs from B', say: 'Keep the compasses the same. Draw the same two arcs from B: they cross the first two.', rows: ['>0 Same arcs from B'], picture: bisector('6 cm', 2) },
+  { title: 'Same arcs from B', say: 'Keep the compasses the same. Draw the same two arcs from B: they cross the first two.', rows: [], picture: bisector('6 cm', 2) },
   { title: 'Join the crossings', say: 'Rule a line through the two crossings. It cuts AB in half, at right angles: every point on it is the same distance from A and B.', rows: ['! The perpendicular bisector of AB'], picture: bisector('6 cm', 3, 'Every point on it is as far from A as from B') },
 ], 'Construct', bisector('6 cm', 0)), 'The perpendicular bisector of AB is the locus of points the same distance from A and B. It crosses AB at its middle, at 90°. The perpendicular from a point to a line is drawn the same way, from two marks on the line.')
 {

@@ -79,7 +79,7 @@ for (const [w, h, l] of [[6, 4, 2], [5, 5, 5]] as const) {
   'A triangular prism, right-angled triangle 3, 4 and 5 cm, 10 cm long.')
   const p = draw()
   practice(flat, 'Find the total surface area of this triangular prism.', 'GM15 Your Turn Q4 (own numbers)', p, number(132, '132 cm²'), 'Two triangles, and three rectangles, one for each side of the triangle.', boardModel([], [
-    { title: 'The two triangles', say: 'Each end is a triangle, and there are two.', rows: ['Triangle = {1|2}bh', '#3 Ends = 2 × {1|2} × 4 × 3 = 12'], picture: shaded(tint(3, ...parts.faces.slice(0, 2))) },
+    { title: 'The two triangles', say: 'Each end is a triangle, and there are two.', rows: ['Triangle = {1|2}bh', '> b = base, h = height', '#3 Ends = 2 × {1|2} × 4 × 3 = 12'], picture: shaded(tint(3, ...parts.faces.slice(0, 2))) },
     { title: 'The three rectangles', say: 'Each side of the triangle runs back 10 cm as a rectangle: 3, 4 and 5 by 10.', rows: ['#0 Sides = (3 + 4 + 5) × 10 = 120'], picture: shaded(tint(0, ...parts.faces.slice(2))) },
     { title: 'Add them', say: 'Every face, added.', rows: ['A = 12 + 120', '! A = 132 cm²'], picture: draw(undefined, 'A = 132 cm²') },
   ], 'Find A', p), slips(132, [[126, 'There are two triangles, one at each end.'], [60, 'That’s the volume. Add the areas of the faces.'], [82, 'The rectangles are 10 cm long: (3 + 4 + 5) × 10.']]), A_BOX)
@@ -94,8 +94,8 @@ function cylinderSteps(r: number, h: number, given: 'r' | 'd' = 'r') {
   const parts = cylinderParts(r, h)
   const shaded = (items: FigureItem[]) => pic([...cylinder(r, h, { r: { label: given === 'r' ? `${r} cm` : `r = ${r}` }, h: { label: `${h} cm` } }, 'none'), ...items], `A cylinder with radius ${r} cm and height ${h} cm.`)
   return { A, draw, moves: [
-    { title: 'Curved side = 2πrh', say: `Unrolled, the side is a rectangle: the circumference across, ${h} high.`, rows: ['#0 Curved = 2πrh', `2 × π × ${r} × ${h} = ${f(side)}…`], picture: shaded(tint(0, parts.faces[1])) },
-    { title: 'Two ends = 2πr²', say: 'A circle at each end.', rows: ['#3 Ends = 2πr²', `2 × π × ${r}² = ${f(ends)}…`], picture: shaded(tint(3, parts.faces[0], parts.faces[2])) },
+    { title: 'Curved side = 2πrh', say: `Unrolled, the side is a rectangle: the circumference across, ${h} high.`, rows: ['> r = radius, h = height', `#0 Curved = 2 × π × ${r} × ${h}`, `#0 Curved = ${f(side)}…`], picture: shaded(tint(0, parts.faces[1])) },
+    { title: 'Two ends = 2πr²', say: 'A circle at each end.', rows: [`#3 Ends = 2 × π × ${r}² = ${f(ends)}…`], picture: shaded(tint(3, parts.faces[0], parts.faces[2])) },
     { title: 'Add them', say: 'The side and both ends. Round at the end.', rows: [`A = ${f(side)}… + ${f(ends)}…`, `! A = ${show(A, 1)} cm²`], picture: draw(undefined, `A = ${show(A, 1)} cm²`) },
   ] }
 }
@@ -120,8 +120,8 @@ function coneSteps(r: number, l: number) {
   const parts = coneParts(r, Math.sqrt(l * l - r * r))
   const shaded = (items: FigureItem[]) => pic([...cone(r, Math.sqrt(l * l - r * r), { r: { label: `${r} cm` }, slant: { label: `${l} cm` } }), ...items], `A cone with base radius ${r} cm and slant height ${l} cm.`)
   return { A, draw, moves: [
-    { title: 'Curved surface = πrl', say: `l is the slant height, ${l}.`, rows: ['#0 Curved = πrl', `π × ${r} × ${l} = ${f(curve)}…`], picture: shaded(tint(0, parts.faces[0])) },
-    { title: 'Base = πr²', say: 'The circle underneath.', rows: ['#3 Base = πr²', `π × ${r}² = ${f(base)}…`], picture: shaded(tint(3, parts.faces[1])) },
+    { title: 'Curved surface = πrl', say: `l is the slant height, ${l}.`, rows: ['> r = radius, l = slant height', `#0 Curved = π × ${r} × ${l} = ${f(curve)}…`], picture: shaded(tint(0, parts.faces[0])) },
+    { title: 'Base = πr²', say: 'The circle underneath.', rows: [`#3 Base = π × ${r}² = ${f(base)}…`], picture: shaded(tint(3, parts.faces[1])) },
     { title: 'Add them', say: 'Curved surface and base. Round at the end.', rows: [`A = ${f(curve)}… + ${f(base)}…`, `! A = ${show(A, 1)} cm²`], picture: draw(undefined, `A = ${show(A, 1)} cm²`) },
   ] }
 }
@@ -141,7 +141,7 @@ for (const r of [5, 2.5]) {
   const draw = (lit = false, caption?: string) => pic(sphere(r, { label: `${r} cm` }, lit), `A sphere with radius ${r} cm.`, caption)
   const p = draw()
   practice(curved, 'Find the surface area of this sphere, to 1 decimal place.', 'GM15 p147 (own numbers)', p, number(A, `${show(A, 1)} cm²`), 'A = 4πr².', boardModel([], [
-    { title: 'Surface area = 4πr²', say: 'Square the radius first.', rows: ['A = 4πr²', `r² = ${r}² = ${r * r}`], picture: p },
+    { title: 'A = 4πr²', say: 'Square the radius first.', rows: ['> A = surface area, r = radius', `r² = ${r}² = ${r * r}`], picture: p },
     { title: 'Put it in', say: `Swap r² for ${r * r}.`, rows: [`A = 4 × π × ${r * r}`, `! A = ${show(A, 1)} cm²`], picture: draw(true, `A = ${show(A, 1)} cm²`) },
   ], 'Find A', p), slips(A, [[r1(Math.PI * r * r), 'That’s one circle. A sphere’s surface is four of them: 4πr².'], [r1(4 / 3 * Math.PI * r ** 3), 'That’s the volume.']]), A_BOX)
 }
@@ -165,7 +165,7 @@ function pyramidSteps(b: number, s: number) {
   const parts = squarePyramidParts(b, 1.6 * b)
   const shaded = (items: FigureItem[], caption?: string) => pic([...squarePyramid(b, 1.6 * b, { b: { label: `${b} cm` }, slant: { label: `${s} cm` } }), ...items], `A square-based pyramid with base ${b} cm; each triangular face has height ${s} cm.`, caption)
   return { A, draw, moves: [
-    { title: 'Four triangles', say: `Each triangular face has base ${b} and height ${s}. There are four, all the same.`, rows: ['#3 Triangle = {1|2}bh', `{1|2} × ${b} × ${s} = ${tri}`, `4 × ${tri} = ${4 * tri}`], picture: shaded(tint(3, parts.faces[1])) },
+    { title: 'Four triangles', say: `Each triangular face has base ${b} and height ${s}. There are four, all the same.`, rows: ['#3 Triangle = {1|2}bh', '> b = base, h = height of the triangle', `{1|2} × ${b} × ${s} = ${tri}`, `4 × ${tri} = ${4 * tri}`], picture: shaded(tint(3, parts.faces[1])) },
     { title: 'Add the base', say: `The square base is ${b} by ${b}.`, rows: [`#0 Base = ${b} × ${b} = ${b * b}`, `A = ${4 * tri} + ${b * b}`, `! A = ${A} cm²`], picture: shaded(tint(0, parts.faces[0])) },
   ] }
 }

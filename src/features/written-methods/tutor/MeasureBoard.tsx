@@ -315,7 +315,9 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
       <path className="ns-fig__shape is-part" d={path(fr)} />
       <text className="measure-board__label" x={F.x + w * GRID / 2} y={F.y + 13}>{w}</text>
       <text className="measure-board__label" x={F.x - 12} y={F.y - h * GRID / 2}>{h}</text>
-      <text className="measure-board__label is-h" x={(fr[1].x + bk[1].x) / 2 + 8} y={(fr[1].y + bk[1].y) / 2 + 8}>{l}</text>
+      <text className="measure-board__label is-h" x={(fr[1].x + bk[1].x) / 2 + 8} y={(fr[1].y + bk[1].y) / 2 + 8}>l = {l}</text>
+      {/* What A and l in V = A × l stand for, on the parts they name (Sunny, 16 Oct). */}
+      <text className="measure-board__label is-a is-small" x={F.x + w * GRID / 2} y={F.y - h * GRID / 2}>A = {w * h}</text>
       <text className="measure-board__label is-tiny is-a" x="262" y="131">Volume</text>
       <text className="measure-board__label is-big is-a" x="262" y="150">V = {w * h * l}</text>
       <text className="measure-board__label is-tiny is-c" x="262" y="168">Surface area</text>
