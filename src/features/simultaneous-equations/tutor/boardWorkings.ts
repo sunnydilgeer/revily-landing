@@ -64,7 +64,8 @@ export function boardModel(given: string[], moves: BoardMove[], label = 'Solve',
     const rows = [...shown, ...move.rows].map(boardRow)
     return { title: move.title, operation: rowTex(opening), equation: rowTex(lines.at(-1) ?? opening), instruction: move.say, frame: { equation: { rows, given: given.length }, ...(drawn ? { angles: index === 0 && picture ? { ...drawn, before: picture } : drawn } : {}) } }
   })
-  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: rowTex(opening), label, first: 0, second: 0, steps, pictureOnly: true, focus: true }] }
+  // Under a picture every row above the new heading greys out, so it's plain which words go with the heading (Sunny, 16 Oct).
+  return { kind: 'method-worked', examples: [{ method: 'ordering', expression: rowTex(opening), label, first: 0, second: 0, steps, pictureOnly: true, focus: picture ? 'all' : true }] }
 }
 
 /** Boxes every whole `token` on a row's two sides (not its label): "x +2y = 8" with "+2y" → "x [+2y] = 8". */

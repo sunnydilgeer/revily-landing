@@ -35,8 +35,8 @@ const centreDot: FigureItem = { kind: 'point', at: [0, 0], label: 'C', dx: -12, 
 /** A circle with its radius (at 35°) or diameter (across) measured and labelled. */
 function circleFig(kind: 'radius' | 'diameter', label: string, tone: FigureTone = 'given', fill = false, caption?: string): AngleFrame {
   const items: FigureItem[] = [{ kind: 'circle', centre: [0, 0], r: 1, ...(fill ? {} : { fill: 'none' as const }) }, centreDot]
-  if (kind === 'radius') items.push({ kind: 'line', from: [0, 0], to: at(35), style: tone === 'lit' ? 'lit' : 'plain' }, { kind: 'text', at: at(35, 0.45), text: label, tone, dx: -18, dy: -16 })
-  else items.push({ kind: 'line', from: [-1, 0], to: [1, 0], style: tone === 'lit' ? 'lit' : 'plain' }, { kind: 'text', at: [0.45, 0], text: label, tone, dy: -16 })
+  if (kind === 'radius') items.push({ kind: 'line', from: [0, 0], to: at(35), style: tone === 'lit' ? 'lit' : 'plain' }, { kind: 'text', at: at(35, 0.45), text: label, tone, dx: -22, dy: -22 })
+  else items.push({ kind: 'line', from: [-1, 0], to: [1, 0], style: tone === 'lit' ? 'lit' : 'plain' }, { kind: 'text', at: [0.45, 0], text: label, tone, dy: -22 })
   return fig(items, `A circle with centre C and ${kind} ${label}.`, caption)
 }
 
@@ -72,18 +72,18 @@ function buildFig(upTo: number): AngleFrame {
     const now = k === upTo, style = now ? 'lit' as const : 'plain' as const
     // Only the new part is named: the names of all nine on one small circle crowd each other out.
     const name = (where: FigurePoint, text: string, dx = 0, dy = 0) => { if (now) items.push({ kind: 'text', at: where, text, tone: 'lit', dx, dy }) }
-    if (part === 'centre') name([0, 0], 'Centre', 0, 18)
-    if (part === 'radius') { items.push({ kind: 'line', from: [0, 0], to: at(60), style }); name(at(60, 0.6), 'Radius', 36, 12) }
-    if (part === 'diameter') { items.push({ kind: 'line', from: at(180), to: at(0), style }); name([-0.45, 0], 'Diameter', 0, 16) }
-    if (part === 'circumference') { if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style }); name(at(235, 1.22), 'Circumference', -10, 0) }
-    if (part === 'chord') { items.push({ kind: 'line', from: at(210), to: at(330), style }); name([0, -0.5], 'Chord', 0, 16) }
-    if (part === 'arc') { items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 15, to: 45, style }); name(at(30, 1.18), 'Arc', 14, 0) }
+    if (part === 'centre') name([0, 0], 'Centre', 0, 24)
+    if (part === 'radius') { items.push({ kind: 'line', from: [0, 0], to: at(60), style }); name(at(60, 1.3), 'Radius', 30, 0) }
+    if (part === 'diameter') { items.push({ kind: 'line', from: at(180), to: at(0), style }); name([0, 0], 'Diameter', 0, 24) }
+    if (part === 'circumference') { if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style }); name(at(235, 1.6), 'Circumference', -12, 0) }
+    if (part === 'chord') { items.push({ kind: 'line', from: at(210), to: at(330), style }); name([0, -0.5], 'Chord', 0, 22) }
+    if (part === 'arc') { items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 15, to: 45, style }); name(at(30, 1.28), 'Arc', 14, 0) }
     if (part === 'sector') {
       if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 105, to: 150, sector: true, fill: 'part', style })
-      items.push({ kind: 'line', from: [0, 0], to: at(105), style }, { kind: 'line', from: [0, 0], to: at(150), style }); name(at(127, 1.25), 'Sector', -10, 0)
+      items.push({ kind: 'line', from: [0, 0], to: at(105), style }, { kind: 'line', from: [0, 0], to: at(150), style }); name(at(127, 1.34), 'Sector', -10, 0)
     }
     if (part === 'segment') { if (now) items.push({ kind: 'shape', points: arcPoints(210, 330), fill: 'part' }); name([0, -0.76], 'Segment') }
-    if (part === 'tangent') { items.push({ kind: 'line', from: [touch[0] + along[0], touch[1] + along[1]], to: [touch[0] - along[0], touch[1] - along[1]], style }); name(at(80, 1.42), 'Tangent') }
+    if (part === 'tangent') { items.push({ kind: 'line', from: [touch[0] + along[0], touch[1] + along[1]], to: [touch[0] - along[0], touch[1] - along[1]], style }); name(at(80, 1.62), 'Tangent') }
   })
   items.push({ kind: 'point', at: [0, 0] })
   const shown = BUILD.slice(0, upTo + 1).join(', ')
@@ -129,9 +129,9 @@ explore(circumference, 'Drag the circle bigger and smaller. Watch circumference 
   // What π is (Sunny, 16 Oct), coloured like the picture: the diameter blue, the circumference purple.
   const piFig = (round: boolean) => fig([
     { kind: 'circle', centre: [0, 0], r: 1, fill: 'none' },
-    ...(round ? [{ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style: 'lit' } as FigureItem, { kind: 'text', at: at(225, 1.32), text: 'Circumference', tone: 'lit', dx: -14 } as FigureItem] : []),
+    ...(round ? [{ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style: 'lit' } as FigureItem, { kind: 'text', at: at(230, 1.6), text: 'Circumference', tone: 'lit', dx: -12 } as FigureItem] : []),
     { kind: 'line', from: [-1, 0], to: [1, 0], style: 'x' },
-    { kind: 'text', at: [0, 0], text: 'Diameter', tone: 'x', dy: -16 },
+    { kind: 'text', at: [0, 0], text: 'Diameter', tone: 'x', dy: -22 },
     { kind: 'point', at: [0, 0] },
   ], round ? 'A circle with its diameter in blue and its circumference in purple.' : 'A circle with its diameter in blue.')
   worked(circumference, 'What is π?', 'What is π?', 'GM7 p128 π', boardModel([], [
@@ -245,6 +245,7 @@ export const tutorCirclesLesson: TutorMethodLesson = {
   id: 'L207', number: 207, title: 'Circles', level: 'GCSE Foundation',
   steadyPictures: true,
   calmColours: true,
+  smallLabels: true,
   goal: 'Name the parts of a circle, find its circumference and area in terms of π or rounded, and work back from them to the radius or diameter.',
   labels: { [parts]: 'Parts of a circle', [circumference]: 'Circumference', [area]: 'Area', [backwards]: 'Working backwards', mixed: 'Review' },
   states: finish(),

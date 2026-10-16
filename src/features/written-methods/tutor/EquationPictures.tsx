@@ -105,7 +105,8 @@ function spoken(row: EquationRow) {
 export function EquationVisual({ frame, newFrom, heading, plain, focus }: { frame: EquationFrame; newFrom?: number; heading?: ReactNode; plain?: boolean; focus?: boolean | 'all' }) {
   // A row with a boxed part is being worked on again (both equations, when one is taken away from the other), so it stays clear.
   const working = (row: EquationRow) => 'left' in row && /\[/.test(`${row.left} ${row.middle ?? ''} ${row.right}`)
-  const done = (i: number) => focus && newFrom !== undefined && i < newFrom - (focus === 'all' ? 0 : 1) && !working(frame.rows[i]) ? ' is-done' : ''
+  // A note above the heading is always finished with: it explains an earlier step, never the one this heading starts.
+  const done = (i: number) => focus && newFrom !== undefined && i < newFrom - (focus === 'all' || 'note' in frame.rows[i] ? 0 : 1) && !working(frame.rows[i]) ? ' is-done' : ''
   // An inequality with two signs (3 < 2x + 1 < 11) has three parts, each lined up under the one above.
   const three = frame.rows.some(row => 'left' in row && row.middle !== undefined)
   // A proof carries on down the = column with no left side (= x² + 6x + 9), or shows two sides identical (≡). On a phone its rows are written one under
