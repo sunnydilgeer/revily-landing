@@ -51,7 +51,7 @@ function cuboidSteps(w: number, h: number, l: number) {
     ...tint(3, [[0, 0], [w, 0], [w, h], [0, h]]), ...tint(0, [[0, h], [w, h], back([w, h], l), back([0, h], l)]), ...tint(1, [[w, 0], back([w, 0], l), back([w, h], l), [w, h]])],
   `A cuboid ${w} cm wide, ${h} cm tall and ${l} cm long, its front, top and side faces shaded.`)
   return { A, draw, moves: [
-    { title: 'Three different faces', say: 'A cuboid has six faces in three matching pairs: front and back, top and bottom, and the two ends.', rows: ['A = 2(wh + wl + hl)', `#3 Front = ${w} × ${h} = ${front}`, `#0 Top = ${w} × ${l} = ${top}`, `#1 Side = ${h} × ${l} = ${side}`], picture: faces },
+    { title: 'Three different faces', say: 'A cuboid has six faces in three matching pairs: front and back, top and bottom, and the two ends.', rows: [`#3 Front = ${w} × ${h} = ${front}`, `#0 Top = ${w} × ${l} = ${top}`, `#1 Side = ${h} × ${l} = ${side}`], picture: faces },
     { title: 'Double the total', say: 'Each face has a twin on the other side, so add the three and double.', rows: [`A = 2 × (${front} + ${top} + ${side})`, `! A = ${A} cm²`], picture: draw(undefined, `A = ${A} cm²`) },
   ] }
 }
@@ -183,7 +183,7 @@ for (const [b, s] of [[10, 12], [8, 5]] as const) {
 
 add('mixed', 'Surface area', 'GM15 consolidation', text(
   'Surface area: the total area of every face.',
-  'Cuboid: A = 2(wh + wl + hl), three pairs of faces. Prism: two ends and a rectangle for each side.',
+  'Cuboid: A = 2 × (front + top + side), three pairs of faces. Prism: two ends and a rectangle for each side.',
   'Cylinder: A = 2πrh + 2πr². Cone: A = πrl + πr². Sphere: A = 4πr².',
   'Square-based pyramid: four triangles and the square.',
 ))

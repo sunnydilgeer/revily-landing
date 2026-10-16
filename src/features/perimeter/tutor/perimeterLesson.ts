@@ -108,7 +108,7 @@ practice(simple, 'Which is the perimeter of a 5 m by 3 m rectangle?', 'GM8 p130 
 explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and the perimeter.', 'GM8 p130 Compound shapes (play)', { mode: 'notch' })
 {
   const pts: FigurePoint[] = [[0, 0], [12, 0], [12, 5], [7, 5], [7, 9], [0, 9]]
-  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '12 cm' }, { label: '5 cm' }, { inside: true, ...a }, b, { label: '7 cm' }, { label: '9 cm' }], 'An L-shape: bottom 12 cm, left 9 cm, top 7 cm, the lower right side 5 cm; the two sides of the step are missing.', [cutAway(pts)], caption)
+  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '12 cm' }, { label: '5 cm' }, { inside: true, ...a }, { inside: true, ...b }, { label: '7 cm' }, { label: '9 cm' }], 'An L-shape: bottom 12 cm, left 9 cm, top 7 cm, the lower right side 5 cm; the two sides of the step are missing.', [cutAway(pts)], caption)
   const p = L({ label: 'a', tone: 'x' }, { label: 'b', tone: 'x' })
   worked(compound, 'Find the perimeter of this shape.', 'Missing sides', 'GM8 p130 Example 1 (own numbers)', boardModel([], [
     { title: 'Across', say: 'The whole bottom is 12. The top 7 and side a make the same width.', rows: ['a = 12 − 7 = 5'], picture: L({ label: '5 cm', tone: 'found' }, { label: 'b', tone: 'x' }) },
@@ -126,7 +126,7 @@ explore(compound, 'Drag the corner cut out of the rectangle. Watch the area, and
 }
 {
   const pts: FigurePoint[] = [[0, 0], [15, 0], [15, 6], [9, 6], [9, 10], [0, 10]]
-  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '15 cm' }, { label: '6 cm' }, { inside: true, ...a }, b, { label: '9 cm' }, { label: '10 cm' }], 'An L-shape: bottom 15 cm, lower right side 6 cm, top 9 cm, left 10 cm; two sides of the step are missing.', [cutAway(pts)], caption)
+  const L = (a: Side, b: Side, caption?: string) => polyFig(pts, [{ label: '15 cm' }, { label: '6 cm' }, { inside: true, ...a }, { inside: true, ...b }, { label: '9 cm' }, { label: '10 cm' }], 'An L-shape: bottom 15 cm, lower right side 6 cm, top 9 cm, left 10 cm; two sides of the step are missing.', [cutAway(pts)], caption)
   const p = L({}, {})
   practice(compound, 'Find the perimeter of this shape.', 'GM8 p131 Q4 (own numbers)', p, number(50, '50 cm'), 'Find the two missing sides first.', boardModel([], [
     { title: 'Missing sides', say: 'Across: 15 − 9 = 6. Up: 10 − 6 = 4.', rows: ['a = 15 − 9 = 6', 'b = 10 − 6 = 4'], picture: L({ label: '6 cm', tone: 'found' }, { label: '4 cm', tone: 'found' }) },
