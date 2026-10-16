@@ -59,6 +59,36 @@ function partFig(part: Part, caption?: string): AngleFrame {
   return fig(items, `A circle with ${where[part]} drawn in purple.`, caption)
 }
 
+/**
+ * The circle words on one circle that builds up (Sunny, 16 Oct: "Centre" was written three times, and each part had a
+ * circle of its own). Each step adds its part in purple with its name beside it; the parts before it stay, in ink, with
+ * their names in grey, so the last step shows every part on the one circle. Placed so no two parts cross.
+ */
+const BUILD: Part[] = ['centre', 'radius', 'diameter', 'circumference', 'chord', 'arc', 'sector', 'segment', 'tangent']
+function buildFig(upTo: number): AngleFrame {
+  const items: FigureItem[] = [{ kind: 'circle', centre: [0, 0], r: 1, fill: 'none' }]
+  const touch = at(80), along: FigurePoint = [-Math.sin(80 * Math.PI / 180) * 0.6, Math.cos(80 * Math.PI / 180) * 0.6]
+  BUILD.slice(0, upTo + 1).forEach((part, k) => {
+    const now = k === upTo, style = now ? 'lit' as const : 'plain' as const
+    const name = (where: FigurePoint, text: string, dx = 0, dy = 0) => items.push({ kind: 'text', at: where, text, tone: now ? 'lit' : 'faint', dx, dy })
+    if (part === 'centre') name([0, 0], 'Centre', 0, 18)
+    if (part === 'radius') { items.push({ kind: 'line', from: [0, 0], to: at(60), style }); name(at(60, 0.55), 'Radius', 30, 2) }
+    if (part === 'diameter') { items.push({ kind: 'line', from: at(180), to: at(0), style }); name([-0.5, 0], 'Diameter', 0, -14) }
+    if (part === 'circumference') { if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style }); name(at(235, 1.22), 'Circumference', -10, 0) }
+    if (part === 'chord') { items.push({ kind: 'line', from: at(210), to: at(330), style }); name([0.3, -0.5], 'Chord', 0, -14) }
+    if (part === 'arc') { items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 15, to: 45, style }); name(at(30, 1.18), 'Arc', 14, 0) }
+    if (part === 'sector') {
+      if (now) items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 105, to: 150, sector: true, fill: 'part', style })
+      items.push({ kind: 'line', from: [0, 0], to: at(105), style }, { kind: 'line', from: [0, 0], to: at(150), style }); name(at(127, 0.62), 'Sector')
+    }
+    if (part === 'segment') { if (now) items.push({ kind: 'shape', points: arcPoints(210, 330), fill: 'part' }); name([0, -0.76], 'Segment') }
+    if (part === 'tangent') { items.push({ kind: 'line', from: [touch[0] + along[0], touch[1] + along[1]], to: [touch[0] - along[0], touch[1] - along[1]], style }); name(at(80, 1.2), 'Tangent', 34, -4) }
+  })
+  items.push({ kind: 'point', at: [0, 0] })
+  const shown = BUILD.slice(0, upTo + 1).join(', ')
+  return fig(items, upTo < 0 ? 'A circle with its centre marked.' : `A circle with its parts drawn: ${shown}. The ${BUILD[upTo]} is in purple.`)
+}
+
 const r1 = (n: number) => dp(n, 1)
 const C_BOX = (unit: string) => ({ label: `Circumference (${unit})`, prefix: 'C =' })
 const A_BOX = (unit: string) => ({ label: `Area (${unit}²)`, prefix: 'A =' })
@@ -66,7 +96,7 @@ const A_BOX = (unit: string) => ({ label: `Area (${unit}²)`, prefix: 'A =' })
 /* ---------- Rung 1: the parts of a circle ---------- */
 
 {
-  const SHORT: Record<Part, string> = { centre: 'The middle', radius: 'Centre to edge', diameter: 'Edge to edge, through C', circumference: 'All the way round', chord: 'Edge to edge, missing C', arc: 'Part of the edge', sector: 'Two radii and an arc', segment: 'A chord and an arc', tangent: 'Touches at one point' }
+  const SHORT: Record<Part, string> = { centre: 'The point in the very middle', radius: 'From the centre to the edge', diameter: 'Edge to edge, through the centre', circumference: 'The whole way round the edge', chord: 'Edge to edge, missing the centre', arc: 'Part of the circumference', sector: 'A slice between two radii', segment: 'The part a chord cuts off', tangent: 'Touches the circle at one point' }
   const order: [Part, string, string][] = [
     ['centre', 'Centre', 'The point in the middle, the same distance from everywhere on the edge.'],
     ['radius', 'Radius', 'A straight line from the centre to the edge. Every radius of a circle is the same length. (Plural: radii, “ray-dee-eye”.)'],
@@ -78,12 +108,12 @@ const A_BOX = (unit: string) => ({ label: `Area (${unit}²)`, prefix: 'A =' })
     ['segment', 'Segment', 'The part cut off by a chord, between the chord and the arc.'],
     ['tangent', 'Tangent', 'A straight line outside the circle that touches it at exactly one point.'],
   ]
-  worked(parts, 'The parts of a circle.', 'Circle words', 'GM7 p128 Key circle terms', boardModel([], order.map(([part, name, say]) => ({ title: name, say, rows: [`> ${SHORT[part]}`], picture: partFig(part, name) })), 'Parts', partFig('centre')),
+  worked(parts, 'The parts of a circle.', 'Circle words', 'GM7 p128 Key circle terms', boardModel([], order.map(([part, name, say]) => ({ title: name, say, rows: [`> ${SHORT[part]}`], picture: buildFig(BUILD.indexOf(part)) })), 'Parts', buildFig(-1)),
     'Questions use these words, so learn them: centre, radius, diameter, circumference, chord, arc, sector, segment, tangent.')
   const ask = (part: Part, name: string, wrong: [string, string][], hint: string) => {
     const say = order.find(([p]) => p === part)![2]
     practice(parts, 'What is the purple part called?', 'GM7 p128 Key circle terms', partFig(part), choose(name, ...wrong), hint,
-      boardModel([], [{ title: name, say, rows: [`! ${name}`], picture: partFig(part, name) }], 'Name it', partFig(part)))
+      boardModel([], [{ title: name, say, rows: [`! ${name}`], picture: partFig(part) }], 'Name it', partFig(part)))
   }
   ask('chord', 'Chord', [['Diameter', 'A diameter goes through the centre. This line doesn’t.'], ['Radius', 'A radius goes from the centre to the edge.'], ['Tangent', 'A tangent touches the circle from outside, at one point.']], 'It joins two points on the edge, but misses the centre.')
   ask('sector', 'Sector', [['Segment', 'A segment is cut off by a chord. This is cut out by two radii.'], ['Arc', 'An arc is just part of the edge, a curved line.'], ['Chord', 'A chord is a straight line.']], 'Like a slice of pizza.')
