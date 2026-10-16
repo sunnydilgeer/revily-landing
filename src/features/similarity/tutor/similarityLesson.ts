@@ -59,7 +59,7 @@ explore(factor, 'Drag the corner of the copy. Watch every length change.', 'GM11
   const p = pair(4, 12, { aBase: s('4 cm'), aLeft: s(''), bBase: s('12 cm'), bLeft: s('') })
   worked(factor, 'A and B are similar. Find the scale factor from A to B.', 'The scale factor', 'GM11 p136 Finding the scale factor (own numbers)', boardModel([], [
     { title: 'Match two lengths', say: 'Find a pair of sides in the same place on both shapes: the two bases.', rows: ['>0 A: 4 cm, B: 12 cm'], picture: pair(4, 12, { aBase: s('4 cm', { lit: true }), aLeft: s(''), bBase: s('12 cm', { lit: true }), bLeft: s('') }) },
-    { title: 'Divide big by small', say: 'How many times bigger is B? Divide the bigger length by the smaller.', rows: ['12 ÷ 4 = 3', '! Scale factor = 3'], picture: pair(4, 12, { aBase: s('4 cm'), aLeft: s(''), bBase: s('12 cm'), bLeft: s('') }, 'Every length in B is 3 times A’s') },
+    { title: 'How many times bigger?', say: 'How many times bigger is B? Divide the bigger length by the smaller: that number is the scale factor.', rows: ['12 ÷ 4 = 3', '! Scale factor = 3'], picture: pair(4, 12, { aBase: s('4 cm'), aLeft: s(''), bBase: s('12 cm'), bLeft: s('') }, 'Every length in B is 3 times A’s') },
   ], 'Scale factor', p), 'Similar shapes have equal angles, but one is an enlargement of the other. The scale factor is how many times bigger: bigger length ÷ matching smaller length.')
 }
 for (const [a, b, right, slipList] of [
@@ -87,7 +87,8 @@ function missing(a: [number, number], bBase: number) {
   }, found ? `x = ${x} cm` : undefined)
   const moves = [
     { title: 'The scale factor', say: up ? `B is the bigger one. Its base over A’s base: ${bBase} ÷ ${aBase}.` : `A is the bigger one. Its base over B’s: ${aBase} ÷ ${bBase}.`, rows: [up ? `SF = ${bBase} ÷ ${aBase} = ${sf}` : `SF = ${aBase} ÷ ${bBase} = ${sf}`], picture: draw('bases') },
-    { title: up ? 'Times it' : 'Divide by it', say: up ? `x is on the bigger shape, so times the matching side, ${aSide}, by ${sf}.` : `x is on the smaller shape, so divide the matching side, ${aSide}, by ${sf}.`, rows: [up ? `x = ${aSide} × ${sf}` : `x = ${aSide} ÷ ${sf}`, `! x = ${x} cm`], picture: draw('sides', true) },
+    // Why times (or divide) before how (Sunny, 16 Oct: "Times it" didn't say why).
+    { title: up ? `B is ${sf} times bigger` : `B is ${sf} times smaller`, say: up ? `Similar shapes grow evenly: every side of B is ${sf} times the matching side of A. x matches ${aSide}, so x = ${aSide} × ${sf}.` : `Similar shapes shrink evenly: every side of B is the matching side of A divided by ${sf}. x matches ${aSide}, so x = ${aSide} ÷ ${sf}.`, rows: [up ? `> Every side of B is ${sf} times A’s` : `> Every side of B is A’s ÷ ${sf}`, up ? `x = ${aSide} × ${sf}` : `x = ${aSide} ÷ ${sf}`, `! x = ${x} cm`], picture: draw('sides', true) },
   ]
   return { x, sf, p: draw(null), moves }
 }
@@ -141,7 +142,7 @@ function nest(ad: number, db: number, de: string, bc: string, lit?: 'ab' | 'acro
   worked(nested, 'ADE and ABC are similar. Find the length x.', 'One triangle inside another', 'GM11 p136 Example 2 (own numbers)', boardModel([], [
     { title: 'The whole side', say: 'The big triangle’s side AB is both parts: AD and DB.', rows: ['AB = 4 + 6 = 10 cm'], picture: nest(4, 6, '3 cm', 'x', 'ab') },
     { title: 'The scale factor', say: 'AB on the big triangle matches AD on the small one.', rows: ['SF = 10 ÷ 4 = 2.5'], picture: nest(4, 6, '3 cm', 'x', 'ab') },
-    { title: 'Times it', say: 'BC matches DE: times DE by 2.5.', rows: ['x = 3 × 2.5', '! x = 7.5 cm'], picture: nest(4, 6, '3 cm', 'x', 'across', '7.5 cm', 'x = 7.5 cm') },
+    { title: 'ABC is 2.5 times bigger', say: 'Every side of the big triangle is 2.5 times the matching side of the small one. BC matches DE, so BC = DE × 2.5.', rows: ['> Every side of ABC is 2.5 times ADE’s', 'x = 3 × 2.5', '! x = 7.5 cm'], picture: nest(4, 6, '3 cm', 'x', 'across', '7.5 cm', 'x = 7.5 cm') },
   ], 'Find x', p), 'When one triangle sits inside the other, the big triangle’s side is made of two parts. Add them before you divide: AD matches AB, not DB.')
 }
 for (const [ad, db, de, right] of [[5, 3, 10, 16], [3, 3, 4.4, 8.8]] as const) {
@@ -150,14 +151,14 @@ for (const [ad, db, de, right] of [[5, 3, 10, 16], [3, 3, 4.4, 8.8]] as const) {
   practice(nested, 'ADE and ABC are similar. Find the length x.', ad === 3 ? 'GM11 Your Turn Q3 (book’s numbers)' : 'GM11 p136 (own numbers)', p, number(right, `${right} cm`), 'Add AD and DB to get AB first.', boardModel([], [
     { title: 'The whole side', say: 'AB is AD and DB together.', rows: [`AB = ${ad} + ${db} = ${ab} cm`], picture: nest(ad, db, `${de} cm`, 'x', 'ab') },
     { title: 'The scale factor', say: 'AB matches AD.', rows: [`SF = ${ab} ÷ ${ad} = ${sf}`], picture: nest(ad, db, `${de} cm`, 'x', 'ab') },
-    { title: 'Times it', say: `BC matches DE: ${de} × ${sf}.`, rows: [`x = ${de} × ${sf}`, `! x = ${right} cm`], picture: nest(ad, db, `${de} cm`, 'x', 'across', `${right} cm`, `x = ${right} cm`) },
+    { title: `ABC is ${sf} times bigger`, say: `Every side of ABC is ${sf} times the matching side of ADE. BC matches DE: ${de} × ${sf}.`, rows: [`> Every side of ABC is ${sf} times ADE’s`, `x = ${de} × ${sf}`, `! x = ${right} cm`], picture: nest(ad, db, `${de} cm`, 'x', 'across', `${right} cm`, `x = ${right} cm`) },
   ], 'Find x', p), slips(right, [[Number((de * db / ad).toFixed(2)), `AB is the whole side, ${ad} + ${db} = ${ab}. The scale factor is AB ÷ AD.`], [Number((de + db).toFixed(2)), 'Similar shapes multiply. Find the scale factor AB ÷ AD.']]), LEN)
 }
 
 add('mixed', 'Similar shapes', 'GM11 consolidation', text(
   'Similar shapes: equal angles, every length multiplied by the scale factor.',
   'Scale factor = bigger length ÷ matching smaller length.',
-  'To the bigger shape, times by it. To the smaller shape, divide.',
+  'Every side of the bigger shape is the scale factor times the smaller one’s: times to go up to the bigger shape, divide to come down.',
   'A triangle inside a triangle: add the two parts of the side first.',
 ))
 

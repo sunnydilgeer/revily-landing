@@ -9,7 +9,7 @@ import { fig, screens, slips } from '../../geometry/tutor/figureLesson'
  * what congruent means (the same size and shape, so the same sides and angles, even when one is turned or flipped, as
  * the book's shapes A and C, D and H are); finding congruent pairs among shapes on squared paper (Your Turn Q1 to Q3);
  * and using congruence, where matching sides and angles are equal, to find a missing side, angle or perimeter. Built
- * like lessons 1 to 9, but with no measuring board: the turn-and-flip idea is drawn in each worked example instead.
+ * like lessons 1 to 9. One play screen turns B onto A (MeasureBoard's congruent mode); the worked examples draw the turn.
  *
  * Hidden on live like lessons 1 to 9: only the unlisted Geometry shelf (src/features/geometry/geometryLessons.ts)
  * opens it.
@@ -17,7 +17,7 @@ import { fig, screens, slips } from '../../geometry/tutor/figureLesson'
 
 const lesson = author(210)
 const { add, finish } = lesson
-const { worked, practice } = screens(lesson)
+const { explore, worked, practice } = screens(lesson)
 const meaning = 'geometry-congruent-meaning'
 const pairs = 'geometry-congruent-pairs'
 const missing = 'geometry-congruent-missing'
@@ -52,13 +52,25 @@ function nameSpot(pts: Pt[]): Pt {
   }
   return best
 }
-type Placed = { pts: Pt[]; name: string; lit?: boolean; faint?: boolean }
+type Placed = { pts: Pt[]; name: string; lit?: boolean; faint?: boolean; sides?: boolean }
+/** Each side's length in squares, faint and just outside it (Sunny, 16 Oct), so the matching shape can be read off. */
+function sideLengths(pts: Pt[]): FigureItem[] {
+  const area = pts.reduce((a, [x, y], i) => a + x * pts[(i + 1) % pts.length][1] - pts[(i + 1) % pts.length][0] * y, 0)
+  // Only the long sides (2 squares or more): the 1-square sides round the inside corner would crowd it.
+  return pts.flatMap(([ax, ay], i): FigureItem[] => {
+    const [bx, by] = pts[(i + 1) % pts.length], len = Math.hypot(bx - ax, by - ay)
+    // Outward is to the right of a side going anticlockwise; y is up in the figure and down on screen.
+    const nx = (by - ay) / len * Math.sign(area), ny = -(bx - ax) / len * Math.sign(area)
+    return len < 2 ? [] : [{ kind: 'text', at: [(ax + bx) / 2, (ay + by) / 2], text: String(Number(len.toFixed(1))), tone: 'faint', dx: nx * 12, dy: -ny * 12 }]
+  })
+}
 /** Shapes on squared paper, each named in its middle; `lit` ones glow purple. */
 function paper(to: Pt, shapes: Placed[], spoken: string, caption?: string): AngleFrame {
   const items: FigureItem[] = [{ kind: 'grid', from: [0, 0], to }]
   for (const s of shapes) {
     items.push({ kind: 'shape', points: s.pts, ...(s.lit ? { lit: true } : {}), ...(s.faint ? { fill: 'none' as const, dashed: true } : {}) })
     items.push({ kind: 'text', at: nameSpot(s.pts), text: s.name, name: true })
+    if (s.sides) items.push(...sideLengths(s.pts))
   }
   return fig(items, spoken, caption)
 }
@@ -68,6 +80,8 @@ const longL: Pt[] = [[0, 0], [4, 0], [4, 1], [1, 1], [1, 2], [0, 2]]
 const tri: Pt[] = [[0, 0], [3, 0], [0, 2]]
 
 /* ---------- Rung 1: what congruent means ---------- */
+
+explore(meaning, 'Turn B until it matches A. Does it fit exactly?', 'GM10 p135 Simple congruence (play)', { mode: 'congruent' })
 
 {
   const A = placed(L, [1, 1]), B = placed(L, [6, 1], 'turn')
@@ -99,8 +113,9 @@ const tri: Pt[] = [[0, 0], [3, 0], [0, 2]]
 /* ---------- Rung 2: finding congruent pairs ---------- */
 
 {
-  const A = placed(L, [1, 1]), B = placed(longL, [5, 1]), C = placed(L, [11, 1], 'half')
-  const draw = (litB: boolean, litC: boolean, caption?: string) => paper([15, 4], [{ pts: A, name: 'A' }, { pts: B, name: 'B', lit: litB }, { pts: C, name: 'C', lit: litC }], 'Three L shapes on squared paper.', caption)
+  // Two squares between shapes, so the side lengths beside them don't meet.
+  const A = placed(L, [1, 1]), B = placed(longL, [6, 1]), C = placed(L, [13, 1], 'half')
+  const draw = (litB: boolean, litC: boolean, caption?: string, sides = litB || litC) => paper([17, 4], [{ pts: A, name: 'A', sides }, { pts: B, name: 'B', lit: litB, sides }, { pts: C, name: 'C', lit: litC, sides }], 'Three L shapes on squared paper.', caption)
   worked(pairs, 'Which shape is congruent to A?', 'Finding pairs', 'GM10 Your Turn Q1 (own shapes)', boardModel([], [
     { title: 'Count the sides', say: 'A’s long side is 3 squares. B’s long side is 4: B can’t be congruent.', rows: ['>0 B: long side 4, not 3'], picture: draw(true, false) },
     { title: 'Turn the other', say: 'C is A upside down: turn it half way round and every side matches.', rows: ['! C is congruent to A'], picture: draw(false, true, 'C is A turned half way round') },

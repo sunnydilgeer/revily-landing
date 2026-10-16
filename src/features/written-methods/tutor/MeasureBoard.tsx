@@ -31,7 +31,7 @@ import './AngleBoard.css'
 
 export type MeasureShape = 'square' | 'rectangle' | 'equilateral' | 'isosceles' | 'pentagon' | 'hexagon' | 'parallelogram' | 'rhombus' | 'kite' | 'trapezium'
 export type MeasureBoardSpec = {
-  mode: 'turn' | 'mirror' | 'shear' | 'circle' | 'sector' | 'notch' | 'enlarge' | 'translate' | 'prism' | 'locus' | 'bearing' | 'pythagoras'
+  mode: 'turn' | 'mirror' | 'shear' | 'circle' | 'sector' | 'notch' | 'enlarge' | 'translate' | 'prism' | 'locus' | 'bearing' | 'pythagoras' | 'congruent'
   /** turn and mirror: the shape. shear: 'parallelogram' (or 'equilateral' for a triangle). */
   shape?: MeasureShape
 }
@@ -60,6 +60,10 @@ export const SHAPES: Record<MeasureShape, P[]> = {
   trapezium: centred([{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 1.5, y: 1 }, { x: 0.5, y: 1 }]),
 }
 const SIZE = 62
+/** congruent: an L of whole squares, A fixed on the left and B, a copy, turned on the right (Sunny, 16 Oct). */
+const CONG_L = centred([{ x: 0, y: 0 }, { x: 3, y: 0 }, { x: 3, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 2 }, { x: 0, y: 2 }])
+const CONG_U = 26, CONG_A = { x: 82, y: 104 }, CONG_B = { x: 232, y: 104 }
+const congAt = (O: P, deg = 0) => (p: P): P => { const q = turn(p, deg); return { x: O.x + q.x * CONG_U, y: O.y - q.y * CONG_U } }
 const toSvg = (p: P): P => ({ x: C.x + p.x * SIZE, y: C.y - p.y * SIZE })
 const turn = (p: P, deg: number): P => ({ x: p.x * Math.cos(rad(deg)) - p.y * Math.sin(rad(deg)), y: p.x * Math.sin(rad(deg)) + p.y * Math.cos(rad(deg)) })
 const reflect = (p: P, deg: number): P => { const c = Math.cos(rad(2 * deg)), s = Math.sin(rad(2 * deg)); return { x: c * p.x + s * p.y, y: s * p.x - c * p.y } }
@@ -93,7 +97,7 @@ export const threeFigure = (deg: number) => String(Math.round(((deg % 360) + 360
 
 export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
   const shape = spec.shape ?? 'square'
-  const start: Record<MeasureBoardSpec['mode'], number[]> = { turn: [0], mirror: [20], shear: [2, 4], circle: [3], sector: [120], notch: [3, 2], enlarge: [2], translate: [3, -1], prism: [3], locus: [150, 60], bearing: [60], pythagoras: [3, 4] }
+  const start: Record<MeasureBoardSpec['mode'], number[]> = { turn: [0], mirror: [20], shear: [2, 4], circle: [3], sector: [120], notch: [3, 2], enlarge: [2], translate: [3, -1], prism: [3], locus: [150, 60], bearing: [60], pythagoras: [3, 4], congruent: [90] }
   const [v, setV] = useState(start[spec.mode])
   const [found, setFound] = useState<number[]>([])
   const [held, setHeld] = useState(false)
@@ -124,6 +128,11 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
       return [a >= 356 ? 360 : snap(a, fitTurns)]
     }
     if (spec.mode === 'mirror') return [snap(heading(C, p) % 180, fitFolds) % 180]
+    if (spec.mode === 'congruent') {
+      // B turns about its middle, following the pointer from its first corner; near no turn at all it snaps onto A's way round.
+      const a = (heading(CONG_B, p) - heading(CONG_B, congAt(CONG_B)(CONG_L[0])) + 360) % 360
+      return [a < 8 || a > 352 ? 0 : Math.round(a / 5) * 5]
+    }
     if (spec.mode === 'shear') {
       const h = clamp(Math.round((BASE.y - p.y) / GRID), 1, 5), x = clamp(Math.round((p.x - BASE.x) / GRID * 2) / 2, -1, spec.shape === 'equilateral' ? 8 : 3)
       return [spec.shape === 'equilateral' ? x : clamp(x, -1, 4), h]
@@ -160,6 +169,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown'
     if (spec.mode === 'turn') set([clamp(v[0] + step, 0, 360)])
     if (spec.mode === 'mirror') set([(v[0] + step + 180) % 180])
+    if (spec.mode === 'congruent') set([(v[0] + step * 5 + 360) % 360])
     if (spec.mode === 'shear') set(vertical ? [v[0], clamp(v[1] + step, 1, 5)] : [clamp(v[0] + step / 2, -1, spec.shape === 'equilateral' ? 8 : 3), v[1]])
     if (spec.mode === 'circle') set([clamp(v[0] + step / 2, 1, 7.5)])
     if (spec.mode === 'sector') set([clamp(v[0] + step * 5, 10, 360)])
@@ -201,6 +211,19 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     footer = spec.mode === 'turn'
       ? <span aria-hidden="true">Turned <span className="angle-board__n c0">{v[0]}°</span>{fitsNow && v[0] ? <> {pill('fits')}</> : ''}<span className="measure-board__found">{found.length ? `Fits: ${found.map(a => `${a}°`).join(', ')}` : 'Turn it until it fits'}</span>{done && <span className="measure-board__found"><span className="angle-board__same">Order {total}</span></span>}</span>
       : <span aria-hidden="true">{fitsNow ? pill('Line of symmetry') : <span className="angle-board__tag">Doesn’t fit</span>}<span className="measure-board__found">Lines found: <span className="angle-board__n c0">{found.length}</span>{done && <> <span className="angle-board__same">all {total}</span></>}</span></span>
+  } else if (spec.mode === 'congruent') {
+    const A = CONG_L.map(congAt(CONG_A)), B = CONG_L.map(congAt(CONG_B, v[0])), fit = v[0] % 360 === 0
+    handle = B[0]
+    drawing = <>
+      <path className={`ns-fig__shape${fit ? ' measure-board__match' : ''}`} d={path(A)} />
+      <path className={`ns-fig__shape${fit ? ' measure-board__match' : ''}`} d={path(B)} />
+      {/* When B is the same way round as A, its outline is laid over A too: it fits exactly. */}
+      {fit && <path className="measure-board__overlay" d={path(CONG_L.map(congAt(CONG_A)))} />}
+      <text className="measure-board__label is-big" x={CONG_A.x} y="168">A</text>
+      <text className="measure-board__label is-big" x={CONG_B.x} y="168">B</text>
+    </>
+    spoken = fit ? 'B is turned to match A. It fits exactly on A: A and B are congruent.' : `B is turned ${v[0]}° from A. Turn it until it matches.`
+    footer = <span aria-hidden="true">{fit ? pill('Fits exactly: congruent') : <span className="angle-board__tag">Turn B until it matches A</span>}</span>
   } else if (spec.mode === 'shear') {
     const [x, h] = v, triangle = spec.shape === 'equilateral'
     const A = BASE, B = { x: BASE.x + BASE_LEN * GRID, y: BASE.y }, top = { x: BASE.x + x * GRID, y: BASE.y - h * GRID }
@@ -293,8 +316,10 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
       <text className="measure-board__label" x={F.x + w * GRID / 2} y={F.y + 13}>{w}</text>
       <text className="measure-board__label" x={F.x - 12} y={F.y - h * GRID / 2}>{h}</text>
       <text className="measure-board__label is-h" x={(fr[1].x + bk[1].x) / 2 + 8} y={(fr[1].y + bk[1].y) / 2 + 8}>{l}</text>
+      <text className="measure-board__label is-tiny is-a" x="262" y="131">Volume</text>
       <text className="measure-board__label is-big is-a" x="262" y="150">V = {w * h * l}</text>
-      <text className="measure-board__label is-big is-c" x="262" y="185">SA = {2 * (w * h + w * l + h * l)}</text>
+      <text className="measure-board__label is-tiny is-c" x="262" y="168">Surface area</text>
+      <text className="measure-board__label is-big is-c" x="262" y="186">SA = {2 * (w * h + w * l + h * l)}</text>
     </>
     spoken = `A cuboid ${w} wide, ${h} tall and ${l} long. The end face is ${w * h} squares, so the volume is ${w * h} times ${l}, ${w * h * l} cubes. Surface area ${2 * (w * h + w * l + h * l)}.`
     footer = <span aria-hidden="true">End face <span className="angle-board__n c2">{w * h}</span> × length <span className="angle-board__n c1">{l}</span> = {pill(`${w * h * l} cubes`)}</span>
@@ -380,7 +405,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     footer = <span aria-hidden="true">Area <span className="angle-board__n c1">{area}</span>, perimeter {pill(`${perimeter}`)}</span>
   }
 
-  const what = { turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.', enlarge: 'Drag the corner of the image to change the scale factor, or use the arrow keys.', translate: 'Drag the image across the paper, or use the arrow keys.', prism: 'Drag the back corner to make the cuboid longer or shorter, or use the arrow keys.', locus: 'Drag the point P, or use the arrow keys.', bearing: 'Drag B round A, or use the arrow keys.', pythagoras: 'Drag the top corner of the triangle, or use the arrow keys.' }[spec.mode]
+  const what = { congruent: 'Drag the corner of B round to turn it, or use the arrow keys.', turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.', enlarge: 'Drag the corner of the image to change the scale factor, or use the arrow keys.', translate: 'Drag the image across the paper, or use the arrow keys.', prism: 'Drag the back corner to make the cuboid longer or shorter, or use the arrow keys.', locus: 'Drag the point P, or use the arrow keys.', bearing: 'Drag B round A, or use the arrow keys.', pythagoras: 'Drag the top corner of the triangle, or use the arrow keys.' }[spec.mode]
   return <div className={`angle-board measure-board${held ? ' is-held' : ''}`}>
     <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Measuring board. ${what}`} aria-describedby={`${id}-sum`}
       onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); setHeld(true); move(toLocal(event)) }}
