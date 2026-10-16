@@ -221,18 +221,17 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     const r = v[0], O = { x: 110, y: 112 }, R = r * 12
     handle = { x: O.x + R, y: O.y }
     drawing = <>
-      <circle className="ns-fig__shape" cx={O.x} cy={O.y} r={R} />
+      {/* Colour only what the picture shows (Sunny, 16 Oct): the edge is the circumference in purple, the line the diameter in blue. */}
+      <circle className="ns-fig__shape is-empty measure-board__edge" cx={O.x} cy={O.y} r={R} />
       <path className="ns-fig__line is-x" d={`M${O.x - R} ${O.y} L${O.x + R} ${O.y}`} />
       <circle className="ns-fig__point" cx={O.x} cy={O.y} r="3.5" />
-      <text className="measure-board__label is-word" x="262" y="50">Diameter</text>
-      <text className="measure-board__label is-big" x="262" y="68">d = {fmt(2 * r)}</text>
-      <text className="measure-board__label is-word is-c" x="262" y="98">Circumference</text>
-      <text className="measure-board__label is-big is-c" x="262" y="116">C = {fmt(2 * Math.PI * r)}</text>
-      <text className="measure-board__label is-word is-a" x="262" y="146">Area</text>
-      <text className="measure-board__label is-big is-a" x="262" y="164">A = {fmt(Math.PI * r * r)}</text>
+      <text className="measure-board__label is-d" x="264" y="70">Diameter</text>
+      <text className="measure-board__label is-big is-d" x="264" y="90">{fmt(2 * r)}</text>
+      <text className="measure-board__label is-a" x="264" y="128">Circumference</text>
+      <text className="measure-board__label is-big is-a" x="264" y="148">{fmt(2 * Math.PI * r)}</text>
     </>
-    spoken = `Radius ${r}, diameter ${2 * r}, circumference ${fmt(2 * Math.PI * r)}, area ${fmt(Math.PI * r * r)}. Circumference divided by diameter is 3.14.`
-    footer = <span aria-hidden="true"><span className="angle-board__n c1">Circumference</span> ÷ <span className="angle-board__n c0">diameter</span> = {fmt(2 * Math.PI * r)} ÷ {fmt(2 * r)} = {pill('3.14… = π')}</span>
+    spoken = `Radius ${r}, diameter ${2 * r}, circumference ${fmt(2 * Math.PI * r)}. Circumference divided by diameter is 3.14.`
+    footer = <span aria-hidden="true"><span className="angle-board__n c2">{fmt(2 * Math.PI * r)}</span> ÷ <span className="angle-board__n c0">{fmt(2 * r)}</span> = {pill('3.14… = π')}</span>
   } else if (spec.mode === 'sector') {
     const a = v[0], O = { x: 110, y: 112 }, R = 85, r = 6
     const end = { x: O.x + R * Math.cos(rad(a)), y: O.y - R * Math.sin(rad(a)) }
@@ -242,14 +241,15 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     drawing = <>
       <circle className="ns-fig__shape is-empty" cx={O.x} cy={O.y} r={R} />
       <path className="ns-fig__shape is-part" d={sector} />
-      {a < 360 && <path className="ns-fig__line is-lit" d={`M${O.x + R} ${O.y} A${R} ${R} 0 ${large} 0 ${end.x} ${end.y}`} />}
+      {/* One colour for each thing the words name (Sunny, 16 Oct): the area is the purple slice, the arc its brown edge. */}
+      {a < 360 && <path className="ns-fig__line measure-board__arc" d={`M${O.x + R} ${O.y} A${R} ${R} 0 ${large} 0 ${end.x} ${end.y}`} />}
       <text className="measure-board__label is-big" x="262" y="62">{a}° of 360°</text>
       <text className="measure-board__label is-big is-a" x="262" y="104">Area {fmt(a / 360 * Math.PI * r * r)}</text>
       <text className="measure-board__label is-big is-c" x="262" y="146">Arc {fmt(a / 360 * Math.PI * 2 * r)}</text>
       <text className="measure-board__label" x={O.x + R / 2} y={O.y + 12}>r = {r}</text>
     </>
     spoken = `A ${a}° sector of a circle of radius ${r}: ${a} over 360 of the circle. Area ${fmt(a / 360 * Math.PI * r * r)}, arc ${fmt(a / 360 * Math.PI * 2 * r)}.`
-    footer = <span aria-hidden="true">Fraction of the circle: <span className="angle-board__n c2">{a}</span> ÷ 360 = {pill(fmt(a / 360, 3))}</span>
+    footer = <span aria-hidden="true">Fraction of the circle: {a} ÷ 360 = {pill(fmt(a / 360, 3))}</span>
   } else if (spec.mode === 'enlarge') {
     const k = v[0], at = (q: P, f = 1): P => ({ x: ENLARGE_O.x + q.x * f * GRID, y: ENLARGE_O.y - q.y * f * GRID })
     const image = ENLARGE_SHAPE.map(q => at(q, k))

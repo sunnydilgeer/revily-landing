@@ -146,7 +146,7 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
 export type FigurePoint = [number, number]
 export type FigureTone = 'given' | 'x' | 'lit' | 'found' | 'faint'
 export type FigureItem =
-  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part'; dashed?: boolean; lit?: boolean }
+  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean }
   | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found'; arrow?: boolean }
   | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
   | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed' }
