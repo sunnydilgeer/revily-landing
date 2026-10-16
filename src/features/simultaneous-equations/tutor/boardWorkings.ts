@@ -22,6 +22,9 @@ export function boardRow(line: string): EquationRow {
   const note = line.match(/^>(\d)? /)
   if (note) return { note: line.slice(note[0].length), family: note[1] === undefined ? 3 : Number(note[1]) }
   if (line.startsWith('! ')) return { answer: line.slice(2) }
+  // "#3 Front = 5 × 3": the name on the left in a picture's colour (3 purple, 0 blue, 1 brown), matching the part it names.
+  const tint = line.match(/^#(\d) /)
+  if (tint) return { ...boardRow(line.slice(3)), tint: Number(tint[1]) } as EquationRow
   const label = /^[①②] /.test(line) ? line[0] : undefined
   const body = label ? line.slice(2) : line
   if (body.startsWith('= ')) return { left: '', right: body.slice(2) }
@@ -32,7 +35,7 @@ export function boardRow(line: string): EquationRow {
 
 /** A row as KaTeX for the step chain: markers and labels gone, words kept as words. */
 export function rowTex(line: string) {
-  const plain = line.replace(/^(>\d?|!) /, '').replace(/^[①②] /, '').replace(/[~^[\]]/g, '')
+  const plain = line.replace(/^(>\d?|!|#\d) /, '').replace(/^[①②] /, '').replace(/[~^[\]]/g, '')
   if (/[a-z]{3,}/i.test(plain.replace(/\b(?:[a-z])\b/gi, ''))) return `\\text{${plain.replace(/\{([^|}]*)\|([^}]*)\}/g, '}\\frac{$1}{$2}\\text{').replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/[①②]/g, m => m === '①' ? '(1)' : '(2)').replace(/✓/g, '}\\checkmark\\text{').replace(/²/g, '}^{2}\\text{')}}`
   return plain.replace(/[①②]/g, m => m === '①' ? '(1)' : '(2)').replace(/≡/g, '\\equiv ').replace(/−/g, '-').replace(/×/g, '\\times ').replace(/÷/g, '\\div ')
     .replace(/£/g, '\\pounds ').replace(/%/g, '\\%').replace(/²/g, '^{2}').replace(/°/g, '^{\\circ}').replace(/π/g, '\\pi ').replace(/✓/g, '\\checkmark').replace(/\(\{([^|]*)\|([^}]*)\}\)/g, '\\begin{pmatrix}$1\\\\$2\\end{pmatrix}').replace(/\{([^|]*)\|([^}]*)\}/g, '\\frac{$1}{$2}')

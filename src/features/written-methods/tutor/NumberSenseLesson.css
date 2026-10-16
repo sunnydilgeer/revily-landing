@@ -207,6 +207,10 @@
 .ns-eq__note { color: var(--f); }
 /* A calm lesson (calmColours): working rows in ink, so the only colours left are the answer's green and the picture's own. */
 .is-calm .ns-eq__token, .is-calm .ns-eq__note { color: var(--rv-ink); }
+/* A name coloured to match the part of the picture it names ("#3 Front = …"), calm lesson or not. */
+.ns-eq__left.is-tint { --tint: var(--f); color: var(--tint) !important; }
+.ns-eq__left.is-tint .ns-eq__token { color: var(--tint) !important; }
+.ns-fig__shape.is-tint { fill: color-mix(in srgb, var(--f) 24%, transparent); stroke: none; }
 /* A question given as a note ("12 : 18 : 30") opens big in the middle of an otherwise empty board, in plain ink. */
 .ns-eq.is-plain .ns-eq__note { color: var(--rv-ink); font-size: clamp(27px, 6vw, 44px); padding: 28px 0; }
 .ns-eq .is-struck { text-decoration: line-through 2px #dc2626; opacity: .75; }

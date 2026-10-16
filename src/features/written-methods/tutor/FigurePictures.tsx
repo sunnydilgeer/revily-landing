@@ -112,7 +112,7 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
         const id = `cut-${uid}-${i}`
         parts.push(<defs key={`p${i}`}><pattern id={id} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line className="ns-fig__hatch" x1="0" y1="0" x2="0" y2="7" /></pattern></defs>,
           <path key={i} className="ns-fig__cut" d={d} fill={`url(#${id})`} />)
-      } else parts.push(<path key={i} className={`ns-fig__shape${item.fill === 'none' || item.open ? ' is-empty' : item.fill === 'part' ? ' is-part' : ''}${item.dashed ? ' is-dashed' : ''}${item.faint ? ' is-faint' : ''}`} d={d} />)
+      } else parts.push(<path key={i} className={`ns-fig__shape${item.fill === 'none' || item.open ? ' is-empty' : item.fill === 'part' ? ' is-part' : ''}${item.dashed ? ' is-dashed' : ''}${item.faint ? ' is-faint' : ''}${item.tint !== undefined ? ` is-tint is-f${item.tint}` : ''}`} d={d} />)
     }
     if (item.kind === 'line') {
       const a = at(item.from), b = at(item.to)

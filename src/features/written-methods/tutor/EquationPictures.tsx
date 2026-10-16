@@ -126,7 +126,7 @@ export function EquationVisual({ frame, newFrom, heading, plain, focus }: { fram
           : <Powers text={spaced(row.note)} />}</p>
         : <div key={i} className={`ns-eq__row${proof && !row.left ? ' is-carry' : ''}${done(i)}`} aria-hidden="true">
           {row.label && <span className="ns-eq__label">{row.label}</span>}
-          <span className="ns-eq__left"><Side side={row.left} plain={plain} /></span>
+          <span className={`ns-eq__left${row.tint !== undefined && !plain ? ` is-tint is-f${row.tint}` : ''}`}><Side side={row.left} plain={plain} /></span>
           <span className="ns-eq__equals"><Show text={row.sign ?? '='} plain={plain} /></span>
           {row.middle !== undefined && <><span className="ns-eq__middle"><Side side={row.middle} plain={plain} /></span><span className="ns-eq__equals ns-eq__sign2"><Show text={row.sign2 ?? '='} plain={plain} /></span></>}
           <span className="ns-eq__right"><Side side={row.right} plain={plain} /></span>
