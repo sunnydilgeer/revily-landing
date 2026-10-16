@@ -146,7 +146,7 @@ export type EquationFrame = { rows: EquationRow[]; given?: number }
 export type FigurePoint = [number, number]
 export type FigureTone = 'given' | 'x' | 'lit' | 'found' | 'faint'
 export type FigureItem =
-  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean }
+  | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean; faint?: boolean }
   | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found'; arrow?: boolean }
   | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
   | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed' }
@@ -159,6 +159,10 @@ export type FigureItem =
   | { kind: 'grid'; from: FigurePoint; to: FigurePoint; axes?: boolean; numbers?: boolean }
   /** A shaded region with no outline: its loops are filled even-odd, so a loop inside another cuts a hole (a Venn diagram's A′). */
   | { kind: 'shade'; loops: FigurePoint[][]; tone?: 'lit' | 'found' }
+  /** One beat of a loop that lights the parts of a picture one at a time (Sunny, 16 Oct: faces, edges and vertices
+   *  counted one by one). Beat `slot` of `of`, each `beat` seconds: a face (`shape`), an edge (`line`, straight or a curve through its points) or a corner
+   *  (`at`), lit in purple, with an optional count (`text`) set at `label` or the part's middle. */
+  | { kind: 'beat'; slot: number; of: number; beat?: number; shape?: FigurePoint[]; line?: FigurePoint[]; at?: FigurePoint; text?: string; label?: FigurePoint; quiet?: boolean }
 /** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
 export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number }
 

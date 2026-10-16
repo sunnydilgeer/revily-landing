@@ -499,6 +499,16 @@
 .ns-fig__shade { stroke: none; fill: color-mix(in srgb, #7c3aed 26%, transparent); }
 .ns-fig__shade.is-found { fill: color-mix(in srgb, var(--rv-good) 30%, transparent); }
 .ns-fig__shape.is-dashed { stroke-dasharray: 7 6; fill: none; }
+/* A faint outline only, like the same triangle seen through the middle of a prism. */
+.ns-fig__shape.is-faint { fill: none; stroke: #7c3aed; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .35; }
+/* Faces, edges and corners lit one at a time (FigurePictures, kind 'beat'). */
+.ns-fig__beat { opacity: 0; animation-iteration-count: infinite; animation-timing-function: ease-in-out; animation-fill-mode: both; }
+.ns-fig__beat-face { fill: color-mix(in srgb, #7c3aed 30%, transparent); stroke: #7c3aed; stroke-width: 3.5; stroke-linejoin: round; }
+.ns-fig__beat-slice { fill: color-mix(in srgb, #7c3aed 14%, transparent); stroke: #7c3aed; stroke-width: 2; stroke-linejoin: round; }
+.ns-fig__line.is-beat { stroke-width: 6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.ns-fig__beat-dot { fill: #7c3aed; stroke: var(--rv-paper, #fff); stroke-width: 2; }
+.ns-fig__beat-count { fill: #6d28d9; font-size: 17px; font-weight: 800; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: var(--rv-paper, #fff); stroke-width: 4px; }
+@media (prefers-reduced-motion: reduce) { .ns-fig__beat { animation: none !important; opacity: .55; } }
 .ns-fig__cut { stroke: var(--rv-biro); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .55; }
 .ns-fig__hatch { stroke: var(--rv-biro); stroke-width: 1.5; opacity: .45; }
 .ns-fig__line { fill: none; stroke: var(--rv-ink); stroke-width: 2.5; stroke-linecap: round; }
