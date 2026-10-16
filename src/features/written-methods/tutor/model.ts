@@ -60,6 +60,8 @@ export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
   steadyPictures?: boolean
   /** Working rows in ink: only answers (green) and the colours that match the picture stay (Sunny, 16 Oct, Circles). */
   calmColours?: boolean
+  /** Labels on the pictures drawn a size smaller, so they sit clear of the lines they name (Sunny, 16 Oct: circles). */
+  smallLabels?: boolean
   /** Pictures show half as big again (up to 600px wide instead of 400px), for lessons whose shapes are small. */
   largePictures?: boolean
   /** A Graphs lesson: every card has one fixed graph slot, the same size and place on every screen (GraphSlot.tsx). */
