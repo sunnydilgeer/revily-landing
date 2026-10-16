@@ -322,7 +322,7 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
       <text className="measure-board__label is-big is-c" x="262" y="186">SA = {2 * (w * h + w * l + h * l)}</text>
     </>
     spoken = `A cuboid ${w} wide, ${h} tall and ${l} long. The end face is ${w * h} squares, so the volume is ${w * h} times ${l}, ${w * h * l} cubes. Surface area ${2 * (w * h + w * l + h * l)}.`
-    footer = <span aria-hidden="true">End face <span className="angle-board__n c2">{w * h}</span> × length <span className="angle-board__n c1">{l}</span> = {pill(`${w * h * l} cubes`)}</span>
+    footer = <span aria-hidden="true">V = A × l = <span className="angle-board__n c2">{w * h}</span> × <span className="angle-board__n c1">{l}</span> = {pill(`${w * h * l} cubes`)}</span>
   } else if (spec.mode === 'locus') {
     const Pt = { x: v[0], y: v[1] }, pa = Math.hypot(Pt.x - LOCUS_A.x, Pt.y - LOCUS_A.y) / CM, pb = Math.hypot(Pt.x - LOCUS_B.x, Pt.y - LOCUS_B.y) / CM
     const mid = (LOCUS_A.x + LOCUS_B.x) / 2, same = Math.abs(pa - pb) < 0.05
