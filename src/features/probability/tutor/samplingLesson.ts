@@ -141,7 +141,7 @@ playSort(faults, 'Sort these questionnaire questions: fine, or faulty?', 'P9 p18
   practice(faults, 'What’s wrong with Terry’s question?', 'P9 Your Turn Q4 (book’s question)', p, choose('No time frame, overlapping boxes, and no box for £0',
     ['Only the overlapping boxes', 'Look again: a week or a month? And what if you get nothing?'], ['Only that it’s leading', 'It isn’t leading. The problems are the time frame and the boxes.'], ['Nothing, it’s a good question', 'A week or a month? And £5 is in two boxes.']),
   'Look for a time frame, gaps and overlaps.', boardModel([], [
-    { title: 'No time frame', say: 'Per week? Per month? It doesn’t say.', rows: ['>0 No time frame'], picture: form(q, opts) },
+    { title: 'No time frame', say: 'Per week? Per month? It doesn’t say.', rows: [], picture: form(q, opts) },
     { title: 'Check the boxes', say: '£5 and £10 are in two boxes, and someone who gets nothing has no box.', rows: ['>0 £5, £10 in two boxes; no £0', '! No time, overlaps, no £0'], picture: form(q, opts, [0, 1, 2], 'x') },
   ], 'Faults', p))
 }

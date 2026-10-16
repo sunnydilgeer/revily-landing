@@ -34,6 +34,7 @@
 .measure-board__label { fill: var(--rv-ink); font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--rv-paper, #fff); stroke-width: 4px; }
 .measure-board__label.is-h { fill: #b45309; text-anchor: start; }
 .measure-board__label.is-big { font-size: 17px; }
+.measure-board__label.is-small { font-size: 13px; stroke-width: 8px; }
 .measure-board__label.is-tiny { font-size: 11.5px; font-weight: 600; opacity: .8; }
 .measure-board__label.is-c { fill: #b45309; }
 .measure-board__label.is-d { fill: var(--rv-biro); }
