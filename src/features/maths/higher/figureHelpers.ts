@@ -65,3 +65,18 @@ export function pairFig(left: PairTri, right: PairTri, spoken: string, caption?:
   }).filter(item => item.kind !== 'text' || item.text)
   return { shape: 'figure', angles: [], labels: [], figure: { items, spoken, ...(caption ? { caption } : {}), room: 10, pad: 22 } }
 }
+
+/** Figure items moved `dx` across and `dy` up, for setting two pictures side by side. */
+export function shiftItems(items: FigureItem[], dx: number, dy = 0): FigureItem[] {
+  const m = ([x, y]: Pt): Pt => [x + dx, y + dy]
+  return items.map(item => {
+    switch (item.kind) {
+      case 'shape': return { ...item, points: item.points.map(m) }
+      case 'line': case 'measure': case 'ticks': return { ...item, from: m(item.from), to: m(item.to) }
+      case 'circle': case 'arc': return { ...item, centre: m(item.centre) }
+      case 'right': return { ...item, at: m(item.at), a: m(item.a), b: m(item.b) }
+      case 'point': case 'text': return { ...item, at: m(item.at) }
+      default: return item
+    }
+  })
+}
