@@ -27,7 +27,7 @@ const LESSONS = {
   216: { dir: 'projections', name: 'tutorProjectionsLesson', boards: [], answers: [15, 6] },
   218: { dir: 'bearings', name: 'tutorBearingsLesson', boards: ['bearing'], answers: [125, 48, 290, 215, 115, 120, 255, 9, 9, 65] },
   217: { dir: 'loci', name: 'tutorLociLesson', boards: ['locus'], answers: [6, 14.3, 4.5, 32, 2, 3] },
-  212: { dir: 'transformations', name: 'tutorTransformationsLesson', boards: ['translate', 'enlarge'], answers: [-2, 6, 2.5] },
+  212: { dir: 'transformations', name: 'tutorTransformationsLesson', boards: ['translate', 'enlarge'], answers: [-2, 6, 3, 2.5] },
   210: { dir: 'congruence', name: 'tutorCongruenceLesson', boards: [], answers: [70, 18] },
   213: { dir: 'solids', name: 'tutorSolidsLesson', boards: [], answers: [5, 8, 4, 12, 2, 0] },
   219: { dir: 'pythagoras', name: 'tutorPythagorasLesson', boards: ['pythagoras'], answers: [17, 8.9, 24, 4, 5, 7.2, 10.4, 4.8, 3.2, 15, 5] },
