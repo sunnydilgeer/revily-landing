@@ -20,8 +20,9 @@ import { tutorCircleGraphsLesson } from './circleGraphsLesson'
 import { tutorTurningPointsLesson } from './turningPointsLesson'
 import { tutorGraphTransformationsLesson } from './graphTransformationsLesson'
 import { tutorTrigGraphsLesson } from './trigGraphsLesson'
+import { tutorVelocityTimeLesson } from './velocityTimeLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -59,4 +60,7 @@ export const higherLessons: readonly HigherLesson[] = [
   { after: 106, lesson: tutorTurningPointsLesson as TutorMethodLesson & { number: 106.5 }, title: 'Turning points', description: 'Find the turning point of a quadratic graph, halfway between its roots or by completing the square.' },
   { after: 106, lesson: tutorGraphTransformationsLesson as TutorMethodLesson & { number: 106.6 }, title: 'Graph transformations', description: 'Move a graph with f(x + a) and f(x) + b, and reflect it with f(−x) and −f(x).' },
   { after: 106, lesson: tutorTrigGraphsLesson as TutorMethodLesson & { number: 106.7 }, title: 'Sin, cos and tan graphs', description: 'Sketch the graphs of sin x, cos x and tan x: their peaks, where they cross the axis, how often they repeat, and tan’s asymptotes.' },
+  // GR13 Velocity-time graphs and GR14 Area under a curve follow Real-life graphs (with its Higher section on rates on
+  // a curve, GR15), which teaches the gradient as a rate and the tangent first: 8H, address GR8H.
+  { after: 108, lesson: tutorVelocityTimeLesson as TutorMethodLesson & { number: 108.5 }, title: 'Velocity–time graphs', description: 'Find acceleration from the gradient and distance from the area under a velocity–time graph, and estimate both on a curve with a tangent or strips.' },
 ]

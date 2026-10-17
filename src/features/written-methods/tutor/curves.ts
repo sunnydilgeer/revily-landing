@@ -11,15 +11,15 @@ export type Poly = number[]
 export const valueAt = (coeffs: Poly, x: number) => coeffs.reduce((sum, a, power) => sum + a * x ** power, 0)
 
 /**
- * A curve that isn't a polynomial (Higher graphs): y = v + a × g(±(x + h)), where g is 1/x, base to the power x, or sin,
- * cos or tan of x in degrees. `h` and `v` translate it (f(x + h) + v) and `flip` reflects it in the y axis (f(−x)), so
+ * A curve that isn't a polynomial (Higher graphs): y = v + a × g(±(x + h)), where g is 1/x, base to the power x, √x (a
+ * speed–time curve that rises fast then levels off), or sin, cos or tan of x in degrees. `h` and `v` translate it (f(x + h) + v) and `flip` reflects it in the y axis (f(−x)), so
  * one rule draws every graph transformation of it.
  */
-export type CurveFn = { kind: 'reciprocal' | 'exponential' | 'sin' | 'cos' | 'tan'; a?: number; base?: number; h?: number; v?: number; flip?: boolean }
+export type CurveFn = { kind: 'reciprocal' | 'exponential' | 'sqrt' | 'sin' | 'cos' | 'tan'; a?: number; base?: number; h?: number; v?: number; flip?: boolean }
 const RAD = Math.PI / 180
 export function fnValue(fn: CurveFn, x: number) {
   const t = (fn.flip ? -1 : 1) * (x + (fn.h ?? 0))
-  const g = fn.kind === 'reciprocal' ? 1 / t : fn.kind === 'exponential' ? (fn.base ?? 2) ** t
+  const g = fn.kind === 'reciprocal' ? 1 / t : fn.kind === 'exponential' ? (fn.base ?? 2) ** t : fn.kind === 'sqrt' ? Math.sqrt(t)
     : fn.kind === 'sin' ? Math.sin(t * RAD) : fn.kind === 'cos' ? Math.cos(t * RAD) : Math.tan(t * RAD)
   // sin 180° comes out as 1.2e−16: round so a curve crosses the axis exactly where it should.
   return Math.round(((fn.v ?? 0) + (fn.a ?? 1) * g) * 1e9) / 1e9
