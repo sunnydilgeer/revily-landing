@@ -22,8 +22,11 @@ import { tutorGraphTransformationsLesson } from './graphTransformationsLesson'
 import { tutorTrigGraphsLesson } from './trigGraphsLesson'
 import { tutorVelocityTimeLesson } from './velocityTimeLesson'
 import { tutorCircleTheoremsLesson } from './circleTheoremsLesson'
+import { tutorBoxPlotsLesson } from './boxPlotsLesson'
+import { tutorCumulativeFrequencyLesson } from './cumulativeFrequencyLesson'
+import { tutorHistogramsLesson } from './histogramsLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5 | 314.5 | 314.6 | 315.5
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -66,4 +69,9 @@ export const higherLessons: readonly HigherLesson[] = [
   { after: 108, lesson: tutorVelocityTimeLesson as TutorMethodLesson & { number: 108.5 }, title: 'Velocity–time graphs', description: 'Find acceleration from the gradient and distance from the area under a velocity–time graph, and estimate both on a curve with a tangent or strips.' },
   // GM9 The 8 circle theorems follows Perimeter and comes before Sectors and arcs, as in the book: 8H, address GM8H.
   { after: 208, lesson: tutorCircleTheoremsLesson as TutorMethodLesson & { number: 208.5 }, title: 'Circle theorems', description: 'Use the 8 circle theorems, chords and tangents to find missing angles and lengths, naming the rule at every step.' },
+  // Statistics. P12 Box plots and P13 Cumulative frequency follow P11 Estimating the mean (314), as in the book: 14H and
+  // 14H2. P15 Histograms follows P14 Bar charts (315): 15H. Their addresses are P14H, P14H2 and P15H.
+  { after: 314, lesson: tutorBoxPlotsLesson as TutorMethodLesson & { number: 314.5 }, title: 'Box plots', description: 'Find the quartiles and interquartile range, draw and read box plots, and compare two sets of data with them.' },
+  { after: 314, lesson: tutorCumulativeFrequencyLesson as TutorMethodLesson & { number: 314.6 }, title: 'Cumulative frequency', description: 'Build a cumulative frequency table and graph, read the median, quartiles and IQR from it, and turn it into a box plot.' },
+  { after: 315, lesson: tutorHistogramsLesson as TutorMethodLesson & { number: 315.5 }, title: 'Histograms', description: 'Draw histograms with frequency density, read frequencies from the areas of the bars, and solve problems with them.' },
 ]
