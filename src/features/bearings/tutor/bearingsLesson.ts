@@ -2,7 +2,10 @@ import { author } from '../../written-methods/tutor/content'
 import type { AngleFrame, FigureItem, FigurePoint, FigureTone } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
 import { boardModel, choose, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
-import { fig, screens, slips } from '../../geometry/tutor/figureLesson'
+import { fig as figure, screens, slips } from '../../geometry/tutor/figureLesson'
+
+/** A picture with a thin margin, so it fills the box; it grows to fit any label past the edge. */
+const fig = (...args: Parameters<typeof figure>) => { const f = figure(...args); f.figure!.pad = 16; return f }
 
 /*
  * Geometry lesson 18: Bearings. From GM18 in Sunny's revision book (p154–155), with our own numbers except where a
@@ -126,7 +129,12 @@ for (const [given, right] of [[295, 115], [300, 120], [75, 255]] as const) {
   const p = backFig(given, { a: { from: 'north', label: `${threeFigure(given)}°` } })
   const up = given < 180
   practice(backBearing, `The bearing of B from A is ${threeFigure(given)}°. Find the bearing of A from B.`, given === 295 ? 'GM18 Your Turn Q2 (book’s numbers)' : 'GM18 p155 (own numbers)', p, number(right, `${threeFigure(right)}°`), up ? 'Under 180: add 180.' : 'Over 180: take away 180.', boardModel([], [
-    { title: up ? 'Add 180' : 'Take away 180', say: up ? `${given} is under 180, so add 180.` : `${given} is over 180, so take 180 away. Adding would go past 360.`, rows: [up ? `${given} + 180 = ${right}` : `${given} − 180 = ${right}`, `! Bearing = ${threeFigure(right)}°`], picture: backFig(given, { a: { from: 'north', label: `${threeFigure(given)}°` }, b: { from: 'north', label: `${threeFigure(right)}°`, tone: 'found' } }, `${threeFigure(right)}°`) },
+    { title: 'Stand at B now', say: '“From B” means measure at B, from B’s own North line, clockwise round to A.', rows: ['>0 At B, face North'], picture: p },
+    { title: 'Turn half way round', say: `Going back from B to A, you face the exact opposite way to A to B. Opposite is half a turn: 180°. So the bearing back is 180° away from ${given}°.`, rows: ['>0 The way back is a half turn: 180°'], picture: p },
+    up
+      ? { title: 'Add 180', say: `${given} is under 180, so add 180. The answer stays under 360.`, rows: [`${given} + 180 = ${right}`], picture: backFig(given, { a: { from: 'north', label: `${threeFigure(given)}°` }, b: { from: 'north', label: `${threeFigure(right)}°`, tone: 'found' } }, `${threeFigure(right)}°`) }
+      : { title: 'Take away 180', say: `Adding 180 gives ${given + 180}: more than a full turn of 360. So go the other way and take 180 away. Do it in two jumps: take away 100, then take away 80.`, rows: [`${given} + 180 = ${given + 180}: over 360 ✗`, `${given} − 100 = ${given - 100}`, `${given - 100} − 80 = ${right}`], picture: backFig(given, { a: { from: 'north', label: `${threeFigure(given)}°` }, b: { from: 'north', label: `${threeFigure(right)}°`, tone: 'found' } }, `${threeFigure(right)}°`) },
+    { title: 'Check it makes sense', say: `The two bearings should be exactly 180 apart, and B to A points the opposite way to A to B.`, rows: [`>0 ${Math.max(given, right)} − ${Math.min(given, right)} = 180 ✓`, `! Bearing = ${threeFigure(right)}°`], picture: backFig(given, { a: { from: 'north', label: `${threeFigure(given)}°` }, b: { from: 'north', label: `${threeFigure(right)}°`, tone: 'found' } }, `${threeFigure(right)}°`) },
   ], 'Bearing', p), slips(right, [[given + 180, 'That goes past 360°. Over 180, take 180 away.'], [360 - given, 'The bearing back is 180° different: add or take away 180.']]), B_BOX)
 }
 
@@ -141,7 +149,7 @@ function scaleFig(b: number, cm: string, real: string, tone: FigureTone = 'given
     { kind: 'point', at: A, label: 'A', dx: -14, dy: 16 }, { kind: 'point', at: B, label: 'B', dx: 10, dy: -8 },
     // The scale sits below A, on the side away from the line.
     { kind: 'text', at: [B[0] > 0 ? -0.55 : 0.55, -0.55], text: real, tone: 'faint' }],
-  `A scale drawing: B is on a bearing of ${threeFigure(b)} degrees from A, ${cm} away on the page. ${real}.`, caption, 30)
+  `A scale drawing: B is on a bearing of ${threeFigure(b)} degrees from A, ${cm} away on the page. ${real}.`, caption, 8)
 }
 {
   const p = scaleFig(51, '? cm', '1 cm : 10 miles')
@@ -170,6 +178,7 @@ add('mixed', 'Bearings', 'GM18 consolidation', text(
 export const tutorBearingsLesson: TutorMethodLesson = {
   id: 'L218', number: 218, title: 'Bearings', level: 'GCSE Foundation',
   steadyPictures: true,
+  largePictures: true,
   goal: 'Read and write three-figure bearings, find the bearing back, and use bearings in scale drawings.',
   labels: { [reading]: 'Reading a bearing', [reflex]: 'Past 180°', [backBearing]: 'The bearing back', [scale]: 'Scale drawings', mixed: 'Review' },
   states: finish(),

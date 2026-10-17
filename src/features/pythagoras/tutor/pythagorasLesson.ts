@@ -149,7 +149,10 @@ function axesFig(P: Pt, Q: Pt, x: [number, number], y: [number, number], o: { le
   }
   const [pa, qa] = o.at ?? [[-12, 16], [10, -12]]
   items.push({ kind: 'point', at: P, label: coord(P), dx: pa[0], dy: pa[1] }, { kind: 'point', at: Q, label: coord(Q), dx: qa[0], dy: qa[1] })
-  return fig(items, `Axes with the points ${coord(P)} and ${coord(Q)} and the line between them.`, o.caption)
+  // A thin margin: the axes fill the picture, and it grows to fit any label past the edge.
+  const f = fig(items, `Axes with the points ${coord(P)} and ${coord(Q)} and the line between them.`, o.caption)
+  f.figure!.pad = 14
+  return f
 }
 {
   // Example 2: (−4, −1) to (3, 4).
@@ -163,7 +166,7 @@ function axesFig(P: Pt, Q: Pt, x: [number, number], y: [number, number], o: { le
   ], 'Length', p), 'To find the length of a line between two points, draw a right-angled triangle under it. Its sides are how far across and how far up. The line is the hypotenuse.')
 }
 for (const [P, Q, X, Y, right, at, ref] of [
-  [[2, -1], [5, 3], [-1, 6], [-2, 4], 5, [[-36, 4], [10, -10]], 'T1 p157 (own numbers)'],
+  [[2, -1], [5, 3], [-1, 6], [-3, 4], 5, [[0, 24], [10, -10]], 'T1 p157 (own numbers)'],
   [[-2, 3], [4, -1], [-3, 5], [-2, 4], 7.2, [[-14, -10], [12, 18]], 'T1 p157 (own numbers)'],
   [[-6, 2], [4, 5], [-7, 5], [-1, 6], 10.4, [[-8, -14], [-40, -10]], 'T1 Your Turn Q2 (book’s numbers)'],
 ] as [Pt, Pt, [number, number], [number, number], number, [Pt, Pt], string][]) {
@@ -248,6 +251,7 @@ add('mixed', 'Pythagoras', 'T1 consolidation', text(
 export const tutorPythagorasLesson: TutorMethodLesson = {
   id: 'L219', number: 219, title: 'Pythagoras', level: 'GCSE Foundation',
   steadyPictures: true,
+  largePictures: true,
   goal: 'Use a² + b² = c² to find the hypotenuse or a shorter side, the length of a line between two points, and lengths in problems.',
   labels: { [hypotenuse]: 'The hypotenuse', [shorter]: 'A shorter side', [distance]: 'Length of a line', [problems]: 'Problems', mixed: 'Review' },
   states: finish(),

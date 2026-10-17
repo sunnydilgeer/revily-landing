@@ -80,8 +80,8 @@ const trig = (pts: Tri, at: number, mark: string, list: (TriSide | undefined)[],
     { title: 'Label the sides', say: 'From the 38°: 12 is opposite the right angle, the hypotenuse. y is next to the angle, the adjacent.', rows: ['>0 H = 12, A = y: CAH'], picture: t({ label: 'y (A)', tone: 'lit' }, { label: '12 (H)', tone: 'lit' }) },
     { title: 'Write the equation', say: 'cos = adjacent ÷ hypotenuse.', rows: ['cos 38° = {y|12}'], picture: t({ label: 'y', tone: 'x' }) },
     { title: 'Times both sides', say: 'y is divided by 12, so multiply both sides by 12 to get y on its own.', rows: ['y = 12 × cos 38°'], picture: t({ label: 'y', tone: 'x' }) },
-    { title: 'Find cos 38° on the calculator', say: 'Press cos, then 38, then equals. cos 38° is 0.7880…, a number less than 1. Keep every digit, then times by 12.', rows: ['cos 38° = 0.7880…', 'y = 12 × 0.7880…', 'y = 9.4561…', '! y = 9.5 cm'], picture: t({ label: '9.5 cm', tone: 'found' }, undefined, 'y = 9.5 cm') },
-    { title: 'Check it makes sense', say: 'y is shorter than the hypotenuse, 12 cm, as every other side must be.', rows: ['>0 9.5 < 12 ✓'], picture: t({ label: '9.5 cm', tone: 'found' }, undefined, 'y = 9.5 cm') },
+    { title: 'Find cos 38° on the calculator', say: 'Press cos, then 38, then equals. cos 38° is 0.7880…, a number less than 1. Keep every digit, then times by 12.', rows: ['cos 38° = 0.7880…', 'y = 12 × 0.7880…', 'y = 9.4561…'], picture: t({ label: 'y', tone: 'x' }) },
+    { title: 'Check it makes sense', say: 'y is shorter than the hypotenuse, 12 cm, as every other side must be. Then round to 1 decimal place.', rows: ['>0 9.4561… < 12 ✓', '! y = 9.5 cm'], picture: t({ label: '9.5 cm', tone: 'found' }, undefined, 'y = 9.5 cm') },
   ], 'Find y', p), 'To find a side: label the sides from the angle, pick the ratio that uses the side you know and the side you want, write the equation, then rearrange. If the unknown is on top, multiply.')
 }
 {

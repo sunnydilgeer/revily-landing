@@ -43,6 +43,7 @@ export const FIGURE_PAD = 38
 /** Fits the figure into the picture; `shared` (steady pictures) fits it to its worked example's bounds instead. */
 export function fitFigure(frame: FigureFrame, w = W, h = H, pad = FIGURE_PAD, shared?: Bounds) {
   const pts = extent(frame.items)
+  pad = frame.pad ?? pad
   let minX = Math.min(...pts.map(p => p.x)), maxX = Math.max(...pts.map(p => p.x))
   let minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y))
   let padX = pad + (frame.room ?? 0)
@@ -192,10 +193,14 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     if (item.kind === 'point') {
       const p = at(item.at)
       parts.push(<circle key={i} className="ns-fig__point" cx={p.x} cy={p.y} r="4" />)
-      if (item.label) labels.push(<text key={`p${i}`} className="ns-angles__name" x={p.x + (item.dx ?? -12)} y={p.y + (item.dy ?? -12)}>{item.label}</text>)
+      if (!item.label) return
+      const spot = { x: p.x + (item.dx ?? -12), y: p.y + (item.dy ?? -12) }
+      room.push({ ...spot, w: item.label.length * 9 })
+      labels.push(<text key={`p${i}`} className="ns-angles__name" x={spot.x} y={spot.y}>{item.label}</text>)
     }
     if (item.kind === 'text') {
       const p = at(item.at)
+      room.push({ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0), w: item.text.length * 9 + 14 })
       labels.push(item.name
         ? <text key={`t${i}`} className="ns-angles__name" x={p.x + (item.dx ?? 0)} y={p.y + (item.dy ?? 0)}>{item.text}</text>
         : <Label key={`t${i}`} at={{ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0) }} text={item.text} t={t(item.tone)} />)
