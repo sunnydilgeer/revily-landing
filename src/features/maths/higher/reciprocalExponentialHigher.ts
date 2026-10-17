@@ -91,14 +91,14 @@ practice(skill, 'Which describes the graph of y = 1/x?', 'Higher GR6 Reciprocal 
   // Your Turn Q5: y = 1/x from x = 1 to 5, on the book's scale (0.5 every two squares).
   const fn = reciprocal(), xs = [1, 2, 3, 4, 5]
   const scale = { x: { per: 1, start: 0, name: 'x' }, y: { per: 0.25, start: 0, name: 'y' } }
-  const q = onGrid(skill, 'y = 1/x. Find y when x = 4.', 'Higher GR6 Your Turn Q5', tableGrid(fn, xs, '1/x', 3, [0, 6], [0, 1.5], { scale }),
+  const q = onGrid(skill, 'y = 1/x. Find y when x = 4.', 'Higher GR6 Your Turn Q5', tableGrid(fn, xs, '1/x', 3, [-1, 6], [-0.25, 1.5], { scale }),
     gradient(0.25, '0.25'), '0.25', 'Divide 1 by 4.', {
       kind: 'step-worked', start: 'y = 1/x', steps: [
         { title: 'Put x in', why: 'Divide one by the x in the column.', lines: [line([part('1'), sign('÷'), part('4', 1)], '0.25', { answer: true })] },
       ],
     })
   q.answerPrefix = 'y ='
-  const q3 = onGrid(skill, 'y = 1/x. Find y when x = 3, to 2 decimal places.', 'Higher GR6 Your Turn Q5', tableGrid(fn, xs, '1/x', 2, [0, 6], [0, 1.5], { scale }),
+  const q3 = onGrid(skill, 'y = 1/x. Find y when x = 3, to 2 decimal places.', 'Higher GR6 Your Turn Q5', tableGrid(fn, xs, '1/x', 2, [-1, 6], [-0.25, 1.5], { scale }),
     between(0.33, 0.325, 0.335, '0.33'), '0.33', 'Divide 1 by 3, then round.', {
       kind: 'step-worked', start: 'y = 1/x', steps: [
         { title: 'Put x in', why: 'Divide one by the x in the column. It goes on for ever.', lines: [line([part('1/3', 1)], '0.333…', { eq: true })] },
@@ -107,7 +107,7 @@ practice(skill, 'Which describes the graph of y = 1/x?', 'Higher GR6 Reciprocal 
     })
   q3.answerPrefix = 'y ='
   graph(skill, 'Use the table for y = 1/x to plot its graph from x = 1 to x = 5.', 'Higher GR6 Your Turn Q5', 'y = 1/x',
-    { x: [0, 6], y: [0, 1.5], lines: [], points: [], scale, table: { xs, ys: xs.map(x => cell(fn, x)), rule: '1/x' } }, [
+    { x: [-1, 6], y: [-0.25, 1.5], lines: [], points: [], scale, table: { xs, ys: xs.map(x => cell(fn, x)), rule: '1/x' } }, [
       plotAll(fn, 'Each column is a point. One square up is 0.25 here, so 0.33 sits just above the first square.'),
       join(fn, [[1, 5]], 'y = 1/x', 'Join with a curve', 'Join them with one smooth curve. It drops quickly, then flattens out towards the x axis but never reaches it.'),
     ], 'Plot and join', 'Plot the graph')
