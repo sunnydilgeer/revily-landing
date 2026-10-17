@@ -62,6 +62,7 @@ export type MicroSkillId =
   | 'ordering-negative-numbers'
   | 'ordering-fractions-decimals-percentages'
   | 'ordering-algebraic-terms'
+  | 'bidmas-algebraic-fractions'
   | 'recurring-meaning'
   | 'recurring-to-decimal'
   | 'recurring-to-fraction'

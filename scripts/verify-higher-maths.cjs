@@ -1,5 +1,5 @@
 // Checks Higher Maths (src/features/maths/tier.ts): Foundation is untouched, Higher adds its sections before each
-// lesson's Review and 11H after Lesson 11, every screen points on to the next, every working follows the explanation
+// lesson's Review, 2H after Lesson 2 and 11H after Lesson 11, every screen points on to the next, every working follows the explanation
 // style (step-working-check.cjs) and ends on the question's answer, and every question accepts its own answer.
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
@@ -39,6 +39,10 @@ const recurring = number.lessons.find(entry => entry.lessonId === 'L011H')
 assert.equal(recurring.label, '11H')
 assert.equal(tier.parseLessonParam('11h', 'higher'), 11.5)
 assert.equal(tier.lessonParam(11.5), '11H')
+assert.equal(number.lessons[ids.indexOf('L002H') - 1].number, 2, '2H follows Lesson 2')
+assert.equal(number.lessons.find(entry => entry.lessonId === 'L002H').label, '2H')
+assert.equal(tier.parseLessonParam('2H', 'higher'), 2.5)
+assert.equal(tier.parseLessonParam('2H', 'foundation'), null, '2H does not open on Foundation')
 
 let screens = 0
 const problems = []
