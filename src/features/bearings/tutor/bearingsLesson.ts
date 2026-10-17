@@ -147,8 +147,8 @@ function scaleFig(b: number, cm: string, real: string, tone: FigureTone = 'given
     { kind: 'measure', from: A, to: B, label: cm, tone, offset: 14 },
     { kind: 'arc', centre: A, r: 0.3, from: 90 - b, to: 90 }, { kind: 'text', at: dir(b / 2, 0.55), text: `${threeFigure(b)}°` },
     { kind: 'point', at: A, label: 'A', dx: -14, dy: 16 }, { kind: 'point', at: B, label: 'B', dx: 10, dy: -8 },
-    // The scale sits below A, on the side away from the line.
-    { kind: 'text', at: [B[0] > 0 ? -0.55 : 0.55, -0.55], text: real, tone: 'faint' }],
+    // The scale sits below A, on the side away from the line, and away from a reflex angle's label (down and right).
+    { kind: 'text', at: [B[0] > 0 || b >= 270 ? -0.55 : 0.55, -0.55], text: real, tone: 'faint' }],
   `A scale drawing: B is on a bearing of ${threeFigure(b)} degrees from A, ${cm} away on the page. ${real}.`, caption, 8)
 }
 {

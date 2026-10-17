@@ -74,8 +74,8 @@ function viewBox(room: (P & { w: number })[], crop?: [number, number]) {
   const top = Math.min(crop?.[0] ?? 0, ...room.map(p => p.y - 17)), bottom = Math.max(crop?.[1] ?? H, ...room.map(p => p.y + 17))
   return `${left} ${top} ${right - left} ${bottom - top}`
 }
-function Label({ at, text, t, small }: { at: P; text: string; t?: string; small?: boolean }) {
-  const boxed = t === 'found' || t === 'lit'
+function Label({ at, text, t, small, bare }: { at: P; text: string; t?: string; small?: boolean; bare?: boolean }) {
+  const boxed = !bare && (t === 'found' || t === 'lit')
   const width = text.length * (small ? 7.5 : 9) + 14
   return <g className={`ns-fig__label ${tone(t)}${small ? ' is-small' : ''}`}>
     {boxed && <rect className={t === 'found' ? 'ns-angles__found' : 'ns-angles__box'} x={at.x - width / 2} y={at.y - 14} width={width} height="28" rx="7" />}
@@ -137,7 +137,7 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     }
     if (item.kind === 'circle') {
       const c = at(item.centre)
-      parts.push(<circle key={i} className={`ns-fig__shape${item.fill === 'none' ? ' is-empty' : ''}`} cx={c.x} cy={c.y} r={item.r * scale} />)
+      parts.push(<circle key={i} className={`ns-fig__shape${item.fill === 'none' ? ' is-empty' : ''}${t(item.tone) ? ` is-node ${tone(t(item.tone))}` : ''}`} cx={c.x} cy={c.y} r={item.r * scale} />)
     }
     if (item.kind === 'arc') {
       const c = at(item.centre), r = item.r * scale
@@ -214,7 +214,7 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
       if (item.text) room.push({ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0), w: item.text.length * (item.small ? 7.5 : 9) + 14 })
       labels.push(item.name
         ? <text key={`t${i}`} className="ns-angles__name" x={p.x + (item.dx ?? 0)} y={p.y + (item.dy ?? 0)}>{item.text}</text>
-        : <Label key={`t${i}`} at={{ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0) }} text={item.text} t={t(item.tone)} small={item.small} />)
+        : <Label key={`t${i}`} at={{ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0) }} text={item.text} t={t(item.tone)} small={item.small} bare={item.bare} />)
     }
   })
   return <div className={`ns-angles ns-fig${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.spoken}>
