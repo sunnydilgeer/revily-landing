@@ -22,8 +22,12 @@ import { tutorGraphTransformationsLesson } from './graphTransformationsLesson'
 import { tutorTrigGraphsLesson } from './trigGraphsLesson'
 import { tutorVelocityTimeLesson } from './velocityTimeLesson'
 import { tutorCircleTheoremsLesson } from './circleTheoremsLesson'
+import { tutorSineRuleLesson } from './sineRuleLesson'
+import { tutorCosineRuleLesson } from './cosineRuleLesson'
+import { tutorPythagoras3dLesson } from './pythagoras3dLesson'
+import { tutorVectorsHigherLesson } from './vectorsLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5 | 220.5 | 220.6 | 220.7 | 221.5
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -66,4 +70,10 @@ export const higherLessons: readonly HigherLesson[] = [
   { after: 108, lesson: tutorVelocityTimeLesson as TutorMethodLesson & { number: 108.5 }, title: 'Velocity–time graphs', description: 'Find acceleration from the gradient and distance from the area under a velocity–time graph, and estimate both on a curve with a tangent or strips.' },
   // GM9 The 8 circle theorems follows Perimeter and comes before Sectors and arcs, as in the book: 8H, address GM8H.
   { after: 208, lesson: tutorCircleTheoremsLesson as TutorMethodLesson & { number: 208.5 }, title: 'Circle theorems', description: 'Use the 8 circle theorems, chords and tangents to find missing angles and lengths, naming the rule at every step.' },
+  // T4 The sine rule, T5 The cosine rule and T6 3D Pythagoras and trigonometry follow T3 (Trigonometry), as in the
+  // book: 20H, 20H2 and 20H3, addresses GM20H to GM20H3. T8 Vectors follows T7 Column vectors: 21H, address GM21H.
+  { after: 220, lesson: tutorSineRuleLesson as TutorMethodLesson & { number: 220.5 }, title: 'The sine rule', description: 'Use a ÷ sin A = b ÷ sin B to find a missing side or angle in any triangle, and spot the obtuse angle in the ambiguous case.' },
+  { after: 220, lesson: tutorCosineRuleLesson as TutorMethodLesson & { number: 220.6 }, title: 'The cosine rule', description: 'Use a² = b² + c² − 2bc cos A to find a side from two sides and the angle between them, or an angle from all three sides.' },
+  { after: 220, lesson: tutorPythagoras3dLesson as TutorMethodLesson & { number: 220.7 }, title: '3D Pythagoras and trigonometry', description: 'Find lengths and angles inside cuboids and pyramids, using right-angled triangles inside the shape and a² + b² + c² = d².' },
+  { after: 221, lesson: tutorVectorsHigherLesson as TutorMethodLesson & { number: 221.5 }, title: 'Vectors', description: 'Add, subtract and multiply vectors, find routes round a shape and points that split a line in a ratio, and show two lines are parallel.' },
 ]
