@@ -24,6 +24,10 @@ import { tutorVelocityTimeLesson } from './velocityTimeLesson'
 import { tutorCircleTheoremsLesson } from './circleTheoremsLesson'
 import { tutorInvariantPointsLesson } from './invariantPointsLesson'
 import { tutorFrustumsLesson } from './frustumsLesson'
+import { tutorSineRuleLesson } from './sineRuleLesson'
+import { tutorCosineRuleLesson } from './cosineRuleLesson'
+import { tutorPythagoras3dLesson } from './pythagoras3dLesson'
+import { tutorVectorsHigherLesson } from './vectorsLesson'
 
 type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5 | 212.5 | 215.5 | 220.5 | 220.6 | 220.7 | 221.5
 
