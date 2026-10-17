@@ -127,8 +127,9 @@ export function freqTreeFig(total: Branch, first: Branch[], second: Branch[][] |
   const items: FigureItem[] = []
   const lit = new Set(opts.lit ?? [])
   const node = (at: FigurePoint, b: Branch) => {
-    items.push({ kind: 'circle', centre: at, r: NODE, fill: 'none' })
-    items.push({ kind: 'text', at, text: b.value, ...(b.tone ? { tone: b.tone } : {}) })
+    // A coloured value colours its whole circle (Sunny, 17 Oct: no box squeezed inside the node).
+    items.push({ kind: 'circle', centre: at, r: NODE, fill: 'none', ...(b.tone ? { tone: b.tone } : {}) })
+    items.push({ kind: 'text', at, text: b.value, ...(b.tone ? { tone: b.tone, bare: true } : {}) })
   }
   const shift = (from: FigurePoint, to: FigurePoint, by: number): FigurePoint => { const d = Math.hypot(to[0] - from[0], to[1] - from[1]); return [from[0] + (to[0] - from[0]) * by / d, from[1] + (to[1] - from[1]) * by / d] }
   // To the right of a circle, in small letters: the word's middle is about 0.1 of a unit a letter out from its edge.
