@@ -19,6 +19,9 @@ import { lineAndCircle } from './lineCircleHigher'
 import { reciprocalExponential } from './reciprocalExponentialHigher'
 import { proportionWithK } from './proportionHigher'
 import { curveRate } from './curveRateHigher'
+import { triangleAreaSine } from './sineAreaHigher'
+import { sectorAngle } from './sectorAngleHigher'
+import { congruenceTests } from './congruenceHigher'
 import type { HigherAddition } from './helpers'
 
 export type { HigherAddition } from './helpers'
@@ -29,4 +32,5 @@ export const higherAdditions: readonly HigherAddition[] = [
   sequencesSurds, quadraticSequences, quadraticInequalities, graphicalInequalities, nonLinearSimultaneous, harderProofs,
   ratioOnLine, perpendicularLines, lineAndCircle, reciprocalExponential,
   proportionWithK, curveRate,
+  triangleAreaSine, sectorAngle, congruenceTests,
 ]
