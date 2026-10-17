@@ -9,6 +9,10 @@ import { squareRoots } from './squareRoots'
 import { rearrangingTwice } from './rearrangingTwice'
 import { quadraticsHarderSquares, quadraticsNumberInFront } from './quadraticsHigher'
 import { quadraticEquationsNumberInFront, quadraticSketching } from './quadraticEquationsHigher'
+import { quadraticSequences, sequencesSurds } from './sequencesHigher'
+import { graphicalInequalities, quadraticInequalities } from './inequalitiesHigher'
+import { nonLinearSimultaneous } from './simultaneousHigher'
+import { harderProofs } from './proofHigher'
 import type { HigherAddition } from './helpers'
 
 export type { HigherAddition } from './helpers'
@@ -16,4 +20,5 @@ export type { HigherAddition } from './helpers'
 export const higherAdditions: readonly HigherAddition[] = [
   orderingTerms, squareRoots, boundsCalculations,
   rearrangingTwice, quadraticsNumberInFront, quadraticsHarderSquares, quadraticEquationsNumberInFront, quadraticSketching,
+  sequencesSurds, quadraticSequences, quadraticInequalities, graphicalInequalities, nonLinearSimultaneous, harderProofs,
 ]

@@ -54,8 +54,10 @@ export function forTier(entry: MathsLessonEntry, tier: MathsTier): MathsLessonEn
 function higherOnlyEntry(item: (typeof higherLessons)[number]): MathsLessonEntry {
   const after = getMathsLesson(item.after as MathsLessonNumber)
   const lesson = item.lesson
+  // A second Higher-only lesson after the same lesson is "9H2" (Completing the square after 9H, the quadratic formula).
+  const nth = higherLessons.filter(other => other.after === item.after).indexOf(item)
   return {
-    number: lesson.number, position: after.position, label: `${after.position}H`, higherOnly: true,
+    number: lesson.number, position: after.position, label: `${after.position}H${nth > 0 ? nth + 1 : ''}`, higherOnly: true,
     lessonId: lesson.id, chapterId: after.chapterId, title: item.title, description: item.description,
     stateCount: lesson.states.length, sections: sectionsFor(lesson, lesson.labels), definition: lesson,
   }
@@ -90,10 +92,10 @@ export function lessonParam(number: MathsLessonNumber) {
   const item = higherLessons.find(entry => entry.lesson.number === number)
   return item ? higherOnlyEntry(item).label! : String(number)
 }
-/** The lesson an address names (`lesson=14`, or `lesson=11H` in any case for Higher), or null. */
+/** The lesson an address names (`lesson=14`, or `lesson=11H` or `lesson=9H2` in any case for Higher), or null. */
 export function parseLessonParam(value: string | null, tier: MathsTier): MathsLessonNumber | null {
   if (!value) return null
-  if (/^\d+h$/i.test(value)) {
+  if (/^\d+h\d*$/i.test(value)) {
     if (tier !== 'higher') return null
     return mathsLessonsForTier(tier).find(entry => entry.label === value.toUpperCase())?.number ?? null
   }

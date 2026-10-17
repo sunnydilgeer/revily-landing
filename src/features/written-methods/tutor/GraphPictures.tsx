@@ -157,7 +157,8 @@ function spoken(frame: GraphFrame, plain?: boolean) {
   const sc = frame.scale
   const parts = [sc ? `A graph of ${sc.y.name} against ${sc.x.name}, ${sc.x.name} from ${axisText(sc.x, sc.x.start)} and ${sc.y.name} from ${axisText(sc.y, sc.y.start)}.` : `A grid with x from ${fmt(frame.x[0])} to ${fmt(frame.x[1])} and y from ${fmt(frame.y[0])} to ${fmt(frame.y[1])}.`]
   const own = <T extends { at: number }>(list: T[] = []) => list.filter(part => !plain || part.at < 0)
-  for (const line of own(frame.lines)) parts.push(`The line ${spokenLine(line)}.`)
+  for (const line of own(frame.lines)) parts.push(`The ${line.dashed ? 'dashed ' : ''}line ${spokenLine(line)}.`)
+  for (const region of own(frame.regions)) parts.push(`A shaded region${region.label ? ` marked ${region.label}` : ''}.`)
   for (const curve of own(frame.curves)) parts.push(`A smooth curve${curve.label ? `, ${curve.label.replace(/−/g, 'minus ')},` : ''} from x = ${fmt(curve.from)} to x = ${fmt(curve.to)}.`)
   for (const point of own(frame.points)) parts.push(`A point at ${coordinate(point)}.`)
   if (!plain) {
@@ -225,6 +226,32 @@ export function fillGrid<T extends { x: [number, number]; y: [number, number]; s
   return x === g.x && y === g.y ? g : { ...g, x, y }
 }
 
+/** A shaded region's corners: its polygon (or the whole grid) cut down by each half-plane ax + by ≤ c (Sutherland–Hodgman). */
+export function regionPolygon(frame: Pick<GraphFrame, 'x' | 'y'>, region: NonNullable<GraphFrame['regions']>[number]): GraphPoint[] {
+  const [x0, x1] = frame.x, [y0, y1] = frame.y
+  const box = [{ a: -1, b: 0, c: -x0 }, { a: 1, b: 0, c: x1 }, { a: 0, b: -1, c: -y0 }, { a: 0, b: 1, c: y1 }]
+  let poly: GraphPoint[] = region.points ?? [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: x0, y: y1 }]
+  for (const { a, b, c } of [...(region.within ?? []), ...box]) {
+    const side = (p: GraphPoint) => c - a * p.x - b * p.y
+    const out: GraphPoint[] = []
+    poly.forEach((p, i) => {
+      const q = poly[(i + 1) % poly.length], sp = side(p), sq = side(q)
+      if (sp >= -1e-9) out.push(p)
+      if ((sp >= -1e-9) !== (sq >= -1e-9)) { const t = sp / (sp - sq); out.push({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t }) }
+    })
+    poly = out
+    if (!poly.length) break
+  }
+  return poly
+}
+/** The middle of a polygon (its centre of area), where a region's label goes. */
+function centroid(poly: GraphPoint[]): GraphPoint {
+  let area = 0, cx = 0, cy = 0
+  poly.forEach((p, i) => { const q = poly[(i + 1) % poly.length], cross = p.x * q.y - q.x * p.y; area += cross; cx += (p.x + q.x) * cross; cy += (p.y + q.y) * cross })
+  if (Math.abs(area) < 1e-9) return poly[0]
+  return { x: cx / (3 * area), y: cy / (3 * area) }
+}
+
 /** The picture so far. `plain` is the question before any working. The step's heading goes above what it adds. */
 /** What the graph board (GraphBoard.tsx) draws inside the picture, over the question's own parts and under the highlighted axis numbers. */
 export type GraphLive = {
@@ -263,6 +290,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   const between = !!sy || perY !== 1
   const lines = (frame.lines ?? []).filter(line => shown(line.at))
   const curves = (frame.curves ?? []).filter(curve => shown(curve.at))
+  const regions = (frame.regions ?? []).filter(region => shown(region.at))
   // A curve as short straight pieces inside the grid, so labels keep off it like they keep off a line.
   const curveSegments = curves.flatMap(curve => {
     const lo = Math.max(curve.from, x0), hi = Math.min(curve.to, x1), n = Math.max(2, Math.ceil((hi - lo) * 4)), out = []
@@ -396,6 +424,16 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         <text className="ns-graph__axis-name" x={width - 6} y={fix(py(axisY) + 19)} textAnchor="end">{xName}</text>
         <text className="ns-graph__axis-name" x={fix(px(axisX) + 9)} y="15">{yName}</text>
       </g>
+      {regions.map((region, i) => {
+        const poly = regionPolygon(frame, region)
+        if (poly.length < 3) return null
+        const mid = centroid(poly)
+        const kind = region.answer ? ' is-answer' : region.at >= 0 ? ' is-found' : ''
+        return <g key={`r${i}`} className={`ns-graph__region${kind}${done(region.at)}`}>
+          <polygon points={poly.map(p => `${fix(px(p.x) + 0.5)},${fix(py(p.y) + 0.5)}`).join(' ')} />
+          {region.label && <text x={fix(px(mid.x) + 0.5)} y={fix(py(mid.y) + 7)}>{region.label}</text>}
+        </g>
+      })}
       {lines.map((line, i) => {
         const [a, b] = line.segment ? [line.from, line.to] : clip(frame, line.from, line.to)
         // The label sits near one end, nudged off the line: the right end of a line across, the bottom of a line up
@@ -405,7 +443,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         const along = { x: px(other.x) - px(end.x), y: py(other.y) - py(end.y) }, size = Math.hypot(along.x, along.y)
         // A line up and down is named at the bottom of the grid, below the axis numbers.
         const at = vertical ? { x: px(end.x), y: height - 8 } : { x: px(end.x) + along.x / size * 30, y: py(end.y) + along.y / size * 30 }
-        const kind = line.wrong ? ' is-wrong' : line.answer ? ' is-answer' : line.at >= 0 ? ' is-found' : ''
+        const kind = `${line.wrong ? ' is-wrong' : line.answer ? ' is-answer' : line.at >= 0 ? ' is-found' : ''}${line.dashed ? ' is-dashed' : ''}`
         // A line across or up and down keeps its name off the axis numbers, the points and their labels: the right end
         // (across) or the bottom (up and down) first, then the other side of the line, then the other end.
         const flat = a.y === b.y && !line.segment

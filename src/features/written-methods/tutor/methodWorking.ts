@@ -387,7 +387,14 @@ export type GraphFrame = {
   x: [number, number]
   y: [number, number]
   /** `segment` draws only from one point to the other (a midpoint question), not edge to edge. */
-  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean; wrong?: boolean }[]
+  /** `dashed` is a boundary that isn't included (< or >, graphical inequalities); a solid line is included (≤ or ≥). */
+  lines?: { from: GraphPoint; to: GraphPoint; label?: string; at: number; answer?: boolean; segment?: boolean; wrong?: boolean; dashed?: boolean }[]
+  /**
+   * Shaded regions (graphical inequalities): the grid, or the polygon through `points`, cut down to the side of each
+   * line in `within` where ax + by ≤ c, so a region reaches the grid's edge however wide the grid is drawn. `label`
+   * ("R") is written in its middle; `answer` shades it green.
+   */
+  regions?: { points?: GraphPoint[]; within?: { a: number; b: number; c: number }[]; label?: string; at: number; answer?: boolean }[]
   scale?: { x: AxisScale; y: AxisScale }
   /** The y axis counts in this many a square (2, 5), for a line whose points are too far apart for one a square
    *  (graphs lesson 3). The axes still cross at 0; a point between two numbers is drawn between the lines. */
