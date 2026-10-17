@@ -13,9 +13,10 @@ import { stepNeed } from './step-chain/WorkedChain'
 const SHRINKABLE: [string, number][] = [['.wc-picture', 0.55], ['.pvb-stage.ns-visual', 0.6], ['.pvb-stage', 0.8]]
 /**
  * Boards students drag on keep their size: their touch maths assumes it. Graphs are never zoomed either: a Graphs
- * lesson's card holds its graph at one size (GraphSlot.tsx) and is left alone (fit).
+ * lesson's card holds its graph at one size (GraphSlot.tsx) and is left alone (fit). A lesson marked steadySize keeps
+ * every picture at one size (model.ts).
  */
-const KEEP_SIZE = '.angle-board, .graph-board, .ns-graph__picture'
+const KEEP_SIZE = '.angle-board, .graph-board, .ns-graph__picture, .has-steady-size'
 /**
  * The most one adjustment may shrink by. A step change can overflow for a moment while the old picture is still
  * there; small steps, each measured afresh, settle on the right size instead of overshooting on that moment.
@@ -97,7 +98,7 @@ function fit(card: HTMLElement) {
   // board: they keep their size or follow the paper, so the rehearsal's copy is a moving target (Sunny, 12 Oct: the
   // graph on "Draw y = 3" flickered between two sizes).
   const picture = card.querySelector<HTMLElement>('.wc-picture[data-tallest]')
-  if (picture && !picture.querySelector(KEEP_SIZE)) {
+  if (picture && !picture.querySelector(KEEP_SIZE) && !picture.closest(KEEP_SIZE)) {
     const zoom = parseFloat(picture.style.zoom) || 1
     ahead += Math.max(0, Number(picture.dataset.tallest) * zoom - picture.getBoundingClientRect().height)
   }

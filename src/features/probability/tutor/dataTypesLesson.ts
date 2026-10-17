@@ -187,6 +187,7 @@ add('mixed', 'Types of data', 'P7 consolidation', text(
 export const tutorDataTypesLesson: TutorMethodLesson = {
   id: 'L307', number: 307, title: 'Types of data', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Tell qualitative from quantitative, discrete from continuous, and primary from secondary data.',
   labels: { [kind]: 'Qualitative or quantitative', [exact]: 'Discrete or continuous', [source]: 'Primary or secondary', [describe]: 'Describing data', mixed: 'Review' },
   states: finish(),

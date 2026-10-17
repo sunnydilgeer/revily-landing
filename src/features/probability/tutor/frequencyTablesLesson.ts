@@ -168,6 +168,7 @@ add('mixed', 'Frequency tables', 'P12 consolidation', text(
 export const tutorFrequencyTablesLesson: TutorMethodLesson = {
   id: 'L312', number: 312, title: 'Frequency tables', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Build a frequency table from data, find the mode, median and mean from one, and find missing frequencies from a total and a ratio.',
   labels: { [build]: 'Building frequency tables', [averages]: 'Averages from a table', [problems]: 'Missing frequencies', mixed: 'Review' },
   states: finish(),

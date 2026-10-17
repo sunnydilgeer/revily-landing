@@ -201,6 +201,7 @@ add('mixed', 'Relative frequency', 'P4 consolidation', text(
 export const tutorRelativeFrequencyLesson: TutorMethodLesson = {
   id: 'L304', number: 304, title: 'Relative frequency', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Find relative frequencies from experiments, use them to estimate how often something happens, and spot bias.',
   labels: { [relative]: 'Relative frequency', [expected]: 'Expected frequency', [bias]: 'Spotting bias', [trials]: 'More trials', mixed: 'Review' },
   states: finish(),

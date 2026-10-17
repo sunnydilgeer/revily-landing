@@ -3,7 +3,9 @@ import type { InteractionDefinition } from '../../number-types/types'
 import { fig } from '../../geometry/tutor/figureLesson'
 
 /** The picture's size and margin (FigurePictures.tsx), for the pictures measured in its own pixels. */
-const PICTURE = { h: 210, pad: 38 }
+const PICTURE = { w: 320, h: 210, pad: 38 }
+/** A table's margin: thin, so a tall table still fits at full size. */
+const TABLE_PAD = 14
 
 /*
  * The pictures for Probability and statistics (lessons 1 to 9, P1–P9 in Sunny's revision book, p162–187), drawn as
@@ -119,7 +121,8 @@ export function probTreeFig(first: Branch[], second: Branch[][] | null, spoken: 
  * branch. A group's name sits over its circle (under it for the lower one); a split's names sit to the right of the
  * last circles, where there is room for them. `second` splits each group again.
  */
-const NODE = 0.5
+// The circles are big enough for a three-figure number, and the leaves far enough apart that their circles never touch.
+const NODE = 0.55, FREQ_FIRST = [1.3, -1.3], FREQ_LEAF = [1.95, 0.65, -0.65, -1.95]
 export function freqTreeFig(total: Branch, first: Branch[], second: Branch[][] | null, spoken: string, opts: { lit?: number[]; caption?: string } = {}): AngleFrame {
   const items: FigureItem[] = []
   const lit = new Set(opts.lit ?? [])
@@ -128,23 +131,26 @@ export function freqTreeFig(total: Branch, first: Branch[], second: Branch[][] |
     items.push({ kind: 'text', at, text: b.value, ...(b.tone ? { tone: b.tone } : {}) })
   }
   const shift = (from: FigurePoint, to: FigurePoint, by: number): FigurePoint => { const d = Math.hypot(to[0] - from[0], to[1] - from[1]); return [from[0] + (to[0] - from[0]) * by / d, from[1] + (to[1] - from[1]) * by / d] }
-  // To the right of a circle: the word's middle is counted in the picture's size, about 0.16 of a unit a letter out.
-  const beside = (at: FigurePoint, label: string): FigureItem => ({ kind: 'text', at: [at[0] + NODE + 0.2 + label.length * 0.16, at[1]], text: label, tone: 'faint' })
+  // To the right of a circle, in small letters: the word's middle is about 0.1 of a unit a letter out from its edge.
+  const beside = (at: FigurePoint, label: string): FigureItem => ({ kind: 'text', at: [at[0] + NODE + 0.22 + label.length * 0.1, at[1]], text: label, tone: 'faint', small: true })
   const root: FigurePoint = [0, 0]
   first.forEach((b, i) => {
-    const end: FigurePoint = [2.6, second ? FIRST_Y[i] : FIRST_Y[i] * 0.8]
+    const end: FigurePoint = [2.6, second ? FREQ_FIRST[i] : FREQ_FIRST[i] * 0.8]
     items.push({ kind: 'line', from: shift(root, end, NODE), to: shift(end, root, NODE), style: lit.has(2 * i) || lit.has(2 * i + 1) || (!second && lit.has(i)) ? 'lit' : 'plain' })
-    items.push(second ? { kind: 'text', at: [end[0], end[1] + (i ? -0.78 : 0.78)], text: b.label, tone: 'faint' } : beside(end, b.label))
+    items.push(second ? { kind: 'text', at: [end[0], end[1] + (i ? -1 : 1) * (NODE + 0.32)], text: b.label, tone: 'faint', small: true } : beside(end, b.label))
     node(end, b)
     second?.[i]?.forEach((c, j) => {
-      const leaf = 2 * i + j, to: FigurePoint = [5.2, LEAF_Y[leaf]]
+      const leaf = 2 * i + j, to: FigurePoint = [5.2, FREQ_LEAF[leaf]]
       items.push({ kind: 'line', from: shift(end, to, NODE), to: shift(to, end, NODE), style: lit.has(leaf) ? 'lit' : 'plain' })
       items.push(beside(to, c.label))
       node(to, c)
     })
   })
   node(root, total)
-  return fig(items, spoken, opts.caption, 18)
+  // A thin margin, so the tree is drawn big enough for a three-figure number to sit inside its circle.
+  const f = fig(items, spoken, opts.caption)
+  f.figure!.pad = 20
+  return f
 }
 
 /* ---------- Tables ---------- */
@@ -155,9 +161,12 @@ export function freqTreeFig(total: Branch, first: Branch[], second: Branch[][] |
  * and a tall table, drawn smaller, gets wider cells to match.
  */
 export function tableFig(rows: string[][], spoken: string, opts: { tones?: [number, number, FigureTone][]; caption?: string; headColumn?: boolean } = {}): AngleFrame {
-  const cols = Math.max(...rows.map(r => r.length)), H = 26
-  const shrink = Math.min(1, (PICTURE.h - 2 * PICTURE.pad) / (rows.length * H))
-  const widths = Array.from({ length: cols }, (_, c) => Math.max(40, ...rows.map(r => (r[c] ?? '').length * 9 + 18)) / shrink)
+  // Every table is drawn at the same size, a short one a little roomier, whatever its shape (Sunny, 17 Oct: one was
+  // huge and another tiny). A table too tall for the picture is drawn smaller, its cells wider to match.
+  const cols = Math.max(...rows.map(r => r.length)), short = rows.length <= 3, H = short ? 30 : 26
+  const room = { w: PICTURE.w - 2 * TABLE_PAD, h: PICTURE.h - 2 * TABLE_PAD }
+  const shrink = Math.min(1, room.h / (rows.length * H))
+  const widths = Array.from({ length: cols }, (_, c) => Math.max(short ? 64 : 40, ...rows.map(r => (r[c] ?? '').length * 9 + 18)) / shrink)
   const items: FigureItem[] = []
   const xs = widths.reduce<number[]>((a, w) => [...a, a.at(-1)! + w], [0])
   rows.forEach((row, r) => row.forEach((cell, c) => {
@@ -167,7 +176,13 @@ export function tableFig(rows: string[][], spoken: string, opts: { tones?: [numb
     const tone = opts.tones?.find(([tr, tc]) => tr === r && tc === c)?.[2]
     if (cell) items.push({ kind: 'text', at: [(xs[c] + xs[c + 1]) / 2, (y0 + y1) / 2], text: cell, ...(tone ? { tone } : {}) })
   }))
-  return fig(items, spoken, opts.caption, -24)
+  // Two empty corners the size of the picture, so it is fitted at one pixel to a pixel and never blown up.
+  const mid: FigurePoint = [xs.at(-1)! / 2, rows.length * H / 2]
+  items.push({ kind: 'text', at: [mid[0] - room.w / 2, mid[1] - room.h / 2], text: '' }, { kind: 'text', at: [mid[0] + room.w / 2, mid[1] + room.h / 2], text: '' })
+  const f = fig(items, spoken, opts.caption)
+  f.figure!.pad = TABLE_PAD
+  f.figure!.crop = true
+  return f
 }
 
 /* ---------- The probability scale ---------- */

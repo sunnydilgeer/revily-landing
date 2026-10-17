@@ -209,6 +209,7 @@ add('mixed', 'Grouped frequency tables', 'P13 consolidation', text(
 export const tutorGroupedFrequencyLesson: TutorMethodLesson = {
   id: 'L313', number: 313, title: 'Grouped frequency tables', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Sort data into classes like 150 < h ≤ 160, find the modal class and the class containing the median, and answer questions from a grouped table.',
   labels: { [build]: 'Building a grouped table', [classes]: 'Modal and median class', [problems]: 'Grouped table problems', mixed: 'Review' },
   states: finish(),

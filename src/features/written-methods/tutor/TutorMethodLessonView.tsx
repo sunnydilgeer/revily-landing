@@ -420,7 +420,7 @@ export default function TutorMethodLessonView({ lesson }: { lesson: TutorMethodL
   // Worked examples are step chains that explain every move, so the one-line method summary would repeat them.
   const stepChain = state.visual.kind === 'method-worked' || state.visual.kind === 'step-worked' || state.visual.kind === 'fraction-worked' || state.visual.kind === 'conversion-worked'
 
-  return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}${lesson.largePictures ? ' has-large-pictures' : ''}${lesson.calmColours ? ' is-calm' : ''}${lesson.smallLabels ? ' has-small-labels' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
+  return <SteadyPictures.Provider value={Boolean(lesson.steadyPictures)}><section className={`numbers-lesson pvb-lesson wm-lesson wmt-lesson rung-lesson${numberSense ? ' ns-lesson' : ''}${lesson.largePictures ? ' has-large-pictures' : ''}${lesson.steadySize ? ' has-steady-size' : ''}${lesson.calmColours ? ' is-calm' : ''}${lesson.smallLabels ? ' has-small-labels' : ''}`} id={`lesson-${lesson.number}`} aria-labelledby={`wmt-topic-${lesson.number}`}>
     {header}
     <DriveSteps flow={flow}>
     <article ref={card} className={`pvb-activity rung-card${teaching ? ' rung-card--teach' : ' rung-card--question'}${lesson.graphCard ? ' rung-card--graph' : ''}`} key={state.id} data-state-id={state.id} data-source-ref={state.sourceRef}>

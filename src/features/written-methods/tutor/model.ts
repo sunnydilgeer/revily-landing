@@ -66,6 +66,11 @@ export type TutorMethodLesson = Omit<LessonDefinition, 'states'> & {
   smallLabels?: boolean
   /** Pictures show half as big again (up to 600px wide instead of 400px), for lessons whose shapes are small. */
   largePictures?: boolean
+  /**
+   * Pictures never shrink to fit the card, so a diagram is the same size on a question, a worked example and its
+   * working; the card scrolls a little instead (Sunny, 17 Oct: tables and trees in Probability).
+   */
+  steadySize?: boolean
   /** A Graphs lesson: every card has one fixed graph slot, the same size and place on every screen (GraphSlot.tsx). */
   graphCard?: boolean
   states: TutorMethodState[]

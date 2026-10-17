@@ -92,7 +92,8 @@ export function ChanceBoard({ spec, onChange, disabled }: { spec: ChanceBoardSpe
 
   if (spec.mode === 'scale') {
     const n = v[0], p = n / 20, x = SCALE.x0 + p * (SCALE.x1 - SCALE.x0)
-    handles = [{ x, y: SCALE.y - 34 }]
+    // The handle sits on top of the arrow: its bottom edge (radius 11) meets the arrow's tail, with no overlap.
+    handles = [{ x, y: SCALE.y - 39 }]
     drawing = <>
       <path className="ns-fig__line" d={`M${SCALE.x0} ${SCALE.y} L${SCALE.x1} ${SCALE.y}`} />
       {[0, 0.25, 0.5, 0.75, 1].map(t => { const tx = SCALE.x0 + t * (SCALE.x1 - SCALE.x0); return <g key={t}>
@@ -102,9 +103,9 @@ export function ChanceBoard({ spec, onChange, disabled }: { spec: ChanceBoardSpe
       <text className="measure-board__label is-c" x={SCALE.x0} y={SCALE.y + 52}>Impossible</text>
       <text className="measure-board__label is-c" x={(SCALE.x0 + SCALE.x1) / 2} y={SCALE.y + 52}>Even</text>
       <text className="measure-board__label is-c" x={SCALE.x1} y={SCALE.y + 52}>Certain</text>
-      <path className="ns-fig__line is-lit" d={`M${x} ${SCALE.y - 24} L${x} ${SCALE.y - 4}`} />
+      <path className="ns-fig__line is-lit" d={`M${x} ${SCALE.y - 28} L${x} ${SCALE.y - 4}`} />
       <path className="ns-fig__line is-lit is-head" d={`M${x - 6} ${SCALE.y - 13} L${x} ${SCALE.y - 4} L${x + 6} ${SCALE.y - 13}`} />
-      <text className="measure-board__label is-big is-a" x={clamp(x, 40, 280)} y={SCALE.y - 64}>{likelihood(p)}</text>
+      <text className="measure-board__label is-big is-a" x={clamp(x, 40, 280)} y={SCALE.y - 68}>{likelihood(p)}</text>
     </>
     spoken = `The arrow is at ${fmt(p)}, which is ${twentieths(n)} or ${Math.round(p * 100)}%: ${likelihood(p)}.`
     footer = <span aria-hidden="true"><span className="angle-board__n c0">{fmt(p)}</span> = <span className="angle-board__n c1">{twentieths(n)}</span> = {pill(`${Math.round(p * 100)}%`)}</span>
