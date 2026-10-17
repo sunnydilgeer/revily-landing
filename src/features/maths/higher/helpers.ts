@@ -4,6 +4,7 @@ import type { TutorMethodState } from '../../written-methods/tutor/model'
 import type { StepWorking } from '../../written-methods/tutor/stepWorking'
 import type { InteractionDefinition, MicroSkillId } from '../../number-types/types'
 import type { author } from '../../written-methods/tutor/content'
+import { figure, graphModel, type GraphGrid, type GraphMove } from '../../straight-line-graphs/tutor/graphWorkings'
 
 type Author = ReturnType<typeof author>
 
@@ -51,6 +52,19 @@ export function screens({ add }: Author) {
     },
     practice(topic: MicroSkillId, title: string, sourceRef: string, interaction: InteractionDefinition, answer: string, hint: string, model: StepWorking, answerLabel?: string) {
       const state = add(topic, title, sourceRef, text(title), interaction, working(answer, ...steps(model)), hint)
+      state.working = model
+      if (answerLabel) state.answerLabel = answerLabel
+      return state
+    },
+    /** A worked example drawn on a grid, one move a step (graphWorkings.ts), with its heading over the picture. */
+    graph(topic: MicroSkillId, title: string, sourceRef: string, question: string, start: GraphGrid, moves: GraphMove[], label: string, heading: string, body?: string) {
+      const state = add(topic, title, sourceRef, graphModel(question, start, moves, label), undefined, undefined, undefined, body)
+      state.content.heading = heading
+      return state
+    },
+    /** A question about a graph: the grid drawn above the answer, and its own step working. */
+    onGrid(topic: MicroSkillId, title: string, sourceRef: string, start: GraphGrid, interaction: InteractionDefinition, answer: string, hint: string, model: StepWorking, answerLabel?: string) {
+      const state = add(topic, title, sourceRef, figure(start), interaction, working(answer, ...steps(model)), hint)
       state.working = model
       if (answerLabel) state.answerLabel = answerLabel
       return state

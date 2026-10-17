@@ -169,4 +169,31 @@ practice(skill, `Why is ${nb('7²⁰ + 9')} not a prime number?`, 'Higher A24 ex
   ],
 })
 
+/* ---------- Your Turn, Level 6-7 (page 100) ---------- */
+
+simplify(`Prove that ${nb('(3n + 1)² + (n − 1)²')} is always even for any positive whole number n. Expand and simplify it.`, 'Higher A24 Your Turn Q3', '10n² + 4n + 2', 'Expand each square, then add them.', {
+  kind: 'step-worked', start: '(3n + 1)² + (n − 1)²', steps: [
+    eq('Expand the first', 'Write the bracket out twice and multiply every term by every term.', '(3n + 1)²', '9n² + 6n + 1', 0),
+    eq('Expand the second', 'The same for the second bracket. Mind the signs.', '(n − 1)²', 'n² − 2n + 1', 1),
+    eq('Add them', 'Collect like terms. Every number in the answer is even, so two comes out: it is two times a whole number, which is even.', '(9n² + 6n + 1) + (n² − 2n + 1)', '10n² + 4n + 2', 2, true),
+  ],
+})
+practice(skill, 'Prove that the sum of 3 consecutive odd numbers is an odd number. Which form of the sum shows it is odd?', 'Higher A24 Your Turn Q4', choose([
+  '2(3n + 4) + 1',
+  '2(3n + 9) + 1',
+  '2(3n + 4)',
+]), '2(3n + 4) + 1', 'Write the odd numbers as 2n + 1, 2n + 3 and 2n + 5, then add them.', {
+  kind: 'step-worked', start: '3 consecutive odd numbers', steps: [
+    { title: 'Write three odds', why: 'Odd numbers go up in twos, so each one is two more than the one before.', lines: [line([part('odd numbers')], '2n + 1, 2n + 3, 2n + 5', { eq: true })] },
+    eq('Add them', 'Add the n terms, then the numbers.', '(2n + 1) + (2n + 3) + (2n + 5)', '6n + 9', 1),
+    eq('Take out 2', 'Split nine into eight and one, and take two out of the rest. Two times a whole number, plus one, is odd.', '6n + 9', '2(3n + 4) + 1', 2, true),
+  ],
+})
+simplify('Show algebraically that the sum of any 3 consecutive even numbers is always divisible by 6. Simplify 2n + (2n + 2) + (2n + 4).', 'Higher A24 Your Turn Q5', '6n + 6', 'Add the n terms, then the numbers.', {
+  kind: 'step-worked', start: '3 consecutive even numbers', steps: [
+    { title: 'Write three evens', why: 'Even numbers go up in twos, so each one is two more than the one before.', lines: [line([part('even numbers')], '2n, 2n + 2, 2n + 4', { eq: true })] },
+    eq('Add them', 'Add the n terms, then the numbers. Six comes out of both terms, so the sum is six times a whole number, which is divisible by six.', '2n + (2n + 2) + (2n + 4)', '6n + 6', 1, true),
+  ],
+})
+
 export const harderProofs: HigherAddition = { lessonId: 'L028', skill, label: 'Harder proofs', states: a.finish() }

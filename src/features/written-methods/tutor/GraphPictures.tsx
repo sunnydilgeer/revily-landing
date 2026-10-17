@@ -6,7 +6,7 @@ import { GRAPH_SQUARES, GraphWords, InGraphSlot } from './GraphSlot'
 import type { AxisScale, GraphFrame, GraphPoint, GraphTable } from './methodWorking'
 import { keepWhole } from './methodWorking'
 import { Powers } from './Powers'
-import { curvePath, valueAt } from './curves'
+import { curvePath, curveY } from './curves'
 
 /*
  * The graphs lessons (coordinates, lines, gradient). The graph is drawn on the page's own squared paper: one
@@ -35,12 +35,14 @@ export const coordinate = (p: GraphPoint) => `(${fmt(p.x)}, ${fmt(p.y)})`
 /** 9.5 hours → "09:30". */
 export const clock = (hours: number) => { const m = Math.round(hours * 60); return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` }
 /** A number on an axis, as that axis writes it: a time on a clock axis. */
-export const axisText = (scale: AxisScale | undefined, v: number) => scale?.clock ? clock(v) : fmt(Math.round(v * 1000) / 1000)
+export const axisText = (scale: AxisScale | undefined, v: number) => scale?.clock ? clock(v) : `${fmt(Math.round(v * 1000) / 1000)}${scale?.unit ?? ''}`
 /** The numbered values along an axis, other than where the axes cross and the grid's edges: `by` apart on an axis in steps. */
 export function ticks(from: number, to: number, cross: number, scale?: AxisScale, end = 1, by = 1) {
   if (!scale) return Array.from({ length: Math.round((to - from) / by) + 1 }, (_, i) => from + i * by).filter(v => v !== cross && v !== from && v !== to)
   // A real-life axis starts where the axes cross; its last number keeps `end` squares clear of the arrow and the axis's name.
   const out: number[] = [], step = scale.per * (scale.every ?? 1)
+  // An axis that runs below where the axes cross (−360° to 360°) is numbered that way too, clear of the grid's edge.
+  for (let v = cross - step; v > from + 1e-9; v -= step) out.unshift(Math.round(v * 1e6) / 1e6)
   for (let v = cross + step; v < to - scale.per * end + 1e-9 && v < to - 1e-9; v += step) out.push(Math.round(v * 1e6) / 1e6)
   return out
 }
@@ -159,6 +161,7 @@ function spoken(frame: GraphFrame, plain?: boolean) {
   const own = <T extends { at: number }>(list: T[] = []) => list.filter(part => !plain || part.at < 0)
   for (const line of own(frame.lines)) parts.push(`The ${line.dashed ? 'dashed ' : ''}line ${spokenLine(line)}.`)
   for (const region of own(frame.regions)) parts.push(`A shaded region${region.label ? ` marked ${region.label}` : ''}.`)
+  for (const circle of own(frame.circles)) parts.push(`A circle${circle.label ? `, ${circle.label},` : ''} of radius ${fmt(circle.r)} about (${fmt(circle.cx ?? 0)}, ${fmt(circle.cy ?? 0)}).`)
   for (const curve of own(frame.curves)) parts.push(`A smooth curve${curve.label ? `, ${curve.label.replace(/−/g, 'minus ')},` : ''} from x = ${fmt(curve.from)} to x = ${fmt(curve.to)}.`)
   for (const point of own(frame.points)) parts.push(`A point at ${coordinate(point)}.`)
   if (!plain) {
@@ -290,16 +293,21 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
   const between = !!sy || perY !== 1
   const lines = (frame.lines ?? []).filter(line => shown(line.at))
   const curves = (frame.curves ?? []).filter(curve => shown(curve.at))
+  const circles = (frame.circles ?? []).filter(circle => shown(circle.at))
   const regions = (frame.regions ?? []).filter(region => shown(region.at))
   // A curve as short straight pieces inside the grid, so labels keep off it like they keep off a line.
   const curveSegments = curves.flatMap(curve => {
-    const lo = Math.max(curve.from, x0), hi = Math.min(curve.to, x1), n = Math.max(2, Math.ceil((hi - lo) * 4)), out = []
+    const lo = Math.max(curve.from, x0), hi = Math.min(curve.to, x1), n = Math.max(2, Math.ceil((hi - lo) / perX * 4)), out = []
     for (let i = 0; i < n; i++) {
-      const xa = lo + (hi - lo) * i / n, xb = lo + (hi - lo) * (i + 1) / n, ya = valueAt(curve.coeffs, xa), yb = valueAt(curve.coeffs, xb)
-      if (ya >= y0 && ya <= y1 && yb >= y0 && yb <= y1) out.push({ x1: px(xa) + 0.5, y1: py(ya) + 0.5, x2: px(xb) + 0.5, y2: py(yb) + 0.5 })
+      const xa = lo + (hi - lo) * i / n, xb = lo + (hi - lo) * (i + 1) / n, ya = curveY(curve, xa), yb = curveY(curve, xb)
+      if (ya >= y0 && ya <= y1 && yb >= y0 && yb <= y1 && Math.abs(ya - yb) < (y1 - y0) / 2) out.push({ x1: px(xa) + 0.5, y1: py(ya) + 0.5, x2: px(xb) + 0.5, y2: py(yb) + 0.5 })
     }
     return out
-  })
+  }).concat(circles.flatMap(circle => Array.from({ length: 48 }, (_, i) => {
+    const at = (k: number) => ({ x: (circle.cx ?? 0) + circle.r * Math.cos(k * Math.PI / 24), y: (circle.cy ?? 0) + circle.r * Math.sin(k * Math.PI / 24) })
+    const a = at(i), b = at(i + 1)
+    return { x1: px(a.x) + 0.5, y1: py(a.y) + 0.5, x2: px(b.x) + 0.5, y2: py(b.y) + 0.5 }
+  })))
   const points = (frame.points ?? []).filter(point => shown(point.at))
   const legs = plain ? [] : frame.legs ?? []
   const working = plain ? [] : frame.working ?? []
@@ -498,7 +506,7 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
         const fitted = curve.label ? (() => {
           const w = curve.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
           const candidates = [0.9, 0.1, 0.8, 0.2, 0.7, 0.3].flatMap(f => {
-            const x = curve.from + (curve.to - curve.from) * f, y = valueAt(curve.coeffs, x)
+            const x = curve.from + (curve.to - curve.from) * f, y = curveY(curve, x)
             if (y < y0 || y > y1) return []
             const cx = px(x) + 0.5, cy = py(y) + 0.5
             return [box(cx + 12, cy + 5), box(cx - 12 - w, cy + 5), box(cx - w / 2, cy - 12), box(cx - w / 2, cy + 26)]
@@ -506,8 +514,26 @@ export function GraphVisual({ frame: given, heading, plain, focus, live }: { fra
           return fitLabel(candidates.length ? candidates : [box(3, 18)], room, true)
         })() : null
         return <g key={`c${i}`} className={`ns-graph__line ns-graph__curve${kind}${done(curve.at)}`}>
-          <path d={curvePath(curve.coeffs, curve.from, curve.to, frame, px, py)} />
+          <path d={curvePath(x => curveY(curve, x), curve.from, curve.to, frame, px, py, perX)} />
           {fitted && <text x={fix(fitted.l + 2)} y={fix(fitted.base)}>{curve.label}</text>}
+        </g>
+      })}
+      {circles.map((circle, i) => {
+        const kind = circle.answer ? ' is-answer' : circle.at >= 0 ? ' is-found' : ''
+        const cx = circle.cx ?? 0, cy = circle.cy ?? 0
+        // Its name outside it, up and to the right first, wherever it keeps clear of everything else.
+        const fitted = circle.label ? (() => {
+          const w = circle.label.length * 8.6 + 4, box = (l: number, base: number) => ({ l, r: l + w, t: base - 14, b: base + 4, base })
+          const candidates = [45, 135, 315, 225, 90, 270].map(deg => {
+            const ex = px(cx + circle.r * Math.cos(deg * Math.PI / 180)) + 0.5, ey = py(cy + circle.r * Math.sin(deg * Math.PI / 180)) + 0.5
+            const right = Math.cos(deg * Math.PI / 180) >= 0, up = Math.sin(deg * Math.PI / 180) >= 0
+            return box(right ? ex + 6 : ex - 6 - w, up ? ey - 6 : ey + 18)
+          })
+          return fitLabel(candidates, room, true)
+        })() : null
+        return <g key={`o${i}`} className={`ns-graph__line ns-graph__curve${kind}${done(circle.at)}`}>
+          <ellipse cx={fix(px(cx) + 0.5)} cy={fix(py(cy) + 0.5)} rx={fix(circle.r / perX * UNIT)} ry={fix(circle.r / perY * UNIT)} />
+          {fitted && <text x={fix(fitted.l + 2)} y={fix(fitted.base)}>{circle.label}</text>}
         </g>
       })}
       {/* The plain numbers over the lines, their halo parting a line that runs through one (−3 under y = 3x − 2), under the steps and dots. */}

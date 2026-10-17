@@ -15,8 +15,13 @@ import { tutorAlgebraicFractionsLesson } from './algebraicFractionsLesson'
 import { tutorQuadraticFormulaLesson } from './quadraticFormulaLesson'
 import { tutorCompletingSquareLesson } from './completingSquareLesson'
 import { tutorIterativeLesson } from './iterativeLesson'
+import { tutorFunctionsLesson } from './functionsLesson'
+import { tutorCircleGraphsLesson } from './circleGraphsLesson'
+import { tutorTurningPointsLesson } from './turningPointsLesson'
+import { tutorGraphTransformationsLesson } from './graphTransformationsLesson'
+import { tutorTrigGraphsLesson } from './trigGraphsLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -43,4 +48,15 @@ export const higherLessons: readonly HigherLesson[] = [
   { after: 22, lesson: tutorCompletingSquareLesson as TutorMethodLesson & { number: 22.6 }, title: 'Completing the square', description: 'Write a quadratic as a(x + d)² + e, find its turning point, and solve an equation by completing the square.' },
   // A22 Iterative methods, after Solving inequalities (A18 to A21 come before it in the book).
   { after: 25, lesson: tutorIterativeLesson as TutorMethodLesson & { number: 25.5 }, title: 'Iterative methods', description: 'Find a solution by trial and improvement, use an iteration formula with the ANS key, and rearrange an equation into one.' },
+  // A26 Functions follows A25 Function machines, as in the book: 15H.
+  { after: 29, lesson: tutorFunctionsLesson as TutorMethodLesson & { number: 29.5 }, title: 'Functions', description: 'Use function notation like f(x) = 3x + 1: work out f(10), combine two functions into fg(x), and find an inverse function f⁻¹(x).' },
+  // Graphs. GR8 Circle graphs uses perpendicular gradients for a tangent, so it follows Parallel lines (with its Higher
+  // section on perpendicular lines), and comes before Simultaneous equations by graph, which then solves a line and a
+  // circle. GR7 Turning points, GR10 Graph transformations and GR11 Sin, cos and tan graphs follow Quadratic and cubic
+  // graphs (with its Higher section on reciprocal and exponential graphs): 6H, 6H2 and 6H3. Their addresses are GR4H and
+  // GR6H to GR6H3 (tier.ts).
+  { after: 104, lesson: tutorCircleGraphsLesson as TutorMethodLesson & { number: 104.5 }, title: 'Circle graphs and tangents', description: 'Read a circle’s radius from x² + y² = r², write its equation, and find the equation of a tangent to it.' },
+  { after: 106, lesson: tutorTurningPointsLesson as TutorMethodLesson & { number: 106.5 }, title: 'Turning points', description: 'Find the turning point of a quadratic graph, halfway between its roots or by completing the square.' },
+  { after: 106, lesson: tutorGraphTransformationsLesson as TutorMethodLesson & { number: 106.6 }, title: 'Graph transformations', description: 'Move a graph with f(x + a) and f(x) + b, and reflect it with f(−x) and −f(x).' },
+  { after: 106, lesson: tutorTrigGraphsLesson as TutorMethodLesson & { number: 106.7 }, title: 'Sin, cos and tan graphs', description: 'Sketch the graphs of sin x, cos x and tan x: their peaks, where they cross the axis, how often they repeat, and tan’s asymptotes.' },
 ]

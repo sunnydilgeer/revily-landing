@@ -48,7 +48,7 @@ export { sectionsFor, type MathsSection }
 export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40
   | GraphsLessonNumber | GeometryLessonNumber | ProbabilityLessonNumber
   /** Higher-only lessons (higher/lessons.ts): only Higher students get them (tier.ts). */
-  | 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5
+  | 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7
 
 export type MathsChapterId = 'number' | 'algebra' | 'ratio' | 'graphs' | 'geometry' | 'probability'
 
@@ -159,6 +159,8 @@ for (const chapter of mathsChapters) chapter.lessons.forEach((entry, i) => { ent
 
 const CHAPTER_CODES: Record<MathsChapterId, string> = { number: '', algebra: 'A', ratio: 'R', graphs: 'GR', geometry: 'GM', probability: 'P' }
 
+/** The letters in front of a chapter's lesson codes: "" for Number, "A" for Algebra, "GR" for Graphs. */
+export const chapterCode = (chapterId: MathsChapterId) => CHAPTER_CODES[chapterId]
 /** A short name for a lesson in a list of every lesson: "14" in Number, "A1" in Algebra, "GR1" in Graphs. */
 export const lessonCode = (entry: MathsLessonEntry) => `${CHAPTER_CODES[entry.chapterId]}${entry.position}`
 

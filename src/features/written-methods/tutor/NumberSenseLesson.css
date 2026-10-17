@@ -366,9 +366,9 @@
 .ns-graph__region.is-answer polygon { fill: color-mix(in srgb, var(--rv-good-ink) 22%, transparent); }
 .ns-graph__region text { fill: var(--rv-ink); font-size: 20px; font-weight: 800; font-style: italic; text-anchor: middle; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
 .ns-graph__region.is-answer text { fill: var(--rv-good-ink); }
-.ns-graph__curve path { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.ns-graph__curve.is-found path { stroke: var(--rv-biro); }
-.ns-graph__curve.is-answer path { stroke: var(--rv-good-ink); stroke-width: 4; }
+.ns-graph__curve path, .ns-graph__curve ellipse { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ns-graph__curve.is-found path, .ns-graph__curve.is-found ellipse { stroke: var(--rv-biro); }
+.ns-graph__curve.is-answer path, .ns-graph__curve.is-answer ellipse { stroke: var(--rv-good-ink); stroke-width: 4; }
 /* A table of values (graphs lesson 2): x amber along the top, y biro blue underneath. */
 /* The graph is the hero: the table beside it is small, with room between them (Sunny, 8 Oct). */
 .ns-graph__table { margin-bottom: 14px; border-collapse: collapse; background: var(--rv-paper); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
