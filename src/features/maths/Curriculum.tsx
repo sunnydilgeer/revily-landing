@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Button } from '../../ui'
-import { mathsChapters, mathsLessons, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
+import type { MathsLessonEntry, MathsLessonNumber } from './courseRegistry'
+import { mathsChaptersForTier, mathsLessonsForTier, type MathsTier } from './tier'
+import { HigherTile } from '../../ui/HigherTile'
 import type { LessonProgressMap, LessonProgressSnapshot } from './lessonProgress'
 import { mathsLessonMinutes } from './lessonMinutes'
 import { rungStatus } from './rungProgress'
@@ -12,6 +14,8 @@ import './ContentsDrawer.css'
 type Props = {
   progress: LessonProgressMap
   lastLesson: MathsLessonNumber
+  tier: MathsTier
+  onChooseTier: (tier: MathsTier) => void
   onOpenLesson: (lesson: MathsLessonNumber, skill?: string) => void
 }
 
@@ -105,6 +109,14 @@ export function TocLesson({ id, status, title, badge, minutes, detail, action, s
   </li>
 }
 
+/** Foundation or Higher: Higher adds the H-tiled sections and lessons (tier.ts). The same switch as Science's. */
+export function TierSwitch({ tier, onChoose }: { tier: MathsTier; onChoose: (tier: MathsTier) => void }) {
+  return <div className="cur-tier" role="group" aria-label="Tier">
+    {(['foundation', 'higher'] as const).map(option => <button key={option} type="button" aria-pressed={tier === option}
+      onClick={() => onChoose(option)}>{option === 'higher' ? 'Higher' : 'Foundation'}</button>)}
+  </div>
+}
+
 /** True on phone-width screens, where the contents is one long list instead of two columns. */
 export function useIsPhone() {
   const [phone, setPhone] = useState(false)
@@ -162,7 +174,9 @@ export function ChapterAccordion({ chapters, focusLessonId, label }: { chapters:
   </div>
 }
 
-export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props) {
+export default function Curriculum({ progress, lastLesson, tier, onChooseTier, onOpenLesson }: Props) {
+  const mathsChapters = mathsChaptersForTier(tier)
+  const mathsLessons = mathsLessonsForTier(tier)
   const lastEntry = mathsLessons.find(entry => entry.number === lastLesson) ?? mathsLessons[0]
   const nextIncomplete = mathsLessons.find(entry => !progress[entry.lessonId]?.completed)
   const upNext = progress[lastEntry.lessonId] && !progress[lastEntry.lessonId].completed ? lastEntry : nextIncomplete ?? lastEntry
@@ -193,7 +207,7 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
       ...entry.sections.filter(section => section.title.toLowerCase().includes(q))
         .map(section => ({ key: `${entry.lessonId}-${section.id}`, title: section.title, label: `Skill · ${entry.title}`, onPick: () => onOpenLesson(entry.number, section.id) })),
     ]))
-  }, [onOpenLesson, query])
+  }, [mathsChapters, onOpenLesson, query])
 
   const renderLesson = (entry: MathsLessonEntry) => {
     const snapshot = progress[entry.lessonId]
@@ -202,14 +216,16 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
     const detail = upNextSnapshot
       ? `Up next · section ${upNextRungIndex + 1} of ${upNextRungs.length} · ${upNextRungs[upNextRungIndex]?.title}`
       : `Start here · ${upNextRungs.length} sections · ${minutes} min`
-    return <TocLesson key={entry.lessonId} id={entry.lessonId} status={status} title={entry.title} minutes={minutes} detail={detail}
+    return <TocLesson key={entry.lessonId} id={entry.lessonId} status={status} title={entry.title} badge={entry.higherOnly && <HigherTile />} minutes={minutes} detail={detail}
       action={status === 'done' ? 'Review' : snapshot ? 'Continue' : 'Start'} onOpen={() => onOpenLesson(entry.number)}
-      sections={entry.sections} currentSectionId={status === 'next' ? snapshot?.currentSectionId : undefined}
+      sections={entry.sections.map(section => section.higher ? { ...section, badge: <HigherTile /> } : section)} currentSectionId={status === 'next' ? snapshot?.currentSectionId : undefined}
       onOpenSection={sectionId => onOpenLesson(entry.number, sectionId)} />
   }
 
   // Phones: no header, just search and every chapter in one list, opened at the last lesson you viewed.
+  const tierSwitch = <TierSwitch tier={tier} onChoose={onChooseTier} />
   if (phone) return <div className="cur cur--phone">
+    {tierSwitch}
     <CurriculumSearch query={query} onQuery={setQuery} placeholder="Search lessons and skills" results={results} />
     {!results && <ChapterAccordion label="Chapters" focusLessonId={lastEntry.lessonId} chapters={[
       ...mathsChapters.map((item, index) => ({ id: item.id, code: String(index + 1), title: item.title, lessonIds: item.lessons.map(entry => entry.lessonId), lessons: item.lessons.map(renderLesson) })),
@@ -221,7 +237,8 @@ export default function Curriculum({ progress, lastLesson, onOpenLesson }: Props
     <header className="cur-head">
       <div>
         <h1>Chapters</h1>
-        <p>GCSE Foundation Maths · {chapterCount} chapters · pick up at the highlighted lesson</p>
+        <p>GCSE {tier === 'higher' ? 'Higher' : 'Foundation'} Maths · {chapterCount} chapters · pick up at the highlighted lesson</p>
+        {tierSwitch}
       </div>
       <div className="cur-overall" aria-label={`${doneLessons} of ${mathsLessons.length} lessons complete`}>
         <div className="cur-overall__bar" aria-hidden="true"><span style={{ width: `${doneLessons / mathsLessons.length * 100}%` }} /></div>

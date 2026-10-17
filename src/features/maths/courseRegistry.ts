@@ -47,6 +47,8 @@ export { sectionsFor, type MathsSection }
 
 export type MathsLessonNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40
   | GraphsLessonNumber | GeometryLessonNumber | ProbabilityLessonNumber
+  /** Higher-only lessons (higher/lessons.ts): only Higher students get them (tier.ts). */
+  | 11.5
 
 export type MathsChapterId = 'number' | 'algebra' | 'ratio' | 'graphs' | 'geometry' | 'probability'
 
@@ -63,6 +65,9 @@ export type MathsLessonEntry<N extends number = MathsLessonNumber, C extends str
   sections: MathsSection[]
   /** The lesson itself, for features built from its content (revision cards). */
   definition: LessonDefinition
+  /** A Higher-only lesson (tier.ts), shown with the H tile and its `label` ("11H") in place of its position. */
+  higherOnly?: boolean
+  label?: string
 }
 
 export type MathsChapter<N extends number = MathsLessonNumber, C extends string = MathsChapterId> = {

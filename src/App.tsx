@@ -59,7 +59,8 @@ import { CloseIcon, ContentsIcon } from './ui/icons'
 import { useLessonFrame } from './features/maths/lessonFrame'
 import { LessonBarSlot } from './features/maths/rungs'
 import MathsContentsDrawer from './features/maths/MathsContentsDrawer'
-import { getMathsLesson, isMathsLessonNumber, type MathsLessonNumber, type MathsSection } from './features/maths/courseRegistry'
+import { getMathsLesson, type MathsLessonNumber, type MathsSection } from './features/maths/courseRegistry'
+import { forTier, getMathsLessonForTier, mathsChaptersForTier, isMathsLessonNumberForTier, lessonParam, parseLessonParam, readMathsTier, saveMathsTier, type MathsTier } from './features/maths/tier'
 import {
   MATHS_LAST_LESSON_STORAGE_KEY,
   MATHS_PROGRESS_EVENT,
@@ -81,16 +82,15 @@ function sectionFromUrl(): MathsView {
   return value === 'cards' || value === 'practice' || value === 'lab' ? value : 'overview'
 }
 
-function lessonFromUrl() {
-  const value = Number(new URLSearchParams(window.location.search).get('lesson'))
-  return isMathsLessonNumber(value) ? value : null
+function lessonFromUrl(tier: MathsTier) {
+  return parseLessonParam(new URLSearchParams(window.location.search).get('lesson'), tier)
 }
 
 function pushLessonQuery(lesson?: MathsLessonNumber, section?: 'cards' | 'practice', skill?: string) {
   const url = new URL(window.location.href)
   url.searchParams.delete('view')
   url.searchParams.delete('subject')
-  if (lesson) url.searchParams.set('lesson', String(lesson))
+  if (lesson) url.searchParams.set('lesson', lessonParam(lesson))
   else url.searchParams.delete('lesson')
   // The lesson opens at this skill (its engine reads ?section= once, then removes it).
   if (skill) url.searchParams.set('section', skill)
@@ -105,20 +105,24 @@ function App() {
   const [progress, setProgress] = useState<LessonProgressMap>({})
   const [lastLesson, setLastLesson] = useState<MathsLessonNumber>(1)
   const [subject, setSubject] = useState<Subject>('maths')
+  const [tier, setTier] = useState<MathsTier>('foundation')
   const contentsButtonRef = useRef<HTMLButtonElement>(null)
   // The lesson's section title and progress draw into the top bar (see LessonBarSlot in rungs.tsx).
   const [barSlot, setBarSlot] = useState<HTMLDivElement | null>(null)
   // The lesson page is one fixed screen; a card taller than its space scrolls inside (see lessonFrame.ts).
   const [mainEl, setMainEl] = useState<HTMLElement | null>(null)
   useLessonFrame(mainEl)
-  const currentLesson = getMathsLesson(lesson)
+  // A Higher-only lesson is gone on Foundation: fall back to the first lesson.
+  const currentLesson = getMathsLessonForTier(lesson, tier) ?? getMathsLesson(1)
   const study = useStudySummary()
   useStudyTimer(view === 'cards' || (subject === 'maths' && view === 'lesson'), subject)
 
   useEffect(() => {
     setProgress(readMathsProgress())
+    const savedTier = readMathsTier()
+    setTier(savedTier)
     const storedLastLesson = Number(window.localStorage.getItem(MATHS_LAST_LESSON_STORAGE_KEY))
-    if (isMathsLessonNumber(storedLastLesson)) setLastLesson(storedLastLesson)
+    if (isMathsLessonNumberForTier(storedLastLesson, savedTier)) setLastLesson(storedLastLesson)
 
     // Memory only picks the subject on first load. Science addresses always say subject=science,
     // so on Back/Forward an address without it is Maths.
@@ -137,7 +141,7 @@ function App() {
         setDrawerOpen(false)
         return
       }
-      const selectedLesson = lessonFromUrl()
+      const selectedLesson = lessonFromUrl(readMathsTier())
       if (selectedLesson) {
         setLesson(selectedLesson)
         setLastLesson(selectedLesson)
@@ -180,6 +184,11 @@ function App() {
     pushLessonQuery(number, undefined, skill)
   }, [])
 
+  const chooseTier = useCallback((next: MathsTier) => {
+    saveMathsTier(next)
+    setTier(next)
+  }, [])
+
   const showOverview = useCallback(() => {
     setView('overview')
     setDrawerOpen(false)
@@ -209,10 +218,10 @@ function App() {
 
   // A skill in the open lesson moves within it; a skill in another lesson opens that lesson at the skill.
   const selectSkillFromDrawer = useCallback((number: MathsLessonNumber, section: MathsSection) => {
-    if (number === lesson) requestMathsState(getMathsLesson(number).lessonId, section.startStateId)
+    if (number === lesson) requestMathsState(currentLesson.lessonId, section.startStateId)
     else openLesson(number, section.id)
     window.requestAnimationFrame(() => contentsButtonRef.current?.focus())
-  }, [lesson, openLesson])
+  }, [currentLesson.lessonId, lesson, openLesson])
 
   if (subject === 'science' || view !== 'lesson') {
     const active: AppSection = view === 'overview' || view === 'lesson' ? 'curriculum' : view
@@ -227,7 +236,7 @@ function App() {
                 ? <ScienceLabsHome />
                 : <ComingSoon section={active} subject="science" onBack={() => navigate('curriculum')} />
           : view === 'overview'
-            ? <Curriculum progress={progress} lastLesson={lastLesson} onOpenLesson={openLesson} />
+            ? <Curriculum progress={progress} lastLesson={lastLesson} tier={tier} onChooseTier={chooseTier} onOpenLesson={openLesson} />
             : view === 'cards'
               ? <RevisionCards progress={progress} onOpenCurriculum={() => navigate('curriculum')} />
               : view === 'lab'
@@ -254,11 +263,13 @@ function App() {
       ><ContentsIcon size={20} /><span>Contents</span></button>
     </header>
 
-    <LessonBarSlot.Provider value={barSlot}><main ref={setMainEl} className={`lesson-preview lesson-preview--${currentLesson.chapterId}`} id="main-content">{renderLesson(lesson)}</main></LessonBarSlot.Provider>
+    <LessonBarSlot.Provider value={barSlot}><main ref={setMainEl} className={`lesson-preview lesson-preview--${currentLesson.chapterId}`} id="main-content">{renderLesson(lesson, tier)}</main></LessonBarSlot.Provider>
 
     <MathsContentsDrawer
       open={drawerOpen}
       currentLesson={currentLesson}
+      chapters={mathsChaptersForTier(tier)}
+      level={tier === 'higher' ? 'GCSE Higher' : 'GCSE Foundation'}
       progress={progress}
       onClose={closeDrawer}
       onSelectLesson={selectLessonFromDrawer}
@@ -267,7 +278,11 @@ function App() {
   </div>
 }
 
-function renderLesson(lesson: MathsLessonNumber) {
+function renderLesson(lesson: MathsLessonNumber, tier: MathsTier) {
+  // On Higher, a lesson with Higher sections (or a Higher-only lesson) is drawn from its tier's own definition.
+  const foundation = getMathsLesson(lesson)
+  const entry = getMathsLessonForTier(lesson, tier)
+  if (entry && (!foundation || forTier(foundation, tier) !== foundation)) return <TutorMethodLessonView key={entry.lessonId} lesson={entry.definition as TutorMethodLesson} />
   switch (lesson) {
     case 1:
       return <NumberTypesLesson focusMode lesson={variantDLesson} labels={variantDMicroSkillLabels} />

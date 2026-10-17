@@ -1,6 +1,7 @@
 'use client'
 import { useState, type CSSProperties } from 'react'
 import type { Diagram, MethodVisual as Visual } from './model'
+import { Powers } from './tutor/Powers'
 
 export function MethodVisual({ visual }: { visual: Visual }) {
   if (visual.kind === 'worked') return <Worked visual={visual} />
@@ -12,7 +13,7 @@ export function MethodVisual({ visual }: { visual: Visual }) {
 }
 function StaticDiagram({ diagram }: { diagram: Diagram }) {
   if (diagram.kind === 'graph') return null // drawn by TeachingVisual (tutor/GraphPictures.tsx)
-  if (diagram.kind === 'text') return <div className="wm-statements">{diagram.lines.map((line, i) => <p key={i}>{line}</p>)}</div>
+  if (diagram.kind === 'text') return <div className="wm-statements">{diagram.lines.map((line, i) => <p key={i}><Powers text={line} /></p>)}</div>
   if (diagram.kind === 'division') {
     const quotient = (diagram.quotient ?? '').padEnd(diagram.dividend.length, ' ')
     return <div className="wm-bus" role="img" aria-label={`${diagram.dividend} divided by ${diagram.divisor}. Quotient so far: ${quotient.trim() || 'not shown'}.${diagram.carry ? ` Carry ${diagram.carry.value} beside digit ${diagram.carry.index + 1}.` : ''}`} style={{ '--digits': diagram.dividend.length } as CSSProperties}>

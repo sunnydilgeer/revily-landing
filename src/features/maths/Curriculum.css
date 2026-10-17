@@ -9,6 +9,14 @@
 .cur-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
 .cur-head h1 { font-size: clamp(2.2rem, 6vw, 2.9rem); line-height: 1; letter-spacing: -0.015em; }
 .cur-head p { margin: 8px 0 0; color: var(--rv-muted); font-size: 1.05rem; }
+/* Foundation or Higher (Maths and Science): the same pill switch as the subject picker. */
+.cur-tier { display: inline-flex; gap: 4px; margin-top: 8px; padding: 4px; border: 2px solid var(--rv-line); border-radius: var(--rv-radius-pill); background: var(--rv-surface); }
+.cur-tier button {
+  min-height: 36px; padding: 0 14px; border: 0; border-radius: var(--rv-radius-pill); background: none; cursor: pointer;
+  color: var(--rv-ink-2); font: 700 .85rem var(--rv-font-body);
+}
+.cur-tier button[aria-pressed="true"] { background: var(--rv-ink); color: var(--rv-surface); }
+.cur-tier button:focus-visible { outline: 3px solid var(--rv-biro); outline-offset: 2px; }
 .cur-overall { display: flex; align-items: center; gap: 12px; min-width: min(100%, 260px); color: var(--rv-muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
 .cur-overall__bar { flex: 1; height: 10px; border-radius: 999px; background: var(--rv-grid); overflow: hidden; }
 .cur-overall__bar span { display: block; height: 100%; background: var(--rv-good); }

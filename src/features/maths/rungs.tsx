@@ -114,7 +114,8 @@ export function useRungFlow(lesson: LessonDefinition, engine: Engine, labels: Pa
   const advance = stepping ? driver.next : next
   const advanceLabel = stepping ? driver.label : last ? 'Finish lesson' : 'Continue'
 
-  const lessonNumber = mathsLessons.find(entry => entry.lessonId === lesson.id)?.number
+  // A lesson with Higher sections (L011-H) shares its Foundation lesson's exam topic.
+  const lessonNumber = mathsLessons.find(entry => entry.lessonId === lesson.id.replace(/-H$/, ''))?.number
   const topic = lessonNumber ? topicForLesson(lessonNumber) : undefined
 
   return {

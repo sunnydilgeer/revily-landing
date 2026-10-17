@@ -5,6 +5,8 @@ export type MathsSection = {
   title: string
   startStateId: string
   startIndex: number
+  /** A Higher-only section inside a Foundation lesson (tier.ts), shown with the H tile. */
+  higher?: boolean
 }
 
 export function sectionsFor(lesson: LessonDefinition, labels: Partial<Record<MicroSkillId, string>>): MathsSection[] {

@@ -99,3 +99,6 @@
 
 /* Powers drawn as raised digits (Powers.tsx), so ¹ ² ³ match ⁴–⁹. */
 .rv-pow { position: relative; top: -.42em; vertical-align: baseline; font-size: .7em; line-height: 0; margin-left: .01em; letter-spacing: 0; }
+/* A recurring digit (Powers.tsx): its dot centred just above it. */
+.rv-recur { position: relative; display: inline-block; }
+.rv-recur::after { content: ''; position: absolute; left: 50%; top: -.08em; width: .16em; height: .16em; margin-left: -.08em; border-radius: 50%; background: currentColor; }
