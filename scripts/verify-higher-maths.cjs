@@ -95,6 +95,18 @@ assert.equal(tier.parseLessonParam('gr8h', 'higher'), 108.5)
 assert.equal(tier.parseLessonParam('GR8H', 'foundation'), null, 'GR8H does not open on Foundation')
 assert.ok(tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'ratio').lessons.some(entry => entry.lessonId === 'L031-H'), 'L031-H is on Higher')
 
+// Pages 164 to 195: 8H Circle theorems after Perimeter, before Sectors and arcs (GM8H); Higher sections on ½ab sin C in
+// Areas of shapes, the angle from a sector's area in Sectors and arcs, and the congruence tests in Congruent shapes.
+const geometry = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'geometry')
+const geometryIds = geometry.lessons.map(entry => entry.lessonId)
+assert.equal(geometryIds[geometryIds.indexOf('L208') + 1], 'L208H', '8H follows Perimeter')
+assert.equal(geometryIds[geometryIds.indexOf('L208H') + 1], 'L209-H', 'Sectors and arcs follows 8H')
+assert.equal(geometry.lessons.find(entry => entry.lessonId === 'L208H').label, '8H')
+assert.equal(tier.lessonParam(208.5), 'GM8H')
+assert.equal(tier.parseLessonParam('gm8h', 'higher'), 208.5)
+assert.equal(tier.parseLessonParam('GM8H', 'foundation'), null, 'GM8H does not open on Foundation')
+for (const id of ['L206-H', 'L209-H', 'L210-H']) assert.ok(geometryIds.includes(id), `${id} is on Higher`)
+
 let screens = 0
 const problems = []
 for (const entry of tier.mathsLessonsForTier('higher').filter(item => item.higherOnly || item.sections.some(section => section.higher))) {

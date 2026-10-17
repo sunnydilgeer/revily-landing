@@ -21,8 +21,9 @@ import { tutorTurningPointsLesson } from './turningPointsLesson'
 import { tutorGraphTransformationsLesson } from './graphTransformationsLesson'
 import { tutorTrigGraphsLesson } from './trigGraphsLesson'
 import { tutorVelocityTimeLesson } from './velocityTimeLesson'
+import { tutorCircleTheoremsLesson } from './circleTheoremsLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -63,4 +64,6 @@ export const higherLessons: readonly HigherLesson[] = [
   // GR13 Velocity-time graphs and GR14 Area under a curve follow Real-life graphs (with its Higher section on rates on
   // a curve, GR15), which teaches the gradient as a rate and the tangent first: 8H, address GR8H.
   { after: 108, lesson: tutorVelocityTimeLesson as TutorMethodLesson & { number: 108.5 }, title: 'Velocity–time graphs', description: 'Find acceleration from the gradient and distance from the area under a velocity–time graph, and estimate both on a curve with a tangent or strips.' },
+  // GM9 The 8 circle theorems follows Perimeter and comes before Sectors and arcs, as in the book: 8H, address GM8H.
+  { after: 208, lesson: tutorCircleTheoremsLesson as TutorMethodLesson & { number: 208.5 }, title: 'Circle theorems', description: 'Use the 8 circle theorems, chords and tangents to find missing angles and lengths, naming the rule at every step.' },
 ]

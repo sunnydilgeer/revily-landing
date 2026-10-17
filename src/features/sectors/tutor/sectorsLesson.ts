@@ -32,7 +32,7 @@ const at = (deg: number, r = 1): FigurePoint => [r * Math.cos(deg * Math.PI / 18
 type Marks = { angle?: FigureTone; r?: FigureTone; arc?: FigureTone; arcLabel?: string; fill?: boolean }
 
 /** A sector of `angle` degrees, opening upwards, with the rest of its circle dashed; its angle and radius labelled. */
-function sectorFig(angle: number, rLabel: string, marks: Marks = {}, caption?: string): AngleFrame {
+export function sectorFig(angle: number, rLabel: string, marks: Marks = {}, caption?: string): AngleFrame {
   const from = 90 - angle / 2, to = 90 + angle / 2, mid = 90
   const items: FigureItem[] = [
     { kind: 'arc', centre: [0, 0], r: 1, from: to, to: from + 360, style: 'dashed' },
