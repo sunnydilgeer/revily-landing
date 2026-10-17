@@ -133,7 +133,19 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
       const a = p(item.from), b = p(item.to), large = item.to - item.from > 180 ? 1 : 0
       const arc = `M${a.x} ${a.y} A${r} ${r} 0 ${large} 0 ${b.x} ${b.y}`
       if (item.sector) parts.push(<path key={`s${i}`} className={`ns-fig__shape${item.fill === 'part' ? ' is-part' : ''}`} d={`M${c.x} ${c.y} L${a.x} ${a.y} A${r} ${r} 0 ${large} 0 ${b.x} ${b.y} Z`} />)
-      parts.push(<path key={i} className={`ns-fig__line is-${item.style ?? 'plain'}`} d={arc} />)
+      if (item.compass === undefined || plain) { parts.push(<path key={i} className={`ns-fig__line is-${item.style ?? 'plain'}`} d={arc} />); return }
+      // Drawn by compasses: the arc traces out behind the pencil while the compasses turn about their point on the centre.
+      // The legs meet at a hinge set out to one side, so it reads as a pair of compasses rather than a clock hand.
+      const delay = { animationDelay: `${item.compass}s` }
+      // The hinge sits on the far side from the line it starts near: up for an arc above it, down for one below.
+      const u = { x: (a.x - c.x) / r, y: (a.y - c.y) / r }, flip = -u.x * u.y < 0 ? -1 : 1
+      const hinge = { x: c.x + (a.x - c.x) / 2 + flip * u.y * r * 0.45, y: c.y + (a.y - c.y) / 2 - flip * u.x * r * 0.45 }
+      parts.push(<path key={i} className={`ns-fig__line is-${item.style ?? 'plain'} is-drawn`} d={arc} pathLength={1} style={delay} />,
+        <g key={`c${i}`} className="ns-fig__compass" style={{ ...delay, transformOrigin: `${c.x}px ${c.y}px`, ['--turn' as string]: `${-(item.to - item.from)}deg` }}>
+          <path className="ns-fig__compass-leg" d={`M${c.x} ${c.y} L${hinge.x} ${hinge.y} L${a.x} ${a.y}`} />
+          <circle className="ns-fig__compass-hinge" cx={hinge.x} cy={hinge.y} r="4.5" />
+          <circle className="ns-fig__compass-pencil" cx={a.x} cy={a.y} r="5" />
+        </g>)
     }
     if (item.kind === 'measure') {
       // A length: a thin line with an arrow at each end, `offset` pixels to the side of what it measures, and its label.

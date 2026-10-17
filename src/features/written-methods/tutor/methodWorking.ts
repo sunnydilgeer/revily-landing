@@ -150,7 +150,9 @@ export type FigureItem =
   | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean; faint?: boolean; tint?: number }
   | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found'; arrow?: boolean }
   | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
-  | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed' }
+  /** `compass`: the arc is drawn by a pair of compasses, its point on the centre and its pencil tracing the arc, starting
+   *  that many seconds in (Sunny, 17 Oct: show how the bisector's arcs are drawn). */
+  | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed'; compass?: number }
   | { kind: 'measure'; from: FigurePoint; to: FigurePoint; label?: string; offset?: number; side?: 1 | -1; tone?: FigureTone }
   | { kind: 'right'; at: FigurePoint; a: FigurePoint; b: FigurePoint }
   | { kind: 'ticks'; from: FigurePoint; to: FigurePoint; count: number }
