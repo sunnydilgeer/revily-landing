@@ -27,21 +27,21 @@ const enlargement = 'geometry-enlargement'
 /* ---------- Pictures ---------- */
 
 type Pt = FigurePoint
-type Drawn = { pts: Pt[]; name: string; image?: boolean; ghost?: boolean }
+export type Drawn = { pts: Pt[]; name: string; image?: boolean; ghost?: boolean }
 const centroid = (pts: Pt[]): Pt => [pts.reduce((a, p) => a + p[0], 0) / pts.length, pts.reduce((a, p) => a + p[1], 0) / pts.length]
-const move = (pts: Pt[], dx: number, dy: number): Pt[] => pts.map(([x, y]) => [x + dx, y + dy])
-const reflectX = (pts: Pt[], a: number): Pt[] => pts.map(([x, y]) => [2 * a - x, y])
-const reflectY = (pts: Pt[], a: number): Pt[] => pts.map(([x, y]) => [x, 2 * a - y])
+export const move = (pts: Pt[], dx: number, dy: number): Pt[] => pts.map(([x, y]) => [x + dx, y + dy])
+export const reflectX = (pts: Pt[], a: number): Pt[] => pts.map(([x, y]) => [2 * a - x, y])
+export const reflectY = (pts: Pt[], a: number): Pt[] => pts.map(([x, y]) => [x, 2 * a - y])
 /** A quarter turn about c: anticlockwise, or clockwise. */
-const quarter = (pts: Pt[], c: Pt, clockwise = false): Pt[] => pts.map(([x, y]) => clockwise ? [c[0] + (y - c[1]), c[1] - (x - c[0])] : [c[0] - (y - c[1]), c[1] + (x - c[0])])
-const half = (pts: Pt[], c: Pt): Pt[] => pts.map(([x, y]) => [2 * c[0] - x, 2 * c[1] - y])
-const enlarge = (pts: Pt[], c: Pt, k: number): Pt[] => pts.map(([x, y]) => [c[0] + k * (x - c[0]), c[1] + k * (y - c[1])])
+export const quarter = (pts: Pt[], c: Pt, clockwise = false): Pt[] => pts.map(([x, y]) => clockwise ? [c[0] + (y - c[1]), c[1] - (x - c[0])] : [c[0] - (y - c[1]), c[1] + (x - c[0])])
+export const half = (pts: Pt[], c: Pt): Pt[] => pts.map(([x, y]) => [2 * c[0] - x, 2 * c[1] - y])
+export const enlarge = (pts: Pt[], c: Pt, k: number): Pt[] => pts.map(([x, y]) => [c[0] + k * (x - c[0]), c[1] + k * (y - c[1])])
 
 /**
  * Squared paper with numbered axes from `x` and `y` (low, high), and shapes on it: the object shaded, its image lit in
  * purple, a ghost dashed. `extra` draws mirror lines, arrows and centres on top.
  */
-function grid(x: [number, number], y: [number, number], shapes: Drawn[], extra: FigureItem[] = [], spoken = '', caption?: string): AngleFrame {
+export function grid(x: [number, number], y: [number, number], shapes: Drawn[], extra: FigureItem[] = [], spoken = '', caption?: string): AngleFrame {
   const items: FigureItem[] = [{ kind: 'grid', from: [x[0], y[0]], to: [x[1], y[1]], axes: true, numbers: true }]
   for (const s of shapes) {
     items.push({ kind: 'shape', points: s.pts, ...(s.ghost ? { dashed: true } : s.image ? { lit: true } : {}) })
@@ -55,7 +55,7 @@ const X: [number, number] = [-5, 5], Y: [number, number] = [-3, 4]
  * A centre point named out in a clear part of the paper, joined to its dot by a faint dashed line, so its name never
  * sits on the axis numbers (Sunny, 17 Oct).
  */
-const centreMark = (c: Pt, label: string, at: Pt): FigureItem[] => [
+export const centreMark = (c: Pt, label: string, at: Pt): FigureItem[] => [
   { kind: 'point', at: c }, { kind: 'line', from: c, to: at, style: 'dashed' }, { kind: 'text', at, text: label },
 ]
 

@@ -149,7 +149,8 @@ export type FigureTone = 'given' | 'x' | 'lit' | 'found' | 'faint'
 export type FigureItem =
   | { kind: 'shape'; points: FigurePoint[]; open?: boolean; fill?: 'none' | 'part' | 'cut'; dashed?: boolean; lit?: boolean; faint?: boolean; tint?: number }
   | { kind: 'line'; from: FigurePoint; to: FigurePoint; style?: 'plain' | 'mirror' | 'dashed' | 'lit' | 'x' | 'found'; arrow?: boolean }
-  | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none' }
+  /** `tone`: the whole circle is coloured, as a frequency tree's node holding the answer (`found`, filled green). */
+  | { kind: 'circle'; centre: FigurePoint; r: number; fill?: 'none'; tone?: FigureTone }
   /** `compass`: the arc is drawn by a pair of compasses, its point on the centre and its pencil tracing the arc, starting
    *  that many seconds in (Sunny, 17 Oct: show how the bisector's arcs are drawn). */
   | { kind: 'arc'; centre: FigurePoint; r: number; from: number; to: number; sector?: boolean; fill?: 'part'; style?: 'plain' | 'lit' | 'x' | 'found' | 'dashed'; compass?: number }
@@ -157,7 +158,8 @@ export type FigureItem =
   | { kind: 'right'; at: FigurePoint; a: FigurePoint; b: FigurePoint }
   | { kind: 'ticks'; from: FigurePoint; to: FigurePoint; count: number }
   | { kind: 'point'; at: FigurePoint; label?: string; dx?: number; dy?: number }
-  | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number; small?: boolean }
+  /** `bare`: coloured by its tone but never boxed, as a number inside a coloured circle. */
+  | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number; small?: boolean; bare?: boolean }
   /** The area a picture covers from `from` to `to`, drawn on the lesson card's own squared paper; `axes` draws the x and y axes through 0, numbered when `numbers`. */
   | { kind: 'grid'; from: FigurePoint; to: FigurePoint; axes?: boolean; numbers?: boolean }
   /** A shaded region with no outline: its loops are filled even-odd, so a loop inside another cuts a hole (a Venn diagram's A′). */

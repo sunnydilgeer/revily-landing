@@ -107,6 +107,18 @@ assert.equal(tier.parseLessonParam('gm8h', 'higher'), 208.5)
 assert.equal(tier.parseLessonParam('GM8H', 'foundation'), null, 'GM8H does not open on Foundation')
 for (const id of ['L206-H', 'L209-H', 'L210-H']) assert.ok(geometryIds.includes(id), `${id} is on Higher`)
 
+// Pages 196 to 227: Higher sections on area and volume scale factors in Similar shapes and negative scale factors in
+// The four transformations; 12H Invariant points after The four transformations (GM12H) and 15H Frustums after
+// Surface area (GM15H).
+for (const id of ['L211-H', 'L212-H']) assert.ok(geometryIds.includes(id), `${id} is on Higher`)
+assert.equal(geometryIds[geometryIds.indexOf('L212-H') + 1], 'L212H', '12H follows The four transformations')
+assert.equal(geometryIds[geometryIds.indexOf('L215') + 1], 'L215H', '15H follows Surface area')
+assert.equal(geometry.lessons.find(entry => entry.lessonId === 'L212H').label, '12H')
+assert.equal(geometry.lessons.find(entry => entry.lessonId === 'L215H').label, '15H')
+assert.equal(tier.lessonParam(212.5), 'GM12H')
+assert.equal(tier.lessonParam(215.5), 'GM15H')
+assert.equal(tier.parseLessonParam('gm15h', 'higher'), 215.5)
+assert.equal(tier.parseLessonParam('GM12H', 'foundation'), null, 'GM12H does not open on Foundation')
 // Pages 258 to 287: 14H Box plots and 14H2 Cumulative frequency after Estimating the mean, and 15H Histograms after
 // Bar charts (P14H, P14H2 and P15H). The Foundation statistics lessons get no Higher sections.
 const probability = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'probability')
