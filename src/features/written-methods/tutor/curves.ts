@@ -10,6 +10,23 @@ import type { GraphPoint } from './methodWorking'
 export type Poly = number[]
 export const valueAt = (coeffs: Poly, x: number) => coeffs.reduce((sum, a, power) => sum + a * x ** power, 0)
 
+/**
+ * A curve that isn't a polynomial (Higher graphs): y = v + a × g(±(x + h)), where g is 1/x, base to the power x, or sin,
+ * cos or tan of x in degrees. `h` and `v` translate it (f(x + h) + v) and `flip` reflects it in the y axis (f(−x)), so
+ * one rule draws every graph transformation of it.
+ */
+export type CurveFn = { kind: 'reciprocal' | 'exponential' | 'sin' | 'cos' | 'tan'; a?: number; base?: number; h?: number; v?: number; flip?: boolean }
+const RAD = Math.PI / 180
+export function fnValue(fn: CurveFn, x: number) {
+  const t = (fn.flip ? -1 : 1) * (x + (fn.h ?? 0))
+  const g = fn.kind === 'reciprocal' ? 1 / t : fn.kind === 'exponential' ? (fn.base ?? 2) ** t
+    : fn.kind === 'sin' ? Math.sin(t * RAD) : fn.kind === 'cos' ? Math.cos(t * RAD) : Math.tan(t * RAD)
+  // sin 180° comes out as 1.2e−16: round so a curve crosses the axis exactly where it should.
+  return Math.round(((fn.v ?? 0) + (fn.a ?? 1) * g) * 1e9) / 1e9
+}
+/** A drawn curve's y at x: its function, or its polynomial's numbers. */
+export const curveY = (curve: { coeffs: Poly; fn?: CurveFn }, x: number) => curve.fn ? fnValue(curve.fn, x) : valueAt(curve.coeffs, x)
+
 const show = (n: number) => String(n).replace('-', '−')
 const POWER = ['', '', '²', '³']
 
@@ -49,20 +66,24 @@ export function polySum(rule: string, x: number) {
  * The curve between x = from and x = to as an SVG path in the picture's pixels, cut where it leaves the grid (a new
  * piece starts where it comes back in). Sampled every 1/16 of a square, which is smooth at one square to 32px.
  */
-export function curvePath(coeffs: Poly, from: number, to: number, grid: { x: [number, number]; y: [number, number] }, px: (x: number) => number, py: (y: number) => number) {
+export function curvePath(f: Poly | ((x: number) => number), from: number, to: number, grid: { x: [number, number]; y: [number, number] }, px: (x: number) => number, py: (y: number) => number, per = 1) {
+  const value = typeof f === 'function' ? f : (x: number) => valueAt(f, x)
   const [y0, y1] = grid.y, lo = Math.max(from, grid.x[0]), hi = Math.min(to, grid.x[1])
-  const n = Math.max(2, Math.ceil((hi - lo) * 16)), inside = (y: number) => y >= y0 && y <= y1
+  const n = Math.max(2, Math.ceil((hi - lo) / per * 16)), inside = (y: number) => Number.isFinite(y) && y >= y0 && y <= y1
   const at = (x: number, y: number) => `${(px(x) + 0.5).toFixed(1)} ${(py(y) + 0.5).toFixed(1)}`
   // Where the curve crosses the grid's top or bottom between two samples, found by halving.
   const edge = (a: number, b: number) => {
-    const wasIn = inside(valueAt(coeffs, a))
-    for (let i = 0; i < 30; i++) { const m = (a + b) / 2; if (inside(valueAt(coeffs, m)) === wasIn) a = m; else b = m }
+    const wasIn = inside(value(a))
+    for (let i = 0; i < 30; i++) { const m = (a + b) / 2; if (inside(value(m)) === wasIn) a = m; else b = m }
     const x = (a + b) / 2
-    return { x, y: Math.min(Math.max(valueAt(coeffs, x), y0), y1) }
+    return { x, y: Math.min(Math.max(value(x), y0), y1) }
   }
-  let d = '', drawing = false, last = lo
+  let d = '', drawing = false, last = lo, lastY = value(lo)
   for (let i = 0; i <= n; i++) {
-    const x = lo + (hi - lo) * i / n, y = valueAt(coeffs, x)
+    const x = lo + (hi - lo) * i / n, y = value(x)
+    // Either side of an asymptote (1/x at 0, tan at 90°) the curve jumps from one edge to the other: start a new piece.
+    if (drawing && inside(y) && Math.abs(y - lastY) > (y1 - y0) / 2) drawing = false
+    lastY = y
     if (inside(y)) {
       if (!drawing) { const e = i ? edge(last, x) : { x, y }; d += `M${at(e.x, e.y)} `; drawing = true; if (i) d += `L${at(x, y)} ` }
       else d += `L${at(x, y)} `

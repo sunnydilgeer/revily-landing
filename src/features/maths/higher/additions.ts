@@ -13,6 +13,10 @@ import { quadraticSequences, sequencesSurds } from './sequencesHigher'
 import { graphicalInequalities, quadraticInequalities } from './inequalitiesHigher'
 import { nonLinearSimultaneous } from './simultaneousHigher'
 import { harderProofs } from './proofHigher'
+import { ratioOnLine } from './coordinatesHigher'
+import { perpendicularLines } from './perpendicularHigher'
+import { lineAndCircle } from './lineCircleHigher'
+import { reciprocalExponential } from './reciprocalExponentialHigher'
 import type { HigherAddition } from './helpers'
 
 export type { HigherAddition } from './helpers'
@@ -21,4 +25,5 @@ export const higherAdditions: readonly HigherAddition[] = [
   orderingTerms, squareRoots, boundsCalculations,
   rearrangingTwice, quadraticsNumberInFront, quadraticsHarderSquares, quadraticEquationsNumberInFront, quadraticSketching,
   sequencesSurds, quadraticSequences, quadraticInequalities, graphicalInequalities, nonLinearSimultaneous, harderProofs,
+  ratioOnLine, perpendicularLines, lineAndCircle, reciprocalExponential,
 ]

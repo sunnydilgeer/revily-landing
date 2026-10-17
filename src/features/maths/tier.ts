@@ -8,7 +8,7 @@
  * never mixes the two or makes one invalid.
  */
 import type { TutorMethodLesson } from '../written-methods/tutor/model'
-import { getMathsLesson, isMathsLessonNumber, mathsChapters, type MathsChapter, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
+import { chapterCode, getMathsLesson, isMathsLessonNumber, mathsChapters, type MathsChapter, type MathsLessonEntry, type MathsLessonNumber } from './courseRegistry'
 import { sectionsFor } from './sections'
 import { higherAdditions } from './higher/additions'
 import { higherLessons } from './higher/lessons'
@@ -87,17 +87,22 @@ export function isMathsLessonNumberForTier(value: number, tier: MathsTier): valu
   return tier === 'higher' ? mathsLessonsForTier(tier).some(entry => entry.number === value) : isMathsLessonNumber(value)
 }
 
-/** What the address says for a lesson: its number, or a Higher-only lesson's label ("11H"). */
+/**
+ * A Higher-only lesson's label in the address. Number and Algebra lessons are numbered on their own ("11H", "9H2"); a
+ * later chapter's label repeats theirs (Graphs 4H after Algebra 4H), so it carries the chapter's code: "GR4H".
+ */
+const addressLabel = (entry: MathsLessonEntry) => `${entry.chapterId === 'algebra' ? '' : chapterCode(entry.chapterId)}${entry.label}`
+/** What the address says for a lesson: its number, or a Higher-only lesson's label ("11H", "GR6H2"). */
 export function lessonParam(number: MathsLessonNumber) {
   const item = higherLessons.find(entry => entry.lesson.number === number)
-  return item ? higherOnlyEntry(item).label! : String(number)
+  return item ? addressLabel(higherOnlyEntry(item)) : String(number)
 }
-/** The lesson an address names (`lesson=14`, or `lesson=11H` or `lesson=9H2` in any case for Higher), or null. */
+/** The lesson an address names (`lesson=14`, or `lesson=11H`, `lesson=9H2` or `lesson=GR6H` in any case for Higher), or null. */
 export function parseLessonParam(value: string | null, tier: MathsTier): MathsLessonNumber | null {
   if (!value) return null
-  if (/^\d+h\d*$/i.test(value)) {
+  if (/^[a-z]*\d+h\d*$/i.test(value)) {
     if (tier !== 'higher') return null
-    return mathsLessonsForTier(tier).find(entry => entry.label === value.toUpperCase())?.number ?? null
+    return mathsLessonsForTier(tier).find(entry => entry.label && addressLabel(entry) === value.toUpperCase())?.number ?? null
   }
   const number = Number(value)
   return isMathsLessonNumberForTier(number, tier) ? number : null

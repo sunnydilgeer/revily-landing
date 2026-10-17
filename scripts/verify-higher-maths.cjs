@@ -66,6 +66,27 @@ for (const [after, id, label, number] of [['L021-H', 'L021H', '8H', 21.5], ['L02
   assert.equal(tier.parseLessonParam(label, 'foundation'), null, `${label} does not open on Foundation`)
 }
 
+// Pages 100 to 131: 15H Functions after Function machines; in Graphs, 4H Circle graphs after Parallel lines and 6H,
+// 6H2 and 6H3 after Quadratic and cubic graphs. A Graphs label repeats an Algebra one, so its address is "GR4H".
+for (const [after, id, label, number] of [['L029', 'L029H', '15H', 29.5]]) {
+  assert.equal(algebraIds[algebraIds.indexOf(after) + 1], id, `${id} follows ${after}`)
+  assert.equal(algebra.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(tier.parseLessonParam(label, 'higher'), number)
+  assert.equal(tier.lessonParam(number), label)
+}
+const graphs = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'graphs')
+const graphIds = graphs.lessons.map(entry => entry.lessonId)
+for (const [after, id, label, address, number] of [['L104-H', 'L104H', '4H', 'GR4H', 104.5], ['L106-H', 'L106H', '6H', 'GR6H', 106.5], ['L106H', 'L106H2', '6H2', 'GR6H2', 106.6], ['L106H2', 'L106H3', '6H3', 'GR6H3', 106.7]]) {
+  assert.equal(graphIds[graphIds.indexOf(after) + 1], id, `${id} follows ${after}`)
+  assert.equal(graphs.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(tier.lessonParam(number), address)
+  assert.equal(tier.parseLessonParam(address, 'higher'), number)
+  assert.equal(tier.parseLessonParam(address.toLowerCase(), 'higher'), number)
+  assert.equal(tier.parseLessonParam(address, 'foundation'), null, `${address} does not open on Foundation`)
+}
+assert.equal(tier.parseLessonParam('4H', 'higher'), 17.5, '4H is still Algebra’s triple brackets')
+for (const id of ['L101-H', 'L104-H', 'L105-H', 'L106-H']) assert.ok(graphIds.includes(id), `${id} is on Higher`)
+
 let screens = 0
 const problems = []
 for (const entry of tier.mathsLessonsForTier('higher').filter(item => item.higherOnly || item.sections.some(section => section.higher))) {

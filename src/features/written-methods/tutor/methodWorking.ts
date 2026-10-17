@@ -1,4 +1,5 @@
 import type { MethodChainStep } from './methodChain'
+import type { CurveFn } from './curves'
 export type Carry = { place: number; value: number; row: 'ones' | 'tens' | 'sum' }
 export type LongDivisionRow = { number: string; end: number; kind: 'subtract' | 'remainder' | 'bring-down' }
 export type FactorSplit = { value: number; left: number; right: number }
@@ -379,7 +380,8 @@ export type GraphTable = { xs: number[]; ys: (number | null)[]; ask?: number; li
 /** A real-life axis (graphs lessons 7 and 8): each square is `per` units and the axes cross at `start`; every `every`th
  *  square is numbered (from `start`), `clock` writes hours as 09:30, and `name` is written at the axis's end instead of
  *  x or y. With a scale, every coordinate in the frame is in these units. */
-export type AxisScale = { per: number; start: number; every?: number; clock?: boolean; name: string }
+/** `unit` follows every number on the axis ("90°"). */
+export type AxisScale = { per: number; start: number; every?: number; clock?: boolean; unit?: string; name: string }
 /** How many squares across (and up) every graph is on a Graphs lesson's card (GraphSlot.tsx): grids are widened to it. */
 export const GRAPH_SQUARES = 11
 export type GraphFrame = {
@@ -399,8 +401,11 @@ export type GraphFrame = {
   /** The y axis counts in this many a square (2, 5), for a line whose points are too far apart for one a square
    *  (graphs lesson 3). The axes still cross at 0; a point between two numbers is drawn between the lines. */
   yStep?: number
-  /** Curves (graphs lesson 6): the rule's numbers [constant, x, x², x³], drawn smooth from x = `from` to x = `to`. */
-  curves?: { coeffs: number[]; from: number; to: number; label?: string; at: number; answer?: boolean }[]
+  /** Curves (graphs lesson 6): the rule's numbers [constant, x, x², x³], drawn smooth from x = `from` to x = `to`; or a
+   *  function (`fn`, Higher: 1/x, 2ˣ, sin, cos, tan and their transformations, curves.ts), with `coeffs` left empty. */
+  curves?: { coeffs: number[]; from: number; to: number; label?: string; at: number; answer?: boolean; fn?: CurveFn }[]
+  /** Circles (Higher circle graphs): radius `r` about (cx, cy), (0, 0) unless given, drawn like a curve. */
+  circles?: { r: number; cx?: number; cy?: number; label?: string; at: number; answer?: boolean }[]
   /** A table of values above the grid (graphs lesson 2): the x row amber, the y row biro blue. A null y is an empty
    *  cell, `ask` the cell a question asks for ("?"), `lit` the column a step works on, and `answer` a y in green.
    *  `rule` ("2x − 1") heads the y row, y = 2x − 1, so every y says where it comes from (Sunny, 7 Oct). */
