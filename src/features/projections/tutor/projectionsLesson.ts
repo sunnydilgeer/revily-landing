@@ -3,7 +3,8 @@ import type { AngleFrame, FigureItem, FigurePoint } from '../../written-methods/
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
 import { boardModel, choose, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
 import { fig, screens, slips } from '../../geometry/tutor/figureLesson'
-import { cone, cuboid, cylinder, prism, squarePyramid } from '../../geometry/tutor/solidPictures'
+import { figureExtent } from '../../written-methods/tutor/FigurePictures'
+import { DEPTH, cone, cuboid, cylinder, prism, squarePyramid } from '../../geometry/tutor/solidPictures'
 
 /*
  * Geometry lesson 16: Plans and elevations. From GM16 in Sunny's revision book (p149–150), with our own shapes. Three
@@ -55,28 +56,53 @@ function viewsFig(list: (View | null)[], spoken: string, caption?: string, heigh
   return fig(items, spoken, caption)
 }
 
+/** Where each view is looked at from, as an arrow onto a solid `w` wide, `h` tall and `l` deep. */
+type Look = 'plan' | 'front' | 'side'
+function lookArrow(look: Look, w: number, h: number, l: number): FigureItem {
+  const mid = (d: number): FigurePoint => [w / 2 + DEPTH[0] * d, DEPTH[1] * d]
+  if (look === 'plan') { const [x, y] = mid(l / 2); return { kind: 'line', from: [x, y + h + 1.3], to: [x, y + h + 0.25], style: 'lit', arrow: true } }
+  if (look === 'front') return { kind: 'line', from: [w / 2 - DEPTH[0] * 2.2, h / 2 - DEPTH[1] * 2.2], to: [w / 2 - DEPTH[0] * 0.2, h / 2 - DEPTH[1] * 0.2], style: 'lit', arrow: true }
+  const [x, y] = mid(l / 2)
+  return { kind: 'line', from: [w + DEPTH[0] * l / 2 + 1.4, y + h / 2], to: [w + DEPTH[0] * l / 2 + 0.25, y + h / 2], style: 'lit', arrow: true }
+}
+/**
+ * One view at a time (Sunny, 17 Oct: the three small views were too small to read): the 3D shape on the left, with an
+ * arrow showing where it's looked at from, and the view being drawn beside it, both big. With no view, a ? holds its place.
+ */
+function besideFig(shape: FigureItem[], size: [number, number, number], look: Look | null, view: View | null, spoken: string, caption?: string): AngleFrame {
+  const ext = figureExtent(shape), right = Math.max(...ext.map(p => p[0])), top = Math.max(...ext.map(p => p[1]))
+  const x = right + 1.2, height = Math.max(top, view?.h ?? 0)
+  // Room on the left for a height label (the cuboid's 2 cm).
+  const items: FigureItem[] = [{ kind: 'grid', from: [-1.4, -1], to: [x + (view?.w ?? 2), height] }, ...shape]
+  if (look) items.push(lookArrow(look, ...size))
+  if (view) {
+    for (const item of view.items) items.push(shiftItem(item.kind === 'shape' ? { ...item, lit: true } : item, x))
+    items.push({ kind: 'text', at: [x + view.w / 2, -0.55], text: view.name, name: true, dx: -view.name.length * 3.5 })
+  } else items.push({ kind: 'text', at: [x + 1, height / 2], text: '?', tone: 'x' })
+  return fig(items, spoken, caption)
+}
+
 /* ---------- Rung 1: plan, front and side ---------- */
 
 {
   const L: FigurePoint[] = [[0, 0], [3, 0], [3, 1], [1, 1], [1, 2], [0, 2]]
-  const shape = solid(prism(L, 2), 'An L-shaped prism, 3 wide, 2 tall and 2 deep, with a step down on the right.')
   const plan: View = { name: 'Plan', items: rect(3, 2, [[[1, 0], [1, 2]]]), w: 3, h: 2 }
   const front: View = { name: 'Front', items: [{ kind: 'shape', points: L }], w: 3, h: 2 }
   const side: View = { name: 'Side', items: rect(2, 2, [[[0, 1], [2, 1]]]), w: 2, h: 2 }
-  const all = (lit: 'plan' | 'front' | 'side' | null, shown: number, caption?: string) => viewsFig([front, plan, side].map((v, i) => i < shown ? { ...v, lit: v.name.toLowerCase() === lit } : null),
-    'The plan, front elevation and side elevation of the L-shaped prism.', caption, 2)
+  const prismItems = prism(L, 2)
+  const step = (look: Look | null, view: View | null, caption?: string) => besideFig(prismItems, [3, 2, 2], look, view, `The L-shaped prism${view ? `, and its ${view.name.toLowerCase()} view` : ''}.`, caption)
   worked(views, 'Draw the plan, front elevation and side elevation of this L-shaped prism.', 'Plan, front and side', 'GM16 p149 Plans and elevations (own shape)', boardModel([], [
-    { title: 'The front elevation', say: 'Stand in front and look straight at it: you see the L, 3 wide and 2 tall.', rows: ['>0 Front: the L shape'], picture: all('front', 1) },
-    { title: 'The plan', say: 'Look straight down from above: a 3 by 2 rectangle. The step shows as a line 1 square in.', rows: ['>0 Plan: 3 by 2, a line where it steps down'], picture: all('plan', 2) },
-    { title: 'The side elevation', say: 'Look from the right side: a 2 by 2 square, with a line where the step is.', rows: ['! Plan, front and side drawn'], picture: all('side', 3, 'Three views of one shape') },
-  ], 'Views', shape), 'A plan is the view from directly above. A front elevation is the view from the front, a side elevation from the side. Each one is flat: you don’t draw any depth.')
+    { title: 'Look from the front', say: 'Stand in front and look straight at it: you see the L, 3 wide and 2 tall.', rows: ['>0 Front elevation: the L shape, 3 wide and 2 tall'], picture: step('front', front) },
+    { title: 'Look down from above', say: 'Look straight down from above: a 3 by 2 rectangle. The top steps down 1 square in from the left, so a line shows where it steps.', rows: ['>0 Plan: a 3 by 2 rectangle', '>0 The line shows where the top steps down'], picture: step('plan', plan) },
+    { title: 'Look from the side', say: 'Look from the right side: a 2 by 2 square, with a line where the step is.', rows: ['>0 Side elevation: a 2 by 2 square, line at the step', '! Plan, front and side drawn'], picture: step('side', side, 'Three views of one shape') },
+  ], 'Views', step(null, null)), 'A plan is the view from directly above. A front elevation is the view from the front, a side elevation from the side. Each one is flat: you don’t draw any depth.')
 }
 {
   const p = solid(cylinder(1.3, 2.6), 'A cylinder standing upright.')
   practice(views, 'What is the plan of this cylinder?', 'GM16 p149 (own shape)', p,
-    choose('A circle', ['A rectangle', 'That’s the front or side elevation. From above you see the round top.'], ['A circle with a dot in the middle', 'That’s a cone’s plan, its point seen from above. A cylinder’s top is flat.'], ['An oval', 'From straight above, the top is a perfect circle. It only looks oval from an angle.']),
-    'Look straight down on its top.', boardModel([], [
-      { title: 'From above', say: 'Straight down on a cylinder you see its round, flat top: a circle.', rows: ['! Plan: a circle'], picture: viewsFig([{ name: 'Plan', items: disc(1.5), w: 3, h: 3, lit: true }, { name: 'Front', items: rect(3, 3), w: 3, h: 3 }], 'The plan and front elevation of the cylinder.', 'Plan: a circle') },
+    choose('A circle', ['A rectangle', 'That’s the front or side elevation. From above you see the round top.'], ['A circle with a dot in the middle', 'That’s a cone’s plan, its point seen from above. A cylinder’s top is flat.'], ['An oval', 'The top only looks like an oval because the picture is drawn at an angle. Looking straight down on it, you see its true shape: a circle.']),
+    'Imagine looking straight down on its top.', boardModel([], [
+      { title: 'Look down from above', say: 'Looking straight down on a cylinder, you see its round, flat top at its true shape: a circle, not an oval.', rows: ['! Plan: a circle'], picture: viewsFig([{ name: 'Plan', items: disc(1.5), w: 3, h: 3, lit: true }, { name: 'Front', items: rect(3, 3), w: 3, h: 3 }], 'The plan and front elevation of the cylinder.', 'Plan: a circle') },
     ], 'View', p))
 }
 {
@@ -91,14 +117,14 @@ function viewsFig(list: (View | null)[], spoken: string, caption?: string, heigh
 /* ---------- Rung 2: drawing them to size ---------- */
 
 {
-  const shape = solid(cuboid(4, 2, 3, { w: { label: '4 cm' }, h: { label: '2 cm' }, l: { label: '3 cm' } }), 'A cuboid 4 cm wide, 2 cm tall and 3 cm deep.')
+  const cuboidItems = cuboid(4, 2, 3, { w: { label: '4 cm' }, h: { label: '2 cm' }, l: { label: '3 cm' } })
   const plan: View = { name: 'Plan', items: rect(4, 3), w: 4, h: 3 }, front: View = { name: 'Front', items: rect(4, 2), w: 4, h: 2 }, side: View = { name: 'Side', items: rect(3, 2), w: 3, h: 2 }
-  const all = (lit: string, shown: number, caption?: string) => viewsFig([front, plan, side].map((v, i) => i < shown ? { ...v, lit: v.name === lit } : null), 'The front elevation, plan and side elevation of the cuboid on centimetre squares.', caption)
+  const step = (look: Look | null, view: View | null, caption?: string) => besideFig(cuboidItems, [4, 2, 3], look, view, `A cuboid 4 cm wide, 2 cm tall and 3 cm deep${view ? `, and its ${view.name.toLowerCase()} view on centimetre squares` : ''}.`, caption)
   worked(drawing, 'Draw the plan and elevations of this cuboid on centimetre squares.', 'Drawing them to size', 'GM16 Your Turn Q1 (own shape)', boardModel([], [
-    { title: 'Front: width by height', say: 'From the front you see the width and the height: 4 by 2.', rows: ['>0 Front: 4 × 2'], picture: all('Front', 1) },
-    { title: 'Plan: width by depth', say: 'From above you see the width and how deep it goes: 4 by 3.', rows: ['>0 Plan: 4 × 3'], picture: all('Plan', 2) },
-    { title: 'Side: depth by height', say: 'From the side you see the depth and the height: 3 by 2.', rows: ['! Front 4 × 2, plan 4 × 3, side 3 × 2'], picture: all('Side', 3, 'Each view uses two of the three lengths') },
-  ], 'Views', shape), 'Draw each view to size on squared paper. The front uses width and height, the plan width and depth, the side depth and height.')
+    { title: 'Front: width by height', say: 'From the front you see the width and the height: 4 by 2.', rows: ['>0 Front: 4 × 2'], picture: step('front', front) },
+    { title: 'Plan: width by depth', say: 'From above you see the width and how deep it goes: 4 by 3.', rows: ['>0 Plan: 4 × 3'], picture: step('plan', plan) },
+    { title: 'Side: depth by height', say: 'From the side you see the depth and the height: 3 by 2.', rows: ['! Front 4 × 2, plan 4 × 3, side 3 × 2'], picture: step('side', side, 'Each view uses two of the three lengths') },
+  ], 'Views', step(null, null)), 'Draw each view to size on squared paper. The front uses width and height, the plan width and depth, the side depth and height.')
 }
 {
   const p = solid(cuboid(5, 2, 3, { w: { label: '5 cm' }, h: { label: '2 cm' }, l: { label: '3 cm' } }), 'A cuboid 5 cm wide, 2 cm tall and 3 cm deep.')
@@ -117,11 +143,11 @@ function viewsFig(list: (View | null)[], spoken: string, caption?: string, heigh
 /* ---------- Rung 3: from the views back to the shape ---------- */
 
 {
-  const v = (lit: boolean, caption?: string) => viewsFig([{ name: 'Plan', items: disc(1.5, true), w: 3, h: 3, lit }, { name: 'Front', items: triangle(3, 3), w: 3, h: 3, lit }, { name: 'Side', items: triangle(3, 3), w: 3, h: 3, lit }], 'A plan, a circle with a dot in the middle, and front and side elevations that are both triangles.', caption)
-  worked(backwards, 'These are the plan and elevations of a 3D shape. What is it?', 'Back to the shape', 'GM16 p149 Example 2 (own shape)', boardModel([], [
-    { title: 'Read the plan', say: 'From above it’s a circle, with a dot in the middle: a round base with a point above its centre.', rows: ['>0 Plan: circle and centre point'], picture: v(false) },
-    { title: 'Read the elevations', say: 'From the front and the side it’s a triangle: it comes up to a point.', rows: ['! A cone'], picture: v(true, 'Round base, rising to a point') },
-  ], 'Shape', v(false)), 'To go back to the 3D shape, read each view in turn: the plan gives the base, the elevations give the height and how the sides go up.')
+  const v = (lit: 'plan' | 'front' | null, caption?: string) => viewsFig([{ name: 'Plan', items: disc(1.5, true), w: 3, h: 3, lit: lit === 'plan' }, { name: 'Front', items: triangle(3, 3), w: 3, h: 3, lit: lit === 'front' }], 'A plan, a circle with a dot in the middle, and a front elevation that is a triangle.', caption)
+  worked(backwards, 'These are the plan and front elevation of a 3D shape. What is it?', 'Back to the shape', 'GM16 p149 Example 2 (own shape)', boardModel([], [
+    { title: 'Read the plan', say: 'From above it’s a circle, with a dot in the middle: a round base with a point above its centre.', rows: ['>0 Plan: circle and centre point'], picture: v('plan') },
+    { title: 'Read the front elevation', say: 'From the front it’s a triangle: it comes up to a point.', rows: ['! A cone'], picture: v('front', 'Round base, rising to a point') },
+  ], 'Shape', v(null)), 'To go back to the 3D shape, read each view in turn: the plan gives the base, the elevations give the height and how the sides go up.')
 }
 for (const [plan, front, right, wrong, spoken] of [
   [{ name: 'Plan', items: rect(4, 3, [[[2, 0], [2, 3]]]), w: 4, h: 3 }, { name: 'Front', items: triangle(4, 3), w: 4, h: 3 }, 'Triangular prism', [['Square-based pyramid', 'A pyramid’s plan has lines going to the middle. This plan is a rectangle with one line along it: a ridge.'], ['Cone', 'A cone’s plan is a circle.'], ['Cuboid', 'A cuboid’s front is a rectangle, not a triangle.']], 'A plan that is a rectangle with a line along the middle, and a triangular front elevation.'],

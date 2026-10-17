@@ -34,7 +34,7 @@ const at = (deg: number, r: number, c: FigurePoint = [0, 0]): FigurePoint => [c[
 function pointLocus(r: string, stage: 'point' | 'compass' | 'circle', caption?: string): AngleFrame {
   const items: FigureItem[] = [{ kind: 'point', at: [0, 0], label: 'P', dx: -14, dy: 16 }]
   if (stage !== 'point') items.push({ kind: 'line', from: [0, 0], to: at(30, 1), style: 'lit' }, { kind: 'text', at: at(30, 0.5), text: r, tone: 'lit', dx: -6, dy: -16 })
-  items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, style: stage === 'circle' ? 'found' : 'dashed' })
+  items.push({ kind: 'arc', centre: [0, 0], r: 1, from: 0, to: 359.9, ...(stage === 'circle' ? { style: 'found' as const, compass: 0 } : { style: 'dashed' as const }) })
   return fig(items, `A point P and the circle of every point ${r} from it.`, caption, 40)
 }
 
@@ -56,8 +56,10 @@ function lineLocus(len: number, d: number, stage: 'line' | 'ends' | 'all', label
 function bisector(ab: string, stage: 0 | 1 | 2 | 3, caption?: string): AngleFrame {
   const A: FigurePoint = [-2, 0], B: FigurePoint = [2, 0], r = 2.7, y = Math.sqrt(r * r - 4)
   const items: FigureItem[] = [{ kind: 'line', from: A, to: B }, { kind: 'point', at: A, label: 'A', dx: -16, dy: 4 }, { kind: 'point', at: B, label: 'B', dx: 8, dy: 4 }, { kind: 'text', at: [-1, 0], text: ab, dy: 16 }]
-  if (stage >= 1) items.push({ kind: 'arc', centre: A, r, from: 30, to: 62, style: stage === 1 ? 'lit' : 'plain' }, { kind: 'arc', centre: A, r, from: -62, to: -30, style: stage === 1 ? 'lit' : 'plain' })
-  if (stage >= 2) items.push({ kind: 'arc', centre: B, r, from: 118, to: 150, style: stage === 2 ? 'lit' : 'plain' }, { kind: 'arc', centre: B, r, from: 210, to: 242, style: stage === 2 ? 'lit' : 'plain' })
+  // On the step that draws them, the compasses draw each arc in turn: the one above the line, then the one below.
+  const drawn = (now: boolean, delay: number) => now ? { style: 'lit' as const, compass: delay } : { style: 'plain' as const }
+  if (stage >= 1) items.push({ kind: 'arc', centre: A, r, from: 30, to: 62, ...drawn(stage === 1, 0) }, { kind: 'arc', centre: A, r, from: -62, to: -30, ...drawn(stage === 1, 1.6) })
+  if (stage >= 2) items.push({ kind: 'arc', centre: B, r, from: 118, to: 150, ...drawn(stage === 2, 0) }, { kind: 'arc', centre: B, r, from: 210, to: 242, ...drawn(stage === 2, 1.6) })
   if (stage >= 3) items.push({ kind: 'line', from: [0, -y - 0.5], to: [0, y + 0.5], style: 'found' }, { kind: 'right', at: [0, 0], a: [0, 1], b: B })
   return fig(items, `A line from A to B, ${ab} long${stage >= 1 ? ', with equal compass arcs drawn from A' : ''}${stage >= 2 ? ' and from B' : ''}${stage >= 3 ? ', and the perpendicular bisector through where they cross' : ''}.`, caption, 30)
 }
@@ -67,11 +69,12 @@ function angleFig(deg: number, label: string, stage: 0 | 1 | 2 | 3, caption?: st
   const B: FigurePoint = [0, 0], C = at(0, 3.2), A = at(deg, 3.2), P = at(0, 1.4), Q = at(deg, 1.4)
   const items: FigureItem[] = [{ kind: 'line', from: B, to: A }, { kind: 'line', from: B, to: C }, { kind: 'point', at: A, label: 'A', dx: 8, dy: -6 }, { kind: 'point', at: B, label: 'B', dx: -16, dy: 4 }, { kind: 'point', at: C, label: 'C', dx: 4, dy: 18 }]
   items.push({ kind: 'arc', centre: B, r: 0.55, from: 0, to: deg, style: stage === 0 ? 'plain' : 'dashed' }, { kind: 'text', at: at(deg / 2, 0.95), text: label, tone: stage === 0 ? 'given' : 'faint' })
-  if (stage >= 1) items.push({ kind: 'arc', centre: B, r: 1.4, from: -6, to: deg + 6, style: stage === 1 ? 'lit' : 'plain' })
+  if (stage >= 1) items.push({ kind: 'arc', centre: B, r: 1.4, from: -6, to: deg + 6, ...(stage === 1 ? { style: 'lit' as const, compass: 0 } : { style: 'plain' as const }) })
   // The two small arcs from where the first arc crosses each arm meet on the bisector.
   const M = at(deg / 2, 2.4), rr = Math.hypot(M[0] - P[0], M[1] - P[1])
   const towards = (from: FigurePoint) => Math.atan2(M[1] - from[1], M[0] - from[0]) * 180 / Math.PI
-  if (stage >= 2) items.push({ kind: 'arc', centre: P, r: rr, from: towards(P) - 12, to: towards(P) + 12, style: stage === 2 ? 'lit' : 'plain' }, { kind: 'arc', centre: Q, r: rr, from: towards(Q) - 12, to: towards(Q) + 12, style: stage === 2 ? 'lit' : 'plain' })
+  // The compasses move to each crossing in turn: from the arm BC first, then from BA.
+  if (stage >= 2) items.push({ kind: 'arc', centre: P, r: rr, from: towards(P) - 12, to: towards(P) + 12, ...(stage === 2 ? { style: 'lit' as const, compass: 0 } : { style: 'plain' as const }) }, { kind: 'arc', centre: Q, r: rr, from: towards(Q) - 12, to: towards(Q) + 12, ...(stage === 2 ? { style: 'lit' as const, compass: 1.6 } : { style: 'plain' as const }) })
   if (stage >= 3) items.push({ kind: 'line', from: B, to: at(deg / 2, 3.2), style: 'found' }, ...(half ? [{ kind: 'text' as const, at: at(deg / 4, 2), text: half, tone: 'found' as const }] : []))
   return fig(items, `An angle ABC of ${label}${stage >= 3 ? ', split in half by its angle bisector' : ''}.`, caption, 30)
 }
@@ -112,8 +115,8 @@ worked(distance, 'Draw the locus of points 2 cm from the point P.', 'A fixed dis
 explore(perpendicular, 'Drag P about. When is it the same distance from A and B?', 'GM17 p151 Constructing a perpendicular bisector (play)', { mode: 'locus' })
 worked(perpendicular, 'Construct the perpendicular bisector of AB.', 'Perpendicular bisector', 'GM17 p151 Constructing a perpendicular bisector', boardModel([], [
   { title: 'Arcs from A', say: 'Open the compasses to more than half of AB. With the point on A, draw an arc above the line and one below.', rows: ['>0 Compasses more than half AB'], picture: bisector('6 cm', 1) },
-  { title: 'Same arcs from B', say: 'Keep the compasses the same. Draw the same two arcs from B: they cross the first two.', rows: [], picture: bisector('6 cm', 2) },
-  { title: 'Join the crossings', say: 'Rule a line through the two crossings. It cuts AB in half, at right angles: every point on it is the same distance from A and B.', rows: ['! The perpendicular bisector of AB'], picture: bisector('6 cm', 3, 'Every point on it is as far from A as from B') },
+  { title: 'Same arcs from B', say: 'Keep the compasses the same. Draw the same two arcs from B: they cross the first two.', rows: ['>0 Same compasses, arcs from B'], picture: bisector('6 cm', 2) },
+  { title: 'Join the crossings', say: 'Rule a line through the two crossings. It cuts AB in half, at right angles: every point on it is the same distance from A and B.', rows: ['! Perpendicular bisector drawn'], picture: bisector('6 cm', 3, 'Every point on it is as far from A as from B') },
 ], 'Construct', bisector('6 cm', 0)), 'The perpendicular bisector of AB is the locus of points the same distance from A and B. It crosses AB at its middle, at 90°. The perpendicular from a point to a line is drawn the same way, from two marks on the line.')
 {
   const p = bisector('8 cm', 0)

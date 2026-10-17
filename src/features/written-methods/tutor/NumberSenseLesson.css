@@ -486,7 +486,7 @@
 .ns-percent__square.is-extra.is-on { fill: #fde68a; stroke: #d97706; }
 .ns-percent__square.is-off { fill: var(--rv-surface); stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 2 2; opacity: .6; }
 .ns-percent__pill.is-off rect { stroke: var(--rv-line-strong, #cbd5e1); stroke-dasharray: 4 3; }
-.ns-percent__pill.is-off text { fill: var(--rv-ink-soft, #64748b); }
+.ns-percent__pill.is-off text { fill: var(--rv-muted); }
 .ns-percent__pill rect { fill: var(--rv-surface); stroke: var(--rv-biro); stroke-width: 2; }
 .ns-percent__pill text { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
 .ns-percent__note { fill: var(--rv-ink); font-size: 15px; font-weight: 700; }
@@ -547,4 +547,13 @@
 /* The square a picture on squares marks for the card's paper to line up with (cardPaper.ts). */
 .card-paper-square { fill: none; stroke: none; }
 .ns-fig__axis { fill: color-mix(in srgb, var(--rv-ink) 65%, transparent); font-size: 11px; font-weight: 600; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; }
+/* An arc drawn by compasses (FigurePictures.tsx): the arc traces out over 1.4s while the compasses turn with it, then they lift away. */
+.ns-fig__line.is-drawn { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ns-compass-draw 1.4s ease-in-out both; }
+.ns-fig__compass { opacity: 0; animation: ns-compass-turn 1.4s ease-in-out both; }
+.ns-fig__compass-leg { fill: none; stroke: var(--rv-muted); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.ns-fig__compass-hinge { fill: var(--rv-muted); }
+.ns-fig__compass-pencil { fill: #7c3aed; stroke: var(--rv-paper, #fff); stroke-width: 2; }
+@keyframes ns-compass-draw { 0%, 12% { stroke-dashoffset: 1 } 88%, 100% { stroke-dashoffset: 0 } }
+@keyframes ns-compass-turn { 0% { opacity: 0; transform: rotate(0deg) } 12% { opacity: 1; transform: rotate(0deg) } 88% { opacity: 1; transform: rotate(var(--turn)) } 100% { opacity: 0; transform: rotate(var(--turn)) } }
+@media (prefers-reduced-motion: reduce) { .ns-fig__line.is-drawn { animation: none; stroke-dashoffset: 0; } .ns-fig__compass { display: none; } }
 .ns-fig__line.is-head { stroke-linejoin: round; stroke-dasharray: none; }
