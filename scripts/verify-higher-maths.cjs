@@ -86,6 +86,14 @@ for (const [after, id, label, address, number] of [['L104-H', 'L104H', '4H', 'GR
 }
 assert.equal(tier.parseLessonParam('4H', 'higher'), 17.5, '4H is still Algebra’s triple brackets')
 for (const id of ['L101-H', 'L104-H', 'L105-H', 'L106-H']) assert.ok(graphIds.includes(id), `${id} is on Higher`)
+// Pages 132 to 163: 8H Velocity–time graphs after Real-life graphs (which has a Higher section on rates on a curve),
+// and a Higher section on proportion with k in Ratio's Direct and inverse proportion.
+assert.equal(graphIds[graphIds.indexOf('L108-H') + 1], 'L108H', '8H follows Real-life graphs')
+assert.equal(graphs.lessons.find(entry => entry.lessonId === 'L108H').label, '8H')
+assert.equal(tier.lessonParam(108.5), 'GR8H')
+assert.equal(tier.parseLessonParam('gr8h', 'higher'), 108.5)
+assert.equal(tier.parseLessonParam('GR8H', 'foundation'), null, 'GR8H does not open on Foundation')
+assert.ok(tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'ratio').lessons.some(entry => entry.lessonId === 'L031-H'), 'L031-H is on Higher')
 
 let screens = 0
 const problems = []
@@ -138,5 +146,17 @@ for (const typed of ['1/2, -3', '-3, 0.5', '−3, 1/2']) assert.ok(checkAnswer(f
 assert.ok(!checkAnswer(fractionRoot.interaction, '1, 2, -3'), 'a split fraction is not a root')
 assert.ok(checkAnswer(byTitle('Write √75').interaction, '5, 3'), '5√3')
 assert.ok(!checkAnswer(byTitle('Write √75').interaction, '1, 75'), '√75 is not simplest form')
+
+// A gradient read from a tangent, or an area from strips, is an estimate: near answers pass, far ones don't.
+for (const title of ['The graph shows the velocity of a rocket', 'A tangent is drawn on the runner', 'The speed–time graph shows a race car', 'The speed–time graph shows a motorcycle']) {
+  const state = byTitle(title)
+  assert.equal(state.interaction.acceptanceRule, 'openInterval', `${title}: an estimate`)
+  assert.ok(checkAnswer(state.interaction, String(state.interaction.correctAnswer * 1.05)), `${title}: a near answer passes`)
+  assert.ok(!checkAnswer(state.interaction, String(state.interaction.correctAnswer * 1.5)), `${title}: a far answer fails`)
+}
+assert.ok(checkAnswer(byTitle('F is inversely proportional').interaction, '3.125'))
+assert.ok(checkAnswer(byTitle('The time t, in minutes').interaction, '320/s²'), 'k/s² typed with ²')
+assert.ok(!checkAnswer(byTitle('The time t, in minutes').interaction, '320/s'), 'not k/s')
+assert.ok(checkAnswer(byTitle('x is directly proportional to y').interaction, '0.25y'), 'x = 0.25y')
 
 console.log(`Higher Maths: ${screens} Higher screens checked; Foundation unchanged.`)
