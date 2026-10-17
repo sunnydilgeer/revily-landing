@@ -197,6 +197,7 @@ add('mixed', 'Estimating the mean', 'P14 consolidation', text(
 export const tutorEstimatingMeanLesson: TutorMethodLesson = {
   id: 'L314', number: 314, title: 'Estimating the mean', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Estimate the mean from a grouped frequency table: midpoints, f × m, add up, divide by the total frequency, and say why it’s only an estimate.',
   labels: { [mids]: 'Midpoints', [calc]: 'Estimating the mean', [problems]: 'Estimated mean problems', mixed: 'Review' },
   states: finish(),

@@ -196,6 +196,7 @@ add('mixed', 'Probability and tree diagrams', 'P3 consolidation', text(
 export const tutorTreeDiagramsLesson: TutorMethodLesson = {
   id: 'L303', number: 303, title: 'Probability and tree diagrams', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Use the AND and OR rules, draw probability trees for two events, and combine paths to answer questions.',
   labels: { [andRule]: 'The AND rule', [orRule]: 'The OR rule', [tree]: 'Tree diagrams', [both]: 'Using the tree', mixed: 'Review' },
   states: finish(),

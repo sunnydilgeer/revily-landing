@@ -157,7 +157,7 @@ export type FigureItem =
   | { kind: 'right'; at: FigurePoint; a: FigurePoint; b: FigurePoint }
   | { kind: 'ticks'; from: FigurePoint; to: FigurePoint; count: number }
   | { kind: 'point'; at: FigurePoint; label?: string; dx?: number; dy?: number }
-  | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number }
+  | { kind: 'text'; at: FigurePoint; text: string; tone?: FigureTone; name?: boolean; dx?: number; dy?: number; small?: boolean }
   /** The area a picture covers from `from` to `to`, drawn on the lesson card's own squared paper; `axes` draws the x and y axes through 0, numbered when `numbers`. */
   | { kind: 'grid'; from: FigurePoint; to: FigurePoint; axes?: boolean; numbers?: boolean }
   /** A shaded region with no outline: its loops are filled even-odd, so a loop inside another cuts a hole (a Venn diagram's A′). */
@@ -167,8 +167,11 @@ export type FigureItem =
    *  (`at`), lit in purple, with an optional count (`text`) set at `label` or the part's middle. */
   | { kind: 'beat'; slot: number; of: number; beat?: number; shape?: FigurePoint[]; line?: FigurePoint[]; at?: FigurePoint; text?: string; label?: FigurePoint; quiet?: boolean }
 /** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
-/** `pad`: the margin round the figure, in pixels (FIGURE_PAD unless set): smaller draws it bigger. */
-export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number; pad?: number }
+/**
+ * `pad`: the margin round the figure, in pixels (FIGURE_PAD unless set): smaller draws it bigger. `crop`: the picture is
+ * only as tall as the figure, with no empty band above and below.
+ */
+export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number; pad?: number; crop?: boolean }
 
 export type AngleFrame = {
   shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross' | 'polygon' | 'figure'

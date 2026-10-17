@@ -181,6 +181,7 @@ add('mixed', 'Frequency trees', 'P2 consolidation', text(
 export const tutorFrequencyTreesLesson: TutorMethodLesson = {
   id: 'L302', number: 302, title: 'Frequency trees', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Complete frequency trees, find probabilities from them, and build them from percentages, fractions and ratios.',
   labels: { [build]: 'Filling in a tree', [prob]: 'Probability from a tree', [parts]: 'Percentages and ratios', mixed: 'Review' },
   states: finish(),

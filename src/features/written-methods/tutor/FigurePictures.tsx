@@ -54,19 +54,30 @@ export function fitFigure(frame: FigureFrame, w = W, h = H, pad = FIGURE_PAD, sh
   return { at, scale }
 }
 
+/** A cropped figure's top and bottom in the picture: its drawn parts (not its empty spacers), with its margin. */
+function crop(frame: FigureFrame, at: (p: FigurePoint) => P): [number, number] | undefined {
+  if (!frame.crop) return undefined
+  const ys = extent(frame.items.filter(item => item.kind !== 'text' || item.text)).map(p => at([p.x, p.y]).y)
+  const pad = frame.pad ?? FIGURE_PAD
+  return ys.length ? [Math.min(...ys) - pad, Math.max(...ys) + pad] : undefined
+}
+
 const tone = (t?: string) => t === 'x' ? 'is-x' : t === 'lit' ? 'is-lit' : t === 'found' ? 'is-found' : t === 'faint' ? 'is-faint' : 'is-given'
 
 /** A word or number in the picture; `found` sits in a green box, `lit` in a purple one. */
-/** The picture, grown past W by H where a label (boxed, 28 tall) would run off its edge. */
-function viewBox(room: (P & { w: number })[]) {
+/**
+ * The picture, grown past W by H where a label (boxed, 28 tall) would run off its edge. `crop` (top and bottom) cuts
+ * it down to the figure's own height instead, so a short figure leaves no empty band above and below.
+ */
+function viewBox(room: (P & { w: number })[], crop?: [number, number]) {
   const left = Math.min(0, ...room.map(p => p.x - p.w / 2 - 3)), right = Math.max(W, ...room.map(p => p.x + p.w / 2 + 3))
-  const top = Math.min(0, ...room.map(p => p.y - 17)), bottom = Math.max(H, ...room.map(p => p.y + 17))
+  const top = Math.min(crop?.[0] ?? 0, ...room.map(p => p.y - 17)), bottom = Math.max(crop?.[1] ?? H, ...room.map(p => p.y + 17))
   return `${left} ${top} ${right - left} ${bottom - top}`
 }
-function Label({ at, text, t }: { at: P; text: string; t?: string }) {
+function Label({ at, text, t, small }: { at: P; text: string; t?: string; small?: boolean }) {
   const boxed = t === 'found' || t === 'lit'
-  const width = text.length * 9 + 14
-  return <g className={`ns-fig__label ${tone(t)}`}>
+  const width = text.length * (small ? 7.5 : 9) + 14
+  return <g className={`ns-fig__label ${tone(t)}${small ? ' is-small' : ''}`}>
     {boxed && <rect className={t === 'found' ? 'ns-angles__found' : 'ns-angles__box'} x={at.x - width / 2} y={at.y - 14} width={width} height="28" rx="7" />}
     <text x={at.x} y={at.y}>{text}</text>
   </g>
@@ -200,14 +211,14 @@ export function FigureVisual({ frame, plain, shared, keepCaption }: { frame: Fig
     }
     if (item.kind === 'text') {
       const p = at(item.at)
-      room.push({ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0), w: item.text.length * 9 + 14 })
+      if (item.text) room.push({ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0), w: item.text.length * (item.small ? 7.5 : 9) + 14 })
       labels.push(item.name
         ? <text key={`t${i}`} className="ns-angles__name" x={p.x + (item.dx ?? 0)} y={p.y + (item.dy ?? 0)}>{item.text}</text>
-        : <Label key={`t${i}`} at={{ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0) }} text={item.text} t={t(item.tone)} />)
+        : <Label key={`t${i}`} at={{ x: p.x + (item.dx ?? 0), y: p.y + (item.dy ?? 0) }} text={item.text} t={t(item.tone)} small={item.small} />)
     }
   })
   return <div className={`ns-angles ns-fig${plain ? ' is-plain' : ''}`} role="img" aria-label={frame.spoken}>
-    <svg viewBox={viewBox(room)} aria-hidden="true">
+    <svg viewBox={viewBox(room, crop(frame, at))} aria-hidden="true">
       {beats.size > 0 && <style>{[...beats].map(n => `@keyframes ns-beat-${n} { 0% { opacity: 0 } ${(30 / n).toFixed(2)}% { opacity: 1 } ${(100 / n * 0.85).toFixed(2)}% { opacity: 1 } ${(100 / n).toFixed(2)}% { opacity: 0 } 100% { opacity: 0 } }`).join('\n')}</style>}
       {parts}{labels}
     </svg>

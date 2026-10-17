@@ -35,7 +35,7 @@ play(scale, 'Drag the arrow along the scale.', 'P1 p162 Probability scale (play)
   worked(scale, 'The probability it will rain tomorrow is 65%. Which word describes it?', 'The probability scale', 'P1 p162 Probability scale (book’s numbers)', boardModel([], [
     { title: 'Write it as a decimal', say: '65% means 65 out of 100, which is 0.65. A probability can be a decimal, a fraction or a percentage.', rows: ['65% = 0.65'], picture: rain('lit') },
     { title: 'Compare with a half', say: '0.65 is more than 0.5, the middle of the scale. It’s past even, towards certain.', rows: ['>0 0.65 is more than 0.5', '! Likely'], picture: rain('found') },
-  ], 'Scale', rain()), 'A probability is a number from 0 to 1. 0 is impossible, 1 is certain and 0.5 is an even chance. Below a half is unlikely; above a half is likely. We write the probability of X as P(X): P(Film) = 0.8.')
+  ], 'Scale', rain()), 'A probability is a number from 0 to 1. 0 is impossible, 1 is certain and 0.5 is an even chance. Below a half is unlikely; above a half is likely. P stands for probability, so we write the probability of X as P(X): P(Film) = 0.8 means the probability of a film is 0.8.')
 }
 {
   const fog = (tone?: FigureTone) => scaleFig([{ at: 1 / 6, label: 'Fog 1/6', tone }], 'The probability scale from 0 to 1, with fog tomorrow marked at one sixth.')
@@ -119,24 +119,24 @@ drag(sumOne, 'Guess first: the probability it rains tomorrow is 0.3. Drag the ar
 {
   const t = (tones: [number, number, FigureTone][], draw = '?', charlie = '?') => tableFig([['Sarah', 'Draw', 'Charlie'], ['0.6', draw, charlie]], 'A table of the three outcomes: Sarah wins 0.6, a draw, Charlie wins.', { tones })
   worked(sumOne, 'Sarah and Charlie play a game. P(Sarah wins) = 0.6 and a draw is half as likely as Sarah winning. Find P(Charlie wins).', 'Adding up to 1', 'P1 p163 Example (book’s numbers)', boardModel([], [
-    { title: 'Half of Sarah’s', say: 'A draw is half as likely as Sarah winning.', rows: ['P(draw) = 0.6 ÷ 2 = 0.3'], picture: t([[1, 1, 'lit']], '0.3') },
-    { title: 'Add what you know', say: 'Sarah wins, a draw, Charlie wins: these are all the outcomes, so they add up to 1.', rows: ['0.6 + 0.3 + P(Charlie) = 1', '0.9 + P(Charlie) = 1'], picture: t([[1, 0, 'lit'], [1, 1, 'lit']], '0.3') },
-    { title: 'Take it from 1', say: 'Take 0.9 from both sides.', rows: ['! P(Charlie) = 1 − 0.9 = 0.1'], picture: t([[1, 2, 'found']], '0.3', '0.1') },
+    { title: 'Half of Sarah’s', say: 'P means probability, so P(draw) is the probability of a draw. A draw is half as likely as Sarah winning.', rows: ['P(draw) = 0.6 ÷ 2 = 0.3'], picture: t([[1, 1, 'lit']], '0.3') },
+    { title: 'All outcomes add to 1', say: 'Sarah wins, a draw, Charlie wins: these are all the outcomes, so they add up to 1.', rows: ['0.6 + 0.3 + P(Charlie) = 1', '0.9 + P(Charlie) = 1'], picture: t([[1, 0, 'lit'], [1, 1, 'lit']], '0.3') },
+    { title: 'Subtract from 1', say: 'Subtract 0.9 from both sides.', rows: ['! P(Charlie) = 1 − 0.9 = 0.1'], picture: t([[1, 2, 'found']], '0.3', '0.1') },
   ], 'Probability', t([])), 'All the possible outcomes add up to 1. A coin: P(heads) + P(tails) = ½ + ½ = 1. So the chance something doesn’t happen is 1 minus the chance it does.')
 }
 {
   const t = (c = '?', tone?: FigureTone) => tableFig([['A', 'B', 'C'], ['55%', '2/5', c]], 'A spinner’s three sections: P(A) = 55%, P(B) = 2/5, P(C) unknown.', tone ? { tones: [[1, 2, tone]] } : {})
-  practice(sumOne, 'A spinning wheel has sections A, B and C. P(A) = 55% and P(B) = 2/5. Find P(C) as a decimal.', 'P1 Your Turn Q1 (book’s numbers)', t(), number(0.05, '0.05'), 'Make them all decimals, then take them from 1.', boardModel([], [
+  practice(sumOne, 'A spinning wheel has sections A, B and C. P(A) = 55% and P(B) = 2/5. Find P(C) as a decimal.', 'P1 Your Turn Q1 (book’s numbers)', t(), number(0.05, '0.05'), 'Make them all decimals, then subtract them from 1.', boardModel([], [
     { title: 'All as decimals', say: '55% is 0.55 and 2/5 is 0.4.', rows: ['55% = 0.55', '{2|5} = 0.4'], picture: t('?', 'lit') },
-    { title: 'Take them from 1', say: 'A, B and C add up to 1.', rows: ['0.55 + 0.4 = 0.95', '! P(C) = 1 − 0.95 = 0.05'], picture: t('0.05', 'found') },
-  ], 'Probability', t()), slips(0.05, [[0.45, 'That only takes off A. Take off B as well.'], [5, 'Write it as a decimal: 5% is 0.05.'], [0.6, 'That only takes off B. Take off A as well.']]), P_BOX('P(C) ='))
+    { title: 'Subtract from 1', say: 'A, B and C add up to 1, so subtract A and B from 1.', rows: ['0.55 + 0.4 = 0.95', '! P(C) = 1 − 0.95 = 0.05'], picture: t('0.05', 'found') },
+  ], 'Probability', t()), slips(0.05, [[0.45, 'That only subtracts A. Subtract B as well.'], [5, 'Write it as a decimal: 5% is 0.05.'], [0.6, 'That only subtracts B. Subtract A as well.']]), P_BOX('P(C) ='))
 }
 {
   const t = (x = 'x', tone?: FigureTone) => tableFig([['Rom com', 'Horror', 'Sci-fi'], ['0.56', x, x]], 'Jimmy’s film: romantic comedy 0.56, horror and sci-fi equally likely.', tone ? { tones: [[1, 1, tone], [1, 2, tone]] } : {})
   practice(sumOne, 'Jimmy watches a romantic comedy, a horror or a sci-fi film. P(romantic comedy) = 0.56. Horror and sci-fi are equally likely. Find P(sci-fi).', 'P1 Your Turn Q2a (book’s numbers)', t(), number(0.22, '0.22'), 'What’s left after 0.56 is shared equally by two films.', boardModel([], [
     { title: 'What’s left', say: 'All three add up to 1.', rows: ['1 − 0.56 = 0.44'], picture: t('x', 'lit') },
     { title: 'Share it equally', say: 'Horror and sci-fi share 0.44 equally.', rows: ['0.44 ÷ 2 = 0.22', '! P(sci-fi) = 0.22'], picture: t('0.22', 'found') },
-  ], 'Probability', t()), slips(0.22, [[0.44, 'That’s horror and sci-fi together. Halve it.'], [0.28, 'Take 0.56 from 1 first, then halve.']]), P_BOX('P(sci-fi) ='))
+  ], 'Probability', t()), slips(0.22, [[0.44, 'That’s horror and sci-fi together. Halve it.'], [0.28, 'Subtract 0.56 from 1 first, then halve.']]), P_BOX('P(sci-fi) ='))
 }
 {
   const t = (blue = '5x', green = '4x', tones: [number, number, FigureTone][] = []) => tableFig([['Colour', 'Red', 'Blue', 'Green'], ['Probability', '0.25', blue, green]], 'A bag of beads: red 0.25, blue 5x, green 4x.', { tones })
@@ -204,7 +204,7 @@ ask('mixed', 'A fair dice is rolled. Find P(a number less than 3).', 'P1 review 
   { title: 'Count the ways', say: '1 and 2 are less than 3: 2 ways out of 6.', rows: ['P = {2|6}', '! P = {1|3}'] },
 ], 'Probability'))
 ask('mixed', 'P(win) = 0.35 and P(draw) = 0.4. Find P(lose).', 'P1 review (own numbers)', ['P(win) = 0.35', 'P(draw) = 0.4'], number(0.25, '0.25'), 'Win, draw and lose add up to 1.', boardModel([], [
-  { title: 'Take from 1', say: 'One of the three must happen.', rows: ['1 − 0.35 − 0.4 = 0.25', '! P(lose) = 0.25'] },
+  { title: 'Subtract from 1', say: 'One of the three must happen, so subtract the other two from 1.', rows: ['1 − 0.35 − 0.4 = 0.25', '! P(lose) = 0.25'] },
 ], 'Probability'), slips(0.25, [[0.75, 'That’s win and draw together. Lose is 1 take away that.'], [0.65, 'Take away the draw too: 1 − 0.35 − 0.4.']]), P_BOX('P(lose) ='))
 
 add('mixed', 'Probability', 'P1 consolidation', text(
@@ -217,6 +217,7 @@ add('mixed', 'Probability', 'P1 consolidation', text(
 export const tutorProbabilityLesson: TutorMethodLesson = {
   id: 'L301', number: 301, title: 'Probability', level: 'GCSE Foundation',
   steadyPictures: true,
+  steadySize: true,
   goal: 'Use the probability scale, find probabilities of equally likely outcomes, use the fact that they add up to 1, and list outcomes.',
   labels: { [scale]: 'The probability scale', [equally]: 'Equally likely outcomes', [sumOne]: 'Adding up to 1', [outcomes]: 'Listing outcomes', mixed: 'Review' },
   states: finish(),

@@ -129,8 +129,9 @@ function checkPicture(f, where, group) {
     const pts = item.kind === 'shape' ? item.points : item.kind === 'line' || item.kind === 'measure' ? [item.from, item.to] : item.kind === 'point' || item.kind === 'text' ? [item.at] : item.kind === 'shade' ? item.loops.flat() : []
     for (const p of pts) { const q = at(p); assert.ok(q.x > -1 && q.x < 321 && q.y > -1 && q.y < 211, `${where}: ${item.kind} inside the frame`) }
     if (item.kind === 'text') {
-      const q = at(item.at), x = q.x + (item.dx ?? 0), y = q.y + (item.dy ?? 0), half = item.text.length * 4.5
-      assert.ok(x - half > -4 && x + half < 324 && y > 8 && y < 214, `${where}: label "${item.text}" inside the frame (${x.toFixed(0)}, ${y.toFixed(0)})`)
+      // A picture with its own thin margin grows to fit a label past its edge, so a little past it is fine.
+      const q = at(item.at), x = q.x + (item.dx ?? 0), y = q.y + (item.dy ?? 0), half = item.text.length * (item.small ? 3.75 : 4.5), m = f.figure.pad === undefined ? 4 : 30
+      assert.ok(x - half > -m && x + half < 320 + m && y > 12 - m && y < 210 + m, `${where}: label "${item.text}" inside the frame (${x.toFixed(0)}, ${y.toFixed(0)})`)
     }
   }
 }
