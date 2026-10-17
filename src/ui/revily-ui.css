@@ -1,5 +1,11 @@
 /* Revily shared components. Class names use the rv- prefix; tokens live in revily-tokens.css. */
 
+/* ---------- Taps ---------- */
+/* No double-tap zoom: on a phone, two quick taps on a button (Next step, Next step) are two presses, not a zoom, and
+   no tap waits to see if a second one follows (Sunny, 17 Oct: buttons and Contents didn't always respond on mobile).
+   Pinch zoom still works, and boards that drag keep their own touch-action. */
+html, button, a, input, label, select, summary, [role="button"] { touch-action: manipulation; }
+
 /* ---------- Logo ---------- */
 .rv-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--rv-ink); text-decoration: none; }
 .rv-logo--on-night { color: var(--rv-on-night); }
