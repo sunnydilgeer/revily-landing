@@ -44,6 +44,18 @@ assert.equal(number.lessons.find(entry => entry.lessonId === 'L002H').label, '2H
 assert.equal(tier.parseLessonParam('2H', 'higher'), 2.5)
 assert.equal(tier.parseLessonParam('2H', 'foundation'), null, '2H does not open on Foundation')
 
+// Algebra: 3H, 4H and 5H follow Powers and roots, Expanding brackets and Factorising, as in the book (A3, A5, A7);
+// Rearranging, Factorising quadratics and Solving quadratics have Higher sections.
+const algebra = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'algebra')
+const algebraIds = algebra.lessons.map(entry => entry.lessonId)
+for (const [after, id, label, number] of [['L016', 'L016H', '3H', 16.5], ['L017', 'L017H', '4H', 17.5], ['L018', 'L018H', '5H', 18.5]]) {
+  assert.equal(algebraIds[algebraIds.indexOf(after) + 1], id, `${id} follows ${after}`)
+  assert.equal(algebra.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(tier.parseLessonParam(label, 'higher'), number)
+  assert.equal(tier.parseLessonParam(label, 'foundation'), null, `${label} does not open on Foundation`)
+}
+for (const id of ['L020-H', 'L021-H', 'L022-H']) assert.ok(algebraIds.includes(id), `${id} is on Higher`)
+
 let screens = 0
 const problems = []
 for (const entry of tier.mathsLessonsForTier('higher').filter(item => item.higherOnly || item.sections.some(section => section.higher))) {
@@ -83,5 +95,17 @@ for (const state of roots) assert.ok(!checkAnswer(state.interaction, String((sta
 // Recurring decimals to fractions: each fraction is the decimal.
 const fractions = { '1/3': 1 / 3, '5/11': 0.454545454545, '130/333': 0.390390390390, '1/6': 0.1666666666666, '139/90': 1.544444444444 }
 for (const [fraction, value] of Object.entries(fractions)) { const [a, b] = fraction.split('/').map(Number); assert.ok(Math.abs(a / b - value) < 1e-9, fraction) }
+
+// Answers typed in other ways: brackets either way round, a fractional root as a fraction or a decimal, and a surd
+// only in its simplest form.
+const higherStates = tier.mathsLessonsForTier('higher').flatMap(entry => entry.definition.states)
+const byTitle = title => higherStates.find(state => state.content.title.startsWith(title))
+assert.ok(checkAnswer(byTitle('Factorise 3x² − 11x + 6').interaction, '(x − 3)(3x − 2)'), 'brackets in either order')
+assert.ok(!checkAnswer(byTitle('Factorise 3x² − 11x + 6').interaction, '(3x − 3)(x − 2)'), 'wrong brackets rejected')
+const fractionRoot = byTitle('Solve 2x² + 5x − 3 = 0')
+for (const typed of ['1/2, -3', '-3, 0.5', '−3, 1/2']) assert.ok(checkAnswer(fractionRoot.interaction, typed), `root typed ${typed}`)
+assert.ok(!checkAnswer(fractionRoot.interaction, '1, 2, -3'), 'a split fraction is not a root')
+assert.ok(checkAnswer(byTitle('Write √75').interaction, '5, 3'), '5√3')
+assert.ok(!checkAnswer(byTitle('Write √75').interaction, '1, 75'), '√75 is not simplest form')
 
 console.log(`Higher Maths: ${screens} Higher screens checked; Foundation unchanged.`)

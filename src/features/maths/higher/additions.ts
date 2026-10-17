@@ -6,8 +6,14 @@
 import { boundsCalculations } from './boundsCalculations'
 import { orderingTerms } from './orderingTerms'
 import { squareRoots } from './squareRoots'
+import { rearrangingTwice } from './rearrangingTwice'
+import { quadraticsHarderSquares, quadraticsNumberInFront } from './quadraticsHigher'
+import { quadraticEquationsNumberInFront, quadraticSketching } from './quadraticEquationsHigher'
 import type { HigherAddition } from './helpers'
 
 export type { HigherAddition } from './helpers'
 
-export const higherAdditions: readonly HigherAddition[] = [orderingTerms, squareRoots, boundsCalculations]
+export const higherAdditions: readonly HigherAddition[] = [
+  orderingTerms, squareRoots, boundsCalculations,
+  rearrangingTwice, quadraticsNumberInFront, quadraticsHarderSquares, quadraticEquationsNumberInFront, quadraticSketching,
+]
