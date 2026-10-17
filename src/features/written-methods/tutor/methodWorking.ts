@@ -166,7 +166,8 @@ export type FigureItem =
    *  (`at`), lit in purple, with an optional count (`text`) set at `label` or the part's middle. */
   | { kind: 'beat'; slot: number; of: number; beat?: number; shape?: FigurePoint[]; line?: FigurePoint[]; at?: FigurePoint; text?: string; label?: FigurePoint; quiet?: boolean }
 /** `room`: extra pixels left and right of the figure, for labels set outside its sides. */
-export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number }
+/** `pad`: the margin round the figure, in pixels (FIGURE_PAD unless set): smaller draws it bigger. */
+export type FigureFrame = { items: FigureItem[]; spoken: string; caption?: string; room?: number; pad?: number }
 
 export type AngleFrame = {
   shape: 'triangle' | 'exterior' | 'line' | 'quad' | 'point' | 'parallel' | 'cross' | 'polygon' | 'figure'

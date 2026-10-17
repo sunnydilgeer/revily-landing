@@ -114,7 +114,7 @@ function polygonPoints(frame: AngleFrame) {
 const kind = (frame: AngleFrame) => frame.shape === 'figure' ? 'figure' : frame.shape === 'polygon' ? 'polygon' : frame.shape === 'parallel' || frame.shape === 'cross' ? 'fixed' : 'corners'
 function ownBounds(frame: AngleFrame): Bounds | null {
   const k = kind(frame)
-  if (k === 'figure' && frame.figure) { const pts = figureExtent(frame.figure.items).map(([x, y]) => ({ x, y })); return { ...boundsOf(pts, FIGURE_PAD), padX: FIGURE_PAD + (frame.figure.room ?? 0) } }
+  if (k === 'figure' && frame.figure) { const pts = figureExtent(frame.figure.items).map(([x, y]) => ({ x, y })), pad = frame.figure.pad ?? FIGURE_PAD; return { ...boundsOf(pts, pad), padX: pad + (frame.figure.room ?? 0) } }
   if (k === 'polygon') { const g = polygonPoints(frame); return g.raw.length ? boundsOf(Object.values({ ...g.named, ...g.extra }), g.pad) : null }
   if (k === 'corners') return boundsOf(Object.values(corners(frame)), PAD, frame.parallel ? 0.28 : 0)
   return null

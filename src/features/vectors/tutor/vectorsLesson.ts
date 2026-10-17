@@ -80,7 +80,10 @@ function vecFig(arrows: Arrow[], spoken: string, o: { grid?: [V, V]; legs?: [str
       items.push({ kind: 'text', at: [(a.from[0] + to[0]) / 2, (a.from[1] + to[1]) / 2], text: a.label, tone: a.tone ?? 'given', dx: nx * d, dy: -ny * d })
     }
   })
-  return fig(items, spoken, o.caption)
+  // A thin margin, so the arrows fill the picture; it grows to fit any label past the edge.
+  const f = fig(items, spoken, o.caption)
+  f.figure!.pad = 16
+  return f
 }
 /** Arrows nose to tail from (0, 0): each vector `count` times, then the result from the start to the end, dashed. */
 function chain(parts: [V, number, string][], result: { label: string; tone?: FigureTone; style?: Arrow['style'] } | null, spoken: string, caption?: string, grid?: [V, V]): AngleFrame {
@@ -264,6 +267,7 @@ add('mixed', 'Column vectors', 'T3 consolidation', text(
 export const tutorVectorsLesson: TutorMethodLesson = {
   id: 'L221', number: 221, title: 'Column vectors', level: 'GCSE Foundation',
   steadyPictures: true,
+  largePictures: true,
   goal: 'Write a vector as a column vector, add and subtract column vectors, multiply them by a number, and combine them.',
   labels: { [reading]: 'Reading a vector', [adding]: 'Adding and subtracting', [multiplying]: 'Multiplying', [combining]: 'Putting them together', mixed: 'Review' },
   states: finish(),

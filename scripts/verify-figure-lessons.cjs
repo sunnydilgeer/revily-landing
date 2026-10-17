@@ -77,8 +77,9 @@ function checkPicture(f, where, group) {
       assert.ok(x - half > -2 && x + half < 322 && y - 12 > -2 && y + 12 < 212, `${where}: length "${item.label}" inside the frame (${x.toFixed(0)}, ${y.toFixed(0)})`)
     }
     if (item.kind === 'text') {
-      const q = at(item.at), x = q.x + (item.dx ?? 0), y = q.y + (item.dy ?? 0), half = item.text.length * 4.5
-      assert.ok(x - half > -4 && x + half < 324 && y > 8 && y < 214, `${where}: label "${item.text}" inside the frame (${x.toFixed(0)}, ${y.toFixed(0)})`)
+      // A picture with its own thin margin grows to fit a label past its edge, so a little past it is fine.
+      const q = at(item.at), x = q.x + (item.dx ?? 0), y = q.y + (item.dy ?? 0), half = item.text.length * 4.5, m = f.figure.pad === undefined ? 4 : 30
+      assert.ok(x - half > -m && x + half < 320 + m && y > 12 - m && y < 210 + m, `${where}: label "${item.text}" inside the frame (${x.toFixed(0)}, ${y.toFixed(0)})`)
     }
   }
 }

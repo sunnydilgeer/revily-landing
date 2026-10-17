@@ -92,7 +92,9 @@ const PRISM = { w: 3, h: 2, front: { x: 40, y: 195 }, back: { x: 0.62, y: -0.42 
 const LOCUS_A = { x: 100, y: 112 }, LOCUS_B = { x: 220, y: 112 }, CM = 30
 const BEARING_A = { x: 160, y: 118 }, BEARING_R = 84
 /** pythagoras: the left end of the base, and pixels to a unit. The base runs right a units, the upright side up b. */
-const PYTH_A = { x: 120, y: 145 }, PYTH_U = 14, PYTH_MAX = [5, 5]
+const PYTH_A = { x: 92, y: 150 }, PYTH_U = 16, PYTH_MAX = [4, 5]
+/** pythagoras: cropped to the triangle and its squares at their biggest, so they fill the board. */
+const PYTH_VIEW = '4 0 240 220'
 export const threeFigure = (deg: number) => String(Math.round(((deg % 360) + 360) % 360)).padStart(3, '0')
 
 export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
@@ -375,10 +377,13 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
     for (let k = 1; k < b; k++) lines.push(`M${B.x + k * u} ${B.y} L${B.x + k * u} ${Cn.y} M${B.x} ${B.y - k * u} L${B.x + b * u} ${B.y - k * u}`)
     handle = Cn
     drawing = <>
-      <path className="ns-fig__shape is-part" d={path(sqA)} />
-      <path className="ns-fig__shape is-part" d={path(sqB)} />
-      {lines.length > 0 && <path className="ns-fig__line is-thin is-dashed" d={lines.join(' ')} />}
-      <path className="measure-board__ghost is-fit" d={path(sqC)} />
+      {/* The squares stay faint, so the triangle stands out */}
+      <g className="measure-board__faint">
+        <path className="ns-fig__shape is-part" d={path(sqA)} />
+        <path className="ns-fig__shape is-part" d={path(sqB)} />
+        {lines.length > 0 && <path className="ns-fig__line is-thin is-dashed" d={lines.join(' ')} />}
+        <path className="measure-board__ghost is-fit" d={path(sqC)} />
+      </g>
       <path className="ns-fig__shape" d={path([A, B, Cn])} />
       <path className="ns-fig__line is-plain is-thin" d={`M${B.x - 9} ${B.y} L${B.x - 9} ${B.y - 9} L${B.x} ${B.y - 9}`} />
       <text className="measure-board__label is-a" x={middle(sqA).x} y={middle(sqA).y}>{a * a}</text>
@@ -408,8 +413,8 @@ export function MeasureBoard({ spec }: { spec: MeasureBoardSpec }) {
   }
 
   const what = { congruent: 'Drag the corner of B round to turn it, or use the arrow keys.', turn: 'Drag the corner round to turn the shape, or use the arrow keys.', mirror: 'Drag the end of the fold line round, or use the arrow keys.', shear: 'Drag the top corner, or use the arrow keys.', circle: 'Drag the edge of the circle, or use the arrow keys.', sector: 'Drag the edge of the sector round, or use the arrow keys.', notch: 'Drag the inside corner of the cut, or use the arrow keys.', enlarge: 'Drag the corner of the image to change the scale factor, or use the arrow keys.', translate: 'Drag the image across the paper, or use the arrow keys.', prism: 'Drag the back corner to make the cuboid longer or shorter, or use the arrow keys.', locus: 'Drag the point P, or use the arrow keys.', bearing: 'Drag B round A, or use the arrow keys.', pythagoras: 'Drag the top corner of the triangle, or use the arrow keys.' }[spec.mode]
-  return <div className={`angle-board measure-board${held ? ' is-held' : ''}`}>
-    <svg ref={svg} className="angle-board__surface" viewBox={`0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Measuring board. ${what}`} aria-describedby={`${id}-sum`}
+  return <div className={`angle-board measure-board is-${spec.mode}${held ? ' is-held' : ''}`}>
+    <svg ref={svg} className="angle-board__surface" viewBox={spec.mode === 'pythagoras' ? PYTH_VIEW : `0 0 ${W} ${H}`} role="application" tabIndex={0} aria-label={`Measuring board. ${what}`} aria-describedby={`${id}-sum`}
       onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); setHeld(true); move(toLocal(event)) }}
       onPointerMove={event => { if (held) move(toLocal(event)) }} onPointerUp={() => setHeld(false)} onPointerCancel={() => setHeld(false)} onKeyDown={key}>
       {corner && <rect ref={square} className="card-paper-square" x={corner.x} y={corner.y - GRID} width={GRID} height={GRID} />}
