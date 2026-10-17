@@ -24,11 +24,15 @@ import { tutorVelocityTimeLesson } from './velocityTimeLesson'
 import { tutorCircleTheoremsLesson } from './circleTheoremsLesson'
 import { tutorInvariantPointsLesson } from './invariantPointsLesson'
 import { tutorFrustumsLesson } from './frustumsLesson'
+import { tutorSineRuleLesson } from './sineRuleLesson'
+import { tutorCosineRuleLesson } from './cosineRuleLesson'
+import { tutorPythagoras3dLesson } from './pythagoras3dLesson'
+import { tutorVectorsHigherLesson } from './vectorsLesson'
 import { tutorBoxPlotsLesson } from './boxPlotsLesson'
 import { tutorCumulativeFrequencyLesson } from './cumulativeFrequencyLesson'
 import { tutorHistogramsLesson } from './histogramsLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5 | 212.5 | 215.5 | 314.5 | 314.6 | 315.5
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5 | 29.5 | 104.5 | 106.5 | 106.6 | 106.7 | 108.5 | 208.5 | 212.5 | 215.5 | 220.5 | 220.6 | 220.7 | 221.5 | 314.5 | 314.6 | 315.5
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -75,6 +79,12 @@ export const higherLessons: readonly HigherLesson[] = [
   // (GM16 Volume and GM17 Surface area come first in the book): 15H, address GM15H.
   { after: 212, lesson: tutorInvariantPointsLesson as TutorMethodLesson & { number: 212.5 }, title: 'Invariant points', description: 'Find the points that stay in the same place after a reflection, rotation, enlargement or two transformations in a row.' },
   { after: 215, lesson: tutorFrustumsLesson as TutorMethodLesson & { number: 215.5 }, title: 'Frustums', description: 'Find the volume and surface area of a cone or pyramid with its top cut off, using the similar piece that was removed.' },
+  // T4 The sine rule, T5 The cosine rule and T6 3D Pythagoras and trigonometry follow T3 (Trigonometry), as in the
+  // book: 20H, 20H2 and 20H3, addresses GM20H to GM20H3. T8 Vectors follows T7 Column vectors: 21H, address GM21H.
+  { after: 220, lesson: tutorSineRuleLesson as TutorMethodLesson & { number: 220.5 }, title: 'The sine rule', description: 'Use a ÷ sin A = b ÷ sin B to find a missing side or angle in any triangle, and spot the obtuse angle in the ambiguous case.' },
+  { after: 220, lesson: tutorCosineRuleLesson as TutorMethodLesson & { number: 220.6 }, title: 'The cosine rule', description: 'Use a² = b² + c² − 2bc cos A to find a side from two sides and the angle between them, or an angle from all three sides.' },
+  { after: 220, lesson: tutorPythagoras3dLesson as TutorMethodLesson & { number: 220.7 }, title: '3D Pythagoras and trigonometry', description: 'Find lengths and angles inside cuboids and pyramids, using right-angled triangles inside the shape and a² + b² + c² = d².' },
+  { after: 221, lesson: tutorVectorsHigherLesson as TutorMethodLesson & { number: 221.5 }, title: 'Vectors', description: 'Add, subtract and multiply vectors, find routes round a shape and points that split a line in a ratio, and show two lines are parallel.' },
   // Statistics. P12 Box plots and P13 Cumulative frequency follow P11 Estimating the mean (314), as in the book: 14H and
   // 14H2. P15 Histograms follows P14 Bar charts (315): 15H. Their addresses are P14H, P14H2 and P15H.
   { after: 314, lesson: tutorBoxPlotsLesson as TutorMethodLesson & { number: 314.5 }, title: 'Box plots', description: 'Find the quartiles and interquartile range, draw and read box plots, and compare two sets of data with them.' },

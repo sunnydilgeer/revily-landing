@@ -106,6 +106,19 @@ assert.equal(tier.lessonParam(208.5), 'GM8H')
 assert.equal(tier.parseLessonParam('gm8h', 'higher'), 208.5)
 assert.equal(tier.parseLessonParam('GM8H', 'foundation'), null, 'GM8H does not open on Foundation')
 for (const id of ['L206-H', 'L209-H', 'L210-H']) assert.ok(geometryIds.includes(id), `${id} is on Higher`)
+// Pages 228 to 257: 20H The sine rule, 20H2 The cosine rule and 20H3 3D Pythagoras and trigonometry after Trigonometry
+// (which has a Higher section on exact values without a calculator), and 21H Vectors after Column vectors; Higher
+// sections on picking without replacement in Tree diagrams and on "given" in Venn diagrams.
+for (const [after, id, label, address, number] of [['L220-H', 'L220H', '20H', 'GM20H', 220.5], ['L220H', 'L220H2', '20H2', 'GM20H2', 220.6], ['L220H2', 'L220H3', '20H3', 'GM20H3', 220.7], ['L221', 'L221H', '21H', 'GM21H', 221.5]]) {
+  assert.equal(geometryIds[geometryIds.indexOf(after) + 1], id, `${id} follows ${after}`)
+  assert.equal(geometry.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(tier.lessonParam(number), address)
+  assert.equal(tier.parseLessonParam(address.toLowerCase(), 'higher'), number)
+  assert.equal(tier.parseLessonParam(address, 'foundation'), null, `${address} does not open on Foundation`)
+}
+assert.equal(geometryIds[geometryIds.indexOf('L220H3') + 1], 'L221', 'Column vectors follows 20H3')
+const probability = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'probability').lessons.map(entry => entry.lessonId)
+for (const id of ['L303-H', 'L305-H']) assert.ok(probability.includes(id), `${id} is on Higher`)
 
 // Pages 196 to 227: Higher sections on area and volume scale factors in Similar shapes and negative scale factors in
 // The four transformations; 12H Invariant points after The four transformations (GM12H) and 15H Frustums after
@@ -120,12 +133,12 @@ assert.equal(tier.lessonParam(215.5), 'GM15H')
 assert.equal(tier.parseLessonParam('gm15h', 'higher'), 215.5)
 assert.equal(tier.parseLessonParam('GM12H', 'foundation'), null, 'GM12H does not open on Foundation')
 // Pages 258 to 287: 14H Box plots and 14H2 Cumulative frequency after Estimating the mean, and 15H Histograms after
-// Bar charts (P14H, P14H2 and P15H). The Foundation statistics lessons get no Higher sections.
-const probability = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'probability')
-const probabilityIds = probability.lessons.map(entry => entry.lessonId)
+// Bar charts (P14H, P14H2 and P15H). Lessons 314 and 315 themselves get no Higher sections.
+const statistics = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'probability')
+const probabilityIds = statistics.lessons.map(entry => entry.lessonId)
 for (const [after, id, label, number, address] of [['L314', 'L314H', '14H', 314.5, 'P14H'], ['L314H', 'L314H2', '14H2', 314.6, 'P14H2'], ['L315', 'L315H', '15H', 315.5, 'P15H']]) {
   assert.equal(probabilityIds[probabilityIds.indexOf(after) + 1], id, `${id} follows ${after}`)
-  assert.equal(probability.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(statistics.lessons.find(entry => entry.lessonId === id).label, label)
   assert.equal(tier.lessonParam(number), address)
   assert.equal(tier.parseLessonParam(address.toLowerCase(), 'higher'), number)
   assert.equal(tier.parseLessonParam(address, 'foundation'), null, `${address} does not open on Foundation`)
@@ -140,7 +153,8 @@ for (const entry of tier.mathsLessonsForTier('higher').filter(item => item.highe
   assert.equal(new Set(states.map(state => state.id)).size, states.length, `${label}: screen ids are unique`)
   states.forEach((state, i) => assert.equal(state.transition.onComplete, states[i + 1]?.id, `${label}: ${state.id} goes on to the next screen`))
   const review = states.findIndex(state => state.microSkillId === 'mixed')
-  assert.ok(review === states.length - 1, `${label}: the Review is last`)
+  // The Review comes last: one screen, or a few review questions ending on the summary (Trigonometry, Tree diagrams).
+  assert.ok(review >= 0 && states.slice(review).every(state => state.microSkillId === 'mixed'), `${label}: the Review is last`)
   for (const state of states) {
     const higher = entry.higherOnly || entry.sections.find(section => section.id === state.microSkillId)?.higher
     if (!higher || state.microSkillId === 'mixed') continue

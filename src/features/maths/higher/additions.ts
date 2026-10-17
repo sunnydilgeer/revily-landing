@@ -24,6 +24,9 @@ import { sectorAngle } from './sectorAngleHigher'
 import { congruenceTests } from './congruenceHigher'
 import { similarAreaVolume } from './similarHigher'
 import { negativeEnlargement } from './negativeEnlargementHigher'
+import { exactValuesNoCalculator } from './exactValuesHigher'
+import { withoutReplacement } from './withoutReplacementHigher'
+import { vennGiven } from './vennGivenHigher'
 import type { HigherAddition } from './helpers'
 
 export type { HigherAddition } from './helpers'
@@ -35,4 +38,5 @@ export const higherAdditions: readonly HigherAddition[] = [
   ratioOnLine, perpendicularLines, lineAndCircle, reciprocalExponential,
   proportionWithK, curveRate,
   triangleAreaSine, sectorAngle, congruenceTests, similarAreaVolume, negativeEnlargement,
+  exactValuesNoCalculator, withoutReplacement, vennGiven,
 ]
