@@ -54,7 +54,17 @@ for (const [after, id, label, number] of [['L016', 'L016H', '3H', 16.5], ['L017'
   assert.equal(tier.parseLessonParam(label, 'higher'), number)
   assert.equal(tier.parseLessonParam(label, 'foundation'), null, `${label} does not open on Foundation`)
 }
-for (const id of ['L020-H', 'L021-H', 'L022-H']) assert.ok(algebraIds.includes(id), `${id} is on Higher`)
+for (const id of ['L020-H', 'L021-H', 'L022-H', 'L023-H', 'L025-H', 'L027-H', 'L028-H']) assert.ok(algebraIds.includes(id), `${id} is on Higher`)
+// Pages 68 to 99: 8H Algebraic fractions after Factorising quadratics; 9H The quadratic formula and 9H2 Completing the
+// square after Solving quadratics (two Higher lessons after one lesson: the second is "9H2"); 12H Iterative methods.
+for (const [after, id, label, number] of [['L021-H', 'L021H', '8H', 21.5], ['L022-H', 'L022H', '9H', 22.5], ['L022H', 'L022H2', '9H2', 22.6], ['L025-H', 'L025H', '12H', 25.5]]) {
+  assert.equal(algebraIds[algebraIds.indexOf(after) + 1], id, `${id} follows ${after}`)
+  assert.equal(algebra.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(tier.parseLessonParam(label, 'higher'), number)
+  assert.equal(tier.parseLessonParam(label.toLowerCase(), 'higher'), number)
+  assert.equal(tier.lessonParam(number), label)
+  assert.equal(tier.parseLessonParam(label, 'foundation'), null, `${label} does not open on Foundation`)
+}
 
 let screens = 0
 const problems = []

@@ -340,6 +340,8 @@
 .ns-graph__heading { align-self: stretch; contain: inline-size; }
 .ns-graph__picture { display: block; flex: none; max-width: none; overflow: hidden; color: var(--rv-ink); }
 .ns-graph__picture.has-grid { background: var(--rv-paper); }
+/* A graph in an Algebra worked example (sketches, regions) shrinks to fit a phone card; the Graphs chapter's own slot sizes its graphs. */
+.rung-card:not(.rung-card--graph) .wc-picture .ns-graph__picture { max-width: 100%; height: auto; }
 .ns-graph__grid line { stroke: var(--rv-grid); stroke-width: 1; }
 .ns-graph__axes line, .ns-graph__axes path { fill: none; stroke: var(--rv-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ns-graph__axis-name { fill: var(--rv-ink); font-size: 16px; font-style: italic; font-weight: 700; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 4px; }
@@ -357,6 +359,13 @@
 .ns-graph__line.is-answer text { fill: var(--rv-good-ink); font-weight: 800; }
 .ns-graph__line.is-wrong line { stroke: var(--rv-redpen); }
 .ns-graph__line.is-wrong text { fill: var(--rv-redpen); }
+/* Graphical inequalities: a dashed boundary isn't included (< or >); a shaded region is the answer to a set of inequalities. */
+.ns-graph__line.is-dashed line { stroke-dasharray: 10 7; stroke-linecap: butt; }
+.ns-graph__region polygon { fill: color-mix(in srgb, var(--rv-ink) 14%, transparent); stroke: none; }
+.ns-graph__region.is-found polygon { fill: color-mix(in srgb, var(--rv-biro) 18%, transparent); }
+.ns-graph__region.is-answer polygon { fill: color-mix(in srgb, var(--rv-good-ink) 22%, transparent); }
+.ns-graph__region text { fill: var(--rv-ink); font-size: 20px; font-weight: 800; font-style: italic; text-anchor: middle; paint-order: stroke; stroke: var(--rv-paper); stroke-width: 5px; stroke-linejoin: round; }
+.ns-graph__region.is-answer text { fill: var(--rv-good-ink); }
 .ns-graph__curve path { fill: none; stroke: var(--rv-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .ns-graph__curve.is-found path { stroke: var(--rv-biro); }
 .ns-graph__curve.is-answer path { stroke: var(--rv-good-ink); stroke-width: 4; }

@@ -32,24 +32,26 @@ const roots = (found: Brackets) => [root(found.p, found.r), root(found.q, found.
 const twoRoots = (values: { typed: string }[], shown: string): InteractionDefinition => ({ type: 'numericInput', responseShape: 'roots', acceptanceRule: 'unorderedSet', correctAnswer: values.map(v => v.typed).join(', '), displayAnswer: shown })
 
 /** Make it 0 (if it isn't), factorise with the trials, then set each bracket to 0. */
-function solveWorking(qa: number, qb: number, qc: number, given?: string): { working: StepWorking; answer: string; values: { typed: string }[] } {
-  const equation = `${quadText(qa, qb, qc)} = 0`
-  const { steps, found } = factoriseSteps(qa, qb, qc)
+function solveWorking(qa: number, qb: number, qc: number, given?: string, letter = 'x'): { working: StepWorking; answer: string; values: { typed: string }[] } {
+  const equation = `${quadText(qa, qb, qc, letter)} = 0`
+  const { steps, found } = factoriseSteps(qa, qb, qc, letter)
   const [first, second] = roots(found)
-  const answer = `x = ${first.text} or x = ${second.text}`
+  const answer = `${letter} = ${first.text} or ${letter} = ${second.text}`
   const all: WorkedStep[] = []
   if (given) all.push({ title: 'Make it 0', why: 'Take everything to one side, so the other side is 0.', lines: [line([part(given, 0)], equation, { eq: true })] })
   all.push(...steps.map(step => ({ ...step, tag: 'factorise' })))
   all.push({ title: 'Each bracket is 0', why: 'Two things multiply to make 0 only if one of them is 0. Solve each bracket equal to 0.', lines: [
-    line([part(`${bracketText(found.p, found.r)} = 0`, 1)], `x = ${first.text}`),
-    line([part(`${bracketText(found.q, found.s)} = 0`, 2)], `x = ${second.text}`),
+    line([part(`${bracketText(found.p, found.r, letter)} = 0`, 1)], `${letter} = ${first.text}`),
+    line([part(`${bracketText(found.q, found.s, letter)} = 0`, 2)], `${letter} = ${second.text}`),
   ] })
-  all.push({ title: 'Write both answers', why: 'A quadratic equation usually has two answers. A fraction is fine, as it is.', lines: [line([part(`${bracketsText(found)} = 0`)], answer, { answer: true })] })
+  all.push({ title: 'Write both answers', why: 'A quadratic equation usually has two answers. A fraction is fine, as it is.', lines: [line([part(`${bracketsText(found, letter)} = 0`)], answer, { answer: true })] })
   return { working: { kind: 'step-worked', start: given ?? equation, steps: all }, answer, values: [first, second] }
 }
-function solve(qa: number, qb: number, qc: number, sourceRef: string, hint: string, given?: string) {
-  const { working, answer, values } = solveWorking(qa, qb, qc, given)
-  return practice(solving, `Solve ${working.start}.`, sourceRef, twoRoots(values, answer), answer, hint, working)
+function solve(qa: number, qb: number, qc: number, sourceRef: string, hint: string, given?: string, letter = 'x') {
+  const { working, answer, values } = solveWorking(qa, qb, qc, given, letter)
+  const state = practice(solving, `Solve ${working.start}.`, sourceRef, twoRoots(values, answer), answer, hint, working)
+  if (letter !== 'x') state.answerPrefix = `${letter} =`
+  return state
 }
 
 /* ---------- Section 1: a number in front of x² ---------- */
@@ -61,6 +63,8 @@ solve(2, -7, 3, 'Higher A12 extra practice', 'Factorise into (2x …)(x …), th
 solve(2, 5, -3, 'Higher A12 extra practice', 'One answer is a fraction.')
 solve(3, -11, 6, 'Higher A12 extra practice', 'Factorise 3x² − 11x + 6 first.')
 solve(2, 1, -6, 'Higher A12 extra practice', 'Make one side 0 first.', '2x² + x = 6')
+solve(2, 13, 15, 'Higher A12 Your Turn Q4', 'Factorise into (2x …)(x …). Both brackets have a plus.')
+solve(3, 17, -6, 'Higher A12 Your Turn Q5', 'The letter is k, but the method is the same. Factorise into (3k …)(k …).', undefined, 'k')
 
 /* ---------- Section 2: sketching from the roots (Level 8-9) ---------- */
 

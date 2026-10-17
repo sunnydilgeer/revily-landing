@@ -2,7 +2,8 @@
  * Higher-only Maths lessons: whole lessons only Higher students get (Higher sections inside a Foundation lesson are in
  * additions.ts). Numbering follows Science: a Higher-only lesson after Lesson N has `number: N + 0.5`, so it can never
  * clash with a Foundation number, and is labelled with N's place in its chapter plus H ("11H"), which is what students
- * see (with the H tile) and what the address carries: /preview?lesson=11H.
+ * see (with the H tile) and what the address carries: /preview?lesson=11H. A second Higher-only lesson after the same
+ * lesson is N + 0.6 and labelled "9H2".
  */
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
 import { tutorBidmasAlgebraLesson } from './bidmasAlgebraLesson'
@@ -10,8 +11,12 @@ import { tutorRecurringLesson } from './recurringLesson'
 import { tutorIndicesHigherLesson } from './indicesLesson'
 import { tutorTripleBracketsLesson } from './tripleBracketsLesson'
 import { tutorSurdsLesson } from './surdsLesson'
+import { tutorAlgebraicFractionsLesson } from './algebraicFractionsLesson'
+import { tutorQuadraticFormulaLesson } from './quadraticFormulaLesson'
+import { tutorCompletingSquareLesson } from './completingSquareLesson'
+import { tutorIterativeLesson } from './iterativeLesson'
 
-type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5
+type HigherLessonNumber = 2.5 | 11.5 | 16.5 | 17.5 | 18.5 | 21.5 | 22.5 | 22.6 | 25.5
 
 export type HigherLesson = {
   /** The Foundation lesson it follows, by course number. */
@@ -31,4 +36,11 @@ export const higherLessons: readonly HigherLesson[] = [
   { after: 16, lesson: tutorIndicesHigherLesson as TutorMethodLesson & { number: 16.5 }, title: 'Negative and fractional powers', description: 'Work out negative and fractional powers like 4⁻³ and the cube root of 64 squared, and use all the rules of indices together.' },
   { after: 17, lesson: tutorTripleBracketsLesson as TutorMethodLesson & { number: 17.5 }, title: 'Expanding triple brackets', description: 'Expand three brackets, like (x + 1)(x + 3)(x − 2), by multiplying out two and then the third.' },
   { after: 18, lesson: tutorSurdsLesson as TutorMethodLesson & { number: 18.5 }, title: 'Surds', description: 'Multiply, divide, simplify and add surds, expand brackets with surds, and rationalise the denominator.' },
+  // A15 Algebraic fractions needs factorising quadratics (Key Skill 2), so it follows Factorising quadratics. A13 The
+  // quadratic formula and A14 Completing the square follow Solving quadratics, as in the book: 9H, then 9H2.
+  { after: 21, lesson: tutorAlgebraicFractionsLesson as TutorMethodLesson & { number: 21.5 }, title: 'Algebraic fractions', description: 'Simplify algebraic fractions by cancelling, factorise first to cancel brackets, and multiply, divide, add and subtract them.' },
+  { after: 22, lesson: tutorQuadraticFormulaLesson as TutorMethodLesson & { number: 22.5 }, title: 'The quadratic formula', description: 'Solve any quadratic with the formula, giving answers to decimal places, significant figures or in surd form.' },
+  { after: 22, lesson: tutorCompletingSquareLesson as TutorMethodLesson & { number: 22.6 }, title: 'Completing the square', description: 'Write a quadratic as a(x + d)² + e, find its turning point, and solve an equation by completing the square.' },
+  // A22 Iterative methods, after Solving inequalities (A18 to A21 come before it in the book).
+  { after: 25, lesson: tutorIterativeLesson as TutorMethodLesson & { number: 25.5 }, title: 'Iterative methods', description: 'Find a solution by trial and improvement, use an iteration formula with the ANS key, and rearrange an equation into one.' },
 ]
