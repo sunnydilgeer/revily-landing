@@ -22,6 +22,8 @@ import { curveRate } from './curveRateHigher'
 import { triangleAreaSine } from './sineAreaHigher'
 import { sectorAngle } from './sectorAngleHigher'
 import { congruenceTests } from './congruenceHigher'
+import { similarAreaVolume } from './similarHigher'
+import { negativeEnlargement } from './negativeEnlargementHigher'
 import type { HigherAddition } from './helpers'
 
 export type { HigherAddition } from './helpers'
@@ -32,5 +34,5 @@ export const higherAdditions: readonly HigherAddition[] = [
   sequencesSurds, quadraticSequences, quadraticInequalities, graphicalInequalities, nonLinearSimultaneous, harderProofs,
   ratioOnLine, perpendicularLines, lineAndCircle, reciprocalExponential,
   proportionWithK, curveRate,
-  triangleAreaSine, sectorAngle, congruenceTests,
+  triangleAreaSine, sectorAngle, congruenceTests, similarAreaVolume, negativeEnlargement,
 ]
