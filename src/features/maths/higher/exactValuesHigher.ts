@@ -60,7 +60,7 @@ practice(exact, 'Work out the exact value of ((tan 45° + cos 30°) ÷ tan 45°)
     ],
   })
 
-ask(exact, 'ABC is a right-angled triangle. Work out the missing side length x, without a calculator.', 'Higher T3 Your Turn Q4 (Level 6-7)', tri([[0, 0], [8, 0], [0, 8 * Math.sqrt(3)]], {
+ask(exact, 'ABC is a right-angled triangle. Work out the missing side length x, without a calculator.', 'Higher T3 Your Turn Q4 (Level 6-7)', tri([[0, 0], [0, 8], [8 * Math.sqrt(3), 0]], {
   sides: [{ label: 'x', tone: 'x' }, { label: '16 cm' }],
   angles: [{ at: 2, label: '30°' }],
   right: 0, names: ['C', 'B', 'A'],

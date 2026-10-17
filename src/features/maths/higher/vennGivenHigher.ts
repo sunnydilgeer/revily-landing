@@ -47,8 +47,8 @@ ask(given, 'Using the same Venn diagram, find P(H given G).', 'Higher P5 Venn Di
 
 {
   // Your Turn Q2c: Geography only 40, both 14, History only 52, neither 36.
-  const geo = (tones: Tones = {}, shade?: VennShade) => vennFig({ names: ['Geography', 'History'], regions: { onlyA: ['40'], both: ['14'], onlyB: ['52'], outside: ['36'] }, tones, ...(shade ? { shade } : {}), spoken: 'Year 10: Geography only 40, both 14, History only 52, neither 36.' })
-  ask(given, 'A student in year 10 is picked at random. Given that they do not study Geography, what is the probability that they do not study History?', 'Higher P5 Your Turn Q2c (Level 6-7)', geo(), fraction('9/22'), '9/22', 'Not Geography is everything outside the Geography circle.', {
+  const geo = (tones: Tones = {}, shade?: VennShade) => vennFig({ names: ['G', 'H'], regions: { onlyA: ['40'], both: ['14'], onlyB: ['52'], outside: ['36'] }, tones, ...(shade ? { shade } : {}), spoken: 'Year 10: Geography only 40, both 14, History only 52, neither 36.' })
+  ask(given, 'G is year 10 students who study Geography and H is those who study History. A student is picked at random. Given that they do not study Geography, what is the probability that they do not study History?', 'Higher P5 Your Turn Q2c (Level 6-7)', geo(), fraction('9/22'), '9/22', 'Not Geography is everything outside the Geography circle.', {
     kind: 'step-worked', start: 'Given not Geography', steps: [
       { title: 'Outside Geography', why: 'Not Geography is History only and neither.', lines: [line([part('52'), sign('+'), part('36')], '88')] },
       { title: 'Not History either', why: 'Of those, the ones not in History are outside both circles.', lines: [line([part('Neither')], '36', { eq: true })] },
@@ -60,7 +60,7 @@ ask(given, 'Using the same Venn diagram, find P(H given G).', 'Higher P5 Venn Di
 {
   // Your Turn Q3c: the 80 students and sharks, crocodiles and hippos.
   const regions: Partial<Record<Venn3Region, string>> = { onlyA: '12', onlyB: '7', onlyC: '18', AB: '14', AC: '6', BC: '8', ABC: '15', outside: '0' }
-  ask(given, '80 students like sharks, crocodiles or hippos, as in the Venn diagram. One is picked at random. Find the probability that they like crocodiles and exactly one other animal.', 'Higher P5 Your Turn Q3c (Level 6-7)', venn3Fig(['Sharks', 'Crocs', 'Hippos'], regions, '80 students: sharks only 12, crocodiles only 7, hippos only 18, sharks and crocodiles only 14, sharks and hippos only 6, crocodiles and hippos only 8, all three 15.'), fraction('11/40'), '11/40', 'Crocodiles and sharks but not hippos, or crocodiles and hippos but not sharks.', {
+  ask(given, '80 students like sharks (S), crocodiles (C) or hippos (H), as in the Venn diagram. One is picked at random. Find the probability that they like crocodiles and exactly one other animal.', 'Higher P5 Your Turn Q3c (Level 6-7)', venn3Fig(['S', 'C', 'H'], regions, '80 students: sharks only 12, crocodiles only 7, hippos only 18, sharks and crocodiles only 14, sharks and hippos only 6, crocodiles and hippos only 8, all three 15.'), fraction('11/40'), '11/40', 'Crocodiles and sharks but not hippos, or crocodiles and hippos but not sharks.', {
     kind: 'step-worked', start: '80 students', steps: [
       { title: 'Exactly one other', why: 'Crocodiles with sharks only, and crocodiles with hippos only. The middle likes all three, so leave it out.', lines: [line([part('14'), sign('+'), part('8')], '22')] },
       { title: 'Over everyone', why: 'This one has no “given”, so the total is all eighty. Simplify by halving.', lines: [line([part('22/80')], '11/40', { eq: true, answer: true })] },

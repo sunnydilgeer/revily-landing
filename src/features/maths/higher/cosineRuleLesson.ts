@@ -50,14 +50,15 @@ add(length, 'The cosine rule', 'Higher T5 The Cosine Rule Formula', text(
   })
   worked(length, 'Use the cosine rule to find the side marked x, to 1 decimal place.', 'Finding a length', 'Higher T5 Example (p232)', boardModel([], [
     { title: 'Match the letters', say: 'x is opposite the 44° angle, so it is a, and the angle is A. The two sides making the angle are b and c.', rows: ['a = x, A = 44°', 'b = 5, c = 7'], picture: t({ lit: true }) },
-    { title: 'Put them in', say: 'Put the numbers into the formula.', rows: ['x² = 5² + 7² − 2 × 5 × 7 × cos 44°', 'x² = 25 + 49 − 70 cos 44°'], picture: t({ lit: true }) },
+    { title: 'Put them in', say: 'Put the numbers into the formula.', rows: ['x² = 5² + 7² − 2 × 5 × 7 × cos 44°', 'x² = 25 + 49 − 70 cos 44°'], picture: t({ lit: true }) },
     { title: 'Square root', say: 'Square root both sides, and put it all into the calculator in one go.', rows: ['x = √(25 + 49 − 70 cos 44°)', '= 4.862…', '! x = 4.9'], picture: t({ found: true }) },
   ], 'Find x', t()), 'Match the letters first: a is the side you want, opposite the angle A you know. b and c are the two sides that make the angle.')
 }
 
 {
   // Your Turn Q1: 86 cm and 65 cm meet at 19°; x is opposite.
-  const pts = turned(fromSAS(86, 65, 19), -10, true)
+  // Drawn with a 32° angle, not 19°: to scale it is too thin for its labels to fit.
+  const pts = turned(fromSAS(86, 65, 32), -10, true)
   ask(length, 'Use the cosine rule to find the side marked x, to 2 significant figures.', 'Higher T5 Your Turn Q1 (Level 6-7)', tri(pts, {
     sides: [{ label: '86 cm' }, { label: 'x', tone: 'x' }, { label: '65 cm' }],
     angles: [{ at: 0, label: '19°' }],
@@ -127,7 +128,7 @@ add(angle, 'Finding an angle', 'Higher T5 The Cosine Rule', text(
   worked(angle, 'Find the angle marked x, to 1 decimal place.', 'Finding an angle', 'Higher T5 The Cosine Rule (own numbers)', boardModel([], [
     { title: 'Match the letters', say: 'x is opposite the side of 9, so a = 9. The sides making x are 8 and 7.', rows: ['a = 9', 'b = 8, c = 7'], picture: t({ lit: true }) },
     { title: 'Put them in', say: 'Use the rearranged rule: the two sides next to the angle squared, take away the side opposite squared, over 2bc.', rows: ['cos x = {8² + 7² − 9²|2 × 8 × 7}', 'cos x = {32|112}'], picture: t({ lit: true }) },
-    { title: 'Use inverse cos', say: 'cos⁻¹ on the calculator, then round.', rows: ['x = cos⁻¹({32|112}) = 73.39…', '! x = 73.4°'], picture: t({ found: true }) },
+    { title: 'Use inverse cos', say: 'cos⁻¹ on the calculator, then round.', rows: ['x = cos⁻¹(0.2857…) = 73.39…', '! x = 73.4°'], picture: t({ found: true }) },
   ], 'Find x', t()), 'For an angle, rearrange the cosine rule: cos A = (b² + c² − a²) ÷ 2bc, with a the side opposite the angle. Then cos⁻¹.')
 }
 

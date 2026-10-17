@@ -41,8 +41,8 @@ add(length, 'The sine rule', 'Higher T4 The Sine Rule Formula', text(
 
 {
   // Example 1: 21° and 35° on the base, 23 opposite the 35°, x opposite the 21°.
-  const c = 23 * sin(124) / sin(35)
-  const pts = fromAngles(c, 21, 35)
+  // Drawn taller than to scale (32° and 45° at the base), which is too flat for the picture to be read on a phone.
+  const pts = fromAngles(23, 32, 45)
   const t = (o: { lit?: boolean; found?: boolean } = {}) => tri(pts, {
     sides: [undefined, { label: o.found ? '14.4' : 'x', tone: o.found ? 'found' : o.lit ? 'lit' : 'x' }, { label: '23', tone: o.lit ? 'lit' : undefined }],
     angles: [{ at: 0, label: '21°', tone: o.lit ? 'lit' : undefined }, { at: 1, label: '35°', tone: o.lit ? 'lit' : undefined }],
@@ -138,7 +138,7 @@ add(angle, 'Finding an angle', 'Higher T4 Example: Sine Rule to Find an Angle', 
     sides: [undefined, { label: '25 m', tone: o.lit ? 'lit' : undefined }, { label: '43 m', tone: o.lit ? 'lit' : undefined }],
     angles: [{ at: 0, label: '33°', tone: o.lit ? 'lit' : undefined }, { at: 1, label: o.found ?? 'x', tone: o.found ? 'found' : 'x' }],
     spoken: 'A triangle with a 33° angle at the bottom left. The side from it to the top is 43 m, and the side from the top down to the obtuse angle x is 25 m.',
-    caption: o.found ? `x = ${o.found}` : undefined,
+    caption: o.found ? `x = ${o.found}` : undefined, inside: [1],
   })
   worked(angle, 'Use the sine rule to find the obtuse angle marked x, to 2 significant figures.', 'The ambiguous case', 'Higher T4 Example (p230)', boardModel([], [
     { title: 'Match the letters', say: 'x is opposite 43 m: A and a. The 33° is opposite 25 m: B and b.', rows: ['A = x, a = 43', 'B = 33°, b = 25'], picture: t({ lit: true }) },
@@ -150,12 +150,12 @@ add(angle, 'Finding an angle', 'Higher T4 Example: Sine Rule to Find an Angle', 
 
 {
   // Your Turn Q3: A = 15°, AC = 12 cm opposite the obtuse x at B, BC = 7 cm opposite A.
-  const x = 180 - 26.34
-  const pts = turned(fromAngles(12, 15, 180 - 15 - x), 0, true)
+  // Drawn taller than to scale (35° and 30° at the base, not 15° and 11°), which is too flat for its labels to fit.
+  const pts = turned(fromAngles(12, 35, 30), 0, true)
   ask(angle, 'Use the sine rule to find the obtuse angle x, to 3 significant figures.', 'Higher T4 Your Turn Q3 (Level 6-7)', tri(pts, {
     sides: [{ label: '12 cm' }, { label: '7 cm' }],
     angles: [{ at: 0, label: '15°' }, { at: 2, label: 'x', tone: 'x' }],
-    names: ['A', 'C', 'B'],
+    names: ['A', 'C', 'B'], inside: [2],
     spoken: 'Triangle ABC with angle A 15°. AC is 12 cm and BC is 7 cm; x is the obtuse angle at B.',
   }), number(154, '154°'), '154°', 'Use the flipped rule to find the acute angle first, then take it from 180°.', {
     kind: 'step-worked', start: 'A = 15°, AC = 12 cm, BC = 7 cm', steps: [

@@ -193,8 +193,8 @@ add(proof, 'Ratios and proof', 'Higher T8 Vectors', text(
   worked(proof, 'AB = 3a and AC = 4b. D lies on BC with BD : DC = 1 : 3. Find AD in terms of a and b.', 'A point in a ratio', 'Higher T8 Example: Involving Ratios (p238)', boardModel([], [
     { title: 'Plan the route', say: 'A to D: go A to B, then B to D. We know AB, so find BD.', rows: ['AD = AB + BD'], picture: shape({ ...base, lit: ['AB', 'BD'] }, 'The route A to B to D.') },
     { title: 'Find BC', say: 'B to C: back down to A, then out to C.', rows: ['BC = −AB + AC = −3a + 4b'], picture: shape({ ...base, lit: ['BA', 'AC'] }, 'The route B to A to C.') },
-    { title: 'A quarter of BC', say: '1 : 3 is 4 parts, so D is 1/4 of the way along BC.', rows: ['BD = {1|4}(−3a + 4b) = −{3|4}a + b'], picture: shape({ ...base, lit: ['BD'] }, 'BD, a quarter of BC.') },
-    { title: 'Add AB', say: 'Put the a parts together.', rows: ['AD = 3a + (−{3|4}a + b)', '! AD = {9|4}a + b'], picture: shape({ ...base, found: ['AD'] }, 'AD found.', 'AD = 9/4 a + b') },
+    { title: 'A quarter of BC', say: '1 : 3 is 4 parts, so D is 1/4 of the way along BC.', rows: ['BD = {1|4}(−3a + 4b)', 'BD = − {3|4}a + b'], picture: shape({ ...base, lit: ['BD'] }, 'BD, a quarter of BC.') },
+    { title: 'Add AB', say: 'Put the a parts together.', rows: ['AD = 3a − {3|4}a + b', '! AD = {9|4}a + b'], picture: shape({ ...base, found: ['AD'] }, 'AD found.', 'AD = 9/4 a + b') },
   ], 'Find AD', shape(base, 'A triangle ABC: AB is 3a and AC is 4b. D is on BC, a quarter of the way from B to C.')), 'For a point on a line in a ratio: find the whole line as a vector, take the fraction, then add the route to it.')
 }
 

@@ -65,9 +65,10 @@ function solid(s: Solid, spoken: string, caption?: string): AngleFrame {
     const V = at(v), deg = (to: FigurePoint) => Math.atan2(to[1] - V[1], to[0] - V[0]) * 180 / Math.PI
     let from = deg(at(p)), turn = ((deg(at(q)) - from) % 360 + 360) % 360
     if (turn > 180) { from = deg(at(q)); turn = 360 - turn }
-    const r = 1.4, mid = rad(from + turn / 2)
+    // A thin angle's label goes further out, where its two lines are far enough apart for it.
+    const r = 1.4, mid = rad(from + turn / 2), out = turn < 25 ? 4.5 : 2.6
     items.push({ kind: 'arc', centre: V, r, from, to: from + turn, style: tone === 'found' || tone === 'x' || tone === 'lit' ? tone : 'plain' })
-    items.push({ kind: 'text', at: [V[0] + 2.6 * Math.cos(mid), V[1] + 2.6 * Math.sin(mid)], text: label, tone: tone ?? 'given' })
+    items.push({ kind: 'text', at: [V[0] + out * Math.cos(mid), V[1] + out * Math.sin(mid)], text: label, tone: tone ?? 'given' })
   }
   for (const [e, label, tone] of s.labels ?? []) {
     const p = at(e[0]), q = at(e[1]), m: FigurePoint = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], len = Math.hypot(q[0] - p[0], q[1] - p[1])
@@ -112,7 +113,7 @@ add(pythagoras, '3D Pythagoras', 'Higher T6 3D Pythagoras', text(
 {
   // Our own: a 3 by 4 by 12 cuboid, its diagonal 13 cm.
   const base = box(4, 3, 12, 'PQRSTUVW', 'right', 'T')
-  const s = (o: Partial<Solid>, caption?: string) => solid({ ...base, labels: [['PQ', '4 cm'], ['QR', '3 cm'], ['QU', '12 cm']], ...o }, 'A cuboid 4 cm wide, 3 cm tall and 12 cm long, with the diagonal from P to V.', caption)
+  const s = (o: Partial<Solid>, caption?: string) => solid({ ...base, labels: [['PQ', '4 cm'], ['PS', '3 cm'], ['QU', '12 cm']], ...o }, 'A cuboid 4 cm wide, 3 cm tall and 12 cm long, with the diagonal from P to V.', caption)
   worked(pythagoras, 'Find the length of the diagonal PV of this cuboid.', 'Pythagoras twice', 'Higher T6 3D Pythagoras (own numbers)', boardModel([], [
     { title: 'Across the bottom', say: 'P to U runs across the bottom face: a right-angled triangle with sides 4 and 12.', rows: ['PU² = 4² + 12² = 160'], picture: s({ lit: ['PU'] }) },
     { title: 'Then up', say: 'PU, the edge UV going up, and the diagonal PV make another right-angled triangle.', rows: ['PV² = PU² + 3²', 'PV² = 160 + 9 = 169'], picture: s({ lit: ['PU', 'UV', 'PV'] }) },
@@ -201,7 +202,7 @@ add(trig, '3D trigonometry', 'Higher T6 3D Trigonometry', text(
 {
   // Our own: the angle between the cuboid's diagonal PV and the bottom face, in the 3 by 4 by 12 cuboid.
   const base = box(4, 3, 12, 'PQRSTUVW', 'right', 'T')
-  ask(trig, 'In the 4 cm by 3 cm by 12 cm cuboid, PU = √160 cm and UV = 3 cm. Find angle VPU, to 1 decimal place.', 'Higher T6 3D Trigonometry (own numbers)', solid({ ...base, lit: ['PU', 'PV'], labels: [['PQ', '4 cm'], ['QR', '3 cm'], ['QU', '12 cm']], marks: [['P', 'U', 'V', 'x', 'x']] }, 'The cuboid with the diagonal PV and the line PU across the bottom; x is the angle between them at P.'),
+  ask(trig, 'In the 4 cm by 3 cm by 12 cm cuboid, PU = √160 cm and UV = 3 cm. Find angle VPU, to 1 decimal place.', 'Higher T6 3D Trigonometry (own numbers)', solid({ ...base, lit: ['PU', 'PV'], labels: [['PQ', '4 cm'], ['PS', '3 cm'], ['QU', '12 cm']], marks: [['P', 'U', 'V', 'x', 'x']] }, 'The cuboid with the diagonal PV and the line PU across the bottom; x is the angle between them at P.'),
     number(13.3, '13.3°'), '13.3°', 'Triangle PUV has its right angle at U.', {
       kind: 'step-worked', start: 'PU = √160, UV = 3', steps: [
         { title: 'Pick the ratio', why: 'UV is opposite the angle and PU is next to it, so it is tan.', lines: [line([part('tan x')], '3 ÷ √160', { eq: true })] },

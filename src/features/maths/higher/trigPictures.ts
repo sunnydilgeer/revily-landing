@@ -27,6 +27,19 @@ export const turned = (pts: Tri, turn: number, flip = false): Tri => pts.map(([x
   return [x * Math.cos(rad(turn)) - u * Math.sin(rad(turn)), x * Math.sin(rad(turn)) + u * Math.cos(rad(turn))]
 }) as Tri
 
-/** A triangle drawn to scale: side k runs from corner k to corner k + 1; a little more room for long labels. */
-export const tri = (pts: Tri, o: { sides?: (TriSide | undefined)[]; angles?: TriAngle[]; names?: string[]; right?: number; spoken: string; caption?: string }): AngleFrame =>
-  triangleFig(pts, { ...o, room: 34 })
+/**
+ * A triangle drawn to scale: side k runs from corner k to corner k + 1; a little more room for long labels. `inside`
+ * lists corners whose angle label is pulled in towards the middle, for an obtuse angle whose label would otherwise
+ * land well outside the corner.
+ */
+export function tri(pts: Tri, o: { sides?: (TriSide | undefined)[]; angles?: TriAngle[]; names?: string[]; right?: number; spoken: string; caption?: string; inside?: number[] }): AngleFrame {
+  const { inside = [], ...rest } = o
+  const frame = triangleFig(pts, { ...rest, room: 34 })
+  const G: Pt = [(pts[0][0] + pts[1][0] + pts[2][0]) / 3, (pts[0][1] + pts[1][1] + pts[2][1]) / 3]
+  for (const at of inside) {
+    const angle = o.angles?.find(a => a.at === at), v = pts[at]
+    const item = frame.figure?.items.find(i => i.kind === 'text' && i.text === angle?.label && !i.name && i.dx === undefined)
+    if (item && item.kind === 'text') item.at = [v[0] + 0.5 * (G[0] - v[0]), v[1] + 0.5 * (G[1] - v[1])]
+  }
+  return frame
+}

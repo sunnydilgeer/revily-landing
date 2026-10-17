@@ -43,7 +43,7 @@ add(without, 'Without replacement', 'Higher P3 Independent and Dependent Events'
   const res = ['12/72', '20/72', '20/72', '20/72']
   worked(without, 'A bag has 4 red and 5 blue balls. Raheem picks one, does not put it back, then picks another. Find P(same colour).', 'Without replacement', 'Higher P3 Conditional Probability Trees (p247)', boardModel([], [
     { title: 'The first pick', say: '4 of the 9 balls are red.', rows: ['P(R) = {4|9}, P(B) = {5|9}'], picture: t({ lit: [0, 1] }) },
-    { title: 'One fewer', say: 'After a red is taken there are 8 balls, and only 3 red. After a blue, 8 balls with 4 red and 4 blue.', rows: ['After a red: P(R) = {3|8}, P(B) = {5|8}', 'After a blue: P(R) = {4|8}, P(B) = {4|8}'], picture: t() },
+    { title: 'One fewer', say: 'After a red is taken there are 8 balls, and only 3 red. After a blue, 8 balls with 4 red and 4 blue.', rows: ['After R = 3 R of 8', 'After B = 4 R of 8'], picture: t() },
     { title: 'Same-colour paths', say: 'Red then red, or blue then blue. Multiply along each path.', rows: ['P(R, R) = {4|9} × {3|8} = {12|72}', 'P(B, B) = {5|9} × {4|8} = {20|72}'], picture: t({ lit: [0, 3], results: res }) },
     { title: 'OR means add', say: 'Add the two paths, then simplify.', rows: ['! P(same) = {32|72} = {4|9}'], picture: t({ lit: [0, 3], results: res, tone: 'found' }) },
   ], 'Probability'), 'Without replacement, the second branches change: one fewer item altogether, and one fewer of the colour already picked.')
@@ -52,7 +52,7 @@ add(without, 'Without replacement', 'Higher P3 Independent and Dependent Events'
 {
   // Benjamin: P(starts) = 0.7, P(scores given he starts) = 0.4.
   const b = (label: string, value: string, tone?: FigureTone): Branch => ({ label, value, ...(tone ? { tone } : {}) })
-  const t = () => probTreeFig([b('Starts', '0.7'), b('Doesn’t start', '0.3')], [[b('Scores', '0.4'), b('Doesn’t score', '?', 'x')], []], 'A tree: Benjamin starts with probability 0.7; if he starts, he scores with probability 0.4.', { heads: ['Starts?', 'Scores?'] })
+  const t = () => probTreeFig([b('Yes', '0.7'), b('No', '0.3')], [[b('Yes', '0.4'), b('No', '?', 'x')], []], 'A tree: Benjamin starts with probability 0.7; if he starts, he scores with probability 0.4.', { heads: ['Starts?', 'Scores?'] })
   ask(without, 'P(Benjamin starts the game) = 0.7. If he starts, P(he scores) = 0.4. Find P(he starts but doesn’t score).', 'Higher P3 Conditional Probability Example (p247)', t(), number(0.42, '0.42'), '0.42', 'Doesn’t score, given he starts, is 1 take away 0.4.', {
     kind: 'step-worked', start: 'P(starts) = 0.7, P(scores given starts) = 0.4', steps: [
       { title: 'Given he starts', why: 'He either scores or doesn’t, so the two branches add to one.', lines: [line([part('1'), sign('−'), part('0.4')], '0.6')] },
