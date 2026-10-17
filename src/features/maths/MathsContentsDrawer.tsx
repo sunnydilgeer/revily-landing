@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { mathsChapters, type MathsChapter, type MathsLessonEntry, type MathsLessonNumber, type MathsSection } from './courseRegistry'
 import type { LessonProgressMap } from './lessonProgress'
+import { HigherTile } from '../../ui/HigherTile'
 import './ContentsDrawer.css'
 
 /*
@@ -15,8 +16,10 @@ type Props<N extends number, C extends string> = {
   onClose: () => void
   onSelectLesson: (lesson: N) => void
   onSelectSkill: (lesson: N, section: MathsSection) => void
-  /** The chapters to list: the course's own unless a page passes its own shelf. */
+  /** The chapters to list: the course's own unless a page passes its own shelf (or its tier's, tier.ts). */
   chapters?: MathsChapter<N, C>[]
+  /** The kicker above the subject: the student's tier. */
+  level?: string
 }
 
 /**
@@ -45,7 +48,7 @@ function readFolds(): Record<string, boolean> {
 
 const Chevron = () => <svg className="toc-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
 
-export default function MathsContentsDrawer<N extends number = MathsLessonNumber, C extends string = string>({ open, currentLesson, progress, onClose, onSelectLesson, onSelectSkill, chapters = mathsChapters as unknown as MathsChapter<N, C>[] }: Props<N, C>) {
+export default function MathsContentsDrawer<N extends number = MathsLessonNumber, C extends string = string>({ open, currentLesson, progress, onClose, onSelectLesson, onSelectSkill, chapters = mathsChapters as unknown as MathsChapter<N, C>[], level = 'GCSE Foundation' }: Props<N, C>) {
   const drawerRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const [query, setQuery] = useState('')
@@ -123,7 +126,7 @@ export default function MathsContentsDrawer<N extends number = MathsLessonNumber
     <aside className="maths-contents-drawer toc" id="maths-contents" ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="maths-contents-title">
       <header className="toc-head">
         <div>
-          <p>GCSE Foundation</p>
+          <p>{level}</p>
           <h2 id="maths-contents-title">Maths</h2>
         </div>
         <button ref={closeButtonRef} className="toc-close" type="button" onClick={onClose} aria-label="Close contents">
@@ -142,7 +145,7 @@ export default function MathsContentsDrawer<N extends number = MathsLessonNumber
           <ul className="toc-results">
             {results.map(({ entry, chapter, section }) => <li key={`${entry.lessonId}-${section?.id ?? 'lesson'}`}>
               <button type="button" onClick={() => section ? pickSkill(entry, section) : pickLesson(entry)}>
-                <strong>{section ? section.title : entry.title}</strong>
+                <strong>{section ? section.title : entry.title}{(section ? section.higher : entry.higherOnly) && <HigherTile />}</strong>
                 <span>{section ? `Skill · ${entry.title}` : `Lesson · ${chapter}`}</span>
               </button>
             </li>)}
@@ -150,7 +153,7 @@ export default function MathsContentsDrawer<N extends number = MathsLessonNumber
         </section> : <>
           <button type="button" className="toc-here" onClick={onClose}>
             <span className="toc-here__kicker">You’re here</span>
-            <strong>{currentLesson.title}</strong>
+            <strong>{currentLesson.title}{currentLesson.higherOnly && <HigherTile />}</strong>
             <span className="toc-here__skill">{currentSkill?.title}</span>
             <span className="toc-here__meta">Back to lesson →</span>
           </button>
@@ -176,8 +179,8 @@ export default function MathsContentsDrawer<N extends number = MathsLessonNumber
                     <button type="button" className="toc-lesson__open" aria-current={isCurrent ? 'page' : undefined}
                       aria-expanded={skillsOpen} aria-controls={`toc-skills-${entry.lessonId}`}
                       onClick={() => setOpenSkills(current => ({ ...current, [entry.lessonId]: !skillsOpen }))}>
-                      <span className="toc-lesson__num" aria-hidden="true">{entry.position}</span>
-                      <span className="toc-lesson__title">{entry.title}</span>
+                      <span className="toc-lesson__num" aria-hidden="true">{entry.label ?? entry.position}</span>
+                      <span className="toc-lesson__title">{entry.title}{entry.higherOnly && <HigherTile />}</span>
                       <Chevron />
                     </button>
                     {skillsOpen && <ol className="toc-skills" id={`toc-skills-${entry.lessonId}`} aria-label={`${entry.title} skills`}>
@@ -186,7 +189,7 @@ export default function MathsContentsDrawer<N extends number = MathsLessonNumber
                         return <li key={section.id}>
                           <button type="button" aria-current={isCurrentSection ? 'step' : undefined} onClick={() => pickSkill(entry, section)}>
                             <span className="toc-skill__dot" aria-hidden="true" />
-                            {section.title}
+                            {section.title}{section.higher && <HigherTile />}
                           </button>
                         </li>
                       })}

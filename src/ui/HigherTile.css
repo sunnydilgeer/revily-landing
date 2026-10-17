@@ -1,0 +1,9 @@
+/* The Higher mark (HigherTile.tsx): a rounded blue tile with a white H and a darker edge underneath, sized to its text. */
+.rv-higher {
+  display: inline-grid; place-items: center; flex: none;
+  width: 1.45em; height: 1.45em; margin-left: .45em; vertical-align: .05em;
+  border-radius: .42em; background: var(--rv-biro); color: #fff;
+  box-shadow: 0 .12em 0 #16297a;
+  font-family: 'Fredoka', var(--rv-font-display); font-weight: 700; font-size: .78em; line-height: 1; letter-spacing: 0;
+  text-transform: none; font-style: normal;
+}

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/lexend";
 import "@fontsource/caveat/700.css";
+import "@fontsource/fredoka/latin-700.css";
 import "../src/ui/revily-tokens.css";
 import "../src/ui/revily-ui.css";
 import "./globals.css";

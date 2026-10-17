@@ -1,0 +1,13 @@
+/*
+ * Higher-only sections inside Foundation Maths lessons, from the Higher revision guide's Level 6-7 boxes. Each goes into
+ * its lesson just before the Review and is shown only to Higher students (../tier.ts), with the H tile. Foundation
+ * lessons are never edited for Higher content. Screen ids carry an H (L11-H-01), so they never clash with Foundation ids.
+ */
+import { boundsCalculations } from './boundsCalculations'
+import { orderingTerms } from './orderingTerms'
+import { squareRoots } from './squareRoots'
+import type { HigherAddition } from './helpers'
+
+export type { HigherAddition } from './helpers'
+
+export const higherAdditions: readonly HigherAddition[] = [orderingTerms, squareRoots, boundsCalculations]
