@@ -33,8 +33,9 @@ function parseNumericList(value: unknown): number[] {
   if (Array.isArray(value)) return value.map(Number).filter(Number.isFinite)
   return String(value ?? '')
     .replace(/[−–]/g, '-')
-    .match(/-?\d+(?:\.\d+)?/g)
-    ?.map(Number)
+    // A fraction counts as one number (a root like −3/2), so a list never splits it in two.
+    .match(/-?\d+(?:\.\d+)?(?:\s*\/\s*\d+)?/g)
+    ?.map(n => n.includes('/') ? (([top, bottom]) => top / bottom)(n.split('/').map(Number)) : Number(n))
     .filter(Number.isFinite) ?? []
 }
 

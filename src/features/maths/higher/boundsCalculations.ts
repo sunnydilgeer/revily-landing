@@ -75,4 +75,29 @@ practice(skill, 'A square has sides of 6 cm, to the nearest cm. Work out the low
   ],
 }, 'Area (cm²)')
 
+// N14 Your Turn Q4 and Q5 (Level 6-7): bounds from significant figures and decimal places, not just whole numbers.
+practice(skill, 'F = P ÷ v. P is 145 watts to 3 significant figures, and v is 23.4 m/s to 1 decimal place. Work out the lower bound of F, to 3 significant figures.', 'Higher N14 Your Turn Q4', number(6.16, '6.16 N'), '6.16 N', 'Smallest top, biggest bottom.', {
+  kind: 'step-worked', start: 'F = 145 ÷ 23.4', steps: [
+    findBounds([{ name: 'P', value: '145', lower: '144.5', upper: '145.5', unit: 'W' }, { name: 'v', value: '23.4', lower: '23.35', upper: '23.45', unit: 'm/s' }],
+      'To 3 significant figures, 145 could be half a unit either way. To 1 decimal place, 23.4 could be half of a tenth either way.'),
+    { title: 'Smallest F', why: 'Dividing works the opposite way: the smallest top over the biggest bottom.', lines: [line([part('144.5', 0), sign('÷'), part('23.45', 1)], '6.162…')] },
+    { title: 'Round it', why: 'Give the answer to 3 significant figures, as the question asks.', lines: [line([part('6.162…')], '6.16 N', { answer: true })] },
+  ],
+}, 'Lower bound of F (N)')
+practice(skill, 'A car travels 80.3 miles, to 1 decimal place, in 1.87 hours, to 2 decimal places. Work out the upper bound of its average speed, to 3 significant figures.', 'Higher N14 Your Turn Q5', number(43.1, '43.1 mph'), '43.1 mph', 'Biggest distance, smallest time.', {
+  kind: 'step-worked', start: 'speed = 80.3 ÷ 1.87', steps: [
+    findBounds([{ name: 'distance', value: '80.3', lower: '80.25', upper: '80.35', unit: 'miles' }, { name: 'time', value: '1.87', lower: '1.865', upper: '1.875', unit: 'hours' }],
+      'The distance could be half of a tenth either way, and the time half of a hundredth either way.'),
+    { title: 'Largest speed', why: 'The biggest distance over the smallest time.', lines: [line([part('80.35', 0), sign('÷'), part('1.865', 1)], '43.08…')] },
+    { title: 'Round it', why: 'Give the answer to 3 significant figures.', lines: [line([part('43.08…')], '43.1 mph', { answer: true })] },
+  ],
+}, 'Upper bound of speed (mph)')
+practice(skill, 'The same car’s speed is between 42.8 mph and 43.08 mph. Give its speed to a suitable degree of accuracy.', 'Higher N14 Your Turn Q5', number(43, '43 mph'), '43 mph', 'Round both bounds the same way until they agree.', {
+  kind: 'step-worked', start: '42.8 ≤ speed < 43.08…', steps: [
+    { title: 'Smallest speed', why: 'The smallest distance over the biggest time.', lines: [line([part('80.25', 0), sign('÷'), part('1.875', 1)], '42.8')] },
+    { title: 'Try 3 figures', why: 'To 3 significant figures the two bounds disagree, so that is too accurate.', lines: [line([part('42.8')], '42.8'), line([part('43.08…')], '43.1', { mark: '✗ different' })] },
+    { title: 'Try 2 figures', why: 'To 2 significant figures both bounds round the same, so that is the suitable accuracy.', lines: [line([part('42.8')], '43'), line([part('43.08…')], '43 mph', { answer: true, mark: '✓ same' })] },
+  ],
+}, 'Speed (mph)')
+
 export const boundsCalculations: HigherAddition = { lessonId: 'L013', skill, label: 'Bounds of a calculation', states: a.finish() }
