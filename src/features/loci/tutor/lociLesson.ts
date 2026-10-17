@@ -2,7 +2,7 @@ import { author } from '../../written-methods/tutor/content'
 import type { AngleFrame, FigureItem, FigurePoint } from '../../written-methods/tutor/methodWorking'
 import type { TutorMethodLesson } from '../../written-methods/tutor/model'
 import { boardModel, choose, number, text } from '../../simultaneous-equations/tutor/boardWorkings'
-import { dp, fig, screens, show, slips } from '../../geometry/tutor/figureLesson'
+import { dp, fig as figure, screens, show, slips } from '../../geometry/tutor/figureLesson'
 
 /*
  * Geometry lesson 17: Loci and constructions. From GM17 in Sunny's revision book (p151–153), with our own numbers. The
@@ -25,6 +25,8 @@ const perpendicular = 'geometry-perpendicular-bisector'
 const angleBisector = 'geometry-angle-bisector'
 const regions = 'geometry-locus-regions'
 
+// Every construction drawn with a thin margin, so it fills the picture (Sunny, 17 Oct: diagrams drawn too small).
+const fig = (...args: Parameters<typeof figure>) => { const f = figure(...args); f.figure!.pad = 16; return f }
 const CM_BOX = { label: 'On the plan (cm)', prefix: 'Plan =' }
 const at = (deg: number, r: number, c: FigurePoint = [0, 0]): FigurePoint => [c[0] + r * Math.cos(deg * Math.PI / 180), c[1] + r * Math.sin(deg * Math.PI / 180)]
 
@@ -198,6 +200,7 @@ add('mixed', 'Loci and constructions', 'GM17 consolidation', text(
 export const tutorLociLesson: TutorMethodLesson = {
   id: 'L217', number: 217, title: 'Loci and constructions', level: 'GCSE Foundation',
   steadyPictures: true,
+  largePictures: true,
   goal: 'Draw loci a fixed distance from a point or line, construct perpendicular and angle bisectors, and shade regions.',
   labels: { [distance]: 'A fixed distance', [perpendicular]: 'Perpendicular bisector', [angleBisector]: 'Angle bisector', [regions]: 'Regions', mixed: 'Review' },
   states: finish(),

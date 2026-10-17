@@ -185,10 +185,13 @@ for (const [P, Q, X, Y, right, at, ref] of [
 /** A ladder against a wall: its foot `foot` from the wall, `len` long, reaching `h` up. */
 function ladderFig(foot: number, h: number, sides: [TriSide, TriSide, TriSide], caption?: string): AngleFrame {
   const W: FigurePoint = [foot, 0], T: FigurePoint = [foot, h], F: FigurePoint = [0, 0]
-  return triangleFig([W, T, F], { sides, right: 0, caption, spoken: 'A ladder leaning against a wall, its foot on the ground away from the wall.', extra: [
+  const f = triangleFig([W, T, F], { sides, right: 0, caption, spoken: 'A ladder leaning against a wall, its foot on the ground away from the wall.', extra: [
     { kind: 'line', from: [foot, 0], to: [foot, h * 1.15] }, { kind: 'line', from: [-foot * 0.25, 0], to: [foot * 1.1, 0] },
     { kind: 'text', at: [foot, h * 1.15], text: 'Wall', name: true, dx: 6, dy: -6 },
   ] })
+  // A tall, thin picture: a thin margin lets it fill the height (Sunny, 17 Oct: diagrams drawn too small).
+  f.figure!.pad = 16
+  return f
 }
 {
   // Your Turn Q5: a 2.9 m ladder, its foot 1.3 m from the wall.
