@@ -119,6 +119,18 @@ assert.equal(tier.lessonParam(212.5), 'GM12H')
 assert.equal(tier.lessonParam(215.5), 'GM15H')
 assert.equal(tier.parseLessonParam('gm15h', 'higher'), 215.5)
 assert.equal(tier.parseLessonParam('GM12H', 'foundation'), null, 'GM12H does not open on Foundation')
+// Pages 258 to 287: 14H Box plots and 14H2 Cumulative frequency after Estimating the mean, and 15H Histograms after
+// Bar charts (P14H, P14H2 and P15H). The Foundation statistics lessons get no Higher sections.
+const probability = tier.mathsChaptersForTier('higher').find(chapter => chapter.id === 'probability')
+const probabilityIds = probability.lessons.map(entry => entry.lessonId)
+for (const [after, id, label, number, address] of [['L314', 'L314H', '14H', 314.5, 'P14H'], ['L314H', 'L314H2', '14H2', 314.6, 'P14H2'], ['L315', 'L315H', '15H', 315.5, 'P15H']]) {
+  assert.equal(probabilityIds[probabilityIds.indexOf(after) + 1], id, `${id} follows ${after}`)
+  assert.equal(probability.lessons.find(entry => entry.lessonId === id).label, label)
+  assert.equal(tier.lessonParam(number), address)
+  assert.equal(tier.parseLessonParam(address.toLowerCase(), 'higher'), number)
+  assert.equal(tier.parseLessonParam(address, 'foundation'), null, `${address} does not open on Foundation`)
+}
+assert.equal(probabilityIds[probabilityIds.indexOf('L314H2') + 1], 'L315', 'Bar charts follows 14H2')
 
 let screens = 0
 const problems = []
