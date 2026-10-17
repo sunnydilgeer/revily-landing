@@ -79,37 +79,45 @@ const trig = (pts: Tri, at: number, mark: string, list: (TriSide | undefined)[],
   worked(length, 'Find the length of the side marked y, to 1 decimal place.', 'A missing length', 'T2 p158 Example 1 (book’s numbers)', boardModel([], [
     { title: 'Label the sides', say: 'From the 38°: 12 is opposite the right angle, the hypotenuse. y is next to the angle, the adjacent.', rows: ['>0 H = 12, A = y: CAH'], picture: t({ label: 'y (A)', tone: 'lit' }, { label: '12 (H)', tone: 'lit' }) },
     { title: 'Write the equation', say: 'cos = adjacent ÷ hypotenuse.', rows: ['cos 38° = {y|12}'], picture: t({ label: 'y', tone: 'x' }) },
-    { title: 'Times both sides', say: 'Multiply both sides by 12, then use the calculator.', rows: ['y = 12 × cos 38°', 'y = 9.4561…', '! y = 9.5 cm'], picture: t({ label: '9.5 cm', tone: 'found' }, undefined, 'y = 9.5 cm') },
+    { title: 'Times both sides', say: 'y is divided by 12, so multiply both sides by 12 to get y on its own.', rows: ['y = 12 × cos 38°'], picture: t({ label: 'y', tone: 'x' }) },
+    { title: 'Find cos 38° on the calculator', say: 'Press cos, then 38, then equals. cos 38° is 0.7880…, a number less than 1. Keep every digit, then times by 12.', rows: ['cos 38° = 0.7880…', 'y = 12 × 0.7880…', 'y = 9.4561…', '! y = 9.5 cm'], picture: t({ label: '9.5 cm', tone: 'found' }, undefined, 'y = 9.5 cm') },
+    { title: 'Check it makes sense', say: 'y is shorter than the hypotenuse, 12 cm, as every other side must be.', rows: ['>0 9.5 < 12 ✓'], picture: t({ label: '9.5 cm', tone: 'found' }, undefined, 'y = 9.5 cm') },
   ], 'Find y', p), 'To find a side: label the sides from the angle, pick the ratio that uses the side you know and the side you want, write the equation, then rearrange. If the unknown is on top, multiply.')
 }
 {
   // The hypotenuse 9 cm, the angle 25°, x opposite.
   const pts: Tri = [[9 * Math.cos(rad(25)), 0], [9 * Math.cos(rad(25)), 9 * Math.sin(rad(25))], [0, 0]]
-  const t = (x: TriSide, caption?: string) => trig(pts, 2, '25°', [x, { label: '9 cm' }], 'A right-angled triangle: the hypotenuse 9 cm, the angle 25°, and x the side opposite it.', { caption })
+  const t = (x: TriSide, caption?: string, h: TriSide = { label: '9 cm' }) => trig(pts, 2, '25°', [x, h], 'A right-angled triangle: the hypotenuse 9 cm, the angle 25°, and x the side opposite it.', { caption })
   const p = t({ label: 'x', tone: 'x' })
   practice(length, 'Find the length of the side marked x, to 1 decimal place.', 'T2 p158 (own numbers)', p, number(3.8, '3.8 cm'), 'x is opposite the angle; 9 is the hypotenuse. SOH.', boardModel([], [
-    { title: 'Pick the ratio', say: 'O = x and H = 9: SOH, sin.', rows: ['sin 25° = {x|9}'], picture: t({ label: 'x (O)', tone: 'lit' }) },
+    { title: 'Label the sides', say: 'Stand at the 25°. 9 is opposite the right angle: the hypotenuse, H. x is across from the 25°: the opposite, O.', rows: ['>0 H = 9, O = x'], picture: t({ label: 'x (O)', tone: 'lit' }, undefined, { label: '9 (H)', tone: 'lit' }) },
+    { title: 'Pick the ratio', say: 'You know H and want O. Look for O and H together in SOH CAH TOA: SOH. S means sin.', rows: ['>0 O and H: SOH, so use sin'], picture: t({ label: 'x (O)', tone: 'lit' }, undefined, { label: '9 (H)', tone: 'lit' }) },
+    { title: 'Write the equation', say: 'sin = opposite ÷ hypotenuse.', rows: ['sin 25° = {x|9}'], picture: t({ label: 'x', tone: 'x' }) },
     { title: 'Times both sides', say: 'Multiply by 9.', rows: ['x = 9 × sin 25° = 3.803…', '! x = 3.8 cm'], picture: t({ label: '3.8 cm', tone: 'found' }, 'x = 3.8 cm') },
   ], 'Find x', p), slips(3.8, [[dp(9 * Math.cos(rad(25))), 'That’s cos. x is opposite the angle: use sin.'], [dp(9 * Math.tan(rad(25))), 'tan needs the adjacent. Here you know the hypotenuse: sin.'], [dp(9 / Math.sin(rad(25))), 'x is on top of the fraction, so multiply by 9, don’t divide.']]), L_BOX('x'))
 }
 {
   // The adjacent 6 cm, the angle 50°, x opposite.
   const pts: Tri = [[6, 0], [6, 6 * Math.tan(rad(50))], [0, 0]]
-  const t = (x: TriSide, caption?: string) => trig(pts, 2, '50°', [x, undefined, { label: '6 cm' }], 'A right-angled triangle: the side next to the 50° angle is 6 cm, and x is opposite it.', { caption })
+  const t = (x: TriSide, caption?: string, a: TriSide = { label: '6 cm' }) => trig(pts, 2, '50°', [x, undefined, a], 'A right-angled triangle: the side next to the 50° angle is 6 cm, and x is opposite it.', { caption })
   const p = t({ label: 'x', tone: 'x' })
   practice(length, 'Find the length of the side marked x, to 1 decimal place.', 'T2 p158 (own numbers)', p, number(7.2, '7.2 cm'), 'Opposite and adjacent: TOA.', boardModel([], [
-    { title: 'Pick the ratio', say: 'O = x and A = 6: TOA, tan.', rows: ['tan 50° = {x|6}'], picture: t({ label: 'x (O)', tone: 'lit' }) },
+    { title: 'Label the sides', say: 'Stand at the 50°. x is across from it: the opposite, O. 6 is next to it and isn’t the hypotenuse: the adjacent, A.', rows: ['>0 O = x, A = 6'], picture: t({ label: 'x (O)', tone: 'lit' }, undefined, { label: '6 (A)', tone: 'lit' }) },
+    { title: 'Pick the ratio', say: 'You know A and want O. O and A are together in TOA. T means tan.', rows: ['>0 O and A: TOA, so use tan'], picture: t({ label: 'x (O)', tone: 'lit' }, undefined, { label: '6 (A)', tone: 'lit' }) },
+    { title: 'Write the equation', say: 'tan = opposite ÷ adjacent.', rows: ['tan 50° = {x|6}'], picture: t({ label: 'x', tone: 'x' }) },
     { title: 'Times both sides', say: 'Multiply by 6.', rows: ['x = 6 × tan 50° = 7.150…', '! x = 7.2 cm'], picture: t({ label: '7.2 cm', tone: 'found' }, 'x = 7.2 cm') },
   ], 'Find x', p), slips(7.2, [[dp(6 * Math.sin(rad(50))), 'sin needs the hypotenuse. You know the adjacent: tan.'], [dp(6 * Math.cos(rad(50))), 'cos needs the hypotenuse. You know the adjacent: tan.'], [dp(6 / Math.tan(rad(50))), 'x is on top, so multiply by 6, don’t divide.']]), L_BOX('x'))
 }
 {
   // Your Turn Q1: the 43° angle, the adjacent 35 m, p the hypotenuse.
   const pts: Tri = [[0, 0], [35, 0], [0, 35 * Math.tan(rad(43))]]
-  const t = (pp: TriSide, caption?: string) => trig(pts, 1, '43°', [{ label: '35 m' }, pp], 'A right-angled triangle: the side next to the 43° angle is 35 m, and p is the hypotenuse.', { caption })
+  const t = (pp: TriSide, caption?: string, a: TriSide = { label: '35 m' }) => trig(pts, 1, '43°', [a, pp], 'A right-angled triangle: the side next to the 43° angle is 35 m, and p is the hypotenuse.', { caption })
   const p = t({ label: 'p', tone: 'x' })
   const exactP = 35 / Math.cos(rad(43))
   practice(length, 'Find the length of the side marked p, to 3 significant figures.', 'T2 Your Turn Q1 (book’s numbers)', p, number(47.9, '47.9 m'), 'A = 35 and H = p: CAH. p ends up on the bottom, so divide.', boardModel([], [
-    { title: 'Pick the ratio', say: 'A = 35 and H = p: CAH, cos.', rows: ['cos 43° = {35|p}'], picture: t({ label: 'p (H)', tone: 'lit' }) },
+    { title: 'Label the sides', say: 'Stand at the 43°. p is opposite the right angle: the hypotenuse, H. 35 is next to the 43°: the adjacent, A.', rows: ['>0 A = 35, H = p'], picture: t({ label: 'p (H)', tone: 'lit' }, undefined, { label: '35 (A)', tone: 'lit' }) },
+    { title: 'Pick the ratio', say: 'You know A and want H. A and H are together in CAH. C means cos.', rows: ['>0 A and H: CAH, so use cos'], picture: t({ label: 'p (H)', tone: 'lit' }, undefined, { label: '35 (A)', tone: 'lit' }) },
+    { title: 'Write the equation', say: 'cos = adjacent ÷ hypotenuse.', rows: ['cos 43° = {35|p}'], picture: t({ label: 'p', tone: 'x' }) },
     { title: 'p on the bottom', say: 'Times both sides by p, then divide by cos 43°.', rows: ['p × cos 43° = 35', 'p = {35|cos 43°} = 47.857…', '! p = 47.9 m'], picture: t({ label: '47.9 m', tone: 'found' }, 'p = 47.9 m') },
   ], 'Find p', p), slips(47.9, [[sf(35 * Math.cos(rad(43))), 'p is the hypotenuse, on the bottom of the fraction. Divide 35 by cos 43°.'], [sf(35 / Math.sin(rad(43))), 'sin needs the opposite. 35 is next to the angle: cos.'], [dp(exactP, 2), 'Round to 3 significant figures: 47.9.'], [48, 'That’s 2 significant figures. Three: 47.9.']]), L_BOX('p', 'm'))
 }
@@ -131,8 +139,8 @@ const trig = (pts: Tri, at: number, mark: string, list: (TriSide | undefined)[],
 
 {
   // Example 2: the opposite 5 mm, the adjacent 8 mm, the angle z at the top.
-  const pts: Tri = [[0, 0], [0, 8], [5, 0]]
-  const t = (z: string, s: (TriSide | undefined)[], tone?: FigureTone, caption?: string) => trig(pts, 1, z, s, 'A right-angled triangle: the angle z at the top, 8 mm next to it and 5 mm opposite it.', { caption, tone })
+  const pts: Tri = [[0, 0], [8, 0], [0, 5]]
+  const t = (z: string, s: (TriSide | undefined)[], tone?: FigureTone, caption?: string) => trig(pts, 1, z, s, 'A right-angled triangle: the angle z at the right, 8 mm next to it and 5 mm opposite it.', { caption, tone })
   const given: (TriSide | undefined)[] = [{ label: '8 mm' }, undefined, { label: '5 mm' }]
   const p = t('z', given, 'x')
   worked(angle, 'Find the size of the angle z, to 2 significant figures.', 'A missing angle', 'T2 p159 Example 2 (book’s numbers)', boardModel([], [
@@ -146,16 +154,17 @@ for (const q of [
   { ref: 'T2 Your Turn Q2 (book’s numbers)', letter: 'q', o: 13, a: 0, h: 15, fn: 'sin', right: 60.1 },
   { ref: 'T2 Your Turn Q5 (book’s numbers)', letter: 'x', o: 4, a: 7, h: 0, fn: 'tan', right: 29.7 },
 ] as const) {
-  // The angle at the bottom left, or at A on top for Q5 (AB = 7 up, BC = 4 across, the right angle at B).
+  // The angle at the bottom left, or on top (Q5: AB = 7 up, BC = 4 across, the right angle at B).
   const adj = q.a || Math.sqrt(q.h ** 2 - q.o ** 2), opp = q.o || Math.sqrt(q.h ** 2 - q.a ** 2)
-  const top = q.fn === 'tan'
+  // Lie the triangle on its longer leg so it fills the picture: the angle goes on top when the opposite is the longer.
+  const top = q.fn === 'tan' || opp > adj
   const pts: Tri = top ? [[0, 0], [opp, 0], [0, adj]] : [[adj, 0], [adj, opp], [0, 0]]
   const label = (n: number, unit = ' cm') => `${n}${unit}`
   const s = (tone?: FigureTone, mark = false): (TriSide | undefined)[] => {
     const O = q.o ? { label: mark ? `${q.o} (O)` : label(q.o), tone } : undefined
     const A = q.a ? { label: mark ? `${q.a} (A)` : label(q.a), tone } : undefined
     const H = q.h ? { label: mark ? `${q.h} (H)` : label(q.h), tone } : undefined
-    return top ? [O, undefined, A] : [O, H, A]
+    return [O, H, A]
   }
   const t = (m: string, list: (TriSide | undefined)[], tone?: FigureTone, caption?: string) => trig(pts, 2, m, list, `A right-angled triangle with the angle ${q.letter} marked and two sides given.`, { tone, caption })
   const p = t(q.letter, s(), 'x')
@@ -164,7 +173,8 @@ for (const q of [
   const value = deg(q.fn === 'sin' ? Math.asin(n1 / n2) : q.fn === 'cos' ? Math.acos(n1 / n2) : Math.atan(n1 / n2))
   const others = (['sin', 'cos', 'tan'] as const).filter(f => f !== q.fn).map(f => [dp(deg(f === 'sin' ? Math.asin(Math.min(1, n1 / n2)) : f === 'cos' ? Math.acos(Math.min(1, n1 / n2)) : Math.atan(n1 / n2))), `You have ${k1} and ${k2}: that’s ${q.fn === 'sin' ? 'SOH, sin' : q.fn === 'cos' ? 'CAH, cos' : 'TOA, tan'}.`] as [number, string])
   practice(angle, `Find the size of the angle marked ${q.letter}, to 1 decimal place.`, q.ref, p, number(q.right, `${q.right}°`), `Which two sides do you know, from ${q.letter}? Then use ${q.fn}⁻¹.`, boardModel([], [
-    { title: 'Pick the ratio', say: `From ${q.letter}: ${k1} = ${n1} and ${k2} = ${n2}. That’s ${q.fn === 'sin' ? 'SOH' : q.fn === 'cos' ? 'CAH' : 'TOA'}.`, rows: [`${q.fn} ${q.letter} = {${n1}|${n2}}`], picture: t(q.letter, s('lit', true), 'lit') },
+    { title: 'Label the sides', say: `Stand at the angle ${q.letter}. The side opposite the right angle is H, the side across from ${q.letter} is O, and the side next to it is A.`, rows: [`>0 ${k1} = ${n1}, ${k2} = ${n2}`], picture: t(q.letter, s('lit', true), 'x') },
+    { title: 'Pick the ratio', say: `You know ${k1} and ${k2}. They are together in ${q.fn === 'sin' ? 'SOH, so use sin' : q.fn === 'cos' ? 'CAH, so use cos' : 'TOA, so use tan'}.`, rows: [`>0 ${k1} and ${k2}: ${q.fn === 'sin' ? 'SOH' : q.fn === 'cos' ? 'CAH' : 'TOA'}, so use ${q.fn}`, `${q.fn} ${q.letter} = {${n1}|${n2}}`], picture: t(q.letter, s('lit', true), 'lit') },
     { title: `Inverse ${q.fn}`, say: `Undo ${q.fn} with ${q.fn}⁻¹, then round to 1 decimal place.`, rows: [`${q.letter} = ${q.fn}⁻¹ (${n1} ÷ ${n2}) = ${value.toFixed(3)}…`, `! ${q.letter} = ${q.right}°`], picture: t(`${q.right}°`, s(), 'found', `${q.letter} = ${q.right}°`) },
   ], `Find ${q.letter}`, p), slips(q.right, [...others, [dp(n1 / n2, 3), `That’s ${q.fn} ${q.letter}. Use ${q.fn}⁻¹ to get the angle.`]]), A_BOX(q.letter))
 }
@@ -174,10 +184,11 @@ for (const q of [
 {
   // Example 3: the hypotenuse 10 cm, the angle 30°, y the adjacent.
   const pts: Tri = [[0, 0], [10 * Math.cos(rad(30)), 0], [0, 5]]
-  const t = (y: TriSide, caption?: string) => trig(pts, 1, '30°', [y, { label: '10 cm' }], 'A right-angled triangle: the hypotenuse 10 cm, the angle 30°, and y the side next to it.', { caption })
+  const t = (y: TriSide, caption?: string, h: TriSide = { label: '10 cm' }) => trig(pts, 1, '30°', [y, h], 'A right-angled triangle: the hypotenuse 10 cm, the angle 30°, and y the side next to it.', { caption })
   const p = t({ label: 'y', tone: 'x' })
   worked(exact, 'Find the exact value of y.', 'Exact values', 'T2 p159 Example 3 (book’s numbers)', boardModel([], [
-    { title: 'Pick the ratio', say: 'H = 10 and A = y: CAH.', rows: ['cos 30° = {y|10}'], picture: t({ label: 'y (A)', tone: 'lit' }) },
+    { title: 'Label the sides', say: 'Stand at the 30°. 10 is opposite the right angle: the hypotenuse, H. y is next to the 30°: the adjacent, A.', rows: ['>0 H = 10, A = y'], picture: t({ label: 'y (A)', tone: 'lit' }, undefined, { label: '10 (H)', tone: 'lit' }) },
+    { title: 'Pick the ratio', say: 'A and H are together in CAH. C means cos.', rows: ['>0 A and H: CAH, so use cos', 'cos 30° = {y|10}'], picture: t({ label: 'y (A)', tone: 'lit' }, undefined, { label: '10 (H)', tone: 'lit' }) },
     { title: 'Use the exact value', say: 'Learn the table: cos 30° is exactly √3 over 2. Put that in, with no calculator.', rows: ['{√3|2} = {y|10}'], picture: t({ label: 'y', tone: 'x' }) },
     { title: 'Times both sides', say: 'Multiply by 10: 10 halves is 5.', rows: ['y = 10 × {√3|2}', '! y = 5√3 cm'], picture: t({ label: '5√3 cm', tone: 'found' }, 'y = 5√3 cm') },
   ], 'Find y', p), 'Learn these exact values. sin 0°, 30°, 45°, 60°, 90° are 0, 1/2, 1/√2, √3/2, 1. cos runs the same list backwards. tan 0°, 30°, 45°, 60° are 0, 1/√3, 1, √3, and tan 90° has no value.')
@@ -198,7 +209,8 @@ for (const q of [
   const t = (cb: TriSide, caption?: string) => trig(pts, 1, '30°', [undefined, { label: '12 cm' }, cb], 'A right-angled triangle ABC: the right angle at C, 30° at A, AB is 12 cm and CB is missing.', { names, caption })
   const p = t({ label: '?', tone: 'x' })
   practice(exact, 'ABC is a right-angled triangle. Find the length of CB.', 'T2 Your Turn Q4 (book’s numbers)', p, number(6, '6 cm'), 'CB is opposite the 30°. sin 30° is exactly a half.', boardModel([], [
-    { title: 'Pick the ratio', say: 'From the 30°: CB is opposite and AB = 12 is the hypotenuse. SOH.', rows: ['sin 30° = {CB|12}'], picture: t({ label: 'CB (O)', tone: 'lit' }) },
+    { title: 'Label the sides', say: 'Stand at the 30°. AB = 12 is opposite the right angle: the hypotenuse, H. CB is across from the 30°: the opposite, O.', rows: ['>0 H = 12, O = CB'], picture: t({ label: 'CB (O)', tone: 'lit' }) },
+    { title: 'Pick the ratio', say: 'O and H are together in SOH. S means sin.', rows: ['>0 O and H: SOH, so use sin', 'sin 30° = {CB|12}'], picture: t({ label: 'CB (O)', tone: 'lit' }) },
     { title: 'Use the exact value', say: 'sin 30° = 1/2, so CB is half of 12.', rows: ['CB = 12 × sin 30°', 'CB = 12 × {1|2}', '! CB = 6 cm'], picture: t({ label: '6 cm', tone: 'found' }, 'CB = 6 cm') },
   ], 'Find CB', p), slips(6, [[dp(12 * Math.cos(rad(30))), 'That’s cos. CB is opposite the 30°: sin.'], [24, 'Multiply by a half, don’t divide by it.'], [360, 'Use sin 30°, not 30.']]), L_BOX('CB'))
 }
@@ -217,7 +229,8 @@ for (const q of [
   const t = (mark: string, tone?: FigureTone, caption?: string) => trig(pts, 2, mark, [{ label: '7 cm', tone: tone ? 'lit' : undefined }, { label: '12 cm', tone: tone ? 'lit' : undefined }], 'A right-angled triangle: the angle x, 7 cm opposite it and a hypotenuse of 12 cm.', { tone, caption })
   const p = t('x')
   practice('mixed', 'Find the angle x, to 1 decimal place.', 'T2 review (own numbers)', p, number(35.7, '35.7°'), 'You have O and H: SOH.', boardModel([], [
-    { title: 'Opposite and hypotenuse', say: 'O and H are in SOH.', rows: ['sin x = {7|12}'], picture: t('x', 'lit') },
+    { title: 'Label the sides', say: 'Stand at x. 12 is opposite the right angle: the hypotenuse, H. 7 is across from x: the opposite, O.', rows: ['>0 O = 7, H = 12'], picture: t('x', 'lit') },
+    { title: 'Pick the ratio', say: 'O and H are together in SOH. S means sin.', rows: ['>0 O and H: SOH, so use sin', 'sin x = {7|12}'], picture: t('x', 'lit') },
     { title: 'Inverse sin', say: 'Use sin⁻¹ on your calculator, then round.', rows: ['x = sin⁻¹({7|12}) = 35.68…', '! x = 35.7°'], picture: t('35.7°', 'found', 'x = 35.7°') },
   ], 'Find x', p), slips(35.7, [[0.6, 'That’s sin x. Use sin⁻¹ to get the angle.'], [54.3, 'That’s the other angle. 7 cm is opposite x, so use sin.']]), A_BOX('x'))
 }
@@ -226,7 +239,8 @@ for (const q of [
   const t = (y: TriSide, caption?: string) => trig(pts, 2, '40°', [y, undefined, { label: '10 cm' }], 'A right-angled triangle: the angle 40°, 10 cm next to it, and y opposite it.', { caption })
   const p = t({ label: 'y', tone: 'x' })
   practice('mixed', 'Find y, to 1 decimal place.', 'T2 review (own numbers)', p, number(8.4, '8.4 cm'), 'You have A and want O: TOA.', boardModel([], [
-    { title: 'Adjacent and opposite', say: 'A and O are in TOA: tan 40° = y ÷ 10.', rows: ['tan 40° = {y|10}'], picture: t({ label: 'y', tone: 'lit' }) },
+    { title: 'Label the sides', say: 'Stand at the 40°. y is across from it: the opposite, O. 10 is next to it: the adjacent, A.', rows: ['>0 O = y, A = 10'], picture: t({ label: 'y (O)', tone: 'lit' }) },
+    { title: 'Pick the ratio', say: 'O and A are together in TOA. T means tan.', rows: ['>0 O and A: TOA, so use tan', 'tan 40° = {y|10}'], picture: t({ label: 'y', tone: 'lit' }) },
     { title: 'Multiply out', say: 'Times both sides by 10.', rows: ['y = 10 × tan 40° = 8.39…', '! y = 8.4 cm'], picture: t({ label: '8.4 cm', tone: 'found' }, 'y = 8.4 cm') },
   ], 'Find y', p), slips(8.4, [[11.9, 'That’s 10 ÷ tan 40°. Opposite = tan × adjacent.'], [6.4, 'That’s sin. You have the adjacent and want the opposite: tan.']]), L_BOX('y'))
 }
@@ -241,6 +255,7 @@ add('mixed', 'Trigonometry', 'T2 consolidation', text(
 export const tutorTrigonometryLesson: TutorMethodLesson = {
   id: 'L220', number: 220, title: 'Trigonometry', level: 'GCSE Foundation',
   steadyPictures: true,
+  largePictures: true,
   goal: 'Label the sides of a right-angled triangle, use SOHCAHTOA to find a missing side or angle, and know the exact values.',
   labels: { [sides]: 'Naming the sides', [length]: 'A missing length', [angle]: 'A missing angle', [exact]: 'Exact values', mixed: 'Review' },
   states: finish(),
